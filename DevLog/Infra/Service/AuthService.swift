@@ -13,7 +13,6 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 import GoogleSignIn
-import SwiftUI
 
 final class AuthService {
     private let store = Firestore.firestore()

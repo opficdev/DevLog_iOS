@@ -16,8 +16,6 @@ class AppleSignInService {
     private var appleSignInDelegate: AppleSignInDelegate?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
-    
-    // 아래 변수들은 서비스 내에서만 사용할 뿐 뷰, 뷰모델 혹은 타 서비스에서 접근하는 용도가 아님
     private var user: User? { Auth.auth().currentUser }
     private var userId: String? { user?.uid }
     private var userEmail: String? { user?.email }
