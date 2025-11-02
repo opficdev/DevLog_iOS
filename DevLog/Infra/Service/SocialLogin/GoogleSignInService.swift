@@ -7,17 +7,15 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
-class GoogleSignInService {
+class GoogleSignInService: SignInServicing {
     private let store = Firestore.firestore()
-    
-    private var user: User? { Auth.auth().currentUser }
-    private var userId: String? { user?.uid }
-    private var userEmail: String? { user?.email }
-    
-    func signInWithGoogle() async throws -> User {
+    private let messaging = Messaging.messaging()
+
+    func signIn() async throws -> AuthenticationData {
         guard let topVC = topViewController() else {
             throw URLError(.cannotFindHost)
         }
@@ -40,37 +38,10 @@ class GoogleSignInService {
             
             try await changeRequest.commitChanges()
         }
-        
-        return result.user
-    }
-    
-    func linkWithGoogle() async throws {
-        guard let user = Auth.auth().currentUser, let topVC = topViewController() else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        
-        if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-            GIDSignIn.sharedInstance.signOut()
-        }
-        
-        let gidSignIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-        
-        guard let googleEmail = gidSignIn.user.profile?.email else {
-            throw EmailFetchError.emailNotFound
-        }
-        
-        if googleEmail != self.userEmail {
-            throw EmailFetchError.emailMismatch
-        }
-        
-        guard let idToken = gidSignIn.user.idToken?.tokenString else {
-            throw URLError(.badServerResponse)
-        }
-        
-        let accessToken = gidSignIn.user.accessToken.tokenString
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        
-        try await user.link(with: credential)
+
+        let fcmToken = try await messaging.token()
+
+        return result.user.toData(providerID: .google, fcmToken: fcmToken)
     }
 }
 

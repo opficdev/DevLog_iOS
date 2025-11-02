@@ -10,17 +10,16 @@ import CryptoKit
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import FirebaseMessaging
 import Foundation
 
-class AppleSignInService {
+class AppleSignInService: SignInServicing {
     private var appleSignInDelegate: AppleSignInDelegate?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
-    private var user: User? { Auth.auth().currentUser }
-    private var userId: String? { user?.uid }
-    private var userEmail: String? { user?.email }
-    
-    func signInWithApple() async throws -> User {
+    private let messaging = Messaging.messaging()
+
+    func signIn() async throws -> AuthenticationData {
         let response = try await authenticateWithAppleAsync()
         
         let nonce = response.nonce
@@ -71,7 +70,9 @@ class AppleSignInService {
             try await result.user.link(with: appleCredential)
         }
 
-        return result.user
+        let fcmToken = try await messaging.token()
+
+        return result.user.toData(providerID: .apple, fcmToken: fcmToken)
     }
     
     // Apple 인증 메서드
@@ -112,7 +113,7 @@ class AppleSignInService {
     }
     
     // Apple CustomToken 발급 메서드
-    func requestAppleCustomToken(idToken: String, authorizationCode: Data) async throws -> String {
+    private func requestAppleCustomToken(idToken: String, authorizationCode: Data) async throws -> String {
         guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.badServerResponse)
         }
@@ -128,11 +129,23 @@ class AppleSignInService {
         }
         throw URLError(.badServerResponse)
     }
-    
+
+    // Apple AceessToken 재발급 메서드
+    private func refreshAppleAccessToken() async throws -> String {
+        let refreshFunction = functions.httpsCallable("refreshAppleAccessToken")
+        let result = try await refreshFunction.call()
+
+        guard let data = result.data as? [String: Any],
+              let accessToken = data["token"] as? String else {
+            throw URLError(.cannotParseResponse)
+        }
+
+        return accessToken
+    }
+
     // Apple RefreshToken 발급 메서드
-    func requestAppleRefreshToken(authorizationCode: Data) async throws -> String {
-        guard let userId = self.userId,
-              let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
+    func requestAppleRefreshToken(userId: String, authorizationCode: Data) async throws -> String {
+        guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.userAuthenticationRequired)
         }
         
@@ -151,66 +164,10 @@ class AppleSignInService {
         throw URLError(.badServerResponse)
     }
     
-    // Apple AceessToken 재발급 메서드
-    func refreshAppleAccessToken() async throws -> String {
-        guard self.user != nil else {
-            throw URLError(.userAuthenticationRequired)
-        }
-    
-        let refreshFunction = functions.httpsCallable("refreshAppleAccessToken")
-        let result = try await refreshFunction.call()
-        
-        guard let data = result.data as? [String: Any],
-              let accessToken = data["token"] as? String else {
-            throw URLError(.cannotParseResponse)
-        }
-        
-        return accessToken
-    }
-    
     // Apple AccessToken 취소 메서드
     func revokeAppleAccessToken(token: String) async throws {
-        guard self.user != nil else {
-            throw URLError(.userAuthenticationRequired)
-        }
-       
         let revokeFunction = functions.httpsCallable("revokeAppleAccessToken")
         
         _ = try await revokeFunction.call(["token": token])
-    }
-
-    // FirebaseAuth 사용자와 Apple 연결
-    func linkWithApple() async throws {
-        guard let user = self.user else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        
-        let response = try await authenticateWithAppleAsync()
-        
-        let nonce = response.nonce
-        let credential = response.credential
-        let authorizationCode = response.authorizationCode
-        let idTokenString = response.idTokenString
-
-        // Firebase Function을 통해 appleRefreshToken 생성
-        let refreshToken = try await requestAppleRefreshToken(authorizationCode: authorizationCode)
-        
-        guard let appleEmail = credential.email else {
-            try await revokeAppleAccessToken(token: refreshToken)
-            throw EmailFetchError.emailNotFound
-        }
-        
-        if appleEmail != self.userEmail {
-            try await revokeAppleAccessToken(token: refreshToken)
-            throw EmailFetchError.emailMismatch
-        }
-        
-        let appleCredential = OAuthProvider.credential(
-            providerID: AuthProviderID.apple,
-            idToken: idTokenString,
-            rawNonce: nonce
-        )
-        
-        try await user.link(with: appleCredential)
     }
 }

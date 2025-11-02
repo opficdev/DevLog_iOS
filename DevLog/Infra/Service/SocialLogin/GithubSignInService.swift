@@ -10,16 +10,14 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import FirebaseMessaging
 
-class GithubSignInService: NSObject {
+class GithubSignInService: NSObject, SignInServicing {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
-    
-    private var user: User? { Auth.auth().currentUser }
-    private var userId: String? { user?.uid }
-    private var userEmail: String? { user?.email }
-    
-    func signInWithGithub() async throws -> (User, String) {
+    private let messaging = Messaging.messaging()
+
+    func signIn() async throws -> AuthenticationData {
         // 1. GitHub OAuth 로그인 요청
         let authorizationCode = try await requestGithubAuthorizationCode()
         
@@ -44,8 +42,14 @@ class GithubSignInService: NSObject {
             let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
             try await result.user.link(with: credential)
         }
-        
-        return (result.user, accessToken)
+
+        let fcmToken = try await messaging.token()
+
+        return result.user.toData(
+            providerID: .gitHub,
+            fcmToken: fcmToken,
+            accessToken: accessToken
+        )
     }
     
     func requestGithubAuthorizationCode() async throws -> String {
@@ -121,10 +125,6 @@ class GithubSignInService: NSObject {
     }
     
     func revokeGitHubAccessToken(accessToken: String? = nil) async throws {
-        guard self.user != nil else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        
         var param: [String: Any] = [:]
         
         if let accessToken = accessToken {
@@ -153,32 +153,6 @@ class GithubSignInService: NSObject {
         let decoder = JSONDecoder()
         return try decoder.decode(GitHubUser.self, from: data)
     }
-    
-    func linkWithGithub() async throws {
-        guard let user = self.user, let userId = self.userId else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        let tokensRef = store.document("users/\(userId)/userData/tokens")
-        let authorizationCode = try await requestGithubAuthorizationCode()
-        let (accessToken, _) = try await requestGithubTokens(authorizationCode: authorizationCode)
-        
-        let githubUser = try await requestGitHubUserProfile(accessToken: accessToken)
-        
-        guard let githubEmail = githubUser.email else {
-            try await revokeGitHubAccessToken(accessToken: accessToken)
-            throw EmailFetchError.emailNotFound
-        }
-        
-        if githubEmail != self.userEmail {
-            try await revokeGitHubAccessToken(accessToken: accessToken)
-            throw EmailFetchError.emailMismatch
-        }
-        
-        try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
-        
-        let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
-        try await user.link(with: credential)
-    }
 }
 
 extension GithubSignInService: ASWebAuthenticationPresentationContextProviding {
@@ -190,4 +164,19 @@ extension GithubSignInService: ASWebAuthenticationPresentationContextProviding {
         }
         return window
     }
+
+    struct GitHubUser: Codable {
+        let login: String
+        let name: String?
+        let avatarUrl: String?
+        let email: String?
+
+        enum CodingKeys: String, CodingKey {
+            case login
+            case name
+            case avatarUrl = "avatar_url"
+            case email
+        }
+    }
+
 }
