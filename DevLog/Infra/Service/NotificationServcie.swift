@@ -9,7 +9,6 @@ import Foundation
 import Combine
 import FirebaseFirestore
 
-@MainActor
 final class NotificationService: ObservableObject {
     private let store = Firestore.firestore()
     

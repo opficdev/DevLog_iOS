@@ -10,7 +10,6 @@ import FirebaseFirestore
 import Foundation
 import GoogleSignIn
 
-@MainActor
 class GoogleSignInService {
     private let store = Firestore.firestore()
     

@@ -7,8 +7,7 @@
 
 import Foundation
 
-@MainActor
-final class AppContainer: ObservableObject {
+final class AppContainer {
     static let shared = AppContainer()
     private init() {}
 
