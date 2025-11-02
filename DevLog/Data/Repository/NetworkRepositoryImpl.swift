@@ -6,26 +6,19 @@
 //
 
 import Foundation
-import Combine
 import Network
 
 final class NetworkRepositoryImpl: NetworkRepository {
     private let networkPathMonitor = NWPathMonitor()
     private let networkMonitorQueue = DispatchQueue(label: "NetworkMonitor")
-    private let isConnectedCurrentValueSubject: CurrentValueSubject<Bool, Never>
-    
-    var isConnectedPublisher: AnyPublisher<Bool, Never> {
-        isConnectedCurrentValueSubject.eraseToAnyPublisher()
-    }
     
     init() {
         let initialIsConnected = networkPathMonitor.currentPath.status == .satisfied
-        self.isConnectedCurrentValueSubject = CurrentValueSubject<Bool, Never>(initialIsConnected)
         
         networkPathMonitor.pathUpdateHandler = { [weak self] path in
             let isConnected = (path.status == .satisfied)
             DispatchQueue.main.async {
-                self?.isConnectedCurrentValueSubject.value = isConnected
+
             }
         }
         
