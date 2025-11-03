@@ -1,5 +1,5 @@
 //
-//  AppleSignInService.swift
+//  AppleAuthenticationService.swift
 //  DevLog
 //
 //  Created by opfic on 6/4/25.
@@ -13,7 +13,7 @@ import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 
-class AppleSignInService: SignInServicing {
+final class AppleAuthenticationService: AuthenticationServicing {
     private var appleSignInDelegate: AppleSignInDelegate?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
@@ -74,7 +74,33 @@ class AppleSignInService: SignInServicing {
 
         return result.user.toData(providerID: .apple, fcmToken: fcmToken)
     }
-    
+
+    func signOut(_ uid: String) async throws {
+        let infoRef = store.document("users/\(uid)/userData/tokens")
+        let doc = try await infoRef.getDocument()
+
+        if doc.exists {
+            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+        }
+
+        try await messaging.deleteToken()
+
+        try Auth.auth().signOut()
+    }
+
+    func deleteAuth(_ uid: String) async throws {
+        let token = try await refreshAppleAccessToken()
+
+        try await revokeAppleAccessToken(token: token)
+
+        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
+
+        _ = try await deleteFunction.call(["uid": uid])
+
+        try await signOut(uid)
+        try await Auth.auth().currentUser?.delete()
+    }
+
     // Apple 인증 메서드
     @MainActor
     func authenticateWithAppleAsync() async throws -> AppleAuthResponse {

@@ -1,8 +1,7 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
-
-export const deleteAllUserFirestoreData = onCall(
+export const deleteUserFirestoreData = onCall(
   {
     cors: true,
     maxInstances: 10,
@@ -10,11 +9,11 @@ export const deleteAllUserFirestoreData = onCall(
   },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "로그인 필요");
-    const userId = request.data.userId;
-    if (!userId) throw new HttpsError("invalid-argument", "userId 필요");
+    const uid = request.data.uid;
+    if (!uid) throw new HttpsError("invalid-argument", "uid 필요");
 
     try {
-      const userDocRef = admin.firestore().doc(`users/${userId}`);
+      const userDocRef = admin.firestore().doc(`users/${uid}`);
       await admin.firestore().recursiveDelete(userDocRef);
 
     // Firestore의 recursiveDelete API 사용 (firebase-tools v9.12.0+)

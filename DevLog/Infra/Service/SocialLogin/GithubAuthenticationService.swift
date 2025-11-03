@@ -1,5 +1,5 @@
 //
-//  GithubSignInService.swift
+//  GithubAuthenticationService.swift
 //  DevLog
 //
 //  Created by opfic on 6/4/25.
@@ -12,7 +12,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 
-class GithubSignInService: NSObject, SignInServicing {
+final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
@@ -51,7 +51,31 @@ class GithubSignInService: NSObject, SignInServicing {
             accessToken: accessToken
         )
     }
-    
+
+    func signOut(_ uid: String) async throws {
+        let infoRef = store.document("users/\(uid)/userData/tokens")
+        let doc = try await infoRef.getDocument()
+
+        if doc.exists {
+            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+        }
+
+        try await messaging.deleteToken()
+
+        try Auth.auth().signOut()
+    }
+
+    func deleteAuth(_ uid: String) async throws {
+        try await revokeGitHubAccessToken()
+
+        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
+
+        _ = try await deleteFunction.call(["uid": uid])
+
+        try await signOut(uid)
+        try await Auth.auth().currentUser?.delete()
+    }
+
     func requestGithubAuthorizationCode() async throws -> String {
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GITHUB_CLIENT_ID") as? String,
               let redirectURL = Bundle.main.object(forInfoDictionaryKey: "APP_REDIRECT_URL") as? String,

@@ -1,5 +1,5 @@
 //
-//  GoogleSignInService.swift
+//  GoogleAuthenticationService.swift
 //  DevLog
 //
 //  Created by opfic on 6/4/25.
@@ -7,12 +7,14 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
-class GoogleSignInService: SignInServicing {
+final class GoogleAuthenticationService: AuthenticationServicing {
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
 
     func signIn() async throws -> AuthenticationData {
@@ -43,9 +45,34 @@ class GoogleSignInService: SignInServicing {
 
         return result.user.toData(providerID: .google, fcmToken: fcmToken)
     }
+
+    func signOut(_ uid: String) async throws {
+        let infoRef = store.document("users/\(uid)/userData/tokens")
+        let doc = try await infoRef.getDocument()
+
+        if doc.exists {
+            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+        }
+
+        GIDSignIn.sharedInstance.signOut()
+        try await GIDSignIn.sharedInstance.disconnect()
+
+        try await messaging.deleteToken()
+
+        try Auth.auth().signOut()
+    }
+
+    func deleteAuth(_ uid: String) async throws {
+        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
+
+        _ = try await deleteFunction.call(["uid": uid])
+
+        try await signOut(uid)
+        try await Auth.auth().currentUser?.delete()
+    }
 }
 
-extension GoogleSignInService {
+extension GoogleAuthenticationService {
     func topViewController(controller: UIViewController? = nil) -> UIViewController? {
         let keyWindow = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
