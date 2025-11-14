@@ -7,15 +7,15 @@
 
 import Foundation
 
-final class AuthenticationRepositoryImpl {
-    private let appleService: AppleSignInService
-    private let githubService: GithubSignInService
-    private let googleService: GoogleSignInService
+final class AuthenticationRepositoryImpl: AuthenticationRepository {
+    private let appleService: AppleAuthenticationService
+    private let githubService: GithubAuthenticationService
+    private let googleService: GoogleAuthenticationService
 
     init(
-        appleService: AppleSignInService,
-        githubService: GithubSignInService,
-        googleService: GoogleSignInService
+        appleService: AppleAuthenticationService,
+        githubService: GithubAuthenticationService,
+        googleService: GoogleAuthenticationService
     ) {
         self.appleService = appleService
         self.githubService = githubService

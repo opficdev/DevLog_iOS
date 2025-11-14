@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var loginVM: LoginViewModel
+    @ObservedObject var viewModel: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
     
     let screenWidth = UIScreen.main.bounds.width

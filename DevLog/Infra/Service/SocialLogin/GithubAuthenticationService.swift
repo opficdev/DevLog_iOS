@@ -16,19 +16,21 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
+    private var user: User? { Auth.auth().currentUser }
+    private let providerID = AuthProviderID.gitHub
 
     func signIn() async throws -> AuthenticationData {
         // 1. GitHub OAuth 로그인 요청
-        let authorizationCode = try await requestGithubAuthorizationCode()
-        
+        let authorizationCode = try await requestAuthorizationCode()
+
         // 2. Firebase Functions를 통해 customToken 발급 요청
-        let (accessToken, customToken) = try await requestGithubTokens(authorizationCode: authorizationCode)
+        let (accessToken, customToken) = try await requestTokens(authorizationCode: authorizationCode)
         
         // 3. Firebase 로그인
         let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
         // 4. Firebase Auth 사용자 프로필 업데이트
-        let githubUser = try await requestGitHubUserProfile(accessToken: accessToken)
+        let githubUser = try await requestUserProfile(accessToken: accessToken)
         
         if let photoURL = githubUser.avatarUrl, let url = URL(string: photoURL) {
             let changeRequest = result.user.createProfileChangeRequest()
@@ -66,17 +68,50 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     }
 
     func deleteAuth(_ uid: String) async throws {
-        try await revokeGitHubAccessToken()
+        try await revokeAccessToken()
 
         let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
 
         _ = try await deleteFunction.call(["uid": uid])
 
         try await signOut(uid)
-        try await Auth.auth().currentUser?.delete()
+        try await user?.delete()
     }
 
-    func requestGithubAuthorizationCode() async throws -> String {
+    func link(uid: String, email: String) async throws {
+        let tokensRef = store.document("users/\(uid)/userData/tokens")
+        let authorizationCode = try await requestAuthorizationCode()
+        let (accessToken, _) = try await requestTokens(authorizationCode: authorizationCode)
+
+        let githubUser = try await requestUserProfile(accessToken: accessToken)
+
+        guard let githubEmail = githubUser.email else {
+            try await revokeAccessToken(accessToken: accessToken)
+            throw EmailFetchError.emailNotFound
+        }
+
+        if githubEmail != email {
+            try await revokeAccessToken(accessToken: accessToken)
+            throw EmailFetchError.emailMismatch
+        }
+
+        try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
+
+        let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
+        try await user?.link(with: credential)
+    }
+
+    func unlink(_ uid: String) async throws {
+        try await revokeAccessToken()
+
+        let tokensRef = store.document("users/\(uid)/userData/tokens")
+
+        try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
+
+        _ = try await user?.unlink(fromProvider: providerID.rawValue)
+    }
+
+    func requestAuthorizationCode() async throws -> String {
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GITHUB_CLIENT_ID") as? String,
               let redirectURL = Bundle.main.object(forInfoDictionaryKey: "APP_REDIRECT_URL") as? String,
               let urlComponents = URLComponents(string: redirectURL),
@@ -136,7 +171,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     }
     
     // Firebase Function 호출: Custom Token 발급
-    func requestGithubTokens(authorizationCode: String) async throws -> (String, String) {
+    func requestTokens(authorizationCode: String) async throws -> (String, String) {
         let requestTokenFunction = functions.httpsCallable("requestGithubTokens")
         let result = try await requestTokenFunction.call(["code": authorizationCode])
         
@@ -148,7 +183,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
         throw URLError(.badServerResponse)
     }
     
-    func revokeGitHubAccessToken(accessToken: String? = nil) async throws {
+    func revokeAccessToken(accessToken: String? = nil) async throws {
         var param: [String: Any] = [:]
         
         if let accessToken = accessToken {
@@ -161,7 +196,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     }
 
     // GitHub API로 사용자 프로필 정보 가져오기
-    func requestGitHubUserProfile(accessToken: String) async throws -> GitHubUser {
+    func requestUserProfile(accessToken: String) async throws -> GitHubUser {
         var request = URLRequest(url: URL(string: "https://api.github.com/user")!)
         request.httpMethod = "GET"
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -179,7 +214,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationServicing {
     }
 }
 
-extension GithubSignInService: ASWebAuthenticationPresentationContextProviding {
+extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         guard let window = UIApplication.shared.connectedScenes
             .flatMap({ ($0 as? UIWindowScene)?.windows ?? [] })

@@ -18,6 +18,8 @@ final class AppleAuthenticationService: AuthenticationServicing {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
+    private var user: User? { Auth.auth().currentUser }
+    private let providerID = AuthProviderID.apple
 
     func signIn() async throws -> AuthenticationData {
         let response = try await authenticateWithAppleAsync()
@@ -61,9 +63,9 @@ final class AppleAuthenticationService: AuthenticationServicing {
         try await changeRequest.commitChanges()
         
         // FirebaseAuth 계정에 Apple ID 연결
-        if !result.user.providerData.contains(where: { $0.providerID == "apple.com" }) {
+        if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
             let appleCredential = OAuthProvider.credential(
-                providerID: AuthProviderID.apple,
+                providerID: providerID,
                 idToken: idTokenString,
                 rawNonce: nonce
             )
@@ -98,7 +100,54 @@ final class AppleAuthenticationService: AuthenticationServicing {
         _ = try await deleteFunction.call(["uid": uid])
 
         try await signOut(uid)
-        try await Auth.auth().currentUser?.delete()
+        try await user?.delete()
+    }
+
+    func link(uid: String, email: String) async throws {
+        let response = try await authenticateWithAppleAsync()
+
+        let nonce = response.nonce
+        let credential = response.credential
+        let authorizationCode = response.authorizationCode
+        let idTokenString = response.idTokenString
+
+        let refreshToken = try await requestAppleRefreshToken(uid: uid, authorizationCode: authorizationCode)
+
+        guard let appleEmail = credential.email else {
+            try await revokeAppleAccessToken(token: refreshToken)
+            throw EmailFetchError.emailNotFound
+        }
+
+        if appleEmail != email {
+            try await revokeAppleAccessToken(token: refreshToken)
+            throw EmailFetchError.emailMismatch
+        }
+
+        let appleCredential = OAuthProvider.credential(
+            providerID: providerID,
+            idToken: idTokenString,
+            rawNonce: nonce
+        )
+
+        try await user?.link(with: appleCredential)
+    }
+
+    func unlink(_ uid: String) async throws {
+        let accessToken = try await refreshAppleAccessToken()
+
+        try await revokeAppleAccessToken(token: accessToken)
+
+        let tokensRef = store.document("users/\(uid)/userData/tokens")
+
+        let doc = try await tokensRef.getDocument()
+
+        if doc.exists {
+            try await tokensRef.updateData([
+                "appleRefreshToken": FieldValue.delete()
+            ])
+        }
+
+        _ = try await user?.unlink(fromProvider: providerID.rawValue)
     }
 
     // Apple 인증 메서드
@@ -170,7 +219,7 @@ final class AppleAuthenticationService: AuthenticationServicing {
     }
 
     // Apple RefreshToken 발급 메서드
-    func requestAppleRefreshToken(userId: String, authorizationCode: Data) async throws -> String {
+    func requestAppleRefreshToken(uid: String, authorizationCode: Data) async throws -> String {
         guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.userAuthenticationRequired)
         }
@@ -179,7 +228,7 @@ final class AppleAuthenticationService: AuthenticationServicing {
         
         let params: [String: Any] = [
             "authorizationCode": authorizationCode,
-            "userId": userId
+            "uid": uid
         ]
         
         let result = try await requestFuction.call(params)
