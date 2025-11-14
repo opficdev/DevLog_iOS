@@ -144,9 +144,9 @@ export const requestAppleRefreshToken = onCall({
         );
       }
       
-      const { authorizationCode, userId } = request.data;
-      
-      if (!authorizationCode || !userId) {
+      const { authorizationCode, uid } = request.data;
+
+      if (!authorizationCode || !uid) {
         throw new HttpsError("invalid-argument", "Authorization code and uid are required");
       }
   
@@ -158,7 +158,7 @@ export const requestAppleRefreshToken = onCall({
       console.log("appleRefreshToken:", refreshToken);
       // Apple 서버에서 받은 응답을 확인
 
-      await admin.firestore().collection("users").doc(userId).collection("userData").doc("tokens").set({
+      await admin.firestore().collection("users").doc(uid).collection("userData").doc("tokens").set({
         appleRefreshToken: refreshToken
       }, { merge: true });
 
