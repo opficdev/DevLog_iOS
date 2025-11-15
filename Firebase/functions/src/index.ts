@@ -20,8 +20,8 @@ import {
 // } from "./auth/google";
 
 import {
-  deleteAllUserFirestoreData
-} from "./user/delete"
+  deleteUserFirestoreData
+} from "./user/delete";
 
 import {
   sendPushNotification
@@ -55,7 +55,7 @@ export {
 // Google 인증 함수들 (나중에 구현되면 추가)
 
 export {
-  deleteAllUserFirestoreData
+  deleteUserFirestoreData
 };
 
 // FCM 관련 함수들 내보내기
