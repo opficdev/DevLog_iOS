@@ -6,8 +6,7 @@ import * as logger from "firebase-functions/logger";
 const LOCATION = "asia-northeast3"; 
 
 // 할 일(Todo) 문서가 생성되거나 업데이트될 때마다 실행
-export const scheduleTodoReminder = onDocumentWritten(
-    {
+export const scheduleTodoReminder = onDocumentWritten({
         region: LOCATION,
         document: "users/{userId}/todoLists/{todoId}",
     },
