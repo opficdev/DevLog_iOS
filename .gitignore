@@ -7,3 +7,6 @@ UserInterfaceState.xcuserstate
 Breakpoints_v2.xcbkptlist
 **/build/
 **/xcuserdata/
+node_modules/
+*.log
+lib/
