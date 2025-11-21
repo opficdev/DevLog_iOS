@@ -1,12 +1,22 @@
+# MACOS
 .DS_Store
+
+# Auth
 *.p8
 *.p12
+*.env
+
+# Xcode
 Config.xcconfig
+xcuserdata/
+*.xcuserstate
 GoogleService-Info.plist
 UserInterfaceState.xcuserstate
 Breakpoints_v2.xcbkptlist
 **/build/
 **/xcuserdata/
+
+# NPM
 node_modules/
 *.log
 lib/
