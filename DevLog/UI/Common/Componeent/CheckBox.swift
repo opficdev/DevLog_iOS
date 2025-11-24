@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct CheckBox: View {
-    @Binding var isChecked: Bool
+    private let isChecked: Bool
     @State private var font: Font
     
-    init(isChecked: Binding<Bool>, font: Font = .title2) {
-        self._isChecked = isChecked
+    init(isChecked: Bool, font: Font = .title2) {
+        self.isChecked = isChecked
         self._font = State(initialValue: font)
     }
     
@@ -32,5 +32,5 @@ struct CheckBox: View {
 }
 
 #Preview {
-    CheckBox(isChecked: .constant(true))
+    CheckBox(isChecked: true)
 }

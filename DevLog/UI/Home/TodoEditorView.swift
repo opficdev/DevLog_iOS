@@ -12,7 +12,7 @@ struct TodoEditorView: View {
     @ObservedObject var viewModel: TodoEditorViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState var focusOnTagField: Bool
-    var submitTodo: (() -> Void)?
+    var onSubmit: (() -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -160,7 +160,7 @@ struct TodoEditorView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        submitTodo?()
+                        onSubmit?()
                         dismiss()
                     }) {
                         Text("추가")
