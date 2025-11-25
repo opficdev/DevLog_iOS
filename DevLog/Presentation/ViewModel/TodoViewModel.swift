@@ -38,6 +38,8 @@ final class TodoViewModel: Store {
         case openEditor
         case closeEditor
         case closeToast
+        case setScope(TodoScope)
+        case setSearchText(String)
 
         // Call from run
         case didFetchTodos([Todo])
@@ -85,6 +87,10 @@ final class TodoViewModel: Store {
             state.showEditor = false
         case .closeToast:
             state.showToast = false
+        case .setScope(let scope):
+            state.scope = scope
+        case .setSearchText(let text):
+            state.searchText = text
 
         case .didFetchTodos(let todos):
             state.todos = todos

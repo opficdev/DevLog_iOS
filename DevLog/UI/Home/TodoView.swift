@@ -89,7 +89,7 @@ struct TodoView: View {
                             Button(action: {
                                 viewModel.send(.didTapFilterOption(.create))
                             }) {
-                                if viewModel.filterOption == .create {
+                                if viewModel.state.filterOption == .create {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
@@ -98,7 +98,7 @@ struct TodoView: View {
                             Button(action: {
                                 viewModel.send(.didTapFilterOption(.update))
                             }) {
-                                if viewModel.filterOption == .update {
+                                if viewModel.state.filterOption == .update {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
@@ -160,11 +160,17 @@ struct TodoView: View {
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .searchable(
-                text: $viewModel.searchText,
+                text: Binding(
+                    get: { viewModel.state.searchText },
+                    set: { viewModel.send(.setSearchText($0)) }
+                ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "\(viewModel.kind.localizedName) 검색"
+                prompt: "\(viewModel.state.kind.localizedName) 검색"
             )
-            .searchScopes($viewModel.scope) {
+            .searchScopes(Binding(
+                get: { viewModel.state.scope },
+                set: { viewModel.send(.setScope($0)) }
+            )) {
                 ForEach(TodoScope.allCases, id: \.self) { scope in
                     Text(scope.localizedName).tag(scope)
                 }
