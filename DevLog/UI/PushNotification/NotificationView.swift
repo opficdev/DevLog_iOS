@@ -65,7 +65,3 @@ struct NotificationView: View {
         }
     }
 }
-
-#Preview {
-    NotificationView(notiVM: AppContainer.shared.notiVM)
-}

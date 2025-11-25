@@ -63,8 +63,3 @@ struct TodoManageView: View {
         .environment(\.editMode, .constant(EditMode.active))    //  편집 모드 활성화 (row 우측에 line.3.horizontal 추가됨)
     }
 }
-
-#Preview {
-    TodoManageView()
-        .environmentObject(AppContainer.shared.homeVM)
-}

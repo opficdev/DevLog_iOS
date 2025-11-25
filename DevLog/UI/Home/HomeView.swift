@@ -146,8 +146,3 @@ struct HomeView: View {
         }
     }
 }
-
-#Preview {
-    HomeView(container: AppContainer.shared)
-        .environmentObject(AppContainer.shared)
-}
