@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  SnapPlan
+//  DevLog
 //
 //  Created by opfic on 12/30/24.
 //

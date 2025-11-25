@@ -1,6 +1,6 @@
 //
 //  AppleSignInDelegate.swift
-//  SnapPlan
+//  DevLog
 //
 //  Created by opfic on 4/17/25.
 //
