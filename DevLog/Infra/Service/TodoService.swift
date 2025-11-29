@@ -5,14 +5,12 @@
 //  Created by opfic on 6/2/25.
 //
 
-import Foundation
-import Combine
 import FirebaseFirestore
 
-class TodoService {
+final class TodoService {
     private let store = Firestore.firestore()
     
-    func requestPinnedTodoList(uid: String) async throws -> [TodoResponse] {
+    func fetchPinnedTodos(_ uid: String) async throws -> [TodoResponse] {
         let collection = store.collection("users/\(uid)/todoLists/")
 
         let query = collection.whereField(("isPinned"), isEqualTo: true)
@@ -23,7 +21,7 @@ class TodoService {
         return snapshot.documents.compactMap { TodoResponse(from: $0) }
     }
 
-    func requestTodoList(kind: TodoKind, uid: String) async throws -> [TodoResponse] {
+    func fetchTodos(uid: String, kind: TodoKind) async throws -> [TodoResponse] {
         let collection = store.collection("users/\(uid)/todoLists/")
 
         let query = collection.whereField("kind", isEqualTo: kind.rawValue)
@@ -34,7 +32,7 @@ class TodoService {
         return snapshot.documents.compactMap { TodoResponse(from: $0) }
     }
     
-    func upsertTodo(todo: Todo, uid: String) async throws {
+    func upsertTodo(uid: String, todo: Todo) async throws {
         let collection = store.collection("users/\(uid)/todoLists/")
 
         let docRef = collection.document(todo.id)
@@ -42,11 +40,11 @@ class TodoService {
         try await docRef.setData(todo.toDictionary(), merge: true)
     }
     
-    func deleteTodo(todo: Todo, uid: String) async throws {
+    func deleteTodo(uid: String, todoID: String) async throws {
         let collection = store.collection("users/\(uid)/todoLists/")
 
-        let docRef = collection.document(todo.id)
-        
+        let docRef = collection.document(todoID)
+
         try await docRef.delete()
     }
 }
