@@ -13,8 +13,9 @@ struct TodoDetailView: View {
     @State private var showEditor: Bool = false
     var onSubmit: (() -> Void)?
 
-    init(todo: Todo) {
+    init(todo: Todo, onSubmit: (() -> Void)? = nil) {
         self.todo = todo
+        self.onSubmit = onSubmit
     }
     
     var body: some View {
