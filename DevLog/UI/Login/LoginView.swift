@@ -8,11 +8,9 @@
 import SwiftUI
 
 struct LoginView: View {
-    @ObservedObject var viewModel: LoginViewModel
+    @StateObject var viewModel: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
-    
-    let screenWidth = UIScreen.main.bounds.width
-    
+
     var body: some View {
         ZStack {
             VStack {
@@ -24,23 +22,17 @@ struct LoginView: View {
                 Spacer()
                 VStack(spacing: 20) {
                     LoginButton(logo: Image("Google"), text: "구글 계정으로 로그인") {
-                        Task {
-                            await loginVM.signInWithGoogle()
-                        }
+                        viewModel.send(.didTapSignInButton(.google))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                     
                     LoginButton(logo: Image("Github"), text: "깃헙 계정으로 로그인") {
-                        Task {
-                            await loginVM.signInWithGithub()
-                        }
+                        viewModel.send(.didTapSignInButton(.github))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                         
                     LoginButton(logo: Image("Apple"), text: "애플 계정으로 로그인") {
-                        Task {
-                            await loginVM.signInWithApple()
-                        }
+                        viewModel.send(.didTapSignInButton(.apple))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                 }
