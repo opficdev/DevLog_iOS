@@ -1,0 +1,83 @@
+//
+//  CacheableImage.swift
+//  DevLog
+//
+//  Created by 최윤진 on 11/30/25.
+//
+
+import SwiftUI
+
+struct CacheableImage: View {
+    @State private var loadedUIImage: UIImage?
+    @State private var isInvalid: Bool = false
+    private let url: URL?
+    private let request: URLRequest
+
+    init(_ url: URL?) {
+        self.url = url
+        if let url {
+            var request = URLRequest(url: url)
+            request.cachePolicy = .returnCacheDataElseLoad
+            request.timeoutInterval = 10
+            self.request = request
+        } else {
+            self.request = URLRequest(url: URL(string: "about:blank")!)
+        }
+    }
+
+    var body: some View {
+        Group {
+            if let loadedUIImage {
+                Image(uiImage: loadedUIImage)
+                    .resizable()
+                    .scaledToFill()
+            } else if isInvalid {
+                Image(systemName: "photo")
+                    .foregroundColor(.gray)
+                    .font(.largeTitle)
+                    .scaledToFill()
+            } else {
+                ProgressView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task {
+            await loadImageWithCache()
+        }
+    }
+
+    @MainActor
+    private func loadImageWithCache() async {
+        guard let _ = url else { return }
+
+        if let cachedResponse = URLCache.imageCached.cachedResponse(for: request) {
+            if let uiImage = UIImage(data: cachedResponse.data) {
+                self.loadedUIImage = uiImage
+                return
+            }
+        }
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode
+            else { return }
+
+            let cachedURLResponse = CachedURLResponse(response: httpResponse, data: data)
+            URLCache.imageCached.storeCachedResponse(cachedURLResponse, for: request)
+
+            if let uiImage = UIImage(data: data) {
+                self.loadedUIImage = uiImage
+            }
+        } catch {
+            isInvalid = true
+        }
+    }
+}
+
+extension URLCache {
+    static let imageCached: URLCache = {
+        let diskCapacity = 300 * 1024 * 1024    // 300MB
+        let cache = URLCache(memoryCapacity: 10, diskCapacity: diskCapacity, diskPath: "imageCache")
+        return cache
+    }()
+}
