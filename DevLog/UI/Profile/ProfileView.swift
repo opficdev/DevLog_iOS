@@ -8,49 +8,45 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @ObservedObject private var profileVM: ProfileViewModel
+    @StateObject var viewModel: ProfileViewModel
     @FocusState private var focusedOnStatusMsg: Bool
     @State private var showDoneBtn: Bool = false
 
-    init(container: AppContainer) {
-        self._profileVM = ObservedObject(wrappedValue: container.profileVM)
-    }
-    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        profileVM.avatar
-                            .resizable()
-                            .scaledToFill()
+                        CacheableImage(viewModel.state.avatarURL)
                             .frame(width: 60, height: 60)
                             .cornerRadius(30)
                             .foregroundStyle(Color.gray)
-                        
+
                         VStack(alignment: .leading) {
-                            Text(profileVM.name)
+                            Text(viewModel.state.name)
                                 .font(.title2)
                                 .bold()
-                            Text(profileVM.email)
+                            Text(viewModel.state.email)
                                 .font(.caption2)
                                 .foregroundStyle(Color.gray)
                         }
                     }
-                    
                     HStack {
                         HStack {
                             Image(systemName: "face.smiling")
-                            TextField(text: $profileVM.statusMsg) {
+                            TextField(text: Binding(
+                                get: { viewModel.state.statusMessage },
+                                set: { viewModel.send(.didUpdateStatusMessage($0)) })
+                            ) {
                                 HStack {
                                     Text("상태 설정")
                                 }
                             }
                             .focused($focusedOnStatusMsg)
                             
-                            if !profileVM.statusMsg.isEmpty && showDoneBtn {
+                            if viewModel.state.resetButtonEnabled {
                                 Button(action: {
-                                    profileVM.statusMsg = ""
+                                    viewModel.send(.didTapResetStatusMessageButton)
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                 }
@@ -63,12 +59,10 @@ struct ProfileView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color(UIColor.systemGray5))
                         )
-                        if showDoneBtn {
+                        if viewModel.state.showDoneButton {
                             Button(action: {
                                 focusedOnStatusMsg = false
-                                Task {
-                                    await profileVM.upsertStatusMsg()
-                                }
+                                viewModel.send(.willUpdateStatusMessage)
                             }) {
                                 Text("완료")
                             }
@@ -83,11 +77,11 @@ struct ProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 0) {
-                        NavigationLink(destination: SettingView(viewModel: AppContainer.shared.settingViewModel)) {
+                        NavigationLink(destination: SettingView(viewModel: SettingViewModel())) {
                             Image(systemName: "gearshape")
                         }
                         Button(action: {
-                            
+                            // TODO: 기능 추가 생각해야함
                         }) {
                             Image(systemName: "plus")
                         }
@@ -99,12 +93,15 @@ struct ProfileView: View {
                     showDoneBtn = newValue
                 }
             }
-            .alert("", isPresented: $profileVM.showAlert) {
+            .alert("", isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { _, _ in }
+            )) {
                 Button("확인") {
-                    profileVM.showAlert = false
+                    viewModel.send(.didDismissToast)
                 }
             } message: {
-                Text(profileVM.alertMsg)
+                Text(viewModel.state.toastMessage)
             }
         }
     }
