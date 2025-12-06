@@ -63,7 +63,3 @@ struct ThemeView: View {
         }
     }
 }
-
-#Preview {
-    ThemeView(viewModel: AppContainer.shared.settingViewModel)
-}

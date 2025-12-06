@@ -9,17 +9,18 @@ import SwiftUI
 import MarkdownUI
 
 struct TodoDetailView: View {
-    @EnvironmentObject var todoVM: TodoViewModel
-    @State private var todo: Todo
+    private let todo: Todo
     @State private var showEditor: Bool = false
-    
-    init(todo: Todo) {
-        self._todo = State(initialValue: todo)
+    var onSubmit: (() -> Void)?
+
+    init(todo: Todo, onSubmit: (() -> Void)? = nil) {
+        self.todo = todo
+        self.onSubmit = onSubmit
     }
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
+            LazyVStack(alignment: .leading, spacing: 10) {
                 Text(todo.title)
                     .font(.title3)
                     .padding(.horizontal)
@@ -60,8 +61,10 @@ struct TodoDetailView: View {
             }
         }
         .fullScreenCover(isPresented: $showEditor) {
-            TodoEditorView(title: "수정", todo: todo)
-                .environmentObject(todoVM)
+            TodoEditorView(
+                viewModel: TodoEditorViewModel(title: "수정", todo: todo),
+                onSubmit: { onSubmit?() }
+            )
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

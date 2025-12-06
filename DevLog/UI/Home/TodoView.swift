@@ -8,17 +8,12 @@
 import SwiftUI
 
 struct TodoView: View {
-    @ObservedObject private var todoVM: TodoViewModel
-    @State private var showEditor: Bool = false
-    
-    init(todoVM: TodoViewModel) {
-        self._todoVM = ObservedObject(wrappedValue: todoVM)
-    }
+    @ObservedObject var viewModel: TodoViewModel
     
     var body: some View {
         NavigationStack {
             VStack {
-                if todoVM.filteredTodos.isEmpty {
+                if viewModel.state.todos.isEmpty {
                     VStack {
                         Spacer()
                         Text("작성된 내용이 없습니다.")
@@ -27,7 +22,7 @@ struct TodoView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 } else {
-                    List(todoVM.filteredTodos) { todo in
+                    List(viewModel.state.todos) { todo in
                         NavigationLink(value: todo) {
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack {
@@ -49,9 +44,7 @@ struct TodoView: View {
                         }
                         .swipeActions(edge: .leading) {
                             Button(action: {
-                                Task {
-                                    await todoVM.togglePin(todo)
-                                }
+                                viewModel.send(.didTapTogglePinned(todo))
                             }) {
                                 Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
                             }
@@ -59,9 +52,7 @@ struct TodoView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive, action: {
-                                Task {
-                                    await todoVM.deleteTodo(todo)
-                                }
+                                viewModel.send(.didSwipeTodo(todo))
                             }) {
                                 Image(systemName: "trash")
                             }
@@ -70,37 +61,44 @@ struct TodoView: View {
                     }
                     .listStyle(.plain)
                     .refreshable {
-                        Task {
-                            await todoVM.requestTodoList()
-                        }
+                        viewModel.send(.refresh)
                     }
                     .navigationDestination(for: Todo.self) { todo in
-                        TodoDetailView(todo: todo).environmentObject(todoVM)
+                        TodoDetailView(
+                            todo: todo,
+                            onSubmit: { viewModel.send(.upsertTodo($0)) }
+                        )
                     }
                 }
             }
-            .navigationTitle(todoVM.kind.localizedName)
-            .fullScreenCover(isPresented: $showEditor) {
-                TodoEditorView(title: "새 \(todoVM.kind.localizedName)")
-                    .environmentObject(todoVM)
+            .navigationTitle(viewModel.state.kind.localizedName)
+            .fullScreenCover(isPresented: Binding(
+                get: { viewModel.state.showEditor },
+                set: { viewModel.send(.openEditor) })
+            ) {
+                let title = "새 \(viewModel.state.kind.localizedName)"
+                TodoEditorView(
+                    viewModel: TodoEditorViewModel(title: title),
+                    onSubmit: { viewModel.send(.upsertTodo($0)) }
+                )
             }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu(content: {
                         Section {
                             Button(action: {
-                                todoVM.filterOption = .create
+                                viewModel.send(.didTapFilterOption(.create))
                             }) {
-                                if todoVM.filterOption == .create {
+                                if viewModel.state.filterOption == .create {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
                                 Text("생성")
                             }
                             Button(action: {
-                                todoVM.filterOption = .update
+                                viewModel.send(.didTapFilterOption(.update))
                             }) {
-                                if todoVM.filterOption == .update {
+                                if viewModel.state.filterOption == .update {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
@@ -112,36 +110,36 @@ struct TodoView: View {
                         
                         Section {
                             Button(action: {
-                                todoVM.filterOption = .day
+                                viewModel.send(.didTapFilterOption(.day))
                             }) {
-                                if todoVM.filterOption == .day {
+                                if viewModel.state.filterOption == .day {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
                                 Text("어제")
                             }
                             Button(action: {
-                                todoVM.filterOption = .week
+                                viewModel.send(.didTapFilterOption(.week))
                             }) {
-                                if todoVM.filterOption == .week {
+                                if viewModel.state.filterOption == .week {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
                                 Text("지난주")
                             }
                             Button(action: {
-                                todoVM.filterOption = .month
+                                viewModel.send(.didTapFilterOption(.month))
                             }) {
-                                if todoVM.filterOption == .month {
+                                if viewModel.state.filterOption == .month {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
                                 Text("지난달")
                             }
                             Button(action: {
-                                todoVM.filterOption = .year
+                                viewModel.send(.didTapFilterOption(.year))
                             }) {
-                                if todoVM.filterOption == .year {
+                                if viewModel.state.filterOption == .year {
                                     Image(systemName: "checkmark")
                                         .tint(Color.blue)
                                 }
@@ -154,7 +152,7 @@ struct TodoView: View {
                         Image(systemName: "ellipsis")
                     })
                     Button(action: {
-                        showEditor = true
+                        viewModel.send(.showEditor)
                     }) {
                         Image(systemName: "plus")
                     }
@@ -162,22 +160,26 @@ struct TodoView: View {
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .searchable(
-                text: $todoVM.searchText,
+                text: Binding(
+                    get: { viewModel.state.searchText },
+                    set: { viewModel.send(.setSearchText($0)) }
+                ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "\(todoVM.kind.localizedName) 검색"
+                prompt: "\(viewModel.state.kind.localizedName) 검색"
             )
-            .searchScopes($todoVM.scope) {
+            .searchScopes(Binding(
+                get: { viewModel.state.scope },
+                set: { viewModel.send(.setScope($0)) }
+            )) {
                 ForEach(TodoScope.allCases, id: \.self) { scope in
                     Text(scope.localizedName).tag(scope)
                 }
             }
-            .onAppear {
-                Task {
-                    await todoVM.requestTodoList()
-                }
+            .task {
+                viewModel.send(.onAppear)
             }
             .overlay {
-                if todoVM.isLoading {
+                if viewModel.state.isLoading {
                     LoadingView()
                 }
             }

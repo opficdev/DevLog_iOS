@@ -104,7 +104,3 @@ struct AccountView: View {
         return providerPrefix + providerSuffix
     }
 }
-
-#Preview {
-    AccountView(viewModel: AppContainer.shared.settingViewModel)
-}

@@ -8,41 +8,24 @@
 import SwiftUI
 
 struct TodoManageView: View {
-    @EnvironmentObject var homeVM: HomeViewModel
+    @StateObject var viewModel: TodoManageViewModel
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(homeVM.todoKinds, id: \.self.id) { kind in
+                ForEach(viewModel.state.todoKinds) { kind in
                     HStack(spacing: 0) {
-                        CheckBox(isChecked: .constant(homeVM.selectedTodoKinds.contains(kind)), font: .title3)
+                        CheckBox(isChecked: viewModel.contains(kind), font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
-                                if homeVM.selectedTodoKinds.contains(kind) {
-                                    if homeVM.selectedTodoKinds.count > 1 {
-                                        homeVM.selectedTodoKindStrings.removeAll { $0 == kind.rawValue }
-                                    }
-                                } else {
-                                    let currIdx = homeVM.todoKindStrings.firstIndex(of: kind.rawValue)!
-                                    var prevIdx = 0
-                                    for idx in stride(from: currIdx - 1, through: 0, by: -1)
-                                    where homeVM.selectedTodoKindStrings
-                                        .contains(homeVM.todoKindStrings[idx]) {
-                                        prevIdx = idx
-                                        break
-                                    }
-                                    homeVM.selectedTodoKindStrings.insert(kind.rawValue, at: prevIdx)
-                                }
+                                viewModel.send(.didTapItem(kind))
                             }
                         Text(kind.localizedName)
                     }
                 }
                 .onMove { (source: IndexSet, destination: Int) in
-                    homeVM.todoKindStrings.move(fromOffsets: source, toOffset: destination)
-                    let selectedSet = Set(homeVM.selectedTodoKindStrings)
-                    let newSelectedOrder = homeVM.todoKindStrings.filter { selectedSet.contains($0) }
-                    homeVM.selectedTodoKindStrings = newSelectedOrder
+                    viewModel.send(.didMoveItem(from: source, target: destination))
                 }
                 .listRowInsets(EdgeInsets())
             }
@@ -60,11 +43,8 @@ struct TodoManageView: View {
                 }
             }
         }
-        .environment(\.editMode, .constant(EditMode.active))    //  편집 모드 활성화 (row 우측에 line.3.horizontal 추가됨)
+        //  편집 모드 활성화
+        //  row 우측에 line.3.horizontal 추가됨
+        .environment(\.editMode, .constant(EditMode.active))
     }
-}
-
-#Preview {
-    TodoManageView()
-        .environmentObject(AppContainer.shared.homeVM)
 }

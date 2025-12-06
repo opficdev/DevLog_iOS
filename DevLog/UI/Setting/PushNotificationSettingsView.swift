@@ -96,7 +96,3 @@ struct PushNotificationSettingsView: View {
        }
    }
 }
-
-#Preview {
-    PushNotificationSettingsView(viewModel: AppContainer.shared.settingViewModel)
-}

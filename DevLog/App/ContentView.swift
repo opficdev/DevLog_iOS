@@ -9,17 +9,16 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("isFirstLaunch") var isFirstLaunch = true   // 앱을 최초 설치했을 때 기존 로그인 세션이 남아있으면 자동 로그인됨을 막음
-    @EnvironmentObject var loginVM: LoginViewModel
-    
+    @StateObject var viewModel: LoginViewModel
+
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
-            if let signIn = loginVM.signIn {
+            if let signIn = viewModel.signIn {
                 if signIn && !isFirstLaunch {
                     MainView()
                 } else {
-                    LoginView()
-                        .environmentObject(loginVM)
+                    LoginView(viewModel: viewModel)
                         .onAppear {
                             if isFirstLaunch {
                                 Task {
@@ -28,26 +27,25 @@ struct ContentView: View {
                             }
                         }
                 }
-                if loginVM.isLoading {
+                if viewModel.isLoading {
                     LoadingView()
                 }
             } else {
                 Color.clear.onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-                        if loginVM.signIn == nil {
+                        if viewModel.signIn == nil {
                             Task {
-                                print("10초 동안 로그인 시도했는데 안되서 로그아웃")
                                 isFirstLaunch = true
-                                await loginVM.signOut()
+                                await viewModel.signOut()
                             }
                         }
                     }
                 }
             }
         }
-        .alert("네트워크 문제", isPresented: $loginVM.showNetworkAlert) {
+        .alert("네트워크 문제", isPresented: $viewModel.showToast) {
             Button(role: .cancel, action: {
-                loginVM.showNetworkAlert = false
+                viewModel.showToast = false
             }) {
                 Text("확인")
             }
@@ -57,9 +55,8 @@ struct ContentView: View {
         .onChange(of: isFirstLaunch) { _ in
             if isFirstLaunch {
                 Task {
-                    print("firstlaunch로 인한 로그아웃")
                     isFirstLaunch = false
-                    await loginVM.signOut()
+                    await viewModel.signOut()
                 }
             }
         }
@@ -67,5 +64,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    let viewModel = DIContainer.shared.resolve(type: LoginViewModel.self)
+    ContentView(viewModel: viewModel)
 }

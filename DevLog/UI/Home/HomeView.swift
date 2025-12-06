@@ -8,32 +8,30 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var container: AppContainer
-    @ObservedObject private var homeVM: HomeViewModel
-    @State private var searchText: String = ""
-    @State private var isSearching: Bool = false
-    @State private var reorderTodo: Bool = false
-    
-    init(container: AppContainer) {
-        self._homeVM = ObservedObject(wrappedValue: container.homeVM)
-    }
-        
+    @StateObject var viewModel: HomeViewModel
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 VStack {
-                    Searchable(isSearching: $isSearching)
-                        .searchable(text: $searchText, prompt: "DevLog 검색")
+                    Searchable(isSearching: Binding(
+                        get: { viewModel.state.isSearching },
+                        set: { viewModel.send(.updateSearching($0)) }
+                    ))
+                        .searchable(text: Binding(
+                            get: { viewModel.state.searchText },
+                            set: { viewModel.send(.updateSearchText($0)) }
+                            ), prompt: "DevLog 검색"
+                        )
                     List {
                         Section(content: {
-                            ForEach(homeVM.selectedTodoKinds, id: \.self) { kind in
+                            ForEach(viewModel.state.selectedTodoKinds, id: \.self) { kind in
                                 NavigationLink(value: kind) {
-                                    let width = UIScreen.main.bounds.width * 0.08
                                     HStack {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(kind.color)
-                                            .frame(width: width, height: width)
+                                            .frame(width: screenWidth * 0.08, height: screenWidth * 0.08)
                                             .overlay {
                                                 Image(systemName: kind.symbolName)
                                                     .foregroundStyle(Color.white)
@@ -42,7 +40,7 @@ struct HomeView: View {
                                         Text(kind.localizedName)
                                             .foregroundStyle(Color.primary)
                                     }
-                                    .frame(height: width * 1.3)
+                                    .frame(height: screenWidth)
                                 }
                             }
                         }, header: {
@@ -53,7 +51,7 @@ struct HomeView: View {
                                     .bold()
                                 Spacer()
                                 Button(action: {
-                                    reorderTodo = true
+                                    viewModel.send(.didTapEllipsisButton)
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .font(.title2)
@@ -64,7 +62,7 @@ struct HomeView: View {
                         })
                         
                         Section(content: {
-                            if homeVM.pinnedTodos.isEmpty {
+                            if viewModel.state.pinnedTodos.isEmpty {
                                 HStack {
                                     Spacer()
                                     Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
@@ -72,13 +70,12 @@ struct HomeView: View {
                                     Spacer()
                                 }
                             } else {
-                                ForEach(homeVM.pinnedTodos, id: \.id) { todo in
+                                ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
                                     NavigationLink(value: todo.kind) {
-                                        let width = UIScreen.main.bounds.width * 0.08
                                         HStack {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .fill(todo.kind.color)
-                                                .frame(width: width, height: width)
+                                                .frame(width: screenWidth * 0.08, height: screenWidth * 0.08)
                                                 .overlay {
                                                     Image(systemName: todo.kind.symbolName)
                                                         .foregroundStyle(Color.white)
@@ -94,7 +91,7 @@ struct HomeView: View {
                                                 .foregroundStyle(Color.gray)
                                             }
                                         }
-                                        .frame(height: width * 1.3)
+                                        .frame(height: screenWidth)
                                     }
                                 }
                             }
@@ -112,42 +109,40 @@ struct HomeView: View {
                     }
                 }
             }
+            .navigationTitle("홈")
             .navigationDestination(for: TodoKind.self) { kind in
-                TodoView(todoVM: container.todoVM(kind: kind))
+                TodoView(viewModel: TodoViewModel(kind: kind))
             }
             .navigationDestination(for: Todo.self) { todo in
-                TodoDetailView(todo: todo)
-                    .environmentObject(container.todoVM(kind: todo.kind))
+                TodoDetailView(
+                    todo: todo,
+                    onSubmit: { viewModel.send(.upsertTodo($0)) }
+                )
             }
-            .navigationTitle("홈")
-            .sheet(isPresented: $reorderTodo) {
-                TodoManageView().environmentObject(container.homeVM)
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.reorderTodo },
+                set: { _,_ in viewModel.send(.closeToast) })) {
+                    TodoManageView(viewModel: TodoManageViewModel())
             }
-
-            .alert("", isPresented: $homeVM.showAlert) {
+            .alert("", isPresented: Binding(
+                get: { viewModel.state.showToast }, set: { _, _ in })
+            ) {
                 Button(action: {
-                    homeVM.showAlert = false
+                    viewModel.send(.closeToast)
                 }) {
                     Text("확인")
                 }
             } message: {
-                Text(homeVM.alertMsg)
+                Text(viewModel.state.toastMessage)
             }
             .onAppear {
-                Task {
-                    await homeVM.requestPinnedTodos()
-                }
+                viewModel.send(.onAppear)
             }
             .overlay {
-                if homeVM.isLoading {
+                if viewModel.state.isLoading {
                     LoadingView()
                 }
             }
         }
     }
-}
-
-#Preview {
-    HomeView(container: AppContainer.shared)
-        .environmentObject(AppContainer.shared)
 }
