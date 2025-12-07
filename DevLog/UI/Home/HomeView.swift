@@ -40,7 +40,7 @@ struct HomeView: View {
                                         Text(kind.localizedName)
                                             .foregroundStyle(Color.primary)
                                     }
-                                    .frame(height: screenWidth)
+                                    .padding(.vertical, 2)
                                 }
                             }
                         }, header: {
