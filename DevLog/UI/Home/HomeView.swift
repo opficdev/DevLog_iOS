@@ -116,7 +116,7 @@ struct HomeView: View {
             .navigationDestination(for: Todo.self) { todo in
                 TodoDetailView(
                     todo: todo,
-                    onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    onSubmit: { viewModel.send(.upsertTodo(todo)) }
                 )
             }
             .sheet(isPresented: Binding(
