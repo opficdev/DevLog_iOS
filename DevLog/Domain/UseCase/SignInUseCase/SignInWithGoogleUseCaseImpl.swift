@@ -1,13 +1,13 @@
 //
-//  SignInWithAppleUseCase.swift
+//  SignInWithGoogleUseCaseImpl.swift
 //  DevLog
 //
-//  Created by 최윤진 on 11/2/25.
+//  Created by 최윤진 on 11/14/25.
 //
 
 import Foundation
 
-final class SignInWithAppleUseCase: SignInUseCasing {
+final class SignInWithGoogleUseCaseImpl: SignInUseCase {
     let repository: AuthenticationRepository
 
     init(_ repository: AuthenticationRepository) {
@@ -15,6 +15,6 @@ final class SignInWithAppleUseCase: SignInUseCasing {
     }
 
     func execute() async throws -> AuthenticationData {
-        try await repository.signInWithApple()
+        try await repository.signInWithGoogle()
     }
 }
