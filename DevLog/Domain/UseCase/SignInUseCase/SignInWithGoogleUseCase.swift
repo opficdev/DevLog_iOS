@@ -8,7 +8,6 @@
 import Foundation
 
 final class SignInWithGoogleUseCase: SignInUseCasing {
-    typealias Output = AuthenticationData
     let repository: AuthenticationRepository
 
     init(_ repository: AuthenticationRepository) {

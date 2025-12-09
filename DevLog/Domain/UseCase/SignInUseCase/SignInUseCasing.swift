@@ -8,7 +8,6 @@
 import Foundation
 
 protocol SignInUseCasing {
-    associatedtype Output
     var repository: AuthenticationRepository { get }
-    func execute() async throws -> Output
+    func execute() async throws -> AuthenticationData
 }
