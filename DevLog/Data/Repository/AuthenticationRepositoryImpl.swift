@@ -8,29 +8,29 @@
 import Foundation
 
 final class AuthenticationRepositoryImpl: AuthenticationRepository {
-    private let appleService: AppleAuthenticationService
-    private let githubService: GithubAuthenticationService
-    private let googleService: GoogleAuthenticationService
+    private let appleAuthService: AuthenticationService
+    private let githubAuthService: AuthenticationService
+    private let googleAuthService: AuthenticationService
 
     init(
-        appleService: AppleAuthenticationService,
-        githubService: GithubAuthenticationService,
-        googleService: GoogleAuthenticationService
+        appleAuthService: AuthenticationService,
+        githubAuthService: AuthenticationService,
+        googleAuthService: AuthenticationService
     ) {
-        self.appleService = appleService
-        self.githubService = githubService
-        self.googleService = googleService
+        self.appleAuthService = appleAuthService
+        self.githubAuthService = githubAuthService
+        self.googleAuthService = googleAuthService
     }
 
     func signInWithApple() async throws -> AuthenticationData {
-        return try await appleService.signIn()
+        return try await appleAuthService.signIn()
     }
 
     func signInWithGithub() async throws -> AuthenticationData {
-        return try await githubService.signIn()
+        return try await githubAuthService.signIn()
     }
 
     func signInWithGoogle() async throws -> AuthenticationData {
-        return try await googleService.signIn()
+        return try await googleAuthService.signIn()
     }
 }

@@ -12,7 +12,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 
-final class GithubAuthenticationService: NSObject, AuthenticationServicing {
+final class GithubAuthenticationService: NSObject, AuthenticationService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()

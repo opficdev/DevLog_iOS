@@ -12,7 +12,7 @@ import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
-final class GoogleAuthenticationService: AuthenticationServicing {
+final class GoogleAuthenticationService: AuthenticationService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()

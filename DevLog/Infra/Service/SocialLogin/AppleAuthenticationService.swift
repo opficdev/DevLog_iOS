@@ -1,5 +1,5 @@
 //
-//  AppleAuthenticationService.swift
+//  AppleAuthenticationServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 6/4/25.
@@ -13,7 +13,7 @@ import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 
-final class AppleAuthenticationService: AuthenticationServicing {
+final class AppleAuthenticationServiceImpl: AuthenticationService {
     private var appleSignInDelegate: AppleSignInDelegate?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
