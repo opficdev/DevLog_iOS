@@ -30,6 +30,7 @@ final class HomeViewModel: Store {
 
         // User
         case didTapEllipsisButton
+        case upsertTodo(Todo)
 
         // Binding
         case updateSearching(Bool)
@@ -42,14 +43,20 @@ final class HomeViewModel: Store {
     }
 
     enum SideEffect {
+        case upsertTodo(Todo)
         case fetchPinnedTodos
     }
 
-    private let useCase: FetchPinnedTodosUseCasing
+    private let upsertTodoUseCase: UpsertTodoUseCase
+    private let fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
     @Published private(set) var state = State()
 
-    init(_ useCase: FetchPinnedTodosUseCasing) {
-        self.useCase = useCase
+    init(
+        upsertTodoUseCase: UpsertTodoUseCase,
+        fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
+    ) {
+        self.upsertTodoUseCase = upsertTodoUseCase
+        self.fetchPinnedTodosUseCase = fetchPinnedTodosUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -64,6 +71,8 @@ final class HomeViewModel: Store {
             state.isSearching = isSearching
         case .updateSearchText(let text):
             state.searchText = text
+        case .upsertTodo(let todo):
+            return [.upsertTodo(todo)]
         case .closeOrderingSheet:
             state.reorderTodo = false
         case .closeToast:
@@ -78,9 +87,13 @@ final class HomeViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
+        case .upsertTodo(let todo):
+            Task {
+                try await upsertTodoUseCase.execute(todo)
+            }
         case .fetchPinnedTodos:
             Task {
-                let todos = try await useCase.execute()
+                let todos = try await fetchPinnedTodosUseCase.execute()
                 send(.didFetchPinnedTodos(todos))
             }
         }
