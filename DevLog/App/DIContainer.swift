@@ -7,52 +7,99 @@
 
 import Foundation
 
-final class DIContainer {
-    static let shared = DIContainer()
+struct DependencyName: Hashable, ExpressibleByStringLiteral {
+    let rawValue: String
 
-    enum Scope {
-        case singleton
-        case transient
+    init(rawValue: String) {
+        self.rawValue = rawValue
     }
 
-    private var factories: [String: () -> Any] = [:]
-    private var singletones: [String: Any] = [:]
-    private var scopes: [String: Scope] = [:]
+    init(stringLiteral value: String) {
+        self.rawValue = value
+    }
+}
 
-    private init() {}
+enum DependencyScope {
+    case singleton
+    case transient
+}
 
-    public func register<T>(
-        type: T.Type,
-        scope: Scope,
-        factory: @escaping () -> T
+protocol DIContainer {
+    func register<T>(
+        _ type: T.Type,
+        name: DependencyName?,
+        scope: DependencyScope,
+        _ factory: @escaping () -> T
+    )
+
+    func resolve<T>(_ type: T.Type, name: DependencyName?) -> T
+}
+
+extension DIContainer {
+    func register<T>(
+        _ type: T.Type,
+        name: DependencyName? = nil,
+        scope: DependencyScope = .singleton,
+        _ factory: @escaping () -> T
     ) {
-        let key = String(describing: type)
-        factories[key] = factory
-        scopes[key] = scope
+        register(type, name: name, scope: scope, factory)
     }
 
-    public func resolve<T>(type: T.Type) -> T {
-        let key = String(describing: type)
+    func resolve<T>(_ type: T.Type, name: DependencyName? = nil) -> T {
+        resolve(type, name: name)
+    }
+}
 
-        if scopes[key] == .singleton,
-           let cached = singletones[key] as? T {
-            return cached
+final class AppDIContainer: DIContainer {
+    static let shared = AppDIContainer()
+
+    private let lock = NSRecursiveLock()
+
+    private init() { }
+
+    private struct Key: Hashable {
+        let type: ObjectIdentifier
+        let name: DependencyName?
+    }
+
+    private struct Registration {
+        let scope: DependencyScope
+        let factory: () -> Any
+    }
+
+    private var registrations = [Key: Registration]()
+    private var singletons = [Key: Any]()
+
+    func register<T>(
+        _ type: T.Type,
+        name: DependencyName? = nil,
+        scope: DependencyScope = .singleton,
+        _ factory: @escaping () -> T
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let key = Key(type: .init(type), name: name)
+        registrations[key] = Registration(scope: scope, factory: factory)
+    }
+
+    func resolve<T>(_ type: T.Type, name: DependencyName? = nil) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let key = Key(type: .init(type), name: name)
+        guard let registration = registrations[key] else { fatalError("\(type)에 대한 의존성이 등록되지 않았습니다.") }
+
+        switch registration.scope {
+        case .singleton:
+            if let cached = singletons[key] as? T { return cached }
+            guard let singleton = registration.factory() as? T else { fatalError("\(type) 생성 실패") }
+            singletons[key] = singleton
+            return singleton
+
+        case .transient:
+            guard let resolved = registration.factory() as? T else { fatalError("\(type) 생성 실패") }
+            return resolved
         }
-
-        guard let factory = factories[key] else {
-            fatalError("\(type) 의존성이 등록되지 않았습니다.")
-        }
-
-        let instance = factory()
-
-        guard let typedInstance = instance as? T else {
-            fatalError("\(type) 의존성의 타입이 일치하지 않습니다.")
-        }
-
-        if scopes[key] == .singleton {
-            singletones[key] = typedInstance
-        }
-
-        return typedInstance
     }
 }

@@ -40,7 +40,7 @@ struct HomeView: View {
                                         Text(kind.localizedName)
                                             .foregroundStyle(Color.primary)
                                     }
-                                    .frame(height: screenWidth)
+                                    .padding(.vertical, 2)
                                 }
                             }
                         }, header: {
@@ -116,12 +116,12 @@ struct HomeView: View {
             .navigationDestination(for: Todo.self) { todo in
                 TodoDetailView(
                     todo: todo,
-                    onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    onSubmit: { viewModel.send(.upsertTodo(todo)) }
                 )
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { _,_ in viewModel.send(.closeToast) })) {
+                set: { _, _ in viewModel.send(.closeToast) })) {
                     TodoManageView(viewModel: TodoManageViewModel())
             }
             .alert("", isPresented: Binding(

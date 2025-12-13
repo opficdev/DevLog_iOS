@@ -1,11 +1,11 @@
 //
-//  FetchPinnedTodoListUseCase.swift
+//  FetchPinnedTodosUseCaseImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/29/25.
 //
 
-final class FetchPinnedTodosUseCase: FetchPinnedTodosUseCasing {
+final class FetchPinnedTodosUseCaseImpl: FetchPinnedTodosUseCase {
     let repository: TodoRepository
 
     init(_ repository: TodoRepository) {

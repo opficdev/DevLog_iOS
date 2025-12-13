@@ -1,5 +1,5 @@
 //
-//  SignInWithAppleUseCase.swift
+//  SignInWithAppleUseCaseImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/2/25.
@@ -7,11 +7,10 @@
 
 import Foundation
 
-final class SignInWithAppleUseCase: SignInUseCasing {
-    typealias Output = AuthenticationData
+final class SignInWithAppleUseCaseImpl: SignInUseCase {
     let repository: AuthenticationRepository
 
-    init(repository: AuthenticationRepository) {
+    init(_ repository: AuthenticationRepository) {
         self.repository = repository
     }
 

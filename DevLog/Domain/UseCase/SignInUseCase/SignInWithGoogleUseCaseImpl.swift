@@ -1,5 +1,5 @@
 //
-//  SignInWithGithubUseCase.swift
+//  SignInWithGoogleUseCaseImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/14/25.
@@ -7,15 +7,14 @@
 
 import Foundation
 
-final class SignInWithGithubUseCase: SignInUseCasing {
-    typealias Output = AuthenticationData
+final class SignInWithGoogleUseCaseImpl: SignInUseCase {
     let repository: AuthenticationRepository
 
-    init(repository: AuthenticationRepository) {
+    init(_ repository: AuthenticationRepository) {
         self.repository = repository
     }
 
     func execute() async throws -> AuthenticationData {
-        try await repository.signInWithGithub()
+        try await repository.signInWithGoogle()
     }
 }

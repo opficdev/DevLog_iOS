@@ -11,7 +11,10 @@ import SwiftUI
 struct DevLogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @AppStorage("theme") var theme: SystemTheme = .automatic
-    @StateObject private var container = AppContainer.shared
+
+    init() {
+        AppAssembler().assemble(AppDIContainer.shared)
+    }
 
     var body: some Scene {
         WindowGroup {

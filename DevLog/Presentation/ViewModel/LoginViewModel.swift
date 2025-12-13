@@ -27,15 +27,15 @@ final class LoginViewModel: Store {
         case signIn(AuthProvider)
     }
 
-    private let signInWithAppleUseCase: any SignInUseCasing
-    private let signInWithGithubUseCase: any SignInUseCasing
-    private let signInWithGoogleUseCase: any SignInUseCasing
+    private let signInWithAppleUseCase: any SignInUseCase
+    private let signInWithGithubUseCase: any SignInUseCase
+    private let signInWithGoogleUseCase: any SignInUseCase
     @Published private(set) var state = State()
 
     init(
-        signInWithAppleUseCase: any SignInUseCasing,
-        signInWithGithubUseCase: any SignInUseCasing,
-        signInWithGoogleUseCase: any SignInUseCasing
+        signInWithAppleUseCase: any SignInUseCase,
+        signInWithGithubUseCase: any SignInUseCase,
+        signInWithGoogleUseCase: any SignInUseCase
     ) {
         self.signInWithAppleUseCase = signInWithAppleUseCase
         self.signInWithGithubUseCase = signInWithGithubUseCase

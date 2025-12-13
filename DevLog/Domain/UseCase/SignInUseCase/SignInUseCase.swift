@@ -1,5 +1,5 @@
 //
-//  SignInUseCasing.swift
+//  SignInUseCase.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/2/25.
@@ -7,8 +7,7 @@
 
 import Foundation
 
-protocol SignInUseCasing {
-    associatedtype Output
+protocol SignInUseCase {
     var repository: AuthenticationRepository { get }
-    func execute() async throws -> Output
+    func execute() async throws -> AuthenticationData
 }
