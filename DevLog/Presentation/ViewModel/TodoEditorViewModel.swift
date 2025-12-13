@@ -49,6 +49,12 @@ final class TodoEditorViewModel: Store {
 
     init(title: String, todo: Todo? = nil) {
         self.state = State(navigationTitle: title)
+        if let todo {
+            state.title = todo.title
+            state.content = todo.content
+            state.dueDate = todo.dueDate
+            state.tags = todo.tags
+        }
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -96,5 +102,14 @@ extension TodoEditorViewModel {
         default:
             break
         }
+    }
+
+    var todoCreation: TodoRequest {
+        return TodoRequest(
+            title: state.title,
+            content: state.content,
+            dueDate: state.dueDate,
+            tags: state.tags
+        )
     }
 }

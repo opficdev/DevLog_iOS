@@ -30,7 +30,7 @@ final class HomeViewModel: Store {
 
         // User
         case didTapEllipsisButton
-        case upsertTodo(Todo)
+        case upsertTodo(TodoRequest)
 
         // Binding
         case updateSearching(Bool)
@@ -43,7 +43,7 @@ final class HomeViewModel: Store {
     }
 
     enum SideEffect {
-        case upsertTodo(Todo)
+        case upsertTodo(TodoRequest)
         case fetchPinnedTodos
     }
 
@@ -87,9 +87,9 @@ final class HomeViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .upsertTodo(let todo):
+        case .upsertTodo(let request):
             Task {
-                try await upsertTodoUseCase.execute(todo)
+                try await upsertTodoUseCase.execute(request)
             }
         case .fetchPinnedTodos:
             Task {

@@ -11,9 +11,9 @@ import MarkdownUI
 struct TodoDetailView: View {
     private let todo: Todo
     @State private var showEditor: Bool = false
-    var onSubmit: (() -> Void)?
+    var onSubmit: ((TodoRequest) -> Void)?
 
-    init(todo: Todo, onSubmit: (() -> Void)? = nil) {
+    init(todo: Todo, onSubmit: ((TodoRequest) -> Void)? = nil) {
         self.todo = todo
         self.onSubmit = onSubmit
     }
@@ -63,7 +63,7 @@ struct TodoDetailView: View {
         .fullScreenCover(isPresented: $showEditor) {
             TodoEditorView(
                 viewModel: TodoEditorViewModel(title: "수정", todo: todo),
-                onSubmit: { onSubmit?() }
+                onSubmit: { onSubmit?($0) }
             )
         }
         .toolbar {

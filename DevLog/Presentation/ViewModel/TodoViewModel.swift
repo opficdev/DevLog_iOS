@@ -32,7 +32,7 @@ final class TodoViewModel: Store {
         case didTapTogglePinned(Todo)
         case didSwipeTodo(Todo)
         case didTapFilterOption(FilterOption)
-        case upsertTodo(Todo)
+        case upsertTodo(TodoRequest)
 
         // Binding
         case openEditor
@@ -67,8 +67,8 @@ final class TodoViewModel: Store {
             break
         case .didTapFilterOption(let option):
             state.filterOption = option
-        case .upsertTodo(let todo):
-//            Task {
+        case .upsertTodo(let request):
+            Task {
 //                let todo = Todo(
 //                    title: title,
 //                    content: content,
@@ -78,9 +78,7 @@ final class TodoViewModel: Store {
 //                )
 //                await todoVM.upsertTodo(todo)
 //                await todoVM.requestTodoList()
-//            }
-            break
-
+            }
         case .openEditor:
             state.showEditor = true
         case .closeEditor:

@@ -43,4 +43,3 @@ final class TodoRepositoryImpl: TodoRepository {
         try await todoService.deleteTodo(uid: uid, todoID: todoID)
     }
 }
-

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct TodoView: View {
-    @ObservedObject var viewModel: TodoViewModel
-    
+    @StateObject var viewModel: TodoViewModel
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -74,7 +74,7 @@ struct TodoView: View {
             .navigationTitle(viewModel.state.kind.localizedName)
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showEditor },
-                set: { viewModel.send(.openEditor) })
+                set: { _, _ in viewModel.send(.openEditor) })
             ) {
                 let title = "새 \(viewModel.state.kind.localizedName)"
                 TodoEditorView(
@@ -152,7 +152,7 @@ struct TodoView: View {
                         Image(systemName: "ellipsis")
                     })
                     Button(action: {
-                        viewModel.send(.showEditor)
+                        viewModel.send(.openEditor)
                     }) {
                         Image(systemName: "plus")
                     }
