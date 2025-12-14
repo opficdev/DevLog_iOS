@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(\.diContainer) var container: any DIContainer
     @StateObject var viewModel: HomeViewModel
 
     var body: some View {
@@ -111,7 +112,10 @@ struct HomeView: View {
             }
             .navigationTitle("홈")
             .navigationDestination(for: TodoKind.self) { kind in
-                TodoView(viewModel: TodoViewModel(kind: kind))
+                TodoView(viewModel: TodoViewModel(
+                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                    kind: kind
+                ))
             }
             .navigationDestination(for: Todo.self) { todo in
                 TodoDetailView(
