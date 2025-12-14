@@ -5,8 +5,6 @@
 //  Created by 최윤진 on 11/2/25.
 //
 
-import Foundation
-
 final class SignInWithAppleUseCaseImpl: SignInUseCase {
     let repository: AuthenticationRepository
 
