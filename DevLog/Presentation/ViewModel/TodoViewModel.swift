@@ -32,7 +32,7 @@ final class TodoViewModel: Store {
         case didTapTogglePinned(Todo)
         case didSwipeTodo(Todo)
         case didTapFilterOption(FilterOption)
-        case upsertTodo(TodoRequest)
+        case upsertTodo(Todo)
 
         // Binding
         case openEditor
@@ -48,12 +48,18 @@ final class TodoViewModel: Store {
 
     enum SideEffect {
         case fetchTodos
+        case upsertTodo(Todo)
         case togglePinned(Todo)
     }
 
+    private let upsertTodoUseCase: UpsertTodoUseCase
     @Published private(set) var state: State
 
-    init(kind: TodoKind) {
+    init(
+        upsertTodoUseCase: UpsertTodoUseCase,
+        kind: TodoKind
+    ) {
+        self.upsertTodoUseCase = upsertTodoUseCase
         self.state = State(kind: kind)
     }
 
@@ -67,18 +73,8 @@ final class TodoViewModel: Store {
             break
         case .didTapFilterOption(let option):
             state.filterOption = option
-        case .upsertTodo(let request):
-            Task {
-//                let todo = Todo(
-//                    title: title,
-//                    content: content,
-//                    tags: tags,
-//                    dueDate: hasDueDate ? dueDate : nil,
-//                    kind: todoVM.kind
-//                )
-//                await todoVM.upsertTodo(todo)
-//                await todoVM.requestTodoList()
-            }
+        case .upsertTodo(let todo):
+            return [.upsertTodo(todo)]
         case .openEditor:
             state.showEditor = true
         case .closeEditor:
@@ -104,6 +100,11 @@ final class TodoViewModel: Store {
         switch effect {
         case .fetchTodos:
             break
+        case .upsertTodo(let todo):
+            Task {
+                try await upsertTodoUseCase.execute(todo)
+                send(.refresh)
+            }
         case .togglePinned(let todo):
             break
         }

@@ -16,4 +16,3 @@ final class FetchPinnedTodosUseCaseImpl: FetchPinnedTodosUseCase {
         try await repository.fetchPinnedTodos()
     }
 }
-

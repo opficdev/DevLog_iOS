@@ -32,12 +32,12 @@ final class TodoService {
         return snapshot.documents.compactMap { TodoResponse(from: $0) }
     }
     
-    func upsertTodo(uid: String, todo: Todo) async throws {
+    func upsertTodo(uid: String, request: TodoRequest) async throws {
         let collection = store.collection("users/\(uid)/todoLists/")
 
-        let docRef = collection.document(todo.id)
-        
-        try await docRef.setData(todo.toDictionary(), merge: true)
+        let docRef = collection.document(request.id)
+
+        try await docRef.setData(request.toDictionary(), merge: true)
     }
     
     func deleteTodo(uid: String, todoID: String) async throws {

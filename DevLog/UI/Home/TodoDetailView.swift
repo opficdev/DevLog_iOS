@@ -11,9 +11,9 @@ import MarkdownUI
 struct TodoDetailView: View {
     private let todo: Todo
     @State private var showEditor: Bool = false
-    var onSubmit: ((TodoRequest) -> Void)?
+    var onSubmit: ((Todo) -> Void)?
 
-    init(todo: Todo, onSubmit: ((TodoRequest) -> Void)? = nil) {
+    init(todo: Todo, onSubmit: ((Todo) -> Void)? = nil) {
         self.todo = todo
         self.onSubmit = onSubmit
     }

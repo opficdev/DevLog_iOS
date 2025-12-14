@@ -20,20 +20,3 @@ struct Todo: Identifiable, Hashable {
     var tags: [String]      //  할 일에 연결된 태그들
     var kind: TodoKind      //  할 일의 종류
 }
-
-extension Todo {
-    func toDictionary() -> [String: Any] {
-        return [
-            "isPinned": isPinned,
-            "isCompleted": isCompleted,
-            "isChecked": isChecked,
-            "title": title,
-            "content": content,
-            "createdAt": createdAt,
-            "updatedAt": updatedAt,
-            "dueDate": dueDate as Any,
-            "tags": tags,
-            "kind": kind.rawValue
-        ]
-    }
-}
