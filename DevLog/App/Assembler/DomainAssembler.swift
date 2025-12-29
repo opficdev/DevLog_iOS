@@ -14,9 +14,18 @@ final class DomainAssembler: Assembler {
     func registerRepositories(_ container: any DIContainer) {
         container.register(AuthenticationRepository.self) {
             AuthenticationRepositoryImpl(
-                appleAuthService: container.resolve(AppleAuthenticationServiceImpl.self),
-                githubAuthService: container.resolve(GithubAuthenticationService.self),
-                googleAuthService: container.resolve(GoogleAuthenticationService.self)
+                appleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "AppleAuthenticationService"
+                ),
+                githubAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GithubAuthenticationService"
+                ),
+                googleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GoogleAuthenticationService"
+                )
             )
         }
 

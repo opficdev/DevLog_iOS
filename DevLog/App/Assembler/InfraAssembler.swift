@@ -7,6 +7,27 @@
 
 final class InfraAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
+        container.register(
+            AuthenticationService.self,
+            name: "AppleAuthenticationService"
+        ) {
+            AppleAuthenticationService()
+        }
+
+        container.register(
+            AuthenticationService.self,
+            name: "GithubAuthenticationService"
+        ) {
+            GithubAuthenticationService()
+        }
+
+        container.register(
+            AuthenticationService.self,
+            name: "GoogleAuthenticationService"
+        ) {
+            GoogleAuthenticationService()
+        }
+
         container.register(TodoService.self) {
             TodoService()
         }
