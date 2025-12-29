@@ -7,10 +7,6 @@
 
 final class InfraAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
-        container.register(AuthService.self) {
-            AuthService()
-        }
-
         container.register(TodoService.self) {
             TodoService()
         }

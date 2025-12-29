@@ -5,18 +5,19 @@
 //  Created by 최윤진 on 11/2/25.
 //
 
-import Foundation
-
 final class AuthenticationRepositoryImpl: AuthenticationRepository {
+    private let authService: AuthService
     private let appleAuthService: AuthenticationService
     private let githubAuthService: AuthenticationService
     private let googleAuthService: AuthenticationService
 
     init(
+        authService: AuthService = .shared,
         appleAuthService: AuthenticationService,
         githubAuthService: AuthenticationService,
         googleAuthService: AuthenticationService
     ) {
+        self.authService = authService
         self.appleAuthService = appleAuthService
         self.githubAuthService = githubAuthService
         self.googleAuthService = googleAuthService
