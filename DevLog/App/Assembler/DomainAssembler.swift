@@ -22,7 +22,6 @@ final class DomainAssembler: Assembler {
 
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
-                authService: container.resolve(AuthService.self),
                 todoService: container.resolve(TodoService.self)
             )
         }
