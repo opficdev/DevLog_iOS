@@ -53,6 +53,10 @@ final class DomainAssembler: Assembler {
             SignInWithGoogleUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
+        container.register(SignOutUseCase.self) {
+            SignOutUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        }
+
         container.register(UpsertTodoUseCase.self) {
             UpsertTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }

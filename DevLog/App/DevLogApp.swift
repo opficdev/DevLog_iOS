@@ -21,6 +21,8 @@ struct DevLogApp: App {
             ContentView()
                 .environmentObject(container)
                 .environmentObject(container.loginVM)
+                signOutUseCase: container.resolve(SignOutUseCase.self)
+            ))
                 .preferredColorScheme(theme.colorScheme)
         }
     }
