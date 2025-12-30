@@ -14,15 +14,23 @@ final class DomainAssembler: Assembler {
     func registerRepositories(_ container: any DIContainer) {
         container.register(AuthenticationRepository.self) {
             AuthenticationRepositoryImpl(
-                appleAuthService: container.resolve(AppleAuthenticationServiceImpl.self),
-                githubAuthService: container.resolve(GithubAuthenticationService.self),
-                googleAuthService: container.resolve(GoogleAuthenticationService.self)
+                appleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "AppleAuthenticationService"
+                ),
+                githubAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GithubAuthenticationService"
+                ),
+                googleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GoogleAuthenticationService"
+                )
             )
         }
 
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
-                authService: container.resolve(AuthService.self),
                 todoService: container.resolve(TodoService.self)
             )
         }
@@ -33,16 +41,20 @@ final class DomainAssembler: Assembler {
             FetchPinnedTodosUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(SignInUseCase.self, name: "SignInWithAppleUseCaseImpl") {
-            SignInWithAppleUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        container.register(SignInUseCase.self) {
+            SignInUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
-        container.register(SignInUseCase.self, name: "SignInWithGithubUseCaseImpl") {
-            SignInWithGithubUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        container.register(SignOutUseCase.self) {
+            SignOutUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
-        container.register(SignInUseCase.self, name: "SignInWithGoogleUseCaseImpl") {
-            SignInWithGoogleUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        container.register(DeleteAuthUseCase.self) {
+            DeleteAuthUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        }
+
+        container.register(RestoreAuthUseCase.self) {
+            RestoreAuthUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
         container.register(UpsertTodoUseCase.self) {

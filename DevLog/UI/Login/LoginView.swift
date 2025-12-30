@@ -22,17 +22,17 @@ struct LoginView: View {
                 Spacer()
                 VStack(spacing: 20) {
                     LoginButton(logo: Image("Google"), text: "구글 계정으로 로그인") {
-                        viewModel.send(.didTapSignInButton(.google))
+                        viewModel.send(.tapSignInButton(.google))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                     
                     LoginButton(logo: Image("Github"), text: "깃헙 계정으로 로그인") {
-                        viewModel.send(.didTapSignInButton(.github))
+                        viewModel.send(.tapSignInButton(.github))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                         
                     LoginButton(logo: Image("Apple"), text: "애플 계정으로 로그인") {
-                        viewModel.send(.didTapSignInButton(.apple))
+                        viewModel.send(.tapSignInButton(.apple))
                     }
                     .frame(width: screenWidth * 3 / 4, height: screenWidth / 10)
                 }

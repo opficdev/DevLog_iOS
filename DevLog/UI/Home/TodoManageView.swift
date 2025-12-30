@@ -19,13 +19,13 @@ struct TodoManageView: View {
                         CheckBox(isChecked: viewModel.contains(kind), font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
-                                viewModel.send(.didTapItem(kind))
+                                viewModel.send(.tapItem(kind))
                             }
                         Text(kind.localizedName)
                     }
                 }
                 .onMove { (source: IndexSet, destination: Int) in
-                    viewModel.send(.didMoveItem(from: source, target: destination))
+                    viewModel.send(.moveItem(from: source, target: destination))
                 }
                 .listRowInsets(EdgeInsets())
             }

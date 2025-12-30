@@ -29,7 +29,7 @@ final class HomeViewModel: Store {
         case onAppear
 
         // User
-        case didTapEllipsisButton
+        case tapEllipsisButton
         case upsertTodo(Todo)
 
         // Binding
@@ -64,7 +64,7 @@ final class HomeViewModel: Store {
         case .onAppear:
             return [.fetchPinnedTodos]
 
-        case.didTapEllipsisButton:
+        case.tapEllipsisButton:
             state.reorderTodo = true
 
         case .updateSearching(let isSearching):

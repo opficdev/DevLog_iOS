@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import FirebaseAuth
+import GoogleSignIn
 
 final class LoginViewModel: Store {
     struct State {
@@ -16,41 +18,54 @@ final class LoginViewModel: Store {
     }
 
     enum Action {
-        case didTapSignInButton(AuthProvider)
+        case onAppear
+        case signOutAuto
+        case tapCloseToast
+        case tapSignInButton(AuthProvider)
+        case tapSignOutButton
         case didStartLoading
         case didFinishLoading
-        case didLoginSucceed(result: Bool)
+        case didLogined(result: Bool)
         case didLoginFail(message: String)
     }
 
     enum SideEffect {
         case signIn(AuthProvider)
+        case signOut
+        case restore
     }
 
-    private let signInWithAppleUseCase: any SignInUseCase
-    private let signInWithGithubUseCase: any SignInUseCase
-    private let signInWithGoogleUseCase: any SignInUseCase
+    private let signInUseCase: SignInUseCase
+    private let signOutUseCase: SignOutUseCase
+    private let restoreUseCase: RestoreAuthUseCase
+
     @Published private(set) var state = State()
 
     init(
-        signInWithAppleUseCase: any SignInUseCase,
-        signInWithGithubUseCase: any SignInUseCase,
-        signInWithGoogleUseCase: any SignInUseCase
+        signInUseCase: SignInUseCase,
+        signOutUseCase: SignOutUseCase,
+        restoreUseCase: RestoreAuthUseCase
     ) {
-        self.signInWithAppleUseCase = signInWithAppleUseCase
-        self.signInWithGithubUseCase = signInWithGithubUseCase
-        self.signInWithGoogleUseCase = signInWithGoogleUseCase
+        self.signInUseCase = signInUseCase
+        self.signOutUseCase = signOutUseCase
+        self.restoreUseCase = restoreUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .didTapSignInButton(let authProvider):
+        case .onAppear:
+            return [.restore]
+        case .tapCloseToast:
+            state.showToast = false
+        case .tapSignInButton(let authProvider):
             return [.signIn(authProvider)]
+        case .tapSignOutButton, .signOutAuto:
+            return [.signOut]
         case .didStartLoading:
             state.isLoading = true
         case .didFinishLoading:
             state.isLoading = false
-        case .didLoginSucceed(let result):
+        case .didLogined(let result):
             state.signIn = result
         case .didLoginFail(let message):
             state.toastMessage = message
@@ -65,26 +80,35 @@ final class LoginViewModel: Store {
             Task {
                 send(.didStartLoading)
                 do {
-                    defer {
-                        send(.didFinishLoading)
-                        send(.didLoginSucceed(result: false))
-                    }
-                    switch authProvider {
-                    case .apple:
-                        _ = try await self.signInWithAppleUseCase.execute()
-                    case .github:
-                        _ = try await self.signInWithGithubUseCase.execute()
-                    case .google:
-                        _ = try await self.signInWithGoogleUseCase.execute()
-                    }
+                    defer { send(.didFinishLoading) }
+
+                    _ = try await self.signInUseCase.execute(authProvider)
 
                     send(.didFinishLoading)
-                    send(.didLoginSucceed(result: true))
+                    send(.didLogined(result: true))
+                } catch {
+                    send(.didFinishLoading)
+                    send(.didLogined(result: false))
+                    send(.didLoginFail(message: error.localizedDescription))
+                }
+            }
+        case .signOut:
+            Task {
+                send(.didStartLoading)
+                do {
+                    defer { send(.didFinishLoading) }
+                    try await self.signOutUseCase.execute()
+                    send(.didLogined(result: false))
                 } catch {
                     send(.didFinishLoading)
                     send(.didLoginFail(message: error.localizedDescription))
                 }
             }
+        case .restore:
+            send(.didStartLoading)
+            let result = restoreUseCase.execute()
+            send(.didLogined(result: result))
+            send(.didFinishLoading)
         }
     }
 }

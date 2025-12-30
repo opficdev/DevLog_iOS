@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Todo: Identifiable, Codable, Hashable {
+struct Todo: Identifiable, Hashable {
     let id: String
     var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     var isCompleted: Bool   //  해당 할 일의 완료 여부
@@ -19,21 +19,4 @@ struct Todo: Identifiable, Codable, Hashable {
     var dueDate: Date?      //  할 일의 마감 날짜 (선택 사항)
     var tags: [String]      //  할 일에 연결된 태그들
     var kind: TodoKind      //  할 일의 종류
-}
-
-extension Todo {
-    func toDictionary() -> [String: Any] {
-        return [
-            "isPinned": isPinned,
-            "isCompleted": isCompleted,
-            "isChecked": isChecked,
-            "title": title,
-            "content": content,
-            "createdAt": createdAt,
-            "updatedAt": updatedAt,
-            "dueDate": dueDate as Any,
-            "tags": tags,
-            "kind": kind.rawValue
-        ]
-    }
 }

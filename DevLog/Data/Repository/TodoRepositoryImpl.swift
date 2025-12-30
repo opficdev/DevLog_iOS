@@ -34,7 +34,9 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         guard let uid = authService.uid else { throw AuthError.notAuthenticated }
 
-        try await todoService.upsertTodo(uid: uid, todo: todo)
+        let request = TodoRequest.fromDomain(todo)
+
+        try await todoService.upsertTodo(uid: uid, request: request)
     }
     
     func deleteTodo(_ todoID: String) async throws {
@@ -43,4 +45,3 @@ final class TodoRepositoryImpl: TodoRepository {
         try await todoService.deleteTodo(uid: uid, todoID: todoID)
     }
 }
-

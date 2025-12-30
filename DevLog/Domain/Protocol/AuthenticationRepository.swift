@@ -8,7 +8,8 @@
 import Foundation
 
 protocol AuthenticationRepository {
-    func signInWithApple() async throws -> AuthenticationData
-    func signInWithGithub() async throws -> AuthenticationData
-    func signInWithGoogle() async throws -> AuthenticationData
+    func signIn(_ provider: AuthProvider) async throws
+    func signOut() async throws
+    func restore() -> Bool
+    func delete() async throws
 }
