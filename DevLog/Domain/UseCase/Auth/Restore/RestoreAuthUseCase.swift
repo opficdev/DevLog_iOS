@@ -6,5 +6,6 @@
 //
 
 protocol RestoreAuthUseCase {
+    var repository: AuthenticationRepository { get }
     func execute() -> Bool
 }
