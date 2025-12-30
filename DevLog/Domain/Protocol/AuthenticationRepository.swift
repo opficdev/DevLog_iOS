@@ -10,4 +10,5 @@ import Foundation
 protocol AuthenticationRepository {
     func signIn(_ provider: AuthProvider) async throws
     func signOut() async throws
+    func restore() -> Bool
 }
