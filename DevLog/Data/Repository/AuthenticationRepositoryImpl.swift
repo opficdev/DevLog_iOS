@@ -23,8 +23,15 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         self.googleAuthService = googleAuthService
     }
 
-    func signInWithApple() async throws -> AuthenticationData {
-        return try await appleAuthService.signIn()
+    func signIn(_ provider: AuthProvider) async throws {
+        switch provider {
+        case .apple:
+            _ = try await appleAuthService.signIn()
+        case .github:
+            _ = try await githubAuthService.signIn()
+        case .google:
+            _ = try await googleAuthService.signIn()
+        }
     }
 
     func signInWithGithub() async throws -> AuthenticationData {

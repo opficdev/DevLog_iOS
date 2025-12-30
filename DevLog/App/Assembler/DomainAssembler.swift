@@ -41,16 +41,8 @@ final class DomainAssembler: Assembler {
             FetchPinnedTodosUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(SignInUseCase.self, name: "SignInWithAppleUseCase") {
-            SignInWithAppleUseCaseImpl(container.resolve(AuthenticationRepository.self))
-        }
-
-        container.register(SignInUseCase.self, name: "SignInWithGithubUseCase") {
-            SignInWithGithubUseCaseImpl(container.resolve(AuthenticationRepository.self))
-        }
-
-        container.register(SignInUseCase.self, name: "SignInWithGoogleUseCase") {
-            SignInWithGoogleUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        container.register(SignInUseCase.self) {
+            SignInUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
         container.register(SignOutUseCase.self) {
