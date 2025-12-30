@@ -49,8 +49,8 @@ final class DomainAssembler: Assembler {
             SignOutUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
-        container.register(AuthRestoreUseCase.self) {
-            AuthRestoreUseCaseImpl(container.resolve(AuthenticationRepository.self))
+        container.register(RestoreAuthUseCase.self) {
+            RestoreAuthUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
         container.register(UpsertTodoUseCase.self) {

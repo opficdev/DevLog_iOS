@@ -22,7 +22,7 @@ struct DevLogApp: App {
             RootView(viewModel: LoginViewModel(
                 signInUseCase: container.resolve(SignInUseCase.self),
                 signOutUseCase: container.resolve(SignOutUseCase.self),
-                restoreUseCase: container.resolve(AuthRestoreUseCase.self)
+                restoreUseCase: container.resolve(RestoreAuthUseCase.self)
             ))
             .preferredColorScheme(theme.colorScheme)
         }

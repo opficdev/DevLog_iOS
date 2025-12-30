@@ -37,14 +37,14 @@ final class LoginViewModel: Store {
 
     private let signInUseCase: SignInUseCase
     private let signOutUseCase: SignOutUseCase
-    private let restoreUseCase: AuthRestoreUseCase
+    private let restoreUseCase: RestoreAuthUseCase
 
     @Published private(set) var state = State()
 
     init(
         signInUseCase: SignInUseCase,
         signOutUseCase: SignOutUseCase,
-        restoreUseCase: AuthRestoreUseCase
+        restoreUseCase: RestoreAuthUseCase
     ) {
         self.signInUseCase = signInUseCase
         self.signOutUseCase = signOutUseCase

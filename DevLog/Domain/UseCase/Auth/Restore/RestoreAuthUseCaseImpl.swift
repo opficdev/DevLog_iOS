@@ -1,11 +1,11 @@
 //
-//  AuthRestoreUseCaseImpl.swift
+//  RestoreAuthUseCaseImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 12/30/25.
 //
 
-final class AuthRestoreUseCaseImpl: AuthRestoreUseCase {
+final class RestoreAuthUseCaseImpl: RestoreAuthUseCase {
     let repository: AuthenticationRepository
 
     init(_ repository: AuthenticationRepository) {

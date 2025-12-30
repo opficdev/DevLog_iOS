@@ -1,10 +1,10 @@
 //
-//  AuthRestoreUseCase.swift
+//  RestoreAuthUseCase.swift
 //  DevLog
 //
 //  Created by 최윤진 on 12/30/25.
 //
 
-protocol AuthRestoreUseCase {
+protocol RestoreAuthUseCase {
     func execute() -> Bool
 }
