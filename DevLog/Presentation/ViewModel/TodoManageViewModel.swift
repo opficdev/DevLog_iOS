@@ -15,8 +15,8 @@ final class TodoManageViewModel: Store {
     }
 
     enum Action {
-        case didMoveItem(from: IndexSet, target: Int)
-        case didTapItem(_ item: TodoKind)
+        case moveItem(from: IndexSet, target: Int)
+        case tapItem(_ item: TodoKind)
     }
 
     enum SideEffect { }
@@ -25,9 +25,9 @@ final class TodoManageViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .didMoveItem(let from, let target):
+        case .moveItem(let from, let target):
             state.selectedTodoKinds.elements.move(fromOffsets: from, toOffset: target)
-        case .didTapItem(let item):
+        case .tapItem(let item):
             if state.selectedTodoKinds.contains(item) {
                 state.selectedTodoKinds.remove(item)
             } else {

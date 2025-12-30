@@ -52,7 +52,7 @@ struct HomeView: View {
                                     .bold()
                                 Spacer()
                                 Button(action: {
-                                    viewModel.send(.didTapEllipsisButton)
+                                    viewModel.send(.tapEllipsisButton)
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .font(.title2)

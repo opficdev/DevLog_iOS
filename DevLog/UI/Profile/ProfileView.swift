@@ -36,7 +36,7 @@ struct ProfileView: View {
                             Image(systemName: "face.smiling")
                             TextField(text: Binding(
                                 get: { viewModel.state.statusMessage },
-                                set: { viewModel.send(.didUpdateStatusMessage($0)) })
+                                set: { viewModel.send(.updateStatusMessage($0)) })
                             ) {
                                 HStack {
                                     Text("상태 설정")
@@ -46,7 +46,7 @@ struct ProfileView: View {
                             
                             if viewModel.state.resetButtonEnabled {
                                 Button(action: {
-                                    viewModel.send(.didTapResetStatusMessageButton)
+                                    viewModel.send(.tapResetStatusMessageButton)
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                 }
@@ -98,7 +98,7 @@ struct ProfileView: View {
                 set: { _, _ in }
             )) {
                 Button("확인") {
-                    viewModel.send(.didTapCloseToast)
+                    viewModel.send(.tapCloseToast)
                 }
             } message: {
                 Text(viewModel.state.toastMessage)

@@ -23,11 +23,11 @@ final class ProfileViewModel: Store {
     }
 
     enum Action {
-        case didTapConfirmButton
-        case didTapResetStatusMessageButton
+        case tapConfirmButton
+        case tapResetStatusMessageButton
         case willUpdateStatusMessage
-        case didUpdateStatusMessage(String)
-        case didTapCloseToast
+        case updateStatusMessage(String)
+        case tapCloseToast
     }
 
     enum SideEffect {
@@ -38,15 +38,15 @@ final class ProfileViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .didTapConfirmButton:
+        case .tapConfirmButton:
             state.showToast = false
-        case .didTapResetStatusMessageButton:
+        case .tapResetStatusMessageButton:
             state.statusMessage = ""
         case .willUpdateStatusMessage:
             return [.updateStatusMessage]
-        case .didUpdateStatusMessage(let message):
+        case .updateStatusMessage(let message):
             state.statusMessage = message
-        case .didTapCloseToast:
+        case .tapCloseToast:
             state.showToast = false
         }
         return []

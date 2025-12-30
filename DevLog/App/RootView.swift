@@ -46,7 +46,7 @@ struct RootView: View {
             set: { _, _ in }
         )) {
             Button(role: .cancel, action: {
-                viewModel.send(.didTapCloseToast)
+                viewModel.send(.tapCloseToast)
             }) {
                 Text("확인")
             }

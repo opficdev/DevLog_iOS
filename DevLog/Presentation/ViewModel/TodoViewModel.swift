@@ -29,9 +29,9 @@ final class TodoViewModel: Store {
         case onAppear, refresh
 
         // User
-        case didTapTogglePinned(Todo)
-        case didSwipeTodo(Todo)
-        case didTapFilterOption(FilterOption)
+        case tapTogglePinned(Todo)
+        case swipeTodo(Todo)
+        case tapFilterOption(FilterOption)
         case upsertTodo(Todo)
 
         // Binding

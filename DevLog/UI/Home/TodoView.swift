@@ -44,7 +44,7 @@ struct TodoView: View {
                         }
                         .swipeActions(edge: .leading) {
                             Button(action: {
-                                viewModel.send(.didTapTogglePinned(todo))
+                                viewModel.send(.tapTogglePinned(todo))
                             }) {
                                 Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
                             }
@@ -52,7 +52,7 @@ struct TodoView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive, action: {
-                                viewModel.send(.didSwipeTodo(todo))
+                                viewModel.send(.swipeTodo(todo))
                             }) {
                                 Image(systemName: "trash")
                             }
@@ -87,7 +87,7 @@ struct TodoView: View {
                     Menu(content: {
                         Section {
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.create))
+                                viewModel.send(.tapFilterOption(.create))
                             }) {
                                 if viewModel.state.filterOption == .create {
                                     Image(systemName: "checkmark")
@@ -96,7 +96,7 @@ struct TodoView: View {
                                 Text("생성")
                             }
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.update))
+                                viewModel.send(.tapFilterOption(.update))
                             }) {
                                 if viewModel.state.filterOption == .update {
                                     Image(systemName: "checkmark")
@@ -110,7 +110,7 @@ struct TodoView: View {
                         
                         Section {
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.day))
+                                viewModel.send(.tapFilterOption(.day))
                             }) {
                                 if viewModel.state.filterOption == .day {
                                     Image(systemName: "checkmark")
@@ -119,7 +119,7 @@ struct TodoView: View {
                                 Text("어제")
                             }
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.week))
+                                viewModel.send(.tapFilterOption(.week))
                             }) {
                                 if viewModel.state.filterOption == .week {
                                     Image(systemName: "checkmark")
@@ -128,7 +128,7 @@ struct TodoView: View {
                                 Text("지난주")
                             }
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.month))
+                                viewModel.send(.tapFilterOption(.month))
                             }) {
                                 if viewModel.state.filterOption == .month {
                                     Image(systemName: "checkmark")
@@ -137,7 +137,7 @@ struct TodoView: View {
                                 Text("지난달")
                             }
                             Button(action: {
-                                viewModel.send(.didTapFilterOption(.year))
+                                viewModel.send(.tapFilterOption(.year))
                             }) {
                                 if viewModel.state.filterOption == .year {
                                     Image(systemName: "checkmark")

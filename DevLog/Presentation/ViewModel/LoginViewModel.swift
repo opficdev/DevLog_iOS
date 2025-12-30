@@ -20,9 +20,9 @@ final class LoginViewModel: Store {
     enum Action {
         case onAppear
         case signOutAuto
-        case didTapCloseToast
-        case didTapSignInButton(AuthProvider)
-        case didTapSignOutButton
+        case tapCloseToast
+        case tapSignInButton(AuthProvider)
+        case tapSignOutButton
         case didStartLoading
         case didFinishLoading
         case didLogined(result: Bool)
@@ -55,11 +55,11 @@ final class LoginViewModel: Store {
         switch action {
         case .onAppear:
             return [.restore]
-        case .didTapCloseToast:
+        case .tapCloseToast:
             state.showToast = false
-        case .didTapSignInButton(let authProvider):
+        case .tapSignInButton(let authProvider):
             return [.signIn(authProvider)]
-        case .didTapSignOutButton, .signOutAuto:
+        case .tapSignOutButton, .signOutAuto:
             return [.signOut]
         case .didStartLoading:
             state.isLoading = true
