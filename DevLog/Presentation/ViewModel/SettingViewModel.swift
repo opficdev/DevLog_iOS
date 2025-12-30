@@ -19,7 +19,7 @@ final class SettingViewModel: Store {
     }
 
     enum Action {
-        case closeToast
+        case toggleToast(Bool)
         case setLoading(Bool)
         case setTheme(String)
         case setToastMessage(String)
@@ -49,8 +49,8 @@ final class SettingViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .closeToast:
-            state.showToast = false
+        case .toggleToast(let value):
+            state.showToast = value
         case .setLoading(let value):
             state.isLoading = value
         case .setTheme(let value):
@@ -79,6 +79,7 @@ final class SettingViewModel: Store {
                     send(.setLoading(true))
                     try await deleteAuthuseCase.execute()
                 } catch {
+                    send(.toggleToast(true))
                     send(.setToastMessage(error.localizedDescription))
                 }
             }
@@ -90,6 +91,7 @@ final class SettingViewModel: Store {
                     send(.setLoading(true))
                     try await signOutUseCase.execute()
                 } catch {
+                    send(.toggleToast(true))
                     send(.setToastMessage(error.localizedDescription))
                 }
             }
