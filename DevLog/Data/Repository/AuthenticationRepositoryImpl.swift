@@ -56,4 +56,22 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         // TODO: 후에 Google API를 사용 시 Google만의 restorePreviousSignIn 로직 추가
         return authService.uid != nil
     }
+
+    func delete() async throws {
+        guard let uid = authService.uid,
+              let providerID = try await authService.getProviderID(),
+              let provider = AuthProvider(rawValue: providerID)
+        else {
+            throw AuthError.notAuthenticated
+        }
+
+        switch provider {
+        case .apple:
+            try await appleAuthService.deleteAuth(uid)
+        case .github:
+            try await githubAuthService.deleteAuth(uid)
+        case .google:
+            try await googleAuthService.deleteAuth(uid)
+        }
+    }
 }
