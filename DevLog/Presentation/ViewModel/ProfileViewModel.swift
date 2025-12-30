@@ -27,7 +27,7 @@ final class ProfileViewModel: Store {
         case didTapResetStatusMessageButton
         case willUpdateStatusMessage
         case didUpdateStatusMessage(String)
-        case didDismissToast
+        case didTapCloseToast
     }
 
     enum SideEffect {
@@ -46,7 +46,7 @@ final class ProfileViewModel: Store {
             return [.updateStatusMessage]
         case .didUpdateStatusMessage(let message):
             state.statusMessage = message
-        case .didDismissToast:
+        case .didTapCloseToast:
             state.showToast = false
         }
         return []

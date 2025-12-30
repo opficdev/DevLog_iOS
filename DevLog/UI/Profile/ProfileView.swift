@@ -98,7 +98,7 @@ struct ProfileView: View {
                 set: { _, _ in }
             )) {
                 Button("확인") {
-                    viewModel.send(.didDismissToast)
+                    viewModel.send(.didTapCloseToast)
                 }
             } message: {
                 Text(viewModel.state.toastMessage)
