@@ -21,47 +21,42 @@ struct RootView: View {
                     LoginView(viewModel: viewModel)
                         .onAppear {
                             if isFirstLaunch {
-                                Task {
-                                    isFirstLaunch = false
-                                }
+                                isFirstLaunch = false
+                                viewModel.send(.signOutAuto)
                             }
                         }
                 }
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
             } else {
                 Color.clear.onAppear {
+                    viewModel.send(.onAppear)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                         if viewModel.state.signIn == nil {
-                            Task {
-                                isFirstLaunch = true
-//                                await viewModel.signOut()
-                            }
+                            isFirstLaunch = true
+                            viewModel.send(.signOutAuto)
                         }
                     }
                 }
             }
+            if viewModel.state.isLoading {
+                LoadingView()
+            }
         }
-//        .alert("네트워크 문제", isPresented: $viewModel.showToast) {
         .alert("네트워크 문제", isPresented: Binding(
             get: { viewModel.state.showToast },
             set: { _, _ in }
         )) {
             Button(role: .cancel, action: {
-//                viewModel.showToast = false
+                viewModel.send(.didTapCloseToast)
             }) {
                 Text("확인")
             }
         } message: {
-            Text("네트워크 연결을 확인해주세요")
+            Text(viewModel.state.toastMessage)
         }
         .onChange(of: isFirstLaunch) { _ in
             if isFirstLaunch {
-                Task {
-                    isFirstLaunch = false
-//                    await viewModel.signOut()
-                }
+                isFirstLaunch = false
+                viewModel.send(.signOutAuto)
             }
         }
     }
