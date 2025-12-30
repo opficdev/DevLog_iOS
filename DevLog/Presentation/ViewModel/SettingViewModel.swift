@@ -75,6 +75,7 @@ final class SettingViewModel: Store {
             Task {
                 do {
                     defer { send(.setLoading(false)) }
+                    send(.toggleDeleteUserAlert(false))
                     send(.setLoading(true))
                     try await deleteAuthuseCase.execute()
                 } catch {
@@ -85,6 +86,7 @@ final class SettingViewModel: Store {
             Task {
                 do {
                     defer { send(.setLoading(false)) }
+                    send(.toggleSignOutAlert(false))
                     send(.setLoading(true))
                     try await signOutUseCase.execute()
                 } catch {
