@@ -34,6 +34,10 @@ final class DomainAssembler: Assembler {
                 todoService: container.resolve(TodoService.self)
             )
         }
+
+        container.register(AuthSessionRepository.self) {
+            AuthSessionRepositoryImpl()
+        }
     }
 
     func registerUseCases(_ container: any DIContainer) {
@@ -59,6 +63,10 @@ final class DomainAssembler: Assembler {
 
         container.register(UpsertTodoUseCase.self) {
             UpsertTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+
+        container.register(AuthSessionUseCase.self) {
+            AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
         }
     }
 }

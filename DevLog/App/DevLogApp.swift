@@ -23,6 +23,7 @@ struct DevLogApp: App {
                 signInUseCase: container.resolve(SignInUseCase.self),
                 signOutUseCase: container.resolve(SignOutUseCase.self),
                 restoreUseCase: container.resolve(RestoreAuthUseCase.self)
+                sessionUseCase: container.resolve(AuthSessionUseCase.self)
             ))
             .preferredColorScheme(theme.colorScheme)
         }

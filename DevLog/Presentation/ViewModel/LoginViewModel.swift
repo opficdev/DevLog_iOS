@@ -5,6 +5,7 @@
 //  Created by 최윤진 on 11/14/25.
 //
 
+import Combine
 import Foundation
 import FirebaseAuth
 import GoogleSignIn
@@ -38,17 +39,28 @@ final class LoginViewModel: Store {
     private let signInUseCase: SignInUseCase
     private let signOutUseCase: SignOutUseCase
     private let restoreUseCase: RestoreAuthUseCase
+    private let sessionUseCase: AuthSessionUseCase
 
     @Published private(set) var state = State()
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         signInUseCase: SignInUseCase,
         signOutUseCase: SignOutUseCase,
-        restoreUseCase: RestoreAuthUseCase
+        restoreUseCase: RestoreAuthUseCase,
+        sessionUseCase: AuthSessionUseCase
     ) {
         self.signInUseCase = signInUseCase
         self.signOutUseCase = signOutUseCase
         self.restoreUseCase = restoreUseCase
+        self.sessionUseCase = sessionUseCase
+
+        self.sessionUseCase.repository.signedInPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] signIn in
+                self?.send(.didLogined(result: signIn))
+            }
+            .store(in: &cancellables)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -86,9 +98,11 @@ final class LoginViewModel: Store {
 
                     send(.didFinishLoading)
                     send(.didLogined(result: true))
+                    sessionUseCase.execute(true)
                 } catch {
                     send(.didFinishLoading)
                     send(.didLogined(result: false))
+                    sessionUseCase.execute(false)
                     send(.didLoginFail(message: error.localizedDescription))
                 }
             }
@@ -99,6 +113,7 @@ final class LoginViewModel: Store {
                     defer { send(.didFinishLoading) }
                     try await self.signOutUseCase.execute()
                     send(.didLogined(result: false))
+                    sessionUseCase.execute(false)
                 } catch {
                     send(.didFinishLoading)
                     send(.didLoginFail(message: error.localizedDescription))
