@@ -7,5 +7,5 @@
 
 protocol SignOutUseCase {
     var repository: AuthenticationRepository { get }
-    func execute(_ provider: AuthProvider) async throws
+    func execute() async throws
 }

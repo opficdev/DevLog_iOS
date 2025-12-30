@@ -12,7 +12,7 @@ final class SignOutUseCaseImpl: SignOutUseCase {
         self.repository = repository
     }
 
-    func execute(_ provider: AuthProvider) async throws {
-        try await repository.signOut(provider)
+    func execute() async throws {
+        try await repository.signOut()
     }
 }

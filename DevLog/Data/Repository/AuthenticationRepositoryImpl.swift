@@ -34,11 +34,23 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         }
     }
 
-    func signInWithGithub() async throws -> AuthenticationData {
-        return try await githubAuthService.signIn()
+    func signOut() async throws {
+        guard let uid = authService.uid,
+              let providerID = try await authService.getProviderID(),
+              let provider = AuthProvider(rawValue: providerID)
+        else {
+            throw AuthError.notAuthenticated
+        }
+
+        switch provider {
+        case .apple:
+            try await appleAuthService.signOut(uid)
+        case .github:
+            try await githubAuthService.signOut(uid)
+        case .google:
+            try await googleAuthService.signOut(uid)
+        }
     }
 
-    func signInWithGoogle() async throws -> AuthenticationData {
-        return try await googleAuthService.signIn()
     }
 }
