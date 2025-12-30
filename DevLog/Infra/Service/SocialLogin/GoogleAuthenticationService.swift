@@ -12,6 +12,7 @@ import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
+@MainActor
 final class GoogleAuthenticationService: AuthenticationService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
