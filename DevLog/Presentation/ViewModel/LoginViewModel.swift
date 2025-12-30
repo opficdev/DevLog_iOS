@@ -80,10 +80,7 @@ final class LoginViewModel: Store {
             Task {
                 send(.didStartLoading)
                 do {
-                    defer {
-                        send(.didFinishLoading)
-                        send(.didLogined(result: false))
-                    }
+                    defer { send(.didFinishLoading) }
 
                     _ = try await self.signInUseCase.execute(authProvider)
 
@@ -91,6 +88,7 @@ final class LoginViewModel: Store {
                     send(.didLogined(result: true))
                 } catch {
                     send(.didFinishLoading)
+                    send(.didLogined(result: false))
                     send(.didLoginFail(message: error.localizedDescription))
                 }
             }
