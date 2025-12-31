@@ -50,6 +50,7 @@ final class TodoViewModel: Store {
         case fetchTodos
         case upsertTodo(Todo)
         case togglePinned(Todo)
+        case swipeTodo(Todo)
     }
 
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -67,11 +68,11 @@ final class TodoViewModel: Store {
         switch action {
         case .onAppear, .refresh:
             return [.fetchTodos]
-        case .didTapTogglePinned(let todo):
-            break
-        case .didSwipeTodo(let todo):
-            break
-        case .didTapFilterOption(let option):
+        case .tapTogglePinned(let todo):
+            return [.togglePinned(todo)]
+        case .swipeTodo(let todo):
+            return [.swipeTodo(todo)]
+        case .tapFilterOption(let option):
             state.filterOption = option
         case .upsertTodo(let todo):
             return [.upsertTodo(todo)]
@@ -85,7 +86,6 @@ final class TodoViewModel: Store {
             state.scope = scope
         case .setSearchText(let text):
             state.searchText = text
-
         case .didFetchTodos(let todos):
             state.todos = todos
         case .didTogglePinned(let todo):
@@ -106,6 +106,8 @@ final class TodoViewModel: Store {
                 send(.refresh)
             }
         case .togglePinned(let todo):
+            break
+        case .swipeTodo(let todo):
             break
         }
     }

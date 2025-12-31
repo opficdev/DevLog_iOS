@@ -19,7 +19,7 @@ final class SettingViewModel: Store {
     }
 
     enum Action {
-        case closeToast
+        case toggleToast(Bool)
         case setLoading(Bool)
         case setTheme(String)
         case setToastMessage(String)
@@ -36,21 +36,24 @@ final class SettingViewModel: Store {
 
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
+    private let sessionUseCase: AuthSessionUseCase
 
     @Published private(set) var state = State()
 
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
-        signOutUseCase: SignOutUseCase
+        signOutUseCase: SignOutUseCase,
+        sessionUseCase: AuthSessionUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
+        self.sessionUseCase = sessionUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .closeToast:
-            state.showToast = false
+        case .toggleToast(let value):
+            state.showToast = value
         case .setLoading(let value):
             state.isLoading = value
         case .setTheme(let value):
@@ -79,6 +82,7 @@ final class SettingViewModel: Store {
                     send(.setLoading(true))
                     try await deleteAuthuseCase.execute()
                 } catch {
+                    send(.toggleToast(true))
                     send(.setToastMessage(error.localizedDescription))
                 }
             }
@@ -89,7 +93,9 @@ final class SettingViewModel: Store {
                     send(.toggleSignOutAlert(false))
                     send(.setLoading(true))
                     try await signOutUseCase.execute()
+                    sessionUseCase.execute(false)
                 } catch {
+                    send(.toggleToast(true))
                     send(.setToastMessage(error.localizedDescription))
                 }
             }

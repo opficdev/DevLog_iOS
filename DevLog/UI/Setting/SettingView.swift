@@ -9,10 +9,7 @@ import SwiftUI
 
 struct SettingView: View {
     @AppStorage("theme") var theme: SystemTheme = .automatic
-    @ObservedObject var viewModel: SettingViewModel
-    @State private var signOutAlert = false
-    @State private var deleteUserAlert = false
-    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    @StateObject var viewModel: SettingViewModel
 
     var body: some View {
         Form {
@@ -22,11 +19,11 @@ struct SettingView: View {
                         Text("테마")
                             .foregroundStyle(Color.primary)
                         Spacer()
-                        Text(viewModel.theme)
+                        Text(viewModel.state.theme)
                             .foregroundStyle(Color.gray)
                     }
                     .onAppear {
-                        viewModel.theme = theme.localizedName
+                        viewModel.send(.setTheme(theme.localizedName))
                     }
                 }
                 NavigationLink(destination: PushNotificationSettingsView(viewModel: viewModel)) {
@@ -39,7 +36,7 @@ struct SettingView: View {
                 HStack {
                     Text("버전 정보")
                     Spacer()
-                    Text(appVersion)
+                    Text(viewModel.state.appVersion)
                 }
                 if let ppurl = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String {
                     Link(destination: URL(string: ppurl)!) {
@@ -74,7 +71,7 @@ struct SettingView: View {
                     Text("계정 연동")
                 }
                 Button(role: .destructive, action: {
-                    signOutAlert = true
+                    viewModel.send(.toggleSignOutAlert(true))
                 }) {
                     Text("로그아웃")
                 }
@@ -83,7 +80,7 @@ struct SettingView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    deleteUserAlert = true
+                    viewModel.send(.toggleDeleteUserAlert(true))
                 }) {
                     Text("회원 탈퇴")
                         .font(.headline)
@@ -92,49 +89,51 @@ struct SettingView: View {
             }
         }
         .navigationTitle("설정")
-        .alert("로그아웃", isPresented: $signOutAlert) {
+        .alert("로그아웃", isPresented: Binding(
+            get: { viewModel.state.showSignOutAlert }, set: { _, _ in }
+        )) {
             Button(role: .cancel, action: {
-                signOutAlert = false
+                viewModel.send(.toggleSignOutAlert(false))
             }) {
                 Text("취소")
             }
             Button(role: .destructive, action: {
-                Task {
-                    await viewModel.signOut()
-                }
+                viewModel.send(.tapSignOutButton)
             }) {
                 Text("확인")
             }
         } message: {
             Text("로그아웃하시겠습니까?")
         }
-        .alert("정말 탈퇴하시겠습니까?", isPresented: $deleteUserAlert) {
+        .alert("정말 탈퇴하시겠습니까?", isPresented: Binding(
+            get: { viewModel.state.showDeleteUserAlert }, set: { _, _ in }
+        )) {
             Button(role: .cancel, action: {
-                deleteUserAlert = false
+                viewModel.send(.toggleDeleteUserAlert(false))
             }) {
                 Text("취소")
             }
             Button(role: .destructive, action: {
-                Task {
-                    await viewModel.deleteAuth()
-                }
+                viewModel.send(.tapDeleteAuthButton)
             }) {
                 Text("탈퇴")
             }
         } message: {
             Text("회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다.")
         }
-        .alert("", isPresented: $viewModel.showAlert) {
+        .alert("", isPresented: Binding(
+            get: { viewModel.state.showToast }, set: { _, _ in }
+        )) {
             Button(role: .cancel, action: {
-                viewModel.showAlert = false
+                viewModel.send(.toggleToast(false))
             }) {
                 Text("확인")
             }
         } message: {
-            Text(viewModel.alertMsg)
+            Text(viewModel.state.toastMessage)
         }
         .overlay {
-            if viewModel.isLoading {
+            if viewModel.state.isLoading {
                 LoadingView()
             }
         }
