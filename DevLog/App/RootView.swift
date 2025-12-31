@@ -28,7 +28,6 @@ struct RootView: View {
                 }
             } else {
                 Color.clear.onAppear {
-                    viewModel.send(.onAppear)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                         if viewModel.state.signIn == nil {
                             isFirstLaunch = true

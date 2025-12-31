@@ -19,7 +19,6 @@ final class LoginViewModel: Store {
     }
 
     enum Action {
-        case onAppear
         case signOutAuto
         case tapCloseToast
         case tapSignInButton(AuthProvider)
@@ -33,12 +32,10 @@ final class LoginViewModel: Store {
     enum SideEffect {
         case signIn(AuthProvider)
         case signOut
-        case restore
     }
 
     private let signInUseCase: SignInUseCase
     private let signOutUseCase: SignOutUseCase
-    private let restoreUseCase: RestoreAuthUseCase
     private let sessionUseCase: AuthSessionUseCase
 
     @Published private(set) var state = State()
@@ -47,15 +44,14 @@ final class LoginViewModel: Store {
     init(
         signInUseCase: SignInUseCase,
         signOutUseCase: SignOutUseCase,
-        restoreUseCase: RestoreAuthUseCase,
         sessionUseCase: AuthSessionUseCase
     ) {
         self.signInUseCase = signInUseCase
         self.signOutUseCase = signOutUseCase
-        self.restoreUseCase = restoreUseCase
         self.sessionUseCase = sessionUseCase
 
         self.sessionUseCase.repository.signedInPublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] signIn in
                 self?.send(.didLogined(result: signIn))
@@ -65,8 +61,6 @@ final class LoginViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .onAppear:
-            return [.restore]
         case .tapCloseToast:
             state.showToast = false
         case .tapSignInButton(let authProvider):
@@ -119,11 +113,6 @@ final class LoginViewModel: Store {
                     send(.didLoginFail(message: error.localizedDescription))
                 }
             }
-        case .restore:
-            send(.didStartLoading)
-            let result = restoreUseCase.execute()
-            send(.didLogined(result: result))
-            send(.didFinishLoading)
         }
     }
 }

@@ -8,6 +8,13 @@
 import Combine
 
 final class AuthSessionRepositoryImpl: AuthSessionRepository {
+    private let authService: AuthService
+
+    init(authService: AuthService = .shared) {
+        self.authService = authService
+        self.signIn = authService.uid != nil
+    }
+
     @Published private var signIn: Bool = false
 
     var signedInPublisher: AnyPublisher<Bool, Never> {
