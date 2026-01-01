@@ -9,11 +9,13 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject var viewModel: ProfileViewModel
+    @StateObject private var router = NavigationRouter()
+    @Environment(\.diContainer) private var container
     @FocusState private var focusedOnStatusMsg: Bool
     @State private var showDoneBtn: Bool = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
@@ -77,7 +79,9 @@ struct ProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 0) {
-                        NavigationLink(destination: SettingView(viewModel: SettingViewModel())) {
+                        Button {
+                            router.push(Path.settings)
+                        } label: {
                             Image(systemName: "gearshape")
                         }
                         Button(action: {
@@ -87,6 +91,14 @@ struct ProfileView: View {
                         }
                     }
                 }
+            }
+            .navigationDestination(for: Path.self) { _ in
+                SettingView(viewModel: SettingViewModel(
+                    deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
+                    signOutUseCase: container.resolve(SignOutUseCase.self),
+                    sessionUseCase: container.resolve(AuthSessionUseCase.self)
+                ))
+                .environmentObject(router)
             }
             .onChange(of: focusedOnStatusMsg) { newValue in
                 withAnimation {
@@ -104,5 +116,9 @@ struct ProfileView: View {
                 Text(viewModel.state.toastMessage)
             }
         }
+    }
+
+    private enum Path: Hashable {
+        case settings
     }
 }
