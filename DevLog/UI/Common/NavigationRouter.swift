@@ -8,13 +8,9 @@
 import SwiftUI
 
 final class NavigationRouter: ObservableObject {
-    @Published private(set) var path = NavigationPath()
+    @Published var path = NavigationPath()
 
     func push(_ element: any Hashable) {
         path.append(element)
-    }
-
-    func pop() {
-        path.removeLast()
     }
 }
