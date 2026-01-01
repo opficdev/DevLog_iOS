@@ -10,11 +10,15 @@ import SwiftUI
 struct SettingView: View {
     @AppStorage("theme") var theme: SystemTheme = .automatic
     @StateObject var viewModel: SettingViewModel
+    @EnvironmentObject var router: NavigationRouter
+    @State private var navigationPath: Path?
 
     var body: some View {
         Form {
             Section {
-                NavigationLink(destination: ThemeView(viewModel: viewModel)) {
+                Button {
+                    router.push(Path.theme)
+                } label: {
                     HStack {
                         Text("테마")
                             .foregroundStyle(Color.primary)
@@ -22,11 +26,14 @@ struct SettingView: View {
                         Text(viewModel.state.theme)
                             .foregroundStyle(Color.gray)
                     }
-                    .onAppear {
-                        viewModel.send(.setTheme(theme.localizedName))
-                    }
                 }
-                NavigationLink(destination: PushNotificationSettingsView(viewModel: viewModel)) {
+                .onAppear {
+                    viewModel.send(.setTheme(theme.localizedName))
+                }
+
+                Button {
+                    router.push(Path.pushNotification)
+                } label: {
                     Text("알림")
                         .foregroundStyle(Color.primary)
                 }
@@ -67,7 +74,10 @@ struct SettingView: View {
             }
             
             Section {
-                NavigationLink(destination: AccountView(viewModel: viewModel)) {
+                Button {
+                    router.push(Path.account)
+
+                } label: {
                     Text("계정 연동")
                 }
                 Button(role: .destructive, action: {
@@ -89,6 +99,19 @@ struct SettingView: View {
             }
         }
         .navigationTitle("설정")
+        .navigationDestination(for: Path.self) { path in
+            switch path {
+            case .theme:
+                ContentView(text: "테마 설정 화면")
+//                ThemeView(viewModel: viewModel)
+            case .pushNotification:
+                ContentView(text: "푸시 알림 설정 화면")
+//                PushNotificationSettingsView(viewModel: viewModel)
+            case .account:
+                ContentView(text: "계정 연동 화면")
+//                AccountView(viewModel: viewModel)
+            }
+        }
         .alert("로그아웃", isPresented: Binding(
             get: { viewModel.state.showSignOutAlert }, set: { _, _ in }
         )) {
@@ -137,5 +160,17 @@ struct SettingView: View {
                 LoadingView()
             }
         }
+    }
+
+    private enum Path: Hashable {
+        case theme, pushNotification, account
+    }
+}
+
+struct ContentView: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
     }
 }
