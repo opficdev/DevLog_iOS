@@ -9,10 +9,11 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
+    @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: HomeViewModel
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.path) {
             ZStack {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 VStack {
@@ -28,7 +29,9 @@ struct HomeView: View {
                     List {
                         Section(content: {
                             ForEach(viewModel.state.selectedTodoKinds, id: \.self) { kind in
-                                NavigationLink(value: kind) {
+                                Button(action: {
+                                    router.push(Path.kind(kind))
+                                }) {
                                     HStack {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(kind.color)
@@ -72,7 +75,9 @@ struct HomeView: View {
                                 }
                             } else {
                                 ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
-                                    NavigationLink(value: todo.kind) {
+                                    Button {
+                                        router.push(Path.detail(todo))
+                                    } label: {
                                         HStack {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .fill(todo.kind.color)
@@ -85,6 +90,7 @@ struct HomeView: View {
                                             VStack(alignment: .leading) {
                                                 Text(todo.title)
                                                     .bold()
+                                                    .foregroundStyle(Color.primary)
                                                 Text(todo.dueDate?
                                                     .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
                                                 )
@@ -92,7 +98,6 @@ struct HomeView: View {
                                                 .foregroundStyle(Color.gray)
                                             }
                                         }
-                                        .frame(height: screenWidth)
                                     }
                                 }
                             }
@@ -111,17 +116,20 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("홈")
-            .navigationDestination(for: TodoKind.self) { kind in
-                TodoView(viewModel: TodoViewModel(
-                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                    kind: kind
-                ))
-            }
-            .navigationDestination(for: Todo.self) { todo in
-                TodoDetailView(
-                    todo: todo,
-                    onSubmit: { viewModel.send(.upsertTodo($0)) }
-                )
+            .navigationDestination(for: Path.self) { path in
+                switch path {
+                case .kind(let todoKind):
+                    TodoView(viewModel: TodoViewModel(
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        kind: todoKind
+                    ))
+                    .environmentObject(router)
+                case .detail(let todo):
+                    TodoDetailView(
+                        todo: todo,
+                        onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    )
+                }
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
@@ -148,5 +156,10 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    private enum Path: Hashable {
+        case kind(TodoKind)
+        case detail(Todo)
     }
 }
