@@ -166,11 +166,3 @@ struct SettingView: View {
         case theme, pushNotification, account
     }
 }
-
-struct ContentView: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-    }
-}
