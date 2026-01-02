@@ -133,8 +133,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { _, _ in viewModel.send(.closeToast) })) {
-                    TodoManageView(viewModel: TodoManageViewModel())
+                set: { _, _ in viewModel.send(.closeOrderingSheet) }
+            )) {
+                TodoManageView(viewModel: TodoManageViewModel())
             }
             .alert("", isPresented: Binding(
                 get: { viewModel.state.showToast }, set: { _, _ in })
