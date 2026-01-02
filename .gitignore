@@ -15,6 +15,7 @@ UserInterfaceState.xcuserstate
 Breakpoints_v2.xcbkptlist
 **/build/
 **/xcuserdata/
+ContentView.swift
 
 # NPM
 node_modules/
