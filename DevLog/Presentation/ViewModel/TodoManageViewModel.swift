@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import OrderedCollections
 
 final class TodoManageViewModel: Store {
     struct State {
-        var todoKinds = TodoKind.allCases
-        var selectedTodoKinds = OrderedSet<TodoKind>()
+        var todoKindPreferences: [TodoKindPreference]
     }
 
     enum Action {
@@ -21,25 +19,21 @@ final class TodoManageViewModel: Store {
 
     enum SideEffect { }
 
-    @Published private(set) var state = State()
+    @Published private(set) var state: State
+
+    init(_ todoKindPreferences: [TodoKindPreference]) {
+        self.state = State(todoKindPreferences: todoKindPreferences)
+    }
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
         case .moveItem(let from, let target):
-            state.selectedTodoKinds.elements.move(fromOffsets: from, toOffset: target)
+            state.todoKindPreferences.move(fromOffsets: from, toOffset: target)
         case .tapItem(let item):
-            if state.selectedTodoKinds.contains(item) {
-                state.selectedTodoKinds.remove(item)
-            } else {
-                state.selectedTodoKinds.append(item)
+            if let index = state.todoKindPreferences.firstIndex(where: { $0.kind == item }) {
+                state.todoKindPreferences[index].isVisible.toggle()
             }
         }
         return []
-    }
-}
-
-extension TodoManageViewModel {
-    func contains(_ kind: TodoKind) -> Bool {
-        return state.selectedTodoKinds.contains(kind)
     }
 }
