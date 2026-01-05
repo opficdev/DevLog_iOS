@@ -21,7 +21,7 @@ final class AppleAuthenticationService: AuthenticationService {
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.apple
 
-    func signIn() async throws -> AuthenticationData {
+    func signIn() async throws -> AuthenticationDataResponse {
         let response = try await authenticateWithAppleAsync()
         
         let nonce = response.nonce
