@@ -26,7 +26,8 @@ final class DomainAssembler: Assembler {
                 googleAuthService: container.resolve(
                     AuthenticationService.self,
                     name: "GoogleAuthenticationService"
-                )
+                ),
+                userService: container.resolve(UserService.self)
             )
         }
 

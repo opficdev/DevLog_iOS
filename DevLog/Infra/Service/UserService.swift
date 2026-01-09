@@ -14,7 +14,7 @@ final class UserService {
     private let functions = Functions.functions(region: "asia-northeast3")
     
     // 유저를 Firestore에 저장 및 업데이트
-    func upsertUser(fcmToken: String, provider: String? = nil, accessToken: String? = nil) async throws {
+    func upsertUser(_ response: AuthenticationDataResponse) async throws {
         guard let user = Auth.auth().currentUser else { throw AuthError.notAuthenticated }
         let infoRef = store.document("users/\(user.uid)/userData/info")
         let tokensRef = store.document("users/\(user.uid)/userData/tokens")
@@ -25,11 +25,9 @@ final class UserService {
             "statusMsg": "",
             "lastLogin": FieldValue.serverTimestamp()
         ]
-        
-        if let provider = provider {
-            userField["currentProvider"] = provider
-        }
-        
+
+        userField["currentProvider"] = response.providerID
+
         // 공급자 이슈로 인한 nil 방지
         if let email = user.email {
             userField["email"] = email
@@ -40,16 +38,17 @@ final class UserService {
         }
 
         // Apple은 최초 새 이름 설정 시에만 이름을 제공
-        if provider == "apple.com" && user.displayName != nil && user.displayName != "" {
+        if response.providerID == "apple.com" &&
+            user.displayName != nil && user.displayName != "" {
             userField["appleName"] = user.displayName
         }
         
         try await infoRef.setData(userField, merge: true)
 
-        var settingField = ["fcmToken": fcmToken]
-        
-        // 깃헙, 애플 로그인 시 추가 정보 저장
-        if provider == "github.com", let accessToken = accessToken {
+        var settingField = ["fcmToken": response.fcmToken]
+
+        // 깃헙 로그인 시 추가 정보 저장
+        if response.providerID == "github.com", let accessToken = response.accessToken {
             settingField["githubAccessToken"] = accessToken
         }
         

@@ -10,28 +10,33 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     private let appleAuthService: AuthenticationService
     private let githubAuthService: AuthenticationService
     private let googleAuthService: AuthenticationService
+    private let userService: UserService
 
     init(
         authService: AuthService,
         appleAuthService: AuthenticationService,
         githubAuthService: AuthenticationService,
-        googleAuthService: AuthenticationService
+        googleAuthService: AuthenticationService,
+        userService: UserService
     ) {
         self.authService = authService
         self.appleAuthService = appleAuthService
         self.githubAuthService = githubAuthService
         self.googleAuthService = googleAuthService
+        self.userService = userService
     }
 
     func signIn(_ provider: AuthProvider) async throws {
+        let response: AuthenticationDataResponse
         switch provider {
         case .apple:
-            _ = try await appleAuthService.signIn()
+            response = try await appleAuthService.signIn()
         case .github:
-            _ = try await githubAuthService.signIn()
+            response = try await githubAuthService.signIn()
         case .google:
-            _ = try await googleAuthService.signIn()
+            response = try await googleAuthService.signIn()
         }
+        try await userService.upsertUser(response)
     }
 
     func signOut() async throws {
