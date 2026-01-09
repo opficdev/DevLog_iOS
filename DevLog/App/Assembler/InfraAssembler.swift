@@ -29,6 +29,10 @@ final class InfraAssembler: @MainActor Assembler {
             GoogleAuthenticationService()
         }
 
+        container.register(AuthService.self) {
+            AuthService()
+        }
+
         container.register(TodoService.self) {
             TodoService()
         }

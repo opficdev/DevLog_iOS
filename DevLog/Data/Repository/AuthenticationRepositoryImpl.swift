@@ -12,7 +12,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     private let googleAuthService: AuthenticationService
 
     init(
-        authService: AuthService = .shared,
+        authService: AuthService,
         appleAuthService: AuthenticationService,
         githubAuthService: AuthenticationService,
         googleAuthService: AuthenticationService

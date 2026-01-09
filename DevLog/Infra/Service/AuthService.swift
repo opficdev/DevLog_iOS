@@ -9,25 +9,10 @@ import FirebaseAuth
 import FirebaseFirestore
 
 final class AuthService {
-    static let shared = AuthService()
     private let store = Firestore.firestore()
-
-    private init() {}
 
     var uid: String? {
         Auth.auth().currentUser?.uid
-    }
-
-    var name: String? {
-        Auth.auth().currentUser?.displayName
-    }
-
-    var email: String? {
-        Auth.auth().currentUser?.email
-    }
-
-    var avatarURL: URL? {
-        Auth.auth().currentUser?.photoURL
     }
 
     var providerIDs: [String]? {
