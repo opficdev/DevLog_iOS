@@ -10,3 +10,7 @@ import Foundation
 enum AuthError: Error {
     case notAuthenticated
 }
+
+enum FirestoreError: Error {
+    case dataNotFound
+}
