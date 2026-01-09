@@ -36,5 +36,9 @@ final class InfraAssembler: @MainActor Assembler {
         container.register(TodoService.self) {
             TodoService()
         }
+
+        container.register(UserService.self) {
+            UserService()
+        }
     }
 }
