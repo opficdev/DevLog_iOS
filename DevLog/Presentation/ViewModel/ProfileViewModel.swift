@@ -23,25 +23,41 @@ final class ProfileViewModel: Store {
     }
 
     enum Action {
+        case onAppear
         case tapConfirmButton
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
+        case fetchUserData(UserProfile)
         case updateStatusMessage(String)
         case tapCloseToast
     }
 
     enum SideEffect {
+        case fetchUserData
         case updateStatusMessage
     }
 
+    private let fetchUserDataUseCase: FetchUserDataUseCase
     @Published private(set) var state = State()
 
+    init(fetchUserDataUseCase: FetchUserDataUseCase) {
+        self.fetchUserDataUseCase = fetchUserDataUseCase
+    }
+
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
         switch action {
+        case .onAppear:
+            return [.fetchUserData]
         case .tapConfirmButton:
             state.showToast = false
         case .tapResetStatusMessageButton:
             state.statusMessage = ""
+        case .fetchUserData(let profile):
+            state.name = profile.name
+            state.email = profile.email
+            state.statusMessage = profile.statusMessage
+            state.avatarURL = profile.avatarURL
         case .willUpdateStatusMessage:
             return [.updateStatusMessage]
         case .updateStatusMessage(let message):
@@ -49,11 +65,17 @@ final class ProfileViewModel: Store {
         case .tapCloseToast:
             state.showToast = false
         }
+        self.state = state
         return []
     }
 
     func run(_ effect: SideEffect) {
         switch effect {
+        case .fetchUserData:
+            Task {
+                let profile = try await fetchUserDataUseCase.execute()
+                send(.fetchUserData(profile))
+            }
         case .updateStatusMessage:
             break
         }
