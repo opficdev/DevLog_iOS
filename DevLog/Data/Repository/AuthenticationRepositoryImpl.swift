@@ -53,7 +53,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func restore() -> Bool {
-        // TODO: 후에 Google API를 사용 시 Google만의 restorePreviousSignIn 로직 추가
+        // MARK: 후에 Google API를 사용 시 Google만의 restorePreviousSignIn 로직 추가
         return authService.uid != nil
     }
 
