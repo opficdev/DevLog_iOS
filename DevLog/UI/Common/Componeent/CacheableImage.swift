@@ -22,6 +22,7 @@ struct CacheableImage: View {
             self.request = request
         } else {
             self.request = URLRequest(url: URL(string: "about:blank")!)
+            self.isInvalid = true
         }
     }
 
@@ -48,7 +49,7 @@ struct CacheableImage: View {
 
     @MainActor
     private func loadImageWithCache() async {
-        guard let _ = url else { return }
+        guard self.url != nil else { return }
 
         if let cachedResponse = URLCache.imageCached.cachedResponse(for: request) {
             if let uiImage = UIImage(data: cachedResponse.data) {
