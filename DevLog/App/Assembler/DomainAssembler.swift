@@ -41,6 +41,10 @@ final class DomainAssembler: Assembler {
         container.register(AuthSessionRepository.self) {
             AuthSessionRepositoryImpl(authService: container.resolve(AuthService.self))
         }
+
+        container.register(UserDataRepository.self) {
+            UserDataRepositoryImpl(userService: container.resolve(UserService.self))
+        }
     }
 
     func registerUseCases(_ container: any DIContainer) {
@@ -66,6 +70,10 @@ final class DomainAssembler: Assembler {
 
         container.register(AuthSessionUseCase.self) {
             AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
+        }
+
+        container.register(FetchUserDataUseCase.self) {
+            FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
         }
     }
 }

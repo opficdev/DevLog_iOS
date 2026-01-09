@@ -61,7 +61,7 @@ final class UserService {
             "pushNotificationMinute": 0], merge: true)
     }
     
-    func fetchUserProfile(_ provider: AuthProvider) async throws -> UserProfileResponse {
+    func fetchUserProfile() async throws -> UserProfileResponse {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
@@ -70,7 +70,8 @@ final class UserService {
 
         let data = try await infoRef.getDocument().data()
 
-        guard let name = data?[provider == .apple ? "appleName" : "name"] as? String,
+        guard let provider = data?["currentProvider"] as? String,
+              let name = data?[provider == "apple.com" ? "appleName" : "name"] as? String,
               let email = data?["email"] as? String,
               let statusMessage = data?["statusMsg"] as? String
         else {
