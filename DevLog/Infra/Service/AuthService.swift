@@ -6,9 +6,11 @@
 //
 
 import FirebaseAuth
+import FirebaseFirestore
 
 final class AuthService {
     static let shared = AuthService()
+    private let store = Firestore.firestore()
 
     private init() {}
 
@@ -32,5 +34,14 @@ final class AuthService {
         Auth.auth().currentUser?.providerData.map { $0.providerID }
     }
 
-    var currentProviderID: String?
+    func getProviderID() async throws -> String? {
+        guard let uid = uid else { return nil }
+
+        let document = try await store
+            .collection("users/\(uid)/userData")
+            .document("info")
+            .getDocument()
+
+        return document.data()?["currentProvider"] as? String
+    }
 }
