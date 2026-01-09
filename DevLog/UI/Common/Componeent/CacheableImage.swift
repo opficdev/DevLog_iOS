@@ -42,7 +42,8 @@ struct CacheableImage: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .task {
+        .task(id: url) {
+            self.isInvalid = (self.url == nil)
             await loadImageWithCache()
         }
     }
