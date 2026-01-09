@@ -86,10 +86,14 @@ final class UserService {
         )
     }
     
-    func upsertStatusMsg(userId: String, statusMsg: String) async throws {
-        let infoRef = store.document("users/\(userId)/userData/info")
-        
-        try await infoRef.setData(["statusMsg": statusMsg], merge: true)
+    func upsertStatusMessage(_ message: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infoRef = store.document("users/\(uid)/userData/info")
+
+        try await infoRef.setData(["statusMsg": message], merge: true)
     }
     
     func fetchPushNotificationEnabled(_ userId: String) async throws -> Bool {

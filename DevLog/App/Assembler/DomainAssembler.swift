@@ -75,5 +75,9 @@ final class DomainAssembler: Assembler {
         container.register(FetchUserDataUseCase.self) {
             FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
         }
+
+        container.register(UpsertStatusMessageUseCase.self) {
+            UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
+        }
     }
 }

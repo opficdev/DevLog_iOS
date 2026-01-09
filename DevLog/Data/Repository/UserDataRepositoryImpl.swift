@@ -17,4 +17,8 @@ final class UserDataRepositoryImpl: UserDataRepository {
 
         return response.toDomain()
     }
+
+    func upsertStatusMessage(_ message: String) async throws {
+        try await  self.userService.upsertStatusMessage(message)
+    }
 }

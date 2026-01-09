@@ -29,19 +29,25 @@ final class ProfileViewModel: Store {
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
         case updateStatusMessage(String)
+        case updateStatusTextFieldFocus(Bool)
         case tapCloseToast
     }
 
     enum SideEffect {
         case fetchUserData
-        case updateStatusMessage
+        case updateStatusMessage(String)
     }
 
     private let fetchUserDataUseCase: FetchUserDataUseCase
+    private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     @Published private(set) var state = State()
 
-    init(fetchUserDataUseCase: FetchUserDataUseCase) {
+    init(
+        fetchUserDataUseCase: FetchUserDataUseCase,
+        upsertStatusMessageUseCase: UpsertStatusMessageUseCase
+    ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
+        self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -59,9 +65,12 @@ final class ProfileViewModel: Store {
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
         case .willUpdateStatusMessage:
-            return [.updateStatusMessage]
+            let message = self.state.statusMessage
+            return [.updateStatusMessage(message)]
         case .updateStatusMessage(let message):
             state.statusMessage = message
+        case .updateStatusTextFieldFocus(let focused):
+            state.showDoneButton = focused
         case .tapCloseToast:
             state.showToast = false
         }
@@ -76,8 +85,10 @@ final class ProfileViewModel: Store {
                 let profile = try await fetchUserDataUseCase.execute()
                 send(.fetchUserData(profile))
             }
-        case .updateStatusMessage:
-            break
+        case .updateStatusMessage(let message):
+            Task {
+                try await upsertStatusMessageUseCase.execute(message)
+            }
         }
     }
 }
