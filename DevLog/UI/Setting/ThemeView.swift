@@ -50,14 +50,13 @@ struct ThemeView: View {
                 }
             }
         }
-        .listStyle(InsetGroupedListStyle())
+        .listStyle(.insetGrouped)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("테마")
                     .bold()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: theme.localizedName) { newValue in
             viewModel.theme = newValue
         }
