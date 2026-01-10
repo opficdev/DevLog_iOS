@@ -11,7 +11,7 @@ struct ProfileView: View {
     @StateObject var viewModel: ProfileViewModel
     @StateObject private var router = NavigationRouter()
     @Environment(\.diContainer) private var container
-    @FocusState private var focusedOnStatusMsg: Bool
+    @FocusState private var focusedOnStatusMessageTextField: Bool
     @State private var showDoneBtn: Bool = false
 
     var body: some View {
@@ -44,7 +44,7 @@ struct ProfileView: View {
                                     Text("상태 설정")
                                 }
                             }
-                            .focused($focusedOnStatusMsg)
+                            .focused($focusedOnStatusMessageTextField)
                             
                             if viewModel.state.resetButtonEnabled {
                                 Button(action: {
@@ -63,7 +63,7 @@ struct ProfileView: View {
                         )
                         if viewModel.state.showDoneButton {
                             Button(action: {
-                                focusedOnStatusMsg = false
+                                focusedOnStatusMessageTextField = false
                                 viewModel.send(.willUpdateStatusMessage)
                             }) {
                                 Text("완료")
@@ -73,6 +73,9 @@ struct ProfileView: View {
                     }
                 }
                 .padding(.horizontal)
+            }
+            .onAppear {
+                viewModel.send(.onAppear)
             }
             .frame(maxWidth: .infinity)
             .background(Color(UIColor.systemGroupedBackground))
@@ -100,9 +103,9 @@ struct ProfileView: View {
                 ))
                 .environmentObject(router)
             }
-            .onChange(of: focusedOnStatusMsg) { newValue in
+            .onChange(of: focusedOnStatusMessageTextField) { newValue in
                 withAnimation {
-                    showDoneBtn = newValue
+                    viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }
             }
             .alert("", isPresented: Binding(
