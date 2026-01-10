@@ -11,6 +11,8 @@ final class NavigationRouter: ObservableObject {
     @Published var path = NavigationPath()
 
     func push(_ element: any Hashable) {
-        path.append(element)
+        Task { @MainActor in
+            path.append(element)
+        }
     }
 }
