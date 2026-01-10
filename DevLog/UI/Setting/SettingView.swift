@@ -102,8 +102,9 @@ struct SettingView: View {
         .navigationDestination(for: Path.self) { path in
             switch path {
             case .theme:
-                ContentView(text: "테마 설정 화면")
-//                ThemeView(viewModel: viewModel)
+                ThemeView() { theme in
+
+                }
             case .pushNotification:
                 ContentView(text: "푸시 알림 설정 화면")
 //                PushNotificationSettingsView(viewModel: viewModel)
