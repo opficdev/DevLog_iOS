@@ -10,7 +10,7 @@ import Foundation
 final class HomeViewModel: Store {
     struct State {
         // UI
-        let selectedTodoKinds = TodoKind.allCases
+        var todoKindPreferences: [TodoKindPreference] = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [Todo] = []
 
         // User Input
@@ -31,6 +31,7 @@ final class HomeViewModel: Store {
         // User
         case tapEllipsisButton
         case upsertTodo(Todo)
+        case orderTodoKindPreferences([TodoKindPreference])
 
         // Binding
         case updateSearching(Bool)
@@ -63,16 +64,17 @@ final class HomeViewModel: Store {
         switch action {
         case .onAppear:
             return [.fetchPinnedTodos]
-
         case.tapEllipsisButton:
             state.reorderTodo = true
-
         case .updateSearching(let isSearching):
             state.isSearching = isSearching
         case .updateSearchText(let text):
             state.searchText = text
         case .upsertTodo(let todo):
             return [.upsertTodo(todo)]
+        case .orderTodoKindPreferences(let preferences):
+            state.todoKindPreferences = preferences
+
         case .closeOrderingSheet:
             state.reorderTodo = false
         case .closeToast:

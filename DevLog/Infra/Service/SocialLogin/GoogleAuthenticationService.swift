@@ -19,7 +19,7 @@ final class GoogleAuthenticationService: AuthenticationService {
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
 
-    func signIn() async throws -> AuthenticationData {
+    func signIn() async throws -> AuthenticationDataResponse {
         guard let topVC = topViewController() else {
             throw URLError(.cannotFindHost)
         }

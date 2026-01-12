@@ -13,8 +13,8 @@ extension FirebaseAuth.User {
         providerID: AuthProviderID,
         fcmToken: String,
         accessToken: String? = nil
-    ) -> AuthenticationData {
-        return AuthenticationData(
+    ) -> AuthenticationDataResponse {
+        return AuthenticationDataResponse(
             uid: self.uid,
             displayName: self.displayName,
             email: self.email,

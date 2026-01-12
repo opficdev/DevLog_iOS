@@ -9,14 +9,15 @@ import SwiftUI
 
 struct TodoManageView: View {
     @StateObject var viewModel: TodoManageViewModel
-    @Environment(\.dismiss) private var dismiss
-    
+    var onDismiss: (([TodoKindPreference]) -> Void)?
+
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.state.todoKinds) { kind in
+                ForEach(viewModel.state.todoKindPreferences, id: \.id) { preference in
+                    let kind = preference.kind
                     HStack(spacing: 0) {
-                        CheckBox(isChecked: viewModel.contains(kind), font: .title3)
+                        CheckBox(isChecked: preference.isVisible, font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
                                 viewModel.send(.tapItem(kind))
@@ -29,6 +30,8 @@ struct TodoManageView: View {
                 }
                 .listRowInsets(EdgeInsets())
             }
+            //  편집 모드 활성화
+            //  row 우측에 line.3.horizontal 추가됨
             .environment(\.editMode, .constant(EditMode.active))
             .navigationTitle("TODO 편집")
             .navigationBarTitleDisplayMode(.inline)
@@ -36,15 +39,12 @@ struct TodoManageView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        dismiss()
+                        onDismiss?(viewModel.state.todoKindPreferences)
                     }) {
                         Text("완료")
                     }
                 }
             }
         }
-        //  편집 모드 활성화
-        //  row 우측에 line.3.horizontal 추가됨
-        .environment(\.editMode, .constant(EditMode.active))
     }
 }

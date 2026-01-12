@@ -10,7 +10,7 @@ import Combine
 final class AuthSessionRepositoryImpl: AuthSessionRepository {
     private let authService: AuthService
 
-    init(authService: AuthService = .shared) {
+    init(authService: AuthService) {
         self.authService = authService
         self.signIn = authService.uid != nil
     }

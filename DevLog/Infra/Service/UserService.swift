@@ -9,16 +9,13 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
 
-class UserService {
+final class UserService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     
-    @Published var name: String = ""
-    @Published var avatarURL: URL?
-    @Published var statusMsg: String = ""
-    
     // 유저를 Firestore에 저장 및 업데이트
-    func upsertUser(user: User, fcmToken: String, provider: String? = nil, accessToken: String? = nil) async throws {
+    func upsertUser(_ response: AuthenticationDataResponse) async throws {
+        guard let user = Auth.auth().currentUser else { throw AuthError.notAuthenticated }
         let infoRef = store.document("users/\(user.uid)/userData/info")
         let tokensRef = store.document("users/\(user.uid)/userData/tokens")
         let settingsRef = store.document("users/\(user.uid)/userData/settings")
@@ -28,11 +25,9 @@ class UserService {
             "statusMsg": "",
             "lastLogin": FieldValue.serverTimestamp()
         ]
-        
-        if let provider = provider {
-            userField["currentProvider"] = provider
-        }
-        
+
+        userField["currentProvider"] = response.providerID
+
         // 공급자 이슈로 인한 nil 방지
         if let email = user.email {
             userField["email"] = email
@@ -41,17 +36,19 @@ class UserService {
         if let displayName = user.displayName, displayName != "" {
             userField["name"] = displayName
         }
-        
-        if provider == "apple.com" && user.displayName != nil && user.displayName != "" {
+
+        // Apple은 최초 새 이름 설정 시에만 이름을 제공
+        if response.providerID == "apple.com" &&
+            user.displayName != nil && user.displayName != "" {
             userField["appleName"] = user.displayName
         }
         
         try await infoRef.setData(userField, merge: true)
 
-        var settingField = ["fcmToken": fcmToken]
-        
-        // 깃헙, 애플 로그인 시 추가 정보 저장
-        if provider == "github.com", let accessToken = accessToken {
+        var settingField = ["fcmToken": response.fcmToken]
+
+        // 깃헙 로그인 시 추가 정보 저장
+        if response.providerID == "github.com", let accessToken = response.accessToken {
             settingField["githubAccessToken"] = accessToken
         }
         
@@ -64,16 +61,39 @@ class UserService {
             "pushNotificationMinute": 0], merge: true)
     }
     
-    func fetchUserInfo(user: User) async throws {
-        self.name = user.displayName ?? String(user.email?.split(separator: "@").first ?? "")
-        self.avatarURL = user.photoURL
-        self.statusMsg = statusMsg
+    func fetchUserProfile() async throws -> UserProfileResponse {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infoRef = store.document("users/\(uid)/userData/info")
+
+        let data = try await infoRef.getDocument().data()
+
+        guard let provider = data?["currentProvider"] as? String,
+              let name = data?[provider == "apple.com" ? "appleName" : "name"] as? String,
+              let email = data?["email"] as? String,
+              let statusMessage = data?["statusMsg"] as? String
+        else {
+            throw FirestoreError.dataNotFound
+        }
+
+        return UserProfileResponse(
+            name: name,
+            email: email,
+            statusMessage: statusMessage,
+            avatarURL: Auth.auth().currentUser?.photoURL
+        )
     }
     
-    func upsertStatusMsg(userId: String, statusMsg: String) async throws {
-        let infoRef = store.document("users/\(userId)/userData/info")
-        
-        try await infoRef.setData(["statusMsg": statusMsg], merge: true)
+    func upsertStatusMessage(_ message: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infoRef = store.document("users/\(uid)/userData/info")
+
+        try await infoRef.setData(["statusMsg": message], merge: true)
     }
     
     func fetchPushNotificationEnabled(_ userId: String) async throws -> Bool {

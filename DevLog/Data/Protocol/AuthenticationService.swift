@@ -8,7 +8,7 @@
 import Foundation
 
 protocol AuthenticationService {
-    func signIn() async throws -> AuthenticationData
+    func signIn() async throws -> AuthenticationDataResponse
     func signOut(_ uid: String) async throws
     func deleteAuth(_ uid: String) async throws
     func link(uid: String, email: String) async throws

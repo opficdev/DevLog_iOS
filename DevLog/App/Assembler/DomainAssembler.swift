@@ -14,6 +14,7 @@ final class DomainAssembler: Assembler {
     func registerRepositories(_ container: any DIContainer) {
         container.register(AuthenticationRepository.self) {
             AuthenticationRepositoryImpl(
+                authService: container.resolve(AuthService.self),
                 appleAuthService: container.resolve(
                     AuthenticationService.self,
                     name: "AppleAuthenticationService"
@@ -25,18 +26,24 @@ final class DomainAssembler: Assembler {
                 googleAuthService: container.resolve(
                     AuthenticationService.self,
                     name: "GoogleAuthenticationService"
-                )
+                ),
+                userService: container.resolve(UserService.self)
             )
         }
 
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
+                authService: container.resolve(AuthService.self),
                 todoService: container.resolve(TodoService.self)
             )
         }
 
         container.register(AuthSessionRepository.self) {
-            AuthSessionRepositoryImpl()
+            AuthSessionRepositoryImpl(authService: container.resolve(AuthService.self))
+        }
+
+        container.register(UserDataRepository.self) {
+            UserDataRepositoryImpl(userService: container.resolve(UserService.self))
         }
     }
 
@@ -63,6 +70,14 @@ final class DomainAssembler: Assembler {
 
         container.register(AuthSessionUseCase.self) {
             AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
+        }
+
+        container.register(FetchUserDataUseCase.self) {
+            FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
+        }
+
+        container.register(UpsertStatusMessageUseCase.self) {
+            UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
         }
     }
 }

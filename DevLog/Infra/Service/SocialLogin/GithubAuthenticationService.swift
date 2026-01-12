@@ -19,7 +19,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.gitHub
 
-    func signIn() async throws -> AuthenticationData {
+    func signIn() async throws -> AuthenticationDataResponse {
         // 1. GitHub OAuth 로그인 요청
         let authorizationCode = try await requestAuthorizationCode()
 

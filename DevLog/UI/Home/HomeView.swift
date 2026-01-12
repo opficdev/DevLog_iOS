@@ -28,7 +28,9 @@ struct HomeView: View {
                         )
                     List {
                         Section(content: {
-                            ForEach(viewModel.state.selectedTodoKinds, id: \.self) { kind in
+                            let preferences = viewModel.state.todoKindPreferences
+                            ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
+                                let kind = preference.kind
                                 Button(action: {
                                     router.push(Path.kind(kind))
                                 }) {
@@ -133,9 +135,17 @@ struct HomeView: View {
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { _, _ in viewModel.send(.closeOrderingSheet) }
+                set: { _, _ in }
             )) {
-                TodoManageView(viewModel: TodoManageViewModel())
+                TodoManageView(
+                    viewModel: TodoManageViewModel(viewModel.state.todoKindPreferences),
+                    onDismiss: { array in
+                        viewModel.send(.closeOrderingSheet)
+                        withAnimation {
+                            viewModel.send(.orderTodoKindPreferences(array))
+                        }
+                    }
+                )
             }
             .alert("", isPresented: Binding(
                 get: { viewModel.state.showToast }, set: { _, _ in })
