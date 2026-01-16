@@ -74,9 +74,6 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal)
             }
-            .onAppear {
-                viewModel.send(.onAppear)
-            }
             .frame(maxWidth: .infinity)
             .background(Color(UIColor.systemGroupedBackground))
             .toolbar {
@@ -102,6 +99,9 @@ struct ProfileView: View {
                     sessionUseCase: container.resolve(AuthSessionUseCase.self)
                 ))
                 .environmentObject(router)
+            }
+            .onAppear {
+                viewModel.send(.onAppear)
             }
             .onChange(of: focusedOnStatusMessageTextField) { newValue in
                 withAnimation {
