@@ -15,7 +15,8 @@ final class SettingViewModel: Store {
         var toastMessage = ""
         var showToast = false
         var isLoading = false
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
     }
 
     enum Action {

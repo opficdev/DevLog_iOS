@@ -40,12 +40,14 @@ struct SettingView: View {
             }
             
             Section {
-                HStack {
-                    Text("버전 정보")
-                    Spacer()
-                    Text(viewModel.state.appVersion)
+                if let appVersion = viewModel.state.appVersion {
+                    HStack {
+                        Text("버전 정보")
+                        Spacer()
+                        Text(appVersion)
+                    }
                 }
-                if let ppurl = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String {
+                if let ppurl = viewModel.state.policyURL {
                     Link(destination: URL(string: ppurl)!) {
                         Text("개인정보 처리방침")
                             .foregroundColor(Color.blue)
