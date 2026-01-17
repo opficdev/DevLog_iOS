@@ -99,6 +99,7 @@ struct SettingView: View {
             }
         }
         .navigationTitle("설정")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Path.self) { path in
             switch path {
             case .theme:
