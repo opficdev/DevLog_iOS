@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ThemeView: View {
     @AppStorage("theme") var theme: SystemTheme = .automatic
-    var onChangedTheme: ((SystemTheme) -> Void)?
 
     var body: some View {
         List {
@@ -56,9 +55,6 @@ struct ThemeView: View {
                 Text("테마")
                     .bold()
             }
-        }
-        .onChange(of: theme) { newValue in
-            onChangedTheme?(newValue)
         }
     }
 }
