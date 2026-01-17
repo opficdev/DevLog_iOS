@@ -56,7 +56,6 @@ final class UserService {
 
         try await settingsRef.setData([
             "allowPushNotification": true,
-            "theme": "automatic",
             "pushNotificationHour": 9,
             "pushNotificationMinute": 0], merge: true)
     }
@@ -140,12 +139,6 @@ final class UserService {
         try await settingRef.setData([
             "pushNotificationHour": hour,
             "pushNotificationMinute": minute], merge: true)
-    }
-    
-    func updateAppTheme(_ userId: String, theme: String) async throws {
-        let settingsRef = store.document("users/\(userId)/userData/settings")
-        
-        try await settingsRef.setData(["theme": theme], merge: true)
     }
     
     func updateFCMToken(_ userId: String, fcmToken: String) async throws {
