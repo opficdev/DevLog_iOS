@@ -102,7 +102,7 @@ struct SettingView: View {
         .navigationDestination(for: Path.self) { path in
             switch path {
             case .theme:
-                ThemeView() { theme in
+                ThemeView { _ in
 
                 }
             case .pushNotification:

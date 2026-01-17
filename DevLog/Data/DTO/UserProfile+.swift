@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 struct UserProfileResponse: Decodable {
     let name: String
     let email: String
