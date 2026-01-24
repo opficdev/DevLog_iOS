@@ -1,5 +1,5 @@
 //
-//  NotificationServcie.swift
+//  PushNotificationService.swift
 //  DevLog
 //
 //  Created by opfic on 7/10/25.
@@ -8,7 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 
-final class NotificationService {
+final class PushNotificationService {
     private let store = Firestore.firestore()
 
     /// 푸시 알림 On/Off 설정
@@ -57,7 +57,7 @@ final class NotificationService {
     }
 
     /// 푸시 알림 시간 업데이트
-    func updatePushNotificationTime(_ time: Date) async throws {
+    func updatePushNotificationTime(_ date: Date) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
@@ -65,7 +65,7 @@ final class NotificationService {
         let settingRef = store.document("users/\(uid)/userData/settings")
 
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: time)
+        let components = calendar.dateComponents([.hour, .minute], from: date)
         let hour = components.hour ?? 9
         let minute = components.minute ?? 0
 
