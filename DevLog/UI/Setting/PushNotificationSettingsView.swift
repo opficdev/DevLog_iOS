@@ -66,32 +66,33 @@ struct PushNotificationSettingsView: View {
             set: { _ in viewModel.send(.setShowTimePicker(false)) }
         )) {
             DatePicker(
+                "",
                 selection: Binding(
                     get: { viewModel.state.pushNotificationTime },
                     set: { newValue in
                         viewModel.send(.setPushNotificationTime(newValue))
                     }),
                 displayedComponents: .hourAndMinute
-            ) {}
-                .datePickerStyle(.wheel)
-                .labelsHidden()
-                .presentationDragIndicator(.hidden)
-                .presentationDetents([.height(sheetHeight)])
-                .onAppear {
-                    UIDatePicker.appearance().minuteInterval = 5
-                }
-                .onDisappear {
-                    UIDatePicker.appearance().minuteInterval = 1 // 기본값으로 복원
-                }
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear.onAppear {
-                            if sheetHeight == 0 {
-                                sheetHeight = geometry.size.height
-                            }
+            )
+            .datePickerStyle(.wheel)
+            .labelsHidden()
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(sheetHeight)])
+            .onAppear {
+                UIDatePicker.appearance().minuteInterval = 5
+            }
+            .onDisappear {
+                UIDatePicker.appearance().minuteInterval = 1 // 기본값으로 복원
+            }
+            .background(
+                GeometryReader { geometry in
+                    Color.clear.onAppear {
+                        if sheetHeight == 0 {
+                            sheetHeight = geometry.size.height
                         }
                     }
-                )
+                }
+            )
         }
     }
 }
