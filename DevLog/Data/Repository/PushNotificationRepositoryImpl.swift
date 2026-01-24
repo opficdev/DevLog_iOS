@@ -10,8 +10,8 @@ import Foundation
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
     private let service: PushNotificationService
 
-    init(_ service: PushNotificationService) {
-        self.service = service
+    init(pushNotificationService: PushNotificationService) {
+        self.service = pushNotificationService
     }
 
     func fetchPushNotificationTime() async throws -> DateComponents {
