@@ -40,5 +40,9 @@ final class DataAssembler: Assembler {
         container.register(UserDataRepository.self) {
             UserDataRepositoryImpl(userService: container.resolve(UserService.self))
         }
+
+        container.register(PushNotificationRepository.self) {
+            PushNotificationRepositoryImpl(pushNotificationService: container.resolve(PushNotificationService.self))
+        }
     }
 }
