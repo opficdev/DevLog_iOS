@@ -40,5 +40,9 @@ final class InfraAssembler: @MainActor Assembler {
         container.register(UserService.self) {
             UserService()
         }
+
+        container.register(PushNotificationService.self) {
+            PushNotificationService()
+        }
     }
 }
