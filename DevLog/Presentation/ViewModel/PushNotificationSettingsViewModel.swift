@@ -18,20 +18,30 @@ final class PushNotificationSettingsViewModel: Store {
     }
 
     enum Action {
+        case onAppear
         case setPushNotificationEnable(Bool)
         case setPushNotificationHour(Int)
         case setPushNotificationTime(Date)
         case setShowTimePicker(Bool)
     }
 
-    enum SideEffect { }
+    enum SideEffect {
+        case fetchPushNotificationSettings
+    }
 
     private let calendar = Calendar.current
     @Published private(set) var state: State = .init()
+    private let fetchPushSettingsUseCase: FetchPushSettingsUseCase
+
+    init(fetchPushSettingsUseCase: FetchPushSettingsUseCase) {
+        self.fetchPushSettingsUseCase = fetchPushSettingsUseCase
+    }
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         switch action {
+        case .onAppear:
+            return [.fetchPushNotificationSettings]
         case .setPushNotificationEnable(let value):
             state.pushNotificationEnable = value
         case .setPushNotificationHour(let value):
@@ -51,5 +61,20 @@ final class PushNotificationSettingsViewModel: Store {
         }
         self.state = state
         return []
+    }
+
+    func run(_ effect: SideEffect) {
+        switch effect {
+        case .fetchPushNotificationSettings:
+            Task {
+                let settings = try await fetchPushSettingsUseCase.execute()
+                self.send(.setPushNotificationEnable(settings.isEnabled))
+                if let hour = settings.scheduledTime.hour,
+                   let minute = settings.scheduledTime.minute,
+                   let date = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) {
+                    self.send(.setPushNotificationTime(date))
+                }
+            }
+        }
     }
 }
