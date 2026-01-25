@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingView: View {
     @AppStorage("theme") var theme: SystemTheme = .automatic
+    @Environment(\.diContainer) var container: DIContainer
     @StateObject var viewModel: SettingViewModel
     @EnvironmentObject var router: NavigationRouter
     @State private var navigationPath: Path?
@@ -107,8 +108,11 @@ struct SettingView: View {
             case .theme:
                 ThemeView()
             case .pushNotification:
-                ContentView(text: "푸시 알림 설정 화면")
-//                PushNotificationSettingsView(viewModel: viewModel)
+                PushNotificationSettingsView(
+                    viewModel: PushNotificationSettingsViewModel(
+                        fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self)
+                    )
+                )
             case .account:
                 ContentView(text: "계정 연동 화면")
 //                AccountView(viewModel: viewModel)

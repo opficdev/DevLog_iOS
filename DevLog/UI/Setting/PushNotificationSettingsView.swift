@@ -61,6 +61,9 @@ struct PushNotificationSettingsView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle("알람")
+        .onAppear {
+            viewModel.send(.onAppear)
+        }
         .sheet(isPresented: Binding(
             get: { viewModel.state.showTimePicker },
             set: { _ in viewModel.send(.setShowTimePicker(false)) }
