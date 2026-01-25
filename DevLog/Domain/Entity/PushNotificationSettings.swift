@@ -8,6 +8,6 @@
 import Foundation
 
 struct PushNotificationSettings: Equatable {
-    let allow: Bool
-    let time: Date
+    let isEnabled: Bool
+    let scheduledTime: DateComponents
 }
