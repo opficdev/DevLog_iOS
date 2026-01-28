@@ -45,15 +45,26 @@ final class PushNotificationService {
         return DateComponents(hour: hour, minute: minute)
     }
 
-    /// 푸시 알림 설정 업데이트
-    func updatePushNotificationSettings(isEnabled: Bool, components: DateComponents) async throws {
+    /// 푸시 알림 On/Off 업데이트
+    func updatePushNotificationEnabled(_ enabled: Bool) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
 
         let settingsRef = store.document("users/\(uid)/userData/settings")
 
-        var dict: [String: Any] = ["allowPushNotification": isEnabled]
+        try await settingsRef.setData(["allowPushNotification": enabled], merge: true)
+    }
+
+    /// 푸시 알림 시간 업데이트
+    func updatePushNotificationTime(_ components: DateComponents) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let settingsRef = store.document("users/\(uid)/userData/settings")
+
+        var dict: [String: Any] = [:]
 
         if let hour = components.hour {
             dict["pushNotificationHour"] = hour
