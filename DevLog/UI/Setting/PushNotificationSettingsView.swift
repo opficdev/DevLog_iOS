@@ -17,9 +17,7 @@ struct PushNotificationSettingsView: View {
                 Toggle(isOn:
                         Binding(
                             get: { viewModel.state.pushNotificationEnable },
-                            set: { newValue in
-                                viewModel.send(.setPushNotificationEnable(newValue))
-                            }
+                            set: { viewModel.send(.setPushNotificationEnable($0)) }
                         )) {
                             Text("푸시 알람 활성화")
                         }
