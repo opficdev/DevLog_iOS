@@ -55,8 +55,7 @@ final class PushNotificationSettingsViewModel: Store {
             //  시간만 변경
             if let newDate = calendar.date(
                 bySettingHour: value,
-                minute: calendar.component(.minute, from: state.pushNotificationTime),
-                second: 0,
+                minute: 0, second: 0,
                 of: state.pushNotificationTime
             ) {
                 self.state.pushNotificationTime = newDate
