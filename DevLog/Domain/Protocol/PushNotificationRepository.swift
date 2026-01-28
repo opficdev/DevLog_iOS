@@ -11,5 +11,5 @@ protocol PushNotificationRepository {
     func fetchPushNotificationEnabled() async throws -> Bool
     func fetchPushNotificationTime() async throws -> DateComponents
     func updatePushNotificationEnabled(_ enabled: Bool) async throws
-    func updatePushNotificationTime(_ date: Date) async throws
+    func updatePushNotificationTime(_ components: DateComponents) async throws
 }

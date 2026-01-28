@@ -57,21 +57,24 @@ final class PushNotificationService {
     }
 
     /// 푸시 알림 시간 업데이트
-    func updatePushNotificationTime(_ date: Date) async throws {
+    func updatePushNotificationTime(_ components: DateComponents) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
 
-        let settingRef = store.document("users/\(uid)/userData/settings")
+        let settingsRef = store.document("users/\(uid)/userData/settings")
 
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: date)
-        let hour = components.hour ?? 9
-        let minute = components.minute ?? 0
+        var dict: [String: Any] = [:]
 
-        try await settingRef.setData([
-            "pushNotificationHour": hour,
-            "pushNotificationMinute": minute], merge: true)
+        if let hour = components.hour {
+            dict["pushNotificationHour"] = hour
+        }
+
+        if let minute = components.minute {
+            dict["pushNotificationMinute"] = minute
+        }
+
+        try await settingsRef.setData(dict, merge: true)
     }
 
     /// 푸시 알림 데이터 요청
