@@ -14,17 +14,19 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         self.service = pushNotificationService
     }
 
+    func fetchPushNotificationTime() async throws -> DateComponents {
+        return try await service.fetchPushNotificationTime()
+    }
+    
+    func updatePushNotificationEnabled(_ enabled: Bool) async throws {
+        try await service.updatePushNotificationEnabled(enabled)
+    }
+
     func fetchPushNotificationEnabled() async throws -> Bool {
         return try await service.fetchPushNotificationEnabled()
     }
 
-    func fetchPushNotificationTime() async throws -> DateComponents {
-        return try await service.fetchPushNotificationTime()
-    }
-
-    func updatePushNotificationSettings(_ settings: PushNotificationSettings) async throws {
-        try await service.updatePushNotificationSettings(
-            isEnabled: settings.isEnabled, components: settings.scheduledTime
-        )
+    func updatePushNotificationTime(_ components: DateComponents) async throws {
+        try await service.updatePushNotificationTime(components)
     }
 }
