@@ -13,7 +13,6 @@ final class UpdatePushSettingsUseCaseImpl: UpdatePushSettingsUseCase {
     }
 
     func execute(_ settings: PushNotificationSettings) async throws {
-        try await repository.updatePushNotificationEnabled(settings.isEnabled)
-        try await repository.updatePushNotificationTime(settings.scheduledTime)
+        try await repository.updatePushNotificationSettings(settings)
     }
 }
