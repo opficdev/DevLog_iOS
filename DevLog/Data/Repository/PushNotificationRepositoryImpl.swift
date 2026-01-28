@@ -26,7 +26,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         return try await service.fetchPushNotificationEnabled()
     }
 
-    func updatePushNotificationTime(_ date: Date) async throws {
-        try await service.updatePushNotificationTime(date)
+    func updatePushNotificationTime(_ components: DateComponents) async throws {
+        try await service.updatePushNotificationTime(components)
     }
 }
