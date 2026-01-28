@@ -70,9 +70,8 @@ struct PushNotificationSettingsView: View {
                 "",
                 selection: Binding(
                     get: { viewModel.state.pushNotificationTime },
-                    set: { newValue in
-                        viewModel.send(.setPushNotificationTime(newValue))
-                    }),
+                    set: { viewModel.send(.setPushNotificationTime($0)) }
+                ),
                 displayedComponents: .hourAndMinute
             )
             .datePickerStyle(.wheel)
