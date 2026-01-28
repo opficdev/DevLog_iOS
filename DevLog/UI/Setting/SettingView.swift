@@ -110,7 +110,8 @@ struct SettingView: View {
             case .pushNotification:
                 PushNotificationSettingsView(
                     viewModel: PushNotificationSettingsViewModel(
-                        fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self)
+                        fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self),
+                        updatePushSettingsUseCase: container.resolve(UpdatePushSettingsUseCase.self)
                     )
                 )
             case .account:
