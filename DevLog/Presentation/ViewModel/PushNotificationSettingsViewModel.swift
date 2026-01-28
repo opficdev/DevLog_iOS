@@ -49,7 +49,8 @@ final class PushNotificationSettingsViewModel: Store {
         case .onAppear:
             return [.fetchPushNotificationSettings]
         case .setPushNotificationEnable(let value):
-            state.pushNotificationEnable = value
+            self.state.pushNotificationEnable = value
+            return [.updatePushNotificationSettings]
         case .setPushNotificationHour(let value):
             //  시간만 변경
             if let newDate = calendar.date(
@@ -58,10 +59,12 @@ final class PushNotificationSettingsViewModel: Store {
                 second: 0,
                 of: state.pushNotificationTime
             ) {
-                state.pushNotificationTime = newDate
+                self.state.pushNotificationTime = newDate
+                return [.updatePushNotificationSettings]
             }
         case .setPushNotificationTime(let value):
-            state.pushNotificationTime = value
+            self.state.pushNotificationTime = value
+            return [.updatePushNotificationSettings]
         case .setShowTimePicker(let value):
             state.showTimePicker = value
         }
