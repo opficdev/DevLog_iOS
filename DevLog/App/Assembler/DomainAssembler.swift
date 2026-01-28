@@ -42,5 +42,9 @@ final class DomainAssembler: Assembler {
         container.register(UpsertStatusMessageUseCase.self) {
             UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
         }
+
+        container.register(UpdatePushSettingsUseCase.self) {
+            UpdatePushSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
     }
 }
