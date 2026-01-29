@@ -42,7 +42,7 @@ struct PushNotificationSettingsView: View {
                 HStack {
                     Text("사용자 설정")
                     Spacer()
-                    Text("\(viewModel.state.pushNotificationHour)시")
+                    Text(formattedTimeString(viewModel.state.pushNotificationTime))
                         .foregroundStyle(.secondary)
                     if ![9, 15, 18, 21].contains(viewModel.state.pushNotificationHour) {
                         Image(systemName: "checkmark")
@@ -94,5 +94,18 @@ struct PushNotificationSettingsView: View {
                 }
             )
         }
+    }
+
+    private func formattedTimeString(_ date: Date) -> String {
+        let minuteValue = Calendar.current.component(.minute, from: date)
+        let formatStyle: Date.FormatStyle = .dateTime.hour(.twoDigits(amPM: .wide))
+
+        if minuteValue == 0 {
+            return "\(date.formatted(formatStyle))"
+        }
+
+        let hourText = date.formatted(formatStyle)
+        let minuteText = date.formatted(.dateTime.minute(.twoDigits))
+        return "\(hourText) \(minuteText)분"
     }
 }
