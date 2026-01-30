@@ -28,40 +28,45 @@ jobs:
         run: |
           set -euo pipefail
 
-          # OS 버전(마이너 포함) 오름차순으로 정렬 후, iPhone 기기 중 첫 번째 선택
+          # iPhone 기기들만 모은 뒤, OS 버전(마이너 포함) 오름차순으로 가장 낮은 버전 선택
           RESULT=$(python3 - <<'PY'
-          import json, subprocess, sys
+          import json, re, subprocess, sys
 
-          devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True))
+          devices = data.get("devices", {})
 
           def is_available(d):
-              return d.get("isAvailable") or d.get("availability") == "(available)"
+            return d.get("isAvailable") or d.get("availability") == "(available)"
 
-          def parse_version(runtime_key):
-              # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> [17, 2]
-              if "iOS-" not in runtime_key:
-                  return None
-              parts = runtime_key.split("iOS-")[-1].split("-")
-              try:
-                  return [int(p) for p in parts]
-              except ValueError:
-                  return None
+          def runtime_to_version(runtime_key):
+            # runtime 키가 아니라, 내부에서 OS 버전 문자열을 찾기 위해 fallback 사용
+            # e.g., com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> 17.2
+            m = re.search(r'iOS-([0-9]+(?:-[0-9]+)*)', runtime_key)
+            if not m:
+              return None
+            return m.group(1).replace('-', '.')
 
-          runtimes = []
-          for runtime_key in devices.keys():
-              ver = parse_version(runtime_key)
-              if ver is None:
-                  continue
-              runtimes.append((ver, runtime_key))
+          def ver_key(v):
+            return [int(x) for x in v.split('.')]
 
-          for (ver, runtime_key) in sorted(runtimes, key=lambda x: x[0]):
-              for d in devices.get(runtime_key, []):
-                  if is_available(d) and "iPhone" in d.get("name", ""):
-                      version = ".".join(str(x) for x in ver)
-                      print(f"{version}|{d['name']}")
-                      sys.exit(0)
+          candidates = []
+          for runtime_key, devs in devices.items():
+            for d in devs:
+              if not is_available(d):
+                continue
+              if "iPhone" not in d.get("name", ""):
+                continue
+              ver = runtime_to_version(runtime_key)
+              if not ver:
+                continue
+              candidates.append((ver_key(ver), ver, d["name"]))
 
-          sys.exit(1)
+          if not candidates:
+            sys.exit(1)
+
+          candidates.sort(key=lambda x: x[0])
+          _, ver, name = candidates[0]
+          print(f"{ver}|{name}")
           PY
           )
 
