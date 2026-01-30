@@ -1,22 +1,21 @@
 name: iOS CI
 
 on:
-  push:
   pull_request:
 
 jobs:
   build:
-    runs-on: macos-13 # iOS 16 시뮬레이터 런타임 포함
+    runs-on: macos-14 # iOS 17 시뮬레이터 런타임 포함
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select iOS Simulator Runtime (>= 16.0)
+      - name: Select iOS Simulator Runtime (>= 17.0)
         id: pick_ios
         shell: bash
         run: |
           set -euo pipefail
 
-          MIN_IOS="16.0"
+          MIN_IOS="17.0"
 
           # 설치된 iOS Simulator 런타임 버전들 추출 (예: 17.2, 18.0 ...)
           # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
@@ -58,7 +57,10 @@ jobs:
 
           # 스킴 목록 수집 (가장 짧은 이름 선택)
           SCHEMES_JSON=$(xcodebuild -list -json)
-            mapfile -t SCHEMES < <(python3 -c 'import json, os; data=json.loads(os.environ["SCHEMES_JSON"]); schemes=data.get("workspace", {}).get("schemes") or data.get("project", {}).get("schemes") or []; print("\n".join(schemes))')
+          SCHEMES=()
+          while IFS= read -r s; do
+            SCHEMES+=("$s")
+          done < <(python3 -c 'import json, os; data=json.loads(os.environ["SCHEMES_JSON"]); schemes=data.get("workspace", {}).get("schemes") or data.get("project", {}).get("schemes") or []; print("\n".join(schemes))')
 
           if [ "${#SCHEMES[@]}" -eq 0 ]; then
             echo "No schemes found." >&2
