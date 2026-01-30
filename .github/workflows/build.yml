@@ -28,18 +28,43 @@ jobs:
         run: |
           set -euo pipefail
 
-          # iPhone 기기들만 모은 뒤, OS 버전(마이너 포함) 오름차순으로 가장 낮은 버전 선택
-          # 런타임 키를 쓰지 않고 simctl 텍스트 출력에서 버전/기기명 파싱
-          RESULT=$(xcrun simctl list devices | awk '
-          /^== iOS / {ver=$3; next}
-          /\(unavailable\)/ {next}
-          ver && $0 ~ /iPhone/ {
-            line=$0
-            sub(/^[[:space:]]+/, "", line)
-            sub(/ \(.*/, "", line)
-            print ver "|" line
-          }
-          ' | sort -t'|' -k1,1V | head -n 1)
+          # 런타임 키를 오름차순으로 정렬하고, iPhone 시뮬레이터가 있으면 선택
+          RESULT=$(python3 - <<'PY'
+            import json, subprocess, sys
+
+            devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
+
+            def is_available(d):
+              return d.get("isAvailable") or d.get("availability") == "(available)"
+
+            def parse_runtime(runtime_key):
+              # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> ([17, 2], "17.2")
+              if "iOS-" not in runtime_key:
+                return None
+              parts = runtime_key.split("iOS-")[-1].split("-")
+              try:
+                nums = [int(p) for p in parts]
+              except ValueError:
+                return None
+              return nums, ".".join(str(n) for n in nums)
+
+            runtimes = []
+            for key in devices.keys():
+              parsed = parse_runtime(key)
+              if parsed is None:
+                continue
+              nums, ver = parsed
+              runtimes.append((nums, ver, key))
+
+            for _, ver, key in sorted(runtimes, key=lambda x: x[0]):
+              for d in devices.get(key, []):
+                if is_available(d) and "iPhone" in d.get("name", ""):
+                  print(f"{ver}|{d['name']}")
+                  sys.exit(0)
+
+            sys.exit(1)
+          PY
+          )
 
           if [ -z "${RESULT:-}" ]; then
             echo "No iPhone simulator devices detected." >&2
