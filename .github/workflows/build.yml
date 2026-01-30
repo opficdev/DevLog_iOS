@@ -30,39 +30,39 @@ jobs:
 
           # 런타임 키를 오름차순으로 정렬하고, iPhone 시뮬레이터가 있으면 선택
           RESULT=$(python3 - <<'PY'
-            import json, subprocess, sys
+          import json, subprocess, sys
 
-            devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
+          devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
 
-            def is_available(d):
-              return d.get("isAvailable") or d.get("availability") == "(available)"
+          def is_available(d):
+            return d.get("isAvailable") or d.get("availability") == "(available)"
 
-            def parse_runtime(runtime_key):
-              # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> ([17, 2], "17.2")
-              if "iOS-" not in runtime_key:
-                return None
-              parts = runtime_key.split("iOS-")[-1].split("-")
-              try:
-                nums = [int(p) for p in parts]
-              except ValueError:
-                return None
-              return nums, ".".join(str(n) for n in nums)
+          def parse_runtime(runtime_key):
+            # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> ([17, 2], "17.2")
+            if "iOS-" not in runtime_key:
+              return None
+            parts = runtime_key.split("iOS-")[-1].split("-")
+            try:
+              nums = [int(p) for p in parts]
+            except ValueError:
+              return None
+            return nums, ".".join(str(n) for n in nums)
 
-            runtimes = []
-            for key in devices.keys():
-              parsed = parse_runtime(key)
-              if parsed is None:
-                continue
-              nums, ver = parsed
-              runtimes.append((nums, ver, key))
+          runtimes = []
+          for key in devices.keys():
+            parsed = parse_runtime(key)
+            if parsed is None:
+              continue
+            nums, ver = parsed
+            runtimes.append((nums, ver, key))
 
-            for _, ver, key in sorted(runtimes, key=lambda x: x[0]):
-              for d in devices.get(key, []):
-                if is_available(d) and "iPhone" in d.get("name", ""):
-                  print(f"{ver}|{d['name']}")
-                  sys.exit(0)
+          for _, ver, key in sorted(runtimes, key=lambda x: x[0]):
+            for d in devices.get(key, []):
+              if is_available(d) and "iPhone" in d.get("name", ""):
+                print(f"{ver}|{d['name']}")
+                sys.exit(0)
 
-            sys.exit(1)
+          sys.exit(1)
           PY
           )
 
