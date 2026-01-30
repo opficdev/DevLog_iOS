@@ -73,13 +73,20 @@ jobs:
           ls -la
 
           # 스킴 목록 수집 (가장 짧은 이름 선택)
-          # 스킴 조회 시 SPM 해상도로 멈추는 경우가 있어 비활성화
-          SCHEMES_JSON=$(XCODEBUILD_DISABLE_PACKAGE_RESOLUTION=YES \
-            xcodebuild -list -json -project DevLog.xcodeproj -disableAutomaticPackageResolution)
+          # 스킴 조회 시 -json 단계에서 멈추는 경우가 있어 텍스트 출력으로 파싱
+          echo "Listing schemes..."
+          SCHEMES_RAW=$(XCODEBUILD_DISABLE_PACKAGE_RESOLUTION=YES \
+            xcodebuild -list -project DevLog.xcodeproj -disableAutomaticPackageResolution -skipPackageUpdates)
+          echo "Finished listing schemes."
+
           SCHEMES=()
           while IFS= read -r s; do
-            SCHEMES+=("$s")
-          done < <(python3 -c 'import json, os; data=json.loads(os.environ["SCHEMES_JSON"]); schemes=data.get("workspace", {}).get("schemes") or data.get("project", {}).get("schemes") or []; print("\n".join(schemes))')
+            [ -n "$s" ] && SCHEMES+=("$s")
+          done < <(printf '%s\n' "$SCHEMES_RAW" | awk '
+            /^Schemes:/ {in_schemes=1; next}
+            in_schemes && NF==0 {exit}
+            in_schemes {sub(/^\s+/, ""); print}
+          ')
 
           if [ "${#SCHEMES[@]}" -eq 0 ]; then
             echo "No schemes found." >&2
