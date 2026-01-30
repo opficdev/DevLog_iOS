@@ -40,10 +40,10 @@ jobs:
 
           versions = sorted(set(versions), key=ver_key)
 
-            devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
-            print("Runtime keys:")
-            for k in sorted(devices.keys()):
-              print(f"- {k}")
+          devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
+          print("Runtime keys:")
+          for k in sorted(devices.keys()):
+            print(f"- {k}")
 
           def is_available(d):
               return d.get("isAvailable") or d.get("availability") == "(available)"
