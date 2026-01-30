@@ -79,20 +79,20 @@ jobs:
 
           # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택 (JSON 파싱)
           DEVICE_INFO=$(python3 - <<'PY'
-      import json, os, subprocess, sys
-      ios_ver = os.environ['IOS_VER']
-      prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{ios_ver.replace('.', '-') }"
-      data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)
-      j = json.loads(data)
-      for runtime, devices in j.get("devices", {}).items():
-        if not runtime.startswith(prefix):
-          continue
-        for d in devices:
-          if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-            os_ver = runtime.split("iOS-")[-1].replace("-", ".")
-            print(f"{d['name']}|{os_ver}")
-            sys.exit(0)
-      sys.exit(1)
+          import json, os, subprocess, sys
+          ios_ver = os.environ['IOS_VER']
+          prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{ios_ver.replace('.', '-') }"
+          data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)
+          j = json.loads(data)
+          for runtime, devices in j.get("devices", {}).items():
+            if not runtime.startswith(prefix):
+              continue
+            for d in devices:
+              if d.get("isAvailable") and "iPhone" in d.get("name", ""):
+                os_ver = runtime.split("iOS-")[-1].replace("-", ".")
+                print(f"{d['name']}|{os_ver}")
+                sys.exit(0)
+          sys.exit(1)
           PY
           )
 
