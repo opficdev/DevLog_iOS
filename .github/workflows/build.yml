@@ -28,30 +28,39 @@ jobs:
         run: |
           set -euo pipefail
 
-          # 설치된 iOS Simulator 런타임 버전들 추출 (예: 17.2, 18.0 ...)
-          # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
-          versions=()
-          while IFS= read -r v; do
-            versions+=("$v")
-          done < <(
-            xcrun simctl runtime list 2>/dev/null \
-              | grep -Eo 'iOS ([0-9]+(\.[0-9]+)*)' \
-              | awk '{print $2}' \
-              | sort -V \
-              | uniq
+          # iPhone 시뮬레이터가 존재하는 런타임 중 가장 낮은 버전 선택
+          chosen=$(python3 - <<'PY'
+          import json, subprocess
+
+          data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)
+          j = json.loads(data)
+
+          versions = []
+          for runtime, devices in j.get("devices", {}).items():
+              if "iOS-" not in runtime:
+                  continue
+              # iPhone 디바이스가 있는 런타임만
+              if not any(d.get("isAvailable") and "iPhone" in d.get("name", "") for d in devices):
+                  continue
+              ver = runtime.split("iOS-")[-1].replace("-", ".")
+              versions.append(ver)
+
+          def ver_key(v):
+              return [int(x) for x in v.split(".")]
+
+          versions = sorted(set(versions), key=ver_key)
+          if not versions:
+              raise SystemExit(1)
+          print(versions[0])
+          PY
           )
 
-          if [ "${#versions[@]}" -eq 0 ]; then
-            echo "No iOS simulator runtimes detected." >&2
+          if [ -z "${chosen:-}" ]; then
+            echo "No iPhone simulator runtimes detected." >&2
             exit 1
           fi
 
-          # 실제 존재하는 런타임 중 가장 낮은 버전 선택
-          MIN_IOS="${versions[0]}"
-          chosen="$MIN_IOS"
-
-          echo "Detected runtimes: ${versions[*]:-<none>}"
-          echo "Chosen iOS runtime version: $chosen"
+          echo "Chosen iOS runtime version (iPhone): $chosen"
 
           echo "ios_version=$chosen" >> "$GITHUB_OUTPUT"
 
