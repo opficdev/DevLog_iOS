@@ -29,16 +29,37 @@ jobs:
           set -euo pipefail
 
           # simctl 텍스트 헤더 버전 기준으로 최신 iOS 버전의 iPhone 선택
-          RESULT=$(xcrun simctl list devices | awk '
-          /^== iOS / {ver=$3; next}
-          /\(unavailable\)/ {next}
-          ver && $0 ~ /iPhone/ {
-            line=$0
-            sub(/^[[:space:]]+/, "", line)
-            sub(/ \(.*/, "", line)
-            print ver "|" line
-          }
-          ' | sort -t'|' -k1,1Vr | head -n 1)
+          RESULT=$(python3 - <<'PY'
+          import re, subprocess, sys
+
+          text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+
+          current_ver = None
+          candidates = []  # (version_tuple, version_str, device_name)
+
+          def ver_key(v):
+            return tuple(int(x) for x in v.split('.'))
+
+          for line in text.splitlines():
+            m = re.match(r"^== iOS ([0-9]+(?:\.[0-9]+)*) ==$", line.strip())
+            if m:
+              current_ver = m.group(1)
+              continue
+            if "(unavailable)" in line:
+              continue
+            if current_ver and "iPhone" in line:
+              name = line.strip()
+              name = re.sub(r" \(.*", "", name)
+              candidates.append((ver_key(current_ver), current_ver, name))
+
+          if not candidates:
+            sys.exit(1)
+
+          candidates.sort(reverse=True)
+          _, ver, name = candidates[0]
+          print(f"{ver}|{name}")
+          PY
+          )
 
           if [ -z "${RESULT:-}" ]; then
             echo "No iPhone simulator devices detected." >&2
