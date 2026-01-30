@@ -28,49 +28,46 @@ jobs:
         run: |
           set -euo pipefail
 
-          # iOS x.y 형태만 사용하고, iPhone 기기 중 첫 번째 선택
+          # OS 버전(마이너 포함) 오름차순으로 정렬 후, iPhone 기기 중 첫 번째 선택
           RESULT=$(python3 - <<'PY'
           import json, subprocess, sys
 
           devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
 
           def is_available(d):
-            return d.get("isAvailable") or d.get("availability") == "(available)"
+              return d.get("isAvailable") or d.get("availability") == "(available)"
 
           def parse_version(runtime_key):
-            # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> (17, 2)
-            if "iOS-" not in runtime_key:
-              return None
-            parts = runtime_key.split("iOS-")[-1].split("-")
-            if len(parts) < 2:
-              return None
-            try:
-              return int(parts[0]), int(parts[1])
-            except ValueError:
-              return None
+              # com.apple.CoreSimulator.SimRuntime.iOS-17-2 -> [17, 2]
+              if "iOS-" not in runtime_key:
+                  return None
+              parts = runtime_key.split("iOS-")[-1].split("-")
+              try:
+                  return [int(p) for p in parts]
+              except ValueError:
+                  return None
 
           runtimes = []
           for runtime_key in devices.keys():
-            ver = parse_version(runtime_key)
-            if ver is None:
-              continue
-            runtimes.append((ver, runtime_key))
+              ver = parse_version(runtime_key)
+              if ver is None:
+                  continue
+              runtimes.append((ver, runtime_key))
 
-          for (_, runtime_key) in sorted(runtimes, key=lambda x: x[0]):
-            for d in devices.get(runtime_key, []):
-              if is_available(d) and "iPhone" in d.get("name", ""):
-                major, minor = parse_version(runtime_key)
-                version = f"{major}.{minor}"
-                print(f"{version}|{d['name']}")
-                sys.exit(0)
+          for (ver, runtime_key) in sorted(runtimes, key=lambda x: x[0]):
+              for d in devices.get(runtime_key, []):
+                  if is_available(d) and "iPhone" in d.get("name", ""):
+                      version = ".".join(str(x) for x in ver)
+                      print(f"{version}|{d['name']}")
+                      sys.exit(0)
 
           sys.exit(1)
           PY
           )
 
           if [ -z "${RESULT:-}" ]; then
-          echo "No iPhone simulator devices detected." >&2
-          exit 1
+            echo "No iPhone simulator devices detected." >&2
+            exit 1
           fi
 
           IFS='|' read -r IOS_VER DEVICE_NAME <<< "$RESULT"
@@ -86,8 +83,8 @@ jobs:
         run: |
           set -euo pipefail
           set -x
-            IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
-            DEVICE_NAME="${{ steps.pick_ios.outputs.device_name }}"
+          IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
+          DEVICE_NAME="${{ steps.pick_ios.outputs.device_name }}"
 
           xcodebuild -version
 
