@@ -73,16 +73,34 @@ jobs:
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
 
           xcodebuild -version
-          ls -la
 
           echo "Using scheme: $SCHEME"
+
+          # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택
+          DEVICE_NAME=$(xcrun simctl list devices available | awk -v ver="$IOS_VER" '
+            $0 ~ "^== iOS " ver " ==" {in=1; next}
+            $0 ~ "^== " {in=0}
+            in && $0 ~ /^[[:space:]]/ && $0 ~ /iPhone/ {
+              sub(/^[[:space:]]+/, "", $0)
+              gsub(/ \(.*/, "", $0)
+              print $0
+              exit
+            }
+          ')
+
+          if [ -z "${DEVICE_NAME:-}" ]; then
+            echo "No available simulator device found for iOS ${IOS_VER}." >&2
+            exit 1
+          fi
+
+          echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
 
           # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
           set -o pipefail
           xcodebuild \
             -scheme "$SCHEME" \
             -configuration Debug \
-            -destination "platform=iOS Simulator,OS=${IOS_VER},name=iPhone 14" \
+            -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
             -showBuildTimingSummary \
             build \
             | cat
