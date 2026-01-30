@@ -28,39 +28,55 @@ jobs:
         run: |
           set -euo pipefail
 
-          # simctl 텍스트 헤더 버전 기준으로 최신 iOS 버전의 iPhone 선택
-          RESULT=$(python3 - <<'PY'
-          import re, subprocess, sys
+            # macOS 메인 버전에 맞는 iOS 버전 중 최신 버전의 iPhone 선택
+            RESULT=$(python3 - <<'PY'
+            import re, subprocess, sys
 
-          text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+            mac_ver = subprocess.check_output(["sw_vers", "-productVersion"], text=True).strip()
+            mac_major = mac_ver.split('.')[0]
 
-          current_ver = None
-          candidates = []  # (version_tuple, version_str, device_name)
+            text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+            lines = text.splitlines()
 
-          def ver_key(v):
-            return tuple(int(x) for x in v.split('.'))
+            def ver_key(v):
+              return tuple(int(x) for x in v.split('.'))
 
-          for line in text.splitlines():
-            header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
-            if header:
-              current_ver = header.group(1)
-              continue
-            if "(unavailable)" in line:
-              continue
-            if current_ver and "iPhone" in line:
-              name = line.strip()
-              name = re.sub(r" \(.*", "", name)
-              candidates.append((ver_key(current_ver), current_ver, name))
+            # 1) 최신 iOS 버전(해당 mac 메이저) 찾기
+            latest_ver = None
+            for line in lines:
+              header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+              if not header:
+                continue
+              ver = header.group(1)
+              if not ver.startswith(f"{mac_major}."):
+                continue
+              if latest_ver is None or ver_key(ver) > ver_key(latest_ver):
+                latest_ver = ver
 
-          if not candidates:
-            print("No iPhone candidates found", file=sys.stderr)
+            if latest_ver is None:
+              print(f"No iOS versions found for macOS major {mac_major}", file=sys.stderr)
+              sys.exit(1)
+
+            # 2) 해당 버전 섹션에서 첫 iPhone 찾고 즉시 종료
+            current_ver = None
+            for line in lines:
+              header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+              if header:
+                current_ver = header.group(1)
+                continue
+              if current_ver != latest_ver:
+                continue
+              if "(unavailable)" in line:
+                continue
+              if "iPhone" in line:
+                name = line.strip()
+                print(f"{latest_ver}|{name}")
+                sys.exit(0)
+
+            print(f"No iPhone candidates found for iOS {latest_ver}", file=sys.stderr)
             sys.exit(1)
-
-          candidates.sort(reverse=True)
-          _, ver, name = candidates[0]
-          print(f"{ver}|{name}")
           PY
-            )
+          )
 
           if [ -z "${RESULT:-}" ]; then
             echo "No iPhone simulator devices detected." >&2
