@@ -12,6 +12,7 @@ final class PushNotificationSettingsViewModel: Store {
         var pushNotificationEnable = false
         var pushNotificationTime = Date()
         var showTimePicker = false
+        var sheetHeight = CGFloat.pi
         var pushNotificationHour: Int {
             Calendar.current.component(.hour, from: pushNotificationTime)
         }
@@ -23,6 +24,7 @@ final class PushNotificationSettingsViewModel: Store {
         case setPushNotificationHour(Int)
         case setPushNotificationTime(Date)
         case setShowTimePicker(Bool)
+        case setSheetHeight(CGFloat)
     }
 
     enum SideEffect {
@@ -66,6 +68,8 @@ final class PushNotificationSettingsViewModel: Store {
             return [.updatePushNotificationSettings]
         case .setShowTimePicker(let value):
             state.showTimePicker = value
+        case .setSheetHeight(let value):
+            state.sheetHeight = value
         }
         self.state = state
         return []

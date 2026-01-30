@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PushNotificationSettingsView: View {
     @StateObject var viewModel: PushNotificationSettingsViewModel
-    @State private var sheetHeight: CGFloat = 0 // 시트 높이 조정용
 
     var body: some View {
         List {
@@ -77,7 +76,7 @@ struct PushNotificationSettingsView: View {
             .datePickerStyle(.wheel)
             .labelsHidden()
             .presentationDragIndicator(.hidden)
-            .presentationDetents([.height(sheetHeight)])
+            .presentationDetents([.height(viewModel.state.sheetHeight)])
             .onAppear {
                 UIDatePicker.appearance().minuteInterval = 5
             }
@@ -87,9 +86,7 @@ struct PushNotificationSettingsView: View {
             .background(
                 GeometryReader { geometry in
                     Color.clear.onAppear {
-                        if sheetHeight == 0 {
-                            sheetHeight = geometry.size.height
-                        }
+                        viewModel.send(.setSheetHeight(geometry.size.height))
                     }
                 }
             )
