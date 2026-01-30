@@ -78,9 +78,9 @@ jobs:
 
           # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택
           DEVICE_NAME=$(xcrun simctl list devices available | awk -v ver="$IOS_VER" '
-            $0 ~ "^== iOS " ver " ==" {in=1; next}
-            $0 ~ "^== " {in=0}
-            in && $0 ~ /^[[:space:]]/ && $0 ~ /iPhone/ {
+            $0 ~ "^== iOS " ver " ==" {flag=1; next}
+            $0 ~ "^== " {flag=0}
+            flag && $0 ~ /^[[:space:]]/ && $0 ~ /iPhone/ {
               sub(/^[[:space:]]+/, "", $0)
               gsub(/ \(.*/, "", $0)
               print $0
