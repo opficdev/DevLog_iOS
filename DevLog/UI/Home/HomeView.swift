@@ -37,7 +37,7 @@ struct HomeView: View {
                                     HStack {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(kind.color)
-                                            .frame(width: screenWidth * 0.08, height: screenWidth * 0.08)
+                                            .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                                             .overlay {
                                                 Image(systemName: kind.symbolName)
                                                     .foregroundStyle(Color.white)
@@ -83,7 +83,7 @@ struct HomeView: View {
                                         HStack {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .fill(todo.kind.color)
-                                                .frame(width: screenWidth * 0.08, height: screenWidth * 0.08)
+                                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                                                 .overlay {
                                                     Image(systemName: todo.kind.symbolName)
                                                         .foregroundStyle(Color.white)
