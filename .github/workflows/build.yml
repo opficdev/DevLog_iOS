@@ -70,9 +70,10 @@ jobs:
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
 
           xcodebuild -version
+          ls -la
 
           # 스킴 목록 수집 (가장 짧은 이름 선택)
-          SCHEMES_JSON=$(xcodebuild -list -json)
+          SCHEMES_JSON=$(xcodebuild -list -json -project DevLog.xcodeproj)
           SCHEMES=()
           while IFS= read -r s; do
             SCHEMES+=("$s")
