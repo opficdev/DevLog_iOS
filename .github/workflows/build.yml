@@ -28,30 +28,48 @@ jobs:
         run: |
           set -euo pipefail
 
-          # 설치된 iOS Simulator 런타임 버전들 추출
-          # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
-          versions=()
-          while IFS= read -r v; do
-            versions+=("$v")
-          done < <(
-            xcrun simctl runtime list 2>/dev/null \
-              | grep -Eo 'iOS ([0-9]+(\.[0-9]+)*)' \
-              | awk '{print $2}' \
-              | sort -V \
-              | uniq
+          # iPhone 시뮬레이터가 존재하는 런타임 중 가장 낮은 버전 선택 (패치 버전 포함)
+          chosen=$(python3 - <<'PY'
+          import json, re, subprocess
+
+          runtime_text = subprocess.check_output(["xcrun", "simctl", "runtime", "list"], text=True, stderr=subprocess.DEVNULL)
+          versions = re.findall(r'iOS ([0-9]+(?:\.[0-9]+)*)', runtime_text)
+
+          def ver_key(v):
+              return [int(x) for x in v.split(".")]
+
+          versions = sorted(set(versions), key=ver_key)
+
+          devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)).get("devices", {})
+
+          def is_available(d):
+              return d.get("isAvailable") or d.get("availability") == "(available)"
+
+          def has_iphone(version):
+              prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{version.replace('.', '-') }"
+              for runtime, devs in devices.items():
+                  if not runtime.startswith(prefix):
+                      continue
+                  for d in devs:
+                      if is_available(d) and "iPhone" in d.get("name", ""):
+                          return True
+              return False
+
+          for v in versions:
+              if has_iphone(v):
+                  print(v)
+                  raise SystemExit(0)
+
+          raise SystemExit(1)
+          PY
           )
 
-          if [ "${#versions[@]}" -eq 0 ]; then
-            echo "No iOS simulator runtimes detected." >&2
+          if [ -z "${chosen:-}" ]; then
+            echo "No iPhone simulator runtimes detected." >&2
             exit 1
           fi
 
-          # 실제 존재하는 런타임 중 가장 낮은 버전 선택
-          MIN_IOS="${versions[0]}"
-          chosen="$MIN_IOS"
-
-          echo "Detected runtimes: ${versions[*]:-<none>}"
-          echo "Chosen iOS runtime version: $chosen"
+          echo "Chosen iOS runtime version (iPhone): $chosen"
 
           echo "ios_version=$chosen" >> "$GITHUB_OUTPUT"
 
@@ -70,18 +88,23 @@ jobs:
           # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택 (JSON 파싱)
           DEVICE_INFO=$(python3 - <<'PY'
           import json, os, subprocess, sys
+
           ios_ver = os.environ['IOS_VER']
           prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{ios_ver.replace('.', '-') }"
-          data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)
+          data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], text=True)
           j = json.loads(data)
+
+          def is_available(d):
+              return d.get("isAvailable") or d.get("availability") == "(available)"
+
           for runtime, devices in j.get("devices", {}).items():
-            if not runtime.startswith(prefix):
-              continue
-            for d in devices:
-              if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-                os_ver = runtime.split("iOS-")[-1].replace("-", ".")
-                print(f"{d['name']}|{os_ver}")
-                sys.exit(0)
+              if not runtime.startswith(prefix):
+                  continue
+              for d in devices:
+                  if is_available(d) and "iPhone" in d.get("name", ""):
+                      os_ver = runtime.split("iOS-")[-1].replace("-", ".")
+                      print(f"{d['name']}|{os_ver}")
+                      sys.exit(0)
           sys.exit(1)
           PY
           )
