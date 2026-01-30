@@ -35,7 +35,8 @@ jobs:
             echo "No iOS simulator runtimes detected. Falling back to MIN_IOS=${MIN_IOS}"
             chosen="$MIN_IOS"
           else
-            highest="${versions[-1]}"
+            last_index=$(( ${#versions[@]} - 1 ))
+            highest="${versions[$last_index]}"
             # chosen = max(MIN_IOS, highest)
             if [ "$(printf "%s\n%s\n" "$MIN_IOS" "$highest" | sort -V | tail -n 1)" = "$highest" ]; then
               chosen="$highest"
