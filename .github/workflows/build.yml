@@ -75,7 +75,20 @@ jobs:
             if "(unavailable)" in line:
               continue
             if "iPhone" in line:
-              name = line.strip()
+              raw = line.strip()
+              # key:value 형태면 딕셔너리로 파싱해서 name만 사용
+              if "platform:" in raw and "name:" in raw and "OS:" in raw:
+                kv = {}
+                for part in raw.split(","):
+                  if ":" not in part:
+                    continue
+                  k, v = part.split(":", 1)
+                  kv[k.strip()] = v.strip()
+                name = kv.get("name", raw)
+              else:
+                name = raw
+                # UUID/상태만 제거하고 모델명 괄호는 유지
+                name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
               print(f"{latest_ver}|{name}")
               sys.exit(0)
 
