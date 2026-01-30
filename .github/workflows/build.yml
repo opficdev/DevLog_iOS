@@ -1,0 +1,75 @@
+name: iOS CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-14 # iOS 16 시뮬레이터 런타임 포함
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select iOS Simulator Runtime (>= 16.0)
+        id: pick_ios
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          MIN_IOS="16.0"
+
+          # 설치된 iOS Simulator 런타임 버전들 추출 (예: 17.2, 18.0 ...)
+          # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
+          mapfile -t versions < <(
+            xcrun simctl runtime list 2>/dev/null \
+              | grep -Eo 'iOS ([0-9]+(\.[0-9]+)?)' \
+              | awk '{print $2}' \
+              | sort -V \
+              | uniq
+          )
+
+          if [ "${#versions[@]}" -eq 0 ]; then
+            echo "No iOS simulator runtimes detected. Falling back to MIN_IOS=${MIN_IOS}"
+            chosen="$MIN_IOS"
+          else
+            highest="${versions[-1]}"
+            # chosen = max(MIN_IOS, highest)
+            if [ "$(printf "%s\n%s\n" "$MIN_IOS" "$highest" | sort -V | tail -n 1)" = "$highest" ]; then
+              chosen="$highest"
+            else
+              chosen="$MIN_IOS"
+            fi
+          fi
+
+          echo "Detected runtimes: ${versions[*]:-<none>}"
+          echo "Chosen iOS runtime version: $chosen"
+
+          echo "ios_version=$chosen" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
+
+          # 스킴 목록 수집 (가장 짧은 이름 선택)
+          SCHEMES_JSON=$(xcodebuild -list -json)
+            mapfile -t SCHEMES < <(python3 -c 'import json, os; data=json.loads(os.environ["SCHEMES_JSON"]); schemes=data.get("workspace", {}).get("schemes") or data.get("project", {}).get("schemes") or []; print("\n".join(schemes))')
+
+          if [ "${#SCHEMES[@]}" -eq 0 ]; then
+            echo "No schemes found." >&2
+            exit 1
+          fi
+
+          # 가장 짧은 이름(동일 길이면 사전순) 선택
+          SCHEME=$(printf '%s\n' "${SCHEMES[@]}" | awk '{ print length, $0 }' | sort -n -k1,1 -k2,2 | head -n 1 | cut -d" " -f2-)
+
+          echo "Detected schemes: ${SCHEMES[*]}"
+          echo "Chosen scheme: $SCHEME"
+
+          # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
+          xcodebuild \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,OS=${IOS_VER},name=iPhone 14" \
+            build
