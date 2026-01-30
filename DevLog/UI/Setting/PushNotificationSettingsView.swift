@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PushNotificationSettingsView: View {
     @StateObject var viewModel: PushNotificationSettingsViewModel
-    @State private var sheetHeight: CGFloat = 0 // 시트 높이 조정용
 
     var body: some View {
         List {
@@ -42,7 +41,7 @@ struct PushNotificationSettingsView: View {
                 HStack {
                     Text("사용자 설정")
                     Spacer()
-                    Text("\(viewModel.state.pushNotificationHour)시")
+                    Text(formattedTimeString(viewModel.state.pushNotificationTime))
                         .foregroundStyle(.secondary)
                     if ![9, 15, 18, 21].contains(viewModel.state.pushNotificationHour) {
                         Image(systemName: "checkmark")
@@ -77,7 +76,7 @@ struct PushNotificationSettingsView: View {
             .datePickerStyle(.wheel)
             .labelsHidden()
             .presentationDragIndicator(.hidden)
-            .presentationDetents([.height(sheetHeight)])
+            .presentationDetents([.height(viewModel.state.sheetHeight)])
             .onAppear {
                 UIDatePicker.appearance().minuteInterval = 5
             }
@@ -87,12 +86,23 @@ struct PushNotificationSettingsView: View {
             .background(
                 GeometryReader { geometry in
                     Color.clear.onAppear {
-                        if sheetHeight == 0 {
-                            sheetHeight = geometry.size.height
-                        }
+                        viewModel.send(.setSheetHeight(geometry.size.height))
                     }
                 }
             )
         }
+    }
+
+    private func formattedTimeString(_ date: Date) -> String {
+        let minuteValue = Calendar.current.component(.minute, from: date)
+        let formatStyle: Date.FormatStyle = .dateTime.hour(.twoDigits(amPM: .wide))
+
+        if minuteValue == 0 {
+            return "\(date.formatted(formatStyle))"
+        }
+
+        let hourText = date.formatted(formatStyle)
+        let minuteText = date.formatted(.dateTime.minute(.twoDigits))
+        return "\(hourText) \(minuteText)분"
     }
 }

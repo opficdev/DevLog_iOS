@@ -8,14 +8,14 @@
 import SwiftUI
 
 extension View {
-    var screenWidth: CGFloat {
+    var sceneWidth: CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
         else { return UIScreen.main.bounds.width }
 
         return windowScene.screen.bounds.width
     }
 
-    var screenHeight: CGFloat {
+    var sceneHeight: CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
         else { return UIScreen.main.bounds.height }
 
