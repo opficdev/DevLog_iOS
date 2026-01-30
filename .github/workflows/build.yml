@@ -73,7 +73,9 @@ jobs:
           ls -la
 
           # 스킴 목록 수집 (가장 짧은 이름 선택)
-          SCHEMES_JSON=$(xcodebuild -list -json -project DevLog.xcodeproj)
+          # 스킴 조회 시 SPM 해상도로 멈추는 경우가 있어 비활성화
+          SCHEMES_JSON=$(XCODEBUILD_DISABLE_PACKAGE_RESOLUTION=YES \
+            xcodebuild -list -json -project DevLog.xcodeproj -disableAutomaticPackageResolution)
           SCHEMES=()
           while IFS= read -r s; do
             SCHEMES+=("$s")
