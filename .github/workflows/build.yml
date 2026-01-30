@@ -3,6 +3,11 @@ name: iOS CI
 on:
   pull_request:
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: macos-14 # iOS 17 시뮬레이터 런타임 포함
@@ -31,17 +36,20 @@ jobs:
           )
 
           if [ "${#versions[@]}" -eq 0 ]; then
-            echo "No iOS simulator runtimes detected. Falling back to MIN_IOS=${MIN_IOS}"
+            echo "No iOS simulator runtimes detected." >&2
+            exit 1
+          fi
+
+          # MIN_IOS 이상 중 가장 낮은 버전 선택 (우선 MIN_IOS)
+          if printf '%s\n' "${versions[@]}" | grep -qx "$MIN_IOS"; then
             chosen="$MIN_IOS"
           else
-            last_index=$(( ${#versions[@]} - 1 ))
-            highest="${versions[$last_index]}"
-            # chosen = max(MIN_IOS, highest)
-            if [ "$(printf "%s\n%s\n" "$MIN_IOS" "$highest" | sort -V | tail -n 1)" = "$highest" ]; then
-              chosen="$highest"
-            else
-              chosen="$MIN_IOS"
-            fi
+            chosen=$(printf '%s\n' "${versions[@]}" | awk -v min="$MIN_IOS" '$0+0 >= min+0 {print}' | sort -V | head -n 1 || true)
+          fi
+
+          if [ -z "${chosen:-}" ]; then
+            echo "No iOS runtime >= ${MIN_IOS} found. Available: ${versions[*]}" >&2
+            exit 1
           fi
 
           echo "Detected runtimes: ${versions[*]:-<none>}"
