@@ -22,13 +22,11 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Select iOS Simulator Runtime (>= 17.0)
+      - name: Select iOS Simulator Runtime (installed)
         id: pick_ios
         shell: bash
         run: |
           set -euo pipefail
-
-          MIN_IOS="17.0"
 
           # 설치된 iOS Simulator 런타임 버전들 추출 (예: 17.2, 18.0 ...)
           # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
@@ -48,17 +46,9 @@ jobs:
             exit 1
           fi
 
-          # MIN_IOS 이상 중 가장 낮은 버전 선택 (우선 MIN_IOS)
-          if printf '%s\n' "${versions[@]}" | grep -qx "$MIN_IOS"; then
-            chosen="$MIN_IOS"
-          else
-            chosen=$(printf '%s\n' "${versions[@]}" | awk -v min="$MIN_IOS" '$0+0 >= min+0 {print}' | sort -V | head -n 1 || true)
-          fi
-
-          if [ -z "${chosen:-}" ]; then
-            echo "No iOS runtime >= ${MIN_IOS} found. Available: ${versions[*]}" >&2
-            exit 1
-          fi
+          # 실제 존재하는 런타임 중 가장 낮은 버전 선택
+          MIN_IOS="${versions[0]}"
+          chosen="$MIN_IOS"
 
           echo "Detected runtimes: ${versions[*]:-<none>}"
           echo "Chosen iOS runtime version: $chosen"
