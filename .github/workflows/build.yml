@@ -29,9 +29,6 @@ jobs:
           set -euo pipefail
 
           # simctl 텍스트 헤더 버전 기준으로 최신 iOS 버전의 iPhone 선택
-          echo "== simctl list devices =="
-          xcrun simctl list devices
-
           RESULT=$(python3 - <<'PY'
           import re, subprocess, sys
 
@@ -44,9 +41,9 @@ jobs:
             return tuple(int(x) for x in v.split('.'))
 
           for line in text.splitlines():
-            m = re.match(r"^== iOS ([0-9]+(?:\.[0-9]+)*) ==$", line.strip())
-            if m:
-              current_ver = m.group(1)
+            header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+            if header:
+              current_ver = header.group(1)
               continue
             if "(unavailable)" in line:
               continue
@@ -63,7 +60,7 @@ jobs:
           _, ver, name = candidates[0]
           print(f"{ver}|{name}")
           PY
-          )
+            )
 
           if [ -z "${RESULT:-}" ]; then
             echo "No iPhone simulator devices detected." >&2
