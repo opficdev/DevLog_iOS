@@ -29,6 +29,9 @@ jobs:
           set -euo pipefail
 
           # simctl 텍스트 헤더 버전 기준으로 최신 iOS 버전의 iPhone 선택
+          echo "== simctl list devices =="
+          xcrun simctl list devices
+
           RESULT=$(python3 - <<'PY'
           import re, subprocess, sys
 
@@ -53,6 +56,7 @@ jobs:
               candidates.append((ver_key(current_ver), current_ver, name))
 
           if not candidates:
+            print("No iPhone candidates found", file=sys.stderr)
             sys.exit(1)
 
           candidates.sort(reverse=True)
