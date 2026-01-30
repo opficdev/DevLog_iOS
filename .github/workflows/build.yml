@@ -66,7 +66,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          set -x
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
+
+          xcodebuild -version
 
           # 스킴 목록 수집 (가장 짧은 이름 선택)
           SCHEMES_JSON=$(xcodebuild -list -json)
@@ -87,8 +90,11 @@ jobs:
           echo "Chosen scheme: $SCHEME"
 
           # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
+          set -o pipefail
           xcodebuild \
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,OS=${IOS_VER},name=iPhone 14" \
-            build
+            -showBuildTimingSummary \
+            build \
+            | cat
