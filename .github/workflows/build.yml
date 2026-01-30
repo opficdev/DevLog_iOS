@@ -32,14 +32,14 @@ jobs:
           RESULT=$(python3 - <<'PY'
           import re, subprocess, sys
 
-          mac_ver = subprocess.check_output(["sw_vers", "-productVersion"], text=True).strip()
-          mac_major = mac_ver.split('.')[0]
+          xcode_ver = subprocess.check_output(["xcodebuild", "-version"], text=True).splitlines()[0].strip()
+          xcode_major = xcode_ver.split()[1].split('.')[0]
           try:
-            mac_major_num = int(mac_major)
+            xcode_major_num = int(xcode_major)
           except ValueError:
-            mac_major_num = None
-          if mac_major_num is not None and mac_major_num <= 15:
-            mac_major = "26"
+            xcode_major_num = None
+          if xcode_major_num is not None and xcode_major_num <= 15:
+            xcode_major = "26"
 
           text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
           lines = text.splitlines()
@@ -54,13 +54,13 @@ jobs:
             if not header:
               continue
             ver = header.group(1)
-            if not ver.startswith(f"{mac_major}."):
+            if not ver.startswith(f"{xcode_major}."):
               continue
             if latest_ver is None or ver_key(ver) > ver_key(latest_ver):
               latest_ver = ver
 
           if latest_ver is None:
-            print(f"No iOS versions found for macOS major {mac_major}", file=sys.stderr)
+            print(f"No iOS versions found for Xcode major {xcode_major}", file=sys.stderr)
             sys.exit(1)
 
           # 2) 해당 버전 섹션에서 첫 iPhone 찾고 즉시 종료
