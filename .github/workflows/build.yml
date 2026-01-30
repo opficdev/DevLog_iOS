@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-14 # iOS 17 시뮬레이터 런타임 포함
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -28,45 +28,30 @@ jobs:
         run: |
           set -euo pipefail
 
-            # iPhone 시뮬레이터가 존재하는 런타임 중 가장 낮은 버전 선택 (패치 버전 포함)
-            chosen=$(python3 - <<'PY'
-          import json, re, subprocess
+          # simctl 텍스트 헤더 버전 기준으로 최신 iOS 버전의 iPhone 선택
+          RESULT=$(xcrun simctl list devices | awk '
+          /^== iOS / {ver=$3; next}
+          /\(unavailable\)/ {next}
+          ver && $0 ~ /iPhone/ {
+            line=$0
+            sub(/^[[:space:]]+/, "", line)
+            sub(/ \(.*/, "", line)
+            print ver "|" line
+          }
+          ' | sort -t'|' -k1,1Vr | head -n 1)
 
-          runtime_text = subprocess.check_output(["xcrun", "simctl", "runtime", "list"], text=True, stderr=subprocess.DEVNULL)
-          versions = re.findall(r'iOS ([0-9]+(?:\.[0-9]+)*)', runtime_text)
-          def ver_key(v):
-            return [int(x) for x in v.split(".")]
-          versions = sorted(set(versions), key=ver_key)
-
-          devices = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)).get("devices", {})
-
-          def has_iphone(version):
-            prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{version.replace('.', '-') }"
-            for runtime, devs in devices.items():
-              if not runtime.startswith(prefix):
-                continue
-              for d in devs:
-                if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-                  return True
-            return False
-
-          for v in versions:
-            if has_iphone(v):
-              print(v)
-              raise SystemExit(0)
-
-          raise SystemExit(1)
-          PY
-            )
-
-          if [ -z "${chosen:-}" ]; then
-            echo "No iPhone simulator runtimes detected." >&2
+          if [ -z "${RESULT:-}" ]; then
+            echo "No iPhone simulator devices detected." >&2
             exit 1
           fi
 
-          echo "Chosen iOS runtime version (iPhone): $chosen"
+          IFS='|' read -r IOS_VER DEVICE_NAME <<< "$RESULT"
 
-          echo "ios_version=$chosen" >> "$GITHUB_OUTPUT"
+          echo "Chosen iOS runtime version (iPhone): $IOS_VER"
+          echo "Chosen simulator: $DEVICE_NAME"
+
+          echo "ios_version=$IOS_VER" >> "$GITHUB_OUTPUT"
+          echo "device_name=$DEVICE_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build
         shell: bash
@@ -74,40 +59,11 @@ jobs:
           set -euo pipefail
           set -x
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
-          export IOS_VER
+          DEVICE_NAME="${{ steps.pick_ios.outputs.device_name }}"
 
           xcodebuild -version
 
           echo "Using scheme: $SCHEME"
-
-          # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택 (JSON 파싱)
-          DEVICE_INFO=$(python3 - <<'PY'
-          import json, os, subprocess, sys
-
-          ios_ver = os.environ['IOS_VER']
-          prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{ios_ver.replace('.', '-') }"
-          data = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True)
-          j = json.loads(data)
-          for runtime, devices in j.get("devices", {}).items():
-              if not runtime.startswith(prefix):
-                  continue
-              for d in devices:
-                  if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-                      os_ver = runtime.split("iOS-")[-1].replace("-", ".")
-                      print(f"{d['name']}|{os_ver}")
-                      sys.exit(0)
-          sys.exit(1)
-          PY
-          )
-
-          IFS='|' read -r DEVICE_NAME DEVICE_OS <<< "$DEVICE_INFO"
-          IOS_VER="$DEVICE_OS"
-          export IOS_VER
-
-          if [ -z "${DEVICE_NAME:-}" ] || [ -z "${IOS_VER:-}" ]; then
-            echo "No available simulator device found for iOS ${IOS_VER}." >&2
-            exit 1
-          fi
 
           echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
 
