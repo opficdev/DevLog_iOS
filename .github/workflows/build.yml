@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14 # iOS 16 시뮬레이터 런타임 포함
+    runs-on: macos-13 # iOS 16 시뮬레이터 런타임 포함
     steps:
       - uses: actions/checkout@v4
 
