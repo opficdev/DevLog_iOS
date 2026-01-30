@@ -71,6 +71,7 @@ jobs:
           set -euo pipefail
           set -x
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
+          export IOS_VER
 
           xcodebuild -version
 
