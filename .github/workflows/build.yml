@@ -78,7 +78,7 @@ jobs:
           echo "Using scheme: $SCHEME"
 
           # 선택된 iOS 런타임에서 'iPhone'이 포함된 첫 번째 시뮬레이터 이름 선택 (JSON 파싱)
-          DEVICE_NAME=$(python3 - <<'PY'
+          DEVICE_INFO=$(python3 - <<'PY'
           import json, os, subprocess, sys
           ios_ver = os.environ['IOS_VER']
           prefix = f"com.apple.CoreSimulator.SimRuntime.iOS-{ios_ver.replace('.', '-') }"
@@ -89,13 +89,18 @@ jobs:
                   continue
               for d in devices:
                   if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-                      print(d["name"])
+            os_ver = runtime.split("iOS-")[-1].replace("-", ".")
+            print(f"{d['name']}|{os_ver}")
                       sys.exit(0)
           sys.exit(1)
           PY
           )
 
-          if [ -z "${DEVICE_NAME:-}" ]; then
+          IFS='|' read -r DEVICE_NAME DEVICE_OS <<< "$DEVICE_INFO"
+          IOS_VER="$DEVICE_OS"
+          export IOS_VER
+
+          if [ -z "${DEVICE_NAME:-}" ] || [ -z "${IOS_VER:-}" ]; then
             echo "No available simulator device found for iOS ${IOS_VER}." >&2
             exit 1
           fi
