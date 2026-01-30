@@ -20,7 +20,10 @@ jobs:
 
           # 설치된 iOS Simulator 런타임 버전들 추출 (예: 17.2, 18.0 ...)
           # 출력 포맷이 달라질 수 있어, "iOS <version>" 패턴에서 숫자만 뽑습니다.
-          mapfile -t versions < <(
+          versions=()
+          while IFS= read -r v; do
+            versions+=("$v")
+          done < <(
             xcrun simctl runtime list 2>/dev/null \
               | grep -Eo 'iOS ([0-9]+(\.[0-9]+)?)' \
               | awk '{print $2}' \
