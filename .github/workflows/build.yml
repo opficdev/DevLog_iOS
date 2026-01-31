@@ -15,6 +15,7 @@ permissions:
 jobs:
   build:
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +23,18 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/SourcePackages
+            .spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
 
       - name: Select iOS Simulator Runtime (installed)
@@ -119,25 +132,35 @@ jobs:
           set -x
           IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
           DEVICE_NAME="${{ steps.pick_ios.outputs.device_name }}"
+          SPM_DIR="$GITHUB_WORKSPACE/.spm"
+          mkdir -p "$SPM_DIR"
 
           xcodebuild -version
 
           echo "Using scheme: $SCHEME"
 
           echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
-
-          # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
+          
           set -o pipefail
           set +e
+          echo "== Resolving Swift Package dependencies =="
+          xcodebuild \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -resolvePackageDependencies
+          echo "== Starting xcodebuild build =="
           xcodebuild \
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -showBuildTimingSummary \
             build \
             | tee build.log
+          echo "== xcodebuild finished =="
           XC_STATUS=${PIPESTATUS[0]}
           set -e
 
