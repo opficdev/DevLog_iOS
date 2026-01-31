@@ -17,28 +17,30 @@ final class GoogleAuthenticationService: AuthenticationService {
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
+    private let provider = TopViewControllerProvider()
 
+    @MainActor
     func signIn() async throws -> AuthenticationDataResponse {
-        guard let topVC = topViewController() else {
-            throw URLError(.cannotFindHost)
+        guard let topViewController = provider.topViewController() else {
+            throw UIError.notFoundTopViewController
         }
-        
-        let gidSignIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-        
-        guard let idToken = gidSignIn.user.idToken?.tokenString else {
+
+        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+
+        guard let idToken = signIn.user.idToken?.tokenString else {
             throw URLError(.badServerResponse)
         }
         
-        let accessToken = gidSignIn.user.accessToken.tokenString
+        let accessToken = signIn.user.accessToken.tokenString
         let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
         
         let result = try await Auth.auth().signIn(with: credential)
         
-        if let photoURL = gidSignIn.user.profile?.imageURL(withDimension: 200) {
+        if let photoURL = signIn.user.profile?.imageURL(withDimension: 200) {
             let changeRequest = result.user.createProfileChangeRequest()
             changeRequest.photoURL = photoURL
-            changeRequest.displayName = gidSignIn.user.profile?.name
-            
+            changeRequest.displayName = signIn.user.profile?.name
+
             try await changeRequest.commitChanges()
         }
 
@@ -73,8 +75,11 @@ final class GoogleAuthenticationService: AuthenticationService {
     }
 
     func link(uid: String, email: String) async throws {
-        guard let topViewController = topViewController() else {
-            throw URLError(.cannotFindHost)
+        let topViewController = await MainActor.run {
+            provider.topViewController()
+        }
+        guard let topViewController = topViewController else {
+            throw UIError.notFoundTopViewController
         }
 
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
@@ -110,27 +115,34 @@ final class GoogleAuthenticationService: AuthenticationService {
 
 }
 
-extension GoogleAuthenticationService {
-    func topViewController(controller: UIViewController? = nil) -> UIViewController? {
+final class TopViewControllerProvider {
+    @MainActor
+    func topViewController() -> UIViewController? {
         let keyWindow = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .flatMap { $0.windows }
             .first { $0.isKeyWindow }
 
-        let controller = controller ?? keyWindow?.rootViewController
-        
+        let rootController = keyWindow?.rootViewController
+
+        return topViewController(controller: rootController)
+    }
+
+    @MainActor
+    private func topViewController(controller: UIViewController?) -> UIViewController? {
         if let navigationController = controller as? UINavigationController {
             return topViewController(controller: navigationController.visibleViewController)
         }
-        
-        if let tabController = controller as? UITabBarController, let selected = tabController.selectedViewController {
-            return topViewController(controller: selected)
+
+        if let tabController = controller as? UITabBarController,
+           let selectedController = tabController.selectedViewController {
+            return topViewController(controller: selectedController)
         }
-        
-        if let presented = controller?.presentedViewController {
-            return topViewController(controller: presented)
+
+        if let presentedController = controller?.presentedViewController {
+            return topViewController(controller: presentedController)
         }
-        
+
         return controller
     }
 }

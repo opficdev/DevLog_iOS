@@ -21,3 +21,7 @@ enum FirestoreError: Error, LocalizedError {
         }
     }
 }
+
+enum UIError: Error {
+    case notFoundTopViewController
+}
