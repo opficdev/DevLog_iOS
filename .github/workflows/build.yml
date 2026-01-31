@@ -166,7 +166,9 @@ jobs:
 
           if [ -f build.log ]; then
             echo "== error: lines =="
-            grep -i "error:" build.log || true
+            if grep -i "error:" build.log; then
+              XC_STATUS=1
+            fi
           fi
 
           exit $XC_STATUS
