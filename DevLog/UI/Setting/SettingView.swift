@@ -115,7 +115,7 @@ struct SettingView: View {
                     )
                 )
             case .account:
-//                TempView(text: "AccountView")
+                TempView(text: "AccountView")
 //                AccountView(viewModel: viewModel)
             }
         }
