@@ -133,6 +133,7 @@ jobs:
           # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
           mkdir -p build/test-results
           set -o pipefail
+          set +e
           xcodebuild \
             -scheme "$SCHEME" \
             -configuration Debug \
@@ -141,8 +142,15 @@ jobs:
             -skipMacroValidation \
             -showBuildTimingSummary \
             build \
-            | tee build.log \
-            | xcpretty -r junit -o build/test-results/junit.xml
+            | tee build.log
+          XC_STATUS=${PIPESTATUS[0]}
+          set -e
+
+          if [ -f build.log ]; then
+            xcpretty -r junit -o build/test-results/junit.xml < build.log || true
+          fi
+
+          exit $XC_STATUS
 
       - name: Comment build failure on PR
         uses: mikepenz/action-junit-report@v4
