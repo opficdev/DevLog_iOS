@@ -115,7 +115,6 @@ struct SettingView: View {
                     )
                 )
             case .account:
-                ContentView(text: "계정 연동 화면")
 //                AccountView(viewModel: viewModel)
             }
         }
