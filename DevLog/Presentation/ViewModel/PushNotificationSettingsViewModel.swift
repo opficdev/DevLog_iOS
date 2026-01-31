@@ -16,6 +16,9 @@ final class PushNotificationSettingsViewModel: Store {
         var pushNotificationHour: Int {
             Calendar.current.component(.hour, from: pushNotificationTime)
         }
+        var pushNotificationMinute: Int {
+            Calendar.current.component(.minute, from: pushNotificationTime)
+        }
     }
 
     enum Action {
