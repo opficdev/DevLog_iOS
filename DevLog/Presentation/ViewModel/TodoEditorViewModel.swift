@@ -9,17 +9,14 @@ import Foundation
 
 final class TodoEditorViewModel: Store {
     struct State {
-        let calendar = Calendar.current
-        let navigationTitle: String
         var title: String = ""
-        var dueDate: Date?
         var content: String = ""
+        var dueDate: Date?
         var tags: [String] = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var hasDueDate: Bool { return dueDate != nil }
         var tabViewTag: Tag = .editor
-
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -41,14 +38,26 @@ final class TodoEditorViewModel: Store {
         case toggleDueDate
     }
 
-    enum SideEffect {
+    enum SideEffect { }
 
-    }
-
-    @Published private(set) var state: State
+    @Published private(set) var state = State()
+    private let calendar = Calendar.current
+    let navigationTitle: String
+    private let id: String
+    private let isPinned: Bool
+    private let isCompleted: Bool
+    private let isChecked: Bool
+    private let createdAt: Date?
+    private let kind: TodoKind
 
     init(title: String, todo: Todo? = nil) {
-        self.state = State(navigationTitle: title)
+        self.navigationTitle = title
+        self.id = todo?.id ?? UUID().uuidString
+        self.isPinned = todo?.isPinned ?? false
+        self.isCompleted = todo?.isCompleted ?? false
+        self.isChecked = todo?.isChecked ?? false
+        self.createdAt = todo?.createdAt ?? nil
+        self.kind = todo?.kind ?? .etc
         if let todo {
             state.title = todo.title
             state.content = todo.content
@@ -72,7 +81,7 @@ final class TodoEditorViewModel: Store {
              .setTitle(let stringValue):
             handleStringAction(action, stringValue: stringValue)
         case .setDueDate(let dueDate):
-            if let tomorrowDate = state.calendar.date(byAdding: .day, value: 1, to: Date()) {
+            if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()) {
                 state.dueDate = max(dueDate, tomorrowDate)
             }
         case .setTabViewTag(let tag):
@@ -81,7 +90,7 @@ final class TodoEditorViewModel: Store {
             if state.hasDueDate {
                 state.dueDate = nil
             } else {
-                state.dueDate = state.calendar.date(byAdding: .day, value: 1, to: Date())
+                state.dueDate = calendar.date(byAdding: .day, value: 1, to: Date())
             }
         }
         return []
@@ -104,12 +113,20 @@ extension TodoEditorViewModel {
         }
     }
 
-    var todoCreation: TodoRequest {
-        return TodoRequest(
+    func upsertTodo() -> Todo {
+        let date = Date()
+        return Todo(
+            id: self.id,
+            isPinned: self.isPinned,
+            isCompleted: self.isCompleted,
+            isChecked: self.isChecked,
             title: state.title,
             content: state.content,
+            createdAt: self.createdAt ?? date,
+            updatedAt: date,
             dueDate: state.dueDate,
-            tags: state.tags
+            tags: state.tags,
+            kind: self.kind
         )
     }
 }
