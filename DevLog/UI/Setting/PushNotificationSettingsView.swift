@@ -25,17 +25,20 @@ struct PushNotificationSettingsView: View {
             })
             Section {
                 ForEach([9, 15, 18, 21], id: \.self) { hour in
-                    HStack {
-                        Text((hour < 12 ? "오전 \(hour)시" : "오후 \(hour - 12)시"))
-                        Spacer()
-                        if viewModel.state.pushNotificationHour == hour {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(Color.accentColor)
+                    if let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
+                        HStack {
+                            Text(formattedTimeString(date))
+                            Spacer()
+                            if viewModel.state.pushNotificationHour == hour &&
+                                viewModel.state.pushNotificationMinute == 0 {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.accentColor)
+                            }
                         }
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.send(.setPushNotificationHour(hour))
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.send(.setPushNotificationHour(hour))
+                        }
                     }
                 }
                 HStack {
@@ -43,7 +46,7 @@ struct PushNotificationSettingsView: View {
                     Spacer()
                     Text(formattedTimeString(viewModel.state.pushNotificationTime))
                         .foregroundStyle(.secondary)
-                    if ![9, 15, 18, 21].contains(viewModel.state.pushNotificationHour) {
+                    if viewModel.state.pushNotificationMinute != 0 {
                         Image(systemName: "checkmark")
                             .foregroundStyle(Color.accentColor)
                     }
