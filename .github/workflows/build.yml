@@ -130,6 +130,8 @@ jobs:
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             -showBuildTimingSummary \
             build \
             | cat
