@@ -22,6 +22,12 @@ jobs:
         with:
           xcode-version: latest
 
+      - name: Install xcpretty
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo gem install xcpretty
+
       - name: Select iOS Simulator Runtime (installed)
         id: pick_ios
         shell: bash
@@ -125,6 +131,7 @@ jobs:
           echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
 
           # 예시: 시뮬레이터 대상으로 빌드/테스트 시 destination에서 OS 지정
+          mkdir -p build/test-results
           set -o pipefail
           xcodebuild \
             -scheme "$SCHEME" \
@@ -134,4 +141,11 @@ jobs:
             -skipMacroValidation \
             -showBuildTimingSummary \
             build \
-            | cat
+            | tee build.log \
+            | xcpretty -r junit -o build/test-results/junit.xml
+
+      - name: Comment build failure on PR
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: 'build/test-results/junit.xml'
