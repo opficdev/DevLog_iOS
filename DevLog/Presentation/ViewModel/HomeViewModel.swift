@@ -10,7 +10,7 @@ import Foundation
 final class HomeViewModel: Store {
     struct State {
         // UI
-        var todoKindPreferences: [TodoKindPreference] = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
+        var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [Todo] = []
 
         // User Input
