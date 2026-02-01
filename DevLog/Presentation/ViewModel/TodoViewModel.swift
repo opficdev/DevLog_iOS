@@ -11,7 +11,7 @@ final class TodoViewModel: Store {
     struct State {
         var todos: [Todo] = []
         var searchText: String = ""
-        var kind: TodoKind
+        let kind: TodoKind
         var showEditor: Bool = false
         var showToast: Bool = false
         var toastMessage: String = ""
@@ -53,13 +53,16 @@ final class TodoViewModel: Store {
         case swipeTodo(Todo)
     }
 
+    private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     @Published private(set) var state: State
 
     init(
+        fetchTodosByKindUseCase: FetchTodosByKindUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         kind: TodoKind
     ) {
+        self.fetchTodosByKindUseCase = fetchTodosByKindUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.state = State(kind: kind)
     }
@@ -100,6 +103,13 @@ final class TodoViewModel: Store {
         switch effect {
         case .fetchTodos:
             break
+            Task {
+                do {
+                    let todos = try await fetchTodosByKindUseCase.execute(state.kind)
+                    send(.didFetchTodos(todos))
+                } catch {
+                }
+            }
         case .upsertTodo(let todo):
             Task {
                 try await upsertTodoUseCase.execute(todo)
