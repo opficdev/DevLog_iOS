@@ -51,7 +51,7 @@ final class TodoEditorViewModel: Store {
     private let kind: TodoKind
 
     init(title: String, todo: Todo? = nil) {
-        self.navigationTitle = title
+        self.navigationTitle = "새 \(title)"
         self.id = todo?.id ?? UUID().uuidString
         self.isPinned = todo?.isPinned ?? false
         self.isCompleted = todo?.isCompleted ?? false

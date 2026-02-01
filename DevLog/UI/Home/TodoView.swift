@@ -98,7 +98,7 @@ struct TodoView: View {
             get: { viewModel.state.showEditor },
             set: { _, _ in viewModel.send(.closeEditor) })
         ) {
-            let title = "새 \(viewModel.state.kind.localizedName)"
+            let title = viewModel.state.kind.localizedName
             TodoEditorView(
                 viewModel: TodoEditorViewModel(title: title),
                 onSubmit: { viewModel.send(.upsertTodo($0)) }
