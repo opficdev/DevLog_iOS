@@ -46,5 +46,9 @@ final class DomainAssembler: Assembler {
         container.register(UpdatePushSettingsUseCase.self) {
             UpdatePushSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
+
+        container.register(FetchTodosByKindUseCase.self) {
+            FetchTodosByKindUseCaseImpl(container.resolve(TodoRepository.self))
+        }
     }
 }
