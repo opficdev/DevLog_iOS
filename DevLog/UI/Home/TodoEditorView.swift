@@ -11,26 +11,30 @@ import MarkdownUI
 struct TodoEditorView: View {
     @StateObject var viewModel: TodoEditorViewModel
     @Environment(\.dismiss) private var dismiss
-    @FocusState var focusOnTagField: Bool
+    @FocusState var focusOnContentField: Bool
     var onSubmit: ((Todo) -> Void)?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    titleField
-                    Divider()
-                    dueDateSelector
-                    Divider()
-                    tagField
-                    LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
-                        Section {
-                            tabView
-                        } header: {
-                            tabViewSelector
+            ZStack {
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        titleField
+                        LazyVStack(
+                            alignment: .leading,
+                            spacing: 0,
+                            pinnedViews: [.sectionHeaders]
+                        ) {
+                            Section {
+                                tabView
+                            } header: {
+                                tabViewSelector
+                            }
                         }
                     }
-                    .border(Color.blue)
+                }
+                .onTapGesture {
+                    focusOnContentField = true
                 }
             }
             .navigationTitle(viewModel.navigationTitle)
@@ -84,7 +88,7 @@ struct TodoEditorView: View {
                 .foregroundStyle(viewModel.state.tags.isEmpty ? Color.secondary : Color.primary)
             Divider()
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                LazyHStack {
                     ForEach(viewModel.state.tags, id: \.self) { tag in
                         HStack {
                             Text(tag)
@@ -93,7 +97,6 @@ struct TodoEditorView: View {
                             }) {
                                 Image(systemName: "xmark")
                                     .font(.caption)
-                                    .foregroundStyle(Color.gray)
                             }
                         }
                         .padding(.horizontal, 8)
@@ -110,24 +113,26 @@ struct TodoEditorView: View {
                             set: { viewModel.send(.setTagText($0)) }
                         )
                     )
-                    .focused($focusOnTagField)
+//                    .focused($focusOnTagField)
                     .onSubmit {
                         viewModel.send(.addTag)
                     }
-                    .onChange(of: focusOnTagField) { focused in
-                        if !focused {
-                            viewModel.send(.addTag)
-                        }
-                    }
+//                    .onChange(of: focusOnTagField) { focused in
+//                        if !focused {
+//                            viewModel.send(.addTag)
+//                        }
+//                    }
                 }
             }
             Divider()
             Button(action: {
-                focusOnTagField.toggle()
+//                focusOnTagField.toggle()
+//                if focusOnTagField {
+//                    focusOnContentField = false
+//                }
             }) {
-                Image(systemName: "\(focusOnTagField ? "xmark" : "plus").circle.fill")
-                    .foregroundStyle(Color.gray)
-                    .font(.title2)
+//                Image(systemName: "\(focusOnTagField ? "xmark" : "plus").circle.fill")
+//                    .font(.title2)
             }
         }
         .padding(.horizontal)
@@ -135,7 +140,6 @@ struct TodoEditorView: View {
 
     private var tabViewSelector: some View {
         VStack(spacing: 0) {
-            Divider()
             HStack(spacing: 0) {
                 Button(action: {
                     viewModel.send(.setTabViewTag(.editor))
@@ -159,7 +163,6 @@ struct TodoEditorView: View {
             }
             .padding(.vertical, 10)
             .background(Color(UIColor.systemBackground))
-            Divider()
         }
     }
 
@@ -172,9 +175,10 @@ struct TodoEditorView: View {
                         get: { viewModel.state.content },
                         set: { viewModel.send(.setContent($0)) }
                     ),
-                    prompt: Text("내용을 입력하세요"),
+                    prompt: Text("설명(선택 사항)").font(.callout),
                     axis: .vertical
                 )
+                .focused($focusOnContentField)
             } else {
                 Markdown(viewModel.state.content)
                     .markdownTheme(.basic)
