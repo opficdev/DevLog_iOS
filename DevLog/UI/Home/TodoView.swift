@@ -76,6 +76,18 @@ struct TodoView: View {
                 }
             }
         }
+        .alert("불러오기 실패", isPresented: Binding(
+            get: { viewModel.state.showAlert },
+            set: { _, _ in }
+        )) {
+            Button(role: .cancel, action: {
+                viewModel.send(.closeAlert)
+            }) {
+                Text("확인")
+            }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
         .navigationTitle(viewModel.state.kind.localizedName)
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: Binding(
@@ -181,9 +193,7 @@ struct TodoView: View {
                 Text(scope.localizedName).tag(scope)
             }
         }
-        .task {
-            viewModel.send(.onAppear)
-        }
+        .task { viewModel.send(.onAppear) }
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()

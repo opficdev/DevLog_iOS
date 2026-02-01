@@ -13,8 +13,8 @@ final class TodoViewModel: Store {
         var searchText: String = ""
         let kind: TodoKind
         var showEditor: Bool = false
-        var showToast: Bool = false
-        var toastMessage: String = ""
+        var showAlert: Bool = false
+        var alertMessage: String = ""
         var scope: TodoScope = .title
         var filterOption: FilterOption = .create
         var isLoading = false
@@ -37,12 +37,13 @@ final class TodoViewModel: Store {
         // Binding
         case openEditor
         case closeEditor
-        case closeToast
+        case closeAlert
         case setScope(TodoScope)
         case setSearchText(String)
 
         // Call from run
         case didFetchTodos([Todo])
+        case didShowAlert(String)
         case didTogglePinned(Todo)
     }
 
@@ -83,14 +84,17 @@ final class TodoViewModel: Store {
             state.showEditor = true
         case .closeEditor:
             state.showEditor = false
-        case .closeToast:
-            state.showToast = false
+        case .closeAlert:
+            state.showAlert = false
         case .setScope(let scope):
             state.scope = scope
         case .setSearchText(let text):
             state.searchText = text
         case .didFetchTodos(let todos):
             state.todos = todos
+        case .didShowAlert(let message):
+            state.alertMessage = message
+            state.showAlert = true
         case .didTogglePinned(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo
@@ -102,18 +106,24 @@ final class TodoViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodos:
-            break
             Task {
                 do {
                     let todos = try await fetchTodosByKindUseCase.execute(state.kind)
                     send(.didFetchTodos(todos))
                 } catch {
+                    send(.didShowAlert(error.localizedDescription))
                 }
             }
         case .upsertTodo(let todo):
             Task {
                 try await upsertTodoUseCase.execute(todo)
                 send(.refresh)
+                do {
+                    try await upsertTodoUseCase.execute(todo)
+                    send(.refresh)
+                } catch {
+                    send(.didShowAlert(error.localizedDescription))
+                }
             }
         case .togglePinned(let todo):
             break
