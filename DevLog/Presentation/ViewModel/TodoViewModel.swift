@@ -131,7 +131,18 @@ final class TodoViewModel: Store {
                 }
             }
         case .togglePinned(let todo):
-            break
+            Task {
+                do {
+                    defer { send(.didLoading(false)) }
+                    send(.didLoading(true))
+                    var todo = todo
+                    todo.isPinned.toggle()
+                    try await upsertTodoUseCase.execute(todo)
+                    send(.didTogglePinned(todo))
+                } catch {
+                    send(.didShowAlert(error.localizedDescription))
+                }
+            }
         case .swipeTodo(let todo):
             break
         }
