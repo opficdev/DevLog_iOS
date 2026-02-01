@@ -12,66 +12,70 @@ struct TodoView: View {
     @EnvironmentObject var router: NavigationRouter
 
     var body: some View {
-        VStack {
-            if viewModel.state.todos.isEmpty {
-                VStack {
-                    Spacer()
-                    Text("작성된 내용이 없습니다.")
-                        .foregroundStyle(Color.gray)
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
+        ZStack {
+            if viewModel.state.isLoading {
+                LoadingView()
             } else {
-                List(viewModel.state.todos) { todo in
-                    Button {
-                        router.push(Path.detail(todo))
-                    } label: {
-                        VStack(alignment: .leading, spacing: 5) {
-                            HStack {
-                                if todo.isPinned {
-                                    Image(systemName: "star.fill")
+                if viewModel.state.todos.isEmpty {
+                    VStack {
+                        Spacer()
+                        Text("작성된 내용이 없습니다.")
+                            .foregroundStyle(Color.gray)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                } else {
+                    List(viewModel.state.todos) { todo in
+                        Button {
+                            router.push(Path.detail(todo))
+                        } label: {
+                            VStack(alignment: .leading, spacing: 5) {
+                                HStack {
+                                    if todo.isPinned {
+                                        Image(systemName: "star.fill")
+                                            .font(.headline)
+                                            .foregroundStyle(Color.orange)
+                                    }
+                                    Text(todo.title)
                                         .font(.headline)
-                                        .foregroundStyle(Color.orange)
+                                        .lineLimit(1)
                                 }
-                                Text(todo.title)
-                                    .font(.headline)
+                                Text(todo.content)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color.gray)
                                     .lineLimit(1)
                             }
-                            Text(todo.content)
-                                .font(.subheadline)
-                                .foregroundStyle(Color.gray)
-                                .lineLimit(1)
+                            .padding(.vertical, 5)
                         }
-                        .padding(.vertical, 5)
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button(action: {
-                            viewModel.send(.tapTogglePinned(todo))
-                        }) {
-                            Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                        .swipeActions(edge: .leading) {
+                            Button(action: {
+                                viewModel.send(.tapTogglePinned(todo))
+                            }) {
+                                Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                            }
+                            .tint(Color.orange)
                         }
-                        .tint(Color.orange)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive, action: {
-                            viewModel.send(.swipeTodo(todo))
-                        }) {
-                            Image(systemName: "trash")
-                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive, action: {
+                                viewModel.send(.swipeTodo(todo))
+                            }) {
+                                Image(systemName: "trash")
+                            }
 
+                        }
                     }
-                }
-                .listStyle(.plain)
-                .refreshable {
-                    viewModel.send(.refresh)
-                }
-                .navigationDestination(for: Path.self) { path in
-                    switch path {
-                    case .detail(let todo):
-                        TodoDetailView(
-                            todo: todo,
-                            onSubmit: { viewModel.send(.upsertTodo($0)) }
-                        )
+                    .listStyle(.plain)
+                    .refreshable {
+                        viewModel.send(.refresh)
+                    }
+                    .navigationDestination(for: Path.self) { path in
+                        switch path {
+                        case .detail(let todo):
+                            TodoDetailView(
+                                todo: todo,
+                                onSubmit: { viewModel.send(.upsertTodo($0)) }
+                            )
+                        }
                     }
                 }
             }
@@ -194,11 +198,6 @@ struct TodoView: View {
             }
         }
         .task { viewModel.send(.onAppear) }
-        .overlay {
-            if viewModel.state.isLoading {
-                LoadingView()
-            }
-        }
     }
 
     private enum Path: Hashable {
