@@ -43,6 +43,7 @@ final class TodoViewModel: Store {
 
         // Call from run
         case didFetchTodos([Todo])
+        case didLoading(Bool)
         case didShowAlert(String)
         case didTogglePinned(Todo)
     }
@@ -92,6 +93,8 @@ final class TodoViewModel: Store {
             state.searchText = text
         case .didFetchTodos(let todos):
             state.todos = todos
+        case .didLoading(let value):
+            state.isLoading = value
         case .didShowAlert(let message):
             state.alertMessage = message
             state.showAlert = true
@@ -108,6 +111,8 @@ final class TodoViewModel: Store {
         case .fetchTodos:
             Task {
                 do {
+                    defer { send(.didLoading(false)) }
+                    send(.didLoading(true))
                     let todos = try await fetchTodosByKindUseCase.execute(state.kind)
                     send(.didFetchTodos(todos))
                 } catch {
@@ -116,9 +121,9 @@ final class TodoViewModel: Store {
             }
         case .upsertTodo(let todo):
             Task {
-                try await upsertTodoUseCase.execute(todo)
-                send(.refresh)
                 do {
+                    defer { send(.didLoading(false)) }
+                    send(.didLoading(true))
                     try await upsertTodoUseCase.execute(todo)
                     send(.refresh)
                 } catch {
