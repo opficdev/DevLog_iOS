@@ -5,7 +5,7 @@
 //  Created by 최윤진 on 12/14/25.
 //
 
-import Foundation
+import FirebaseFirestore
 
 protocol Dictionaryable: Encodable {
     func toDictionary() -> [String: Any]
@@ -13,11 +13,23 @@ protocol Dictionaryable: Encodable {
 
 extension Dictionaryable {
     func toDictionary() -> [String: Any] {
-        guard let encodedData = try? JSONEncoder().encode(self),
-              var dictionary = (try? JSONSerialization.jsonObject(with: encodedData)) as? [String: Any]
-        else { return [:] }
+        let encoder = Firestore.Encoder()
+        guard var dictionary = try? encoder.encode(self) else { return [:] }
+
+        let mirror = Mirror(reflecting: self)
+        for child in mirror.children {
+            guard let key = child.label else { continue }
+            if isNilValue(child.value) {
+                dictionary[key] = NSNull()
+            }
+        }
 
         dictionary.removeValue(forKey: "id")
         return dictionary
+    }
+
+    private func isNilValue(_ value: Any) -> Bool {
+        let mirror = Mirror(reflecting: value)
+        return mirror.displayStyle == .optional && mirror.children.isEmpty
     }
 }
