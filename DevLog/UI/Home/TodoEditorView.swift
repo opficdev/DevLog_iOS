@@ -11,12 +11,13 @@ import MarkdownUI
 struct TodoEditorView: View {
     @StateObject var viewModel: TodoEditorViewModel
     @Environment(\.dismiss) private var dismiss
-    @FocusState var focusOnContentField: Bool
+    @FocusState private var field: Field?
+    @State private var showDueDatePicker: Bool = false
     var onSubmit: ((Todo) -> Void)?
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .bottom) {
                 ScrollView {
                     LazyVStack(spacing: 10) {
                         titleField
@@ -34,9 +35,37 @@ struct TodoEditorView: View {
                     }
                 }
                 .onTapGesture {
-                    focusOnContentField = true
+                    field = .description
                 }
+                HStack {
+                    Button {
+                        field = nil
+                    } label: {
+                        Label {
+                            Text("태그")
+                        } icon: {
+                            Image(systemName: "tag")
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .adaptiveButtonStyle()
+
+                    Button {
+                        field = nil
+                        showDueDatePicker = true
+                    } label: {
+                        Label {
+                            Text("마감일")
+                        } icon: {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                    .adaptiveButtonStyle()
+                }
+                .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
             }
+            .ignoresSafeArea(.container, edges: .bottom)
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolBar }
@@ -44,97 +73,15 @@ struct TodoEditorView: View {
     }
 
     private var titleField: some View {
-        TextField("", text: Binding(
-            get: { viewModel.state.title },
-            set: { viewModel.send(.setTitle($0)) }
-        ),
-                  prompt: Text("제목").foregroundColor(Color.gray)
+        TextField(
+            "",
+            text: Binding(
+                get: { viewModel.state.title },
+                set: { viewModel.send(.setTitle($0)) }
+            ),
+            prompt: Text("제목").foregroundColor(Color.gray)
         )
-        .font(.title3)
-        .padding(.horizontal)
-    }
-
-    private var dueDateSelector: some View {
-        HStack {
-            if let dueDate = viewModel.state.dueDate {
-                HStack {
-                    DatePicker(
-                        "마감일",
-                        selection: Binding(
-                            get: { dueDate },
-                            set: { viewModel.send(.setDueDate($0)) }
-                        ),
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(.compact)
-                    .foregroundStyle(viewModel.state.hasDueDate ? Color.primary : Color.secondary)
-                    Divider()
-                    Button(action: {
-                        viewModel.send(.toggleDueDate)
-                    }) {
-                        CheckBox(isChecked: viewModel.state.hasDueDate)
-                    }
-                }
-                .padding(.horizontal)
-            } else {
-
-            }
-        }
-    }
-
-    private var tagField: some View {
-        HStack {
-            Text("태그")
-                .foregroundStyle(viewModel.state.tags.isEmpty ? Color.secondary : Color.primary)
-            Divider()
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(viewModel.state.tags, id: \.self) { tag in
-                        HStack {
-                            Text(tag)
-                            Button(action: {
-                                viewModel.send(.removeTag(tag))
-                            }) {
-                                Image(systemName: "xmark")
-                                    .font(.caption)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .background(
-                            Capsule()
-                                .fill(Color(UIColor.systemFill))
-                        )
-                    }
-
-                    TextField(
-                        "",
-                        text: Binding(
-                            get: { viewModel.state.tagText },
-                            set: { viewModel.send(.setTagText($0)) }
-                        )
-                    )
-//                    .focused($focusOnTagField)
-                    .onSubmit {
-                        viewModel.send(.addTag)
-                    }
-//                    .onChange(of: focusOnTagField) { focused in
-//                        if !focused {
-//                            viewModel.send(.addTag)
-//                        }
-//                    }
-                }
-            }
-            Divider()
-            Button(action: {
-//                focusOnTagField.toggle()
-//                if focusOnTagField {
-//                    focusOnContentField = false
-//                }
-            }) {
-//                Image(systemName: "\(focusOnTagField ? "xmark" : "plus").circle.fill")
-//                    .font(.title2)
-            }
-        }
+        .focused($field, equals: .title)
         .padding(.horizontal)
     }
 
@@ -143,6 +90,7 @@ struct TodoEditorView: View {
             HStack(spacing: 0) {
                 Button(action: {
                     viewModel.send(.setTabViewTag(.editor))
+                    field = .description
                 }) {
                     Text("편집")
                         .frame(maxWidth: .infinity)
@@ -153,6 +101,7 @@ struct TodoEditorView: View {
                 Divider()
                 Button(action: {
                     viewModel.send(.setTabViewTag(.preview))
+                    field = nil
                 }) {
                     Text("미리보기")
                         .frame(maxWidth: .infinity)
@@ -178,7 +127,7 @@ struct TodoEditorView: View {
                     prompt: Text("설명(선택 사항)").font(.callout),
                     axis: .vertical
                 )
-                .focused($focusOnContentField)
+                .focused($field, equals: .description)
             } else {
                 Markdown(viewModel.state.content)
                     .markdownTheme(.basic)
@@ -206,5 +155,9 @@ struct TodoEditorView: View {
             }
             .disabled(!viewModel.state.isValidToSave)
         }
+    }
+
+    private enum Field: Hashable {
+        case title, description, tag
     }
 }
