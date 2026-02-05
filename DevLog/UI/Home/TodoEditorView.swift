@@ -159,5 +159,81 @@ struct TodoEditorView: View {
 
     private enum Field: Hashable {
         case title, description, tag
+
+private struct TagLayout: Layout {
+    var verticalSpacing: CGFloat = 8
+    var horizontalSpacing: CGFloat = 8
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        let rows = computeRows(maxWidth: maxWidth, subviews: subviews)
+        let height =
+        rows.reduce(0) { $0 + $1.maxHeight }
+        + CGFloat(max(0, rows.count - 1)) * verticalSpacing
+        return CGSize(width: proposal.width ?? 0, height: height)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        let rows = computeRows(maxWidth: bounds.width, subviews: subviews)
+        var minY = bounds.minY
+
+        for row in rows {
+            var minX = bounds.minX
+
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(
+                    at: CGPoint(x: minX, y: minY),
+                    proposal: ProposedViewSize(size)
+                )
+                minX += size.width + horizontalSpacing
+            }
+
+            minY += row.maxHeight + verticalSpacing
+        }
+    }
+
+    private func computeRows(
+        maxWidth: CGFloat,
+        subviews: Subviews
+    ) -> [Row] {
+        let availableWidth = maxWidth > 0 ? maxWidth : .infinity
+        var rows: [Row] = []
+        var currentRow = Row()
+        var currentWidth: CGFloat = 0
+
+        for (index, subview) in subviews.enumerated() {
+            let size = subview.sizeThatFits(.unspecified)
+
+            if currentWidth + size.width > availableWidth && !currentRow.indices.isEmpty {
+                rows.append(currentRow)
+                currentRow = Row()
+                currentWidth = 0
+            }
+
+            currentRow.indices.append(index)
+            currentRow.maxHeight = max(currentRow.maxHeight, size.height)
+            currentWidth += size.width + horizontalSpacing
+        }
+
+        if !currentRow.indices.isEmpty {
+            rows.append(currentRow)
+        }
+
+        return rows
+    }
+
+    private struct Row {
+        var indices: [Int] = []
+        var maxHeight: CGFloat = 0
     }
 }
