@@ -34,15 +34,11 @@ extension View {
     func adaptiveButtonStyle() -> some View {
         if #available(iOS 26.0, *) {
             self.buttonStyle(.glass)
-        } else if #available(iOS 17.0, *) {
-            capsuleButton
-                .background {
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .strokeBorder(.white.opacity(0.2), lineWidth: 1)
-                }
         } else {
-            capsuleButton
+            self.foregroundStyle(Color(.label))
+                .font(.footnote)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
                 .background {
                     Capsule()
                         .fill(.ultraThinMaterial)
@@ -52,12 +48,5 @@ extension View {
                         }
                 }
         }
-    }
-
-    private var capsuleButton: some View {
-        self.foregroundStyle(Color(.label))
-            .font(.footnote)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
     }
 }
