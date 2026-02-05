@@ -237,3 +237,59 @@ private struct TagLayout: Layout {
         var maxHeight: CGFloat = 0
     }
 }
+
+private struct Tag: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var height: CGFloat = 0
+    private let name: String
+    private let isEditing: Bool
+    private var action: (() -> Void)?
+
+    init(_ name: String, isEditing: Bool, action: (() -> Void)? = nil) {
+        self.name = name
+        self.isEditing = isEditing
+        self.action = action
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(name)
+                .foregroundStyle(.blue)
+                .bold()
+                .lineLimit(1)
+                .fixedSize()
+                .padding(.vertical, 4)
+                .padding(.leading, 8)
+                .padding(.trailing, isEditing ? 0 : 8)
+                .background {
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear {
+                                height = geo.size.height
+                            }
+                    }
+                }
+
+            if isEditing {
+                Button {
+                    action?()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: height, height: height)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(
+                            .blue,
+                            .black.opacity(colorScheme == .light ? 0 : 0.4)
+                        )
+
+                }
+            }
+        }
+        .background {
+            Capsule()
+                .fill(.blue.opacity(0.2))
+        }
+    }
+}
