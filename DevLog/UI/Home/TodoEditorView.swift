@@ -293,3 +293,44 @@ private struct Tag: View {
         }
     }
 }
+private struct DueDatePicker<Content: View>: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @State private var isPresented: Bool = false
+    @State private var height: CGFloat = .pi
+    @Binding var dueDate: Date
+    @ViewBuilder private var content: () -> Content
+
+    init(
+        selection dueDate: Binding<Date>,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self._dueDate = dueDate
+        self.content = content
+    }
+
+    var body: some View {
+        Button {
+            isPresented.toggle()
+        } label: {
+            content()
+        }
+        .sheet(isPresented: $isPresented) {
+            DatePicker(
+                "",
+                selection: $dueDate,
+                displayedComponents: .date
+            )
+            .labelsHidden()
+            .datePickerStyle(.graphical)
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(height)])
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.onAppear {
+                        height = geometry.size.height + safeAreaInsets.bottom + 16
+                    }
+                }
+            }
+        }
+    }
+}
