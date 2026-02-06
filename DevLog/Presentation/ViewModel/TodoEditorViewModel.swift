@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import OrderedCollections
 
 final class TodoEditorViewModel: Store {
     struct State {
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
-        var tags: [String] = []
+        var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var hasDueDate: Bool { return dueDate != nil }
@@ -29,6 +30,7 @@ final class TodoEditorViewModel: Store {
 
     enum Action {
         case addTag
+        case clearTagText
         case removeTag(String)
         case setContent(String)
         case setDueDate(Date)
@@ -62,7 +64,7 @@ final class TodoEditorViewModel: Store {
             state.title = todo.title
             state.content = todo.content
             state.dueDate = todo.dueDate
-            state.tags = todo.tags
+            state.tags = OrderedSet(todo.tags)
         }
     }
 
@@ -70,10 +72,12 @@ final class TodoEditorViewModel: Store {
         switch action {
         case .addTag:
             let tagText = state.tagText
-            if !state.tags.contains(tagText) && !tagText.isEmpty {
+            if !tagText.isEmpty {
                 state.tags.append(tagText)
                 state.tagText = ""
             }
+        case .clearTagText:
+            state.tagText = ""
         case .removeTag(let tagText):
             state.tags.removeAll { $0 == tagText }
         case .setContent(let stringValue),
@@ -125,7 +129,7 @@ extension TodoEditorViewModel {
             createdAt: self.createdAt ?? date,
             updatedAt: date,
             dueDate: state.dueDate,
-            tags: state.tags,
+            tags: state.tags.map { $0 },
             kind: self.kind
         )
     }
