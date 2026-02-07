@@ -200,8 +200,10 @@ private struct TagEditor<Content: View>: View {
         } label: {
             content()
         }
-        .sheet(isPresented: $isPresented) {
-            VStack(spacing: tags.isEmpty ? 0 : 8) {
+        .sheet(
+            isPresented: $isPresented,
+            onDismiss: { tag = "" }
+        ) {
                 ScrollView {
                     TagLayout {
                         ForEach(tags, id: \.self) { tagText in
