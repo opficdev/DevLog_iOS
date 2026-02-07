@@ -51,20 +51,30 @@ final class TodoEditorViewModel: Store {
     private let createdAt: Date?
     private let kind: TodoKind
 
-    init(title: String, todo: Todo? = nil) {
-        self.navigationTitle = "새 \(title)"
-        self.id = todo?.id ?? UUID().uuidString
-        self.isPinned = todo?.isPinned ?? false
-        self.isCompleted = todo?.isCompleted ?? false
-        self.isChecked = todo?.isChecked ?? false
-        self.createdAt = todo?.createdAt ?? nil
-        self.kind = todo?.kind ?? .etc
-        if let todo {
-            state.title = todo.title
-            state.content = todo.content
-            state.dueDate = todo.dueDate
-            state.tags = OrderedSet(todo.tags)
-        }
+    // 새로운 Todo 생성용 생성자
+    init(kind: TodoKind) {
+        self.navigationTitle = "새 \(kind.localizedName) 추가"
+        self.id = UUID().uuidString
+        self.isPinned = false
+        self.isCompleted = false
+        self.isChecked = false
+        self.createdAt = nil
+        self.kind = kind
+    }
+
+    // 기존 Todo 편집용 생성자
+    init(todo: Todo) {
+        self.navigationTitle = "편집"
+        self.id = todo.id
+        self.isPinned = todo.isPinned
+        self.isCompleted = todo.isCompleted
+        self.isChecked = todo.isChecked
+        self.createdAt = todo.createdAt
+        self.kind = todo.kind
+        state.title = todo.title
+        state.content = todo.content
+        state.dueDate = todo.dueDate
+        state.tags = OrderedSet(todo.tags)
     }
 
     func reduce(with action: Action) -> [SideEffect] {

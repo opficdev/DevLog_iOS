@@ -62,7 +62,7 @@ struct TodoDetailView: View {
         }
         .fullScreenCover(isPresented: $showEditor) {
             TodoEditorView(
-                viewModel: TodoEditorViewModel(title: "수정", todo: todo),
+                viewModel: TodoEditorViewModel(todo: todo),
                 onSubmit: { onSubmit?($0) }
             )
         }
