@@ -297,6 +297,7 @@ private struct TagEditor<Content: View>: View {
                     .padding(.vertical, 5)
             }
             .adaptiveButtonStyle((!tag.isEmpty && !tags.contains(tag)) ? .blue : .clear)
+            .disabled(tag.isEmpty || tags.contains(tag))
         }
     }
 }
