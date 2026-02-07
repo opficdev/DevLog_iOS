@@ -44,6 +44,7 @@ struct TodoEditorView: View {
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.background, for: .navigationBar)
             .toolbar { toolBar }
         }
     }
