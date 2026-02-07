@@ -177,7 +177,6 @@ private struct TagEditor<Content: View>: View {
     @State private var fieldHeight: CGFloat = 0
     @State private var tag = ""
     @ViewBuilder private var content: () -> Content
-    @FocusState private var focused: Bool
     private let tags: OrderedSet<String>
     private let addAction: (String) -> Void
     private let deleteAction: (String) -> Void
@@ -235,7 +234,7 @@ private struct TagEditor<Content: View>: View {
                 }
                 .scrollIndicators(.hidden)
                 .frame(maxHeight: tagsHeight)
-                .padding(.top, tags.isEmpty || !focused ? 0 : 8)    //  키보드 포커싱 중에는 패딩 끌 것
+                .padding(.top, tags.isEmpty ? 0 : 8)
 
                 // 항상 나타나있음
                 tagField
@@ -262,7 +261,6 @@ private struct TagEditor<Content: View>: View {
             HStack {
                 TextField("태그 입력", text: $tag)
                     .keyboardType(.webSearch)
-                    .focused($focused)
                     .onSubmit {
                         isPresented = false
                     }
