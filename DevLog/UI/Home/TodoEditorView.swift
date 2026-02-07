@@ -5,167 +5,350 @@
 //  Created by opfic on 5/31/25.
 //
 
-import SwiftUI
 import MarkdownUI
+import OrderedCollections
+import SwiftUI
 
 struct TodoEditorView: View {
     @StateObject var viewModel: TodoEditorViewModel
     @Environment(\.dismiss) private var dismiss
-    @FocusState var focusOnTagField: Bool
+    @FocusState private var field: Field?
+    @State private var showDueDatePicker: Bool = false
     var onSubmit: ((Todo) -> Void)?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    TextField("", text: Binding(
-                        get: { viewModel.state.title },
-                        set: { viewModel.send(.setTitle($0)) }
-                    ),
-                        prompt: Text("제목").foregroundColor(Color.gray)
-                    )
-                    .font(.title3)
-                    .padding(.horizontal)
-                    Divider()
-                    if let dueDate = viewModel.state.dueDate {
-                        HStack {
-                            DatePicker("마감일",
-                                       selection: Binding(
-                                        get: { dueDate },
-                                        set: { viewModel.send(.setDueDate($0)) }
-                                       ),
-                                       displayedComponents: .date)
-                            .datePickerStyle(.compact)
-                            .foregroundStyle(viewModel.state.hasDueDate ? Color.primary : Color.secondary)
-                            Divider()
-                            Button(action: {
-                                viewModel.send(.toggleDueDate)
-                            }) {
-                                CheckBox(isChecked: viewModel.state.hasDueDate)
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        titleField
+                        LazyVStack(
+                            alignment: .leading,
+                            spacing: 0,
+                            pinnedViews: [.sectionHeaders]
+                        ) {
+                            Section {
+                                tabView
+                            } header: {
+                                tabViewSelector
                             }
-                        }
-                        .padding(.horizontal)
-                    }
-                    Divider()
-                    HStack {
-                        Text("태그")
-                            .foregroundStyle(viewModel.state.tags.isEmpty ? Color.secondary : Color.primary)
-                        Divider()
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(viewModel.state.tags, id: \.self) { tag in
-                                    HStack {
-                                        Text(tag)
-                                        Button(action: {
-                                            viewModel.send(.removeTag(tag))
-                                        }) {
-                                            Image(systemName: "xmark")
-                                                .font(.caption)
-                                                .foregroundStyle(Color.gray)
-                                        }
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .background(
-                                        Capsule()
-                                            .fill(Color(UIColor.systemFill))
-                                    )
-                                }
-
-                                TextField("",
-                                          text: Binding(
-                                            get: { viewModel.state.tagText },
-                                            set: { viewModel.send(.setTagText($0)) }
-                                          ))
-                                    .focused($focusOnTagField)
-                                    .onSubmit {
-                                        viewModel.send(.addTag)
-                                    }
-                                    .onChange(of: focusOnTagField) { focused in
-                                        if !focused {
-                                            viewModel.send(.addTag)
-                                        }
-                                    }
-                            }
-                        }
-                        Divider()
-                        Button(action: {
-                            focusOnTagField.toggle()
-                        }) {
-                            Image(systemName: "\(focusOnTagField ? "xmark" : "plus").circle.fill")
-                                .foregroundStyle(Color.gray)
-                                .font(.title2)
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
-                    Section {
-                        Group {
-                            if viewModel.state.tabViewTag == .editor {
-                                TextField(
-                                    "",
-                                    text: Binding(
-                                        get: { viewModel.state.content },
-                                        set: { viewModel.send(.setContent($0)) }
-                                    ),
-                                    prompt: Text("내용을 입력하세요"),
-                                    axis: .vertical
-                                )
-                            } else {
-                                Markdown(viewModel.state.content)
-                                    .markdownTheme(.basic)
-                            }
-                        }
-                        .padding(.horizontal)
-                    } header: {
-                        VStack(spacing: 0) {
-                            Divider()
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    viewModel.send(.setTabViewTag(.editor))
-                                }) {
-                                    Text("편집")
-                                        .frame(maxWidth: .infinity)
-                                        .foregroundStyle(
-                                            viewModel.state.tabViewTag == .editor ? Color.primary : Color.secondary
-                                        )
-                                }
-                                Divider()
-                                Button(action: {
-                                    viewModel.send(.setTabViewTag(.preview))
-                                }) {
-                                    Text("미리보기")
-                                        .frame(maxWidth: .infinity)
-                                        .foregroundStyle(
-                                            viewModel.state.tabViewTag == .preview ? Color.primary : Color.gray
-                                        )
-                                }
-                            }
-                            .padding(.vertical, 10)
-                            .background(Color(UIColor.systemBackground))
-                            Divider()
                         }
                     }
                 }
+                .onTapGesture {
+                    field = .description
+                }
+                accessoryBar
+                    .padding(.horizontal)
+                    .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")}
-                    .bold()
+            .toolbarBackground(.background, for: .navigationBar)
+            .toolbar { toolBar }
+        }
+    }
+
+    private var titleField: some View {
+        TextField(
+            "",
+            text: Binding(
+                get: { viewModel.state.title },
+                set: { viewModel.send(.setTitle($0)) }
+            ),
+            prompt: Text("제목").foregroundColor(Color.gray)
+        )
+        .focused($field, equals: .title)
+        .padding(.horizontal)
+    }
+
+    private var tabViewSelector: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Button(action: {
+                    viewModel.send(.setTabViewTag(.editor))
+                    field = .description
+                }) {
+                    Text("편집")
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(
+                            viewModel.state.tabViewTag == .editor ? Color.primary : Color.secondary
+                        )
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        onSubmit?(viewModel.upsertTodo())
-                        dismiss()
-                    }) {
-                        Text("추가")
+                Divider()
+                Button(action: {
+                    viewModel.send(.setTabViewTag(.preview))
+                    field = nil
+                }) {
+                    Text("미리보기")
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(
+                            viewModel.state.tabViewTag == .preview ? Color.primary : Color.gray
+                        )
+                }
+            }
+            .padding(.vertical, 10)
+            .background(Color(UIColor.systemBackground))
+        }
+    }
+
+    private var tabView: some View {
+        Group {
+            if viewModel.state.tabViewTag == .editor {
+                TextField(
+                    "",
+                    text: Binding(
+                        get: { viewModel.state.content },
+                        set: { viewModel.send(.setContent($0)) }
+                    ),
+                    prompt: Text("설명(선택 사항)").font(.callout),
+                    axis: .vertical
+                )
+                .focused($field, equals: .description)
+            } else {
+                Markdown(viewModel.state.content)
+                    .markdownTheme(.basic)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 10)
+    }
+
+    private var accessoryBar: some View {
+        HStack {
+            TagEditor(
+                tags: viewModel.state.tags,
+                addAction: { viewModel.send(.addTag($0)) },
+                deleteAction: { viewModel.send(.removeTag($0)) }
+            ) {
+                Label {
+                    Text("태그")
+                } icon: {
+                    Image(systemName: "tag")
+                        .foregroundStyle(.gray)
+                }
+            }
+            .adaptiveButtonStyle()
+            DueDatePicker(selection: Binding(
+                get: { viewModel.state.dueDate ?? Date() },
+                set: { viewModel.send(.setDueDate($0)) }
+            )) {
+                HStack {
+                    Label {
+                        Text("마감일")
+                    } icon: {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(.gray)
                     }
-                    .disabled(!viewModel.state.isValidToSave)
+                    Image(systemName: "checkmark.square")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(
+                            viewModel.state.hasDueDate ? .blue : .clear,
+                            .gray
+                        )
+                        .onTapGesture {
+                            viewModel.send(.setDueDate(viewModel.state.hasDueDate ? nil : Date()))
+                        }
+                }
+            }
+            .adaptiveButtonStyle()
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolBar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .bold()
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button(action: {
+                onSubmit?(viewModel.upsertTodo())
+                dismiss()
+            }) {
+                Text("추가")
+            }
+            .disabled(!viewModel.state.isValidToSave)
+        }
+    }
+
+    private enum Field: Hashable {
+        case title, description, tag
+    }
+}
+
+private struct TagEditor<Content: View>: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @State private var isPresented: Bool = false
+    @State private var sheetHeight: CGFloat = .pi
+    @State private var tagsHeight: CGFloat = 0
+    @State private var fieldHeight: CGFloat = 0
+    @State private var tag = ""
+    @ViewBuilder private var content: () -> Content
+    private let tags: OrderedSet<String>
+    private let addAction: (String) -> Void
+    private let deleteAction: (String) -> Void
+    private let spacing: CGFloat = 8
+
+    init(
+        tags: OrderedSet<String>,
+        addAction: @escaping (String) -> Void = { _ in },
+        deleteAction: @escaping (String) -> Void = { _ in },
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.tags = tags
+        self.addAction = addAction
+        self.deleteAction = deleteAction
+        self.content = content
+    }
+
+    var body: some View {
+        Button {
+            isPresented = true
+        } label: {
+            content()
+        }
+        .sheet(
+            isPresented: $isPresented,
+            onDismiss: { tag = "" }
+        ) {
+            VStack(spacing: tags.isEmpty ? 0 : spacing) {
+                ScrollView {
+                    TagLayout {
+                        ForEach(tags, id: \.self) { tagText in
+                            Tag(tagText, isEditing: true) {
+                                deleteAction(tagText)
+                            }
+                        }
+                    }
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        tagsHeight = geometry.size.height
+                                        sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
+                                    }
+                                }
+                                .onChange(of: tags) { newTags in
+                                    DispatchQueue.main.async {
+                                        tagsHeight = geometry.size.height
+                                        sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)
+                                    }
+                                }
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+                .frame(maxHeight: tagsHeight)
+                .padding(.top, tags.isEmpty ? 0 : 8)
+
+                tagField
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    fieldHeight = geometry.size.height + 16
+                                    sheetHeight = fieldHeight
+                                }
+                        }
+                    }
+
+            }
+            .padding(.horizontal)
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(sheetHeight)])
+        }
+    }
+
+    private var tagField: some View {
+        HStack {
+            HStack {
+                TextField("태그 입력", text: $tag)
+                    .keyboardType(.webSearch)
+                    .padding(tag.isEmpty ? .all : [.leading, .vertical])
+                    .onSubmit {
+                        isPresented = false
+                    }
+
+                if !tag.isEmpty {
+                    Button {
+                        tag = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(
+                                Color(.label),
+                                Color(.systemBackground)
+                            )
+                    }
+                    .padding(.trailing)
+                }
+            }
+            .background {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        Capsule()
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
+            }
+
+            Button {
+                addAction(tag)
+                tag = ""
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title.bold())
+                    .padding(.vertical, 5)
+            }
+            .adaptiveButtonStyle((!tag.isEmpty && !tags.contains(tag)) ? .blue : .clear)
+            .disabled(tag.isEmpty || tags.contains(tag))
+        }
+    }
+}
+
+private struct DueDatePicker<Content: View>: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @State private var isPresented: Bool = false
+    @State private var height: CGFloat = .pi
+    @Binding var dueDate: Date
+    @ViewBuilder private var content: () -> Content
+
+    init(
+        selection dueDate: Binding<Date>,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self._dueDate = dueDate
+        self.content = content
+    }
+
+    var body: some View {
+        Button {
+            isPresented.toggle()
+        } label: {
+            content()
+        }
+        .sheet(isPresented: $isPresented) {
+            DatePicker(
+                "",
+                selection: $dueDate,
+                displayedComponents: .date
+            )
+            .labelsHidden()
+            .datePickerStyle(.graphical)
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(height)])
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.onAppear {
+                        height = geometry.size.height + safeAreaInsets.bottom + safeAreaInsets.top
+                    }
                 }
             }
         }

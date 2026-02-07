@@ -121,7 +121,7 @@ struct HomeView: View {
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .kind(let todoKind):
-                    TodoView(viewModel:TodoViewModel(
+                    TodoView(viewModel: TodoViewModel(
                         fetchTodosByKindUseCase: container.resolve(FetchTodosByKindUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         kind: todoKind

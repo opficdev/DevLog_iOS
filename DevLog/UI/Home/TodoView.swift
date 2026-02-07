@@ -96,11 +96,10 @@ struct TodoView: View {
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
-            set: { _, _ in viewModel.send(.openEditor) })
+            set: { _, _ in viewModel.send(.closeEditor) })
         ) {
-            let title = "새 \(viewModel.state.kind.localizedName)"
             TodoEditorView(
-                viewModel: TodoEditorViewModel(title: title),
+                viewModel: TodoEditorViewModel(kind: viewModel.state.kind),
                 onSubmit: { viewModel.send(.upsertTodo($0)) }
             )
         }

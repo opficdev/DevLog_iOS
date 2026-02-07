@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import OrderedCollections
 
 final class TodoEditorViewModel: Store {
     struct State {
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
-        var tags: [String] = []
+        var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var hasDueDate: Bool { return dueDate != nil }
@@ -28,10 +29,10 @@ final class TodoEditorViewModel: Store {
     }
 
     enum Action {
-        case addTag
+        case addTag(String)
         case removeTag(String)
         case setContent(String)
-        case setDueDate(Date)
+        case setDueDate(Date?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
@@ -50,30 +51,36 @@ final class TodoEditorViewModel: Store {
     private let createdAt: Date?
     private let kind: TodoKind
 
-    init(title: String, todo: Todo? = nil) {
-        self.navigationTitle = title
-        self.id = todo?.id ?? UUID().uuidString
-        self.isPinned = todo?.isPinned ?? false
-        self.isCompleted = todo?.isCompleted ?? false
-        self.isChecked = todo?.isChecked ?? false
-        self.createdAt = todo?.createdAt ?? nil
-        self.kind = todo?.kind ?? .etc
-        if let todo {
-            state.title = todo.title
-            state.content = todo.content
-            state.dueDate = todo.dueDate
-            state.tags = todo.tags
-        }
+    // 새로운 Todo 생성용 생성자
+    init(kind: TodoKind) {
+        self.navigationTitle = "새 \(kind.localizedName) 추가"
+        self.id = UUID().uuidString
+        self.isPinned = false
+        self.isCompleted = false
+        self.isChecked = false
+        self.createdAt = nil
+        self.kind = kind
+    }
+
+    // 기존 Todo 편집용 생성자
+    init(todo: Todo) {
+        self.navigationTitle = "편집"
+        self.id = todo.id
+        self.isPinned = todo.isPinned
+        self.isCompleted = todo.isCompleted
+        self.isChecked = todo.isChecked
+        self.createdAt = todo.createdAt
+        self.kind = todo.kind
+        state.title = todo.title
+        state.content = todo.content
+        state.dueDate = todo.dueDate
+        state.tags = OrderedSet(todo.tags)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .addTag:
-            let tagText = state.tagText
-            if !state.tags.contains(tagText) && !tagText.isEmpty {
-                state.tags.append(tagText)
-                state.tagText = ""
-            }
+        case .addTag(let tag):
+            if !tag.isEmpty { state.tags.append(tag) }
         case .removeTag(let tagText):
             state.tags.removeAll { $0 == tagText }
         case .setContent(let stringValue),
@@ -81,8 +88,10 @@ final class TodoEditorViewModel: Store {
              .setTitle(let stringValue):
             handleStringAction(action, stringValue: stringValue)
         case .setDueDate(let dueDate):
-            if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()) {
+            if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()), let dueDate {
                 state.dueDate = max(dueDate, tomorrowDate)
+            } else {
+                state.dueDate = nil
             }
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
@@ -125,7 +134,7 @@ extension TodoEditorViewModel {
             createdAt: self.createdAt ?? date,
             updatedAt: date,
             dueDate: state.dueDate,
-            tags: state.tags,
+            tags: state.tags.map { $0 },
             kind: self.kind
         )
     }
