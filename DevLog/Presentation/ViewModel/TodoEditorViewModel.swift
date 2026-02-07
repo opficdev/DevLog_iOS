@@ -32,7 +32,7 @@ final class TodoEditorViewModel: Store {
         case addTag(String)
         case removeTag(String)
         case setContent(String)
-        case setDueDate(Date)
+        case setDueDate(Date?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
@@ -78,8 +78,10 @@ final class TodoEditorViewModel: Store {
              .setTitle(let stringValue):
             handleStringAction(action, stringValue: stringValue)
         case .setDueDate(let dueDate):
-            if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()) {
+            if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()), let dueDate {
                 state.dueDate = max(dueDate, tomorrowDate)
+            } else {
+                state.dueDate = nil
             }
         case .setTabViewTag(let tag):
             state.tabViewTag = tag

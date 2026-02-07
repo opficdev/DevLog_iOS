@@ -133,11 +133,22 @@ struct TodoEditorView: View {
                 get: { viewModel.state.dueDate ?? Date() },
                 set: { viewModel.send(.setDueDate($0)) }
             )) {
-                Label {
-                    Text("마감일")
-                } icon: {
-                    Image(systemName: "calendar")
-                        .foregroundStyle(.gray)
+                HStack {
+                    Label {
+                        Text("마감일")
+                    } icon: {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(.gray)
+                    }
+                    Image(systemName: "checkmark.square")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(
+                            viewModel.state.hasDueDate ? .blue : .clear,
+                            .gray
+                        )
+                        .onTapGesture {
+                            viewModel.send(.setDueDate(viewModel.state.hasDueDate ? nil : Date()))
+                        }
                 }
             }
             .adaptiveButtonStyle()
@@ -147,11 +158,12 @@ struct TodoEditorView: View {
     @ToolbarContentBuilder
     private var toolBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button(action: {
+            Button {
                 dismiss()
-            }) {
-                Image(systemName: "xmark")}
-            .bold()
+            } label: {
+                Image(systemName: "xmark")
+                    .bold()
+            }
         }
         ToolbarItem(placement: .topBarTrailing) {
             Button(action: {
