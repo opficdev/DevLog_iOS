@@ -217,10 +217,7 @@ private struct TagEditor<Content: View>: View {
                         GeometryReader { geometry in
                             Color.clear
                                 .onAppear {
-                                    // 처음부터 태그가 있을 때 호출될 듯?
-                                    // tagField의 onAppear 연산 후에 실행되도록 딜레이를 줌
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        print("ScrollView onAppear")
                                         tagsHeight = geometry.size.height
                                         sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
                                     }
@@ -228,7 +225,6 @@ private struct TagEditor<Content: View>: View {
                                 .onChange(of: tags) { newTags in
                                     DispatchQueue.main.async {
                                         tagsHeight = geometry.size.height
-                                        print(tagsHeight, fieldHeight, sheetHeight, newTags.isEmpty)
                                         sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)
                                     }
                                 }
@@ -239,7 +235,6 @@ private struct TagEditor<Content: View>: View {
                 .frame(maxHeight: tagsHeight)
                 .padding(.top, tags.isEmpty ? 0 : 8)
 
-                // 항상 나타나있음
                 tagField
                     .background {
                         GeometryReader { geometry in
@@ -264,10 +259,10 @@ private struct TagEditor<Content: View>: View {
             HStack {
                 TextField("태그 입력", text: $tag)
                     .keyboardType(.webSearch)
+                    .padding(tag.isEmpty ? .all : [.leading, .vertical])
                     .onSubmit {
                         isPresented = false
                     }
-                    .padding(tag.isEmpty ? .all : [.leading, .vertical])
 
                 if !tag.isEmpty {
                     Button {
