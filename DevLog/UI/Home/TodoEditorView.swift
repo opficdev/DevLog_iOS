@@ -5,8 +5,9 @@
 //  Created by opfic on 5/31/25.
 //
 
-import SwiftUI
 import MarkdownUI
+import OrderedCollections
+import SwiftUI
 
 struct TodoEditorView: View {
     @StateObject var viewModel: TodoEditorViewModel
@@ -37,33 +38,9 @@ struct TodoEditorView: View {
                 .onTapGesture {
                     field = .description
                 }
-                HStack {
-                    Button {
-                        field = nil
-                    } label: {
-                        Label {
-                            Text("태그")
-                        } icon: {
-                            Image(systemName: "tag")
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                    .adaptiveButtonStyle()
-
-                    Button {
-                        field = nil
-                        showDueDatePicker = true
-                    } label: {
-                        Label {
-                            Text("마감일")
-                        } icon: {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                    .adaptiveButtonStyle()
-                }
-                .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
+                accessoryBar
+                    .padding(.horizontal)
+                    .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
             }
             .ignoresSafeArea(.container, edges: .bottom)
             .navigationTitle(viewModel.navigationTitle)
@@ -137,6 +114,36 @@ struct TodoEditorView: View {
         .padding(.top, 10)
     }
 
+    private var accessoryBar: some View {
+        HStack {
+            TagEditor(
+                tags: viewModel.state.tags,
+                addAction: { viewModel.send(.addTag($0)) },
+                deleteAction: { viewModel.send(.removeTag($0)) }
+            ) {
+                Label {
+                    Text("태그")
+                } icon: {
+                    Image(systemName: "tag")
+                        .foregroundStyle(.gray)
+                }
+            }
+            .adaptiveButtonStyle()
+            DueDatePicker(selection: Binding(
+                get: { viewModel.state.dueDate ?? Date() },
+                set: { viewModel.send(.setDueDate($0)) }
+            )) {
+                Label {
+                    Text("마감일")
+                } icon: {
+                    Image(systemName: "calendar")
+                        .foregroundStyle(.gray)
+                }
+            }
+            .adaptiveButtonStyle()
+        }
+    }
+
     @ToolbarContentBuilder
     private var toolBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -162,17 +169,142 @@ struct TodoEditorView: View {
     }
 }
 
+private struct TagEditor<Content: View>: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @State private var isPresented: Bool = false
+    @State private var sheetHeight: CGFloat = .pi
+    @State private var tagsHeight: CGFloat = 0
+    @State private var fieldHeight: CGFloat = 0
+    @State private var tag = ""
+    @ViewBuilder private var content: () -> Content
+    @FocusState private var focused: Bool
+    private let tags: OrderedSet<String>
+    private let addAction: (String) -> Void
+    private let deleteAction: (String) -> Void
+    private let spacing: CGFloat = 8
 
-        self.action = action
+    init(
+        tags: OrderedSet<String>,
+        addAction: @escaping (String) -> Void = { _ in },
+        deleteAction: @escaping (String) -> Void = { _ in },
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.tags = tags
+        self.addAction = addAction
+        self.deleteAction = deleteAction
+        self.content = content
     }
 
     var body: some View {
+        Button {
+            isPresented = true
+        } label: {
+            content()
+        }
+        .sheet(isPresented: $isPresented) {
+            VStack(spacing: tags.isEmpty ? 0 : 8) {
+                ScrollView {
+                    TagLayout {
+                        ForEach(tags, id: \.self) { tagText in
+                            Tag(tagText, isEditing: true) {
+                                deleteAction(tagText)
+                            }
+                        }
+                    }
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    // 처음부터 태그가 있을 때 호출될 듯?
+                                    // tagField의 onAppear 연산 후에 실행되도록 딜레이를 줌
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        print("ScrollView onAppear")
+                                        tagsHeight = geometry.size.height
+                                        sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : 8)
+                                    }
+                                }
+                                .onChange(of: tags) { newTags in
+                                    DispatchQueue.main.async {
+                                        tagsHeight = geometry.size.height
+                                        sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : 8)
+                                        print(tagsHeight, fieldHeight, sheetHeight, newTags.isEmpty)
+                                    }
+                                }
+                        }
                     }
                 }
+                .scrollIndicators(.hidden)
+                .frame(maxHeight: tagsHeight)
+                .padding(.top, tags.isEmpty || !focused ? 0 : 8)    //  키보드 포커싱 중에는 패딩 끌 것
+
+                // 항상 나타나있음
+                tagField
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    fieldHeight = geometry.size.height + 16
+                                    sheetHeight = fieldHeight
+                                }
+                        }
+                    }
+
             }
+            .padding(.horizontal)
+            .ignoresSafeArea(.all, edges: .bottom)
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(sheetHeight)])
+        }
+    }
+
+    private var tagField: some View {
+        HStack {
+            HStack {
+                TextField("태그 입력", text: $tag)
+                    .keyboardType(.webSearch)
+                    .focused($focused)
+                    .onSubmit {
+                        isPresented = false
+                    }
+                    .padding(tag.isEmpty ? .all : [.leading, .vertical])
+
+                if !tag.isEmpty {
+                    Button {
+                        tag = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(
+                                Color(.label),
+                                Color(.systemBackground)
+                            )
+                    }
+                    .padding(.trailing)
+                }
+            }
+            .background {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        Capsule()
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
+            }
+
+            Button {
+                addAction(tag)
+                tag = ""
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title.bold())
+                    .padding(.vertical, 5)
+            }
+            .adaptiveButtonStyle((!tag.isEmpty && !tags.contains(tag)) ? .blue : .clear)
         }
     }
 }
+
 private struct DueDatePicker<Content: View>: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @State private var isPresented: Bool = false
@@ -213,4 +345,10 @@ private struct DueDatePicker<Content: View>: View {
             }
         }
     }
+}
+
+#Preview {
+    TodoEditorView(
+        viewModel: TodoEditorViewModel(title: "123")
+    )
 }

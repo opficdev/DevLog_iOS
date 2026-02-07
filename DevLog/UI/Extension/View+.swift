@@ -31,8 +31,8 @@ extension View {
     }
 
     @ViewBuilder
-    func adaptiveButtonStyle() -> some View {
-        if #available(iOS 26.0, *) {
+    func adaptiveButtonStyle(_ color: Color? = nil) -> some View {
+        if #available(iOS 26.0, *), color == nil {
             self.buttonStyle(.glass)
         } else {
             self.foregroundStyle(Color(.label))
@@ -42,6 +42,10 @@ extension View {
                 .background {
                     Capsule()
                         .fill(.ultraThinMaterial)
+                        .background {
+                            Capsule()
+                                .fill(color ?? Color.clear)
+                        }
                         .overlay {
                             Capsule()
                                 .stroke(Color.white.opacity(0.2), lineWidth: 1)

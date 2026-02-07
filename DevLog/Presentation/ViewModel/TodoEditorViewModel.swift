@@ -29,8 +29,7 @@ final class TodoEditorViewModel: Store {
     }
 
     enum Action {
-        case addTag
-        case clearTagText
+        case addTag(String)
         case removeTag(String)
         case setContent(String)
         case setDueDate(Date)
@@ -70,14 +69,8 @@ final class TodoEditorViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .addTag:
-            let tagText = state.tagText
-            if !tagText.isEmpty {
-                state.tags.append(tagText)
-                state.tagText = ""
-            }
-        case .clearTagText:
-            state.tagText = ""
+        case .addTag(let tag):
+            if !tag.isEmpty { state.tags.append(tag) }
         case .removeTag(let tagText):
             state.tags.removeAll { $0 == tagText }
         case .setContent(let stringValue),
