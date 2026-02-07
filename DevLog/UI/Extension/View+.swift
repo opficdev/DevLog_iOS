@@ -8,28 +8,6 @@
 import SwiftUI
 
 extension View {
-    var sceneWidth: CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        else { return UIScreen.main.bounds.width }
-
-        return windowScene.screen.bounds.width
-    }
-
-    var sceneHeight: CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        else { return UIScreen.main.bounds.height }
-
-        return windowScene.screen.bounds.height
-    }
-
-    var safeAreaInsets: UIEdgeInsets {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first
-        else { return UIEdgeInsets.zero }
-
-        return window.safeAreaInsets
-    }
-
     @ViewBuilder
     func adaptiveButtonStyle(_ color: Color? = nil) -> some View {
         if #available(iOS 26.0, *), color == nil {

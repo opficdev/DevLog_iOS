@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @StateObject var viewModel: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.sceneWidth) var sceneWidth
 
     var body: some View {
         ZStack {

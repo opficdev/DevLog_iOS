@@ -8,9 +8,16 @@
 import SwiftUI
 
 extension EnvironmentValues {
-
     var safeAreaInsets: EdgeInsets {
         self[SafeAreaInsetsKey.self]
+    }
+
+    var sceneWidth: CGFloat {
+        self[SceneWidthKey.self]
+    }
+
+    var sceneHeight: CGFloat {
+        self[SceneHeightKey.self]
     }
 
     private struct SafeAreaInsetsKey: EnvironmentKey {
@@ -20,6 +27,24 @@ extension EnvironmentValues {
                 return EdgeInsets()
             }
             return window.safeAreaInsets.insets
+        }
+    }
+
+    private struct SceneWidthKey: EnvironmentKey {
+        static var defaultValue: CGFloat {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return UIScreen.main.bounds.width
+            }
+            return windowScene.screen.bounds.width
+        }
+    }
+
+    private struct SceneHeightKey: EnvironmentKey {
+        static var defaultValue: CGFloat {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return UIScreen.main.bounds.height
+            }
+            return windowScene.screen.bounds.height
         }
     }
 }
