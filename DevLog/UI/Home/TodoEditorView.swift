@@ -42,7 +42,6 @@ struct TodoEditorView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
             }
-            .ignoresSafeArea(.container, edges: .bottom)
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolBar }
@@ -260,7 +259,6 @@ private struct TagEditor<Content: View>: View {
 
             }
             .padding(.horizontal)
-            .ignoresSafeArea(.all, edges: .bottom)
             .presentationDragIndicator(.hidden)
             .presentationDetents([.height(sheetHeight)])
         }
