@@ -347,7 +347,7 @@ private struct DueDatePicker<Content: View>: View {
             .background {
                 GeometryReader { geometry in
                     Color.clear.onAppear {
-                        height = geometry.size.height + safeAreaInsets.bottom + 16
+                        height = geometry.size.height + safeAreaInsets.bottom + safeAreaInsets.top
                     }
                 }
             }
