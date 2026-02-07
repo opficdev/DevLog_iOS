@@ -11,6 +11,7 @@ import SwiftUI
 
 struct TodoEditorView: View {
     @StateObject var viewModel: TodoEditorViewModel
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
     @State private var showDueDatePicker: Bool = false

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
+    @Environment(\.sceneWidth) var sceneWidth: CGFloat
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: HomeViewModel
 
