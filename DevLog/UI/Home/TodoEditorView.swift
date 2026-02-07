@@ -346,9 +346,3 @@ private struct DueDatePicker<Content: View>: View {
         }
     }
 }
-
-#Preview {
-    TodoEditorView(
-        viewModel: TodoEditorViewModel(title: "123")
-    )
-}
