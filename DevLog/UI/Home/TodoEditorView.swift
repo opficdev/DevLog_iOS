@@ -204,6 +204,7 @@ private struct TagEditor<Content: View>: View {
             isPresented: $isPresented,
             onDismiss: { tag = "" }
         ) {
+            VStack(spacing: tags.isEmpty ? 0 : spacing) {
                 ScrollView {
                     TagLayout {
                         ForEach(tags, id: \.self) { tagText in
@@ -221,14 +222,14 @@ private struct TagEditor<Content: View>: View {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                         print("ScrollView onAppear")
                                         tagsHeight = geometry.size.height
-                                        sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : 8)
+                                        sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
                                     }
                                 }
                                 .onChange(of: tags) { newTags in
                                     DispatchQueue.main.async {
                                         tagsHeight = geometry.size.height
-                                        sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : 8)
                                         print(tagsHeight, fieldHeight, sheetHeight, newTags.isEmpty)
+                                        sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)
                                     }
                                 }
                         }
