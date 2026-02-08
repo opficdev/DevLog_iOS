@@ -12,7 +12,7 @@ final class WebPageService {
     private let store = Firestore.firestore()
 
     /// 저장한 웹페이지를 모두 불러옴
-    func fetchWebPages() async throws -> [WebPageInfo] {
+    func fetchWebPages() async throws -> [WebPageResponse] {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
@@ -22,21 +22,7 @@ final class WebPageService {
 
         if doc.exists, let data = doc.data() {
             if let webPageInfos = data["webPageInfos"] as? [String] {
-                return try await withThrowingTaskGroup(of: WebPageInfo.self, returning: [WebPageInfo].self) { group in
-                    for urlString in webPageInfos {
-                        group.addTask {
-                            let doc = try await WebPageInfo.fetch(from: urlString)
-                            return doc
-                        }
-                    }
-         
-                    var result = [WebPageInfo]()
-                    for try await pageInfo in group {
-                        result.append(pageInfo)
-                    }
-
-                    return result
-                }
+                return webPageInfos.map { WebPageResponse(urlString: $0) }
             }
         }
         throw URLError(.badServerResponse)
@@ -54,7 +40,7 @@ final class WebPageService {
             merge: true
         )
     }
-    
+
     func deleteWebPage(_ urlString: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
