@@ -43,24 +43,24 @@ final class WebPageService {
     }
 
     /// 웹페이지를 추가 또는 업데이트
-    func upsertWebPage(_ info: WebPageInfo) async throws {
+    func upsertWebPage(_ urlString: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
 
         let infosRef = store.document("users/\(uid)/userData/webPageInfos")
         try await infosRef.setData(
-            ["WebPageInfos": FieldValue.arrayUnion([info.url.description])],
+            ["WebPageInfos": FieldValue.arrayUnion([urlString])],
             merge: true
         )
     }
     
-    func deleteWebPage(_ info: WebPageInfo) async throws {
+    func deleteWebPage(_ urlString: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw AuthError.notAuthenticated
         }
 
         let infosRef = store.document("users/\(uid)/userData/webPageInfos")
-        try await infosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([info.url.description])])
+        try await infosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([urlString])])
     }
 }
