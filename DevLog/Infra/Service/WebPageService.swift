@@ -5,14 +5,19 @@
 //  Created by opfic on 6/3/25.
 //
 
-import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 
-class WebPageService {
+final class WebPageService {
     private let store = Firestore.firestore()
-    
-    func requestWebPages(userId: String) async throws -> [WebPageInfo] {
-        let webPageInfoRef = store.document("users/\(userId)/userData/webPageInfos")
+
+    /// 저장한 웹페이지를 모두 불러옴
+    func fetchWebPages() async throws -> [WebPageInfo] {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let webPageInfoRef = store.document("users/\(uid)/userData/webPageInfos")
         let doc = try await webPageInfoRef.getDocument()
 
         if doc.exists, let data = doc.data() {
@@ -36,17 +41,26 @@ class WebPageService {
         }
         throw URLError(.badServerResponse)
     }
-    
-    func upsertWebPage(webPageInfo: WebPageInfo, userId: String) async throws {
-        let webPageInfosRef = store.document("users/\(userId)/userData/webPageInfos")
-        try await webPageInfosRef.setData(
-            ["WebPageInfos": FieldValue.arrayUnion([webPageInfo.url.description])],
+
+    /// 웹페이지를 추가 또는 업데이트
+    func upsertWebPage(_ info: WebPageInfo) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infosRef = store.document("users/\(uid)/userData/webPageInfos")
+        try await infosRef.setData(
+            ["WebPageInfos": FieldValue.arrayUnion([info.url.description])],
             merge: true
         )
     }
     
-    func deleteWebPage(webPageInfo: WebPageInfo, userId: String) async throws {
-        let webPageInfosRef = store.document("users/\(userId)/userData/webPageInfos")
-        try await webPageInfosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([webPageInfo.url.description])])
+    func deleteWebPage(_ info: WebPageInfo) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infosRef = store.document("users/\(uid)/userData/webPageInfos")
+        try await infosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([info.url.description])])
     }
 }
