@@ -39,8 +39,6 @@ struct SearchView: View {
                         List(viewModel.state.webPages, id: \.id) { page in
                             webInfoRaw(page)
                                 .listRowSeparator(.hidden)  //  섹션 내 요소의 구분선 숨김
-                                .listSectionSeparator(.hidden)  //  섹션의 구분선 숨김
-                                .listRowBackground(Color.clear)
                                 .swipeActions {
                                     Button(role: .destructive, action: {
                                         viewModel.send(.deleteWebPage(item: page))
@@ -49,6 +47,7 @@ struct SearchView: View {
                                     }
                                 }
                         }
+                        .listStyle(.plain)
                     }
                 }
             }
