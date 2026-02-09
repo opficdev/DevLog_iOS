@@ -5,48 +5,48 @@
 //  Created by opfic on 6/3/25.
 //
 
-import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 
-class WebPageService {
+final class WebPageService {
     private let store = Firestore.firestore()
-    
-    func requestWebPages(userId: String) async throws -> [WebPageInfo] {
-        let webPageInfoRef = store.document("users/\(userId)/userData/webPageInfos")
+
+    /// 저장한 웹페이지를 모두 불러옴
+    func fetchWebPages() async throws -> [WebPageResponse] {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let webPageInfoRef = store.document("users/\(uid)/userData/webPageInfos")
         let doc = try await webPageInfoRef.getDocument()
 
         if doc.exists, let data = doc.data() {
             if let webPageInfos = data["webPageInfos"] as? [String] {
-                return try await withThrowingTaskGroup(of: WebPageInfo.self, returning: [WebPageInfo].self) { group in
-                    for urlString in webPageInfos {
-                        group.addTask {
-                            let doc = try await WebPageInfo.fetch(from: urlString)
-                            return doc
-                        }
-                    }
-         
-                    var result = [WebPageInfo]()
-                    for try await pageInfo in group {
-                        result.append(pageInfo)
-                    }
-
-                    return result
-                }
+                return webPageInfos.map { WebPageResponse(urlString: $0) }
             }
         }
         throw URLError(.badServerResponse)
     }
-    
-    func upsertWebPage(webPageInfo: WebPageInfo, userId: String) async throws {
-        let webPageInfosRef = store.document("users/\(userId)/userData/webPageInfos")
-        try await webPageInfosRef.setData(
-            ["WebPageInfos": FieldValue.arrayUnion([webPageInfo.url.description])],
+
+    /// 웹페이지를 추가 또는 업데이트
+    func upsertWebPage(_ urlString: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infosRef = store.document("users/\(uid)/userData/webPageInfos")
+        try await infosRef.setData(
+            ["webPageInfos": FieldValue.arrayUnion([urlString])],
             merge: true
         )
     }
-    
-    func deleteWebPage(webPageInfo: WebPageInfo, userId: String) async throws {
-        let webPageInfosRef = store.document("users/\(userId)/userData/webPageInfos")
-        try await webPageInfosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([webPageInfo.url.description])])
+
+    func deleteWebPage(_ urlString: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw AuthError.notAuthenticated
+        }
+
+        let infosRef = store.document("users/\(uid)/userData/webPageInfos")
+        try await infosRef.updateData(["webPageInfos": FieldValue.arrayRemove([urlString])])
     }
 }

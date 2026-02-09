@@ -7,14 +7,24 @@
 
 import SwiftUI
 
-struct CacheableImage: View {
+struct CacheableImage<Content: View>: View {
     @State private var loadedUIImage: UIImage?
     @State private var isInvalid: Bool = false
     private let url: URL?
     private let request: URLRequest
+    @ViewBuilder private var content: () -> Content
 
-    init(_ url: URL?) {
+    init(
+        url: URL?,
+        @ViewBuilder content: @escaping () -> Content = {
+            Image(systemName: "photo")
+                .foregroundColor(.gray)
+                .font(.largeTitle)
+                .scaledToFill()
+        }
+    ) {
         self.url = url
+        self.content = content
         if let url {
             var request = URLRequest(url: url)
             request.cachePolicy = .returnCacheDataElseLoad
@@ -33,10 +43,7 @@ struct CacheableImage: View {
                     .resizable()
                     .scaledToFill()
             } else if isInvalid {
-                Image(systemName: "photo")
-                    .foregroundColor(.gray)
-                    .font(.largeTitle)
-                    .scaledToFill()
+                content()
             } else {
                 ProgressView()
             }
@@ -50,7 +57,12 @@ struct CacheableImage: View {
 
     @MainActor
     private func loadImageWithCache() async {
-        guard self.url != nil else { return }
+        guard let url = self.url else { return }
+
+        if url.isFileURL {
+            await loadLocalImage(from: url)
+            return
+        }
 
         if let cachedResponse = URLCache.imageCached.cachedResponse(for: request) {
             if let uiImage = UIImage(data: cachedResponse.data) {
@@ -69,6 +81,23 @@ struct CacheableImage: View {
 
             if let uiImage = UIImage(data: data) {
                 self.loadedUIImage = uiImage
+            }
+        } catch {
+            isInvalid = true
+        }
+    }
+
+    @MainActor
+    private func loadLocalImage(from url: URL) async {
+        do {
+            let data = try await Task.detached {
+                try Data(contentsOf: url)
+            }.value
+
+            if let uiImage = UIImage(data: data) {
+                self.loadedUIImage = uiImage
+            } else {
+                isInvalid = true
             }
         } catch {
             isInvalid = true

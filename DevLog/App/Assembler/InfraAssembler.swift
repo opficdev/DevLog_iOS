@@ -43,5 +43,13 @@ final class InfraAssembler: Assembler {
         container.register(PushNotificationService.self) {
             PushNotificationService()
         }
+
+        container.register(WebPageService.self) {
+            WebPageService()
+        }
+
+        container.register(WebPageMetadataService.self) {
+            WebPageMetadataService()
+        }
     }
 }
