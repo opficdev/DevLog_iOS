@@ -18,7 +18,9 @@ struct SearchView: View {
         NavigationStack(path: $router.path) {
             VStack {
                 searchable
-                if viewModel.state.isSearching {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                } else if viewModel.state.isSearching {
                     if viewModel.state.searchQuery.isEmpty {
                         searchInstruction
                     } else {
@@ -85,11 +87,6 @@ struct SearchView: View {
                 }
             } message: {
                 Text(viewModel.state.alertMessage)
-            }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
             }
         }
     }
