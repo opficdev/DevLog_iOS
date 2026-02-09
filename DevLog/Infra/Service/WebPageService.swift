@@ -47,6 +47,6 @@ final class WebPageService {
         }
 
         let infosRef = store.document("users/\(uid)/userData/webPageInfos")
-        try await infosRef.updateData(["WebPageInfos": FieldValue.arrayRemove([urlString])])
+        try await infosRef.updateData(["webPageInfos": FieldValue.arrayRemove([urlString])])
     }
 }
