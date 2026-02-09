@@ -150,6 +150,7 @@ struct SearchView: View {
 
     private func webInfoCard(_ item: WebPageItem) -> some View {
         Button {
+            viewModel.send(.selectWebPage(item))
             router.push(Path.webView(item.url))
         } label: {
             ZStack(alignment: .bottom) {
@@ -186,6 +187,7 @@ struct SearchView: View {
 
     private func webInfoRaw(_ item: WebPageItem) -> some View {
         Button {
+            viewModel.send(.selectWebPage(item))
             router.push(Path.webView(item.url))
         } label: {
             HStack {
