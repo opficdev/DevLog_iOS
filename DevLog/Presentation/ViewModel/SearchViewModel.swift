@@ -83,7 +83,6 @@ final class SearchViewModel: Store {
             state.webPages.removeAll { $0.url == info.url }
         case .fetchWebPage(let items):
             guard let items else { return [.fetch] }
-            // TODO: OrderedSet으로 바로 바꾸면 순서가 달라지는것 해결
             state.webPages = OrderedSet(items)
         case .selectWebPage(let newValue):
             state.selectedWebPage = newValue

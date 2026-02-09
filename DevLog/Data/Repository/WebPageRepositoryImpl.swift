@@ -19,22 +19,22 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func fetch() async throws -> [WebPageMetadata] {
         let responses = try await webPageService.fetchWebPages()
+        let indexedResponses = responses.enumerated().map { ($0.offset, $0.element) }
 
-        return try await withThrowingTaskGroup(of: WebPageMetadata?.self) { group in
-            for response in responses {
+        return try await withThrowingTaskGroup(of: (Int, WebPageMetadata?).self) { group in
+            for (index, response) in indexedResponses {
                 group.addTask {
-                    try? await self.metadataService.fetchMetadata(from: response)
+                    let metadata = try? await self.metadataService.fetchMetadata(from: response)
+                    return (index, metadata)
                 }
             }
 
-            var results: [WebPageMetadata] = []
-            for try await metadata in group {
-                if let metadata {
-                    results.append(metadata)
-                }
+            var results: [WebPageMetadata?] = Array(repeating: nil, count: responses.count)
+            for try await (index, metadata) in group {
+                results[index] = metadata
             }
 
-            return results
+            return results.compactMap { $0 }
         }
     }
 
