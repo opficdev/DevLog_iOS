@@ -30,6 +30,7 @@ struct SearchView: View {
                                     webInfoCard(page)
                                 }
                             }
+                            .padding(.horizontal)
                         }
                     }
                 } else {
@@ -65,7 +66,7 @@ struct SearchView: View {
                         }
                 }
             }
-            .task { viewModel.send(.fetchWebPage()) }
+            .onAppear { viewModel.send(.fetchWebPage()) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
