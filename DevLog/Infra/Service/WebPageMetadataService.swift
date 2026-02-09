@@ -40,7 +40,9 @@ final class WebPageMetadataService {
                     return
                 }
 
-                guard let fileName = url.host?.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else {
+                guard let fileName = url.absoluteString.addingPercentEncoding(
+                    withAllowedCharacters: .alphanumerics
+                ) else {
                     continuation.resume(returning: nil)
                     return
                 }
