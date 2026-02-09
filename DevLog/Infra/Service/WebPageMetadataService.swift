@@ -15,6 +15,8 @@ final class WebPageMetadataService {
         }
 
         let provider = LPMetadataProvider()
+        provider.timeout = 10.0
+
         let metadata = try await provider.startFetchingMetadata(for: url)
 
         let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
@@ -38,8 +40,13 @@ final class WebPageMetadataService {
                     return
                 }
 
+                guard let fileName = url.host?.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
                 let tempURL = FileManager.default.temporaryDirectory
-                    .appendingPathComponent(url.absoluteString)
+                    .appendingPathComponent(fileName)
                     .appendingPathExtension("jpeg")
 
                 do {
