@@ -19,7 +19,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        CacheableImage(viewModel.state.avatarURL)
+                        CacheableImage(url: viewModel.state.avatarURL)
                             .frame(width: 60, height: 60)
                             .cornerRadius(30)
                             .foregroundStyle(Color.gray)

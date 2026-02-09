@@ -155,23 +155,15 @@ struct SearchView: View {
             ZStack(alignment: .bottom) {
                 Color.white
                 GeometryReader { geometry in
-                    AsyncImage(url: item.imageURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                .clipped()
-                        default:
-                            Image(systemName: "globe")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: sceneHeight / 5)
-                                .foregroundStyle(Color.gray)
-                                .padding()
-                        }
+                    CacheableImage(url: item.imageURL) {
+                        Image(systemName: "globe")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(Color.gray)
+                            .padding()
                     }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
                 }
                 HStack {
                     VStack(alignment: .leading) {
@@ -197,17 +189,10 @@ struct SearchView: View {
             router.push(Path.webView(item.url))
         } label: {
             HStack {
-                AsyncImage(url: item.imageURL) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    default:
-                        Image(systemName: "globe")
-                            .resizable()
-                            .scaledToFit()
-                    }
+                CacheableImage(url: item.imageURL) {
+                    Image(systemName: "globe")
+                        .resizable()
+                        .scaledToFit()
                 }
                 .frame(
                     width: sceneWidth / 5,
