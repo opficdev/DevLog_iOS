@@ -149,43 +149,47 @@ struct SearchView: View {
     }
 
     private func webInfoCard(_ item: WebPageItem) -> some View {
-        ZStack(alignment: .bottom) {
-            Color.white
-            GeometryReader { geometry in
-                AsyncImage(url: item.imageURL) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .clipped()
-                    default:
-                        Image(systemName: "globe")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: UIScreen.main.bounds.height / 5)
-                            .foregroundStyle(Color.gray)
-                            .padding()
+        Button {
+            router.push(Path.webView(item.url))
+        } label: {
+            ZStack(alignment: .bottom) {
+                Color.white
+                GeometryReader { geometry in
+                    AsyncImage(url: item.imageURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                                .clipped()
+                        default:
+                            Image(systemName: "globe")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: sceneHeight / 5)
+                                .foregroundStyle(Color.gray)
+                                .padding()
+                        }
                     }
                 }
-            }
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(item.title)
-                        .foregroundStyle(Color.black)
-                        .multilineTextAlignment(.leading)
-                    Text(item.displayURL)
-                        .foregroundStyle(Color.accentColor)
-                        .underline()
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(item.title)
+                            .foregroundStyle(Color.black)
+                            .multilineTextAlignment(.leading)
+                        Text(item.displayURL)
+                            .foregroundStyle(Color.accentColor)
+                            .underline()
+                    }
+                    .padding()
+                    Spacer()
                 }
-                .padding()
-                Spacer()
+                .background(Color.white)
             }
-            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .frame(height: sceneHeight / 4)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 15))
-        .frame(height: sceneHeight / 4)
     }
 
     private func webInfoRaw(_ item: WebPageItem) -> some View {
