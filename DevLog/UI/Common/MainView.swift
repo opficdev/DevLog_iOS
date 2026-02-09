@@ -16,28 +16,32 @@ struct MainView: View {
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self)
             ))
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("홈")
-                }
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("홈")
+            }
 //            NotificationView(notiVM: container.notiVM)
 //                .tabItem {
 //                    Image(systemName: "bell.fill")
 //                    Text("알림")
 //                }
-//            SearchView(searchVM: container.searchVM)
-//                .tabItem {
-//                    Image(systemName: "magnifyingglass")
-//                    Text("검색")
-//                }
+            SearchView(viewModel: SearchViewModel(
+                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+                addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
+                deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self)
+            ))
+            .tabItem {
+                Image(systemName: "magnifyingglass")
+                Text("검색")
+            }
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self)
             ))
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("프로필")
-                }
+            .tabItem {
+                Image(systemName: "person.crop.circle.fill")
+                Text("프로필")
+            }
         }
     }
 }
