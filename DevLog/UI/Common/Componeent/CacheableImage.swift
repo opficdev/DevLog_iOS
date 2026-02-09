@@ -57,7 +57,12 @@ struct CacheableImage<Content: View>: View {
 
     @MainActor
     private func loadImageWithCache() async {
-        guard self.url != nil else { return }
+        guard let url = self.url else { return }
+
+        if url.isFileURL {
+            await loadLocalImage(from: url)
+            return
+        }
 
         if let cachedResponse = URLCache.imageCached.cachedResponse(for: request) {
             if let uiImage = UIImage(data: cachedResponse.data) {
@@ -76,6 +81,23 @@ struct CacheableImage<Content: View>: View {
 
             if let uiImage = UIImage(data: data) {
                 self.loadedUIImage = uiImage
+            }
+        } catch {
+            isInvalid = true
+        }
+    }
+
+    @MainActor
+    private func loadLocalImage(from url: URL) async {
+        do {
+            let data = try await Task.detached {
+                try Data(contentsOf: url)
+            }.value
+
+            if let uiImage = UIImage(data: data) {
+                self.loadedUIImage = uiImage
+            } else {
+                isInvalid = true
             }
         } catch {
             isInvalid = true
