@@ -36,7 +36,7 @@ final class WebPageService {
 
         let infosRef = store.document("users/\(uid)/userData/webPageInfos")
         try await infosRef.setData(
-            ["WebPageInfos": FieldValue.arrayUnion([urlString])],
+            ["webPageInfos": FieldValue.arrayUnion([urlString])],
             merge: true
         )
     }
