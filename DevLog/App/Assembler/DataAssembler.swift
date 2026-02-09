@@ -44,5 +44,12 @@ final class DataAssembler: Assembler {
         container.register(PushNotificationRepository.self) {
             PushNotificationRepositoryImpl(pushNotificationService: container.resolve(PushNotificationService.self))
         }
+
+        container.register(WebPageRepository.self) {
+            WebPageRepositoryImpl(
+                webPageService: container.resolve(WebPageService.self),
+                metadataService: container.resolve(WebPageMetadataService.self)
+            )
+        }
     }
 }
