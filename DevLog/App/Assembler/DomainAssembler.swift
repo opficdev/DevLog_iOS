@@ -50,5 +50,17 @@ final class DomainAssembler: Assembler {
         container.register(FetchTodosByKindUseCase.self) {
             FetchTodosByKindUseCaseImpl(container.resolve(TodoRepository.self))
         }
+
+        container.register(FetchWebPagesUseCase.self) {
+            FetchWebPagesUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
+
+        container.register(AddWebPageUseCase.self) {
+            AddWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
+
+        container.register(DeleteWebPageUseCase.self) {
+            DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
     }
 }
