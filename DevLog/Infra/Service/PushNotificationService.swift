@@ -66,18 +66,19 @@ final class PushNotificationService {
         try await settingsRef.setData(dict, merge: true)
     }
 
-    /// 푸시 알림 데이터 요청
-    func requestNotification() async throws -> [PushNotification] {
+    /// 푸시 알림 기록 요청
+    func requestNotifications() async throws -> [PushNotificationResponse] {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let collection = store.collection("users/\(uid)/notifications")
-
         let snapshot = try await collection.getDocuments()
-        
-        return snapshot.documents.compactMap { PushNotification(from: $0) }
+
+        return try snapshot.documents.compactMap { document in
+            try document.data(as: PushNotificationResponse.self)
+        }
     }
 
-    /// 푸시 알림 데이터 삭제
+    /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
