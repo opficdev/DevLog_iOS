@@ -59,16 +59,32 @@ struct PushNotificationView: View {
     }
 
     private func notificationRow(_ notification: PushNotification) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(notification.title)
-                .font(.headline)
-                .lineLimit(1)
-            Text(notification.body)
-                .font(.subheadline)
-                .foregroundStyle(Color.gray)
-                .lineLimit(1)
+        HStack {
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 8, height: 8)
+                .opacity(notification.isRead ? 0 : 1)
+            
+            VStack(alignment: .leading, spacing: 5) {
+                Text(notification.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                Text(notification.body)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.gray)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                Text(timeAgoText(from: notification.receivedAt, now: context.date))
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+            }
         }
         .padding(.vertical, 5)
+        .listRowBackground(Color.clear)
         .swipeActions(edge: .trailing) {
             Button(
                 role: .destructive,
@@ -78,6 +94,23 @@ struct PushNotificationView: View {
             ) {
                 Image(systemName: "trash")
             }
+        }
+    }
+    
+    private func timeAgoText(from date: Date, now: Date) -> String {
+        let seconds = Int(now.timeIntervalSince(date))
+        
+        if seconds < 60 {
+            return "\(max(0, seconds))초 전"
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return "\(minutes)분 전"
+        } else if seconds < 86400 {
+            let hours = seconds / 3600
+            return "\(hours)시간 전"
+        } else {
+            let days = seconds / 86400
+            return "\(days)일 전"
         }
     }
 }
