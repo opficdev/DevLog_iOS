@@ -14,17 +14,42 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         self.service = pushNotificationService
     }
 
+    /// 푸시 알림 On/Off 설정
     func fetchPushNotificationEnabled() async throws -> Bool {
         return try await service.fetchPushNotificationEnabled()
     }
 
+    /// 푸시 알림 시간 설정
     func fetchPushNotificationTime() async throws -> DateComponents {
         return try await service.fetchPushNotificationTime()
     }
 
+    /// 푸시 알림 설정 업데이트
     func updatePushNotificationSettings(_ settings: PushNotificationSettings) async throws {
         try await service.updatePushNotificationSettings(
             isEnabled: settings.isEnabled, components: settings.scheduledTime
         )
+    }
+
+    /// 푸시 알림 기록 요청
+    func requestNotifications() async throws -> [PushNotification] {
+        try await service.requestNotifications()
+            .compactMap { dto in
+                dto.id.map { id in
+                    PushNotification(
+                        id: id,
+                        title: dto.title,
+                        body: dto.body,
+                        receivedAt: dto.receivedAt.dateValue(),
+                        isRead: dto.isRead,
+                        todoID: dto.todoID
+                    )
+                }
+            }
+    }
+
+    // 푸시 알림 기록 삭제
+    func deleteNotification(_ notificationID: String) async throws {
+        try await service.deleteNotification(notificationID)
     }
 }
