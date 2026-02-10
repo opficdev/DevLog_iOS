@@ -153,7 +153,7 @@ private extension SearchViewModel {
             state.alertMessage = ""
         case .error:
             state.alertTitle = "오류"
-            state.alertMessage = "문제가 발생했습니다. 다시 시도해주세요."
+            state.alertMessage = "문제가 발생했습니다. 잠시 다시 시도해주세요."
         case .none:
             state.alertTitle = ""
             state.alertMessage = ""
