@@ -62,5 +62,13 @@ final class DomainAssembler: Assembler {
         container.register(DeleteWebPageUseCase.self) {
             DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
+
+        container.register(DeletePushNotificationUseCase.self) {
+            DeletePushNotificationUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
+        container.register(FetchPushNotificationsUseCase.self) {
+            FetchPushNotificationsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
     }
 }
