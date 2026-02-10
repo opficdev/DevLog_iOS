@@ -44,12 +44,13 @@ struct PushNotificationView: View {
                     get: { viewModel.state.showToast },
                     set: { viewModel.send(.setToast(isPresented: $0)) }),
                 duration: 5,
-                message: viewModel.state.toastMessage,
-                action: {
-                    viewModel.send(.undoDelete)
-                }
+                action: { viewModel.send(.undoDelete) },
+                onDismiss: { viewModel.send(.confirmDelete) }
             ) {
-                viewModel.send(.confirmDelete)
+                Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
             }
             .onAppear {
                 viewModel.send(.fetchNotifications)
