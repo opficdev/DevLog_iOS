@@ -22,11 +22,11 @@ struct HomeView: View {
                         get: { viewModel.state.isSearching },
                         set: { viewModel.send(.updateSearching($0)) }
                     ))
-                        .searchable(text: Binding(
-                            get: { viewModel.state.searchText },
-                            set: { viewModel.send(.updateSearchText($0)) }
-                            ), prompt: "DevLog 검색"
-                        )
+                    .searchable(text: Binding(
+                        get: { viewModel.state.searchText },
+                        set: { viewModel.send(.updateSearchText($0)) }
+                        ), prompt: "DevLog 검색"
+                    )
                     List {
                         Section(content: {
                             let preferences = viewModel.state.todoKindPreferences
@@ -47,7 +47,7 @@ struct HomeView: View {
                                         Text(kind.localizedName)
                                             .foregroundStyle(Color.primary)
                                     }
-                                    .padding(.vertical, 2)
+                                    .padding(.vertical, -6)
                                 }
                             }
                         }, header: {
@@ -101,6 +101,7 @@ struct HomeView: View {
                                                 .foregroundStyle(Color.gray)
                                             }
                                         }
+                                        .padding(.vertical, -6)
                                     }
                                 }
                             }
