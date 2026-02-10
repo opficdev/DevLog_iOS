@@ -134,7 +134,6 @@ final class SearchViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-
                     try await deleteWebPageUseCase.execute(item.url.absoluteString)
                     send(.deleteWebPage(item: item, fromEffect: true))
                 } catch {
