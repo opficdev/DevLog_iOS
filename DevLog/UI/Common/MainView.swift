@@ -20,11 +20,14 @@ struct MainView: View {
                 Image(systemName: "house.fill")
                 Text("홈")
             }
-//            NotificationView(notiVM: container.notiVM)
-//                .tabItem {
-//                    Image(systemName: "bell.fill")
-//                    Text("알림")
-//                }
+            PushNotificationView(viewModel: PushNotificationViewModel(
+                fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
+                deleteUseCase: container.resolve(DeletePushNotificationUseCase.self)
+            ))
+            .tabItem {
+                Image(systemName: "bell.fill")
+                Text("알림")
+            }
             SearchView(viewModel: SearchViewModel(
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
