@@ -39,6 +39,18 @@ struct PushNotificationView: View {
             } message: {
                 Text(viewModel.state.alertMessage)
             }
+            .toast(
+                isPresented: Binding(
+                    get: { viewModel.state.showToast },
+                    set: { viewModel.send(.setToast(isPresented: $0)) }),
+                duration: 5,
+                message: viewModel.state.toastMessage,
+                action: {
+                    viewModel.send(.undoDelete)
+                }
+            ) {
+                viewModel.send(.confirmDelete)
+            }
             .onAppear {
                 viewModel.send(.fetchNotifications)
             }
