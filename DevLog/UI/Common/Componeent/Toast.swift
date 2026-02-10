@@ -8,12 +8,12 @@
 import SwiftUI
 
 extension View {
-    func toast(
+    func toast<Label: View>(
         isPresented: Binding<Bool>,
         duration: TimeInterval = 2,
-        message: String,
         action: (() -> Void)? = nil,
-        onDismiss: (() -> Void)? = nil
+        onDismiss: (() -> Void)? = nil,
+        @ViewBuilder label: @escaping () -> Label
     ) -> some View {
         self
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -21,21 +21,21 @@ extension View {
                 ToastOverlayView(
                     isPresented: isPresented,
                     duration: duration,
-                    message: message,
                     action: action,
-                    onDismiss: onDismiss
+                    onDismiss: onDismiss,
+                    label: label
                 )
                 .padding(.horizontal, 12)
             }
     }
 }
 
-private struct ToastOverlayView: View {
+private struct ToastOverlayView<Label: View>: View {
     @Binding var isPresented: Bool
     let duration: TimeInterval
-    let message: String
     let action: (() -> Void)?
     let onDismiss: (() -> Void)?
+    @ViewBuilder let label: () -> Label
 
     @State private var yOffset: CGFloat = 0
     @State private var opacityValue: Double = 0
@@ -45,8 +45,8 @@ private struct ToastOverlayView: View {
     var body: some View {
         if isPresented {
             ToastCardView(
-                message,
-                textColor: action == nil ? .primary : .blue
+                label,
+                color: action == nil ? .primary : .blue
             )
             .offset(y: yOffset)
             .opacity(opacityValue)
@@ -106,24 +106,21 @@ private struct ToastOverlayView: View {
     }
 }
 
-private struct ToastCardView: View {
-    let message: String
-    let textColor: Color
+private struct ToastCardView<Label: View>: View {
+    @ViewBuilder let label: Label
+    let color: Color
 
     init(
-        _ message: String,
-        textColor: Color = .primary
+        @ViewBuilder _ label: @escaping () -> Label,
+        color: Color = .primary
     ) {
-        self.message = message
-        self.textColor = textColor
+        self.label = label()
+        self.color = color
     }
 
     var body: some View {
-        Text(message)
-            .font(.caption)
-            .foregroundStyle(textColor)
-            .multilineTextAlignment(.center)
-            .lineLimit(3)
+        self.label
+            .foregroundStyle(color)
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
             .background {
