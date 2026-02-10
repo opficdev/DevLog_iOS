@@ -12,7 +12,8 @@ extension View {
         isPresented: Binding<Bool>,
         duration: TimeInterval = 2,
         message: String,
-        action: (() -> Void)? = nil
+        action: (() -> Void)? = nil,
+        onDismiss: (() -> Void)? = nil
     ) -> some View {
         self
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -21,9 +22,9 @@ extension View {
                     isPresented: isPresented,
                     duration: duration,
                     message: message,
-                    action: action
+                    action: action,
+                    onDismiss: onDismiss
                 )
-                .foregroundStyle(action == nil ? Color(.label) : .blue)
                 .padding(.horizontal, 12)
             }
     }
@@ -34,30 +35,41 @@ private struct ToastOverlayView: View {
     let duration: TimeInterval
     let message: String
     let action: (() -> Void)?
+    let onDismiss: (() -> Void)?
 
     @State private var yOffset: CGFloat = 0
     @State private var opacityValue: Double = 0
     @State private var dismissWorkItem: DispatchWorkItem?
+    @State private var isTapped: Bool = false
 
     var body: some View {
         if isPresented {
-            ToastCardView(message)
-                .offset(y: yOffset)
-                .opacity(opacityValue)
-                .onAppear {
-                    presentAnimated()
-                    scheduleDismiss()
+            ToastCardView(
+                message,
+                textColor: action == nil ? .primary : .blue
+            )
+            .offset(y: yOffset)
+            .opacity(opacityValue)
+            .onAppear {
+                presentAnimated()
+                scheduleDismiss()
+            }
+            .onDisappear {
+                dismissWorkItem?.cancel()
+                dismissWorkItem = nil
+                isPresented = false
+
+                // 토스트를 탭하지 않고 자동으로 사라진 경우에만 onDismiss 호출
+                if !isTapped {
+                    onDismiss?()
                 }
-                .onDisappear {
-                    dismissWorkItem?.cancel()
-                    dismissWorkItem = nil
-                    isPresented = false
-                }
-                .onTapGesture {
-                    dismissAnimated()
-                    action?()
-                }
-                .transition(.identity)
+            }
+            .onTapGesture {
+                isTapped = true
+                dismissAnimated()
+                action?()
+            }
+            .transition(.identity)
         }
     }
 
@@ -96,14 +108,20 @@ private struct ToastOverlayView: View {
 
 private struct ToastCardView: View {
     let message: String
+    let textColor: Color
 
-    init(_ message: String) {
+    init(
+        _ message: String,
+        textColor: Color = .primary
+    ) {
         self.message = message
+        self.textColor = textColor
     }
 
     var body: some View {
         Text(message)
             .font(.caption)
+            .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
             .lineLimit(3)
             .padding(.vertical, 12)
