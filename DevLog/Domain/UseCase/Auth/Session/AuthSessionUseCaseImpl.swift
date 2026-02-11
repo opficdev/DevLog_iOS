@@ -6,7 +6,7 @@
 //
 
 final class AuthSessionUseCaseImpl: AuthSessionUseCase {
-    let repository: AuthSessionRepository
+    private let repository: AuthSessionRepository
 
     init(_ repository: AuthSessionRepository) {
         self.repository = repository

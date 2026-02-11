@@ -6,7 +6,7 @@
 //
 
 final class DeleteAuthUseCaseImpl: DeleteAuthUseCase {
-    let repository: AuthenticationRepository
+    private let repository: AuthenticationRepository
 
     init(_ repository: AuthenticationRepository) {
         self.repository = repository

@@ -6,7 +6,7 @@
 //
 
 final class UpdatePushSettingsUseCaseImpl: UpdatePushSettingsUseCase {
-    let repository: PushNotificationRepository
+    private let repository: PushNotificationRepository
 
     init(_ repository: PushNotificationRepository) {
         self.repository = repository

@@ -6,6 +6,5 @@
 //
 
 protocol DeleteAuthUseCase {
-    var repository: AuthenticationRepository { get }
     func execute() async throws
 }

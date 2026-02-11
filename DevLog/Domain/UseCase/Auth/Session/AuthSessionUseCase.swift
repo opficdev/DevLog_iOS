@@ -6,6 +6,5 @@
 //
 
 protocol AuthSessionUseCase {
-    var repository: AuthSessionRepository { get }
     func execute(_ signIn: Bool)
 }

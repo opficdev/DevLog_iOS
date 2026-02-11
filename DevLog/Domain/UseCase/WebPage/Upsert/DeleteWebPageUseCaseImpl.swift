@@ -6,7 +6,7 @@
 //
 
 final class DeleteWebPageUseCaseImpl: DeleteWebPageUseCase {
-    var repository: WebPageRepository
+    private let repository: WebPageRepository
 
     init(_ repository: WebPageRepository) {
         self.repository = repository

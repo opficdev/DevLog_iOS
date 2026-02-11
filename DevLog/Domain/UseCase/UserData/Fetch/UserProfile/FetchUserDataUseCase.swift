@@ -6,6 +6,5 @@
 //
 
 protocol FetchUserDataUseCase {
-    var repository: UserDataRepository { get }
     func execute() async throws -> UserProfile
 }

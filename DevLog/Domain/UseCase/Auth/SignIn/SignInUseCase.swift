@@ -6,6 +6,5 @@
 //
 
 protocol SignInUseCase {
-    var repository: AuthenticationRepository { get }
     func execute(_ provider: AuthProvider) async throws
 }
