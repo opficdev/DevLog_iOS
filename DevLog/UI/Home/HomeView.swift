@@ -32,9 +32,7 @@ struct HomeView: View {
                             let preferences = viewModel.state.todoKindPreferences
                             ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
                                 let kind = preference.kind
-                                Button(action: {
-                                    router.push(Path.kind(kind))
-                                }) {
+                                NavigationLink(value: Path.kind(kind)) {
                                     HStack {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(kind.color)
@@ -78,9 +76,7 @@ struct HomeView: View {
                                 }
                             } else {
                                 ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
-                                    Button {
-                                        router.push(Path.detail(todo))
-                                    } label: {
+                                    NavigationLink(value: Path.detail(todo)) {
                                         HStack {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .fill(todo.kind.color)
@@ -117,6 +113,7 @@ struct HomeView: View {
                             .listRowInsets(EdgeInsets())
                         })
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("홈")
