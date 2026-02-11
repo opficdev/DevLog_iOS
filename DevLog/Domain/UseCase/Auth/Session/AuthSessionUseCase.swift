@@ -5,7 +5,9 @@
 //  Created by 최윤진 on 12/31/25.
 //
 
+import Combine
+
 protocol AuthSessionUseCase {
-    var repository: AuthSessionRepository { get }
+    var signedInPublisher: AnyPublisher<Bool, Never> { get }
     func execute(_ signIn: Bool)
 }

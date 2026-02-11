@@ -6,6 +6,5 @@
 //
 
 protocol UpdatePushSettingsUseCase {
-    var repository: PushNotificationRepository { get }
     func execute(_ settings: PushNotificationSettings) async throws
 }

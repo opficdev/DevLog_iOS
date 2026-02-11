@@ -6,7 +6,7 @@
 //
 
 final class FetchWebPagesUseCaseImpl: FetchWebPagesUseCase {
-    let repository: WebPageRepository
+    private let repository: WebPageRepository
 
     init(_ repository: WebPageRepository) {
         self.repository = repository

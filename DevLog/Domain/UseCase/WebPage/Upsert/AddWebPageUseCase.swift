@@ -6,6 +6,5 @@
 //
 
 protocol AddWebPageUseCase {
-    var repository: WebPageRepository { get }
     func execute(_ urlString: String) async throws -> WebPage
 }

@@ -6,7 +6,7 @@
 //
 
 final class SignOutUseCaseImpl: SignOutUseCase {
-    let repository: AuthenticationRepository
+    private let repository: AuthenticationRepository
 
     init(_ repository: AuthenticationRepository) {
         self.repository = repository

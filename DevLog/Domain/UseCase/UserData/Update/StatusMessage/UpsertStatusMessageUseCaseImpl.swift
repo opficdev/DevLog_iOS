@@ -6,7 +6,7 @@
 //
 
 final class UpsertStatusMessageUseCaseImpl: UpsertStatusMessageUseCase {
-    let repository: UserDataRepository
+    private let repository: UserDataRepository
 
     init(_ repository: UserDataRepository) {
         self.repository = repository

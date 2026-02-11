@@ -6,6 +6,5 @@
 //
 
 protocol UpsertStatusMessageUseCase {
-    var repository: UserDataRepository { get }
     func execute(_ message: String) async throws
 }

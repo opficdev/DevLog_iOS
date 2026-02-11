@@ -6,6 +6,5 @@
 //
 
 protocol FetchTodosByKindUseCase {
-    var repository: TodoRepository { get }
     func execute(_ kind: TodoKind) async throws -> [Todo]
 }

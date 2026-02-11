@@ -6,7 +6,7 @@
 //
 
 final class FetchTodosByKindUseCaseImpl: FetchTodosByKindUseCase {
-    let repository: TodoRepository
+    private let repository: TodoRepository
 
     init(_ repository: TodoRepository) {
         self.repository = repository

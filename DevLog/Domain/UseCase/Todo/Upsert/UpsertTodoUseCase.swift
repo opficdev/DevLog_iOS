@@ -6,6 +6,5 @@
 //
 
 protocol UpsertTodoUseCase {
-    var repository: TodoRepository { get }
     func execute(_ todo: Todo) async throws
 }

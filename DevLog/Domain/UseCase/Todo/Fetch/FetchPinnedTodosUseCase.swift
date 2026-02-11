@@ -6,6 +6,5 @@
 //
 
 protocol FetchPinnedTodosUseCase {
-    var repository: TodoRepository { get }
     func execute() async throws -> [Todo]
 }

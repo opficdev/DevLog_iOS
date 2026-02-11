@@ -50,7 +50,7 @@ final class LoginViewModel: Store {
         self.signOutUseCase = signOutUseCase
         self.sessionUseCase = sessionUseCase
 
-        self.sessionUseCase.repository.signedInPublisher
+        self.sessionUseCase.signedInPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] signIn in
