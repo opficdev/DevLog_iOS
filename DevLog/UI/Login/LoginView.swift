@@ -48,5 +48,13 @@ struct LoginView: View {
                 LoadingView()
             }
         }
+        .alert(viewModel.state.alertTitle, isPresented: Binding(
+            get: { viewModel.state.showAlert },
+            set: { viewModel.send(.setAlert($0)) }
+        )) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
     }
 }
