@@ -114,7 +114,7 @@ struct SearchView: View {
                 }
             }
         case .error:
-            Button("확인", role: .cancel) {}
+            Button("확인", role: .cancel) { }
         }
     }
 
