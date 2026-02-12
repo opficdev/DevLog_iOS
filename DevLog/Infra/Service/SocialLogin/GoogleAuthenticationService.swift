@@ -18,35 +18,47 @@ final class GoogleAuthenticationService: AuthenticationService {
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let provider = TopViewControllerProvider()
+    private let logger = Logger(category: "GoogleAuthService")
 
     @MainActor
     func signIn() async throws -> AuthenticationDataResponse {
+        logger.info("Starting Google sign in")
+        
         guard let topViewController = provider.topViewController() else {
+            logger.error("Top view controller not found")
             throw UIError.notFoundTopViewController
         }
 
-        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+        do {
+            let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
 
-        guard let idToken = signIn.user.idToken?.tokenString else {
-            throw URLError(.badServerResponse)
+            guard let idToken = signIn.user.idToken?.tokenString else {
+                logger.error("ID token not found")
+                throw URLError(.badServerResponse)
+            }
+            
+            let accessToken = signIn.user.accessToken.tokenString
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+            
+            logger.debug("Signing in with Google credential")
+            let result = try await Auth.auth().signIn(with: credential)
+            
+            if let photoURL = signIn.user.profile?.imageURL(withDimension: 200) {
+                let changeRequest = result.user.createProfileChangeRequest()
+                changeRequest.photoURL = photoURL
+                changeRequest.displayName = signIn.user.profile?.name
+
+                try await changeRequest.commitChanges()
+            }
+
+            let fcmToken = try await messaging.token()
+
+            logger.info("Successfully signed in with Google")
+            return result.user.toData(providerID: .google, fcmToken: fcmToken)
+        } catch {
+            logger.error("Failed to sign in with Google", error: error)
+            throw error
         }
-        
-        let accessToken = signIn.user.accessToken.tokenString
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        
-        let result = try await Auth.auth().signIn(with: credential)
-        
-        if let photoURL = signIn.user.profile?.imageURL(withDimension: 200) {
-            let changeRequest = result.user.createProfileChangeRequest()
-            changeRequest.photoURL = photoURL
-            changeRequest.displayName = signIn.user.profile?.name
-
-            try await changeRequest.commitChanges()
-        }
-
-        let fcmToken = try await messaging.token()
-
-        return result.user.toData(providerID: .google, fcmToken: fcmToken)
     }
 
     func signOut(_ uid: String) async throws {

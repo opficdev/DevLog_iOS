@@ -12,10 +12,16 @@ import FirebaseFunctions
 final class UserService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
+    private let logger = Logger(category: "UserService")
     
     // 유저를 Firestore에 저장 및 업데이트
     func upsertUser(_ response: AuthenticationDataResponse) async throws {
-        guard let user = Auth.auth().currentUser else { throw AuthError.notAuthenticated }
+        logger.info("Upserting user with provider: \(response.providerID)")
+        
+        guard let user = Auth.auth().currentUser else {
+            logger.error("User not authenticated")
+            throw AuthError.notAuthenticated
+        }
         let infoRef = store.document("users/\(user.uid)/userData/info")
         let tokensRef = store.document("users/\(user.uid)/userData/tokens")
         let settingsRef = store.document("users/\(user.uid)/userData/settings")
@@ -58,46 +64,72 @@ final class UserService {
             "allowPushNotification": true,
             "pushNotificationHour": 9,
             "pushNotificationMinute": 0], merge: true)
+        
+        logger.info("Successfully upserted user: \(user.uid)")
     }
     
     func fetchUserProfile() async throws -> UserProfileResponse {
+        logger.info("Fetching user profile")
+        
         guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
 
-        let infoRef = store.document("users/\(uid)/userData/info")
+        do {
+            let infoRef = store.document("users/\(uid)/userData/info")
+            let data = try await infoRef.getDocument().data()
 
-        let data = try await infoRef.getDocument().data()
+            guard let provider = data?["currentProvider"] as? String,
+                  let name = data?[provider == "apple.com" ? "appleName" : "name"] as? String,
+                  let email = data?["email"] as? String,
+                  let statusMessage = data?["statusMsg"] as? String
+            else {
+                logger.error("User profile data not found")
+                throw FirestoreError.dataNotFound("User Profile")
+            }
 
-        guard let provider = data?["currentProvider"] as? String,
-              let name = data?[provider == "apple.com" ? "appleName" : "name"] as? String,
-              let email = data?["email"] as? String,
-              let statusMessage = data?["statusMsg"] as? String
-        else {
-            throw FirestoreError.dataNotFound("User Profile")
+            logger.info("Successfully fetched user profile for: \(email)")
+            return UserProfileResponse(
+                name: name,
+                email: email,
+                statusMessage: statusMessage,
+                avatarURL: Auth.auth().currentUser?.photoURL
+            )
+        } catch {
+            logger.error("Failed to fetch user profile", error: error)
+            throw error
         }
-
-        return UserProfileResponse(
-            name: name,
-            email: email,
-            statusMessage: statusMessage,
-            avatarURL: Auth.auth().currentUser?.photoURL
-        )
     }
     
     func upsertStatusMessage(_ message: String) async throws {
+        logger.info("Upserting status message")
+        
         guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
 
-        let infoRef = store.document("users/\(uid)/userData/info")
-
-        try await infoRef.setData(["statusMsg": message], merge: true)
+        do {
+            let infoRef = store.document("users/\(uid)/userData/info")
+            try await infoRef.setData(["statusMsg": message], merge: true)
+            logger.info("Successfully upserted status message")
+        } catch {
+            logger.error("Failed to upsert status message", error: error)
+            throw error
+        }
     }
     
     func updateFCMToken(_ userId: String, fcmToken: String) async throws {
-        let tokensRef = store.document("users/\(userId)/userData/tokens")
+        logger.info("Updating FCM token for user: \(userId)")
         
-        try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
+        do {
+            let tokensRef = store.document("users/\(userId)/userData/tokens")
+            try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
+            logger.info("Successfully updated FCM token")
+        } catch {
+            logger.error("Failed to update FCM token", error: error)
+            throw error
+        }
     }
 }

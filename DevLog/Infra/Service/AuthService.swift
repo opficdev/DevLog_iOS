@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 final class AuthService {
     private let store = Firestore.firestore()
+    private let logger = Logger(category: "AuthService")
 
     var uid: String? {
         Auth.auth().currentUser?.uid
@@ -20,13 +21,25 @@ final class AuthService {
     }
 
     func getProviderID() async throws -> String? {
-        guard let uid = uid else { return nil }
+        logger.info("Fetching current provider ID")
+        
+        guard let uid = uid else {
+            logger.warning("No user ID available")
+            return nil
+        }
 
-        let document = try await store
-            .collection("users/\(uid)/userData")
-            .document("info")
-            .getDocument()
+        do {
+            let document = try await store
+                .collection("users/\(uid)/userData")
+                .document("info")
+                .getDocument()
 
-        return document.data()?["currentProvider"] as? String
+            let providerID = document.data()?["currentProvider"] as? String
+            logger.info("Successfully fetched provider ID: \(providerID ?? "nil")")
+            return providerID
+        } catch {
+            logger.error("Failed to fetch provider ID", error: error)
+            throw error
+        }
     }
 }

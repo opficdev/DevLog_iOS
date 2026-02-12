@@ -18,16 +18,23 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.gitHub
+    private let logger = Logger(category: "GithubAuthService")
 
     func signIn() async throws -> AuthenticationDataResponse {
-        // 1. GitHub OAuth 로그인 요청
-        let authorizationCode = try await requestAuthorizationCode()
-
-        // 2. Firebase Functions를 통해 customToken 발급 요청
-        let (accessToken, customToken) = try await requestTokens(authorizationCode: authorizationCode)
+        logger.info("Starting GitHub sign in")
         
-        // 3. Firebase 로그인
-        let result = try await Auth.auth().signIn(withCustomToken: customToken)
+        do {
+            // 1. GitHub OAuth 로그인 요청
+            logger.debug("Requesting authorization code")
+            let authorizationCode = try await requestAuthorizationCode()
+
+            // 2. Firebase Functions를 통해 customToken 발급 요청
+            logger.debug("Requesting tokens from Firebase Function")
+            let (accessToken, customToken) = try await requestTokens(authorizationCode: authorizationCode)
+            
+            // 3. Firebase 로그인
+            logger.debug("Signing in with custom token")
+            let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
         // 4. Firebase Auth 사용자 프로필 업데이트
         let githubUser = try await requestUserProfile(accessToken: accessToken)
@@ -45,13 +52,18 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             try await result.user.link(with: credential)
         }
 
-        let fcmToken = try await messaging.token()
+            let fcmToken = try await messaging.token()
 
-        return result.user.toData(
-            providerID: .gitHub,
-            fcmToken: fcmToken,
-            accessToken: accessToken
-        )
+            logger.info("Successfully signed in with GitHub")
+            return result.user.toData(
+                providerID: .gitHub,
+                fcmToken: fcmToken,
+                accessToken: accessToken
+            )
+        } catch {
+            logger.error("Failed to sign in with GitHub", error: error)
+            throw error
+        }
     }
 
     func signOut(_ uid: String) async throws {
@@ -79,36 +91,56 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     func link(uid: String, email: String) async throws {
-        let tokensRef = store.document("users/\(uid)/userData/tokens")
-        let authorizationCode = try await requestAuthorizationCode()
-        let (accessToken, _) = try await requestTokens(authorizationCode: authorizationCode)
+        logger.info("Linking GitHub account for user: \(uid)")
+        
+        do {
+            let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let authorizationCode = try await requestAuthorizationCode()
+            let (accessToken, _) = try await requestTokens(authorizationCode: authorizationCode)
 
-        let githubUser = try await requestUserProfile(accessToken: accessToken)
+            let githubUser = try await requestUserProfile(accessToken: accessToken)
 
-        guard let githubEmail = githubUser.email else {
-            try await revokeAccessToken(accessToken: accessToken)
-            throw EmailFetchError.emailNotFound
+            guard let githubEmail = githubUser.email else {
+                logger.error("GitHub email not found")
+                try await revokeAccessToken(accessToken: accessToken)
+                throw EmailFetchError.emailNotFound
+            }
+
+            if githubEmail != email {
+                logger.error("Email mismatch - Expected: \(email), Got: \(githubEmail)")
+                try await revokeAccessToken(accessToken: accessToken)
+                throw EmailFetchError.emailMismatch
+            }
+
+            try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
+
+            let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
+            try await user?.link(with: credential)
+            
+            logger.info("Successfully linked GitHub account")
+        } catch {
+            logger.error("Failed to link GitHub account", error: error)
+            throw error
         }
-
-        if githubEmail != email {
-            try await revokeAccessToken(accessToken: accessToken)
-            throw EmailFetchError.emailMismatch
-        }
-
-        try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
-
-        let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
-        try await user?.link(with: credential)
     }
 
     func unlink(_ uid: String) async throws {
-        try await revokeAccessToken()
+        logger.info("Unlinking GitHub account for user: \(uid)")
+        
+        do {
+            try await revokeAccessToken()
 
-        let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let tokensRef = store.document("users/\(uid)/userData/tokens")
 
-        try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
+            try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
 
-        _ = try await user?.unlink(fromProvider: providerID.rawValue)
+            _ = try await user?.unlink(fromProvider: providerID.rawValue)
+            
+            logger.info("Successfully unlinked GitHub account")
+        } catch {
+            logger.error("Failed to unlink GitHub account", error: error)
+            throw error
+        }
     }
 
     func requestAuthorizationCode() async throws -> String {

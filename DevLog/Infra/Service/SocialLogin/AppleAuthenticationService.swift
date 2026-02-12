@@ -20,23 +20,29 @@ final class AppleAuthenticationService: AuthenticationService {
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.apple
+    private let logger = Logger(category: "AppleAuthService")
 
     func signIn() async throws -> AuthenticationDataResponse {
-        let response = try await authenticateWithAppleAsync()
+        logger.info("Starting Apple sign in")
         
-        let nonce = response.nonce
-        let credential = response.credential
-        let authorizationCode = response.authorizationCode
-        let idTokenString = response.idTokenString
-                
-        // Firebase Function을 통해 customToken 요청
-        let customToken = try await requestAppleCustomToken(
-            idToken: idTokenString,
-            authorizationCode: authorizationCode
-        )
-        
-        // customToken으로 Firebase 로그인
-        let result = try await Auth.auth().signIn(withCustomToken: customToken)
+        do {
+            let response = try await authenticateWithAppleAsync()
+            
+            let nonce = response.nonce
+            let credential = response.credential
+            let authorizationCode = response.authorizationCode
+            let idTokenString = response.idTokenString
+                    
+            // Firebase Function을 통해 customToken 요청
+            logger.debug("Requesting custom token from Firebase Function")
+            let customToken = try await requestAppleCustomToken(
+                idToken: idTokenString,
+                authorizationCode: authorizationCode
+            )
+            
+            // customToken으로 Firebase 로그인
+            logger.debug("Signing in with custom token")
+            let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
         let changeRequest = result.user.createProfileChangeRequest()
         var displayName: String?
@@ -72,9 +78,14 @@ final class AppleAuthenticationService: AuthenticationService {
             try await result.user.link(with: appleCredential)
         }
 
-        let fcmToken = try await messaging.token()
+            let fcmToken = try await messaging.token()
 
-        return result.user.toData(providerID: .apple, fcmToken: fcmToken)
+            logger.info("Successfully signed in with Apple")
+            return result.user.toData(providerID: .apple, fcmToken: fcmToken)
+        } catch {
+            logger.error("Failed to sign in with Apple", error: error)
+            throw error
+        }
     }
 
     func signOut(_ uid: String) async throws {
