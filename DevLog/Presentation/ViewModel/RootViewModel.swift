@@ -100,6 +100,7 @@ final class RootViewModel: Store {
         connectivityProvider.isConnectedPublisher
             .dropFirst()
             .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
                 self?.send(.networkStatusChanged(isConnected))
             }
