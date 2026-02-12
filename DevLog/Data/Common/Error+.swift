@@ -9,6 +9,8 @@ import Foundation
 
 enum AuthError: Error {
     case notAuthenticated
+    case failedToUnlinkLastProvider
+    case unsupportedProvider
 }
 
 enum FirestoreError: Error, LocalizedError {

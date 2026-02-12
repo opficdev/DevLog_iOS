@@ -70,5 +70,17 @@ final class DomainAssembler: Assembler {
         container.register(FetchPushNotificationsUseCase.self) {
             FetchPushNotificationsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
+        
+        container.register(FetchAuthProvidersUseCase.self) {
+            FetchAuthProvidersUseCaseImpl(container.resolve(AuthDataRepository.self))
+        }
+        
+        container.register(LinkAuthProviderUseCase.self) {
+            LinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
+        }
+        
+        container.register(UnlinkAuthProviderUseCase.self) {
+            UnlinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
+        }
     }
 }
