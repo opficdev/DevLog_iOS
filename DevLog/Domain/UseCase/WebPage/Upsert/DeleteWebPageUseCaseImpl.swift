@@ -16,4 +16,3 @@ final class DeleteWebPageUseCaseImpl: DeleteWebPageUseCase {
         try await repository.delete(urlString)
     }
 }
-
