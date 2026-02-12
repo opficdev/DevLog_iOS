@@ -26,6 +26,10 @@ final class DomainAssembler: Assembler {
         container.register(UpsertTodoUseCase.self) {
             UpsertTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }
+        
+        container.register(DeleteTodoUseCase.self) {
+            DeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
 
         container.register(AuthSessionUseCase.self) {
             AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))

@@ -57,15 +57,18 @@ final class TodoViewModel: Store {
 
     private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
+    private let deleteTodoUseCase: DeleteTodoUseCase
     @Published private(set) var state: State
 
     init(
         fetchTodosByKindUseCase: FetchTodosByKindUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
+        deleteTodoUseCase: DeleteTodoUseCase,
         kind: TodoKind
     ) {
         self.fetchTodosByKindUseCase = fetchTodosByKindUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
+        self.deleteTodoUseCase = deleteTodoUseCase
         self.state = State(kind: kind)
     }
 
@@ -144,7 +147,16 @@ final class TodoViewModel: Store {
                 }
             }
         case .swipeTodo(let todo):
-            break
+            Task {
+                do {
+                    defer { send(.didLoading(false)) }
+                    send(.didLoading(true))
+                    try await deleteTodoUseCase.execute(todo.id)
+                    send(.refresh)
+                } catch {
+                    send(.didShowAlert(error.localizedDescription))
+                }
+            }
         }
     }
 }
