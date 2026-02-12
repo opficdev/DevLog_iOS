@@ -115,8 +115,13 @@ struct SettingView: View {
                     )
                 )
             case .account:
-                TempView(text: "AccountView")
-//                AccountView(viewModel: viewModel)
+                AccountView(
+                    viewModel: AccountViewModel(
+                        fetchProvidersUseCase: container.resolve(FetchAuthProvidersUseCase.self),
+                        linkProviderUseCase: container.resolve(LinkAuthProviderUseCase.self),
+                        unlinkProviderUseCase: container.resolve(UnlinkAuthProviderUseCase.self)
+                    )
+                )
             }
         }
         .alert("로그아웃", isPresented: Binding(
