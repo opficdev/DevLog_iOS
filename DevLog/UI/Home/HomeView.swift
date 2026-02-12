@@ -16,90 +16,8 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                Section(content: {
-                    let preferences = viewModel.state.todoKindPreferences
-                    ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
-                        let kind = preference.kind
-                        NavigationLink(value: Path.kind(kind)) {
-                            HStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(kind.color)
-                                    .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                                    .overlay {
-                                        Image(systemName: kind.symbolName)
-                                            .foregroundStyle(Color.white)
-                                            .font(.title3)
-                                    }
-                                Text(kind.localizedName)
-                                    .foregroundStyle(Color.primary)
-                            }
-                            .padding(.vertical, -6)
-                        }
-                    }
-                }, header: {
-                    HStack {
-                        Text("TODO")
-                            .foregroundStyle(Color.primary)
-                            .font(.title2)
-                            .bold()
-                        Spacer()
-                        Button(action: {
-                            viewModel.send(.tapEllipsisButton)
-                        }) {
-                            Image(systemName: "ellipsis")
-                                .font(.title2)
-                                .foregroundStyle(Color.gray)
-                        }
-                    }
-                    .listRowInsets(EdgeInsets())    //  헤더의 padding 제거
-                })
-
-                Section(content: {
-                    if viewModel.state.pinnedTodos.isEmpty {
-                        HStack {
-                            Spacer()
-                            Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
-                                .font(.callout)
-                            Spacer()
-                        }
-                    } else {
-                        ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
-                            NavigationLink(value: Path.detail(todo)) {
-                                HStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(todo.kind.color)
-                                        .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                                        .overlay {
-                                            Image(systemName: todo.kind.symbolName)
-                                                .foregroundStyle(Color.white)
-                                                .font(.title3)
-                                        }
-                                    VStack(alignment: .leading) {
-                                        Text(todo.title)
-                                            .bold()
-                                            .foregroundStyle(Color.primary)
-                                        Text(todo.dueDate?
-                                            .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
-                                        )
-                                        .font(.caption2)
-                                        .foregroundStyle(Color.gray)
-                                    }
-                                }
-                                .padding(.vertical, -6)
-                            }
-                        }
-                    }
-                }, header: {
-                    HStack {
-                        Text("중요 표시")
-                            .foregroundStyle(Color.primary)
-                            .font(.title2)
-                            .bold()
-                        Spacer()
-
-                    }
-                    .listRowInsets(EdgeInsets())
-                })
+                todoSection
+                pinnedSection
             }
             .listStyle(.insetGrouped)
             .navigationTitle("홈")
@@ -121,25 +39,7 @@ struct HomeView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .adaptiveButtonStyle()
-                }
-                if #available(iOS 26.0, *) {
-                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                }
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .adaptiveButtonStyle()
-                }
+                homeToolbarContent
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
@@ -156,7 +56,8 @@ struct HomeView: View {
                 )
             }
             .alert("", isPresented: Binding(
-                get: { viewModel.state.showToast }, set: { _, _ in })
+                get: { viewModel.state.showToast }, 
+                set: { _, _ in })
             ) {
                 Button(action: {
                     viewModel.send(.closeToast)
@@ -174,6 +75,118 @@ struct HomeView: View {
                     LoadingView()
                 }
             }
+        }
+    }
+
+    private var todoSection: some View {
+        Section(content: {
+            let preferences = viewModel.state.todoKindPreferences
+            ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
+                let kind = preference.kind
+                NavigationLink(value: Path.kind(kind)) {
+                    HStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(kind.color)
+                            .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                            .overlay {
+                                Image(systemName: kind.symbolName)
+                                    .foregroundStyle(Color.white)
+                                    .font(.title3)
+                            }
+                        Text(kind.localizedName)
+                            .foregroundStyle(Color.primary)
+                    }
+                    .padding(.vertical, -6)
+                }
+            }
+        }, header: {
+            HStack {
+                Text("TODO")
+                    .foregroundStyle(Color.primary)
+                    .font(.title2)
+                    .bold()
+                Spacer()
+                Button(action: {
+                    viewModel.send(.tapEllipsisButton)
+                }) {
+                    Image(systemName: "ellipsis")
+                        .font(.title2)
+                        .foregroundStyle(Color.gray)
+                }
+            }
+            .listRowInsets(EdgeInsets())    //  헤더의 padding 제거
+        })
+    }
+
+    private var pinnedSection: some View {
+        Section(content: {
+            if viewModel.state.pinnedTodos.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
+                        .font(.callout)
+                    Spacer()
+                }
+            } else {
+                ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
+                    NavigationLink(value: Path.detail(todo)) {
+                        HStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(todo.kind.color)
+                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                                .overlay {
+                                    Image(systemName: todo.kind.symbolName)
+                                        .foregroundStyle(Color.white)
+                                        .font(.title3)
+                                }
+                            VStack(alignment: .leading) {
+                                Text(todo.title)
+                                    .bold()
+                                    .foregroundStyle(Color.primary)
+                                Text(todo.dueDate?
+                                    .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
+                                )
+                                .font(.caption2)
+                                .foregroundStyle(Color.gray)
+                            }
+                        }
+                        .padding(.vertical, -6)
+                    }
+                }
+            }
+        }, header: {
+            HStack {
+                Text("중요 표시")
+                    .foregroundStyle(Color.primary)
+                    .font(.title2)
+                    .bold()
+                Spacer()
+
+            }
+            .listRowInsets(EdgeInsets())
+        })
+    }
+
+    @ToolbarContentBuilder
+    private var homeToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+
+            } label: {
+                Image(systemName: "plus")
+            }
+            .adaptiveButtonStyle()
+        }
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+        }
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+
+            } label: {
+                Image(systemName: "magnifyingglass")
+            }
+            .adaptiveButtonStyle()
         }
     }
 
