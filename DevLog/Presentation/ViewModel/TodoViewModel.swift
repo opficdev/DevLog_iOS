@@ -14,10 +14,11 @@ final class TodoViewModel: Store {
         let kind: TodoKind
         var showEditor: Bool = false
         var showAlert: Bool = false
+        var alertTitle: String = ""
         var alertMessage: String = ""
         var scope: TodoScope = .title
         var filterOption: FilterOption = .create
-        var isLoading = false
+        var isLoading: Bool = false
         var showToast: Bool = false
         var toastMessage: String = ""
         var pendingTask: (Todo, Int)?
@@ -29,31 +30,26 @@ final class TodoViewModel: Store {
 
     enum Action {
         // User
-        case tapTogglePinned(Todo)
+        case refresh
+        case setAlert(Bool)
+        case setShowEditor(Bool)
         case swipeTodo(Todo)
         case tapFilterOption(FilterOption)
-        case upsertTodo(Todo)
+        case tapTogglePinned(Todo)
         case undoDelete
-        case confirmDelete
 
         // View
-        case onAppear, refresh
-        case openEditor
-        case closeEditor
-        case closeAlert
+        case confirmDelete
+        case onAppear
         case setScope(TodoScope)
         case setSearchText(String)
-        case setToast(isPresented: Bool, type: ToastType? = nil)
-        case setLoading(Bool)
-        case setTodos([Todo])
+        case setToast(isPresented: Bool)
+        case upsertTodo(Todo)
 
         // Run
-        case didShowAlert(String)
         case didTogglePinned(Todo)
-    }
-    
-    enum ToastType {
-        case delete
+        case setLoading(Bool)
+        case setTodos([Todo])
     }
 
     enum SideEffect {
@@ -82,59 +78,21 @@ final class TodoViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
-        
+        var effects: [SideEffect] = []
+
         switch action {
-        case .onAppear, .refresh:
-            return [.fetch]
-        case .tapTogglePinned(let todo):
-            return [.togglePinned(todo)]
-        case .swipeTodo(let todo):
-            guard let index = state.todos.firstIndex(where: { $0.id == todo.id }) else {
-                return []
-            }
-            state.pendingTask = (todo, index)
-            state.todos.remove(at: index)
-            setToast(&state, isPresented: true, for: .delete)
-        case .tapFilterOption(let option):
-            state.filterOption = option
-        case .upsertTodo(let todo):
-            return [.upsert(todo)]
-        case .undoDelete:
-            guard let (todo, index) = state.pendingTask else { return [] }
-            state.todos.insert(todo, at: index)
-            state.pendingTask = nil
-        case .confirmDelete:
-            guard let (item, _) = state.pendingTask else {
-                return []
-            }
-            return [.delete(item)]
-        case .openEditor:
-            state.showEditor = true
-        case .closeEditor:
-            state.showEditor = false
-        case .closeAlert:
-            state.showAlert = false
-        case .setScope(let scope):
-            state.scope = scope
-        case .setSearchText(let text):
-            state.searchText = text
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, for: type)
-        case .setLoading(let value):
-            state.isLoading = value
-        case .setTodos(let todos):
-            state.todos = todos
-        case .didShowAlert(let message):
-            state.alertMessage = message
-            state.showAlert = true
-        case .didTogglePinned(let todo):
-            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
-                state.todos[index] = todo
-            }
+        case .refresh, .setAlert, .setShowEditor, .swipeTodo, .tapFilterOption, .tapTogglePinned, .undoDelete:
+            effects = reduceByUser(action, state: &state)
+
+        case .confirmDelete, .onAppear, .setScope, .setSearchText, .setToast, .upsertTodo:
+            effects = reduceByView(action, state: &state)
+
+        case .didTogglePinned, .setLoading, .setTodos:
+            effects = reduceByRun(action, state: &state)
         }
-        
+
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
@@ -147,7 +105,7 @@ final class TodoViewModel: Store {
                     let todos = try await fetchTodosByKindUseCase.execute(state.kind)
                     send(.setTodos(todos))
                 } catch {
-                    send(.didShowAlert(error.localizedDescription))
+                    send(.setAlert(true))
                 }
             }
         case .upsert(let item):
@@ -158,7 +116,7 @@ final class TodoViewModel: Store {
                     try await upsertTodoUseCase.execute(item)
                     send(.refresh)
                 } catch {
-                    send(.didShowAlert(error.localizedDescription))
+                    send(.setAlert(true))
                 }
             }
         case .togglePinned(let item):
@@ -171,7 +129,7 @@ final class TodoViewModel: Store {
                     try await upsertTodoUseCase.execute(todo)
                     send(.didTogglePinned(todo))
                 } catch {
-                    send(.didShowAlert(error.localizedDescription))
+                    send(.setAlert(true))
                 }
             }
         case .delete(let item):
@@ -179,24 +137,100 @@ final class TodoViewModel: Store {
                 do {
                     try await deleteTodoUseCase.execute(item.id)
                 } catch {
-                    send(.didShowAlert(error.localizedDescription))
+                    send(.setAlert(true))
                 }
             }
         }
     }
 }
+
+// MARK: - Reduce Methods
 private extension TodoViewModel {
+    func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .refresh:
+            return [.fetch]
+        case .setAlert(let value):
+            setAlert(&state, isPresented: value)
+        case .setShowEditor(let value):
+            state.showEditor = value
+        case .swipeTodo(let todo):
+            guard let index = state.todos.firstIndex(where: { $0.id == todo.id }) else {
+                return []
+            }
+            state.pendingTask = (todo, index)
+            state.todos.remove(at: index)
+            setToast(&state, isPresented: true)
+        case .tapFilterOption(let option):
+            state.filterOption = option
+        case .tapTogglePinned(let todo):
+            return [.togglePinned(todo)]
+        case .undoDelete:
+            guard let (todo, index) = state.pendingTask else { return [] }
+            state.todos.insert(todo, at: index)
+            state.pendingTask = nil
+        default:
+            break
+        }
+        return []
+    }
+
+    func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .confirmDelete:
+            guard let (item, _) = state.pendingTask else {
+                return []
+            }
+            return [.delete(item)]
+        case .onAppear:
+            return [.fetch]
+        case .setScope(let scope):
+            state.scope = scope
+        case .setSearchText(let text):
+            state.searchText = text
+        case .setToast(let isPresented):
+            setToast(&state, isPresented: isPresented)
+        case .upsertTodo(let todo):
+            return [.upsert(todo)]
+        default:
+            break
+        }
+        return []
+    }
+
+    func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .didTogglePinned(let todo):
+            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
+                state.todos[index] = todo
+            }
+        case .setLoading(let value):
+            state.isLoading = value
+        case .setTodos(let todos):
+            state.todos = todos
+        default:
+            break
+        }
+        return []
+    }
+}
+
+// MARK: - Helper Methods
+private extension TodoViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.showAlert = isPresented
+    }
+
     func setToast(
         _ state: inout State,
-        isPresented: Bool,
-        for type: ToastType?
+        isPresented: Bool
     ) {
-        switch type {
-        case .delete:
-            state.toastMessage = "실행 취소"
-        case .none:
-            state.toastMessage = ""
-        }
+        state.toastMessage = "실행 취소"
         state.showToast = isPresented
     }
 }

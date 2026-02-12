@@ -80,15 +80,13 @@ struct TodoView: View {
                 }
             }
         }
-        .alert("불러오기 실패", isPresented: Binding(
-            get: { viewModel.state.showAlert },
-            set: { _, _ in }
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert($0)) }
         )) {
-            Button(role: .cancel, action: {
-                viewModel.send(.closeAlert)
-            }) {
-                Text("확인")
-            }
+            Button("확인", role: .cancel) { }
         } message: {
             Text(viewModel.state.alertMessage)
         }
@@ -107,8 +105,8 @@ struct TodoView: View {
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
-            set: { _, _ in viewModel.send(.closeEditor) })
-        ) {
+            set: { viewModel.send(.setShowEditor($0)) }
+        )) {
             TodoEditorView(
                 viewModel: TodoEditorViewModel(kind: viewModel.state.kind),
                 onSubmit: { viewModel.send(.upsertTodo($0)) }
@@ -183,9 +181,9 @@ struct TodoView: View {
                 }, label: {
                     Image(systemName: "ellipsis")
                 })
-                Button(action: {
-                    viewModel.send(.openEditor)
-                }) {
+                Button {
+                    viewModel.send(.setShowEditor(true))
+                } label: {
                     Image(systemName: "plus")
                 }
             }
