@@ -92,6 +92,17 @@ struct TodoView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { viewModel.send(.setToast(isPresented: $0)) }
+            ),
+            duration: 5,
+            action: { viewModel.send(.undoDelete) },
+            onDismiss: { viewModel.send(.confirmDelete) }
+        ) {
+            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+        }
         .navigationTitle(viewModel.state.kind.localizedName)
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: Binding(

@@ -18,6 +18,9 @@ final class TodoViewModel: Store {
         var scope: TodoScope = .title
         var filterOption: FilterOption = .create
         var isLoading = false
+        var showToast: Bool = false
+        var toastMessage: String = ""
+        var pendingTask: (Todo, Int)?
     }
 
     enum FilterOption {
@@ -25,34 +28,39 @@ final class TodoViewModel: Store {
     }
 
     enum Action {
-        // Modifier
-        case onAppear, refresh
-
         // User
         case tapTogglePinned(Todo)
         case swipeTodo(Todo)
         case tapFilterOption(FilterOption)
         case upsertTodo(Todo)
+        case undoDelete
+        case confirmDelete
 
-        // Binding
+        // View
+        case onAppear, refresh
         case openEditor
         case closeEditor
         case closeAlert
         case setScope(TodoScope)
         case setSearchText(String)
+        case setToast(isPresented: Bool, type: ToastType? = nil)
+        case setLoading(Bool)
+        case setTodos([Todo])
 
-        // Call from run
-        case didFetchTodos([Todo])
-        case didLoading(Bool)
+        // Run
         case didShowAlert(String)
         case didTogglePinned(Todo)
     }
+    
+    enum ToastType {
+        case delete
+    }
 
     enum SideEffect {
-        case fetchTodos
-        case upsertTodo(Todo)
+        case fetch
+        case upsert(Todo)
+        case delete(Todo)
         case togglePinned(Todo)
-        case swipeTodo(Todo)
     }
 
     private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
@@ -73,17 +81,33 @@ final class TodoViewModel: Store {
     }
 
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
+        
         switch action {
         case .onAppear, .refresh:
-            return [.fetchTodos]
+            return [.fetch]
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .swipeTodo(let todo):
-            return [.swipeTodo(todo)]
+            guard let index = state.todos.firstIndex(where: { $0.id == todo.id }) else {
+                return []
+            }
+            state.pendingTask = (todo, index)
+            state.todos.remove(at: index)
+            setToast(&state, isPresented: true, for: .delete)
         case .tapFilterOption(let option):
             state.filterOption = option
         case .upsertTodo(let todo):
-            return [.upsertTodo(todo)]
+            return [.upsert(todo)]
+        case .undoDelete:
+            guard let (todo, index) = state.pendingTask else { return [] }
+            state.todos.insert(todo, at: index)
+            state.pendingTask = nil
+        case .confirmDelete:
+            guard let (item, _) = state.pendingTask else {
+                return []
+            }
+            return [.delete(item)]
         case .openEditor:
             state.showEditor = true
         case .closeEditor:
@@ -94,10 +118,12 @@ final class TodoViewModel: Store {
             state.scope = scope
         case .setSearchText(let text):
             state.searchText = text
-        case .didFetchTodos(let todos):
-            state.todos = todos
-        case .didLoading(let value):
+        case .setToast(let isPresented, let type):
+            setToast(&state, isPresented: isPresented, for: type)
+        case .setLoading(let value):
             state.isLoading = value
+        case .setTodos(let todos):
+            state.todos = todos
         case .didShowAlert(let message):
             state.alertMessage = message
             state.showAlert = true
@@ -106,39 +132,41 @@ final class TodoViewModel: Store {
                 state.todos[index] = todo
             }
         }
+        
+        self.state = state
         return []
     }
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .fetchTodos:
+        case .fetch:
             Task {
                 do {
-                    defer { send(.didLoading(false)) }
-                    send(.didLoading(true))
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
                     let todos = try await fetchTodosByKindUseCase.execute(state.kind)
-                    send(.didFetchTodos(todos))
+                    send(.setTodos(todos))
                 } catch {
                     send(.didShowAlert(error.localizedDescription))
                 }
             }
-        case .upsertTodo(let todo):
+        case .upsert(let item):
             Task {
                 do {
-                    defer { send(.didLoading(false)) }
-                    send(.didLoading(true))
-                    try await upsertTodoUseCase.execute(todo)
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    try await upsertTodoUseCase.execute(item)
                     send(.refresh)
                 } catch {
                     send(.didShowAlert(error.localizedDescription))
                 }
             }
-        case .togglePinned(let todo):
+        case .togglePinned(let item):
             Task {
                 do {
-                    defer { send(.didLoading(false)) }
-                    send(.didLoading(true))
-                    var todo = todo
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    var todo = item
                     todo.isPinned.toggle()
                     try await upsertTodoUseCase.execute(todo)
                     send(.didTogglePinned(todo))
@@ -146,17 +174,29 @@ final class TodoViewModel: Store {
                     send(.didShowAlert(error.localizedDescription))
                 }
             }
-        case .swipeTodo(let todo):
+        case .delete(let item):
             Task {
                 do {
-                    defer { send(.didLoading(false)) }
-                    send(.didLoading(true))
-                    try await deleteTodoUseCase.execute(todo.id)
-                    send(.refresh)
+                    try await deleteTodoUseCase.execute(item.id)
                 } catch {
                     send(.didShowAlert(error.localizedDescription))
                 }
             }
         }
+    }
+}
+private extension TodoViewModel {
+    func setToast(
+        _ state: inout State,
+        isPresented: Bool,
+        for type: ToastType?
+    ) {
+        switch type {
+        case .delete:
+            state.toastMessage = "실행 취소"
+        case .none:
+            state.toastMessage = ""
+        }
+        state.showToast = isPresented
     }
 }
