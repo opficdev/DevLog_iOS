@@ -18,6 +18,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.gitHub
+    private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GithubAuthService")
 
     func signIn() async throws -> AuthenticationDataResponse {
@@ -143,6 +144,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         }
     }
 
+    @MainActor
     func requestAuthorizationCode() async throws -> String {
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GITHUB_CLIENT_ID") as? String,
               let redirectURL = Bundle.main.object(forInfoDictionaryKey: "APP_REDIRECT_URL") as? String,
@@ -248,12 +250,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
 
 extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        guard let window = UIApplication.shared.connectedScenes
-            .flatMap({ ($0 as? UIWindowScene)?.windows ?? [] })
-            .first(where: { $0.isKeyWindow }) else {
-                return ASPresentationAnchor()
-        }
-        return window
+        return provider.keyWindow() ?? ASPresentationAnchor()
     }
 
     struct GitHubUser: Codable {
