@@ -9,24 +9,33 @@ import Foundation
 import LinkPresentation
 
 final class WebPageMetadataService {
+    private let logger = Logger(category: "WebPageMetadataService")
     func fetchMetadata(from response: WebPageResponse) async throws -> WebPageMetadata {
+        logger.info("Fetching metadata for URL: \(response.urlString)")
+        
         guard let url = URL(string: response.urlString) else {
+            logger.error("Invalid URL: \(response.urlString)")
             throw URLError(.badURL)
         }
 
-        let provider = LPMetadataProvider()
-        provider.timeout = 10.0
+        do {
+            let provider = LPMetadataProvider()
+            provider.timeout = 10.0
 
-        let metadata = try await provider.startFetchingMetadata(for: url)
+            let metadata = try await provider.startFetchingMetadata(for: url)
+            let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
 
-        let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
-
-        return WebPageMetadata(
-            title: metadata.title,
-            url: url,
-            displayURL: metadata.url ?? url,
-            imageURL: imageURL
-        )
+            logger.info("Successfully fetched metadata for: \(metadata.title ?? "Unknown")")
+            return WebPageMetadata(
+                title: metadata.title,
+                url: url,
+                displayURL: metadata.url ?? url,
+                imageURL: imageURL
+            )
+        } catch {
+            logger.error("Failed to fetch metadata", error: error)
+            throw error
+        }
     }
 
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
