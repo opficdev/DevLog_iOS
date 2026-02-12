@@ -13,6 +13,6 @@ final class SignInUseCaseImpl: SignInUseCase {
     }
 
     func execute(_ provider: AuthProvider) async throws {
-        return try await repository.signIn(provider)
+        try await repository.signIn(provider)
     }
 }
