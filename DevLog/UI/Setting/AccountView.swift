@@ -45,6 +45,7 @@ struct AccountView: View {
                 }
             }
         }
+        .scrollDisabled(true)
         .listStyle(.insetGrouped)
         .navigationTitle("계정 연동")
         .toolbar {
