@@ -8,20 +8,24 @@
 import SwiftUI
 
 struct RootView: View {
-    @AppStorage("isFirstLaunch") var isFirstLaunch = true   // 앱을 최초 설치했을 때 기존 로그인 세션이 남아있으면 자동 로그인됨을 막음
-    @StateObject var viewModel: LoginViewModel
+    @Environment(\.diContainer) var container: DIContainer
+    @StateObject var viewModel: RootViewModel
 
     var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
             if let signIn = viewModel.state.signIn {
-                if signIn && !isFirstLaunch {
+                if signIn && !viewModel.state.isFirstLaunch {
                     MainView()
                 } else {
-                    LoginView(viewModel: viewModel)
+                    LoginView(viewModel: LoginViewModel(
+                        signInUseCase: container.resolve(SignInUseCase.self),
+                        signOutUseCase: container.resolve(SignOutUseCase.self),
+                        sessionUseCase: container.resolve(AuthSessionUseCase.self))
+                    )
                         .onAppear {
-                            if isFirstLaunch {
-                                isFirstLaunch = false
+                            if viewModel.state.isFirstLaunch {
+                                viewModel.send(.setFirstLaunch(false))
                                 viewModel.send(.signOutAuto)
                             }
                         }
@@ -30,31 +34,24 @@ struct RootView: View {
                 Color.clear.onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                         if viewModel.state.signIn == nil {
-                            isFirstLaunch = true
+                            viewModel.send(.setFirstLaunch(true))
                             viewModel.send(.signOutAuto)
                         }
                     }
                 }
             }
-            if viewModel.state.isLoading {
-                LoadingView()
-            }
         }
-        .alert("네트워크 문제", isPresented: Binding(
-            get: { viewModel.state.showToast },
-            set: { _, _ in }
+        .alert(viewModel.state.alertTitle, isPresented: Binding(
+            get: { viewModel.state.showAlert },
+            set: { viewModel.send(.setAlert($0)) }
         )) {
-            Button(role: .cancel, action: {
-                viewModel.send(.tapCloseToast)
-            }) {
-                Text("확인")
-            }
+            Button("확인", role: .cancel) { }
         } message: {
-            Text(viewModel.state.toastMessage)
+            Text(viewModel.state.alertMessage)
         }
-        .onChange(of: isFirstLaunch) { _ in
-            if isFirstLaunch {
-                isFirstLaunch = false
+        .onChange(of: viewModel.state.isFirstLaunch) { newValue in
+            if newValue {
+                viewModel.send(.setFirstLaunch(false))
                 viewModel.send(.signOutAuto)
             }
         }

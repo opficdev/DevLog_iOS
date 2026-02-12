@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject var viewModel: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
+    @StateObject var viewModel: LoginViewModel
 
     var body: some View {
         ZStack {
@@ -43,6 +43,9 @@ struct LoginView: View {
                     .foregroundStyle(Color.gray)
                     .multilineTextAlignment(.center)
                     .padding(.vertical)
+            }
+            if viewModel.state.isLoading {
+                LoadingView()
             }
         }
     }

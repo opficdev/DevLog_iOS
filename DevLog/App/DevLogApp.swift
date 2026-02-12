@@ -19,11 +19,11 @@ struct DevLogApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(viewModel: LoginViewModel(
-                signInUseCase: container.resolve(SignInUseCase.self),
-                signOutUseCase: container.resolve(SignOutUseCase.self),
-                sessionUseCase: container.resolve(AuthSessionUseCase.self)
-            ))
+            RootView(
+                viewModel: RootViewModel(
+                    sessionUseCase: container.resolve(AuthSessionUseCase.self),
+                    signOutUseCase: container.resolve(SignOutUseCase.self)
+                ))
             .preferredColorScheme(theme.colorScheme)
         }
     }
