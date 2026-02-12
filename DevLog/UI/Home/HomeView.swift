@@ -55,6 +55,27 @@ struct HomeView: View {
                     }
                 )
             }
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.showTodoKindPicker },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.send(.closeTodoKindPicker)
+                    }
+                }
+            )) {
+                todoKindPickerSheet
+            }
+            .fullScreenCover(isPresented: Binding(
+                get: { viewModel.state.showTodoEditor },
+                set: { viewModel.send(.setShowTodoEditor($0)) }
+            )) {
+                if let selectedKind = viewModel.state.selectedTodoKind {
+                    TodoEditorView(
+                        viewModel: TodoEditorViewModel(kind: selectedKind),
+                        onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    )
+                }
+            }
             .alert("", isPresented: Binding(
                 get: { viewModel.state.showToast }, 
                 set: { _, _ in })
@@ -171,7 +192,7 @@ struct HomeView: View {
     private var homeToolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-
+                viewModel.send(.tapPlusButton)
             } label: {
                 Image(systemName: "plus")
             }
@@ -187,6 +208,47 @@ struct HomeView: View {
                 Image(systemName: "magnifyingglass")
             }
             .adaptiveButtonStyle()
+        }
+    }
+
+    private var todoKindPickerSheet: some View {
+        NavigationStack {
+            List {
+                let preferences = viewModel.state.todoKindPreferences.filter(\.isVisible)
+                ForEach(preferences, id: \.id) { preference in
+                    let kind = preference.kind
+                    Button {
+                        viewModel.send(.tapTodoKind(kind))
+                    } label: {
+                        HStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(kind.color)
+                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                                .overlay {
+                                    Image(systemName: kind.symbolName)
+                                        .foregroundStyle(Color.white)
+                                        .font(.title3)
+                                }
+                            Text(kind.localizedName)
+                                .foregroundStyle(Color.primary)
+                            Spacer()
+                        }
+                        .padding(.vertical, -6)
+                    }
+                }
+            }
+            .navigationTitle("TODO 종류")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        viewModel.send(.closeTodoKindPicker)
+                    } label: {
+                        Image(systemName: "xmark")
+                            .bold()
+                    }
+                }
+            }
         }
     }
 

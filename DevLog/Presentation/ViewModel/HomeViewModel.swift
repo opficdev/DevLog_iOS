@@ -12,6 +12,9 @@ final class HomeViewModel: Store {
         // UI
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [Todo] = []
+        var showTodoKindPicker: Bool = false
+        var showTodoEditor: Bool = false
+        var selectedTodoKind: TodoKind?
 
         // User Input
         var searchText: String = ""
@@ -30,13 +33,17 @@ final class HomeViewModel: Store {
 
         // User
         case tapEllipsisButton
+        case tapPlusButton
+        case tapTodoKind(TodoKind)
         case upsertTodo(Todo)
         case orderTodoKindPreferences([TodoKindPreference])
 
         // Binding
         case updateSearching(Bool)
         case updateSearchText(String)
+        case setShowTodoEditor(Bool)
         case closeOrderingSheet
+        case closeTodoKindPicker
         case closeToast
 
         // Call from run
@@ -66,10 +73,21 @@ final class HomeViewModel: Store {
             return [.fetchPinnedTodos]
         case.tapEllipsisButton:
             state.reorderTodo = true
+        case .tapPlusButton:
+            state.showTodoKindPicker = true
+        case .tapTodoKind(let kind):
+            state.selectedTodoKind = kind
+            state.showTodoKindPicker = false
+            state.showTodoEditor = true
         case .updateSearching(let isSearching):
             state.isSearching = isSearching
         case .updateSearchText(let text):
             state.searchText = text
+        case .setShowTodoEditor(let isPresented):
+            state.showTodoEditor = isPresented
+            if !isPresented {
+                state.selectedTodoKind = nil
+            }
         case .upsertTodo(let todo):
             return [.upsertTodo(todo)]
         case .orderTodoKindPreferences(let preferences):
@@ -77,6 +95,8 @@ final class HomeViewModel: Store {
 
         case .closeOrderingSheet:
             state.reorderTodo = false
+        case .closeTodoKindPicker:
+            state.showTodoKindPicker = false
         case .closeToast:
             state.showToast = false
 
