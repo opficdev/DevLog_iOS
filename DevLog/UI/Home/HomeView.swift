@@ -196,7 +196,6 @@ struct HomeView: View {
             } label: {
                 Image(systemName: "plus")
             }
-            .adaptiveButtonStyle()
         }
         if #available(iOS 26.0, *) {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
@@ -207,7 +206,6 @@ struct HomeView: View {
             } label: {
                 Image(systemName: "magnifyingglass")
             }
-            .adaptiveButtonStyle()
         }
     }
 
