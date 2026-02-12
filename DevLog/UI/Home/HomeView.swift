@@ -38,9 +38,7 @@ struct HomeView: View {
                     )
                 }
             }
-            .toolbar {
-                homeToolbarContent
-            }
+            .toolbar { toolbar }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
                 set: { _, _ in }
@@ -63,7 +61,7 @@ struct HomeView: View {
                     }
                 }
             )) {
-                todoKindPickerSheet
+                todoKindPicker
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showTodoEditor },
@@ -189,7 +187,7 @@ struct HomeView: View {
     }
 
     @ToolbarContentBuilder
-    private var homeToolbarContent: some ToolbarContent {
+    private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 viewModel.send(.tapPlusButton)
@@ -209,7 +207,7 @@ struct HomeView: View {
         }
     }
 
-    private var todoKindPickerSheet: some View {
+    private var todoKindPicker: some View {
         NavigationStack {
             List {
                 let preferences = viewModel.state.todoKindPreferences.filter(\.isVisible)
