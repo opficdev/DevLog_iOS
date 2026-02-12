@@ -126,35 +126,3 @@ final class GoogleAuthenticationService: AuthenticationService {
     }
 
 }
-
-final class TopViewControllerProvider {
-    @MainActor
-    func topViewController() -> UIViewController? {
-        let keyWindow = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }
-
-        let rootController = keyWindow?.rootViewController
-
-        return topViewController(controller: rootController)
-    }
-
-    @MainActor
-    private func topViewController(controller: UIViewController?) -> UIViewController? {
-        if let navigationController = controller as? UINavigationController {
-            return topViewController(controller: navigationController.visibleViewController)
-        }
-
-        if let tabController = controller as? UITabBarController,
-           let selectedController = tabController.selectedViewController {
-            return topViewController(controller: selectedController)
-        }
-
-        if let presentedController = controller?.presentedViewController {
-            return topViewController(controller: presentedController)
-        }
-
-        return controller
-    }
-}
