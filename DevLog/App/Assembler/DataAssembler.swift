@@ -37,6 +37,24 @@ final class DataAssembler: Assembler {
             AuthSessionRepositoryImpl(authService: container.resolve(AuthService.self))
         }
 
+        container.register(AuthDataRepository.self) {
+            AuthDataRepositoryImpl(
+                authService: container.resolve(AuthService.self),
+                appleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "AppleAuthenticationService"
+                ),
+                githubAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GithubAuthenticationService"
+                ),
+                googleAuthService: container.resolve(
+                    AuthenticationService.self,
+                    name: "GoogleAuthenticationService"
+                )
+            )
+        }
+
         container.register(UserDataRepository.self) {
             UserDataRepositoryImpl(userService: container.resolve(UserService.self))
         }
