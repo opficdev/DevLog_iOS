@@ -9,53 +9,51 @@ import SwiftUI
 import FirebaseAuth
 
 struct AccountView: View {
-    @ObservedObject var viewModel: SettingViewModel
-    @State private var connectedProviders: [String] = []
-    @State private var disconnectedProviders: [String] = []
-    
+    @StateObject var viewModel: AccountViewModel
+
     var body: some View {
-//        List {
-//            Section("현재 계정") {
-//                HStack {
-//                    let provider = viewModel.currentProvider
-//                    let formattedProvider = formattedProviderName(provider)
-//                    Image(formattedProvider)
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: UIFont.labelFontSize)
-//                    Text(formattedProvider)
-//                }
-//            }
-//            Section("연동된 계정") {
-//                ForEach(connectedProviders, id: \.self) { provider in
-//                    HStack {
-//                        let formattedProvider = formattedProviderName(provider)
-//                        Image(formattedProvider)
-//                            .resizable()
-//                            .scaledToFit()
-//                            .frame(width: UIFont.labelFontSize)
-//                        Text(formattedProvider)
-//                    }
-//                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-//                        Button(role: .destructive, action: {
-//                            Task {
-////                                await viewModel.unlinkFromProvider(provider: provider)
-//                            }
-//                        }) {
-//                            Label("계정 삭제", systemImage: "trash")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .onAppear {
+        List {
+            Section("현재 계정") {
+                HStack {
+                    let provider = viewModel.state.currentProvider
+                    let formattedProvider = formattedProviderName(provider)
+                    Image(formattedProvider)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: UIFont.labelFontSize)
+                    Text(formattedProvider)
+                }
+            }
+            Section("연동된 계정") {
+                ForEach(viewModel.state.connectedProviders, id: \.self) { provider in
+                    HStack {
+                        let formattedProvider = formattedProviderName(provider)
+                        Image(formattedProvider)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: UIFont.labelFontSize)
+                        Text(formattedProvider)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive, action: {
+                            viewModel.send(.unlinkFromProvider(provider))
+                        }) {
+                            Label("계정 삭제", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .onAppear {
+            viewModel.send(.onAppear)
 //            connectedProviders = viewModel.providers.filter { provider in
 //                provider != viewModel.currentProvider
 //            }
 //            disconnectedProviders = ["google.com", "github.com", "apple.com"].filter { provider in
 //                !viewModel.providers.contains(provider)
 //            }
-//        }
+        }
 //        .onChange(of: viewModel.providers) { newProviders in
 //            connectedProviders = newProviders.filter { provider in
 //                provider != viewModel.currentProvider
@@ -64,37 +62,35 @@ struct AccountView: View {
 //                !newProviders.contains(provider)
 //            }
 //        }
-//        .listStyle(InsetGroupedListStyle())
-//        .navigationTitle("계정 연동")
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                Menu("새 계정 연동", systemImage: "plus") {
-//                    ForEach(disconnectedProviders, id: \.self) { provider in
-//                        Button(action: {
-//                            Task {
-////                                await viewModel.linkWithProvider(provider: provider)
-//                            }
-//                        }) {
-//                            HStack {
-//                                let formattedProvider = formattedProviderName(provider)
-//                                Image(formattedProvider)
-//                                    .resizable()
-//                                    .scaledToFit()
-//                                    .frame(width: UIFont.systemFontSize, height: UIFont.systemFontSize)
-//                                Text(formattedProvider)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .alert("계정 연동 실패", isPresented: $viewModel.showAlert) {
-//            Button("확인", role: .cancel) {
-//                viewModel.showAlert = false
-//            }
-//        } message: {
-//            Text(viewModel.alertMsg)
-//        }
+        .navigationTitle("계정 연동")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu("새 계정 연동", systemImage: "plus") {
+                    ForEach(viewModel.state.disconnectedProviders, id: \.self) { provider in
+                        Button(action: {
+                            viewModel.send(.linkWithProvider(provider))
+                        }) {
+                            HStack {
+                                let formattedProvider = formattedProviderName(provider)
+                                Image(formattedProvider)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: UIFont.systemFontSize, height: UIFont.systemFontSize)
+                                Text(formattedProvider)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .alert(viewModel.state.alertTitle, isPresented: Binding(
+            get: { viewModel.state.showAlert },
+            set: { viewModel.send(.setAlert(isPresented: $0)) }
+        )) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
     }
 
     private func formattedProviderName(_ provider: String) -> String {
