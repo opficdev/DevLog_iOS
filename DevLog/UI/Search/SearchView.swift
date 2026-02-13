@@ -2,7 +2,7 @@
 //  SearchView.swift
 //  DevLog
 //
-//  Created by opfic on 5/14/25.
+//  Created by 최윤진 on 2/12/26.
 //
 
 import SwiftUI
@@ -10,182 +10,102 @@ import SwiftUI
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.sceneWidth) private var sceneWidth
-    @Environment(\.sceneHeight) private var sceneHeight
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: SearchViewModel
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            VStack {
-                searchable
-                if viewModel.state.isLoading {
-                    LoadingView()
-                } else if viewModel.state.isSearching {
-                    if viewModel.state.searchQuery.isEmpty {
-                        searchInstruction
-                    } else {
-                        ScrollView {
-                            LazyVStack {
-                                ForEach(viewModel.state.filteredWebPages, id: \.id) { page in
-                                    webInfoCard(page)
+            searchableContent
+                .navigationDestination(for: Path.self) { path in
+                    switch path {
+                    case .webView(let url):
+                        WebView(url: url)
+                            .toolbar {
+                                ToolbarItem(placement: .principal) {
+                                    Text(viewModel.state.selectedWebPage?.title ?? "")
+                                        .bold()
                                 }
                             }
-                            .padding(.horizontal)
-                        }
-                    }
-                } else {
-                    if viewModel.state.webPages.isEmpty {
-                        webInstruction
-                    } else {
-                        List(viewModel.state.webPages, id: \.id) { page in
-                            webInfoRaw(page)
-                                .listRowSeparator(.hidden)  //  섹션 내 요소의 구분선 숨김
-                                .swipeActions {
-                                    Button(role: .destructive, action: {
-                                        viewModel.send(.deleteWebPage(item: page))
-                                    }) {
-                                        Image(systemName: "trash")
-                                    }
-                                }
-                        }
-                        .listStyle(.plain)
                     }
                 }
-            }
-            .navigationTitle("검색")
-            .navigationDestination(for: Path.self) { path in
-                switch path {
-                case .webView(let url):
-                    WebView(url: url)
-                        .navigationBarTitleDisplayMode(.inline) //  명시하지 않으면 iOS 18 미만에서는 Large 크기만큼의 상단의 영역을 차지
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                Text(viewModel.state.selectedWebPage?.title ?? "")
-                                    .bold()
-                            }
-                        }
+                .onAppear {
+                    viewModel.send(.onAppear)
                 }
-            }
-            .onAppear { viewModel.send(.fetchWebPage()) }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.send(.setAlert(isPresented: true, type: .addWebPage))
-                    } label: {
-                        Image(systemName: "plus")
+                .onChange(of: viewModel.state.isSearching) { isSearching in
+                    if !isSearching {
+                        dismiss()
                     }
                 }
-            }
-            .alert(
-                viewModel.state.alertTitle,
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert(isPresented: $0)) }
-            )) {
-                if let type = viewModel.state.alertType {
-                    alertView(type)
-                }
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
+                // TODO: iOS 16에서 introspect 모듈을 사용하여 .searchable의 isPresented를 관리한다
+                // .introspect(.searchField, on: iOS(.v16)) { searchBar in }
+
         }
     }
 
     @ViewBuilder
-    private func alertView(_ type: SearchViewModel.AlertType) -> some View {
-        switch type {
-        case .addWebPage:
-            TextField("URL", text: Binding(
-                get: { viewModel.state.newURL },
-                set: { viewModel.send(.setNewURL($0)) }
-            ))
-            HStack {
-                Button {
-                    viewModel.send(.setNewURL())
-                    dismiss()
-                } label: {
-                    Text("취소")
-                }
-                Button {
-                    viewModel.send(.addWebPage())
-                    dismiss()
-                } label: {
-                    Text("추가")
-                }
-            }
-        case .error:
-            Button("확인", role: .cancel) { }
-        }
-    }
-
-    private var searchable: some View {
-        Searchable(isSearching: Binding(
+    private var searchableContent: some View {
+        let searchQueryBinding = Binding(
+            get: { viewModel.state.searchQuery },
+            set: { viewModel.send(.setSearchQuery($0)) }
+        )
+        let searchingBinding = Binding(
             get: { viewModel.state.isSearching },
             set: { viewModel.send(.setSearching($0)) }
-        ))
-        .searchable(
-            text: Binding(
-                get: { viewModel.state.searchQuery },
-                set: { viewModel.send(.setSearchQuery($0)) }
-            ),
-            prompt: "DevLog 검색")
+        )
+
+        let scrollContent = ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                } else if viewModel.state.searchQuery.isEmpty {
+                    searchInstruction
+                } else if viewModel.state.filteredWebPages.isEmpty {
+                    emptySearchResult
+                } else {
+                    webPages
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        if #available(iOS 17.0, *) {
+            scrollContent.searchable(
+                text: searchQueryBinding,
+                isPresented: searchingBinding,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "검색"
+            )
+        } else {
+            scrollContent
+                .searchable(
+                    text: searchQueryBinding,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "검색"
+                )
+        }
     }
 
     private var searchInstruction: some View {
         VStack {
             Spacer()
-            Text("앱 내 컨텐츠를 검색할 수 있어요.")
+            Text("검색어를 입력해 저장한 앱 컨텐츠를 찾아보세요.")
                 .foregroundStyle(Color.gray)
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
     }
 
-    private var webInstruction: some View {
-        Text("저장된 웹페이지가 없습니다.\n우측 '+' 버튼을 눌러 웹페이지를 추가해보세요.")
-            .foregroundStyle(Color.gray)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .multilineTextAlignment(.center)
-    }
-
-    private func webInfoCard(_ item: WebPageItem) -> some View {
-        Button {
-            viewModel.send(.selectWebPage(item))
-            router.push(Path.webView(item.url))
-        } label: {
-            ZStack(alignment: .bottom) {
-                Color.white
-                GeometryReader { geometry in
-                    CacheableImage(url: item.imageURL) {
-                        Image(systemName: "globe")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(Color.gray)
-                            .padding()
-                    }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
-                }
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(item.title)
-                            .foregroundStyle(Color.black)
-                            .multilineTextAlignment(.leading)
-                        Text(item.displayURL)
-                            .foregroundStyle(Color.accentColor)
-                            .underline()
-                    }
-                    .padding()
-                    Spacer()
-                }
-                .background(Color.white)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .frame(height: sceneHeight / 4)
+    private var emptySearchResult: some View {
+        VStack {
+            Spacer()
+            Text("검색 결과가 없습니다.")
+                .foregroundStyle(Color.gray)
+            Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
-    private func webInfoRaw(_ item: WebPageItem) -> some View {
+    private func searchResultRow(_ item: WebPageItem) -> some View {
         Button {
             viewModel.send(.selectWebPage(item))
             router.push(Path.webView(item.url))
@@ -196,10 +116,7 @@ struct SearchView: View {
                         .resizable()
                         .scaledToFit()
                 }
-                .frame(
-                    width: sceneWidth / 5,
-                    height: sceneWidth / 5
-                )
+                .frame(width: sceneWidth / 10, height: sceneWidth / 10)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 VStack(alignment: .leading) {
@@ -211,7 +128,21 @@ struct SearchView: View {
                         .underline()
                 }
             }
+            .padding(.vertical, 4)
         }
+    }
+
+    private var webPages: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Web Pages")
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            ForEach(viewModel.state.filteredWebPages, id: \.id) { page in
+                searchResultRow(page)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 
     private enum Path: Hashable {
