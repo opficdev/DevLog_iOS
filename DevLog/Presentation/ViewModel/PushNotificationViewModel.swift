@@ -1,5 +1,5 @@
 //
-//  NotificationViewModel.swift
+//  PushNotificationViewModel.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/22/25.
