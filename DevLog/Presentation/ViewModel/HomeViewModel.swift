@@ -14,6 +14,7 @@ final class HomeViewModel: Store {
         var pinnedTodos: [Todo] = []
         var showTodoKindPicker: Bool = false
         var showTodoEditor: Bool = false
+        var showSearchView: Bool = false
         var selectedTodoKind: TodoKind?
 
         // User Input
@@ -34,6 +35,7 @@ final class HomeViewModel: Store {
         // User
         case tapEllipsisButton
         case tapPlusButton
+        case tapSearchButton
         case tapTodoKind(TodoKind)
         case upsertTodo(Todo)
         case orderTodoKindPreferences([TodoKindPreference])
@@ -42,6 +44,7 @@ final class HomeViewModel: Store {
         case updateSearching(Bool)
         case updateSearchText(String)
         case setShowTodoEditor(Bool)
+        case setShowSearchView(Bool)
         case closeOrderingSheet
         case closeTodoKindPicker
         case closeToast
@@ -75,6 +78,8 @@ final class HomeViewModel: Store {
             state.reorderTodo = true
         case .tapPlusButton:
             state.showTodoKindPicker = true
+        case .tapSearchButton:
+            state.showSearchView = true
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
             state.showTodoKindPicker = false
@@ -88,6 +93,8 @@ final class HomeViewModel: Store {
             if !isPresented {
                 state.selectedTodoKind = nil
             }
+        case .setShowSearchView(let isPresented):
+            state.showSearchView = isPresented
         case .upsertTodo(let todo):
             return [.upsertTodo(todo)]
         case .orderTodoKindPreferences(let preferences):

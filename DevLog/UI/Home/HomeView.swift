@@ -74,6 +74,14 @@ struct HomeView: View {
                     )
                 }
             }
+            .fullScreenCover(isPresented: Binding(
+                get: { viewModel.state.showSearchView },
+                set: { viewModel.send(.setShowSearchView($0)) }
+            )) {
+                SearchView(viewModel: SearchViewModel(
+                    fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
+                ))
+            }
             .alert("", isPresented: Binding(
                 get: { viewModel.state.showToast }, 
                 set: { _, _ in })
@@ -200,7 +208,7 @@ struct HomeView: View {
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-
+                viewModel.send(.tapSearchButton)
             } label: {
                 Image(systemName: "magnifyingglass")
             }
