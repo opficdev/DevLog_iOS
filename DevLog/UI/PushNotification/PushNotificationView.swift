@@ -85,6 +85,14 @@ struct PushNotificationView: View {
         }
         .padding(.vertical, 5)
         .listRowBackground(Color.clear)
+        .swipeActions(edge: .leading) {
+            Button {
+                
+            } label: {
+                Image(systemName: "checkmark")
+                    .tint(.blue)
+            }
+        }
         .swipeActions(edge: .trailing) {
             Button(
                 role: .destructive,
