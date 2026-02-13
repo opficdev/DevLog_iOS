@@ -78,17 +78,16 @@ struct HomeView: View {
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
                 ))
             }
-            .alert("", isPresented: Binding(
-                get: { viewModel.state.showToast }, 
-                set: { _, _ in })
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
             ) {
-                Button(action: {
-                    viewModel.send(.setShowToast(false))
-                }) {
-                    Text("확인")
-                }
+                Button("확인", role: .cancel) { }
             } message: {
-                Text(viewModel.state.toastMessage)
+                Text(viewModel.state.alertMessage)
             }
             .onAppear {
                 viewModel.send(.onAppear)
