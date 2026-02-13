@@ -93,11 +93,6 @@ struct HomeView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
-            }
         }
     }
 
@@ -144,11 +139,15 @@ struct HomeView: View {
     private var pinnedSection: some View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
-                HStack {
-                    Spacer()
-                    Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
-                        .font(.callout)
-                    Spacer()
+                if viewModel.state.isLoading {
+                    LoadingView()
+                } else {
+                    HStack {
+                        Spacer()
+                        Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
+                            .font(.callout)
+                        Spacer()
+                    }
                 }
             } else {
                 ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
