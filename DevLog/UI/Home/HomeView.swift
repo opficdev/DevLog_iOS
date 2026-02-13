@@ -78,25 +78,19 @@ struct HomeView: View {
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
                 ))
             }
-            .alert("", isPresented: Binding(
-                get: { viewModel.state.showToast }, 
-                set: { _, _ in })
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
             ) {
-                Button(action: {
-                    viewModel.send(.setShowToast(false))
-                }) {
-                    Text("확인")
-                }
+                Button("확인", role: .cancel) { }
             } message: {
-                Text(viewModel.state.toastMessage)
+                Text(viewModel.state.alertMessage)
             }
             .onAppear {
                 viewModel.send(.onAppear)
-            }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
             }
         }
     }
@@ -144,11 +138,15 @@ struct HomeView: View {
     private var pinnedSection: some View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
-                HStack {
-                    Spacer()
-                    Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
-                        .font(.callout)
-                    Spacer()
+                if viewModel.state.isLoading {
+                    LoadingView()
+                } else {
+                    HStack {
+                        Spacer()
+                        Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
+                            .font(.callout)
+                        Spacer()
+                    }
                 }
             } else {
                 ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
