@@ -89,7 +89,7 @@ struct PushNotificationView: View {
             Button {
                 
             } label: {
-                Image(systemName: "checkmark")
+                Image(systemName: "checkmark.circle\(notification.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)
             }
         }
