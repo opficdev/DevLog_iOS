@@ -52,4 +52,9 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
     func deleteNotification(_ notificationID: String) async throws {
         try await service.deleteNotification(notificationID)
     }
+
+    // 푸시 알림 읽음/안읽음 토글
+    func toggleNotificationRead(_ todoID: String) async throws {
+        try await service.toggleNotificationRead(todoID)
+    }
 }

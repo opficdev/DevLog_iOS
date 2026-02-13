@@ -13,4 +13,5 @@ protocol PushNotificationRepository {
     func updatePushNotificationSettings(_ settings: PushNotificationSettings) async throws
     func requestNotifications() async throws -> [PushNotification]
     func deleteNotification(_ notificationID: String) async throws
+    func toggleNotificationRead(_ todoID: String) async throws
 }
