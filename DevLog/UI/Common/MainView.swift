@@ -28,15 +28,6 @@ struct MainView: View {
                 Image(systemName: "bell.fill")
                 Text("알림")
             }
-            SearchView(viewModel: SearchViewModel(
-                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
-                deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self)
-            ))
-            .tabItem {
-                Image(systemName: "magnifyingglass")
-                Text("검색")
-            }
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self)
