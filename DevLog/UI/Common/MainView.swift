@@ -22,7 +22,8 @@ struct MainView: View {
             }
             PushNotificationView(viewModel: PushNotificationViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
-                deleteUseCase: container.resolve(DeletePushNotificationUseCase.self)
+                deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
+                toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "bell.fill")

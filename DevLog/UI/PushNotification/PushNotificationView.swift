@@ -87,7 +87,7 @@ struct PushNotificationView: View {
         .listRowBackground(Color.clear)
         .swipeActions(edge: .leading) {
             Button {
-                
+                viewModel.send(.toggleRead(notification))
             } label: {
                 Image(systemName: "checkmark.circle\(notification.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)

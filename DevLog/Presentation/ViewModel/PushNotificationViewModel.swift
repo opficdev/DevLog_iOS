@@ -24,6 +24,7 @@ final class PushNotificationViewModel: Store {
     enum Action {
         case fetchNotifications
         case deleteNotification(PushNotification)
+        case toggleRead(PushNotification)
         case undoDelete
         case confirmDelete
         case setAlert(isPresented: Bool, type: AlertType? = nil)
@@ -35,6 +36,7 @@ final class PushNotificationViewModel: Store {
     enum SideEffect {
         case fetch
         case delete(PushNotification)
+        case toggleRead(String)
     }
 
     enum AlertType {
@@ -48,13 +50,16 @@ final class PushNotificationViewModel: Store {
     @Published private(set) var state: State = .init()
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
+    private let toggleReadUseCase: TogglePushNotificationReadUseCase
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
-        deleteUseCase: DeletePushNotificationUseCase
+        deleteUseCase: DeletePushNotificationUseCase,
+        toggleReadUseCase: TogglePushNotificationReadUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
+        self.toggleReadUseCase = toggleReadUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -70,14 +75,17 @@ final class PushNotificationViewModel: Store {
             state.pendingTask = (item, index)
             state.notifications.remove(at: index)
             setToast(&state, isPresented: true, for: .delete)
+        case .toggleRead(let item):
+            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
+                state.notifications[index].isRead.toggle()
+            }
+            return [.toggleRead(item.todoID)]
         case .undoDelete:
             guard let (item, index) = state.pendingTask else { return [] }
             state.notifications.insert(item, at: index)
             state.pendingTask = nil
         case .confirmDelete:
-            guard let (item, _ ) = state.pendingTask else {
-                return []
-            }
+            guard let (item, _ ) = state.pendingTask else { return [] }
             return [.delete(item)]
         case .setAlert(let isPresented, let type):
             setAlert(isPresented: isPresented, for: type)
@@ -111,6 +119,14 @@ final class PushNotificationViewModel: Store {
             Task {
                 do {
                     try await deleteUseCase.execute(notification.id)
+                } catch {
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
+        case .toggleRead(let todoID):
+            Task {
+                do {
+                    try await toggleReadUseCase.execute(todoID)
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
