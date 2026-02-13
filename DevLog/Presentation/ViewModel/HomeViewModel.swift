@@ -33,9 +33,6 @@ final class HomeViewModel: Store {
         case onAppear
 
         // User
-        case tapEllipsisButton
-        case tapPlusButton
-        case tapSearchButton
         case tapTodoKind(TodoKind)
         case upsertTodo(Todo)
         case orderTodoKindPreferences([TodoKindPreference])
@@ -43,11 +40,11 @@ final class HomeViewModel: Store {
         // Binding
         case updateSearching(Bool)
         case updateSearchText(String)
+        case setReorderTodo(Bool)
         case setShowTodoEditor(Bool)
+        case setShowTodoKindPicker(Bool)
         case setShowSearchView(Bool)
-        case closeOrderingSheet
-        case closeTodoKindPicker
-        case closeToast
+        case setShowToast(Bool)
 
         // Call from run
         case didFetchPinnedTodos([Todo])
@@ -71,46 +68,40 @@ final class HomeViewModel: Store {
     }
 
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
         switch action {
         case .onAppear:
             return [.fetchPinnedTodos]
-        case.tapEllipsisButton:
-            state.reorderTodo = true
-        case .tapPlusButton:
-            state.showTodoKindPicker = true
-        case .tapSearchButton:
-            state.showSearchView = true
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
             state.showTodoKindPicker = false
             state.showTodoEditor = true
-        case .updateSearching(let isSearching):
-            state.isSearching = isSearching
-        case .updateSearchText(let text):
-            state.searchText = text
-        case .setShowTodoEditor(let isPresented):
-            state.showTodoEditor = isPresented
-            if !isPresented {
+        case .updateSearching(let value):
+            state.isSearching = value
+        case .updateSearchText(let value):
+            state.searchText = value
+        case .setReorderTodo(let value):
+            state.reorderTodo = value
+        case .setShowTodoEditor(let value):
+            state.showTodoEditor = value
+            if !value {
                 state.selectedTodoKind = nil
             }
-        case .setShowSearchView(let isPresented):
-            state.showSearchView = isPresented
-        case .upsertTodo(let todo):
-            return [.upsertTodo(todo)]
-        case .orderTodoKindPreferences(let preferences):
-            state.todoKindPreferences = preferences
-
-        case .closeOrderingSheet:
-            state.reorderTodo = false
-        case .closeTodoKindPicker:
-            state.showTodoKindPicker = false
-        case .closeToast:
-            state.showToast = false
-
+        case .setShowTodoKindPicker(let value):
+            state.showTodoKindPicker = value
+        case .setShowSearchView(let value):
+            state.showSearchView = value
+        case .setShowToast(let value):
+            state.showToast = value
+        case .upsertTodo(let value):
+            return [.upsertTodo(value)]
+        case .orderTodoKindPreferences(let value):
+            state.todoKindPreferences = value
         case .didFetchPinnedTodos(let todos):
             state.pinnedTodos = todos
         }
-        
+
+        self.state = state
         return []
     }
 

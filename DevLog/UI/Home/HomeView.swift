@@ -41,12 +41,12 @@ struct HomeView: View {
             .toolbar { toolbar }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { _, _ in }
+                set: { viewModel.send(.setReorderTodo($0)) }
             )) {
                 TodoManageView(
                     viewModel: TodoManageViewModel(viewModel.state.todoKindPreferences),
                     onDismiss: { array in
-                        viewModel.send(.closeOrderingSheet)
+                        viewModel.send(.setReorderTodo(false))
                         withAnimation {
                             viewModel.send(.orderTodoKindPreferences(array))
                         }
@@ -55,11 +55,7 @@ struct HomeView: View {
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.showTodoKindPicker },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.send(.closeTodoKindPicker)
-                    }
-                }
+                set: { viewModel.send(.setShowTodoKindPicker($0)) }
             )) {
                 todoKindPicker
             }
@@ -87,7 +83,7 @@ struct HomeView: View {
                 set: { _, _ in })
             ) {
                 Button(action: {
-                    viewModel.send(.closeToast)
+                    viewModel.send(.setShowToast(false))
                 }) {
                     Text("확인")
                 }
@@ -134,7 +130,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    viewModel.send(.tapEllipsisButton)
+                    viewModel.send(.setReorderTodo(true))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -198,7 +194,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.tapPlusButton)
+                viewModel.send(.setShowTodoKindPicker(true))
             } label: {
                 Image(systemName: "plus")
             }
@@ -208,7 +204,7 @@ struct HomeView: View {
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.tapSearchButton)
+                viewModel.send(.setShowSearchView(true))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -246,7 +242,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        viewModel.send(.closeTodoKindPicker)
+                        viewModel.send(.setShowTodoKindPicker(false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()
