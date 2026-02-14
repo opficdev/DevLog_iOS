@@ -108,4 +108,30 @@ final class PushNotificationService {
 
         try await docRef.delete()
     }
+
+    /// 푸시 알림 읽음/안읽음 토글
+    func toggleNotificationRead(_ todoID: String) async throws {
+        logger.info("Toggling notification read for todoID: \(todoID)")
+
+        guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
+            throw AuthError.notAuthenticated
+        }
+
+        let collection = store.collection("users/\(uid)/notifications")
+        let snapshot = try await collection.whereField("todoID", isEqualTo: todoID).getDocuments()
+
+        guard let document = snapshot.documents.first else {
+            logger.error("Notification not found for todoID: \(todoID)")
+            throw FirestoreError.dataNotFound("notification")
+        }
+
+        guard let currentValue = document.data()["isRead"] as? Bool else {
+            logger.error("isRead not found for notification: \(document.documentID)")
+            throw FirestoreError.dataNotFound("isRead")
+        }
+
+        try await document.reference.updateData(["isRead": !currentValue])
+        logger.info("Successfully toggled notification read")
+    }
 }
