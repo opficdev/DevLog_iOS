@@ -64,13 +64,14 @@ final class PushNotificationViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
         case .fetchNotifications:
-            return [.fetch]
+            effects = [.fetch]
         case .deleteNotification(let item):
             guard let index = state.notifications.firstIndex(where: { $0.id == item.id }) else {
-                return []
+                break
             }
             state.pendingTask = (item, index)
             state.notifications.remove(at: index)
@@ -78,18 +79,17 @@ final class PushNotificationViewModel: Store {
         case .toggleRead(let item):
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
                 state.notifications[index].isRead.toggle()
+                effects = [.toggleRead(item.todoID)]
             }
-            return [.toggleRead(item.todoID)]
         case .undoDelete:
-            guard let (item, index) = state.pendingTask else { return [] }
+            guard let (item, index) = state.pendingTask else { break }
             state.notifications.insert(item, at: index)
             state.pendingTask = nil
         case .confirmDelete:
-            guard let (item, _ ) = state.pendingTask else { return [] }
-            return [.delete(item)]
+            guard let (item, _ ) = state.pendingTask else { break }
+            effects = [.delete(item)]
         case .setAlert(let isPresented, let type):
-            setAlert(isPresented: isPresented, for: type)
-            return []
+            setAlert(&state, isPresented: isPresented, for: type)
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
         case .setLoading(let value):
@@ -99,7 +99,7 @@ final class PushNotificationViewModel: Store {
         }
 
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
@@ -136,7 +136,11 @@ final class PushNotificationViewModel: Store {
 }
 
 private extension PushNotificationViewModel {
-    func setAlert(isPresented: Bool, for type: AlertType?) {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool,
+        for type: AlertType?
+    ) {
         switch type {
         case .error:
             state.alertTitle = "오류"
