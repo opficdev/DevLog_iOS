@@ -16,7 +16,7 @@ struct PushNotificationView: View {
             VStack {
                 if viewModel.state.notifications.isEmpty {
                     Spacer()
-                    Text("작성된 알림이 없습니다.")
+                    Text("받은 알림이 없습니다.")
                         .foregroundStyle(Color.gray)
                     Spacer()
                 } else {
@@ -28,6 +28,7 @@ struct PushNotificationView: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .background(Color(.secondarySystemBackground))
+            .onAppear { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
             .alert(
                 "",
@@ -51,9 +52,6 @@ struct PushNotificationView: View {
                     .font(.caption)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
-            }
-            .onAppear {
-                viewModel.send(.fetchNotifications)
             }
         }
     }
