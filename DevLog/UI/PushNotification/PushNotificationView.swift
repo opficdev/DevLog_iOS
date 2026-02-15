@@ -10,23 +10,31 @@ import SwiftUI
 struct PushNotificationView: View {
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: PushNotificationViewModel
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            VStack {
-                if viewModel.state.notifications.isEmpty {
-                    Spacer()
-                    Text("받은 알림이 없습니다.")
-                        .foregroundStyle(Color.gray)
-                    Spacer()
-                } else {
-                    List(viewModel.state.notifications, id: \.id) { notification in
-                        notificationRow(notification)
+            List {
+                Section {
+                    if viewModel.displayedNotifications.isEmpty {
+                        HStack {
+                            Spacer()
+                            Text("받은 알림이 없습니다.")
+                                .foregroundStyle(Color.gray)
+                            Spacer()
+                        }
+                        .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(viewModel.displayedNotifications, id: \.id) { notification in
+                            notificationRow(notification)
+                        }
                     }
-                    .listStyle(.plain)
+                } header: {
+                    headerView
                 }
+                .listRowBackground(Color.clear)
             }
-            .frame(maxWidth: .infinity, alignment: .center)
+            .listStyle(.plain)
             .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
@@ -56,6 +64,80 @@ struct PushNotificationView: View {
         }
     }
 
+    private var headerView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                if 0 < viewModel.appliedFilterCount {
+                    Menu {
+                        Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
+                        Button(role: .destructive) {
+                            viewModel.send(.resetFilters)
+                        } label: {
+                            Text("모든 필터 지우기")
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease")
+                            filterBadge
+                        }
+                    }
+                    .adaptiveButtonStyle()
+                }
+
+                Button {
+                    viewModel.send(.toggleSortOption)
+                } label: {
+                    Text("정렬: \(viewModel.state.sortOption.title)")
+                }
+                .adaptiveButtonStyle(viewModel.state.sortOption == .oldest ? .blue : .clear)
+
+                Menu {
+                    ForEach(PushNotificationViewModel.TimeFilter.availableOptions, id: \.id) { option in
+                        Button {
+                            viewModel.send(.setTimeFilter(option))
+                        } label: {
+                            HStack {
+                                Text(option.title)
+                                Spacer()
+                                if viewModel.state.timeFilter == option {
+                                    Image(systemName: "checkmark")
+                                        .tint(.blue)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                } label: {
+                    Text("기간")
+                }
+                .adaptiveButtonStyle(viewModel.state.timeFilter == .none ? .clear : .blue)
+
+                Button {
+                    viewModel.send(.toggleUnreadOnly)
+                } label: {
+                    Text("읽지 않음")
+                }
+                .adaptiveButtonStyle(viewModel.state.showUnreadOnly ? .blue : .clear)
+            }
+        }
+        .scrollIndicators(.never)
+    }
+
+    private var filterBadge: some View {
+        let isDark = colorScheme == .dark
+        let blue = Color(uiColor: .systemBlue)  //  흰 배경에 따른 청록색화 방지
+        let textColor: Color = isDark ? blue : .white
+        let backgroundColor: Color = isDark ? .white : blue
+
+        return Text("\(viewModel.appliedFilterCount)")
+            .font(.caption2.weight(.bold))
+            .foregroundColor(textColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(width: 20, height: 20)
+            .background(Circle().fill(backgroundColor))
+    }
+
     private func notificationRow(_ notification: PushNotification) -> some View {
         HStack {
             Circle()
@@ -82,7 +164,6 @@ struct PushNotificationView: View {
             }
         }
         .padding(.vertical, 5)
-        .listRowBackground(Color.clear)
         .swipeActions(edge: .leading) {
             Button {
                 viewModel.send(.toggleRead(notification))
@@ -102,10 +183,10 @@ struct PushNotificationView: View {
             }
         }
     }
-    
+
     private func timeAgoText(from date: Date, now: Date) -> String {
         let seconds = Int(now.timeIntervalSince(date))
-        
+
         if seconds < 60 {
             return "\(max(0, seconds))초 전"
         } else if seconds < 3600 {
