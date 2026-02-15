@@ -19,6 +19,9 @@ final class PushNotificationViewModel: Store {
         var toastType: ToastType?
         var isLoading: Bool = false
         var pendingTask: (PushNotification, Int)?
+        var sortOption: SortOption = .latest
+        var timeFilter: TimeFilter = .none
+        var showUnreadOnly: Bool = false
     }
 
     enum Action {
@@ -31,6 +34,10 @@ final class PushNotificationViewModel: Store {
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(Bool)
         case setNotifications([PushNotification])
+        case setSortOption(SortOption)
+        case setTimeFilter(TimeFilter)
+        case toggleUnreadOnly
+        case resetFilters
     }
 
     enum SideEffect {
@@ -47,6 +54,53 @@ final class PushNotificationViewModel: Store {
         case delete
     }
 
+    enum SortOption: CaseIterable {
+        case latest
+        case oldest
+
+        var title: String {
+            switch self {
+            case .latest: return "최신순"
+            case .oldest: return "예전순"
+            }
+        }
+    }
+
+    enum TimeFilter: Equatable {
+        case none
+        case hours(Int)
+        case days(Int)
+
+        var id: String {
+            switch self {
+            case .none: return "none"
+            case .hours(let value): return "hours-\(value)"
+            case .days(let value): return "days-\(value)"
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .none:
+                return "전체"
+            case .hours(let value):
+                return "최근 \(value)시간"
+            case .days(let value):
+                return "최근 \(value)일"
+            }
+        }
+
+        static var availableOptions: [TimeFilter] {[
+                .none,
+                .hours(1),
+                .hours(6),
+                .hours(24),
+                .days(3),
+                .days(7)
+            ]
+        }
+    }
+
     @Published private(set) var state: State = .init()
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
@@ -60,6 +114,37 @@ final class PushNotificationViewModel: Store {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
+    }
+
+    var displayedNotifications: [PushNotification] {
+        var items = state.notifications
+
+        if state.showUnreadOnly {
+            items = items.filter { $0.isRead == false }
+        }
+
+        if case let .hours(value) = state.timeFilter {
+            let threshold = Date().addingTimeInterval(-Double(value) * 3600.0)
+            items = items.filter { $0.receivedAt >= threshold }
+        } else if case let .days(value) = state.timeFilter {
+            let threshold = Date().addingTimeInterval(-Double(value) * 86400.0)
+            items = items.filter { $0.receivedAt >= threshold }
+        }
+
+        switch state.sortOption {
+        case .latest:
+            return items.sorted { $0.receivedAt > $1.receivedAt }
+        case .oldest:
+            return items.sorted { $0.receivedAt < $1.receivedAt }
+        }
+    }
+
+    var appliedFilterCount: Int {
+        var count = 0
+        if state.sortOption != .latest { count += 1 }
+        if state.timeFilter != .none { count += 1 }
+        if state.showUnreadOnly { count += 1 }
+        return count
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -96,6 +181,16 @@ final class PushNotificationViewModel: Store {
             state.isLoading = value
         case .setNotifications(let notifications):
             state.notifications = notifications
+        case .setSortOption(let option):
+            state.sortOption = option
+        case .setTimeFilter(let filter):
+            state.timeFilter = filter
+        case .toggleUnreadOnly:
+            state.showUnreadOnly.toggle()
+        case .resetFilters:
+            state.sortOption = .latest
+            state.timeFilter = .none
+            state.showUnreadOnly = false
         }
 
         self.state = state
