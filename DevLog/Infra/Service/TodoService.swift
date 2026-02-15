@@ -5,13 +5,16 @@
 //  Created by opfic on 6/2/25.
 //
 
+import FirebaseAuth
 import FirebaseFirestore
 
 final class TodoService {
     private let store = Firestore.firestore()
     private let logger = Logger(category: "TodoService")
     
-    func fetchPinnedTodos(_ uid: String) async throws -> [TodoResponse] {
+    func fetchPinnedTodos() async throws -> [TodoResponse] {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
         logger.info("Fetching pinned todos for user: \(uid)")
         
         do {
@@ -31,7 +34,9 @@ final class TodoService {
         }
     }
 
-    func fetchTodos(uid: String, kind: TodoKind) async throws -> [TodoResponse] {
+    func fetchTodos(kind: TodoKind) async throws -> [TodoResponse] {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
         logger.info("Fetching todos of kind: \(kind.rawValue) for user: \(uid)")
         
         do {
@@ -51,7 +56,9 @@ final class TodoService {
         }
     }
     
-    func upsertTodo(uid: String, request: TodoRequest) async throws {
+    func upsertTodo(request: TodoRequest) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
         logger.info("Upserting todo: \(request.id)")
         
         do {
@@ -66,7 +73,9 @@ final class TodoService {
         }
     }
     
-    func deleteTodo(uid: String, todoID: String) async throws {
+    func deleteTodo(todoID: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
         logger.info("Deleting todo: \(todoID)")
         
         do {
