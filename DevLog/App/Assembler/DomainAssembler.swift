@@ -11,8 +11,8 @@ final class DomainAssembler: Assembler {
             FetchPinnedTodosUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(FetchTodoUseCase.self) {
-            FetchTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        container.register(FetchTodoByIDUseCase.self) {
+            FetchTodoByIDUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
         container.register(SignInUseCase.self) {

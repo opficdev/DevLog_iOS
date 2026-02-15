@@ -5,7 +5,7 @@
 //  Created by opfic on 2/15/26.
 //
 
-final class FetchTodoUseCaseImpl: FetchTodoUseCase {
+final class FetchTodoByIDUseCaseImpl: FetchTodoByIDUseCase {
     private let repository: TodoRepository
 
     init(_ repository: TodoRepository) {
