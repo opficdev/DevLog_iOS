@@ -19,9 +19,9 @@ final class PushNotificationViewModel: Store {
         var toastType: ToastType?
         var isLoading: Bool = false
         var pendingTask: (PushNotification, Int)?
-        var sortOption: SortOption = .latest
-        var timeFilter: TimeFilter = .none
-        var showUnreadOnly: Bool = false
+        var sortOption: SortOption
+        var timeFilter: TimeFilter
+        var showUnreadOnly: Bool
     }
 
     enum Action {
@@ -34,7 +34,7 @@ final class PushNotificationViewModel: Store {
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(Bool)
         case setNotifications([PushNotification])
-        case setSortOption(SortOption)
+        case toggleSortOption
         case setTimeFilter(TimeFilter)
         case toggleUnreadOnly
         case resetFilters
@@ -99,21 +99,49 @@ final class PushNotificationViewModel: Store {
                 .days(7)
             ]
         }
+
+        init(id: String) {
+            if id == "none" {
+                self = .none
+            } else if id.hasPrefix("hours-") {
+                let value = Int(id.replacingOccurrences(of: "hours-", with: "")) ?? 0
+                self = value > 0 ? .hours(value) : .none
+            } else if id.hasPrefix("days-") {
+                let value = Int(id.replacingOccurrences(of: "days-", with: "")) ?? 0
+                self = value > 0 ? .days(value) : .none
+            } else {
+                self = .none
+            }
+        }
     }
 
-    @Published private(set) var state: State = .init()
+    @Published private(set) var state: State
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
+    private let userDefaults: UserDefaults
+
+    private enum DefaultsKey {
+        static let sortOption = "PushNotification.sortOption"
+        static let timeFilter = "PushNotification.timeFilter"
+        static let showUnreadOnly = "PushNotification.showUnreadOnly"
+    }
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
         deleteUseCase: DeletePushNotificationUseCase,
-        toggleReadUseCase: TogglePushNotificationReadUseCase
+        toggleReadUseCase: TogglePushNotificationReadUseCase,
+        userDefaults: UserDefaults = .standard
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
+        self.userDefaults = userDefaults
+        self.state = State(
+            sortOption: Self.loadSortOption(userDefaults: userDefaults),
+            timeFilter: Self.loadTimeFilter(userDefaults: userDefaults),
+            showUnreadOnly: userDefaults.bool(forKey: DefaultsKey.showUnreadOnly)
+        )
     }
 
     var displayedNotifications: [PushNotification] {
@@ -181,16 +209,22 @@ final class PushNotificationViewModel: Store {
             state.isLoading = value
         case .setNotifications(let notifications):
             state.notifications = notifications
-        case .setSortOption(let option):
-            state.sortOption = option
+        case .toggleSortOption:
+            state.sortOption = state.sortOption == .latest ? .oldest : .latest
+            saveSortOption(state.sortOption)
         case .setTimeFilter(let filter):
             state.timeFilter = filter
+            saveTimeFilter(filter)
         case .toggleUnreadOnly:
             state.showUnreadOnly.toggle()
+            userDefaults.set(state.showUnreadOnly, forKey: DefaultsKey.showUnreadOnly)
         case .resetFilters:
             state.sortOption = .latest
             state.timeFilter = .none
             state.showUnreadOnly = false
+            saveSortOption(.latest)
+            saveTimeFilter(.none)
+            userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
         }
 
         self.state = state
@@ -260,5 +294,26 @@ private extension PushNotificationViewModel {
             state.toastMessage = ""
         }
         state.showToast = isPresented
+    }
+
+    static func loadSortOption(userDefaults: UserDefaults) -> SortOption {
+        guard let rawValue = userDefaults.string(forKey: DefaultsKey.sortOption) else {
+            return .latest
+        }
+        return rawValue == "oldest" ? .oldest : .latest
+    }
+
+    static func loadTimeFilter(userDefaults: UserDefaults) -> TimeFilter {
+        let id = userDefaults.string(forKey: DefaultsKey.timeFilter) ?? "none"
+        return TimeFilter(id: id)
+    }
+
+    func saveSortOption(_ option: SortOption) {
+        let value = option == .oldest ? "oldest" : "latest"
+        userDefaults.set(value, forKey: DefaultsKey.sortOption)
+    }
+
+    func saveTimeFilter(_ filter: TimeFilter) {
+        userDefaults.set(filter.id, forKey: DefaultsKey.timeFilter)
     }
 }
