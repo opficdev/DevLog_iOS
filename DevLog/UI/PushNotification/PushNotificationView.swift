@@ -85,12 +85,11 @@ struct PushNotificationView: View {
                 }
 
                 Button {
-                    let next: PushNotificationViewModel.SortOption = viewModel.state.sortOption == .latest ? .oldest : .latest
-                    viewModel.send(.setSortOption(next))
+                    viewModel.send(.toggleSortOption)
                 } label: {
                     Text("정렬: \(viewModel.state.sortOption.title)")
                 }
-                .adaptiveButtonStyle()
+                .adaptiveButtonStyle(viewModel.state.sortOption == .oldest ? .blue : .clear)
 
                 Menu {
                     ForEach(PushNotificationViewModel.TimeFilter.availableOptions, id: \.id) { option in
@@ -111,7 +110,7 @@ struct PushNotificationView: View {
                 } label: {
                     Text("기간")
                 }
-                .adaptiveButtonStyle()
+                .adaptiveButtonStyle(viewModel.state.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
