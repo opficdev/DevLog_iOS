@@ -89,4 +89,24 @@ final class TodoService {
             throw error
         }
     }
+
+    func fetchTodo(todoID: String) async throws -> TodoResponse {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        logger.info("Fetching todo: \(todoID) for user: \(uid)")
+
+        do {
+            let docRef = store.collection("users/\(uid)/todoLists/").document(todoID)
+            let snapshot = try await docRef.getDocument()
+            guard snapshot.exists, let todo = TodoResponse(from: snapshot) else {
+                throw FirestoreError.dataNotFound("Todo")
+            }
+
+            logger.info("Successfully fetched todo")
+            return todo
+        } catch {
+            logger.error("Failed to fetch todo", error: error)
+            throw error
+        }
+    }
 }

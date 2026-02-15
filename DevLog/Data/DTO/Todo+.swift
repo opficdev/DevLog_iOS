@@ -52,9 +52,17 @@ struct TodoResponse: Decodable {
     let kind: String
 
     init?(from snapshot: QueryDocumentSnapshot) {
-        let data = snapshot.data()
+        self.init(documentID: snapshot.documentID, data: snapshot.data())
+    }
+
+    init?(from snapshot: DocumentSnapshot) {
+        guard let data = snapshot.data() else { return nil }
+        self.init(documentID: snapshot.documentID, data: data)
+    }
+
+    private init?(documentID: String, data: [String: Any]) {
         guard
-            let id = snapshot.documentID as String?,
+            let id = documentID as String?,
             let isPinned = data["isPinned"] as? Bool,
             let isCompleted = data["isCompleted"] as? Bool,
             let isChecked = data["isChecked"] as? Bool,
