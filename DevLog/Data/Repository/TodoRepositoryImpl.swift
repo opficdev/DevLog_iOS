@@ -23,6 +23,11 @@ final class TodoRepositoryImpl: TodoRepository {
         let response = try await todoService.fetchPinnedTodos()
         return response.map { $0.toDomain() }
     }
+
+    func fetchTodo(_ todoID: String) async throws -> Todo {
+        let response = try await todoService.fetchTodo(todoID: todoID)
+        return response.toDomain()
+    }
     
     func upsertTodo(_ todo: Todo) async throws {
         let request = TodoRequest.fromDomain(todo)
