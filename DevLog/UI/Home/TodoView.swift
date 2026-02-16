@@ -10,6 +10,7 @@ import SwiftUI
 struct TodoView: View {
     @StateObject var viewModel: TodoViewModel
     @EnvironmentObject var router: NavigationRouter
+    @Environment(\.sceneWidth) var sceneWidth
 
     var body: some View {
         ZStack {
@@ -33,7 +34,7 @@ struct TodoView: View {
                                 Text(todo.title)
                                     .font(.headline)
                                     .lineLimit(1)
-                                TagLayout(lineLimit: 1) {
+                                TagLayout(lineLimit: 1, maxWidth: sceneWidth - 16) {    // 16: List의 padding값 제외
                                     ForEach(todo.tags, id: \.self) { tagText in
                                         Tag(tagText, isEditing: false)
                                     }
