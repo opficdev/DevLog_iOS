@@ -30,20 +30,17 @@ struct TodoView: View {
                             router.push(Path.detail(todo))
                         } label: {
                             VStack(alignment: .leading, spacing: 5) {
-                                HStack {
-                                    if todo.isPinned {
-                                        Image(systemName: "star.fill")
-                                            .font(.headline)
-                                            .foregroundStyle(Color.orange)
-                                    }
-                                    Text(todo.title)
-                                        .font(.headline)
-                                        .lineLimit(1)
-                                }
-                                Text(todo.content)
-                                    .font(.subheadline)
-                                    .foregroundStyle(Color.gray)
+                                Text(todo.title)
+                                    .font(.headline)
                                     .lineLimit(1)
+                                TagLayout {
+                                    ForEach(todo.tags, id: \.self) { tagText in
+                                        Tag(tagText, isEditing: false)
+                                    }
+                                }
+                                Image(systemName: "star\(todo.isPinned ? "" : ".slash").fill")
+                                    .font(.headline)
+                                    .foregroundStyle(todo.isPinned ? Color.orange : Color.secondary)
                             }
                             .padding(.vertical, 5)
                         }
