@@ -33,7 +33,7 @@ struct TodoView: View {
                                 Text(todo.title)
                                     .font(.headline)
                                     .lineLimit(1)
-                                TagLayout {
+                                TagLayout(lineLimit: 1) {
                                     ForEach(todo.tags, id: \.self) { tagText in
                                         Tag(tagText, isEditing: false)
                                     }

@@ -64,6 +64,7 @@ struct Tag: View {
 }
 
 struct TagLayout: Layout {
+    var lineLimit: Int?
     var verticalSpacing: CGFloat = 8
     var horizontalSpacing: CGFloat = 8
 
