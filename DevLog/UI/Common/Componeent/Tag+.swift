@@ -75,9 +75,7 @@ struct TagLayout: Layout {
     ) -> CGSize {
         let maxWidth = proposal.width ?? .infinity
         let rows = computeRows(maxWidth: maxWidth, subviews: subviews)
-        let height =
-        rows.reduce(0) { $0 + $1.maxHeight }
-        + CGFloat(max(0, rows.count - 1)) * verticalSpacing
+        let height = rows.reduce(0) { $0 + $1.maxHeight } + CGFloat(max(0, rows.count - 1)) * verticalSpacing
         return CGSize(width: proposal.width ?? 0, height: height)
     }
 
