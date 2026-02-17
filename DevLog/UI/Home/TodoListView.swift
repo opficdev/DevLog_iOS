@@ -1,5 +1,5 @@
 //
-//  TodoView.swift
+//  TodoListView.swift
 //  DevLog
 //
 //  Created by opfic on 5/30/25.
@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct TodoView: View {
-    @StateObject var viewModel: TodoViewModel
+struct TodoListView: View {
+    @StateObject var viewModel: TodoListViewModel
     @EnvironmentObject var router: NavigationRouter
+    @Environment(\.diContainer) var container: DIContainer
 
     var body: some View {
         ZStack {
@@ -27,7 +28,7 @@ struct TodoView: View {
                 } else {
                     List(viewModel.state.todos) { todo in
                         Button {
-                            router.push(Path.detail(todo))
+                            router.push(Path.detail(todo.id))
                         } label: {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(todo.title)
@@ -67,11 +68,12 @@ struct TodoView: View {
                     }
                     .navigationDestination(for: Path.self) { path in
                         switch path {
-                        case .detail(let todo):
-                            TodoDetailView(
-                                todo: todo,
-                                onSubmit: { viewModel.send(.upsertTodo($0)) }
-                            )
+                        case .detail(let todoID):
+                            TodoDetailView(viewModel: TodoDetailViewModel(
+                                fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                                todoID: todoID
+                            ))
                         }
                     }
                 }
@@ -206,6 +208,6 @@ struct TodoView: View {
     }
 
     private enum Path: Hashable {
-        case detail(Todo)
+        case detail(String)
     }
 }

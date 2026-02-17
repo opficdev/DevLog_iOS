@@ -1,5 +1,5 @@
 //
-//  TodoViewModel.swift
+//  TodoListViewModel.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/22/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class TodoViewModel: Store {
+final class TodoListViewModel: Store {
     struct State {
         var todos: [Todo] = []
         var searchText: String = ""
@@ -145,7 +145,7 @@ final class TodoViewModel: Store {
 }
 
 // MARK: - Reduce Methods
-private extension TodoViewModel {
+private extension TodoListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .refresh:
@@ -216,7 +216,7 @@ private extension TodoViewModel {
 }
 
 // MARK: - Helper Methods
-private extension TodoViewModel {
+private extension TodoListViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool
