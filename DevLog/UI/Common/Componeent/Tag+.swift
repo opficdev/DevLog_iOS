@@ -70,7 +70,6 @@ struct TagLayout: Layout {
     }
 
     var lineLimit: Int?
-    var maxWidth: CGFloat?
     var verticalSpacing: CGFloat
     var horizontalSpacing: CGFloat
 
@@ -84,12 +83,10 @@ struct TagLayout: Layout {
 
     init(
         lineLimit: Int,
-        maxWidth: CGFloat,
         verticalSpacing: CGFloat = 8,
         horizontalSpacing: CGFloat = 8
     ) {
         self.lineLimit = lineLimit
-        self.maxWidth = maxWidth
         self.verticalSpacing = verticalSpacing
         self.horizontalSpacing = horizontalSpacing
     }
@@ -105,8 +102,7 @@ struct TagLayout: Layout {
     ) {
         let width = effectiveMaxWidth(
             proposalWidth: proposal.width,
-            fallbackWidth: 0,
-            forcedWidth: maxWidth
+            fallbackWidth: 0
         )
         if cache.maxWidth != width {
             cache.maxWidth = width
@@ -137,8 +133,7 @@ struct TagLayout: Layout {
     ) {
         let width = effectiveMaxWidth(
             proposalWidth: proposal.width,
-            fallbackWidth: bounds.width,
-            forcedWidth: maxWidth
+            fallbackWidth: bounds.width
         )
         if cache.maxWidth != width {
             cache.maxWidth = width
@@ -174,12 +169,8 @@ struct TagLayout: Layout {
 
     private func effectiveMaxWidth(
         proposalWidth: CGFloat?,
-        fallbackWidth: CGFloat,
-        forcedWidth: CGFloat?
+        fallbackWidth: CGFloat
     ) -> CGFloat {
-        if let forcedWidth, forcedWidth > 0 {
-            return forcedWidth
-        }
         if let proposalWidth, proposalWidth > 0 {
             return proposalWidth
         }
