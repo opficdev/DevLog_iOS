@@ -18,7 +18,7 @@ final class PushNotificationViewModel: Store {
         var toastMessage: String = ""
         var toastType: ToastType?
         var isLoading: Bool = false
-        var hasMore: Bool = true
+        var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
         var pendingTask: (PushNotification, Int)?
         var query: PushNotificationQuery
@@ -87,10 +87,6 @@ final class PushNotificationViewModel: Store {
         )
     }
 
-    var displayedNotifications: [PushNotification] {
-        state.notifications
-    }
-
     var appliedFilterCount: Int {
         var count = 0
         if state.query.sortOrder != .latest { count += 1 }
@@ -132,7 +128,8 @@ final class PushNotificationViewModel: Store {
                     if cursor == nil { send(.resetPagination) }
                     send(.appendNotifications(page.items, nextCursor: page.nextCursor))
 
-                    send(.setHasMore(page.nextCursor != nil))
+                    let hasMore = page.items.count == query.pageSize && page.nextCursor != nil
+                    send(.setHasMore(hasMore))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -187,19 +184,16 @@ private extension PushNotificationViewModel {
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
             saveSortOrder(state.query.sortOrder)
             state.nextCursor = nil
-            state.hasMore = true
             return [.fetchNotifications(state.query, cursor: nil)]
         case .setTimeFilter(let filter):
             state.query.timeFilter = filter
             saveTimeFilter(filter)
             state.nextCursor = nil
-            state.hasMore = true
             return [.fetchNotifications(state.query, cursor: nil)]
         case .toggleUnreadOnly:
             state.query.unreadOnly.toggle()
             userDefaults.set(state.query.unreadOnly, forKey: DefaultsKey.showUnreadOnly)
             state.nextCursor = nil
-            state.hasMore = true
             return [.fetchNotifications(state.query, cursor: nil)]
         case .resetFilters:
             state.query = .default
@@ -207,7 +201,6 @@ private extension PushNotificationViewModel {
             saveTimeFilter(.none)
             userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
             state.nextCursor = nil
-            state.hasMore = true
             return [.fetchNotifications(state.query, cursor: nil)]
         case .tapNotification(let notification):
             state.selectedTodoID = TodoIDItem(id: notification.todoID)
@@ -221,7 +214,6 @@ private extension PushNotificationViewModel {
         switch action {
         case .fetchNotifications:
             state.nextCursor = nil
-            state.hasMore = true
             return [.fetchNotifications(state.query, cursor: nil)]
         case .loadNextPage:
             guard state.hasMore, !state.isLoading else { return [] }
@@ -248,7 +240,6 @@ private extension PushNotificationViewModel {
         case .resetPagination:
             state.notifications = []
             state.nextCursor = nil
-            state.hasMore = true
         case .appendNotifications(let notifications, let nextCursor):
             state.notifications.append(contentsOf: notifications)
             state.nextCursor = nextCursor

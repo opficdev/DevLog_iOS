@@ -18,7 +18,7 @@ struct PushNotificationView: View {
         NavigationStack(path: $router.path) {
             List {
                 Section {
-                    if viewModel.displayedNotifications.isEmpty {
+                    if viewModel.state.notifications.isEmpty {
                         HStack {
                             Spacer()
                             Text("받은 알림이 없습니다.")
@@ -27,7 +27,7 @@ struct PushNotificationView: View {
                         }
                         .listRowSeparator(.hidden)
                     } else {
-                        ForEach(viewModel.displayedNotifications, id: \.id) { notification in
+                        ForEach(viewModel.state.notifications, id: \.id) { notification in
                             Button {
                                 viewModel.send(.tapNotification(notification))
                             } label: {
@@ -35,7 +35,8 @@ struct PushNotificationView: View {
                             }
                             .buttonStyle(.plain)
                             .onAppear {
-                                if notification.id == viewModel.displayedNotifications.last?.id {
+                                let lastID = viewModel.state.notifications.last?.id
+                                if notification.id == lastID, viewModel.state.hasMore {
                                     viewModel.send(.loadNextPage)
                                 }
                             }
