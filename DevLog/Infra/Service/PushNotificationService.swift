@@ -93,7 +93,9 @@ final class PushNotificationService {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let collection = store.collection("users/\(uid)/notifications")
-        let snapshot = try await collection.getDocuments()
+        let snapshot = try await collection
+            .order(by: "receivedAt", descending: true)
+            .getDocuments()
 
         return try snapshot.documents.compactMap { document in
             try document.data(as: PushNotificationResponse.self)
