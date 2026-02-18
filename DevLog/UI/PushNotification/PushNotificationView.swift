@@ -109,19 +109,19 @@ struct PushNotificationView: View {
                 Button {
                     viewModel.send(.toggleSortOption)
                 } label: {
-                    Text("정렬: \(viewModel.state.sortOption.title)")
+                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
                 }
-                .adaptiveButtonStyle(viewModel.state.sortOption == .oldest ? .blue : .clear)
+                .adaptiveButtonStyle(viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
                 Menu {
-                    ForEach(PushNotificationViewModel.TimeFilter.availableOptions, id: \.id) { option in
+                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
                         Button {
                             viewModel.send(.setTimeFilter(option))
                         } label: {
                             HStack {
                                 Text(option.title)
                                 Spacer()
-                                if viewModel.state.timeFilter == option {
+                                if viewModel.state.query.timeFilter == option {
                                     Image(systemName: "checkmark")
                                         .tint(.blue)
                                 }
@@ -132,14 +132,14 @@ struct PushNotificationView: View {
                 } label: {
                     Text("기간")
                 }
-                .adaptiveButtonStyle(viewModel.state.timeFilter == .none ? .clear : .blue)
+                .adaptiveButtonStyle(viewModel.state.query.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
                 } label: {
                     Text("읽지 않음")
                 }
-                .adaptiveButtonStyle(viewModel.state.showUnreadOnly ? .blue : .clear)
+                .adaptiveButtonStyle(viewModel.state.query.unreadOnly ? .blue : .clear)
             }
         }
         .scrollIndicators(.never)

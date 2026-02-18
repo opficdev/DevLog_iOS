@@ -12,7 +12,7 @@ final class FetchPushNotificationsUseCaseImpl: FetchPushNotificationsUseCase {
         self.repository = repository
     }
 
-    func execute() async throws -> [PushNotification] {
-        try await repository.requestNotifications()
+    func execute(_ query: PushNotificationQuery) async throws -> [PushNotification] {
+        try await repository.requestNotifications(query)
     }
 }

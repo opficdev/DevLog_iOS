@@ -89,12 +89,25 @@ final class PushNotificationService {
     }
 
     /// 푸시 알림 기록 요청
-    func requestNotifications() async throws -> [PushNotificationResponse] {
+    func requestNotifications(_ query: PushNotificationQuery) async throws -> [PushNotificationResponse] {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        let collection = store.collection("users/\(uid)/notifications")
-        let snapshot = try await collection
-            .order(by: "receivedAt", descending: true)
+        var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
+
+        if let thresholdDate = query.timeFilter.thresholdDate {
+            firestoreQuery = firestoreQuery.whereField(
+                "receivedAt",
+                isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
+            )
+        }
+
+        if query.unreadOnly {
+            firestoreQuery = firestoreQuery.whereField("isRead", isEqualTo: false)
+        }
+
+        let isDescending = query.sortOrder == .latest
+        let snapshot = try await firestoreQuery
+            .order(by: "receivedAt", descending: isDescending)
             .getDocuments()
 
         return try snapshot.documents.compactMap { document in

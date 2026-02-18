@@ -32,8 +32,8 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
     }
 
     /// 푸시 알림 기록 요청
-    func requestNotifications() async throws -> [PushNotification] {
-        try await service.requestNotifications()
+    func requestNotifications(_ query: PushNotificationQuery) async throws -> [PushNotification] {
+        try await service.requestNotifications(query)
             .compactMap { dto in
                 guard
                     let id = dto.id,
