@@ -11,6 +11,7 @@ struct PushNotificationView: View {
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: PushNotificationViewModel
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.diContainer) private var container: DIContainer
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -26,7 +27,12 @@ struct PushNotificationView: View {
                         .listRowSeparator(.hidden)
                     } else {
                         ForEach(viewModel.displayedNotifications, id: \.id) { notification in
-                            notificationRow(notification)
+                            Button {
+                                viewModel.send(.tapNotification(notification))
+                            } label: {
+                                notificationRow(notification)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 } header: {
@@ -60,6 +66,21 @@ struct PushNotificationView: View {
                     .font(.caption)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
+            }
+            .sheet(item: Binding(
+                get: { viewModel.state.selectedTodoID },
+                set: { viewModel.send(.setSelectedTodoID($0)) }
+            )) { item in
+                VStack(spacing: 0) {
+                    Spacer(minLength: 16)
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoID: item.id
+                    ))
+                }
+                .background(Color(.secondarySystemBackground))
+                .presentationDragIndicator(.visible)
             }
         }
     }
@@ -164,6 +185,7 @@ struct PushNotificationView: View {
             }
         }
         .padding(.vertical, 5)
+        .contentShape(.rect)
         .swipeActions(edge: .leading) {
             Button {
                 viewModel.send(.toggleRead(notification))

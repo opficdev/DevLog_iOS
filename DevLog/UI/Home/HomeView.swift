@@ -24,18 +24,20 @@ struct HomeView: View {
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .kind(let todoKind):
-                    TodoView(viewModel: TodoViewModel(
+                    TodoListView(viewModel: TodoListViewModel(
                         fetchTodosByKindUseCase: container.resolve(FetchTodosByKindUseCase.self),
+                        fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         kind: todoKind
                     ))
                     .environmentObject(router)
-                case .detail(let todo):
-                    TodoDetailView(
-                        todo: todo,
-                        onSubmit: { viewModel.send(.upsertTodo($0)) }
-                    )
+                case .detail(let todoID):
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoID: todoID
+                    ))
                 }
             }
             .toolbar { toolbar }
@@ -150,7 +152,7 @@ struct HomeView: View {
                 }
             } else {
                 ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
-                    NavigationLink(value: Path.detail(todo)) {
+                    NavigationLink(value: Path.detail(todo.id)) {
                         HStack {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(todo.kind.color)
@@ -252,6 +254,6 @@ struct HomeView: View {
 
     private enum Path: Hashable {
         case kind(TodoKind)
-        case detail(Todo)
+        case detail(String)
     }
 }

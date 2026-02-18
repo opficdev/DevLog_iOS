@@ -1,5 +1,5 @@
 //
-//  TodoView.swift
+//  TodoListView.swift
 //  DevLog
 //
 //  Created by opfic on 5/30/25.
@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct TodoView: View {
-    @StateObject var viewModel: TodoViewModel
+struct TodoListView: View {
+    @StateObject var viewModel: TodoListViewModel
     @EnvironmentObject var router: NavigationRouter
+    @Environment(\.diContainer) var container: DIContainer
 
     var body: some View {
         ZStack {
@@ -27,23 +28,20 @@ struct TodoView: View {
                 } else {
                     List(viewModel.state.todos) { todo in
                         Button {
-                            router.push(Path.detail(todo))
+                            router.push(Path.detail(todo.id))
                         } label: {
                             VStack(alignment: .leading, spacing: 5) {
-                                HStack {
-                                    if todo.isPinned {
-                                        Image(systemName: "star.fill")
-                                            .font(.headline)
-                                            .foregroundStyle(Color.orange)
-                                    }
-                                    Text(todo.title)
-                                        .font(.headline)
-                                        .lineLimit(1)
-                                }
-                                Text(todo.content)
-                                    .font(.subheadline)
-                                    .foregroundStyle(Color.gray)
+                                Text(todo.title)
+                                    .font(.headline)
                                     .lineLimit(1)
+                                TagLayout(lineLimit: 1) {
+                                    ForEach(todo.tags, id: \.self) { tagText in
+                                        Tag(tagText, isEditing: false)
+                                    }
+                                }
+                                Image(systemName: "star\(todo.isPinned ? "" : ".slash").fill")
+                                    .font(.headline)
+                                    .foregroundStyle(todo.isPinned ? Color.orange : Color.secondary)
                             }
                             .padding(.vertical, 5)
                         }
@@ -70,11 +68,12 @@ struct TodoView: View {
                     }
                     .navigationDestination(for: Path.self) { path in
                         switch path {
-                        case .detail(let todo):
-                            TodoDetailView(
-                                todo: todo,
-                                onSubmit: { viewModel.send(.upsertTodo($0)) }
-                            )
+                        case .detail(let todoID):
+                            TodoDetailView(viewModel: TodoDetailViewModel(
+                                fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                                todoID: todoID
+                            ))
                         }
                     }
                 }
@@ -209,6 +208,6 @@ struct TodoView: View {
     }
 
     private enum Path: Hashable {
-        case detail(Todo)
+        case detail(String)
     }
 }

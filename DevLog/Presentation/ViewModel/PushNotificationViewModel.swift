@@ -22,6 +22,7 @@ final class PushNotificationViewModel: Store {
         var sortOption: SortOption
         var timeFilter: TimeFilter
         var showUnreadOnly: Bool
+        var selectedTodoID: TodoIDItem?
     }
 
     enum Action {
@@ -38,10 +39,12 @@ final class PushNotificationViewModel: Store {
         case setTimeFilter(TimeFilter)
         case toggleUnreadOnly
         case resetFilters
+        case tapNotification(PushNotification)
+        case setSelectedTodoID(TodoIDItem?)
     }
 
     enum SideEffect {
-        case fetch
+        case fetchNotifications
         case delete(PushNotification)
         case toggleRead(String)
     }
@@ -116,7 +119,7 @@ final class PushNotificationViewModel: Store {
     }
 
     @Published private(set) var state: State
-    private let fetchUseCase: FetchPushNotificationsUseCase
+    private let fetchNotificationUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
     private let userDefaults: UserDefaults
@@ -133,7 +136,7 @@ final class PushNotificationViewModel: Store {
         toggleReadUseCase: TogglePushNotificationReadUseCase,
         userDefaults: UserDefaults = .standard
     ) {
-        self.fetchUseCase = fetchUseCase
+        self.fetchNotificationUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
         self.userDefaults = userDefaults
@@ -180,51 +183,15 @@ final class PushNotificationViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .fetchNotifications:
-            effects = [.fetch]
-        case .deleteNotification(let item):
-            guard let index = state.notifications.firstIndex(where: { $0.id == item.id }) else {
-                break
-            }
-            state.pendingTask = (item, index)
-            state.notifications.remove(at: index)
-            setToast(&state, isPresented: true, for: .delete)
-        case .toggleRead(let item):
-            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
-                state.notifications[index].isRead.toggle()
-                effects = [.toggleRead(item.todoID)]
-            }
-        case .undoDelete:
-            guard let (item, index) = state.pendingTask else { break }
-            state.notifications.insert(item, at: index)
-            state.pendingTask = nil
-        case .confirmDelete:
-            guard let (item, _ ) = state.pendingTask else { break }
-            effects = [.delete(item)]
-        case .setAlert(let isPresented, let type):
-            setAlert(&state, isPresented: isPresented, for: type)
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, for: type)
-        case .setLoading(let value):
-            state.isLoading = value
-        case .setNotifications(let notifications):
-            state.notifications = notifications
-        case .toggleSortOption:
-            state.sortOption = state.sortOption == .latest ? .oldest : .latest
-            saveSortOption(state.sortOption)
-        case .setTimeFilter(let filter):
-            state.timeFilter = filter
-            saveTimeFilter(filter)
-        case .toggleUnreadOnly:
-            state.showUnreadOnly.toggle()
-            userDefaults.set(state.showUnreadOnly, forKey: DefaultsKey.showUnreadOnly)
-        case .resetFilters:
-            state.sortOption = .latest
-            state.timeFilter = .none
-            state.showUnreadOnly = false
-            saveSortOption(.latest)
-            saveTimeFilter(.none)
-            userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
+        case .deleteNotification, .toggleRead, .undoDelete, .setAlert, .toggleSortOption,
+                .setTimeFilter, .toggleUnreadOnly, .resetFilters, .tapNotification:
+            effects = reduceByUser(action, state: &state)
+
+        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoID:
+            effects = reduceByView(action, state: &state)
+
+        case .setLoading, .setNotifications:
+            effects = reduceByRun(action, state: &state)
         }
 
         self.state = state
@@ -233,12 +200,12 @@ final class PushNotificationViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .fetch:
+        case .fetchNotifications:
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let notifications = try await fetchUseCase.execute()
+                    let notifications = try await fetchNotificationUseCase.execute()
                     send(.setNotifications(notifications))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
@@ -261,6 +228,81 @@ final class PushNotificationViewModel: Store {
                 }
             }
         }
+    }
+}
+
+// MARK: - Reduce Methods
+private extension PushNotificationViewModel {
+    func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .deleteNotification(let item):
+            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
+                state.pendingTask = (item, index)
+                state.notifications.remove(at: index)
+                setToast(&state, isPresented: true, for: .delete)
+            }
+        case .toggleRead(let item):
+            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
+                state.notifications[index].isRead.toggle()
+                return [.toggleRead(item.todoID)]
+            }
+        case .undoDelete:
+            guard let (item, index) = state.pendingTask else { return [] }
+            state.notifications.insert(item, at: index)
+            state.pendingTask = nil
+        case .setAlert(let isPresented, let type):
+            setAlert(&state, isPresented: isPresented, for: type)
+        case .toggleSortOption:
+            state.sortOption = state.sortOption == .latest ? .oldest : .latest
+            saveSortOption(state.sortOption)
+        case .setTimeFilter(let filter):
+            state.timeFilter = filter
+            saveTimeFilter(filter)
+        case .toggleUnreadOnly:
+            state.showUnreadOnly.toggle()
+            userDefaults.set(state.showUnreadOnly, forKey: DefaultsKey.showUnreadOnly)
+        case .resetFilters:
+            state.sortOption = .latest
+            state.timeFilter = .none
+            state.showUnreadOnly = false
+            saveSortOption(.latest)
+            saveTimeFilter(.none)
+            userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
+        case .tapNotification(let notification):
+            state.selectedTodoID = TodoIDItem(id: notification.todoID)
+        default:
+            break
+        }
+        return []
+    }
+
+    func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .fetchNotifications:
+            return [.fetchNotifications]
+        case .confirmDelete:
+            guard let (item, _ ) = state.pendingTask else { return [] }
+            return [.delete(item)]
+        case .setToast(let isPresented, let type):
+            setToast(&state, isPresented: isPresented, for: type)
+        case .setSelectedTodoID(let todoID):
+            state.selectedTodoID = todoID
+        default:
+            break
+        }
+        return []
+    }
+
+    func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
+        switch action {
+        case .setLoading(let value):
+            state.isLoading = value
+        case .setNotifications(let notifications):
+            state.notifications = notifications
+        default:
+            break
+        }
+        return []
     }
 }
 

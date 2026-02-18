@@ -10,7 +10,7 @@ import Foundation
 final class HomeViewModel: Store {
     struct State {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
-        var pinnedTodos: [Todo] = []
+        var pinnedTodos: [PinnedTodoItem] = []
         var showTodoKindPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
@@ -36,7 +36,7 @@ final class HomeViewModel: Store {
         case updateSearching(Bool)
         case updateSearchText(String)
         case upsertTodo(Todo)
-        case fetchPinnedTodos([Todo])
+        case fetchPinnedTodos([PinnedTodoItem])
         case setLoading(Bool)
     }
 
@@ -95,7 +95,7 @@ final class HomeViewModel: Store {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
                     let todos = try await fetchPinnedTodosUseCase.execute()
-                    send(.fetchPinnedTodos(todos))
+                    send(.fetchPinnedTodos(todos.map { PinnedTodoItem(from: $0) }))
                 } catch {
                     send(.setAlert(true))
                 }

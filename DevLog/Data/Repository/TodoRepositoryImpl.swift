@@ -8,40 +8,33 @@
 import Foundation
 
 final class TodoRepositoryImpl: TodoRepository {
-    private let authService: AuthService
     private let todoService: TodoService
 
-    init(
-        authService: AuthService,
-        todoService: TodoService
-    ) {
-        self.authService = authService
+    init(todoService: TodoService) {
         self.todoService = todoService
     }
 
     func fetchTodos(_ kind: TodoKind) async throws -> [Todo] {
-        guard let uid = authService.uid else { throw AuthError.notAuthenticated }
-        let response = try await todoService.fetchTodos(uid: uid, kind: kind)
+        let response = try await todoService.fetchTodos(kind: kind)
         return response.map { $0.toDomain() }
     }
     
     func fetchPinnedTodos() async throws -> [Todo] {
-        guard let uid = authService.uid else { throw AuthError.notAuthenticated }
-        let response = try await todoService.fetchPinnedTodos(uid)
+        let response = try await todoService.fetchPinnedTodos()
         return response.map { $0.toDomain() }
+    }
+
+    func fetchTodo(_ todoID: String) async throws -> Todo {
+        let response = try await todoService.fetchTodo(todoID: todoID)
+        return response.toDomain()
     }
     
     func upsertTodo(_ todo: Todo) async throws {
-        guard let uid = authService.uid else { throw AuthError.notAuthenticated }
-
         let request = TodoRequest.fromDomain(todo)
-
-        try await todoService.upsertTodo(uid: uid, request: request)
+        try await todoService.upsertTodo(request: request)
     }
     
     func deleteTodo(_ todoID: String) async throws {
-        guard let uid = authService.uid else { throw AuthError.notAuthenticated }
-
-        try await todoService.deleteTodo(uid: uid, todoID: todoID)
+        try await todoService.deleteTodo(todoID: todoID)
     }
 }
