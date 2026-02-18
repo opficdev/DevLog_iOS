@@ -22,11 +22,13 @@ struct PushNotificationQuery: Equatable {
     var sortOrder: SortOrder
     var timeFilter: TimeFilter
     var unreadOnly: Bool
+    var pageSize: Int
 
     static let `default` = PushNotificationQuery(
         sortOrder: .latest,
         timeFilter: .none,
-        unreadOnly: false
+        unreadOnly: false,
+        pageSize: 20
     )
 }
 

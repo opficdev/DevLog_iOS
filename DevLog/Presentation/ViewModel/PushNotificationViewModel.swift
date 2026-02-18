@@ -18,6 +18,8 @@ final class PushNotificationViewModel: Store {
         var toastMessage: String = ""
         var toastType: ToastType?
         var isLoading: Bool = false
+        var hasMore: Bool = true
+        var nextCursor: PushNotificationCursor?
         var pendingTask: (PushNotification, Int)?
         var query: PushNotificationQuery
         var selectedTodoID: TodoIDItem?
@@ -25,6 +27,7 @@ final class PushNotificationViewModel: Store {
 
     enum Action {
         case fetchNotifications
+        case loadNextPage
         case deleteNotification(PushNotification)
         case toggleRead(PushNotification)
         case undoDelete
@@ -32,7 +35,9 @@ final class PushNotificationViewModel: Store {
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(Bool)
-        case setNotifications([PushNotification])
+        case appendNotifications([PushNotification], nextCursor: PushNotificationCursor?)
+        case resetPagination
+        case setHasMore(Bool)
         case toggleSortOption
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
@@ -42,7 +47,7 @@ final class PushNotificationViewModel: Store {
     }
 
     enum SideEffect {
-        case fetchNotifications(PushNotificationQuery)
+        case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
         case delete(PushNotification)
         case toggleRead(String)
     }
@@ -103,10 +108,10 @@ final class PushNotificationViewModel: Store {
                 .setTimeFilter, .toggleUnreadOnly, .resetFilters, .tapNotification:
             effects = reduceByUser(action, state: &state)
 
-        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoID:
+        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoID, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .setNotifications:
+        case .setLoading, .appendNotifications, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -116,16 +121,22 @@ final class PushNotificationViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .fetchNotifications(let query):
+        case .fetchNotifications(let query, let cursor):
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let notifications = try await fetchUseCase.execute(query)
-                    send(.setNotifications(notifications))
+
+                    let page = try await fetchUseCase.execute(query, cursor: cursor)
+
+                    if cursor == nil { send(.resetPagination) }
+                    send(.appendNotifications(page.items, nextCursor: page.nextCursor))
+
+                    send(.setHasMore(page.nextCursor != nil))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
+
             }
         case .delete(let notification):
             Task {
@@ -175,21 +186,29 @@ private extension PushNotificationViewModel {
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
             saveSortOrder(state.query.sortOrder)
-            return [.fetchNotifications(state.query)]
+            state.nextCursor = nil
+            state.hasMore = true
+            return [.fetchNotifications(state.query, cursor: nil)]
         case .setTimeFilter(let filter):
             state.query.timeFilter = filter
             saveTimeFilter(filter)
-            return [.fetchNotifications(state.query)]
+            state.nextCursor = nil
+            state.hasMore = true
+            return [.fetchNotifications(state.query, cursor: nil)]
         case .toggleUnreadOnly:
             state.query.unreadOnly.toggle()
             userDefaults.set(state.query.unreadOnly, forKey: DefaultsKey.showUnreadOnly)
-            return [.fetchNotifications(state.query)]
+            state.nextCursor = nil
+            state.hasMore = true
+            return [.fetchNotifications(state.query, cursor: nil)]
         case .resetFilters:
             state.query = .default
             saveSortOrder(.latest)
             saveTimeFilter(.none)
             userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
-            return [.fetchNotifications(state.query)]
+            state.nextCursor = nil
+            state.hasMore = true
+            return [.fetchNotifications(state.query, cursor: nil)]
         case .tapNotification(let notification):
             state.selectedTodoID = TodoIDItem(id: notification.todoID)
         default:
@@ -201,7 +220,12 @@ private extension PushNotificationViewModel {
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .fetchNotifications:
-            return [.fetchNotifications(state.query)]
+            state.nextCursor = nil
+            state.hasMore = true
+            return [.fetchNotifications(state.query, cursor: nil)]
+        case .loadNextPage:
+            guard state.hasMore, !state.isLoading else { return [] }
+            return [.fetchNotifications(state.query, cursor: state.nextCursor)]
         case .confirmDelete:
             guard let (item, _ ) = state.pendingTask else { return [] }
             return [.delete(item)]
@@ -219,8 +243,15 @@ private extension PushNotificationViewModel {
         switch action {
         case .setLoading(let value):
             state.isLoading = value
-        case .setNotifications(let notifications):
-            state.notifications = notifications
+        case .setHasMore(let value):
+            state.hasMore = value
+        case .resetPagination:
+            state.notifications = []
+            state.nextCursor = nil
+            state.hasMore = true
+        case .appendNotifications(let notifications, let nextCursor):
+            state.notifications.append(contentsOf: notifications)
+            state.nextCursor = nextCursor
         default:
             break
         }
@@ -268,7 +299,8 @@ private extension PushNotificationViewModel {
         return PushNotificationQuery(
             sortOrder: sortOrder,
             timeFilter: timeFilter,
-            unreadOnly: unreadOnly
+            unreadOnly: unreadOnly,
+            pageSize: 20
         )
     }
 

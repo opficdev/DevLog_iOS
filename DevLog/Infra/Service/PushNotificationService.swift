@@ -89,14 +89,17 @@ final class PushNotificationService {
     }
 
     /// 푸시 알림 기록 요청
-    func requestNotifications(_ query: PushNotificationQuery) async throws -> [PushNotificationResponse] {
+    func requestNotifications(
+        _ query: PushNotificationQuery,
+        cursor: PushNotificationCursor?
+    ) async throws -> PushNotificationPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
 
         if let thresholdDate = query.timeFilter.thresholdDate {
             firestoreQuery = firestoreQuery.whereField(
-                "receivedAt",
+                "todoCreatedAt",
                 isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
             )
         }
@@ -106,13 +109,37 @@ final class PushNotificationService {
         }
 
         let isDescending = query.sortOrder == .latest
+        firestoreQuery = firestoreQuery
+            .order(by: "todoCreatedAt", descending: isDescending)
+            .order(by: FieldPath.documentID())
+
+        if let cursor {
+            firestoreQuery = firestoreQuery.start(after: [
+                Timestamp(date: cursor.todoCreatedAt),
+                cursor.documentID
+            ])
+        }
+
         let snapshot = try await firestoreQuery
-            .order(by: "receivedAt", descending: isDescending)
+            .limit(to: query.pageSize)
             .getDocuments()
 
-        return try snapshot.documents.compactMap { document in
+        let items = try snapshot.documents.compactMap { document in
             try document.data(as: PushNotificationResponse.self)
         }
+
+        let nextCursor: PushNotificationCursorResponse? = snapshot.documents.last.map { document in
+            guard let todoCreatedAt = document.data()["todoCreatedAt"] as? Timestamp else {
+                return nil
+            }
+
+            return PushNotificationCursorResponse(
+                todoCreatedAt: todoCreatedAt,
+                documentID: document.documentID
+            )
+        } ?? nil
+
+        return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
     }
 
     /// 푸시 알림 기록 삭제

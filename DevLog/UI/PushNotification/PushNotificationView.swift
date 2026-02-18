@@ -34,6 +34,11 @@ struct PushNotificationView: View {
                                 notificationRow(notification)
                             }
                             .buttonStyle(.plain)
+                            .onAppear {
+                                if notification.id == viewModel.displayedNotifications.last?.id {
+                                    viewModel.send(.loadNextPage)
+                                }
+                            }
                         }
                     }
                 } header: {
@@ -82,6 +87,11 @@ struct PushNotificationView: View {
                 }
                 .background(Color(.secondarySystemBackground))
                 .presentationDragIndicator(.visible)
+            }
+            .overlay {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                }
             }
         }
     }
