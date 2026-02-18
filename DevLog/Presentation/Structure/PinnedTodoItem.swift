@@ -13,7 +13,7 @@ struct PinnedTodoItem: Identifiable, Hashable {
     let dueDate: Date?
     let kind: TodoKind
 
-    init(
+    private init(
         id: String,
         title: String,
         dueDate: Date?,
