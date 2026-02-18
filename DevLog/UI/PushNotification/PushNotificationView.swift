@@ -10,6 +10,7 @@ import SwiftUI
 struct PushNotificationView: View {
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: PushNotificationViewModel
+    @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
 
@@ -159,13 +160,25 @@ struct PushNotificationView: View {
             .background(Circle().fill(backgroundColor))
     }
 
+    // swiftlint:disable function_body_length
     private func notificationRow(_ notification: PushNotification) -> some View {
         HStack {
-            Circle()
-                .fill(Color.blue)
-                .frame(width: 8, height: 8)
-                .opacity(notification.isRead ? 0 : 1)
-            
+            VStack {
+                let todoKind = notification.todoKind
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(todoKind.color)
+                    .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                    .overlay {
+                        Image(systemName: todoKind.symbolName)
+                            .foregroundStyle(Color.white)
+                            .font(.title3)
+                    }
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: 8, height: 8)
+                    .opacity(notification.isRead ? 0 : 1)
+            }
+
             VStack(alignment: .leading, spacing: 5) {
                 Text(notification.title)
                     .font(.headline)
@@ -205,6 +218,7 @@ struct PushNotificationView: View {
             }
         }
     }
+    // swiftlint:enable function_body_length
 
     private func timeAgoText(from date: Date, now: Date) -> String {
         let seconds = Int(now.timeIntervalSince(date))

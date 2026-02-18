@@ -35,16 +35,20 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
     func requestNotifications() async throws -> [PushNotification] {
         try await service.requestNotifications()
             .compactMap { dto in
-                dto.id.map { id in
-                    PushNotification(
-                        id: id,
-                        title: dto.title,
-                        body: dto.body,
-                        receivedAt: dto.receivedAt.dateValue(),
-                        isRead: dto.isRead,
-                        todoID: dto.todoID
-                    )
-                }
+                guard
+                    let id = dto.id,
+                    let todoKind = TodoKind(rawValue: dto.todoKind)
+                else { return nil }
+
+                return PushNotification(
+                    id: id,
+                    title: dto.title,
+                    body: dto.body,
+                    receivedAt: dto.receivedAt.dateValue(),
+                    isRead: dto.isRead,
+                    todoID: dto.todoID,
+                    todoKind: todoKind
+                )
             }
     }
 

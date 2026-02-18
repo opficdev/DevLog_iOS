@@ -14,4 +14,5 @@ struct PushNotificationResponse: Decodable {
     let receivedAt: Timestamp
     let isRead: Bool
     let todoID: String
+    let todoKind: String
 }
