@@ -14,4 +14,5 @@ struct PushNotification: Identifiable {
     let receivedAt: Date
     var isRead: Bool
     let todoID: String
+    let todoKind: TodoKind
 }

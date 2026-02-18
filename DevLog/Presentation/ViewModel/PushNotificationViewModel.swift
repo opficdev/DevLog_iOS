@@ -119,7 +119,7 @@ final class PushNotificationViewModel: Store {
     }
 
     @Published private(set) var state: State
-    private let fetchNotificationUseCase: FetchPushNotificationsUseCase
+    private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
     private let userDefaults: UserDefaults
@@ -136,7 +136,7 @@ final class PushNotificationViewModel: Store {
         toggleReadUseCase: TogglePushNotificationReadUseCase,
         userDefaults: UserDefaults = .standard
     ) {
-        self.fetchNotificationUseCase = fetchUseCase
+        self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
         self.userDefaults = userDefaults
@@ -205,7 +205,7 @@ final class PushNotificationViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let notifications = try await fetchNotificationUseCase.execute()
+                    let notifications = try await fetchUseCase.execute()
                     send(.setNotifications(notifications))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
