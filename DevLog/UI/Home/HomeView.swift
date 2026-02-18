@@ -26,6 +26,7 @@ struct HomeView: View {
                 case .kind(let todoKind):
                     TodoListView(viewModel: TodoListViewModel(
                         fetchTodosByKindUseCase: container.resolve(FetchTodosByKindUseCase.self),
+                        fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         kind: todoKind

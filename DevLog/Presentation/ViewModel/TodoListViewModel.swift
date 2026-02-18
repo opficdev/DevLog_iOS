@@ -9,7 +9,7 @@ import Foundation
 
 final class TodoListViewModel: Store {
     struct State {
-        var todos: [Todo] = []
+        var todos: [TodoListItem] = []
         var searchText: String = ""
         let kind: TodoKind
         var showEditor: Bool = false
@@ -21,7 +21,7 @@ final class TodoListViewModel: Store {
         var isLoading: Bool = false
         var showToast: Bool = false
         var toastMessage: String = ""
-        var pendingTask: (Todo, Int)?
+        var pendingTask: (TodoListItem, Int)?
     }
 
     enum FilterOption {
@@ -33,9 +33,9 @@ final class TodoListViewModel: Store {
         case refresh
         case setAlert(Bool)
         case setShowEditor(Bool)
-        case swipeTodo(Todo)
+        case swipeTodo(TodoListItem)
         case tapFilterOption(FilterOption)
-        case tapTogglePinned(Todo)
+        case tapTogglePinned(TodoListItem)
         case undoDelete
 
         // View
@@ -47,30 +47,33 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
-        case didTogglePinned(Todo)
+        case didTogglePinned(TodoListItem)
         case setLoading(Bool)
-        case setTodos([Todo])
+        case setTodos([TodoListItem])
     }
 
     enum SideEffect {
         case fetch
         case upsert(Todo)
-        case delete(Todo)
-        case togglePinned(Todo)
+        case delete(String)
+        case togglePinned(TodoListItem)
     }
 
     private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
+    private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
     @Published private(set) var state: State
 
     init(
         fetchTodosByKindUseCase: FetchTodosByKindUseCase,
+        fetchTodoByIDUseCase: FetchTodoByIDUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
         kind: TodoKind
     ) {
         self.fetchTodosByKindUseCase = fetchTodosByKindUseCase
+        self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
         self.state = State(kind: kind)
@@ -103,7 +106,7 @@ final class TodoListViewModel: Store {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
                     let todos = try await fetchTodosByKindUseCase.execute(state.kind)
-                    send(.setTodos(todos))
+                    send(.setTodos(todos.map { TodoListItem(from: $0) }))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -124,18 +127,18 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    var todo = item
+                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
                     todo.isPinned.toggle()
                     try await upsertTodoUseCase.execute(todo)
-                    send(.didTogglePinned(todo))
+                    send(.didTogglePinned(TodoListItem(from: todo)))
                 } catch {
                     send(.setAlert(true))
                 }
             }
-        case .delete(let item):
+        case .delete(let todoID):
             Task {
                 do {
-                    try await deleteTodoUseCase.execute(item.id)
+                    try await deleteTodoUseCase.execute(todoID)
                 } catch {
                     send(.setAlert(true))
                 }
@@ -181,7 +184,7 @@ private extension TodoListViewModel {
             guard let (item, _) = state.pendingTask else {
                 return []
             }
-            return [.delete(item)]
+            return [.delete(item.id)]
         case .onAppear:
             return [.fetch]
         case .setScope(let scope):
