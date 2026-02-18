@@ -49,6 +49,7 @@ struct PushNotificationView: View {
             .listStyle(.plain)
             .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
+            .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
             .alert(
                 "",
