@@ -61,6 +61,11 @@ struct PushNotificationSettingsView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle("알람")
+        .overlay {
+            if viewModel.state.isLoading {
+                LoadingView()
+            }
+        }
         .onAppear {
             viewModel.send(.onAppear)
         }
