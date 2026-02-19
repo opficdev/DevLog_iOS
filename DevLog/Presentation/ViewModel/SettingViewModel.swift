@@ -10,29 +10,30 @@ import Foundation
 final class SettingViewModel: Store {
     struct State {
         var theme = ""
-        var showDeleteUserAlert = false
-        var showSignOutAlert = false
-        var toastMessage = ""
-        var showToast = false
         var isLoading = false
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertType: AlertType?
+        var alertMessage: String = ""
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
     }
 
     enum Action {
-        case toggleToast(Bool)
+        case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setLoading(Bool)
         case setTheme(String)
-        case setToastMessage(String)
         case tapDeleteAuthButton
         case tapSignOutButton
-        case toggleDeleteUserAlert(Bool)
-        case toggleSignOutAlert(Bool)
     }
 
     enum SideEffect {
         case deleteAuth
         case signOut
+    }
+
+    enum AlertType {
+        case signOut, delete, error
     }
 
     private let deleteAuthuseCase: DeleteAuthUseCase
@@ -53,22 +54,16 @@ final class SettingViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         switch action {
-        case .toggleToast(let value):
-            state.showToast = value
+        case .setAlert(let isPresented, let type):
+            setAlert(&state, isPresented: isPresented, type: type)
         case .setLoading(let value):
             state.isLoading = value
         case .setTheme(let value):
             state.theme = value
-        case .setToastMessage(let message):
-            state.toastMessage = message
         case .tapDeleteAuthButton:
-            break
+            return [.deleteAuth]
         case .tapSignOutButton:
             return [.signOut]
-        case .toggleDeleteUserAlert(let value):
-            state.showDeleteUserAlert = value
-        case .toggleSignOutAlert(let value):
-            state.showSignOutAlert = value
         }
         return []
     }
@@ -79,27 +74,50 @@ final class SettingViewModel: Store {
             Task {
                 do {
                     defer { send(.setLoading(false)) }
-                    send(.toggleDeleteUserAlert(false))
+                    send(.setAlert(isPresented: false))
                     send(.setLoading(true))
                     try await deleteAuthuseCase.execute()
                 } catch {
-                    send(.toggleToast(true))
-                    send(.setToastMessage(error.localizedDescription))
+                    send(.setAlert(isPresented: true, type: .error))
                 }
             }
         case .signOut:
             Task {
                 do {
                     defer { send(.setLoading(false)) }
-                    send(.toggleSignOutAlert(false))
+                    send(.setAlert(isPresented: false))
                     send(.setLoading(true))
                     try await signOutUseCase.execute()
                     sessionUseCase.execute(false)
                 } catch {
-                    send(.toggleToast(true))
-                    send(.setToastMessage(error.localizedDescription))
+                    send(.setAlert(isPresented: true, type: .error))
                 }
             }
         }
+    }
+}
+
+private extension SettingViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool,
+        type: AlertType?
+    ) {
+        switch type {
+        case .signOut:
+            state.alertTitle = "로그아웃"
+            state.alertMessage = "로그아웃 하시겠습니까?"
+        case .delete:
+            state.alertTitle = "정말 탈퇴하시겠습니까?"
+            state.alertMessage = "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
+        case .error:
+            state.alertTitle = "오류"
+            state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        case .none:
+            state.alertTitle = ""
+            state.alertMessage = ""
+        }
+        state.showAlert = isPresented
+        state.alertType = type
     }
 }
