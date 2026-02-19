@@ -99,7 +99,7 @@ final class PushNotificationService {
 
         if let thresholdDate = query.timeFilter.thresholdDate {
             firestoreQuery = firestoreQuery.whereField(
-                "todoCreatedAt",
+                "receivedAt",
                 isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
             )
         }
@@ -110,12 +110,12 @@ final class PushNotificationService {
 
         let isDescending = query.sortOrder == .latest
         firestoreQuery = firestoreQuery
-            .order(by: "todoCreatedAt", descending: isDescending)
+            .order(by: "receivedAt", descending: isDescending)
             .order(by: FieldPath.documentID())
 
         if let cursor {
             firestoreQuery = firestoreQuery.start(after: [
-                Timestamp(date: cursor.todoCreatedAt),
+                Timestamp(date: cursor.receivedAt),
                 cursor.documentID
             ])
         }
@@ -129,12 +129,12 @@ final class PushNotificationService {
         }
 
         let nextCursor: PushNotificationCursorResponse? = snapshot.documents.last.map { document in
-            guard let todoCreatedAt = document.data()["todoCreatedAt"] as? Timestamp else {
+            guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
                 return nil
             }
 
             return PushNotificationCursorResponse(
-                todoCreatedAt: todoCreatedAt,
+                receivedAt: receivedAt,
                 documentID: document.documentID
             )
         } ?? nil

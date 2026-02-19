@@ -8,6 +8,6 @@
 import FirebaseFirestore
 
 struct PushNotificationCursorResponse {
-    let todoCreatedAt: Timestamp
+    let receivedAt: Timestamp
     let documentID: String
 }

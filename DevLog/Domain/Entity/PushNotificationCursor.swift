@@ -8,6 +8,6 @@
 import Foundation
 
 struct PushNotificationCursor: Equatable {
-    let todoCreatedAt: Date
+    let receivedAt: Date
     let documentID: String
 }

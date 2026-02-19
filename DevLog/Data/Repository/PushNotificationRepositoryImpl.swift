@@ -57,7 +57,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 
         let nextCursor = response.nextCursor.map { cursor in
             PushNotificationCursor(
-                todoCreatedAt: cursor.todoCreatedAt.dateValue(),
+                receivedAt: cursor.receivedAt.dateValue(),
                 documentID: cursor.documentID
             )
         }
