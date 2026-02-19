@@ -9,12 +9,12 @@ import Foundation
 import FirebaseAuth
 
 extension FirebaseAuth.User {
-    func toData(
+    func toResponse(
         providerID: AuthProviderID,
         fcmToken: String,
         accessToken: String? = nil
-    ) -> AuthenticationDataResponse {
-        return AuthenticationDataResponse(
+    ) -> AuthDataResponse {
+        return AuthDataResponse(
             uid: self.uid,
             displayName: self.displayName,
             email: self.email,

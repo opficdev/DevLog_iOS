@@ -6,7 +6,7 @@
 //
 
 protocol WebPageRepository {
-    func fetch() async throws -> [WebPageMetadata]
-    func upsert(_ urlString: String) async throws -> WebPageMetadata
+    func fetch() async throws -> [WebPage]
+    func upsert(_ urlString: String) async throws -> WebPage
     func delete(_ urlString: String) async throws
 }

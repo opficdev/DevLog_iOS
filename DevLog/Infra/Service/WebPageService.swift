@@ -13,7 +13,7 @@ final class WebPageService {
     private let logger = Logger(category: "WebPageService")
 
     /// 저장한 웹페이지를 모두 불러옴
-    func fetchWebPages() async throws -> [WebPageResponse] {
+    func fetchWebPages() async throws -> [WebPageURLResponse] {
         logger.info("Fetching web pages")
         
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -28,7 +28,7 @@ final class WebPageService {
             if doc.exists, let data = doc.data() {
                 if let webPageInfos = data["webPageInfos"] as? [String] {
                     logger.info("Successfully fetched \(webPageInfos.count) web pages")
-                    return webPageInfos.map { WebPageResponse(urlString: $0) }
+                    return webPageInfos.map { WebPageURLResponse(urlString: $0) }
                 }
             }
             logger.error("Web page data not found or invalid")

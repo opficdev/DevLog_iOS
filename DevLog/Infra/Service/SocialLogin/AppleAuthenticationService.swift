@@ -22,7 +22,7 @@ final class AppleAuthenticationService: AuthenticationService {
     private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
-    func signIn() async throws -> AuthenticationDataResponse {
+    func signIn() async throws -> AuthDataResponse {
         logger.info("Starting Apple sign in")
         
         do {
@@ -81,7 +81,7 @@ final class AppleAuthenticationService: AuthenticationService {
             let fcmToken = try await messaging.token()
 
             logger.info("Successfully signed in with Apple")
-            return result.user.toData(providerID: .apple, fcmToken: fcmToken)
+            return result.user.toResponse(providerID: .apple, fcmToken: fcmToken)
         } catch {
             logger.error("Failed to sign in with Apple", error: error)
             throw error

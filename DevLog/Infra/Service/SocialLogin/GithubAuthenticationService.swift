@@ -21,7 +21,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GithubAuthService")
 
-    func signIn() async throws -> AuthenticationDataResponse {
+    func signIn() async throws -> AuthDataResponse {
         logger.info("Starting GitHub sign in")
         
         do {
@@ -56,7 +56,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             let fcmToken = try await messaging.token()
 
             logger.info("Successfully signed in with GitHub")
-            return result.user.toData(
+            return result.user.toResponse(
                 providerID: .gitHub,
                 fcmToken: fcmToken,
                 accessToken: accessToken

@@ -21,7 +21,7 @@ final class GoogleAuthenticationService: AuthenticationService {
     private let logger = Logger(category: "GoogleAuthService")
 
     @MainActor
-    func signIn() async throws -> AuthenticationDataResponse {
+    func signIn() async throws -> AuthDataResponse {
         logger.info("Starting Google sign in")
         
         guard let topViewController = provider.topViewController() else {
@@ -54,7 +54,7 @@ final class GoogleAuthenticationService: AuthenticationService {
             let fcmToken = try await messaging.token()
 
             logger.info("Successfully signed in with Google")
-            return result.user.toData(providerID: .google, fcmToken: fcmToken)
+            return result.user.toResponse(providerID: .google, fcmToken: fcmToken)
         } catch {
             logger.error("Failed to sign in with Google", error: error)
             throw error

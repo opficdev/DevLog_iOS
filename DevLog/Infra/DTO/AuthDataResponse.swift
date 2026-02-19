@@ -1,5 +1,5 @@
 //
-//  AuthenticationData+.swift
+//  AuthDataResponse.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/2/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AuthenticationDataResponse {
+struct AuthDataResponse {
     let uid: String
     let displayName: String?
     let email: String?
