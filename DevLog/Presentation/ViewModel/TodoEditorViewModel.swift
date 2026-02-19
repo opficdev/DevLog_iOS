@@ -104,8 +104,6 @@ final class TodoEditorViewModel: Store {
         }
         return []
     }
-
-    func run(_ effect: SideEffect) { }
 }
 
 extension TodoEditorViewModel {
