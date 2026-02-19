@@ -5,8 +5,6 @@
 //  Created by 최윤진 on 2/19/26.
 //
 
-import Foundation
-
 extension TodoRequest {
     static func fromDomain(_ entity: Todo) -> Self {
         TodoRequest(
