@@ -36,6 +36,14 @@ struct SearchView: View {
                         dismiss()
                     }
                 }
+                .alert(viewModel.state.alertTitle, isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )) {
+                    Button("확인", role: .cancel) { }
+                } message: {
+                    Text(viewModel.state.alertMessage)
+                }
                 // TODO: iOS 16에서 introspect 모듈을 사용하여 .searchable의 isPresented를 관리한다
                 // .introspect(.searchField, on: iOS(.v16)) { searchBar in }
 

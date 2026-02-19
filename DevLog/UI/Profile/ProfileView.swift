@@ -108,15 +108,14 @@ struct ProfileView: View {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }
             }
-            .alert("", isPresented: Binding(
-                get: { viewModel.state.showToast },
-                set: { _, _ in }
+            .alert(
+                "", isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert($0)) }
             )) {
-                Button("확인") {
-                    viewModel.send(.tapCloseToast)
-                }
+                Button("확인", role: .cancel) { }
             } message: {
-                Text(viewModel.state.toastMessage)
+                Text(viewModel.state.alertMessage)
             }
         }
     }

@@ -21,12 +21,16 @@ final class SearchViewModel: Store {
                 $0.displayURL.localizedCaseInsensitiveContains(searchQuery)
             }
         }
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertMessage: String = ""
     }
 
     enum Action {
         case onAppear
         case fetchWebPage([WebPageItem]? = nil)
         case selectWebPage(WebPageItem)
+        case setAlert(Bool)
         case setLoading(Bool)
         case setSearching(Bool)
         case setSearchQuery(String)
@@ -59,6 +63,8 @@ final class SearchViewModel: Store {
             state.webPages = OrderedSet(items)
         case .selectWebPage(let item):
             state.selectedWebPage = item
+        case .setAlert(let isPresented):
+            setAlert(&state, isPresented: isPresented)
         case .setLoading(let isLoading):
             state.isLoading = isLoading
         case .setSearching(let isSearching):
@@ -81,9 +87,20 @@ final class SearchViewModel: Store {
                     let items = try await self.fetchWebPagesUseCase.execute().map { WebPageItem(from: $0) }
                     send(.fetchWebPage(items))
                 } catch {
-
+                    send(.setAlert(true))
                 }
             }
         }
+    }
+}
+
+private extension SearchViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.showAlert = isPresented
     }
 }

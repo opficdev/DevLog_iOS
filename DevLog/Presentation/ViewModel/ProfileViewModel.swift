@@ -13,10 +13,10 @@ final class ProfileViewModel: Store {
         var email: String = ""
         var statusMessage: String = ""
         var avatarURL: URL?
-
         var showDoneButton: Bool = false
-        var showToast: Bool = false
-        var toastMessage: String = ""
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertMessage: String = ""
         var resetButtonEnabled: Bool {
             !statusMessage.isEmpty && showDoneButton
         }
@@ -24,13 +24,12 @@ final class ProfileViewModel: Store {
 
     enum Action {
         case onAppear
-        case tapConfirmButton
+        case setAlert(Bool)
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
         case updateStatusMessage(String)
         case updateStatusTextFieldFocus(Bool)
-        case tapCloseToast
     }
 
     enum SideEffect {
@@ -52,11 +51,12 @@ final class ProfileViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
         switch action {
         case .onAppear:
-            return [.fetchUserData]
-        case .tapConfirmButton:
-            state.showToast = false
+            effects = [.fetchUserData]
+        case .setAlert(let isPresented):
+            setAlert(&state, isPresented: isPresented)
         case .tapResetStatusMessageButton:
             state.statusMessage = ""
         case .fetchUserData(let profile):
@@ -66,29 +66,46 @@ final class ProfileViewModel: Store {
             state.avatarURL = profile.avatarURL
         case .willUpdateStatusMessage:
             let message = self.state.statusMessage
-            return [.updateStatusMessage(message)]
+            effects = [.updateStatusMessage(message)]
         case .updateStatusMessage(let message):
             state.statusMessage = message
         case .updateStatusTextFieldFocus(let focused):
             state.showDoneButton = focused
-        case .tapCloseToast:
-            state.showToast = false
         }
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchUserData:
             Task {
-                let profile = try await fetchUserDataUseCase.execute()
-                send(.fetchUserData(profile))
+                do {
+                    let profile = try await fetchUserDataUseCase.execute()
+                    send(.fetchUserData(profile))
+                } catch {
+                    send(.setAlert(true))
+                }
             }
         case .updateStatusMessage(let message):
             Task {
-                try await upsertStatusMessageUseCase.execute(message)
+                do {
+                    try await upsertStatusMessageUseCase.execute(message)
+                } catch {
+                    send(.setAlert(true))
+                }
             }
         }
+    }
+}
+
+private extension ProfileViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.showAlert = isPresented
     }
 }

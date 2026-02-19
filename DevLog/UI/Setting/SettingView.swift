@@ -84,7 +84,7 @@ struct SettingView: View {
                     Text("계정 연동")
                 }
                 Button(role: .destructive, action: {
-                    viewModel.send(.toggleSignOutAlert(true))
+                    viewModel.send(.setAlert(isPresented: true, type: .signOut))
                 }) {
                     Text("로그아웃")
                 }
@@ -93,7 +93,7 @@ struct SettingView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    viewModel.send(.toggleDeleteUserAlert(true))
+                    viewModel.send(.setAlert(isPresented: true, type: .delete))
                 }) {
                     Text("회원 탈퇴")
                         .font(.headline)
@@ -124,49 +124,16 @@ struct SettingView: View {
                 )
             }
         }
-        .alert("로그아웃", isPresented: Binding(
-            get: { viewModel.state.showSignOutAlert }, set: { _, _ in }
-        )) {
-            Button(role: .cancel, action: {
-                viewModel.send(.toggleSignOutAlert(false))
-            }) {
-                Text("취소")
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert(isPresented: $0)) }
+            )) {
+                alertButtons
+            } message: {
+                Text(viewModel.state.alertMessage)
             }
-            Button(role: .destructive, action: {
-                viewModel.send(.tapSignOutButton)
-            }) {
-                Text("확인")
-            }
-        } message: {
-            Text("로그아웃하시겠습니까?")
-        }
-        .alert("정말 탈퇴하시겠습니까?", isPresented: Binding(
-            get: { viewModel.state.showDeleteUserAlert }, set: { _, _ in }
-        )) {
-            Button(role: .cancel, action: {
-                viewModel.send(.toggleDeleteUserAlert(false))
-            }) {
-                Text("취소")
-            }
-            Button(role: .destructive, action: {
-                viewModel.send(.tapDeleteAuthButton)
-            }) {
-                Text("탈퇴")
-            }
-        } message: {
-            Text("회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다.")
-        }
-        .alert("", isPresented: Binding(
-            get: { viewModel.state.showToast }, set: { _, _ in }
-        )) {
-            Button(role: .cancel, action: {
-                viewModel.send(.toggleToast(false))
-            }) {
-                Text("확인")
-            }
-        } message: {
-            Text(viewModel.state.toastMessage)
-        }
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()
@@ -176,5 +143,29 @@ struct SettingView: View {
 
     private enum Path: Hashable {
         case theme, pushNotification, account
+    }
+
+    @ViewBuilder
+    private var alertButtons: some View {
+        switch viewModel.state.alertType {
+        case .signOut:
+            Button("취소", role: .cancel) {
+                viewModel.send(.setAlert(isPresented: false))
+            }
+            Button("확인", role: .destructive) {
+                viewModel.send(.tapSignOutButton)
+            }
+        case .delete:
+            Button("취소", role: .cancel) {
+                viewModel.send(.setAlert(isPresented: false))
+            }
+            Button("탈퇴", role: .destructive) {
+                viewModel.send(.tapDeleteAuthButton)
+            }
+        case .error, .none:
+            Button("확인", role: .cancel) {
+                viewModel.send(.setAlert(isPresented: false))
+            }
+        }
     }
 }

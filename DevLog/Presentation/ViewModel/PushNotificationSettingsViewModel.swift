@@ -9,10 +9,15 @@ import Foundation
 
 final class PushNotificationSettingsViewModel: Store {
     struct State {
-        var pushNotificationEnable = false
-        var pushNotificationTime = Date()
-        var showTimePicker = false
-        var sheetHeight = CGFloat.pi
+        var pushNotificationEnable: Bool = false
+        var pushNotificationTime: Date = .init()
+        var showTimePicker: Bool = false
+        var isLoading: Bool = false
+        var sheetHeight: CGFloat = .pi
+        var showSheet: Bool = false
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertMessage: String = ""
         var pushNotificationHour: Int {
             Calendar.current.component(.hour, from: pushNotificationTime)
         }
@@ -23,6 +28,8 @@ final class PushNotificationSettingsViewModel: Store {
 
     enum Action {
         case onAppear
+        case setAlert(Bool)
+        case setLoading(Bool)
         case setPushNotificationEnable(Bool)
         case setPushNotificationHour(Int)
         case setPushNotificationTime(Date)
@@ -53,6 +60,10 @@ final class PushNotificationSettingsViewModel: Store {
         switch action {
         case .onAppear:
             return [.fetchPushNotificationSettings]
+        case .setAlert(let isPresented):
+            setAlert(&state, isPresented: isPresented)
+        case .setLoading(let value):
+            state.isLoading = value
         case .setPushNotificationEnable(let value):
             self.state.pushNotificationEnable = value
             return [.updatePushNotificationSettings]
@@ -82,24 +93,46 @@ final class PushNotificationSettingsViewModel: Store {
         switch effect {
         case .fetchPushNotificationSettings:
             Task {
-                let settings = try await fetchPushSettingsUseCase.execute()
-                self.send(.setPushNotificationEnable(settings.isEnabled))
-                if let hour = settings.scheduledTime.hour,
-                   let minute = settings.scheduledTime.minute,
-                   let date = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) {
-                    self.send(.setPushNotificationTime(date))
+                do {
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    let settings = try await fetchPushSettingsUseCase.execute()
+                    self.send(.setPushNotificationEnable(settings.isEnabled))
+                    if let hour = settings.scheduledTime.hour,
+                       let minute = settings.scheduledTime.minute,
+                       let date = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) {
+                        self.send(.setPushNotificationTime(date))
+                    }
+                } catch {
+                    send(.setAlert(true))
                 }
             }
         case .updatePushNotificationSettings:
             Task {
-                let dateComponents = calendar.dateComponents([.hour, .minute], from: state.pushNotificationTime)
-                let settings = PushNotificationSettings(
-                    isEnabled: state.pushNotificationEnable,
-                    scheduledTime: dateComponents
-                )
-
-                try await updatePushSettingsUseCase.execute(settings)
+                do {
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    let dateComponents = calendar.dateComponents([.hour, .minute], from: state.pushNotificationTime)
+                    let settings = PushNotificationSettings(
+                        isEnabled: state.pushNotificationEnable,
+                        scheduledTime: dateComponents
+                    )
+                    try await updatePushSettingsUseCase.execute(settings)
+                } catch {
+                    send(.setAlert(true))
+                }
             }
         }
+    }
+}
+
+extension PushNotificationSettingsViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.showAlert = isPresented
     }
 }
