@@ -13,6 +13,6 @@ final class AddWebPageUseCaseImpl: AddWebPageUseCase {
     }
 
     func execute(_ urlString: String) async throws -> WebPage {
-        try await repository.upsert(urlString).toDomain()
+        try await repository.upsert(urlString)
     }
 }

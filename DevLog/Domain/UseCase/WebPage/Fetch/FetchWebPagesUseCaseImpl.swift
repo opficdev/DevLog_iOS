@@ -13,6 +13,6 @@ final class FetchWebPagesUseCaseImpl: FetchWebPagesUseCase {
     }
 
     func execute() async throws -> [WebPage] {
-        return try await repository.fetch().map { $0.toDomain() }
+        try await repository.fetch()
     }
 }

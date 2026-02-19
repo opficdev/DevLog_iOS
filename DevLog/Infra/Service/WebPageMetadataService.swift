@@ -10,7 +10,7 @@ import LinkPresentation
 
 final class WebPageMetadataService {
     private let logger = Logger(category: "WebPageMetadataService")
-    func fetchMetadata(from response: WebPageResponse) async throws -> WebPageMetadata {
+    func fetchMetadata(from response: WebPageURLResponse) async throws -> WebPageResponse {
         logger.info("Fetching metadata for URL: \(response.urlString)")
         
         guard let url = URL(string: response.urlString) else {
@@ -26,7 +26,7 @@ final class WebPageMetadataService {
             let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
 
             logger.info("Successfully fetched metadata for: \(metadata.title ?? "Unknown")")
-            return WebPageMetadata(
+            return WebPageResponse(
                 title: metadata.title,
                 url: url,
                 displayURL: metadata.url ?? url,
