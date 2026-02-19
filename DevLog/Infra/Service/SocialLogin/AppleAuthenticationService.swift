@@ -22,7 +22,7 @@ final class AppleAuthenticationService: AuthenticationService {
     private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
-    func signIn() async throws -> AuthenticationDataResponse {
+    func signIn() async throws -> AuthDataResponse {
         logger.info("Starting Apple sign in")
         
         do {

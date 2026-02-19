@@ -21,7 +21,7 @@ final class GoogleAuthenticationService: AuthenticationService {
     private let logger = Logger(category: "GoogleAuthService")
 
     @MainActor
-    func signIn() async throws -> AuthenticationDataResponse {
+    func signIn() async throws -> AuthDataResponse {
         logger.info("Starting Google sign in")
         
         guard let topViewController = provider.topViewController() else {

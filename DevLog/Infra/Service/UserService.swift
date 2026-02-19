@@ -15,7 +15,7 @@ final class UserService {
     private let logger = Logger(category: "UserService")
     
     // 유저를 Firestore에 저장 및 업데이트
-    func upsertUser(_ response: AuthenticationDataResponse) async throws {
+    func upsertUser(_ response: AuthDataResponse) async throws {
         logger.info("Upserting user with provider: \(response.providerID)")
         
         guard let user = Auth.auth().currentUser else {

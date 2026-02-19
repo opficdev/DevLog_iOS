@@ -27,7 +27,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func signIn(_ provider: AuthProvider) async throws {
-        let response: AuthenticationDataResponse
+        let response: AuthDataResponse
         switch provider {
         case .apple:
             response = try await appleAuthService.signIn()
