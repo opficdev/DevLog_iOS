@@ -27,3 +27,24 @@ enum FirestoreError: Error, LocalizedError {
 enum UIError: Error {
     case notFoundTopViewController
 }
+
+enum DataError: Error {
+    case invalidData(context: String)
+
+    private static let logger = Logger(category: "DataError")
+
+    static func invalidData(
+        _ context: String,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) -> DataError {
+        logger.error(
+            "Invalid data: \(context)",
+            file: file,
+            function: function,
+            line: line
+        )
+        return .invalidData(context: context)
+    }
+}
