@@ -18,7 +18,7 @@ struct PushNotificationView: View {
         NavigationStack(path: $router.path) {
             List {
                 Section {
-                    if viewModel.displayedNotifications.isEmpty {
+                    if viewModel.state.notifications.isEmpty {
                         HStack {
                             Spacer()
                             Text("받은 알림이 없습니다.")
@@ -27,13 +27,19 @@ struct PushNotificationView: View {
                         }
                         .listRowSeparator(.hidden)
                     } else {
-                        ForEach(viewModel.displayedNotifications, id: \.id) { notification in
+                        ForEach(viewModel.state.notifications, id: \.id) { notification in
                             Button {
                                 viewModel.send(.tapNotification(notification))
                             } label: {
                                 notificationRow(notification)
                             }
                             .buttonStyle(.plain)
+                            .onAppear {
+                                let lastID = viewModel.state.notifications.last?.id
+                                if notification.id == lastID, viewModel.state.hasMore {
+                                    viewModel.send(.loadNextPage)
+                                }
+                            }
                         }
                     }
                 } header: {
@@ -44,6 +50,7 @@ struct PushNotificationView: View {
             .listStyle(.plain)
             .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
+            .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
             .alert(
                 "",
@@ -83,6 +90,11 @@ struct PushNotificationView: View {
                 .background(Color(.secondarySystemBackground))
                 .presentationDragIndicator(.visible)
             }
+            .overlay {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                }
+            }
         }
     }
 
@@ -109,19 +121,19 @@ struct PushNotificationView: View {
                 Button {
                     viewModel.send(.toggleSortOption)
                 } label: {
-                    Text("정렬: \(viewModel.state.sortOption.title)")
+                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
                 }
-                .adaptiveButtonStyle(viewModel.state.sortOption == .oldest ? .blue : .clear)
+                .adaptiveButtonStyle(viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
                 Menu {
-                    ForEach(PushNotificationViewModel.TimeFilter.availableOptions, id: \.id) { option in
+                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
                         Button {
                             viewModel.send(.setTimeFilter(option))
                         } label: {
                             HStack {
                                 Text(option.title)
                                 Spacer()
-                                if viewModel.state.timeFilter == option {
+                                if viewModel.state.query.timeFilter == option {
                                     Image(systemName: "checkmark")
                                         .tint(.blue)
                                 }
@@ -132,14 +144,14 @@ struct PushNotificationView: View {
                 } label: {
                     Text("기간")
                 }
-                .adaptiveButtonStyle(viewModel.state.timeFilter == .none ? .clear : .blue)
+                .adaptiveButtonStyle(viewModel.state.query.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
                 } label: {
                     Text("읽지 않음")
                 }
-                .adaptiveButtonStyle(viewModel.state.showUnreadOnly ? .blue : .clear)
+                .adaptiveButtonStyle(viewModel.state.query.unreadOnly ? .blue : .clear)
             }
         }
         .scrollIndicators(.never)

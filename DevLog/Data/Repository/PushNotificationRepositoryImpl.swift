@@ -32,24 +32,37 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
     }
 
     /// 푸시 알림 기록 요청
-    func requestNotifications() async throws -> [PushNotification] {
-        try await service.requestNotifications()
-            .compactMap { dto in
-                guard
-                    let id = dto.id,
-                    let todoKind = TodoKind(rawValue: dto.todoKind)
-                else { return nil }
+    func requestNotifications(
+        _ query: PushNotificationQuery,
+        cursor: PushNotificationCursor?
+    ) async throws -> PushNotificationPage {
+        let response = try await service.requestNotifications(query, cursor: cursor)
 
-                return PushNotification(
-                    id: id,
-                    title: dto.title,
-                    body: dto.body,
-                    receivedAt: dto.receivedAt.dateValue(),
-                    isRead: dto.isRead,
-                    todoID: dto.todoID,
-                    todoKind: todoKind
-                )
-            }
+        let items: [PushNotification] = response.items.compactMap { dto in
+            guard
+                let id = dto.id,
+                let todoKind = TodoKind(rawValue: dto.todoKind)
+            else { return nil }
+
+            return PushNotification(
+                id: id,
+                title: dto.title,
+                body: dto.body,
+                receivedAt: dto.receivedAt.dateValue(),
+                isRead: dto.isRead,
+                todoID: dto.todoID,
+                todoKind: todoKind
+            )
+        }
+
+        let nextCursor = response.nextCursor.map { cursor in
+            PushNotificationCursor(
+                receivedAt: cursor.receivedAt.dateValue(),
+                documentID: cursor.documentID
+            )
+        }
+
+        return PushNotificationPage(items: items, nextCursor: nextCursor)
     }
 
     // 푸시 알림 기록 삭제

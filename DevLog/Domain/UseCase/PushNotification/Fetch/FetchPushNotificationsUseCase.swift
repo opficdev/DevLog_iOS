@@ -6,5 +6,8 @@
 //
 
 protocol FetchPushNotificationsUseCase {
-    func execute() async throws -> [PushNotification]
+    func execute(
+        _ query: PushNotificationQuery,
+        cursor: PushNotificationCursor?
+    ) async throws -> PushNotificationPage
 }

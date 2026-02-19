@@ -89,15 +89,57 @@ final class PushNotificationService {
     }
 
     /// 푸시 알림 기록 요청
-    func requestNotifications() async throws -> [PushNotificationResponse] {
+    func requestNotifications(
+        _ query: PushNotificationQuery,
+        cursor: PushNotificationCursor?
+    ) async throws -> PushNotificationPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        let collection = store.collection("users/\(uid)/notifications")
-        let snapshot = try await collection.getDocuments()
+        var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
 
-        return try snapshot.documents.compactMap { document in
+        if let thresholdDate = query.timeFilter.thresholdDate {
+            firestoreQuery = firestoreQuery.whereField(
+                "receivedAt",
+                isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
+            )
+        }
+
+        if query.unreadOnly {
+            firestoreQuery = firestoreQuery.whereField("isRead", isEqualTo: false)
+        }
+
+        let isDescending = query.sortOrder == .latest
+        firestoreQuery = firestoreQuery
+            .order(by: "receivedAt", descending: isDescending)
+            .order(by: FieldPath.documentID())
+
+        if let cursor {
+            firestoreQuery = firestoreQuery.start(after: [
+                Timestamp(date: cursor.receivedAt),
+                cursor.documentID
+            ])
+        }
+
+        let snapshot = try await firestoreQuery
+            .limit(to: query.pageSize)
+            .getDocuments()
+
+        let items = try snapshot.documents.compactMap { document in
             try document.data(as: PushNotificationResponse.self)
         }
+
+        let nextCursor: PushNotificationCursorResponse? = snapshot.documents.last.map { document in
+            guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
+                return nil
+            }
+
+            return PushNotificationCursorResponse(
+                receivedAt: receivedAt,
+                documentID: document.documentID
+            )
+        } ?? nil
+
+        return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
     }
 
     /// 푸시 알림 기록 삭제
