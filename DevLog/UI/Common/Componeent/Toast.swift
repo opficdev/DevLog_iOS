@@ -41,6 +41,7 @@ private struct ToastOverlayView<Label: View>: View {
     @State private var opacityValue: Double = 0
     @State private var dismissWorkItem: DispatchWorkItem?
     @State private var isTapped: Bool = false
+    @State private var isScheduled: Bool = false
 
     var body: some View {
         if isPresented {
@@ -50,19 +51,18 @@ private struct ToastOverlayView<Label: View>: View {
             )
             .offset(y: yOffset)
             .opacity(opacityValue)
+            .onChange(of: isPresented) { newValue in
+                if newValue {
+                    resetForNewPresentation()
+                    presentAnimated()
+                    scheduleDismissIfNeeded()
+                } else {
+                    cleanupPresentation()
+                }
+            }
             .onAppear {
                 presentAnimated()
-                scheduleDismiss()
-            }
-            .onDisappear {
-                dismissWorkItem?.cancel()
-                dismissWorkItem = nil
-                isPresented = false
-
-                // 토스트를 탭하지 않고 자동으로 사라진 경우에만 onDismiss 호출
-                if !isTapped {
-                    onDismiss?()
-                }
+                scheduleDismissIfNeeded()
             }
             .onTapGesture {
                 isTapped = true
@@ -74,8 +74,7 @@ private struct ToastOverlayView<Label: View>: View {
     }
 
     private func presentAnimated() {
-        dismissWorkItem?.cancel()
-        dismissWorkItem = nil
+        guard opacityValue == 0 else { return }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 1, blendDuration: 0.0)) {
             yOffset = -100
@@ -83,7 +82,28 @@ private struct ToastOverlayView<Label: View>: View {
         }
     }
 
-    private func scheduleDismiss() {
+    private func resetForNewPresentation() {
+        dismissWorkItem?.cancel()
+        dismissWorkItem = nil
+        isScheduled = false
+        isTapped = false
+        yOffset = 0
+        opacityValue = 0
+    }
+
+    private func cleanupPresentation() {
+        dismissWorkItem?.cancel()
+        dismissWorkItem = nil
+        isScheduled = false
+        isTapped = false
+        yOffset = 0
+        opacityValue = 0
+    }
+
+    private func scheduleDismissIfNeeded() {
+        guard !isScheduled else { return }
+        isScheduled = true
+
         let workItem = DispatchWorkItem {
             dismissAnimated()
         }
@@ -102,6 +122,12 @@ private struct ToastOverlayView<Label: View>: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             isPresented = false
+            isScheduled = false
+
+            if !isTapped {
+                onDismiss?()
+            }
+            isTapped = false
         }
     }
 }
