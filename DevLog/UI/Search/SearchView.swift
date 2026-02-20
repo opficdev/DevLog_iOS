@@ -159,6 +159,7 @@ struct SearchView: View {
                         .foregroundStyle(Color.accentColor)
                         .underline()
                 }
+                Spacer()
             }
             .padding(.vertical, 4)
         }
