@@ -59,7 +59,7 @@ struct HomeView: View {
                 get: { viewModel.state.showTodoKindPicker },
                 set: { viewModel.send(.setShowTodoKindPicker($0)) }
             )) {
-                todoKindPicker
+                contentPicker
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showTodoEditor },
@@ -103,19 +103,11 @@ struct HomeView: View {
             ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
                 let kind = preference.kind
                 NavigationLink(value: Path.kind(kind)) {
-                    HStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(kind.color)
-                            .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                            .overlay {
-                                Image(systemName: kind.symbolName)
-                                    .foregroundStyle(Color.white)
-                                    .font(.title3)
-                            }
-                        Text(kind.localizedName)
-                            .foregroundStyle(Color.primary)
-                    }
-                    .padding(.vertical, -6)
+                    labelImage(
+                        text: kind.localizedName,
+                        systemName: kind.symbolName,
+                        imageColor: kind.color
+                    )
                 }
             }
         }, header: {
@@ -211,33 +203,44 @@ struct HomeView: View {
         }
     }
 
-    private var todoKindPicker: some View {
+    private var contentPicker: some View {
         NavigationStack {
             List {
-                let preferences = viewModel.state.todoKindPreferences.filter(\.isVisible)
-                ForEach(preferences, id: \.id) { preference in
-                    let kind = preference.kind
-                    Button {
-                        viewModel.send(.tapTodoKind(kind))
-                    } label: {
-                        HStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(kind.color)
-                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                                .overlay {
-                                    Image(systemName: kind.symbolName)
-                                        .foregroundStyle(Color.white)
-                                        .font(.title3)
-                                }
-                            Text(kind.localizedName)
-                                .foregroundStyle(Color.primary)
-                            Spacer()
+                Section {
+                    let preferences = viewModel.state.todoKindPreferences.filter(\.isVisible)
+                    ForEach(preferences, id: \.id) { preference in
+                        let kind = preference.kind
+                        Button {
+                            viewModel.send(.tapTodoKind(kind))
+                        } label: {
+                            labelImage(
+                                text: kind.localizedName,
+                                systemName: kind.symbolName,
+                                imageColor: kind.color
+                            )
                         }
-                        .padding(.vertical, -6)
                     }
+                } header: {
+                    Text("TODO")
+                        .foregroundStyle(Color(.label))
+                }
+
+                Section {
+                    Button {
+
+                    } label: {
+                        labelImage(
+                            text: "URL",
+                            systemName: "globe",
+                            imageColor: .blue
+                        )
+                    }
+                } header: {
+                    Text("Web Page")
+                        .foregroundStyle(Color(.label))
                 }
             }
-            .navigationTitle("TODO 종류")
+            .navigationTitle("컨텐츠")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -252,8 +255,30 @@ struct HomeView: View {
         }
     }
 
+    private func labelImage(
+        text: String,
+        systemName: String,
+        imageColor: Color
+    ) -> some View {
+        HStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(imageColor)
+                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .overlay {
+                    Image(systemName: systemName)
+                        .foregroundStyle(Color.white)
+                        .font(.title3)
+                }
+            Text(text)
+                .foregroundStyle(Color.primary)
+            Spacer()
+        }
+        .padding(.vertical, -6)
+    }
+
     private enum Path: Hashable {
         case kind(TodoKind)
         case detail(String)
     }
+
 }
