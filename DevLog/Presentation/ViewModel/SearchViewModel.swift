@@ -86,10 +86,10 @@ final class SearchViewModel: Store {
             if maxRecentQueries < state.recentQueries.count {
                 state.recentQueries = OrderedSet(state.recentQueries.prefix(maxRecentQueries))
             }
-            saveRecentQueries(Array(state.recentQueries))
+            saveRecentQueries(state.recentQueries)
         case .removeRecentQuery(let query):
             state.recentQueries.remove(query)
-            saveRecentQueries(Array(state.recentQueries))
+            saveRecentQueries(state.recentQueries)
         case .clearRecentQueries:
             state.recentQueries = []
             saveRecentQueries([])
@@ -171,7 +171,7 @@ private extension SearchViewModel {
         OrderedSet(userDefaults.stringArray(forKey: DefaultsKey.recentQueries) ?? [])
     }
 
-    func saveRecentQueries(_ queries: [String]) {
-        userDefaults.set(queries, forKey: DefaultsKey.recentQueries)
+    func saveRecentQueries(_ queries: OrderedSet<String>) {
+        userDefaults.set(Array(queries), forKey: DefaultsKey.recentQueries)
     }
 }
