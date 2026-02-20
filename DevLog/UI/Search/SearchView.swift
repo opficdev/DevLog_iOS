@@ -65,10 +65,12 @@ struct SearchView: View {
             LazyVStack(alignment: .leading, spacing: 0) {
                 if viewModel.state.isLoading {
                     LoadingView()
-                } else if !viewModel.state.recentQueries.isEmpty {
-                    recentQueries
                 } else if viewModel.state.searchQuery.isEmpty {
-                    searchInstruction
+                    if viewModel.state.recentQueries.isEmpty {
+                        searchInstruction
+                    } else {
+                        recentQueries
+                    }
                 } else if viewModel.state.filteredWebPages.isEmpty {
                     emptySearchResult
                 } else {
@@ -193,6 +195,7 @@ struct SearchView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     viewModel.send(.setSearchQuery(query))
+                    viewModel.send(.setSearching(true))
                 }
             }
         }
