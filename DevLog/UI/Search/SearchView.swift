@@ -122,6 +122,19 @@ struct SearchView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var webPages: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Web Pages")
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            ForEach(viewModel.state.webPages, id: \.id) { page in
+                searchResultRow(page)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
     private func searchResultRow(_ item: WebPageItem) -> some View {
         Button {
             viewModel.send(.selectWebPage(item))
@@ -140,6 +153,8 @@ struct SearchView: View {
                     Text(item.title)
                         .foregroundStyle(Color.primary)
                         .bold()
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
                     Text(item.displayURL)
                         .foregroundStyle(Color.accentColor)
                         .underline()
@@ -147,19 +162,6 @@ struct SearchView: View {
             }
             .padding(.vertical, 4)
         }
-    }
-
-    private var webPages: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Web Pages")
-                .font(.headline)
-                .foregroundStyle(Color(.label))
-            ForEach(viewModel.state.webPages, id: \.id) { page in
-                searchResultRow(page)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
     }
 
     private var recentQueries: some View {
