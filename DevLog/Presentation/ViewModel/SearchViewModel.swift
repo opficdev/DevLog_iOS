@@ -16,12 +16,7 @@ final class SearchViewModel: Store {
         var selectedWebPage: WebPageItem?
         var webPages: OrderedSet<WebPageItem> = []
         var recentQueries: OrderedSet<String> = []
-        var filteredWebPages: [WebPageItem] {
-            webPages.filter {
-                $0.title.localizedCaseInsensitiveContains(searchQuery) ||
-                $0.displayURL.localizedCaseInsensitiveContains(searchQuery)
-            }
-        }
+        var filteredWebPages: [WebPageItem] = []
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
@@ -34,10 +29,11 @@ final class SearchViewModel: Store {
         case addRecentQuery(String)
         case removeRecentQuery(String)
         case clearRecentQueries
+        case applySearchQuery(String)   // 뷰모델에서 쿼리에 대해 디바운스 적용
         case setAlert(Bool)
         case setLoading(Bool)
         case setSearching(Bool)
-        case setSearchQuery(String)
+        case setSearchQuery(String) // 뷰에서 쿼리 입력을 적용
     }
 
     enum SideEffect {
@@ -53,6 +49,8 @@ final class SearchViewModel: Store {
     }
 
     private let maxRecentQueries = 20
+    private let searchDebounceDelay: Double = 0.4
+    private var searchDebounceTask: Task<Void, Never>?
 
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
@@ -77,6 +75,7 @@ final class SearchViewModel: Store {
                 return [.fetch]
             }
             state.webPages = OrderedSet(items)
+            applyFilter(&state, query: state.searchQuery)
         case .selectWebPage(let item):
             state.selectedWebPage = item
         case .addRecentQuery(let query):
@@ -102,6 +101,15 @@ final class SearchViewModel: Store {
             state.isSearching = isSearching
         case .setSearchQuery(let query):
             state.searchQuery = query
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                cancelDebounce()
+                applyFilter(&state, query: "")
+            } else {
+                scheduleDebouncedQuery(query)
+            }
+        case .applySearchQuery(let query):
+            applyFilter(&state, query: query)
         }
 
         self.state = state
@@ -133,6 +141,30 @@ private extension SearchViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    func applyFilter(_ state: inout State, query: String) {
+        state.filteredWebPages = state.webPages.filter {
+            $0.title.localizedCaseInsensitiveContains(query) ||
+            $0.displayURL.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    func scheduleDebouncedQuery(_ query: String) {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: .seconds(searchDebounceDelay))
+            if Task.isCancelled { return }
+            await MainActor.run {
+                self.send(.applySearchQuery(query))
+            }
+        }
+    }
+
+    func cancelDebounce() {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = nil
     }
 
     static func loadRecentQueries(userDefaults: UserDefaults) -> OrderedSet<String> {
