@@ -65,6 +65,8 @@ struct SearchView: View {
             LazyVStack(alignment: .leading, spacing: 0) {
                 if viewModel.state.isLoading {
                     LoadingView()
+                } else if !viewModel.state.recentQueries.isEmpty {
+                    recentQueries
                 } else if viewModel.state.searchQuery.isEmpty {
                     searchInstruction
                 } else if viewModel.state.filteredWebPages.isEmpty {
@@ -76,20 +78,25 @@ struct SearchView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
 
-        if #available(iOS 17.0, *) {
-            scrollContent.searchable(
-                text: searchQueryBinding,
-                isPresented: searchingBinding,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "검색"
-            )
-        } else {
-            scrollContent
-                .searchable(
+        Group {
+            if #available(iOS 17.0, *) {
+                scrollContent.searchable(
                     text: searchQueryBinding,
+                    isPresented: searchingBinding,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "검색"
                 )
+            } else {
+                scrollContent
+                    .searchable(
+                        text: searchQueryBinding,
+                        placement: .navigationBarDrawer(displayMode: .always),
+                        prompt: "검색"
+                    )
+            }
+        }
+        .onSubmit(of: .search) {
+            viewModel.send(.addRecentQuery(viewModel.state.searchQuery))
         }
     }
 
@@ -147,6 +154,46 @@ struct SearchView: View {
                 .foregroundStyle(Color(.label))
             ForEach(viewModel.state.filteredWebPages, id: \.id) { page in
                 searchResultRow(page)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
+    private var recentQueries: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("최근 검색")
+                    .font(.headline)
+                    .foregroundStyle(Color(.label))
+                Spacer()
+                Button("전체 삭제") {
+                    viewModel.send(.clearRecentQueries)
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.gray)
+            }
+
+            ForEach(viewModel.state.recentQueries, id: \.self) { query in
+                HStack {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundStyle(Color.gray)
+                    Text(query)
+                        .foregroundStyle(Color.primary)
+                    Spacer()
+                    Button {
+                        viewModel.send(.removeRecentQuery(query))
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.gray)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.send(.setSearchQuery(query))
+                }
             }
         }
         .padding(.horizontal, 16)
