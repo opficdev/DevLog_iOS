@@ -7,6 +7,7 @@
 
 import Foundation
 import LinkPresentation
+import UIKit
 
 final class WebPageMetadataService {
     private let logger = Logger(category: "WebPageMetadataService")
@@ -42,30 +43,58 @@ final class WebPageMetadataService {
 
         return try await withCheckedThrowingContinuation { continuation in
             imageProvider.loadObject(ofClass: UIImage.self) { image, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
                 guard let image = image as? UIImage,
                       let data = image.jpegData(compressionQuality: 1.0) else {
                     continuation.resume(returning: nil)
                     return
                 }
 
-                guard let fileName = url.absoluteString.addingPercentEncoding(
-                    withAllowedCharacters: .alphanumerics
-                ) else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-
-                let tempURL = FileManager.default.temporaryDirectory
-                    .appendingPathComponent(fileName)
-                    .appendingPathExtension("jpeg")
-
                 do {
-                    try data.write(to: tempURL)
-                    continuation.resume(returning: tempURL)
+                    let fileURL = try Self.cacheFileURL(for: url)
+                    Task.detached { [data, fileURL] in
+                        do {
+                            if FileManager.default.fileExists(atPath: fileURL.path) {
+                                if let existingData = try? Data(contentsOf: fileURL),
+                                   UIImage(data: existingData) != nil {
+                                    continuation.resume(returning: fileURL)
+                                    return
+                                }
+                            }
+                            try data.write(to: fileURL, options: [.atomic])
+                            continuation.resume(returning: fileURL)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    }
                 } catch {
                     continuation.resume(throwing: error)
                 }
             }
         }
+    }
+
+    private static func cacheFileURL(for url: URL) throws -> URL {
+        let cachesDir = try FileManager.default.url(
+            for: .cachesDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let imageDir = cachesDir.appendingPathComponent("webPageImages", isDirectory: true)
+        if !FileManager.default.fileExists(atPath: imageDir.path) {
+            try FileManager.default.createDirectory(at: imageDir, withIntermediateDirectories: true)
+        }
+
+        let fileName = url.absoluteString
+            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
+
+        return imageDir
+            .appendingPathComponent(fileName)
+            .appendingPathExtension("jpeg")
     }
 }
