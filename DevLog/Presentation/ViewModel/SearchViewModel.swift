@@ -14,34 +14,28 @@ final class SearchViewModel: Store {
         var isSearching: Bool = false
         var searchQuery: String = ""
         var selectedWebPage: WebPageItem?
-        var webPages: OrderedSet<WebPageItem> = []
+        var webPages: [WebPageItem] = []
         var recentQueries: OrderedSet<String> = []
-        var filteredWebPages: [WebPageItem] {
-            webPages.filter {
-                $0.title.localizedCaseInsensitiveContains(searchQuery) ||
-                $0.displayURL.localizedCaseInsensitiveContains(searchQuery)
-            }
-        }
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
     }
 
     enum Action {
-        case onAppear
-        case fetchWebPage([WebPageItem]? = nil)
+        case fetchWebPage([WebPageItem])
         case selectWebPage(WebPageItem)
         case addRecentQuery(String)
         case removeRecentQuery(String)
         case clearRecentQueries
+        case applySearchQuery(String)   // 뷰모델에서 쿼리에 대해 디바운스 적용
         case setAlert(Bool)
         case setLoading(Bool)
         case setSearching(Bool)
-        case setSearchQuery(String)
+        case setSearchQuery(String) // 뷰에서 쿼리 입력을 적용
     }
 
     enum SideEffect {
-        case fetch
+        case fetch(String)
     }
 
     @Published private(set) var state: State = .init()
@@ -53,6 +47,8 @@ final class SearchViewModel: Store {
     }
 
     private let maxRecentQueries = 20
+    private let searchDebounceDelay: Double = 0.4
+    private var searchDebounceTask: Task<Void, Never>?
 
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
@@ -65,18 +61,11 @@ final class SearchViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
-        case .onAppear:
-            state.isSearching = true
-            self.state = state
-            return [.fetch]
         case .fetchWebPage(let items):
-            guard let items else {
-                self.state = state
-                return [.fetch]
-            }
-            state.webPages = OrderedSet(items)
+            state.webPages = items
         case .selectWebPage(let item):
             state.selectedWebPage = item
         case .addRecentQuery(let query):
@@ -87,10 +76,10 @@ final class SearchViewModel: Store {
             if maxRecentQueries < state.recentQueries.count {
                 state.recentQueries = OrderedSet(state.recentQueries.prefix(maxRecentQueries))
             }
-            saveRecentQueries(Array(state.recentQueries))
+            saveRecentQueries(state.recentQueries)
         case .removeRecentQuery(let query):
             state.recentQueries.remove(query)
-            saveRecentQueries(Array(state.recentQueries))
+            saveRecentQueries(state.recentQueries)
         case .clearRecentQueries:
             state.recentQueries = []
             saveRecentQueries([])
@@ -102,20 +91,34 @@ final class SearchViewModel: Store {
             state.isSearching = isSearching
         case .setSearchQuery(let query):
             state.searchQuery = query
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                cancelDebounce()
+                state.webPages = []
+            } else {
+                scheduleDebouncedQuery(query)
+            }
+        case .applySearchQuery(let query):
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.webPages = []
+            } else {
+                effects = [.fetch(trimmed)]
+            }
         }
 
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .fetch:
+        case .fetch(let query):
             Task {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
-                    let items = try await self.fetchWebPagesUseCase.execute().map { WebPageItem(from: $0) }
+                    let items = try await fetchWebPagesUseCase.execute(query).map { WebPageItem(from: $0) }
                     send(.fetchWebPage(items))
                 } catch {
                     send(.setAlert(true))
@@ -135,11 +138,28 @@ private extension SearchViewModel {
         state.showAlert = isPresented
     }
 
+    func scheduleDebouncedQuery(_ query: String) {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: .seconds(searchDebounceDelay))
+            if Task.isCancelled { return }
+            await MainActor.run {
+                self.send(.applySearchQuery(query))
+            }
+        }
+    }
+
+    func cancelDebounce() {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = nil
+    }
+
     static func loadRecentQueries(userDefaults: UserDefaults) -> OrderedSet<String> {
         OrderedSet(userDefaults.stringArray(forKey: DefaultsKey.recentQueries) ?? [])
     }
 
-    func saveRecentQueries(_ queries: [String]) {
-        userDefaults.set(queries, forKey: DefaultsKey.recentQueries)
+    func saveRecentQueries(_ queries: OrderedSet<String>) {
+        userDefaults.set(Array(queries), forKey: DefaultsKey.recentQueries)
     }
 }

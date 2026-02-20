@@ -12,7 +12,7 @@ final class FetchWebPagesUseCaseImpl: FetchWebPagesUseCase {
         self.repository = repository
     }
 
-    func execute() async throws -> [WebPage] {
-        try await repository.fetch()
+    func execute(_ query: String) async throws -> [WebPage] {
+        try await repository.fetch(query)
     }
 }

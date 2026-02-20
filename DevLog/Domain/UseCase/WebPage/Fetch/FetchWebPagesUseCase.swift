@@ -6,5 +6,5 @@
 //
 
 protocol FetchWebPagesUseCase {
-    func execute() async throws -> [WebPage]
+    func execute(_ query: String) async throws -> [WebPage]
 }

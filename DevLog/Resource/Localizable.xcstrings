@@ -13,6 +13,9 @@
     "%lld개 필터가 적용됨" : {
 
     },
+    "https://" : {
+
+    },
     "lime_green" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -225,9 +228,6 @@
     "TODO" : {
 
     },
-    "TODO 종류" : {
-
-    },
     "TODO 편집" : {
 
     },
@@ -250,6 +250,9 @@
           }
         }
       }
+    },
+    "Web Page" : {
+
     },
     "Web Pages" : {
 
@@ -384,6 +387,9 @@
 
     },
     "취소" : {
+
+    },
+    "컨텐츠" : {
 
     },
     "탈퇴" : {

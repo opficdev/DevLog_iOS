@@ -29,7 +29,7 @@ struct SearchView: View {
                     }
                 }
                 .onAppear {
-                    viewModel.send(.onAppear)
+                    viewModel.send(.setSearching(true))
                 }
                 .onChange(of: viewModel.state.isSearching) { isSearching in
                     if !isSearching {
@@ -71,7 +71,7 @@ struct SearchView: View {
                     } else {
                         recentQueries
                     }
-                } else if viewModel.state.filteredWebPages.isEmpty {
+                } else if viewModel.state.webPages.isEmpty {
                     emptySearchResult
                 } else {
                     webPages
@@ -122,6 +122,19 @@ struct SearchView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var webPages: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Web Pages")
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            ForEach(viewModel.state.webPages, id: \.id) { page in
+                searchResultRow(page)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
     private func searchResultRow(_ item: WebPageItem) -> some View {
         Button {
             viewModel.send(.selectWebPage(item))
@@ -140,26 +153,16 @@ struct SearchView: View {
                     Text(item.title)
                         .foregroundStyle(Color.primary)
                         .bold()
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
                     Text(item.displayURL)
                         .foregroundStyle(Color.accentColor)
                         .underline()
                 }
+                Spacer()
             }
             .padding(.vertical, 4)
         }
-    }
-
-    private var webPages: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Web Pages")
-                .font(.headline)
-                .foregroundStyle(Color(.label))
-            ForEach(viewModel.state.filteredWebPages, id: \.id) { page in
-                searchResultRow(page)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
     }
 
     private var recentQueries: some View {
