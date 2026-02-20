@@ -29,7 +29,7 @@ final class HomeViewModel: Store {
         case orderTodoKindPreferences([TodoKindPreference])
         case setReorderTodo(Bool)
         case setShowTodoEditor(Bool)
-        case setShowTodoKindPicker(Bool)
+        case setShowContentPicker(Bool)
         case setShowSearchView(Bool)
         case setAlert(Bool)
         case onAppear
@@ -63,7 +63,7 @@ final class HomeViewModel: Store {
 
         switch action {
         case .tapTodoKind, .orderTodoKindPreferences, .setReorderTodo,
-                .setShowTodoEditor, .setShowTodoKindPicker, .setShowSearchView, .setAlert:
+                .setShowTodoEditor, .setShowContentPicker, .setShowSearchView, .setAlert:
             effects = reduceByUser(action, state: &state)
 
         case .onAppear, .updateSearching, .updateSearchText, .upsertTodo:
@@ -119,7 +119,7 @@ private extension HomeViewModel {
         case .setShowTodoEditor(let isPresented):
             state.showTodoEditor = isPresented
             if !isPresented { state.selectedTodoKind = nil }
-        case .setShowTodoKindPicker(let isPresented):
+        case .setShowContentPicker(let isPresented):
             state.showTodoKindPicker = isPresented
         case .setShowSearchView(let isPresented):
             state.showSearchView = isPresented

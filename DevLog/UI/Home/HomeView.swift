@@ -57,7 +57,7 @@ struct HomeView: View {
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.showTodoKindPicker },
-                set: { viewModel.send(.setShowTodoKindPicker($0)) }
+                set: { viewModel.send(.setShowContentPicker($0)) }
             )) {
                 contentPicker
             }
@@ -186,7 +186,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowTodoKindPicker(true))
+                viewModel.send(.setShowContentPicker(true))
             } label: {
                 Image(systemName: "plus")
             }
@@ -245,7 +245,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        viewModel.send(.setShowTodoKindPicker(false))
+                        viewModel.send(.setShowContentPicker(false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()
