@@ -10,11 +10,11 @@ import LinkPresentation
 
 final class WebPageMetadataService {
     private let logger = Logger(category: "WebPageMetadataService")
-    func fetchMetadata(from response: WebPageURLResponse) async throws -> WebPageResponse {
-        logger.info("Fetching metadata for URL: \(response.urlString)")
+    func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse {
+        logger.info("Fetching metadata for URL: \(urlString)")
         
-        guard let url = URL(string: response.urlString) else {
-            logger.error("Invalid URL: \(response.urlString)")
+        guard let url = URL(string: urlString) else {
+            logger.error("Invalid URL: \(urlString)")
             throw URLError(.badURL)
         }
 
@@ -26,11 +26,10 @@ final class WebPageMetadataService {
             let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
 
             logger.info("Successfully fetched metadata for: \(metadata.title ?? "Unknown")")
-            return WebPageResponse(
-                title: metadata.title,
-                url: url,
-                displayURL: metadata.url ?? url,
-                imageURL: imageURL
+            return WebPageMetadataResponse(
+                title: metadata.title ?? "",
+                displayURL: (metadata.url ?? url).absoluteString,
+                imageURL: imageURL?.absoluteString ?? ""
             )
         } catch {
             logger.error("Failed to fetch metadata", error: error)

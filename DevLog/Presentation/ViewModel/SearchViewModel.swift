@@ -14,17 +14,15 @@ final class SearchViewModel: Store {
         var isSearching: Bool = false
         var searchQuery: String = ""
         var selectedWebPage: WebPageItem?
-        var webPages: OrderedSet<WebPageItem> = []
+        var webPages: [WebPageItem] = []
         var recentQueries: OrderedSet<String> = []
-        var filteredWebPages: [WebPageItem] = []
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
     }
 
     enum Action {
-        case onAppear
-        case fetchWebPage([WebPageItem]? = nil)
+        case fetchWebPage([WebPageItem])
         case selectWebPage(WebPageItem)
         case addRecentQuery(String)
         case removeRecentQuery(String)
@@ -37,7 +35,7 @@ final class SearchViewModel: Store {
     }
 
     enum SideEffect {
-        case fetch
+        case fetch(String)
     }
 
     @Published private(set) var state: State = .init()
@@ -63,19 +61,11 @@ final class SearchViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
-        case .onAppear:
-            state.isSearching = true
-            self.state = state
-            return [.fetch]
         case .fetchWebPage(let items):
-            guard let items else {
-                self.state = state
-                return [.fetch]
-            }
-            state.webPages = OrderedSet(items)
-            applyFilter(&state, query: state.searchQuery)
+            state.webPages = items
         case .selectWebPage(let item):
             state.selectedWebPage = item
         case .addRecentQuery(let query):
@@ -104,26 +94,31 @@ final class SearchViewModel: Store {
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
                 cancelDebounce()
-                applyFilter(&state, query: "")
+                state.webPages = []
             } else {
                 scheduleDebouncedQuery(query)
             }
         case .applySearchQuery(let query):
-            applyFilter(&state, query: query)
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.webPages = []
+            } else {
+                effects = [.fetch(trimmed)]
+            }
         }
 
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .fetch:
+        case .fetch(let query):
             Task {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
-                    let items = try await self.fetchWebPagesUseCase.execute().map { WebPageItem(from: $0) }
+                    let items = try await fetchWebPagesUseCase.execute(query).map { WebPageItem(from: $0) }
                     send(.fetchWebPage(items))
                 } catch {
                     send(.setAlert(true))
@@ -141,13 +136,6 @@ private extension SearchViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
-    }
-
-    func applyFilter(_ state: inout State, query: String) {
-        state.filteredWebPages = state.webPages.filter {
-            $0.title.localizedCaseInsensitiveContains(query) ||
-            $0.displayURL.localizedCaseInsensitiveContains(query)
-        }
     }
 
     func scheduleDebouncedQuery(_ query: String) {

@@ -17,32 +17,28 @@ final class WebPageRepositoryImpl: WebPageRepository {
         self.metadataService = metadataService
     }
 
-    func fetch() async throws -> [WebPage] {
-        let responses = try await webPageService.fetchWebPages()
-        let indexedResponses = responses.enumerated().map { ($0.offset, $0.element) }
-
-        return try await withThrowingTaskGroup(of: (Int, WebPageResponse?).self) { group in
-            for (index, response) in indexedResponses {
-                group.addTask {
-                    let metadata = try? await self.metadataService.fetchMetadata(from: response)
-                    return (index, metadata)
-                }
-            }
-
-            var results: [WebPageResponse?] = Array(repeating: nil, count: responses.count)
-            for try await (index, metadata) in group {
-                results[index] = metadata
-            }
-
-            return results.compactMap { $0?.toDomain() }
-        }
+    func fetch(_ query: String) async throws -> [WebPage] {
+        try await webPageService
+            .fetchWebPages(query)
+            .compactMap { try? $0.toDomain() }
     }
 
     func upsert(_ urlString: String) async throws -> WebPage {
-        try await webPageService.upsertWebPage(urlString)
-        let response = WebPageURLResponse(urlString: urlString)
-        let metadata = try await metadataService.fetchMetadata(from: response)
-        return metadata.toDomain()
+        let metadata = try await metadataService.fetchMetadata(from: urlString)
+        let request = WebPageRequest(
+            title: metadata.title,
+            url: urlString,
+            displayURL: metadata.displayURL,
+            imageURL: metadata.imageURL
+        )
+        try await webPageService.upsertWebPage(request)
+        let response = WebPageResponse(
+            title: request.title,
+            url: request.url,
+            displayURL: request.displayURL,
+            imageURL: request.imageURL
+        )
+        return try response.toDomain()
     }
 
     func delete(_ urlString: String) async throws {

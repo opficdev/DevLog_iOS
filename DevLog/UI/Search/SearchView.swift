@@ -29,7 +29,7 @@ struct SearchView: View {
                     }
                 }
                 .onAppear {
-                    viewModel.send(.onAppear)
+                    viewModel.send(.setSearching(true))
                 }
                 .onChange(of: viewModel.state.isSearching) { isSearching in
                     if !isSearching {
@@ -71,7 +71,7 @@ struct SearchView: View {
                     } else {
                         recentQueries
                     }
-                } else if viewModel.state.filteredWebPages.isEmpty {
+                } else if viewModel.state.webPages.isEmpty {
                     emptySearchResult
                 } else {
                     webPages
@@ -154,7 +154,7 @@ struct SearchView: View {
             Text("Web Pages")
                 .font(.headline)
                 .foregroundStyle(Color(.label))
-            ForEach(viewModel.state.filteredWebPages, id: \.id) { page in
+            ForEach(viewModel.state.webPages, id: \.id) { page in
                 searchResultRow(page)
             }
         }

@@ -13,7 +13,7 @@ final class WebPageService {
     private let logger = Logger(category: "WebPageService")
 
     /// 저장한 웹페이지를 모두 불러옴
-    func fetchWebPages() async throws -> [WebPageURLResponse] {
+    func fetchWebPages(_ query: String) async throws -> [WebPageResponse] {
         logger.info("Fetching web pages")
         
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -22,17 +22,24 @@ final class WebPageService {
         }
 
         do {
-            let webPageInfoRef = store.document("users/\(uid)/userData/webPageInfos")
-            let doc = try await webPageInfoRef.getDocument()
-
-            if doc.exists, let data = doc.data() {
-                if let webPageInfos = data["webPageInfos"] as? [String] {
-                    logger.info("Successfully fetched \(webPageInfos.count) web pages")
-                    return webPageInfos.map { WebPageURLResponse(urlString: $0) }
-                }
+            let collectionRef = store.collection("users/\(uid)/webPages")
+            let snapshot = try await collectionRef.getDocuments()
+            let items: [WebPageResponse] = snapshot.documents.compactMap { doc in
+                try? doc.data(as: WebPageResponse.self)
             }
-            logger.error("Web page data not found or invalid")
-            throw URLError(.badServerResponse)
+
+            let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedQuery.isEmpty else {
+                logger.info("Successfully fetched \(items.count) web pages")
+                return items
+            }
+
+            let filtered = items.filter {
+                $0.title.localizedCaseInsensitiveContains(trimmedQuery) ||
+                $0.displayURL.localizedCaseInsensitiveContains(trimmedQuery)
+            }
+            logger.info("Successfully fetched \(filtered.count) web pages with query")
+            return filtered
         } catch {
             logger.error("Failed to fetch web pages", error: error)
             throw error
@@ -40,8 +47,8 @@ final class WebPageService {
     }
 
     /// 웹페이지를 추가 또는 업데이트
-    func upsertWebPage(_ urlString: String) async throws {
-        logger.info("Upserting web page: \(urlString)")
+    func upsertWebPage(_ request: WebPageRequest) async throws {
+        logger.info("Upserting web page: \(request.url)")
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
@@ -49,11 +56,10 @@ final class WebPageService {
         }
 
         do {
-            let infosRef = store.document("users/\(uid)/userData/webPageInfos")
-            try await infosRef.setData(
-                ["webPageInfos": FieldValue.arrayUnion([urlString])],
-                merge: true
-            )
+            let documentID = documentID(for: request.url)
+            let docRef = store.document("users/\(uid)/webPages/\(documentID)")
+            let data = try Firestore.Encoder().encode(request)
+            try await docRef.setData(data, merge: true)
             logger.info("Successfully upserted web page")
         } catch {
             logger.error("Failed to upsert web page", error: error)
@@ -63,19 +69,32 @@ final class WebPageService {
 
     func deleteWebPage(_ urlString: String) async throws {
         logger.info("Deleting web page: \(urlString)")
-        
+
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
 
         do {
-            let infosRef = store.document("users/\(uid)/userData/webPageInfos")
-            try await infosRef.updateData(["webPageInfos": FieldValue.arrayRemove([urlString])])
+            let documentID = documentID(for: urlString)
+            let docRef = store
+                .document("users/\(uid)/webPages/\(documentID)")
+            try await docRef.delete()
             logger.info("Successfully deleted web page")
         } catch {
             logger.error("Failed to delete web page", error: error)
             throw error
         }
+    }
+
+    private func documentID(for url: String) -> String {
+        if let encoded = url.addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
+            return encoded
+        }
+        let base64 = Data(url.utf8).base64EncodedString()
+        return base64
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "=", with: "")
     }
 }
