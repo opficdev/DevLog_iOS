@@ -216,10 +216,11 @@ private extension PushNotificationViewModel {
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading else { return [] }
+            guard state.hasMore, !state.isLoading, state.pendingTask == nil else { return [] }
             return [.fetchNotifications(state.query, cursor: state.nextCursor)]
         case .confirmDelete:
-            guard let (item, _ ) = state.pendingTask else { return [] }
+            guard let (item, _) = state.pendingTask else { return [] }
+            state.pendingTask = nil
             return [.delete(item)]
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
@@ -241,7 +242,13 @@ private extension PushNotificationViewModel {
             state.notifications = []
             state.nextCursor = nil
         case .appendNotifications(let notifications, let nextCursor):
-            state.notifications.append(contentsOf: notifications)
+            let filteredNotifications: [PushNotification]
+            if let (pendingItem, _) = state.pendingTask {
+                filteredNotifications = notifications.filter { $0.id != pendingItem.id }
+            } else {
+                filteredNotifications = notifications
+            }
+            state.notifications.append(contentsOf: filteredNotifications)
             state.nextCursor = nextCursor
         default:
             break
