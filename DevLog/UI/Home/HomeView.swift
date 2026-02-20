@@ -160,7 +160,7 @@ struct HomeView: View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
                 if viewModel.state.isLoading {
-                    LoadingView()
+                    LoadingView(isClear: true)
                 } else {
                     HStack {
                         Spacer()

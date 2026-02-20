@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct LoadingView: View {
+    private let isClear: Bool
+
+    init(isClear: Bool = false) {
+        self.isClear = isClear
+    }
+
     var body: some View {
         ZStack {
-            Color.black.opacity(0.25).ignoresSafeArea()
+            Color.black.opacity(isClear ? 0 : 0.25).ignoresSafeArea()
             ProgressView()
         }
         .allowsHitTesting(true)
