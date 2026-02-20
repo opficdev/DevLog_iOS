@@ -15,6 +15,7 @@ final class SearchViewModel: Store {
         var searchQuery: String = ""
         var selectedWebPage: WebPageItem?
         var webPages: OrderedSet<WebPageItem> = []
+        var recentQueries: OrderedSet<String> = []
         var filteredWebPages: [WebPageItem] {
             webPages.filter {
                 $0.title.localizedCaseInsensitiveContains(searchQuery) ||
@@ -30,6 +31,9 @@ final class SearchViewModel: Store {
         case onAppear
         case fetchWebPage([WebPageItem]? = nil)
         case selectWebPage(WebPageItem)
+        case addRecentQuery(String)
+        case removeRecentQuery(String)
+        case clearRecentQueries
         case setAlert(Bool)
         case setLoading(Bool)
         case setSearching(Bool)
@@ -42,9 +46,21 @@ final class SearchViewModel: Store {
 
     @Published private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
+    private let userDefaults: UserDefaults
 
-    init(fetchWebPagesUseCase: FetchWebPagesUseCase) {
+    private enum DefaultsKey {
+        static let recentQueries = "Search.recentQueries"
+    }
+
+    private let maxRecentQueries = 20
+
+    init(
+        fetchWebPagesUseCase: FetchWebPagesUseCase,
+        userDefaults: UserDefaults = .standard
+    ) {
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
+        self.userDefaults = userDefaults
+        self.state.recentQueries = Self.loadRecentQueries(userDefaults: userDefaults)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -63,6 +79,21 @@ final class SearchViewModel: Store {
             state.webPages = OrderedSet(items)
         case .selectWebPage(let item):
             state.selectedWebPage = item
+        case .addRecentQuery(let query):
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { break }
+            state.recentQueries.remove(trimmed)
+            state.recentQueries.insert(trimmed, at: 0)
+            if maxRecentQueries < state.recentQueries.count {
+                state.recentQueries = OrderedSet(state.recentQueries.prefix(maxRecentQueries))
+            }
+            saveRecentQueries(Array(state.recentQueries))
+        case .removeRecentQuery(let query):
+            state.recentQueries.remove(query)
+            saveRecentQueries(Array(state.recentQueries))
+        case .clearRecentQueries:
+            state.recentQueries = []
+            saveRecentQueries([])
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .setLoading(let isLoading):
@@ -102,5 +133,13 @@ private extension SearchViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    static func loadRecentQueries(userDefaults: UserDefaults) -> OrderedSet<String> {
+        OrderedSet(userDefaults.stringArray(forKey: DefaultsKey.recentQueries) ?? [])
+    }
+
+    func saveRecentQueries(_ queries: [String]) {
+        userDefaults.set(queries, forKey: DefaultsKey.recentQueries)
     }
 }
