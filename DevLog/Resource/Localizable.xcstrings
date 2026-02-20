@@ -13,6 +13,9 @@
     "%lld개 필터가 적용됨" : {
 
     },
+    "https://" : {
+
+    },
     "lime_green" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -248,6 +251,9 @@
         }
       }
     },
+    "URL 추가" : {
+
+    },
     "Web Page" : {
 
     },
@@ -342,6 +348,9 @@
 
     },
     "완료" : {
+
+    },
+    "웹페이지 URL을 입력해주세요." : {
 
     },
     "읽지 않음" : {

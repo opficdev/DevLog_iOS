@@ -14,6 +14,8 @@ final class HomeViewModel: Store {
         var showTodoKindPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
+        var showWebPageAlert: Bool = false
+        var webPageURLInput: String = "https://"
         var selectedTodoKind: TodoKind?
         var searchText: String = ""
         var isSearching: Bool = false
@@ -31,28 +33,35 @@ final class HomeViewModel: Store {
         case setShowTodoEditor(Bool)
         case setShowContentPicker(Bool)
         case setShowSearchView(Bool)
+        case setShowWebPageAlert(Bool)
+        case updateWebPageURLInput(String)
         case setAlert(Bool)
         case onAppear
         case updateSearching(Bool)
         case updateSearchText(String)
         case upsertTodo(Todo)
+        case addWebPage
         case fetchPinnedTodos([PinnedTodoItem])
         case setLoading(Bool)
     }
 
     enum SideEffect {
         case upsertTodo(Todo)
+        case addWebPage(String)
         case fetchPinnedTodos
     }
 
     private let upsertTodoUseCase: UpsertTodoUseCase
+    private let addWebPageUseCase: AddWebPageUseCase
     private let fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
     @Published private(set) var state = State()
 
     init(
+        addWebPageUseCase: AddWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
     ) {
+        self.addWebPageUseCase = addWebPageUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.fetchPinnedTodosUseCase = fetchPinnedTodosUseCase
     }
@@ -63,10 +72,11 @@ final class HomeViewModel: Store {
 
         switch action {
         case .tapTodoKind, .orderTodoKindPreferences, .setReorderTodo,
-                .setShowTodoEditor, .setShowContentPicker, .setShowSearchView, .setAlert:
+                .setShowTodoEditor, .setShowContentPicker, .setShowSearchView,
+                .setShowWebPageAlert, .updateWebPageURLInput, .setAlert:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo:
+        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage:
             effects = reduceByView(action, state: &state)
 
         case .fetchPinnedTodos, .setLoading:
@@ -85,6 +95,16 @@ final class HomeViewModel: Store {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
                     try await upsertTodoUseCase.execute(todo)
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .addWebPage(let urlString):
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    _ = try await addWebPageUseCase.execute(urlString)
                 } catch {
                     send(.setAlert(true))
                 }
@@ -123,6 +143,13 @@ private extension HomeViewModel {
             state.showTodoKindPicker = isPresented
         case .setShowSearchView(let isPresented):
             state.showSearchView = isPresented
+        case .setShowWebPageAlert(let isPresented):
+            state.showWebPageAlert = isPresented
+            if isPresented {
+                state.webPageURLInput = "https://"
+            }
+        case .updateWebPageURLInput(let text):
+            state.webPageURLInput = text
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         default:
@@ -141,6 +168,12 @@ private extension HomeViewModel {
             state.searchText = text
         case .upsertTodo(let todo):
             return [.upsertTodo(todo)]
+        case .addWebPage:
+            guard let normalizedURL = normalizedWebPageURL(state.webPageURLInput) else {
+                return []
+            }
+            state.showWebPageAlert = false
+            return [.addWebPage(normalizedURL)]
         default:
             break
         }
@@ -169,5 +202,17 @@ private extension HomeViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    func normalizedWebPageURL(_ input: String) -> String? {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed == "https://" || trimmed == "http://" {
+            return nil
+        }
+        if trimmed.lowercased().hasPrefix("http://") || trimmed.lowercased().hasPrefix("https://") {
+            return trimmed
+        }
+        return "https://" + trimmed
     }
 }

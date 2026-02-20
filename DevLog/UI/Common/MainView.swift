@@ -13,6 +13,7 @@ struct MainView: View {
     var body: some View {
         TabView {
             HomeView(viewModel: HomeViewModel(
+                addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self)
             ))

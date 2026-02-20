@@ -80,6 +80,27 @@ struct HomeView: View {
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
                 ))
             }
+            .alert("URL 추가", isPresented: Binding(
+                get: { viewModel.state.showWebPageAlert },
+                set: { viewModel.send(.setShowWebPageAlert($0)) }
+            )) {
+                TextField(
+                    "https://",
+                    text: Binding(
+                        get: { viewModel.state.webPageURLInput },
+                        set: { viewModel.send(.updateWebPageURLInput($0)) }
+                    )
+                )
+                .textInputAutocapitalization(.never)
+                .keyboardType(.URL)
+                .autocorrectionDisabled()
+                Button("추가") {
+                    viewModel.send(.addWebPage)
+                }
+                Button("취소", role: .cancel) { }
+            } message: {
+                Text("웹페이지 URL을 입력해주세요.")
+            }
             .alert(
                 viewModel.state.alertTitle,
                 isPresented: Binding(
@@ -227,7 +248,7 @@ struct HomeView: View {
 
                 Section {
                     Button {
-
+                        viewModel.send(.setShowWebPageAlert(true))
                     } label: {
                         labelImage(
                             text: "URL",
@@ -280,5 +301,4 @@ struct HomeView: View {
         case kind(TodoKind)
         case detail(String)
     }
-
 }
