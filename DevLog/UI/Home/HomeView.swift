@@ -77,7 +77,8 @@ struct HomeView: View {
                 set: { viewModel.send(.setShowSearchView($0)) }
             )) {
                 SearchView(viewModel: SearchViewModel(
-                    fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
+                    fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+                    fetchTodosByKeywordUseCase: container.resolve(FetchTodosByKeywordUseCase.self)
                 ))
             }
             .alert(

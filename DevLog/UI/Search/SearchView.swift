@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.sceneWidth) private var sceneWidth
+    @Environment(\.diContainer) private var container: DIContainer
     @StateObject private var router = NavigationRouter()
     @StateObject var viewModel: SearchViewModel
 
@@ -18,7 +19,13 @@ struct SearchView: View {
             searchableContent
                 .navigationDestination(for: Path.self) { path in
                     switch path {
-                    case .webView(let url):
+                    case .todo(let todoID):
+                        TodoDetailView(viewModel: TodoDetailViewModel(
+                            fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                            todoID: todoID
+                        ))
+                    case .web(let url):
                         WebView(url: url)
                             .toolbar {
                                 ToolbarItem(placement: .principal) {
@@ -71,10 +78,10 @@ struct SearchView: View {
                     } else {
                         recentQueries
                     }
-                } else if viewModel.state.webPages.isEmpty {
+                } else if viewModel.state.webPages.isEmpty && viewModel.state.todos.isEmpty {
                     emptySearchResult
                 } else {
-                    webPages
+                    searchResults
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -122,6 +129,30 @@ struct SearchView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var searchResults: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if !viewModel.state.todos.isEmpty {
+                todoResults
+            }
+            if !viewModel.state.webPages.isEmpty {
+                webPages
+            }
+        }
+        .padding(.vertical, 8)
+    }
+
+    private var todoResults: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Todos")
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            ForEach(viewModel.state.todos, id: \.id) { todo in
+                todoResultRow(todo)
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+
     private var webPages: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Web Pages")
@@ -132,13 +163,37 @@ struct SearchView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+    }
+
+    private func todoResultRow(_ item: TodoListItem) -> some View {
+        Button {
+            router.push(Path.todo(item.id))
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(item.title)
+                    .foregroundStyle(Color.primary)
+                    .bold()
+                    .lineLimit(1)
+                TagLayout(lineLimit: 1) {
+                    ForEach(item.tags, id: \.self) { tagText in
+                        Tag(tagText, isEditing: false)
+                    }
+                }
+                if item.isPinned {
+                    Image(systemName: "star.fill")
+                        .font(.headline)
+                        .foregroundStyle(Color.orange)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 4)
+        }
     }
 
     private func searchResultRow(_ item: WebPageItem) -> some View {
         Button {
             viewModel.send(.selectWebPage(item))
-            router.push(Path.webView(item.url))
+            router.push(Path.web(item.url))
         } label: {
             HStack {
                 CacheableImage(url: item.imageURL) {
@@ -207,6 +262,7 @@ struct SearchView: View {
     }
 
     private enum Path: Hashable {
-        case webView(URL)
+        case todo(String)
+        case web(URL)
     }
 }
