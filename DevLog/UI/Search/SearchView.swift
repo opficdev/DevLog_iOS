@@ -169,24 +169,7 @@ struct SearchView: View {
         Button {
             router.push(Path.todo(item.id))
         } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(item.title)
-                    .foregroundStyle(Color.primary)
-                    .bold()
-                    .lineLimit(1)
-                TagLayout(lineLimit: 1) {
-                    ForEach(item.tags, id: \.self) { tagText in
-                        Tag(tagText, isEditing: false)
-                    }
-                }
-                if item.isPinned {
-                    Image(systemName: "star.fill")
-                        .font(.headline)
-                        .foregroundStyle(Color.orange)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 4)
+            TodoItemRow(item)
         }
     }
 

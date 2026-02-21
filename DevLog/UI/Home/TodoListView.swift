@@ -30,20 +30,7 @@ struct TodoListView: View {
                         Button {
                             router.push(Path.detail(todo.id))
                         } label: {
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(todo.title)
-                                    .font(.headline)
-                                    .lineLimit(1)
-                                TagLayout(lineLimit: 1) {
-                                    ForEach(todo.tags, id: \.self) { tagText in
-                                        Tag(tagText, isEditing: false)
-                                    }
-                                }
-                                Image(systemName: "star\(todo.isPinned ? "" : ".slash").fill")
-                                    .font(.headline)
-                                    .foregroundStyle(todo.isPinned ? Color.orange : Color.secondary)
-                            }
-                            .padding(.vertical, 5)
+                            TodoItemRow(todo)
                         }
                         .swipeActions(edge: .leading) {
                             Button(action: {
