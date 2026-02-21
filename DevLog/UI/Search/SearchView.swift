@@ -159,7 +159,7 @@ struct SearchView: View {
                 .font(.headline)
                 .foregroundStyle(Color(.label))
             ForEach(viewModel.state.webPages, id: \.id) { page in
-                searchResultRow(page)
+                webResultRow(page)
             }
         }
         .padding(.horizontal, 16)
@@ -190,7 +190,7 @@ struct SearchView: View {
         }
     }
 
-    private func searchResultRow(_ item: WebPageItem) -> some View {
+    private func webResultRow(_ item: WebPageItem) -> some View {
         Button {
             viewModel.send(.selectWebPage(item))
             router.push(Path.web(item.url))
