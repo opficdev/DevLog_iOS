@@ -16,16 +16,17 @@ final class TodoRepositoryImpl: TodoRepository {
 
     func fetchTodos(_ kind: TodoKind) async throws -> [Todo] {
         let response = try await todoService.fetchTodos(kind: kind)
-        return try response.map { item in
-            try item.toDomain()
-        }
+        return try response.map { try $0.toDomain() }
     }
-    
+
+    func fetchTodos(_ keyword: String) async throws -> [Todo] {
+        let response = try await todoService.fetchTodos(keyword)
+        return try response.map { try $0.toDomain() }
+    }
+
     func fetchPinnedTodos() async throws -> [Todo] {
         let response = try await todoService.fetchPinnedTodos()
-        return try response.map { item in
-            try item.toDomain()
-        }
+        return try response.map { try $0.toDomain() }
     }
 
     func fetchTodo(_ todoID: String) async throws -> Todo {

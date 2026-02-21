@@ -15,6 +15,7 @@ final class SearchViewModel: Store {
         var searchQuery: String = ""
         var selectedWebPage: WebPageItem?
         var webPages: [WebPageItem] = []
+        var todos: [TodoListItem] = []
         var recentQueries: OrderedSet<String> = []
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -23,6 +24,7 @@ final class SearchViewModel: Store {
 
     enum Action {
         case fetchWebPage([WebPageItem])
+        case fetchTodos([TodoListItem])
         case selectWebPage(WebPageItem)
         case addRecentQuery(String)
         case removeRecentQuery(String)
@@ -40,6 +42,7 @@ final class SearchViewModel: Store {
 
     @Published private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
+    private let fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase
     private let userDefaults: UserDefaults
 
     private enum DefaultsKey {
@@ -52,9 +55,11 @@ final class SearchViewModel: Store {
 
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
+        fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase,
         userDefaults: UserDefaults = .standard
     ) {
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
+        self.fetchTodosByKeywordUseCase = fetchTodosByKeywordUseCase
         self.userDefaults = userDefaults
         self.state.recentQueries = Self.loadRecentQueries(userDefaults: userDefaults)
     }
@@ -66,6 +71,8 @@ final class SearchViewModel: Store {
         switch action {
         case .fetchWebPage(let items):
             state.webPages = items
+        case .fetchTodos(let items):
+            state.todos = items
         case .selectWebPage(let item):
             state.selectedWebPage = item
         case .addRecentQuery(let query):
@@ -95,6 +102,7 @@ final class SearchViewModel: Store {
             if trimmed.isEmpty {
                 cancelDebounce()
                 state.webPages = []
+                state.todos = []
             } else {
                 scheduleDebouncedQuery(query)
             }
@@ -102,6 +110,7 @@ final class SearchViewModel: Store {
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
                 state.webPages = []
+                state.todos = []
             } else {
                 effects = [.fetch(trimmed)]
             }
@@ -118,8 +127,12 @@ final class SearchViewModel: Store {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
-                    let items = try await fetchWebPagesUseCase.execute(query).map { WebPageItem(from: $0) }
-                    send(.fetchWebPage(items))
+                    async let webPages = fetchWebPagesUseCase.execute(query)
+                    async let todos = fetchTodosByKeywordUseCase.execute(query)
+                    let webPageItems = try await webPages.map { WebPageItem(from: $0) }
+                    let todoItems = try await todos.map { TodoListItem(from: $0) }
+                    send(.fetchWebPage(webPageItems))
+                    send(.fetchTodos(todoItems))
                 } catch {
                     send(.setAlert(true))
                 }

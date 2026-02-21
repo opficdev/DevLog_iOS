@@ -55,7 +55,39 @@ final class TodoService {
             throw error
         }
     }
-    
+
+    func fetchTodos(_ keyword: String) async throws -> [TodoResponse] {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        logger.info("Fetching todos by keyword: \(trimmedKeyword) for user: \(uid)")
+
+        do {
+            let collection = store.collection("users/\(uid)/todoLists/")
+            let query = collection.order(by: "createdAt", descending: true)
+
+            let snapshot = try await query.getDocuments()
+            let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
+
+            guard !trimmedKeyword.isEmpty else {
+                logger.info("Successfully fetched \(todos.count) todos without keyword")
+                return todos
+            }
+
+            let filtered = todos.filter { todo in
+                todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
+                    || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
+                    || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
+            }
+
+            logger.info("Successfully fetched \(filtered.count) todos with keyword")
+            return filtered
+        } catch {
+            logger.error("Failed to fetch todos with keyword", error: error)
+            throw error
+        }
+    }
+
     func upsertTodo(request: TodoRequest) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
