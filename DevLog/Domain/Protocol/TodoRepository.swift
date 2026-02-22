@@ -8,7 +8,7 @@
 import Foundation
 
 protocol TodoRepository {
-    func fetchTodos(_ kind: TodoKind) async throws -> [Todo]
+    func fetchTodos(_ kind: TodoKind, cursor: TodoCursor?) async throws -> TodoPage
     func fetchTodos(_ keyword: String) async throws -> [Todo]
     func fetchPinnedTodos() async throws -> [Todo]
     func fetchTodo(_ todoID: String) async throws -> Todo
