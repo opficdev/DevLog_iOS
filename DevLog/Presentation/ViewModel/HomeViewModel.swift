@@ -11,6 +11,7 @@ final class HomeViewModel: Store {
     struct State {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [PinnedTodoItem] = []
+        var webPages: [WebPageItem] = []
         var showTodoKindPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
