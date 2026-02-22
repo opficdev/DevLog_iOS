@@ -13,6 +13,8 @@ final class FetchPinnedTodosUseCaseImpl: FetchPinnedTodosUseCase {
     }
 
     func execute() async throws -> [Todo] {
-        try await repository.fetchPinnedTodos()
+        let query = TodoQuery(isPinned: true)
+        let page = try await repository.fetchTodos(query, cursor: nil)
+        return page.items
     }
 }

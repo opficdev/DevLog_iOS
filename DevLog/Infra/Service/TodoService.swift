@@ -12,99 +12,70 @@ final class TodoService {
     private let store = Firestore.firestore()
     private let logger = Logger(category: "TodoService")
     
-    func fetchPinnedTodos() async throws -> [TodoResponse] {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
-
-        logger.info("Fetching pinned todos for user: \(uid)")
-        
-        do {
-            let collection = store.collection("users/\(uid)/todoLists/")
-
-            let query = collection.whereField(("isPinned"), isEqualTo: true)
-                .order(by: "createdAt", descending: true)
-            
-            let snapshot = try await query.getDocuments()
-            let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
-            
-            logger.info("Successfully fetched \(todos.count) pinned todos")
-            return todos
-        } catch {
-            logger.error("Failed to fetch pinned todos", error: error)
-            throw error
-        }
-    }
-
     func fetchTodos(
-        _ kind: TodoKind,
+        _ query: TodoQuery,
         cursor: TodoCursorResponse?
     ) async throws -> TodoPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Fetching todo page: kind=\(kind.rawValue), cursor=\(String(describing: cursor))")
+        let trimmedKeyword = query.keyword?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let logMessage = "Fetching todo page: kind=\(String(describing: query.kind)), "
+            + "keyword=\(trimmedKeyword), "
+            + "pinned=\(String(describing: query.isPinned)), "
+            + "cursor=\(String(describing: cursor))"
+        logger.info(logMessage)
 
         var firestoreQuery: Query = store
             .collection("users/\(uid)/todoLists/")
-            .whereField("kind", isEqualTo: kind.rawValue)
             .order(by: "createdAt", descending: true)
             .order(by: FieldPath.documentID())
 
-        if let cursor {
-            firestoreQuery = firestoreQuery.start(after: [
-                cursor.createdAt,
-                cursor.documentID
-            ])
+        if let kind = query.kind {
+            firestoreQuery = firestoreQuery.whereField("kind", isEqualTo: kind.rawValue)
         }
 
-        let snapshot = try await firestoreQuery
-            .limit(to: 20)
-            .getDocuments()
-
-        let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
-
-        let nextCursor: TodoCursorResponse? = snapshot.documents.last.flatMap { document in
-            guard let createdAt = document.data()["createdAt"] as? Timestamp else {
-                return nil
-            }
-
-            return TodoCursorResponse(
-                createdAt: createdAt,
-                documentID: document.documentID
-            )
+        if let isPinned = query.isPinned {
+            firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: isPinned)
         }
 
-        return TodoPageResponse(items: items, nextCursor: nextCursor)
-    }
-
-    func fetchTodos(_ keyword: String) async throws -> [TodoResponse] {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
-
-        let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
-        logger.info("Fetching todos by keyword: \(trimmedKeyword) for user: \(uid)")
-
-        do {
-            let collection = store.collection("users/\(uid)/todoLists/")
-            let query = collection.order(by: "createdAt", descending: true)
-
-            let snapshot = try await query.getDocuments()
-            let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
-
-            guard !trimmedKeyword.isEmpty else {
-                logger.info("Successfully fetched \(todos.count) todos without keyword")
-                return todos
+        if trimmedKeyword.isEmpty {
+            if let cursor {
+                firestoreQuery = firestoreQuery.start(after: [
+                    cursor.createdAt,
+                    cursor.documentID
+                ])
             }
 
-            let filtered = todos.filter { todo in
-                todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
+            let snapshot = try await firestoreQuery
+                .limit(to: query.pageSize)
+                .getDocuments()
+
+            let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
+
+            let nextCursor: TodoCursorResponse? = snapshot.documents.last.flatMap { document in
+                guard let createdAt = document.data()["createdAt"] as? Timestamp else {
+                    return nil
+                }
+
+                return TodoCursorResponse(
+                    createdAt: createdAt,
+                    documentID: document.documentID
+                )
             }
 
-            logger.info("Successfully fetched \(filtered.count) todos with keyword")
-            return filtered
-        } catch {
-            logger.error("Failed to fetch todos with keyword", error: error)
-            throw error
+            return TodoPageResponse(items: items, nextCursor: nextCursor)
         }
+
+        let snapshot = try await firestoreQuery.getDocuments()
+        let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
+
+        let filtered = todos.filter { todo in
+            todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
+                || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
+                || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
+        }
+
+        return TodoPageResponse(items: filtered, nextCursor: nil)
     }
 
     func upsertTodo(request: TodoRequest) async throws {
