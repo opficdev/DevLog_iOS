@@ -14,9 +14,10 @@ final class TodoRepositoryImpl: TodoRepository {
         self.todoService = todoService
     }
 
-    func fetchTodos(_ kind: TodoKind) async throws -> [Todo] {
-        let response = try await todoService.fetchTodos(kind: kind)
-        return try response.map { try $0.toDomain() }
+    func fetchTodos(_ kind: TodoKind, cursor: TodoCursor?) async throws -> TodoPage {
+        let responseCursor = cursor.map { TodoCursorResponse.fromDomain($0) }
+        let response = try await todoService.fetchTodos(kind, cursor: responseCursor)
+        return try response.toDomain()
     }
 
     func fetchTodos(_ keyword: String) async throws -> [Todo] {
