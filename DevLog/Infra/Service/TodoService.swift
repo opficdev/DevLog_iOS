@@ -34,26 +34,45 @@ final class TodoService {
         }
     }
 
-    func fetchTodos(kind: TodoKind) async throws -> [TodoResponse] {
+    func fetchTodos(
+        _ kind: TodoKind,
+        cursor: TodoCursorResponse?
+    ) async throws -> TodoPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Fetching todos of kind: \(kind.rawValue) for user: \(uid)")
-        
-        do {
-            let collection = store.collection("users/\(uid)/todoLists/")
+        logger.info("Fetching todo page: kind=\(kind.rawValue), cursor=\(String(describing: cursor))")
 
-            let query = collection.whereField("kind", isEqualTo: kind.rawValue)
-                .order(by: "createdAt", descending: true)
-            
-            let snapshot = try await query.getDocuments()
-            let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
-            
-            logger.info("Successfully fetched \(todos.count) todos")
-            return todos
-        } catch {
-            logger.error("Failed to fetch todos", error: error)
-            throw error
+        var firestoreQuery: Query = store
+            .collection("users/\(uid)/todoLists/")
+            .whereField("kind", isEqualTo: kind.rawValue)
+            .order(by: "createdAt", descending: true)
+            .order(by: FieldPath.documentID())
+
+        if let cursor {
+            firestoreQuery = firestoreQuery.start(after: [
+                cursor.createdAt,
+                cursor.documentID
+            ])
         }
+
+        let snapshot = try await firestoreQuery
+            .limit(to: 20)
+            .getDocuments()
+
+        let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
+
+        let nextCursor: TodoCursorResponse? = snapshot.documents.last.flatMap { document in
+            guard let createdAt = document.data()["createdAt"] as? Timestamp else {
+                return nil
+            }
+
+            return TodoCursorResponse(
+                createdAt: createdAt,
+                documentID: document.documentID
+            )
+        }
+
+        return TodoPageResponse(items: items, nextCursor: nextCursor)
     }
 
     func fetchTodos(_ keyword: String) async throws -> [TodoResponse] {
