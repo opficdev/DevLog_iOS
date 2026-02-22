@@ -12,7 +12,8 @@ final class FetchTodosByKindUseCaseImpl: FetchTodosByKindUseCase {
         self.repository = repository
     }
 
-    func execute(_ kind: TodoKind) async throws -> [Todo] {
-        return try await repository.fetchTodos(kind)
+    func execute(_ kind: TodoKind, cursor: TodoCursor?) async throws -> TodoPage {
+        let query = TodoQuery(kind: kind)
+        return try await repository.fetchTodos(query, cursor: cursor)
     }
 }

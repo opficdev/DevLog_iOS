@@ -32,6 +32,12 @@ struct TodoListView: View {
                         } label: {
                             TodoItemRow(todo)
                         }
+                        .onAppear {
+                            let lastID = viewModel.state.todos.last?.id
+                            if todo.id == lastID, viewModel.state.hasMore {
+                                viewModel.send(.loadNextPage)
+                            }
+                        }
                         .swipeActions(edge: .leading) {
                             Button(action: {
                                 viewModel.send(.tapTogglePinned(todo))

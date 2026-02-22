@@ -20,6 +20,8 @@ final class SearchViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
+        var showAllTodos: Bool = false
+        var showAllWebPages: Bool = false
     }
 
     enum Action {
@@ -34,6 +36,8 @@ final class SearchViewModel: Store {
         case setLoading(Bool)
         case setSearching(Bool)
         case setSearchQuery(String) // 뷰에서 쿼리 입력을 적용
+        case setShowAllTodos(Bool)
+        case setShowAllWebPages(Bool)
     }
 
     enum SideEffect {
@@ -44,6 +48,7 @@ final class SearchViewModel: Store {
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase
     private let userDefaults: UserDefaults
+    let contentsLimit: Int = 5
 
     private enum DefaultsKey {
         static let recentQueries = "Search.recentQueries"
@@ -98,6 +103,8 @@ final class SearchViewModel: Store {
             state.isSearching = isSearching
         case .setSearchQuery(let query):
             state.searchQuery = query
+            state.showAllTodos = false
+            state.showAllWebPages = false
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
                 cancelDebounce()
@@ -114,6 +121,10 @@ final class SearchViewModel: Store {
             } else {
                 effects = [.fetch(trimmed)]
             }
+        case .setShowAllTodos(let shouldShowAll):
+            state.showAllTodos = shouldShowAll
+        case .setShowAllWebPages(let shouldShowAll):
+            state.showAllWebPages = shouldShowAll
         }
 
         self.state = state
@@ -127,12 +138,12 @@ final class SearchViewModel: Store {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
-                    async let webPages = fetchWebPagesUseCase.execute(query)
                     async let todos = fetchTodosByKeywordUseCase.execute(query)
-                    let webPageItems = try await webPages.map { WebPageItem(from: $0) }
+                    async let webPages = fetchWebPagesUseCase.execute(query)
                     let todoItems = try await todos.map { TodoListItem(from: $0) }
-                    send(.fetchWebPage(webPageItems))
+                    let webPageItems = try await webPages.map { WebPageItem(from: $0) }
                     send(.fetchTodos(todoItems))
+                    send(.fetchWebPage(webPageItems))
                 } catch {
                     send(.setAlert(true))
                 }

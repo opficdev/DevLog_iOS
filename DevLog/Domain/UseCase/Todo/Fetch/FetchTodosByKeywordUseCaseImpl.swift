@@ -13,6 +13,8 @@ final class FetchTodosByKeywordUseCaseImpl: FetchTodosByKeywordUseCase {
     }
 
     func execute(_ keyword: String) async throws -> [Todo] {
-        try await repository.fetchTodos(keyword)
+        let query = TodoQuery(keyword: keyword)
+        let page = try await repository.fetchTodos(query, cursor: nil)
+        return page.items
     }
 }
