@@ -142,24 +142,60 @@ struct SearchView: View {
     }
 
     private var todoResults: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let limit = viewModel.contentsLimit
+        let todos = viewModel.state.showAllTodos
+            ? viewModel.state.todos
+            : Array(viewModel.state.todos.prefix(limit))
+
+        return VStack(alignment: .leading, spacing: 12) {
             Text("Todos")
                 .font(.headline)
                 .foregroundStyle(Color(.label))
-            ForEach(viewModel.state.todos, id: \.id) { todo in
-                todoResultRow(todo)
+            Divider()
+            LazyVStack(spacing: 0) {
+                ForEach(todos, id: \.id) { todo in
+                    todoResultRow(todo)
+                }
+            }
+            .padding(.top, -12)
+            if !viewModel.state.showAllTodos && limit < viewModel.state.todos.count {
+                Button("더보기") {
+                    viewModel.send(.setShowAllTodos(true))
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 4)
             }
         }
         .padding(.horizontal, 16)
     }
 
     private var webPages: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let limit = viewModel.contentsLimit
+        let pages = viewModel.state.showAllWebPages
+            ? viewModel.state.webPages
+            : Array(viewModel.state.webPages.prefix(limit))
+
+        return VStack(alignment: .leading, spacing: 12) {
             Text("Web Pages")
                 .font(.headline)
                 .foregroundStyle(Color(.label))
-            ForEach(viewModel.state.webPages, id: \.id) { page in
-                webResultRow(page)
+            Divider()
+            LazyVStack(spacing: 0) {
+                ForEach(pages, id: \.id) { page in
+                    webResultRow(page)
+                }
+            }
+            .padding(.top, -12)
+            if !viewModel.state.showAllWebPages && limit < viewModel.state.webPages.count {
+                Button("더보기") {
+                    viewModel.send(.setShowAllWebPages(true))
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 4)
             }
         }
         .padding(.horizontal, 16)
@@ -169,7 +205,10 @@ struct SearchView: View {
         Button {
             router.push(Path.todo(item.id))
         } label: {
-            TodoItemRow(item)
+            VStack(spacing: 0) {
+                TodoItemRow(item)
+                Divider()
+            }
         }
     }
 
@@ -178,28 +217,33 @@ struct SearchView: View {
             viewModel.send(.selectWebPage(item))
             router.push(Path.web(item.url))
         } label: {
-            HStack {
-                CacheableImage(url: item.imageURL) {
-                    Image(systemName: "globe")
-                        .resizable()
-                        .scaledToFit()
-                }
-                .frame(width: sceneWidth / 10, height: sceneWidth / 10)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            VStack(spacing: 4) {
+                HStack {
+                    CacheableImage(url: item.imageURL) {
+                        Image(systemName: "globe")
+                            .resizable()
+                            .scaledToFit()
+                    }
+                    .frame(width: sceneWidth / 10, height: sceneWidth / 10)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                VStack(alignment: .leading) {
-                    Text(item.title)
-                        .foregroundStyle(Color.primary)
-                        .bold()
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-                    Text(item.displayURL)
-                        .foregroundStyle(Color.accentColor)
-                        .underline()
+                    VStack(alignment: .leading) {
+                        Text(item.title)
+                            .foregroundStyle(Color.primary)
+                            .bold()
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
+                        Text(item.displayURL)
+                            .foregroundStyle(Color.accentColor)
+                            .underline()
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.bold())
+                        .foregroundStyle(.gray)
                 }
-                Spacer()
+                Divider()
             }
-            .padding(.vertical, 4)
         }
     }
 

@@ -15,24 +15,32 @@ struct TodoItemRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                if item.isPinned {
-                    Image(systemName: "star.fill")
+        HStack {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    if item.isPinned {
+                        Image(systemName: "star.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                    }
+                    Text(item.title)
                         .font(.headline)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color(.label))
+                        .lineLimit(1)
                 }
-                Text(item.title)
-                    .font(.headline)
-                    .foregroundStyle(Color(.label))
-                    .lineLimit(1)
-            }
-            TagLayout(lineLimit: 1) {
-                ForEach(item.tags, id: \.self) { tagText in
-                    Tag(tagText, isEditing: false)
+                if !item.tags.isEmpty {
+                    TagLayout(lineLimit: 1) {
+                        ForEach(item.tags, id: \.self) { tagText in
+                            Tag(tagText, isEditing: false)
+                        }
+                    }
                 }
             }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption2.bold())
+                .foregroundStyle(.gray)
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, item.tags.isEmpty ? 20 : 4)
     }
 }
