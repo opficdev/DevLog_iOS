@@ -39,8 +39,14 @@ struct HomeView: View {
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoID: todoID
                     ))
-                case .web(let url):
-                    WebView(url: url)
+                case .web(let page):
+                    WebView(url: page.url)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                Text(page.title)
+                                    .bold()
+                            }
+                        }
                 }
             }
             .toolbar { toolbar }
@@ -269,9 +275,7 @@ struct HomeView: View {
     }
 
     private func webResultRow(_ item: WebPageItem) -> some View {
-        Button {
-            router.push(Path.web(item.url))
-        } label: {
+        NavigationLink(value: Path.web(item)) {
             HStack {
                 CacheableImage(url: item.imageURL) {
                     Image(systemName: "globe")
@@ -380,6 +384,6 @@ struct HomeView: View {
     private enum Path: Hashable {
         case kind(TodoKind)
         case detail(String)
-        case web(URL)
+        case web(WebPageItem)
     }
 }
