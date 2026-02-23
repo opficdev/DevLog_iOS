@@ -33,6 +33,7 @@ struct TodoListView: View {
                             TodoItemRow(todo)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .alignmentGuide(.listRowSeparatorLeading) { _ in return 0 }
                         .onAppear {
                             let lastID = viewModel.state.todos.last?.id
                             if todo.id == lastID, viewModel.state.hasMore {
