@@ -107,6 +107,7 @@ final class SearchViewModel: Store {
                 state.webPages = []
                 state.todos = []
             } else {
+                state.isLoading = true
                 scheduleDebouncedQuery(query)
             }
         case .applySearchQuery(let query):
