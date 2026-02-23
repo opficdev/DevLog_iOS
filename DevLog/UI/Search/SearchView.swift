@@ -96,12 +96,11 @@ struct SearchView: View {
                     prompt: "검색"
                 )
             } else {
-                scrollContent
-                    .searchable(
-                        text: searchQueryBinding,
-                        placement: .navigationBarDrawer(displayMode: .always),
-                        prompt: "검색"
-                    )
+                scrollContent.searchable(
+                    text: searchQueryBinding,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "검색"
+                )
             }
         }
         .onSubmit(of: .search) {
