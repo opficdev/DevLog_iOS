@@ -36,7 +36,9 @@ struct SearchView: View {
                     }
                 }
                 .onAppear {
-                    viewModel.send(.setSearching(true))
+                    DispatchQueue.main.async {
+                        viewModel.send(.setSearching(true))
+                    }
                 }
                 .onChange(of: viewModel.state.isSearching) { isSearching in
                     if !isSearching {
@@ -53,7 +55,6 @@ struct SearchView: View {
                 }
                 // TODO: iOS 16에서 introspect 모듈을 사용하여 .searchable의 isPresented를 관리한다
                 // .introspect(.searchField, on: iOS(.v16)) { searchBar in }
-
         }
     }
 
@@ -96,12 +97,11 @@ struct SearchView: View {
                     prompt: "검색"
                 )
             } else {
-                scrollContent
-                    .searchable(
-                        text: searchQueryBinding,
-                        placement: .navigationBarDrawer(displayMode: .always),
-                        prompt: "검색"
-                    )
+                scrollContent.searchable(
+                    text: searchQueryBinding,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "검색"
+                )
             }
         }
         .onSubmit(of: .search) {
