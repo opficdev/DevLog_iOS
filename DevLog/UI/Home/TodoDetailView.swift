@@ -40,12 +40,7 @@ struct TodoDetailView: View {
                             ScrollView(.horizontal) {
                                 HStack {
                                     ForEach(todo.tags, id: \.self) { tag in
-                                        Text(tag)
-                                            .padding(.horizontal, 8)
-                                            .background(
-                                                Capsule()
-                                                    .fill(Color(UIColor.systemFill))
-                                            )
+                                        Tag(tag, isEditing: false)
                                     }
                                 }
                             }
