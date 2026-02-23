@@ -8,7 +8,7 @@
 import Foundation
 
 final class HomeViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [PinnedTodoItem] = []
         var webPages: [WebPageItem] = []
@@ -57,6 +57,7 @@ final class HomeViewModel: Store {
         case deleteWebPage(String)
         case fetchPinnedTodos
         case fetchWebPages
+        case showTodoEditorAfterDelay(Double)
     }
 
     enum AlertType {
@@ -103,7 +104,7 @@ final class HomeViewModel: Store {
             effects = reduceByRun(action, state: &state)
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 
@@ -165,6 +166,11 @@ final class HomeViewModel: Store {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
+        case .showTodoEditorAfterDelay(let delay):
+            Task {
+                try? await Task.sleep(for: .seconds(delay))
+                send(.setShowTodoEditor(true))
+            }
         }
     }
 }
@@ -176,7 +182,7 @@ private extension HomeViewModel {
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
             state.showTodoKindPicker = false
-            state.showTodoEditor = true
+            return [.showTodoEditorAfterDelay(0.1)]
         case .orderTodoKindPreferences(let preferences):
             state.todoKindPreferences = preferences
         case .setReorderTodo(let isPresented):

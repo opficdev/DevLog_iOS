@@ -66,7 +66,7 @@ struct HomeView: View {
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.showTodoKindPicker },
-                set: { viewModel.send(.setShowContentPicker($0)) }
+                set: { _, _ in }
             )) {
                 contentPicker
             }
@@ -316,7 +316,9 @@ struct HomeView: View {
                     ForEach(preferences, id: \.id) { preference in
                         let kind = preference.kind
                         Button {
-                            viewModel.send(.tapTodoKind(kind))
+                            DispatchQueue.main.async {
+                                viewModel.send(.tapTodoKind(kind))
+                            }
                         } label: {
                             labelImage(
                                 text: kind.localizedName,

@@ -65,11 +65,11 @@ final class TodoListViewModel: Store {
         case togglePinned(TodoListItem)
     }
 
+    @Published private(set) var state: State
     private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
-    @Published private(set) var state: State
     private let pageSize = 20
 
     init(
