@@ -59,6 +59,7 @@ struct TodoEditorView: View {
             ),
             prompt: Text("제목").foregroundColor(Color.gray)
         )
+        .frame(height: 22)
         .focused($field, equals: .title)
         .padding(.horizontal)
     }
