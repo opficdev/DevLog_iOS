@@ -115,7 +115,7 @@ final class HomeViewModel: Store {
                 do {
                     defer { send(.setWebPageLoading(false)) }
                     send(.setWebPageLoading(true))
-                    _ = try await addWebPageUseCase.execute(urlString)
+                    try await addWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {

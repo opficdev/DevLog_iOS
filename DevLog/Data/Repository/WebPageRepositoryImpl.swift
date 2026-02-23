@@ -23,7 +23,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
             .compactMap { try? $0.toDomain() }
     }
 
-    func upsert(_ urlString: String) async throws -> WebPage {
+    func upsert(_ urlString: String) async throws {
         let metadata = try await metadataService.fetchMetadata(from: urlString)
         let request = WebPageRequest(
             title: metadata.title,
@@ -32,13 +32,6 @@ final class WebPageRepositoryImpl: WebPageRepository {
             imageURL: metadata.imageURL
         )
         try await webPageService.upsertWebPage(request)
-        let response = WebPageResponse(
-            title: request.title,
-            url: request.url,
-            displayURL: request.displayURL,
-            imageURL: request.imageURL
-        )
-        return try response.toDomain()
     }
 
     func delete(_ urlString: String) async throws {

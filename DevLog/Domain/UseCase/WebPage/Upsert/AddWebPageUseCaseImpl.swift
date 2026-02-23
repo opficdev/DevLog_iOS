@@ -12,7 +12,7 @@ final class AddWebPageUseCaseImpl: AddWebPageUseCase {
         self.repository = repository
     }
 
-    func execute(_ urlString: String) async throws -> WebPage {
+    func execute(_ urlString: String) async throws {
         try await repository.upsert(urlString)
     }
 }
