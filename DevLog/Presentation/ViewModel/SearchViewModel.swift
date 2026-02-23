@@ -13,7 +13,6 @@ final class SearchViewModel: Store {
         var isLoading: Bool = false
         var isSearching: Bool = false
         var searchQuery: String = ""
-        var selectedWebPage: WebPageItem?
         var webPages: [WebPageItem] = []
         var todos: [TodoListItem] = []
         var recentQueries: OrderedSet<String> = []
@@ -27,7 +26,6 @@ final class SearchViewModel: Store {
     enum Action {
         case fetchWebPage([WebPageItem])
         case fetchTodos([TodoListItem])
-        case selectWebPage(WebPageItem)
         case addRecentQuery(String)
         case removeRecentQuery(String)
         case clearRecentQueries
@@ -78,8 +76,6 @@ final class SearchViewModel: Store {
             state.webPages = items
         case .fetchTodos(let items):
             state.todos = items
-        case .selectWebPage(let item):
-            state.selectedWebPage = item
         case .addRecentQuery(let query):
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { break }

@@ -6,5 +6,5 @@
 //
 
 protocol AddWebPageUseCase {
-    func execute(_ urlString: String) async throws -> WebPage
+    func execute(_ urlString: String) async throws
 }

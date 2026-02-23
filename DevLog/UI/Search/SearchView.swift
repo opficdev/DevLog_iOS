@@ -25,11 +25,11 @@ struct SearchView: View {
                             upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                             todoID: todoID
                         ))
-                    case .web(let url):
-                        WebView(url: url)
+                    case .web(let page):
+                        WebView(url: page.url)
                             .toolbar {
                                 ToolbarItem(placement: .principal) {
-                                    Text(viewModel.state.selectedWebPage?.title ?? "")
+                                    Text(page.title)
                                         .bold()
                                 }
                             }
@@ -213,10 +213,7 @@ struct SearchView: View {
     }
 
     private func webResultRow(_ item: WebPageItem) -> some View {
-        Button {
-            viewModel.send(.selectWebPage(item))
-            router.push(Path.web(item.url))
-        } label: {
+        NavigationLink(value: Path.web(item)) {
             VStack(spacing: 4) {
                 HStack {
                     CacheableImage(url: item.imageURL) {
@@ -290,6 +287,6 @@ struct SearchView: View {
 
     private enum Path: Hashable {
         case todo(String)
-        case web(URL)
+        case web(WebPageItem)
     }
 }

@@ -18,6 +18,7 @@ struct HomeView: View {
             List {
                 todoSection
                 pinnedSection
+                webPageSection
             }
             .listStyle(.insetGrouped)
             .navigationTitle("홈")
@@ -38,6 +39,14 @@ struct HomeView: View {
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoID: todoID
                     ))
+                case .web(let page):
+                    WebView(url: page.url)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                Text(page.title)
+                                    .bold()
+                            }
+                        }
                 }
             }
             .toolbar { toolbar }
@@ -94,6 +103,11 @@ struct HomeView: View {
             }
             .onAppear {
                 viewModel.send(.onAppear)
+            }
+            .overlay {
+                if viewModel.state.isWebPageInputLoading {
+                    LoadingView()
+                }
             }
         }
     }
@@ -160,12 +174,12 @@ struct HomeView: View {
     private var pinnedSection: some View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
-                if viewModel.state.isLoading {
+                if viewModel.state.isPinnedLoading {
                     LoadingView(isClear: true)
                 } else {
                     HStack {
                         Spacer()
-                        Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
+                        Text("최근에 중요 표시를 한 Todo가 표시됩니다.")
                             .font(.callout)
                         Spacer()
                     }
@@ -201,13 +215,42 @@ struct HomeView: View {
             HStack {
                 Text("중요 표시")
                     .foregroundStyle(Color.primary)
-                    .font(.title2)
-                    .bold()
+                    .font(.title2.bold())
                 Spacer()
 
             }
             .listRowInsets(EdgeInsets())
         })
+    }
+
+    private var webPageSection: some View {
+        Section {
+            if viewModel.state.webPages.isEmpty {
+                if viewModel.state.isWebPageLoading {
+                    LoadingView(isClear: true)
+                } else {
+                    HStack {
+                        Spacer()
+                        Text("저장한 Web Page가 표시됩니다.")
+                            .font(.callout)
+                        Spacer()
+                    }
+                }
+            } else {
+                ForEach(viewModel.state.webPages, id: \.id) { page in
+                    webResultRow(page)
+                }
+            }
+        } header: {
+            HStack {
+                Text("Web Page")
+                    .foregroundStyle(Color.primary)
+                    .font(.title2.bold())
+                Spacer()
+
+            }
+            .listRowInsets(EdgeInsets())
+        }
     }
 
     @ToolbarContentBuilder
@@ -227,6 +270,40 @@ struct HomeView: View {
                 viewModel.send(.setShowSearchView(true))
             } label: {
                 Image(systemName: "magnifyingglass")
+            }
+        }
+    }
+
+    private func webResultRow(_ item: WebPageItem) -> some View {
+        NavigationLink(value: Path.web(item)) {
+            HStack {
+                CacheableImage(url: item.imageURL) {
+                    Image(systemName: "globe")
+                        .resizable()
+                        .scaledToFit()
+                }
+                .frame(width: sceneWidth / 10, height: sceneWidth / 10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                VStack(alignment: .leading) {
+                    Text(item.title)
+                        .foregroundStyle(Color.primary)
+                        .bold()
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    Text(item.displayURL)
+                        .foregroundStyle(Color.accentColor)
+                        .underline()
+                }
+                Spacer()
+            }
+            .padding(.vertical, 4)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                viewModel.send(.deleteWebPage(item))
+            } label: {
+                Label("삭제", systemImage: "trash")
             }
         }
     }
@@ -307,5 +384,6 @@ struct HomeView: View {
     private enum Path: Hashable {
         case kind(TodoKind)
         case detail(String)
+        case web(WebPageItem)
     }
 }
