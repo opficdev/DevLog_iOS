@@ -14,6 +14,7 @@ struct MainView: View {
         TabView {
             HomeView(viewModel: HomeViewModel(
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
+                deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self),
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)

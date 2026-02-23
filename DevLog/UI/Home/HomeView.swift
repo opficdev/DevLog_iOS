@@ -98,6 +98,11 @@ struct HomeView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
+            .overlay {
+                if viewModel.state.isWebPageInputLoading {
+                    LoadingView()
+                }
+            }
         }
     }
 
@@ -289,6 +294,13 @@ struct HomeView: View {
                 Spacer()
             }
             .padding(.vertical, 4)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                viewModel.send(.deleteWebPage(item))
+            } label: {
+                Label("삭제", systemImage: "trash")
+            }
         }
     }
 

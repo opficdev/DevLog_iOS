@@ -22,6 +22,7 @@ final class HomeViewModel: Store {
         var reorderTodo: Bool = false
         var isPinnedLoading: Bool = false
         var isWebPageLoading: Bool = false
+        var isWebPageInputLoading: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertType: AlertType?
@@ -42,15 +43,18 @@ final class HomeViewModel: Store {
         case updateSearchText(String)
         case upsertTodo(Todo)
         case addWebPage
+        case deleteWebPage(WebPageItem)
         case fetchPinnedTodos([PinnedTodoItem])
         case fetchWebPages([WebPageItem])
         case setPinnedLoading(Bool)
         case setWebPageLoading(Bool)
+        case setWebPageInputLoading(Bool)
     }
 
     enum SideEffect {
         case upsertTodo(Todo)
         case addWebPage(String)
+        case deleteWebPage(String)
         case fetchPinnedTodos
         case fetchWebPages
     }
@@ -63,17 +67,20 @@ final class HomeViewModel: Store {
 
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
+    private let deleteWebPageUseCase: DeleteWebPageUseCase
     private let fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     @Published private(set) var state = State()
 
     init(
         addWebPageUseCase: AddWebPageUseCase,
+        deleteWebPageUseCase: DeleteWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchPinnedTodosUseCase: FetchPinnedTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase
     ) {
         self.addWebPageUseCase = addWebPageUseCase
+        self.deleteWebPageUseCase = deleteWebPageUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.fetchPinnedTodosUseCase = fetchPinnedTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
@@ -89,10 +96,10 @@ final class HomeViewModel: Store {
                 .updateWebPageURLInput, .setAlert:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage:
+        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage, .deleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .fetchPinnedTodos, .fetchWebPages, .setPinnedLoading, .setWebPageLoading:
+        case .fetchPinnedTodos, .fetchWebPages, .setPinnedLoading, .setWebPageLoading, .setWebPageInputLoading:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -113,12 +120,26 @@ final class HomeViewModel: Store {
         case .addWebPage(let urlString):
             Task {
                 do {
-                    defer { send(.setWebPageLoading(false)) }
-                    send(.setWebPageLoading(true))
+                    defer { send(.setWebPageInputLoading(false)) }
+                    send(.setWebPageInputLoading(true))
                     try await addWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
+                    send(.setWebPageInputLoading(false))
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
+        case .deleteWebPage(let urlString):
+            Task {
+                do {
+                    defer { send(.setWebPageLoading(false)) }
+                    send(.setWebPageLoading(true))
+                    try await deleteWebPageUseCase.execute(urlString)
+                    let pages = try await fetchWebPagesUseCase.execute("")
+                    send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
+                } catch {
+                    send(.setWebPageLoading(false))
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
@@ -194,6 +215,8 @@ private extension HomeViewModel {
             }
             setAlert(&state, isPresented: false, type: nil)
             return [.addWebPage(normalizedURL)]
+        case .deleteWebPage(let page):
+            return [.deleteWebPage(page.url.absoluteString)]
         default:
             break
         }
@@ -210,6 +233,8 @@ private extension HomeViewModel {
             state.isPinnedLoading = isLoading
         case .setWebPageLoading(let isLoading):
             state.isWebPageLoading = isLoading
+        case .setWebPageInputLoading(let isLoading):
+            state.isWebPageInputLoading = isLoading
         default:
             break
         }
