@@ -8,7 +8,7 @@
 import Foundation
 
 final class HomeViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [PinnedTodoItem] = []
         var webPages: [WebPageItem] = []
@@ -103,7 +103,7 @@ final class HomeViewModel: Store {
             effects = reduceByRun(action, state: &state)
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 
