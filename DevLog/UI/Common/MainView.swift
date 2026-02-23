@@ -15,7 +15,8 @@ struct MainView: View {
             HomeView(viewModel: HomeViewModel(
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self)
+                fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self),
+                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "house.fill")

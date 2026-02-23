@@ -163,12 +163,12 @@ struct HomeView: View {
     private var pinnedSection: some View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
-                if viewModel.state.isLoading {
+                if viewModel.state.isPinnedLoading {
                     LoadingView(isClear: true)
                 } else {
                     HStack {
                         Spacer()
-                        Text("최근에 중요 표시를 한 Todo가 여기 표시됩니다.")
+                        Text("최근에 중요 표시를 한 Todo가 표시됩니다.")
                             .font(.callout)
                         Spacer()
                     }
@@ -214,8 +214,21 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            ForEach(viewModel.state.webPages, id: \.id) { page in
-                webResultRow(page)
+            if viewModel.state.webPages.isEmpty {
+                if viewModel.state.isWebPageLoading {
+                    LoadingView(isClear: true)
+                } else {
+                    HStack {
+                        Spacer()
+                        Text("저장한 Web Page가 표시됩니다.")
+                            .font(.callout)
+                        Spacer()
+                    }
+                }
+            } else {
+                ForEach(viewModel.state.webPages, id: \.id) { page in
+                    webResultRow(page)
+                }
             }
         } header: {
             HStack {
