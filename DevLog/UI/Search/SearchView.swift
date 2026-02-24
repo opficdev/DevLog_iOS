@@ -27,6 +27,7 @@ struct SearchView: View {
                         ))
                     case .web(let page):
                         WebView(url: page.url)
+                            .ignoresSafeArea()
                             .toolbar {
                                 ToolbarItem(placement: .principal) {
                                     Text(page.title)
@@ -214,31 +215,8 @@ struct SearchView: View {
 
     private func webResultRow(_ item: WebPageItem) -> some View {
         NavigationLink(value: Path.web(item)) {
-            VStack(spacing: 4) {
-                HStack {
-                    CacheableImage(url: item.imageURL) {
-                        Image(systemName: "globe")
-                            .resizable()
-                            .scaledToFit()
-                    }
-                    .frame(width: sceneWidth / 10, height: sceneWidth / 10)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                    VStack(alignment: .leading) {
-                        Text(item.title)
-                            .foregroundStyle(Color.primary)
-                            .bold()
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-                        Text(item.displayURL)
-                            .foregroundStyle(Color.accentColor)
-                            .underline()
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.gray)
-                }
+            VStack(spacing: 0) {
+                WebItemRow(item: item, showsChevron: true)
                 Divider()
             }
         }

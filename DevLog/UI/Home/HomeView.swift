@@ -41,6 +41,9 @@ struct HomeView: View {
                     ))
                 case .web(let page):
                     WebView(url: page.url)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .ignoresSafeArea()
+                        .toolbar(.hidden, for: .tabBar)
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 Text(page.title)
@@ -253,6 +256,7 @@ struct HomeView: View {
                 ForEach(viewModel.state.webPages, id: \.id) { page in
                     webResultRow(page)
                 }
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
         } header: {
             HStack {
@@ -289,28 +293,7 @@ struct HomeView: View {
 
     private func webResultRow(_ item: WebPageItem) -> some View {
         NavigationLink(value: Path.web(item)) {
-            HStack {
-                CacheableImage(url: item.imageURL) {
-                    Image(systemName: "globe")
-                        .resizable()
-                        .scaledToFit()
-                }
-                .frame(width: sceneWidth / 10, height: sceneWidth / 10)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                VStack(alignment: .leading) {
-                    Text(item.title)
-                        .foregroundStyle(Color.primary)
-                        .bold()
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-                    Text(item.displayURL)
-                        .foregroundStyle(Color.accentColor)
-                        .underline()
-                }
-                Spacer()
-            }
-            .padding(.vertical, 4)
+            WebItemRow(item: item, showsChevron: false)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
