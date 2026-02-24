@@ -41,6 +41,7 @@ struct HomeView: View {
                     ))
                 case .web(let page):
                     WebView(url: page.url)
+                        .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 Text(page.title)
