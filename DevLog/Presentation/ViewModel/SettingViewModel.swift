@@ -73,9 +73,9 @@ final class SettingViewModel: Store {
             setAlert(&state, isPresented: true, type: .removeCache)
         case .confirmRemoveCache:
             do {
+                setAlert(&state, isPresented: false)
                 try clearCacheDirectory()
                 state.dirSize = dirSizeInBytes()
-                setAlert(&state, isPresented: false)
             } catch {
                 setAlert(&state, isPresented: true, type: .error)
             }
