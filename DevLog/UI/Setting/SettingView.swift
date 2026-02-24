@@ -27,15 +27,24 @@ struct SettingView: View {
                             .foregroundStyle(Color.gray)
                     }
                 }
-                .onAppear {
-                    viewModel.send(.setTheme(theme.localizedName))
-                }
 
                 Button {
                     router.push(Path.pushNotification)
                 } label: {
                     Text("알림")
                         .foregroundStyle(Color.primary)
+                }
+
+                Button {
+                    viewModel.send(.tapRemoveCacheButton)
+                } label: {
+                    HStack {
+                        Text("임시 데이터 삭제")
+                            .foregroundStyle(Color.primary)
+                        Spacer()
+                        Text(formatFileSize(bytes: viewModel.state.dirSize))
+                            .foregroundStyle(Color.secondary)
+                    }
                 }
             }
             
@@ -91,7 +100,7 @@ struct SettingView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    viewModel.send(.setAlert(isPresented: true, type: .cancel))
+                    viewModel.send(.setAlert(isPresented: true, type: .deleteAuth))
                 }) {
                     Text("회원 탈퇴")
                         .font(.headline)
@@ -137,6 +146,10 @@ struct SettingView: View {
                 LoadingView()
             }
         }
+        .onAppear {
+            viewModel.send(.setTheme(theme.localizedName))
+            viewModel.send(.updateDirSize)
+        }
     }
 
     private enum Path: Hashable {
@@ -153,17 +166,44 @@ struct SettingView: View {
             Button("확인", role: .destructive) {
                 viewModel.send(.tapSignOutButton)
             }
-        case .cancel:
+        case .deleteAuth:
             Button("취소", role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("탈퇴", role: .destructive) {
                 viewModel.send(.tapDeleteAuthButton)
             }
+        case .removeCache:
+            Button("취소", role: .cancel) {
+                viewModel.send(.setAlert(isPresented: false))
+            }
+            Button("확인", role: .destructive) {
+
+            }
         case .error, .none:
             Button("확인", role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
         }
+    }
+
+    private func formatFileSize(bytes: Int64) -> String {
+        let units = ["B", "KB", "MB", "GB"]
+        var value = Double(max(bytes, 0))
+        var unitIndex = 0
+
+        while 1000 <= value && unitIndex < units.count - 1 {
+            value /= 1024.0
+            unitIndex += 1
+        }
+
+        let truncated = floor(value * 100.0) / 100.0
+        let formatter = NumberFormatter()
+        formatter.minimumIntegerDigits = 1
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+
+        let numberString = formatter.string(from: NSNumber(value: truncated)) ?? "0"
+        return "\(numberString) \(units[unitIndex])"
     }
 }

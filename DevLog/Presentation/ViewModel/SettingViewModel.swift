@@ -10,6 +10,7 @@ import Foundation
 final class SettingViewModel: Store {
     struct State {
         var theme = ""
+        var dirSize: Int64 = 0
         var isLoading = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -23,8 +24,10 @@ final class SettingViewModel: Store {
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setLoading(Bool)
         case setTheme(String)
+        case updateDirSize
         case tapDeleteAuthButton
         case tapSignOutButton
+        case tapRemoveCacheButton
     }
 
     enum SideEffect {
@@ -33,7 +36,7 @@ final class SettingViewModel: Store {
     }
 
     enum AlertType {
-        case signOut, cancel, error
+        case signOut, deleteAuth, error, removeCache
     }
 
     @Published private(set) var state = State()
@@ -59,10 +62,14 @@ final class SettingViewModel: Store {
             state.isLoading = value
         case .setTheme(let value):
             state.theme = value
+        case .updateDirSize:
+            state.dirSize = dirSizeInBytes()
         case .tapDeleteAuthButton:
             return [.deleteAuth]
         case .tapSignOutButton:
             return [.signOut]
+        case .tapRemoveCacheButton:
+            setAlert(&state, isPresented: true, type: .removeCache)
         }
         return []
     }
@@ -106,17 +113,56 @@ private extension SettingViewModel {
         case .signOut:
             state.alertTitle = "로그아웃"
             state.alertMessage = "로그아웃 하시겠습니까?"
-        case .cancel:
+        case .deleteAuth:
             state.alertTitle = "정말 탈퇴하시겠습니까?"
             state.alertMessage = "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
         case .error:
             state.alertTitle = "오류"
             state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        case .removeCache:
+            state.alertTitle = "임시 데이터 삭제"
+            state.alertMessage = "임시 데이터를 삭제하고 정리합니다.\n계속하시겠습니까?"
         case .none:
             state.alertTitle = ""
             state.alertMessage = ""
         }
         state.showAlert = isPresented
         state.alertType = type
+    }
+
+    func dirSizeInBytes() -> Int64 {
+        do {
+            let cachesDir = try FileManager.default.url(
+                for: .cachesDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            return directorySize(at: cachesDir)
+        } catch {
+            return 0
+        }
+    }
+
+    private func directorySize(at url: URL) -> Int64 {
+        guard FileManager.default.fileExists(atPath: url.path) else { return 0 }
+        guard let enumerator = FileManager.default.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return 0
+        }
+
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                  resourceValues.isRegularFile == true,
+                  let fileSize = resourceValues.fileSize else {
+                continue
+            }
+            total += Int64(fileSize)
+        }
+        return total
     }
 }
