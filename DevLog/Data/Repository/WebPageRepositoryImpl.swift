@@ -21,24 +21,22 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func fetch(_ query: String) async throws -> [WebPage] {
         let responses = try await webPageService.fetchWebPages(query)
+        var pages: [WebPage] = []
+        pages.reserveCapacity(responses.count)
 
-        let restoreCandidates = responses.filter { needsImageRestore($0) }
-        if !restoreCandidates.isEmpty {
-            Task.detached(priority: .background) { [metadataService, webPageService] in
-                for response in restoreCandidates {
-                    let metadata = try await metadataService.fetchMetadata(from: response.url)
-                    let request = WebPageRequest(
-                        title: metadata.title,
-                        url: response.url,
-                        displayURL: metadata.displayURL,
-                        imageURL: metadata.imageURL
-                    )
-                    try? await webPageService.upsertWebPage(request)
+        for response in responses {
+            if needsImageRestore(response) {
+                if let restored = try? await restoreWebPage(response) {
+                    pages.append(restored)
+                    continue
                 }
+            }
+            if let page = try? response.toDomain() {
+                pages.append(page)
             }
         }
 
-        return responses.compactMap { try? $0.toDomain() }
+        return pages
     }
 
     func upsert(_ urlString: String) async throws {
@@ -65,5 +63,29 @@ private extension WebPageRepositoryImpl {
             return false
         }
         return !FileManager.default.fileExists(atPath: url.path)
+    }
+
+    func restoreWebPage(_ response: WebPageResponse) async throws -> WebPage? {
+        let metadata = try await metadataService.fetchMetadata(from: response.url)
+        let request = WebPageRequest(
+            title: metadata.title,
+            url: response.url,
+            displayURL: metadata.displayURL,
+            imageURL: metadata.imageURL
+        )
+        try await webPageService.upsertWebPage(request)
+
+        guard let url = URL(string: response.url),
+              let displayURL = URL(string: metadata.displayURL) else {
+            return nil
+        }
+
+        let imageURL = metadata.imageURL.isEmpty ? nil : URL(string: metadata.imageURL)
+        return WebPage(
+            title: metadata.title,
+            url: url,
+            displayURL: displayURL,
+            imageURL: imageURL
+        )
     }
 }
