@@ -57,13 +57,18 @@ final class HomeViewModel: Store {
         case deleteWebPage(String)
         case fetchPinnedTodos
         case fetchWebPages
-        case showTodoEditorAfterDelay(Double)
+        case showModalAfterDelay(ModalType)
     }
 
     enum AlertType {
         case webPageInput
         case invalidURL
         case error
+    }
+
+    enum ModalType {
+        case todoEditor
+        case urlInputAlert
     }
 
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -166,10 +171,15 @@ final class HomeViewModel: Store {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
-        case .showTodoEditorAfterDelay(let delay):
+        case .showModalAfterDelay(let type):
             Task {
-                try? await Task.sleep(for: .seconds(delay))
-                send(.setShowTodoEditor(true))
+                try? await Task.sleep(for: .seconds(0.1))
+                switch type {
+                case .todoEditor:
+                    send(.setShowTodoEditor(true))
+                case .urlInputAlert:
+                    send(.setAlert(isPresented: true, type: .webPageInput))
+                }
             }
         }
     }
@@ -182,7 +192,7 @@ private extension HomeViewModel {
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
             state.showContentPicker = false
-            return [.showTodoEditorAfterDelay(0.1)]
+            return [.showModalAfterDelay(.todoEditor)]
         case .orderTodoKindPreferences(let preferences):
             state.todoKindPreferences = preferences
         case .setReorderTodo(let presented):
@@ -197,8 +207,9 @@ private extension HomeViewModel {
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
         case .setAlert(let presented, let type):
-            if type == .webPageInput {
+            if type == .webPageInput && state.showContentPicker {
                 state.showContentPicker = false
+                return [.showModalAfterDelay(.urlInputAlert)]
             }
             setAlert(&state, isPresented: presented, type: type)
         default:
