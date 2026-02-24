@@ -198,12 +198,9 @@ struct SettingView: View {
         }
 
         let truncated = floor(value * 100.0) / 100.0
-        let formatter = NumberFormatter()
-        formatter.minimumIntegerDigits = 1
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-
-        let numberString = formatter.string(from: NSNumber(value: truncated)) ?? "0"
-        return "\(numberString) \(units[unitIndex])"
+        let numberString = truncated.formatted(
+            .number.precision(.fractionLength(0...2))
+        )
+        return "\(numberString)\(units[unitIndex])"
     }
 }
