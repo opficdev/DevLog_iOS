@@ -175,7 +175,7 @@ struct HomeView: View {
         Section(content: {
             if viewModel.state.pinnedTodos.isEmpty {
                 if viewModel.state.isPinnedLoading {
-                    LoadingView(isClear: true)
+                    LoadingView()
                 } else {
                     HStack {
                         Spacer()
@@ -227,7 +227,7 @@ struct HomeView: View {
         Section {
             if viewModel.state.webPages.isEmpty {
                 if viewModel.state.isWebPageLoading {
-                    LoadingView(isClear: true)
+                    LoadingView()
                 } else {
                     HStack {
                         Spacer()
