@@ -37,21 +37,21 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             logger.debug("Signing in with custom token")
             let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
-        // 4. Firebase Auth 사용자 프로필 업데이트
-        let githubUser = try await requestUserProfile(accessToken: accessToken)
+            // 4. Firebase Auth 사용자 프로필 업데이트
+            let githubUser = try await requestUserProfile(accessToken: accessToken)
+
+            if let photoURL = githubUser.avatarUrl, let url = URL(string: photoURL) {
+                let changeRequest = result.user.createProfileChangeRequest()
+                changeRequest.photoURL = url
+                changeRequest.displayName = githubUser.name ?? githubUser.login
+                try await changeRequest.commitChanges()
+            }
         
-        if let photoURL = githubUser.avatarUrl, let url = URL(string: photoURL) {
-            let changeRequest = result.user.createProfileChangeRequest()
-            changeRequest.photoURL = url
-            changeRequest.displayName = githubUser.name ?? githubUser.login
-            try await changeRequest.commitChanges()
-        }
-        
-        // 5. GitHub 계정과 Firebase Auth 계정 연결
-        if !result.user.providerData.contains(where: { $0.providerID == "github.com" }) {
-            let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
-            try await result.user.link(with: credential)
-        }
+            // 5. GitHub 계정과 Firebase Auth 계정 연결
+            if !result.user.providerData.contains(where: { $0.providerID == "github.com" }) {
+                let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
+                try await result.user.link(with: credential)
+            }
 
             let fcmToken = try await messaging.token()
 
