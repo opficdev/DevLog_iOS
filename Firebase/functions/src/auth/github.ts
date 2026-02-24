@@ -90,6 +90,7 @@ export const requestGithubTokens = onCall({
     // 4. Firebase Custom Token 생성
     const customToken = await admin.auth().createCustomToken(uid);
 
+    console.log(`GitHub 사용자(${userData.login})에 대한 커스텀 토큰이 생성되었습니다. UID: ${uid}`);
     return {
         accessToken,
         customToken
