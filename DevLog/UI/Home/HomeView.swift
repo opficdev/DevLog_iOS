@@ -43,6 +43,7 @@ struct HomeView: View {
                     WebView(url: page.url)
                         .navigationBarTitleDisplayMode(.inline)
                         .ignoresSafeArea()
+                        .toolbar(.hidden, for: .tabBar)
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 Text(page.title)
