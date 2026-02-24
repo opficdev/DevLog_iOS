@@ -145,8 +145,9 @@ private extension SettingViewModel {
                 for: .cachesDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
-                create: true
+                create: false
             )
+            guard FileManager.default.fileExists(atPath: cachesDir.path) else { return 0 }
             return directorySize(at: cachesDir)
         } catch {
             return 0
@@ -180,8 +181,9 @@ private extension SettingViewModel {
             for: .cachesDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
-            create: true
+            create: false
         )
+        guard FileManager.default.fileExists(atPath: cachesDir.path) else { return }
         let contents = try FileManager.default.contentsOfDirectory(
             at: cachesDir,
             includingPropertiesForKeys: nil,
