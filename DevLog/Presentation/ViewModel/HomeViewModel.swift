@@ -12,7 +12,7 @@ final class HomeViewModel: Store {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [PinnedTodoItem] = []
         var webPages: [WebPageItem] = []
-        var showTodoKindPicker: Bool = false
+        var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
         var webPageURLInput: String = "https://"
@@ -57,13 +57,18 @@ final class HomeViewModel: Store {
         case deleteWebPage(String)
         case fetchPinnedTodos
         case fetchWebPages
-        case showTodoEditorAfterDelay(Double)
+        case showModalAfterDelay(ModalType)
     }
 
     enum AlertType {
         case webPageInput
         case invalidURL
         case error
+    }
+
+    enum ModalType {
+        case todoEditor
+        case urlInputAlert
     }
 
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -166,10 +171,15 @@ final class HomeViewModel: Store {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
-        case .showTodoEditorAfterDelay(let delay):
+        case .showModalAfterDelay(let type):
             Task {
-                try? await Task.sleep(for: .seconds(delay))
-                send(.setShowTodoEditor(true))
+                try await Task.sleep(for: .seconds(0.1))
+                switch type {
+                case .todoEditor:
+                    send(.setShowTodoEditor(true))
+                case .urlInputAlert:
+                    send(.setAlert(isPresented: true, type: .webPageInput))
+                }
             }
         }
     }
@@ -181,23 +191,27 @@ private extension HomeViewModel {
         switch action {
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
-            state.showTodoKindPicker = false
-            return [.showTodoEditorAfterDelay(0.1)]
+            state.showContentPicker = false
+            return [.showModalAfterDelay(.todoEditor)]
         case .orderTodoKindPreferences(let preferences):
             state.todoKindPreferences = preferences
-        case .setReorderTodo(let isPresented):
-            state.reorderTodo = isPresented
-        case .setShowTodoEditor(let isPresented):
-            state.showTodoEditor = isPresented
-            if !isPresented { state.selectedTodoKind = nil }
-        case .setShowContentPicker(let isPresented):
-            state.showTodoKindPicker = isPresented
-        case .setShowSearchView(let isPresented):
-            state.showSearchView = isPresented
+        case .setReorderTodo(let presented):
+            state.reorderTodo = presented
+        case .setShowTodoEditor(let presented):
+            state.showTodoEditor = presented
+            if !presented { state.selectedTodoKind = nil }
+        case .setShowContentPicker(let presented):
+            state.showContentPicker = presented
+        case .setShowSearchView(let presented):
+            state.showSearchView = presented
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
-        case .setAlert(let isPresented, let type):
-            setAlert(&state, isPresented: isPresented, type: type)
+        case .setAlert(let presented, let type):
+            if presented && type == .webPageInput && state.showContentPicker {
+                state.showContentPicker = false
+                return [.showModalAfterDelay(.urlInputAlert)]
+            }
+            setAlert(&state, isPresented: presented, type: type)
         default:
             break
         }

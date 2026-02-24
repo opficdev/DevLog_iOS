@@ -65,7 +65,7 @@ struct HomeView: View {
                 )
             }
             .sheet(isPresented: Binding(
-                get: { viewModel.state.showTodoKindPicker },
+                get: { viewModel.state.showContentPicker },
                 set: { _, _ in }
             )) {
                 contentPicker
@@ -334,7 +334,9 @@ struct HomeView: View {
 
                 Section {
                     Button {
-                        viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                        DispatchQueue.main.async {
+                            viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                        }
                     } label: {
                         labelImage(
                             text: "URL",
