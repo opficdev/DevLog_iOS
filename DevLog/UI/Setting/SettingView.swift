@@ -178,7 +178,7 @@ struct SettingView: View {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("확인", role: .destructive) {
-
+                viewModel.send(.confirmRemoveCache)
             }
         case .error, .none:
             Button("확인", role: .cancel) {

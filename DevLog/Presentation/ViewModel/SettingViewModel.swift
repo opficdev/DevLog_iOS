@@ -28,6 +28,7 @@ final class SettingViewModel: Store {
         case tapDeleteAuthButton
         case tapSignOutButton
         case tapRemoveCacheButton
+        case confirmRemoveCache
     }
 
     enum SideEffect {
@@ -70,6 +71,14 @@ final class SettingViewModel: Store {
             return [.signOut]
         case .tapRemoveCacheButton:
             setAlert(&state, isPresented: true, type: .removeCache)
+        case .confirmRemoveCache:
+            do {
+                try clearCacheDirectory()
+                state.dirSize = dirSizeInBytes()
+                setAlert(&state, isPresented: false)
+            } catch {
+                setAlert(&state, isPresented: true, type: .error)
+            }
         }
         return []
     }
@@ -107,7 +116,7 @@ private extension SettingViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool,
-        type: AlertType?
+        type: AlertType? = nil
     ) {
         switch type {
         case .signOut:
@@ -164,5 +173,22 @@ private extension SettingViewModel {
             total += Int64(fileSize)
         }
         return total
+    }
+
+    private func clearCacheDirectory() throws {
+        let cachesDir = try FileManager.default.url(
+            for: .cachesDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let contents = try FileManager.default.contentsOfDirectory(
+            at: cachesDir,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        for url in contents {
+            try FileManager.default.removeItem(at: url)
+        }
     }
 }
