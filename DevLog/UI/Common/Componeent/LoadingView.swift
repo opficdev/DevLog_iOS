@@ -14,6 +14,5 @@ struct LoadingView: View {
             ProgressView()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .border(Color.blue)
     }
 }
