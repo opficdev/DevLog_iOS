@@ -25,11 +25,9 @@ final class WebPageRepositoryImpl: WebPageRepository {
         pages.reserveCapacity(responses.count)
 
         for response in responses {
-            if needsImageRestore(response) {
-                if let restored = try? await restoreWebPage(response) {
-                    pages.append(restored)
-                    continue
-                }
+            if needsImageRestore(response), let restored = try? await restoreWebPage(response) {
+                pages.append(restored)
+                continue
             }
             if let page = try? response.toDomain() {
                 pages.append(page)
@@ -75,17 +73,14 @@ private extension WebPageRepositoryImpl {
         )
         try await webPageService.upsertWebPage(request)
 
-        guard let url = URL(string: response.url),
-              let displayURL = URL(string: metadata.displayURL) else {
-            return nil
-        }
-
-        let imageURL = metadata.imageURL.isEmpty ? nil : URL(string: metadata.imageURL)
-        return WebPage(
+        let newResponse = WebPageResponse(
+            id: response.id,
             title: metadata.title,
-            url: url,
-            displayURL: displayURL,
-            imageURL: imageURL
+            url: response.url,
+            displayURL: metadata.displayURL,
+            imageURL: metadata.imageURL
         )
+
+        return try? newResponse.toDomain()
     }
 }
