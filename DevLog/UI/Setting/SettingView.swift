@@ -12,7 +12,6 @@ struct SettingView: View {
     @Environment(\.diContainer) var container: DIContainer
     @StateObject var viewModel: SettingViewModel
     @EnvironmentObject var router: NavigationRouter
-    @State private var navigationPath: Path?
 
     var body: some View {
         Form {
@@ -28,9 +27,6 @@ struct SettingView: View {
                             .foregroundStyle(Color.gray)
                     }
                 }
-                .onAppear {
-                    viewModel.send(.setTheme(theme.localizedName))
-                }
 
                 Button {
                     router.push(Path.pushNotification)
@@ -38,6 +34,20 @@ struct SettingView: View {
                     Text("알림")
                         .foregroundStyle(Color.primary)
                 }
+
+                let dirSize = viewModel.state.dirSize
+                Button {
+                    viewModel.send(.tapRemoveCacheButton)
+                } label: {
+                    HStack {
+                        Text("임시 데이터 삭제")
+                            .foregroundStyle(dirSize == 0 ? Color.secondary : .primary)
+                        Spacer()
+                        Text(formatFileSize(bytes: dirSize))
+                            .foregroundStyle(Color.secondary.opacity(dirSize == 0 ? 0 : 1))
+                    }
+                }
+                .disabled(dirSize == 0)
             }
             
             Section {
@@ -79,7 +89,6 @@ struct SettingView: View {
             Section {
                 Button {
                     router.push(Path.account)
-
                 } label: {
                     Text("계정 연동")
                 }
@@ -93,7 +102,7 @@ struct SettingView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    viewModel.send(.setAlert(isPresented: true, type: .delete))
+                    viewModel.send(.setAlert(isPresented: true, type: .deleteAuth))
                 }) {
                     Text("회원 탈퇴")
                         .font(.headline)
@@ -139,6 +148,10 @@ struct SettingView: View {
                 LoadingView()
             }
         }
+        .onAppear {
+            viewModel.send(.setTheme(theme.localizedName))
+            viewModel.send(.updateDirSize)
+        }
     }
 
     private enum Path: Hashable {
@@ -155,17 +168,41 @@ struct SettingView: View {
             Button("확인", role: .destructive) {
                 viewModel.send(.tapSignOutButton)
             }
-        case .delete:
+        case .deleteAuth:
             Button("취소", role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("탈퇴", role: .destructive) {
                 viewModel.send(.tapDeleteAuthButton)
             }
+        case .removeCache:
+            Button("취소", role: .cancel) {
+                viewModel.send(.setAlert(isPresented: false))
+            }
+            Button("확인", role: .destructive) {
+                viewModel.send(.confirmRemoveCache)
+            }
         case .error, .none:
             Button("확인", role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
         }
+    }
+
+    private func formatFileSize(bytes: Int64) -> String {
+        let units = ["B", "KB", "MB", "GB"]
+        var value = Double(max(bytes, 0))
+        var unitIndex = 0
+
+        while 1024.0 <= value && unitIndex < units.count - 1 {
+            value /= 1024.0
+            unitIndex += 1
+        }
+
+        let truncated = floor(value * 100.0) / 100.0
+        let numberString = truncated.formatted(
+            .number.precision(.fractionLength(0...2))
+        )
+        return "\(numberString)\(units[unitIndex])"
     }
 }
