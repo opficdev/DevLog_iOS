@@ -194,7 +194,7 @@ struct SettingView: View {
         var value = Double(max(bytes, 0))
         var unitIndex = 0
 
-        while 1000 <= value && unitIndex < units.count - 1 {
+        while 1024.0 <= value && unitIndex < units.count - 1 {
             value /= 1024.0
             unitIndex += 1
         }
