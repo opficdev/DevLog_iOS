@@ -27,6 +27,9 @@ final class HomeViewModel: Store {
         var alertTitle: String = ""
         var alertType: AlertType?
         var alertMessage: String = ""
+        var showToast: Bool = false
+        var toastType: ToastType?
+        var toastMessage: String = ""
     }
 
     enum Action {
@@ -44,6 +47,9 @@ final class HomeViewModel: Store {
         case upsertTodo(Todo)
         case addWebPage
         case deleteWebPage(WebPageItem)
+        case undoDeleteWebPage
+        case confirmDeleteWebPage
+        case setToast(isPresented: Bool, type: ToastType? = nil)
         case fetchPinnedTodos([PinnedTodoItem])
         case fetchWebPages([WebPageItem])
         case setPinnedLoading(Bool)
@@ -66,17 +72,22 @@ final class HomeViewModel: Store {
         case error
     }
 
+    enum ToastType {
+        case deleteWebPage
+    }
+
     enum ModalType {
         case todoEditor
         case urlInputAlert
     }
 
+    @Published private(set) var state = State()
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
     private let fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
-    @Published private(set) var state = State()
+    private var pendingTask: (WebPageItem, Int)?
 
     init(
         addWebPageUseCase: AddWebPageUseCase,
@@ -99,13 +110,16 @@ final class HomeViewModel: Store {
         switch action {
         case .tapTodoKind, .orderTodoKindPreferences, .setReorderTodo,
                 .setShowTodoEditor, .setShowContentPicker, .setShowSearchView,
-                .updateWebPageURLInput, .setAlert:
+                .updateWebPageURLInput, .setAlert, .deleteWebPage,
+                .undoDeleteWebPage, .setToast:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage, .deleteWebPage:
+        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo,
+                .addWebPage, .confirmDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .fetchPinnedTodos, .fetchWebPages, .setPinnedLoading, .setWebPageLoading, .setWebPageInputLoading:
+        case .fetchPinnedTodos, .fetchWebPages, .setPinnedLoading,
+                .setWebPageLoading, .setWebPageInputLoading:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -212,6 +226,18 @@ private extension HomeViewModel {
                 return [.showModalAfterDelay(.urlInputAlert)]
             }
             setAlert(&state, isPresented: presented, type: type)
+        case .deleteWebPage(let page):
+            if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
+                pendingTask = (page, index)
+                state.webPages.remove(at: index)
+                setToast(&state, isPresented: true, for: .deleteWebPage)
+            }
+        case .undoDeleteWebPage:
+            guard let (page, index) = pendingTask else { return [] }
+            state.webPages.insert(page, at: index)
+            pendingTask = nil
+        case .setToast(let isPresented, let type):
+            setToast(&state, isPresented: isPresented, for: type)
         default:
             break
         }
@@ -235,7 +261,9 @@ private extension HomeViewModel {
             }
             setAlert(&state, isPresented: false, type: nil)
             return [.addWebPage(normalizedURL)]
-        case .deleteWebPage(let page):
+        case .confirmDeleteWebPage:
+            guard let (page, _) = pendingTask else { return [] }
+            pendingTask = nil
             return [.deleteWebPage(page.url.absoluteString)]
         default:
             break
@@ -286,6 +314,21 @@ private extension HomeViewModel {
         }
         state.showAlert = isPresented
         state.alertType = type
+    }
+
+    func setToast(
+        _ state: inout State,
+        isPresented: Bool,
+        for type: ToastType?
+    ) {
+        switch type {
+        case .deleteWebPage:
+            state.toastMessage = "실행 취소"
+        case .none:
+            state.toastMessage = ""
+        }
+        state.showToast = isPresented
+        state.toastType = type
     }
 
     func normalizedWebPageURL(_ input: String) -> String? {
