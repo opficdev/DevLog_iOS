@@ -33,14 +33,13 @@ final class SettingViewModel: Store {
     }
 
     enum AlertType {
-        case signOut, delete, error
+        case signOut, cancel, error
     }
 
+    @Published private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
     private let sessionUseCase: AuthSessionUseCase
-
-    @Published private(set) var state = State()
 
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
@@ -107,7 +106,7 @@ private extension SettingViewModel {
         case .signOut:
             state.alertTitle = "로그아웃"
             state.alertMessage = "로그아웃 하시겠습니까?"
-        case .delete:
+        case .cancel:
             state.alertTitle = "정말 탈퇴하시겠습니까?"
             state.alertMessage = "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
         case .error:

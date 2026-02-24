@@ -12,7 +12,6 @@ struct SettingView: View {
     @Environment(\.diContainer) var container: DIContainer
     @StateObject var viewModel: SettingViewModel
     @EnvironmentObject var router: NavigationRouter
-    @State private var navigationPath: Path?
 
     var body: some View {
         Form {
@@ -79,7 +78,6 @@ struct SettingView: View {
             Section {
                 Button {
                     router.push(Path.account)
-
                 } label: {
                     Text("계정 연동")
                 }
@@ -93,7 +91,7 @@ struct SettingView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    viewModel.send(.setAlert(isPresented: true, type: .delete))
+                    viewModel.send(.setAlert(isPresented: true, type: .cancel))
                 }) {
                     Text("회원 탈퇴")
                         .font(.headline)
@@ -155,7 +153,7 @@ struct SettingView: View {
             Button("확인", role: .destructive) {
                 viewModel.send(.tapSignOutButton)
             }
-        case .delete:
+        case .cancel:
             Button("취소", role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
