@@ -77,7 +77,7 @@ private struct ToastOverlayView<Label: View>: View {
         guard opacityValue == 0 else { return }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 1, blendDuration: 0.0)) {
-            yOffset = -100
+            yOffset = -50
             opacityValue = 1
         }
     }

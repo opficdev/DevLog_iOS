@@ -101,6 +101,19 @@ struct HomeView: View {
             } message: {
                 Text(viewModel.state.alertMessage)
             }
+            .toast(
+                isPresented: Binding(
+                    get: { viewModel.state.showToast },
+                    set: { viewModel.send(.setToast(isPresented: $0)) }
+                ),
+                duration: 5,
+                action: { viewModel.send(.undoDeleteWebPage) },
+                onDismiss: { viewModel.send(.confirmDeleteWebPage) }
+            ) {
+                Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+            }
             .onAppear {
                 viewModel.send(.onAppear)
             }
