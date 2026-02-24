@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import * as dotenv from "dotenv";
+import * as path from "path";
 
 // Apple 인증 관련 함수 가져오기
 import {
@@ -33,7 +34,10 @@ import {
 
 
 // .env 파일 로드
-dotenv.config();
+dotenv.config({
+    path: path.resolve(__dirname, "../.env"),
+    override: true
+});
 
 // Firebase 앱 초기화
 admin.initializeApp();
