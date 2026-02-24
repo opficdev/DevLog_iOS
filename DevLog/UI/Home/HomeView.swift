@@ -254,6 +254,7 @@ struct HomeView: View {
                 ForEach(viewModel.state.webPages, id: \.id) { page in
                     webResultRow(page)
                 }
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
         } header: {
             HStack {
