@@ -276,7 +276,13 @@ private extension HomeViewModel {
         case .fetchPinnedTodos(let todos):
             state.pinnedTodos = todos
         case .fetchWebPages(let pages):
-            state.webPages = pages
+            let filteredPages: [WebPageItem]
+            if let (pendingPage, _) = pendingTask {
+                filteredPages = pages.filter { $0.id != pendingPage.id }
+            } else {
+                filteredPages = pages
+            }
+            state.webPages = filteredPages
         case .setPinnedLoading(let isLoading):
             state.isPinnedLoading = isLoading
         case .setWebPageLoading(let isLoading):
