@@ -334,7 +334,9 @@ struct HomeView: View {
 
                 Section {
                     Button {
-                        viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                        DispatchQueue.main.async {
+                            viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                        }
                     } label: {
                         labelImage(
                             text: "URL",
