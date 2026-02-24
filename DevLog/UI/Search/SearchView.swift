@@ -27,6 +27,7 @@ struct SearchView: View {
                         ))
                     case .web(let page):
                         WebView(url: page.url)
+                            .ignoresSafeArea()
                             .toolbar {
                                 ToolbarItem(placement: .principal) {
                                     Text(page.title)
