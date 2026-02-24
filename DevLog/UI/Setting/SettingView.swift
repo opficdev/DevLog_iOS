@@ -35,17 +35,19 @@ struct SettingView: View {
                         .foregroundStyle(Color.primary)
                 }
 
+                let dirSize = viewModel.state.dirSize
                 Button {
                     viewModel.send(.tapRemoveCacheButton)
                 } label: {
                     HStack {
                         Text("임시 데이터 삭제")
-                            .foregroundStyle(Color.primary)
+                            .foregroundStyle(dirSize == 0 ? Color.secondary : .primary)
                         Spacer()
-                        Text(formatFileSize(bytes: viewModel.state.dirSize))
-                            .foregroundStyle(Color.secondary)
+                        Text(formatFileSize(bytes: dirSize))
+                            .foregroundStyle(Color.secondary.opacity(dirSize == 0 ? 0 : 1))
                     }
                 }
+                .disabled(dirSize == 0)
             }
             
             Section {
