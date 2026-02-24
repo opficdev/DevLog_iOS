@@ -185,24 +185,22 @@ private extension HomeViewModel {
             return [.showTodoEditorAfterDelay(0.1)]
         case .orderTodoKindPreferences(let preferences):
             state.todoKindPreferences = preferences
-        case .setReorderTodo(let isPresented):
-            state.reorderTodo = isPresented
-        case .setShowTodoEditor(let isPresented):
-            state.showTodoEditor = isPresented
-            if !isPresented { state.selectedTodoKind = nil }
-        case .setShowContentPicker(let isPresented):
-            state.showTodoKindPicker = isPresented
+        case .setReorderTodo(let presented):
+            state.reorderTodo = presented
+        case .setShowTodoEditor(let presented):
+            state.showTodoEditor = presented
+            if !presented { state.selectedTodoKind = nil }
         case .setShowContentPicker(let presented):
             state.showContentPicker = presented
-        case .setShowSearchView(let isPresented):
-            state.showSearchView = isPresented
+        case .setShowSearchView(let presented):
+            state.showSearchView = presented
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
-        case .setAlert(let isPresented, let type):
+        case .setAlert(let presented, let type):
             if type == .webPageInput {
                 state.showContentPicker = false
             }
-            setAlert(&state, isPresented: isPresented, type: type)
+            setAlert(&state, isPresented: presented, type: type)
         default:
             break
         }
