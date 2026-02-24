@@ -293,7 +293,7 @@ struct HomeView: View {
 
     private func webResultRow(_ item: WebPageItem) -> some View {
         NavigationLink(value: Path.web(item)) {
-            WebItemtRow(item: item, showsChevron: false)
+            WebItemRow(item: item, showsChevron: false)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {

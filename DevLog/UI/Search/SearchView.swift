@@ -216,7 +216,7 @@ struct SearchView: View {
     private func webResultRow(_ item: WebPageItem) -> some View {
         NavigationLink(value: Path.web(item)) {
             VStack(spacing: 0) {
-                WebItemtRow(item: item, showsChevron: true)
+                WebItemRow(item: item, showsChevron: true)
                 Divider()
             }
         }

@@ -1,13 +1,13 @@
 //
-//  WebItemtRow.swift
+//  WebItemRow.swift
 //  DevLog
 //
-//  Created by Codex on 2/24/26.
+//  Created by 최윤진 on 2/24/26.
 //
 
 import SwiftUI
 
-struct WebItemtRow: View {
+struct WebItemRow: View {
     @Environment(\.sceneWidth) private var sceneWidth
 
     let item: WebPageItem
