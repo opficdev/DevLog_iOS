@@ -184,7 +184,13 @@ private extension SettingViewModel {
             create: false
         )
         guard FileManager.default.fileExists(atPath: cachesDir.path) else { return }
-        try FileManager.default.removeItem(at: cachesDir)
-        try FileManager.default.createDirectory(at: cachesDir, withIntermediateDirectories: true)
+        let contents = try FileManager.default.contentsOfDirectory(
+            at: cachesDir,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        for url in contents {
+            try FileManager.default.removeItem(at: url)
+        }
     }
 }
