@@ -173,7 +173,7 @@ final class HomeViewModel: Store {
             }
         case .showModalAfterDelay(let type):
             Task {
-                try? await Task.sleep(for: .seconds(0.1))
+                try await Task.sleep(for: .seconds(0.1))
                 switch type {
                 case .todoEditor:
                     send(.setShowTodoEditor(true))
@@ -207,7 +207,7 @@ private extension HomeViewModel {
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
         case .setAlert(let presented, let type):
-            if type == .webPageInput && state.showContentPicker {
+            if presented && type == .webPageInput && state.showContentPicker {
                 state.showContentPicker = false
                 return [.showModalAfterDelay(.urlInputAlert)]
             }
