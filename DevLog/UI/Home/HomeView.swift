@@ -65,7 +65,7 @@ struct HomeView: View {
                 )
             }
             .sheet(isPresented: Binding(
-                get: { viewModel.state.showTodoKindPicker },
+                get: { viewModel.state.showContentPicker },
                 set: { _, _ in }
             )) {
                 contentPicker

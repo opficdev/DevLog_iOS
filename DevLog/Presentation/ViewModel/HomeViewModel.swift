@@ -12,7 +12,7 @@ final class HomeViewModel: Store {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
         var pinnedTodos: [PinnedTodoItem] = []
         var webPages: [WebPageItem] = []
-        var showTodoKindPicker: Bool = false
+        var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
         var webPageURLInput: String = "https://"
@@ -181,7 +181,7 @@ private extension HomeViewModel {
         switch action {
         case .tapTodoKind(let kind):
             state.selectedTodoKind = kind
-            state.showTodoKindPicker = false
+            state.showContentPicker = false
             return [.showTodoEditorAfterDelay(0.1)]
         case .orderTodoKindPreferences(let preferences):
             state.todoKindPreferences = preferences
@@ -192,11 +192,16 @@ private extension HomeViewModel {
             if !isPresented { state.selectedTodoKind = nil }
         case .setShowContentPicker(let isPresented):
             state.showTodoKindPicker = isPresented
+        case .setShowContentPicker(let presented):
+            state.showContentPicker = presented
         case .setShowSearchView(let isPresented):
             state.showSearchView = isPresented
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
         case .setAlert(let isPresented, let type):
+            if type == .webPageInput {
+                state.showContentPicker = false
+            }
             setAlert(&state, isPresented: isPresented, type: type)
         default:
             break
