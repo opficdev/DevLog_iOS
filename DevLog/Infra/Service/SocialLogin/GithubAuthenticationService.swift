@@ -40,7 +40,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             // 4. Firebase Auth 사용자 프로필 업데이트
             let githubUser = try await requestUserProfile(accessToken: accessToken)
 
-            if let photoURL = githubUser.avatarUrl, let url = URL(string: photoURL) {
+            if let photoURL = githubUser.avatarURL, let url = URL(string: photoURL) {
                 let changeRequest = result.user.createProfileChangeRequest()
                 changeRequest.photoURL = url
                 changeRequest.displayName = githubUser.name ?? githubUser.login
@@ -256,13 +256,13 @@ extension GithubAuthenticationService: ASWebAuthenticationPresentationContextPro
     struct GitHubUser: Codable {
         let login: String
         let name: String?
-        let avatarUrl: String?
+        let avatarURL: String?
         let email: String?
 
         enum CodingKeys: String, CodingKey {
             case login
             case name
-            case avatarUrl = "avatar_url"
+            case avatarURL = "avatar_url"
             case email
         }
     }
