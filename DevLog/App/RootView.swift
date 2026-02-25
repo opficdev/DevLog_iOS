@@ -23,11 +23,10 @@ struct RootView: View {
                         signOutUseCase: container.resolve(SignOutUseCase.self),
                         sessionUseCase: container.resolve(AuthSessionUseCase.self))
                     )
-                        .onAppear {
-                            if viewModel.state.isFirstLaunch {
-                                viewModel.send(.setFirstLaunch(false))
-                                viewModel.send(.signOutAuto)
-                            }
+                    .onAppear {
+                        if viewModel.state.isFirstLaunch {
+                            viewModel.send(.setFirstLaunch(false))
+                            viewModel.send(.signOutAuto)
                         }
                 }
             } else {
