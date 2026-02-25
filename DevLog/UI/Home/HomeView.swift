@@ -90,7 +90,9 @@ struct HomeView: View {
             )) {
                 SearchView(viewModel: SearchViewModel(
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                    fetchTodosByKeywordUseCase: container.resolve(FetchTodosByKeywordUseCase.self)
+                    fetchTodosByKeywordUseCase: container.resolve(FetchTodosByKeywordUseCase.self),
+                    fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
+                    updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
                 ))
             }
             .alert(

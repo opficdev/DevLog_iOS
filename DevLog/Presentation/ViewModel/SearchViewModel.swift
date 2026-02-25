@@ -45,12 +45,9 @@ final class SearchViewModel: Store {
     @Published private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase
-    private let userDefaults: UserDefaults
+    private let fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase
+    private let updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
     let contentsLimit: Int = 5
-
-    private enum DefaultsKey {
-        static let recentQueries = "Search.recentQueries"
-    }
 
     private let maxRecentQueries = 20
     private let searchDebounceDelay: Double = 0.4
@@ -59,12 +56,14 @@ final class SearchViewModel: Store {
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
         fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase,
-        userDefaults: UserDefaults = .standard
+        fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase,
+        updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
     ) {
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
         self.fetchTodosByKeywordUseCase = fetchTodosByKeywordUseCase
-        self.userDefaults = userDefaults
-        self.state.recentQueries = Self.loadRecentQueries(userDefaults: userDefaults)
+        self.fetchRecentSearchQueriesUseCase = fetchRecentSearchQueriesUseCase
+        self.updateRecentSearchQueriesUseCase = updateRecentSearchQueriesUseCase
+        self.state.recentQueries = OrderedSet(fetchRecentSearchQueriesUseCase.execute())
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -176,11 +175,7 @@ private extension SearchViewModel {
         searchDebounceTask = nil
     }
 
-    static func loadRecentQueries(userDefaults: UserDefaults) -> OrderedSet<String> {
-        OrderedSet(userDefaults.stringArray(forKey: DefaultsKey.recentQueries) ?? [])
-    }
-
     func saveRecentQueries(_ queries: OrderedSet<String>) {
-        userDefaults.set(Array(queries), forKey: DefaultsKey.recentQueries)
+        updateRecentSearchQueriesUseCase.execute(Array(queries))
     }
 }
