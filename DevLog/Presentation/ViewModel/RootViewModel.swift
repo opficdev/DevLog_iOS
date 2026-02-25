@@ -95,7 +95,7 @@ final class RootViewModel: Store {
         switch effect {
         case .signOut:
             Task {
-                try await signOutUseCase.execute()
+                try? await signOutUseCase.execute()
                 send(.didLogined(false))
                 sessionUseCase.execute(false)
             }
