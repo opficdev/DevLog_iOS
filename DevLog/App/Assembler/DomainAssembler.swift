@@ -7,14 +7,18 @@
 
 final class DomainAssembler: Assembler {
     func assemble(_ container: DIContainer) {
-        container.register(FetchPinnedTodosUseCase.self) {
-            FetchPinnedTodosUseCaseImpl(container.resolve(TodoRepository.self))
-        }
+        registerAuthUseCases(container)
+        registerAuthProviderUseCases(container)
+        registerTodoUseCases(container)
+        registerUserDataUseCases(container)
+        registerPushNotificationUseCases(container)
+        registerWebPageUseCases(container)
+        registerUserPreferencesUseCases(container)
+    }
+}
 
-        container.register(FetchTodoByIDUseCase.self) {
-            FetchTodoByIDUseCaseImpl(container.resolve(TodoRepository.self))
-        }
-
+private extension DomainAssembler {
+    func registerAuthUseCases(_ container: DIContainer) {
         container.register(SignInUseCase.self) {
             SignInUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
@@ -27,32 +31,32 @@ final class DomainAssembler: Assembler {
             DeleteAuthUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
-        container.register(UpsertTodoUseCase.self) {
-            UpsertTodoUseCaseImpl(container.resolve(TodoRepository.self))
-        }
-        
-        container.register(DeleteTodoUseCase.self) {
-            DeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
-        }
-
         container.register(AuthSessionUseCase.self) {
             AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
         }
+    }
 
-        container.register(FetchUserDataUseCase.self) {
-            FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
+    func registerAuthProviderUseCases(_ container: DIContainer) {
+        container.register(FetchAuthProvidersUseCase.self) {
+            FetchAuthProvidersUseCaseImpl(container.resolve(AuthDataRepository.self))
         }
 
-        container.register(FetchPushSettingsUseCase.self) {
-            FetchPushNotificationSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        container.register(LinkAuthProviderUseCase.self) {
+            LinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
         }
 
-        container.register(UpsertStatusMessageUseCase.self) {
-            UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
+        container.register(UnlinkAuthProviderUseCase.self) {
+            UnlinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
+        }
+    }
+
+    func registerTodoUseCases(_ container: DIContainer) {
+        container.register(FetchPinnedTodosUseCase.self) {
+            FetchPinnedTodosUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(UpdatePushSettingsUseCase.self) {
-            UpdatePushSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        container.register(FetchTodoByIDUseCase.self) {
+            FetchTodoByIDUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
         container.register(FetchTodosByKindUseCase.self) {
@@ -63,16 +67,32 @@ final class DomainAssembler: Assembler {
             FetchTodosByKeywordUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(FetchWebPagesUseCase.self) {
-            FetchWebPagesUseCaseImpl(container.resolve(WebPageRepository.self))
+        container.register(UpsertTodoUseCase.self) {
+            UpsertTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
-        container.register(AddWebPageUseCase.self) {
-            AddWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        container.register(DeleteTodoUseCase.self) {
+            DeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+    }
+
+    func registerUserDataUseCases(_ container: DIContainer) {
+        container.register(FetchUserDataUseCase.self) {
+            FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
         }
 
-        container.register(DeleteWebPageUseCase.self) {
-            DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        container.register(UpsertStatusMessageUseCase.self) {
+            UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
+        }
+    }
+
+    func registerPushNotificationUseCases(_ container: DIContainer) {
+        container.register(FetchPushSettingsUseCase.self) {
+            FetchPushNotificationSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
+        container.register(UpdatePushSettingsUseCase.self) {
+            UpdatePushSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
         container.register(DeletePushNotificationUseCase.self) {
@@ -86,17 +106,53 @@ final class DomainAssembler: Assembler {
         container.register(TogglePushNotificationReadUseCase.self) {
             TogglePushNotificationReadUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
-        
-        container.register(FetchAuthProvidersUseCase.self) {
-            FetchAuthProvidersUseCaseImpl(container.resolve(AuthDataRepository.self))
+    }
+
+    func registerWebPageUseCases(_ container: DIContainer) {
+        container.register(FetchWebPagesUseCase.self) {
+            FetchWebPagesUseCaseImpl(container.resolve(WebPageRepository.self))
         }
-        
-        container.register(LinkAuthProviderUseCase.self) {
-            LinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
+
+        container.register(AddWebPageUseCase.self) {
+            AddWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
-        
-        container.register(UnlinkAuthProviderUseCase.self) {
-            UnlinkAuthProviderUseCaseImpl(container.resolve(AuthDataRepository.self))
+
+        container.register(DeleteWebPageUseCase.self) {
+            DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
+    }
+
+    func registerUserPreferencesUseCases(_ container: DIContainer) {
+        container.register(ObserveSystemThemeUseCase.self) {
+            ObserveSystemThemeUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdateSystemThemeUseCase.self) {
+            UpdateSystemThemeUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(FetchFirstLaunchUseCase.self) {
+            FetchFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdateFirstLaunchUseCase.self) {
+            UpdateFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(FetchRecentSearchQueriesUseCase.self) {
+            FetchRecentSearchQueriesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdateRecentSearchQueriesUseCase.self) {
+            UpdateRecentSearchQueriesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(FetchPushNotificationQueryUseCase.self) {
+            FetchPushNotificationQueryUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdatePushNotificationQueryUseCase.self) {
+            UpdatePushNotificationQueryUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
     }
 }

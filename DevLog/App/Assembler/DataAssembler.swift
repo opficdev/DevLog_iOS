@@ -68,5 +68,12 @@ final class DataAssembler: Assembler {
                 metadataService: container.resolve(WebPageMetadataService.self)
             )
         }
+
+        container.register(UserPreferencesRepository.self) {
+            UserPreferencesRepositoryImpl(
+                store: container.resolve(UserDefaultsStore.self),
+                themeStore: container.resolve(ThemeStore.self)
+            )
+        }
     }
 }
