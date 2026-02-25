@@ -1,0 +1,10 @@
+//
+//  UpdatePushNotificationQueryUseCase.swift
+//  DevLog
+//
+//  Created by 최윤진 on 2/25/26.
+//
+
+protocol UpdatePushNotificationQueryUseCase {
+    func execute(_ query: PushNotificationQuery)
+}

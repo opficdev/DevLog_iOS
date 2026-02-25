@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import Combine
 
 final class SettingViewModel: Store {
     struct State {
-        var theme = ""
+        var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0
         var isLoading = false
         var showAlert: Bool = false
@@ -23,7 +24,7 @@ final class SettingViewModel: Store {
     enum Action {
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setLoading(Bool)
-        case setTheme(String)
+        case setTheme(SystemTheme)
         case updateDirSize
         case tapDeleteAuthButton
         case tapSignOutButton
@@ -44,15 +45,23 @@ final class SettingViewModel: Store {
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
     private let sessionUseCase: AuthSessionUseCase
+    private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
+    private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
         signOutUseCase: SignOutUseCase,
-        sessionUseCase: AuthSessionUseCase
+        sessionUseCase: AuthSessionUseCase,
+        observeSystemThemeUseCase: ObserveSystemThemeUseCase,
+        updateSystemThemeUseCase: UpdateSystemThemeUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
         self.sessionUseCase = sessionUseCase
+        self.observeSystemThemeUseCase = observeSystemThemeUseCase
+        self.updateSystemThemeUseCase = updateSystemThemeUseCase
+        setupThemeMonitoring()
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -63,6 +72,7 @@ final class SettingViewModel: Store {
             state.isLoading = value
         case .setTheme(let value):
             state.theme = value
+            updateSystemThemeUseCase.execute(value)
         case .updateDirSize:
             state.dirSize = dirSizeInBytes()
         case .tapDeleteAuthButton:
@@ -137,6 +147,16 @@ private extension SettingViewModel {
         }
         state.showAlert = isPresented
         state.alertType = type
+    }
+
+    func setupThemeMonitoring() {
+        observeSystemThemeUseCase.publisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] theme in
+                self?.send(.setTheme(theme))
+            }
+            .store(in: &cancellables)
     }
 
     func dirSizeInBytes() -> Int64 {

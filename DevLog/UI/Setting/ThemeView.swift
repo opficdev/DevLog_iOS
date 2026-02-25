@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ThemeView: View {
-    @AppStorage("theme") var theme: SystemTheme = .automatic
+    @Binding var theme: SystemTheme
 
     var body: some View {
         List {

@@ -16,12 +16,14 @@ final class RootViewModel: Store {
         var isNetworkConnected: Bool = true
         var isFirstLaunch: Bool
         var signIn: Bool?
+        var theme: SystemTheme = .automatic
     }
     
     enum Action {
         case setAlert(Bool)
         case networkStatusChanged(Bool)
         case setFirstLaunch(Bool)
+        case setTheme(SystemTheme)
         case signOutAuto
         case didLogined(Bool)
     }
@@ -33,22 +35,33 @@ final class RootViewModel: Store {
     @Published private(set) var state: State
     private let connectivityProvider = NWPathConnectivityProvider()
     private var cancellables = Set<AnyCancellable>()
-    private let userDefaults = UserDefaults.standard
-    private let firstLaunchKey = "isFirstLaunch"
     private let sessionUseCase: AuthSessionUseCase
     private let signOutUseCase: SignOutUseCase
+    private let fetchFirstLaunchUseCase: FetchFirstLaunchUseCase
+    private let updateFirstLaunchUseCase: UpdateFirstLaunchUseCase
+    private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
+    private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
     
     init(
         sessionUseCase: AuthSessionUseCase,
-        signOutUseCase: SignOutUseCase
+        signOutUseCase: SignOutUseCase,
+        fetchFirstLaunchUseCase: FetchFirstLaunchUseCase,
+        updateFirstLaunchUseCase: UpdateFirstLaunchUseCase,
+        observeSystemThemeUseCase: ObserveSystemThemeUseCase,
+        updateSystemThemeUseCase: UpdateSystemThemeUseCase
     ) {
-        let isFirstLaunch = userDefaults.object(forKey: firstLaunchKey) as? Bool ?? true
+        let isFirstLaunch = fetchFirstLaunchUseCase.execute()
         self.sessionUseCase = sessionUseCase
         self.signOutUseCase = signOutUseCase
-        self.state = State(isFirstLaunch: isFirstLaunch, signIn: nil)
+        self.fetchFirstLaunchUseCase = fetchFirstLaunchUseCase
+        self.updateFirstLaunchUseCase = updateFirstLaunchUseCase
+        self.observeSystemThemeUseCase = observeSystemThemeUseCase
+        self.updateSystemThemeUseCase = updateSystemThemeUseCase
+        self.state = State(isFirstLaunch: isFirstLaunch)
         
         setupNetworkMonitoring()
         setupSessionMonitoring()
+        setupThemeMonitoring()
     }
     
     func reduce(with action: Action) -> [SideEffect] {
@@ -57,22 +70,19 @@ final class RootViewModel: Store {
         switch action {
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
-
         case .networkStatusChanged(let isConnected):
             let wasConnected = state.isNetworkConnected
             state.isNetworkConnected = isConnected
-
             if wasConnected && !isConnected {
                 setAlert(&state, isPresented: true)
             }
-            
         case .setFirstLaunch(let value):
             state.isFirstLaunch = value
-            userDefaults.set(value, forKey: firstLaunchKey)
-            
+            updateFirstLaunchUseCase.execute(value)
+        case .setTheme(let theme):
+            state.theme = theme
         case .signOutAuto:
             return [.signOut]
-            
         case .didLogined(let result):
             state.signIn = result
         }
@@ -85,36 +95,11 @@ final class RootViewModel: Store {
         switch effect {
         case .signOut:
             Task {
-                do {
-                    try await signOutUseCase.execute()
-                    send(.didLogined(false))
-                    sessionUseCase.execute(false)
-                } catch {
-                    // Silent fail for auto sign out
-                }
+                try? await signOutUseCase.execute()
+                send(.didLogined(false))
+                sessionUseCase.execute(false)
             }
         }
-    }
-    
-    private func setupNetworkMonitoring() {
-        connectivityProvider.isConnectedPublisher
-            .dropFirst()
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isConnected in
-                self?.send(.networkStatusChanged(isConnected))
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func setupSessionMonitoring() {
-        sessionUseCase.signedInPublisher
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] signIn in
-                self?.send(.didLogined(signIn))
-            }
-            .store(in: &cancellables)
     }
 }
 
@@ -127,5 +112,36 @@ private extension RootViewModel {
         state.alertTitle = "네트워크 연결 끊김"
         state.alertMessage = "인터넷 연결을 확인해주세요."
         state.showAlert = isPresented
+    }
+
+    func setupNetworkMonitoring() {
+        connectivityProvider.isConnectedPublisher
+            .dropFirst()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isConnected in
+                self?.send(.networkStatusChanged(isConnected))
+            }
+            .store(in: &cancellables)
+    }
+
+    func setupSessionMonitoring() {
+        sessionUseCase.signedInPublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] signIn in
+                self?.send(.didLogined(signIn))
+            }
+            .store(in: &cancellables)
+    }
+
+    func setupThemeMonitoring() {
+        observeSystemThemeUseCase.publisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] theme in
+                self?.send(.setTheme(theme))
+            }
+            .store(in: &cancellables)
     }
 }

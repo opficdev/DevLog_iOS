@@ -10,7 +10,6 @@ import SwiftUI
 @main
 struct DevLogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @AppStorage("theme") var theme: SystemTheme = .automatic
     @Environment(\.diContainer) var container: DIContainer
 
     init() {
@@ -19,12 +18,14 @@ struct DevLogApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(
-                viewModel: RootViewModel(
-                    sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                    signOutUseCase: container.resolve(SignOutUseCase.self)
-                ))
-            .preferredColorScheme(theme.colorScheme)
+            RootView(viewModel: RootViewModel(
+                sessionUseCase: container.resolve(AuthSessionUseCase.self),
+                signOutUseCase: container.resolve(SignOutUseCase.self),
+                fetchFirstLaunchUseCase: container.resolve(FetchFirstLaunchUseCase.self),
+                updateFirstLaunchUseCase: container.resolve(UpdateFirstLaunchUseCase.self),
+                observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
+            ))
         }
     }
 }

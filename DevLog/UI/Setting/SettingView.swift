@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SettingView: View {
-    @AppStorage("theme") var theme: SystemTheme = .automatic
     @Environment(\.diContainer) var container: DIContainer
     @StateObject var viewModel: SettingViewModel
     @EnvironmentObject var router: NavigationRouter
@@ -23,7 +22,7 @@ struct SettingView: View {
                         Text("테마")
                             .foregroundStyle(Color.primary)
                         Spacer()
-                        Text(viewModel.state.theme)
+                        Text(viewModel.state.theme.localizedName)
                             .foregroundStyle(Color.gray)
                     }
                 }
@@ -115,7 +114,12 @@ struct SettingView: View {
         .navigationDestination(for: Path.self) { path in
             switch path {
             case .theme:
-                ThemeView()
+                ThemeView(
+                    theme: Binding(
+                        get: { viewModel.state.theme },
+                        set: { viewModel.send(.setTheme($0)) }
+                    )
+                )
             case .pushNotification:
                 PushNotificationSettingsView(
                     viewModel: PushNotificationSettingsViewModel(
@@ -149,7 +153,6 @@ struct SettingView: View {
             }
         }
         .onAppear {
-            viewModel.send(.setTheme(theme.localizedName))
             viewModel.send(.updateDirSize)
         }
     }

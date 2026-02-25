@@ -64,26 +64,23 @@ final class PushNotificationViewModel: Store {
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
-    private let userDefaults: UserDefaults
-
-    private enum DefaultsKey {
-        static let sortOption = "PushNotification.sortOption"
-        static let timeFilter = "PushNotification.timeFilter"
-        static let showUnreadOnly = "PushNotification.showUnreadOnly"
-    }
+    private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
+    private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
         deleteUseCase: DeletePushNotificationUseCase,
         toggleReadUseCase: TogglePushNotificationReadUseCase,
-        userDefaults: UserDefaults = .standard
+        fetchQueryUseCase: FetchPushNotificationQueryUseCase,
+        updateQueryUseCase: UpdatePushNotificationQueryUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
-        self.userDefaults = userDefaults
+        self.fetchQueryUseCase = fetchQueryUseCase
+        self.updateQueryUseCase = updateQueryUseCase
         self.state = State(
-            query: Self.loadQuery(userDefaults: userDefaults)
+            query: fetchQueryUseCase.execute()
         )
     }
 
@@ -182,24 +179,22 @@ private extension PushNotificationViewModel {
             setAlert(&state, isPresented: isPresented, for: type)
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
-            saveSortOrder(state.query.sortOrder)
+            updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .setTimeFilter(let filter):
             state.query.timeFilter = filter
-            saveTimeFilter(filter)
+            updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .toggleUnreadOnly:
             state.query.unreadOnly.toggle()
-            userDefaults.set(state.query.unreadOnly, forKey: DefaultsKey.showUnreadOnly)
+            updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .resetFilters:
             state.query = .default
-            saveSortOrder(.latest)
-            saveTimeFilter(.none)
-            userDefaults.set(false, forKey: DefaultsKey.showUnreadOnly)
+            updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .tapNotification(let notification):
@@ -287,40 +282,6 @@ private extension PushNotificationViewModel {
             state.toastMessage = ""
         }
         state.showToast = isPresented
-    }
-
-    static func loadQuery(userDefaults: UserDefaults) -> PushNotificationQuery {
-        let sortOrder = loadSortOrder(userDefaults: userDefaults)
-        let timeFilter = loadTimeFilter(userDefaults: userDefaults)
-        let unreadOnly = userDefaults.bool(forKey: DefaultsKey.showUnreadOnly)
-
-        return PushNotificationQuery(
-            sortOrder: sortOrder,
-            timeFilter: timeFilter,
-            unreadOnly: unreadOnly,
-            pageSize: 20
-        )
-    }
-
-    static func loadSortOrder(userDefaults: UserDefaults) -> PushNotificationQuery.SortOrder {
-        guard let rawValue = userDefaults.string(forKey: DefaultsKey.sortOption) else {
-            return .latest
-        }
-        return rawValue == "oldest" ? .oldest : .latest
-    }
-
-    static func loadTimeFilter(userDefaults: UserDefaults) -> PushNotificationQuery.TimeFilter {
-        let id = userDefaults.string(forKey: DefaultsKey.timeFilter) ?? "none"
-        return PushNotificationQuery.TimeFilter(id: id)
-    }
-
-    func saveSortOrder(_ order: PushNotificationQuery.SortOrder) {
-        let value = order == .oldest ? "oldest" : "latest"
-        userDefaults.set(value, forKey: DefaultsKey.sortOption)
-    }
-
-    func saveTimeFilter(_ filter: PushNotificationQuery.TimeFilter) {
-        userDefaults.set(filter.id, forKey: DefaultsKey.timeFilter)
     }
 }
 
