@@ -63,7 +63,9 @@ final class UserService {
         try await settingsRef.setData([
             "allowPushNotification": true,
             "pushNotificationHour": 9,
-            "pushNotificationMinute": 0], merge: true)
+            "pushNotificationMinute": 0,
+            "timeZone": TimeZone.autoupdatingCurrent.identifier
+        ], merge: true)
         
         logger.info("Successfully upserted user: \(user.uid)")
     }

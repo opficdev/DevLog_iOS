@@ -8,6 +8,8 @@
 import Combine
 import UIKit
 import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 import FirebaseMessaging
 import GoogleSignIn
 import UserNotifications
@@ -39,7 +41,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
                 }
             }
         }
-        
+
+        // 앱이 온그라운드로 되었을 때, 로그인 세션이 존재한다면 현재 유저의 timeZone 저장
+        updateUserTimeZone()
+
         // Firebase Messaging 설정
         Messaging.messaging().delegate = self
         
@@ -74,6 +79,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         if let fcmToken = fcmToken {
             print("FCM token: \(fcmToken)")
             NotificationCenter.default.post(name: .fcmToken, object: nil, userInfo: ["fcmToken": fcmToken])
+        }
+    }
+
+    private func updateUserTimeZone() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let settingsRef = Firestore.firestore().document("users/\(uid)/userData/settings")
+
+        settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true) { error in
+            if let error {
+                print("Failed to update timeZone: \(error)")
+            }
         }
     }
 }
