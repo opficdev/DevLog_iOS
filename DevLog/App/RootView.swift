@@ -28,6 +28,7 @@ struct RootView: View {
                             viewModel.send(.setFirstLaunch(false))
                             viewModel.send(.signOutAuto)
                         }
+                    }
                 }
             } else {
                 Color.clear.onAppear {
@@ -40,6 +41,7 @@ struct RootView: View {
                 }
             }
         }
+        .preferredColorScheme(viewModel.state.theme.colorScheme)
         .alert(viewModel.state.alertTitle, isPresented: Binding(
             get: { viewModel.state.showAlert },
             set: { viewModel.send(.setAlert($0)) }
