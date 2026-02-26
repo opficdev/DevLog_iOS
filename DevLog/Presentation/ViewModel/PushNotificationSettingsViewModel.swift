@@ -88,6 +88,9 @@ final class PushNotificationSettingsViewModel: Store {
             }
         case .setShowTimePicker(let value):
             state.showTimePicker = value
+            if !value {
+                state.sheetPushNotificationTime = state.viewPushNotificationTime
+            }
         case .setSheetHeight(let value):
             state.sheetHeight = value
         case .confirmUpdate:
