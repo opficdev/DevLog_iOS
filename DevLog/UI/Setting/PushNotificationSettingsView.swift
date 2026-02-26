@@ -73,31 +73,64 @@ struct PushNotificationSettingsView: View {
             get: { viewModel.state.showTimePicker },
             set: { _ in viewModel.send(.setShowTimePicker(false)) }
         )) {
-            DatePicker(
-                "",
-                selection: Binding(
-                    get: { viewModel.state.pushNotificationTime },
-                    set: { viewModel.send(.setPushNotificationTime($0)) }
-                ),
-                displayedComponents: .hourAndMinute
-            )
-            .datePickerStyle(.wheel)
-            .labelsHidden()
-            .presentationDragIndicator(.hidden)
-            .presentationDetents([.height(viewModel.state.sheetHeight)])
-            .onAppear {
-                UIDatePicker.appearance().minuteInterval = 5
-            }
-            .onDisappear {
-                UIDatePicker.appearance().minuteInterval = 1 // 기본값으로 복원
-            }
-            .background(
-                GeometryReader { geometry in
-                    Color.clear.onAppear {
-                        viewModel.send(.setSheetHeight(geometry.size.height))
+            NavigationStack {
+                DatePicker(
+                    "",
+                    selection: Binding(
+                        get: { viewModel.state.pushNotificationTime },
+                        set: { viewModel.send(.setPushNotificationTime($0)) }
+                    ),
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+                .presentationDragIndicator(.hidden)
+                .presentationDetents([.height(viewModel.state.sheetHeight)])
+                .onAppear { UIDatePicker.appearance().minuteInterval = 5 }
+                .onDisappear { UIDatePicker.appearance().minuteInterval = 1 /* 기본값으로 복원 */ }
+                .toolbar { toolbar }
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear.onAppear {
+                            viewModel.send(.setSheetHeight(geometry.size.height))
+                        }
                     }
+                )
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(role: .cancel) {
+
                 }
-            )
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(role: .confirm) {
+
+                }
+            }
+        } else {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+
+                } label: {
+                    Text("취소")
+                }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+
+                } label: {
+                    Text("확인")
+                        .bold()
+                }
+            }
         }
     }
 
