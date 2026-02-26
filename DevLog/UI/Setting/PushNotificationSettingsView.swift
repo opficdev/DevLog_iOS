@@ -37,8 +37,7 @@ struct PushNotificationSettingsView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            viewModel.send(.setPushNotificationTime(sheet: date))
-                            viewModel.send(.confirmUpdate)
+                            viewModel.send(.selectPresetTime(date))
                         }
                     }
                 }

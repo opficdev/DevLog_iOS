@@ -35,6 +35,7 @@ final class PushNotificationSettingsViewModel: Store {
         case setPushNotificationTime(view: Date? = nil, sheet: Date? = nil)
         case setShowTimePicker(Bool)
         case setSheetHeight(CGFloat)
+        case selectPresetTime(Date)
         case confirmUpdate
         case rollbackUpdate
     }
@@ -84,6 +85,10 @@ final class PushNotificationSettingsViewModel: Store {
             }
         case .setSheetHeight(let value):
             state.sheetHeight = value
+        case .selectPresetTime(let date):
+            state.viewPushNotificationTime = date
+            state.sheetPushNotificationTime = date
+            effects = [.updatePushNotificationSettings]
         case .confirmUpdate:
             state.showTimePicker = false
             state.viewPushNotificationTime = state.sheetPushNotificationTime
