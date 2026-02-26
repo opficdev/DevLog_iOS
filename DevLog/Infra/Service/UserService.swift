@@ -22,17 +22,16 @@ final class UserService {
             logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
+
+        let userRef = store.document("users/\(user.uid)")
         let infoRef = store.document("users/\(user.uid)/userData/info")
         let tokensRef = store.document("users/\(user.uid)/userData/tokens")
         let settingsRef = store.document("users/\(user.uid)/userData/settings")
-        
+
         // 사용자 기본 정보
         var userField: [String: Any] = [
-            "statusMsg": "",
-            "lastLogin": FieldValue.serverTimestamp()
+            "currentProvider": response.providerID
         ]
-
-        userField["currentProvider"] = response.providerID
 
         // 공급자 이슈로 인한 nil 방지
         if let email = user.email {
@@ -48,8 +47,6 @@ final class UserService {
             user.displayName != nil && user.displayName != "" {
             userField["appleName"] = user.displayName
         }
-        
-        try await infoRef.setData(userField, merge: true)
 
         var settingField = ["fcmToken": response.fcmToken]
 
@@ -57,15 +54,32 @@ final class UserService {
         if response.providerID == "github.com", let accessToken = response.accessToken {
             settingField["githubAccessToken"] = accessToken
         }
-        
-        try await tokensRef.setData(settingField, merge: true)
 
-        try await settingsRef.setData([
-            "allowPushNotification": true,
-            "pushNotificationHour": 9,
-            "pushNotificationMinute": 0,
+        // Reference to capture ~ in concurrently-executing code; Swift 6 lang mode의 경고 해결
+        let userFieldSnapshot = userField
+        let settingFieldSnapshot = settingField
+        // -----------------------------------------------------
+
+        async let userUpdate: Void = userRef.setData(
+            ["updatedAt": FieldValue.serverTimestamp()],
+            merge: true
+        )
+        async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
+        async let tokensUpdate: Void = tokensRef.setData(settingFieldSnapshot, merge: true)
+        async let settingsTimeZoneUpdate: Void = settingsRef.setData([
             "timeZone": TimeZone.autoupdatingCurrent.identifier
         ], merge: true)
+
+        let settingsDocument = try await settingsRef.getDocument()
+        if !settingsDocument.exists {
+            try await settingsRef.setData([
+                "allowPushNotification": true,
+                "pushNotificationHour": 9,
+                "pushNotificationMinute": 0
+            ], merge: true)
+        }
+
+        _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsTimeZoneUpdate)
         
         logger.info("Successfully upserted user: \(user.uid)")
     }
