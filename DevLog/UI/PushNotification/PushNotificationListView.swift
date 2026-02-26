@@ -1,5 +1,5 @@
 //
-//  PushNotificationView.swift
+//  PushNotificationListView.swift
 //  DevLog
 //
 //  Created by opfic on 5/14/25.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct PushNotificationView: View {
+struct PushNotificationListView: View {
     @StateObject private var router = NavigationRouter()
-    @StateObject var viewModel: PushNotificationViewModel
+    @StateObject var viewModel: PushNotificationListViewModel
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer

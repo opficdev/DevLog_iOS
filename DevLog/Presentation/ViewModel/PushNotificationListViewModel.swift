@@ -1,5 +1,5 @@
 //
-//  PushNotificationViewModel.swift
+//  PushNotificationListViewModel.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/22/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class PushNotificationViewModel: Store {
+final class PushNotificationListViewModel: Store {
     struct State {
         var notifications: [PushNotification] = []
         var showAlert: Bool = false
@@ -157,7 +157,7 @@ final class PushNotificationViewModel: Store {
 }
 
 // MARK: - Reduce Methods
-private extension PushNotificationViewModel {
+private extension PushNotificationListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .deleteNotification(let item):
@@ -197,8 +197,12 @@ private extension PushNotificationViewModel {
             updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
-        case .tapNotification(let notification):
-            state.selectedTodoID = TodoIDItem(id: notification.todoID)
+        case .tapNotification(let item):
+            state.selectedTodoID = TodoIDItem(id: item.todoID)
+            if let index = state.notifications.firstIndex(where: { $0.id == item.id }), !item.isRead {
+                state.notifications[index].isRead.toggle()
+                return [.toggleRead(item.todoID)]
+            }
         default:
             break
         }
@@ -252,7 +256,7 @@ private extension PushNotificationViewModel {
     }
 }
 
-private extension PushNotificationViewModel {
+private extension PushNotificationListViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool,
