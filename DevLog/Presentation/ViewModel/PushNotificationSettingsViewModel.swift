@@ -63,13 +63,14 @@ final class PushNotificationSettingsViewModel: Store {
         var effects: [SideEffect] = []
         switch action {
         case .onAppear:
-            return [.fetchPushNotificationSettings]
+            effects = [.fetchPushNotificationSettings]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .setLoading(let value):
             state.isLoading = value
         case .setPushNotificationEnable(let value):
             state.pushNotificationEnable = value
+            effects = [.updatePushNotificationSettings]
         case .setPushNotificationHour(let value):
             //  시간만 변경
             if let newDate = calendar.date(
