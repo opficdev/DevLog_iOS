@@ -71,20 +71,21 @@ final class UserService {
         )
         async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
         async let tokensUpdate: Void = tokensRef.setData(settingFieldSnapshot, merge: true)
-        async let settingsTimeZoneUpdate: Void = settingsRef.setData([
-            "timeZone": TimeZone.autoupdatingCurrent.identifier
-        ], merge: true)
 
         let settingsDocument = try await settingsRef.getDocument()
+        var settingsField: [String: Any] = [
+            "timeZone": TimeZone.autoupdatingCurrent.identifier
+        ]
         if !settingsDocument.exists {
-            try await settingsRef.setData([
-                "allowPushNotification": true,
-                "pushNotificationHour": 9,
-                "pushNotificationMinute": 0
-            ], merge: true)
+            settingsField["allowPushNotification"] = true
+            settingsField["pushNotificationHour"] = 9
+            settingsField["pushNotificationMinute"] = 0
         }
 
-        _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsTimeZoneUpdate)
+        let settingsFieldSnapshot = settingsField
+        async let settingsUpdate: Void = settingsRef.setData(settingsFieldSnapshot, merge: true)
+
+        _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate)
         
         logger.info("Successfully upserted user: \(user.uid)")
     }
