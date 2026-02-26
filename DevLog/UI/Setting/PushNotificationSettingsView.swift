@@ -37,14 +37,15 @@ struct PushNotificationSettingsView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            viewModel.send(.setPushNotificationHour(hour))
+                            viewModel.send(.setPushNotificationTime(sheet: date))
+                            viewModel.send(.confirmUpdate)
                         }
                     }
                 }
                 HStack {
                     Text("사용자 설정")
                     Spacer()
-                    Text(formattedTimeString(viewModel.state.pushNotificationTime))
+                    Text(formattedTimeString(viewModel.state.viewPushNotificationTime))
                         .foregroundStyle(.secondary)
                     if viewModel.state.pushNotificationMinute != 0 {
                         Image(systemName: "checkmark")
@@ -71,14 +72,14 @@ struct PushNotificationSettingsView: View {
         }
         .sheet(isPresented: Binding(
             get: { viewModel.state.showTimePicker },
-            set: { _ in viewModel.send(.setShowTimePicker(false)) }
+            set: { viewModel.send(.setShowTimePicker($0))  }
         )) {
             NavigationStack {
                 DatePicker(
                     "",
                     selection: Binding(
-                        get: { viewModel.state.pushNotificationTime },
-                        set: { viewModel.send(.setPushNotificationTime($0)) }
+                        get: { viewModel.state.sheetPushNotificationTime },
+                        set: { viewModel.send(.setPushNotificationTime(sheet: $0)) }
                     ),
                     displayedComponents: .hourAndMinute
                 )
@@ -105,19 +106,19 @@ struct PushNotificationSettingsView: View {
         if #available(iOS 26.0, *) {
             ToolbarItem(placement: .topBarLeading) {
                 Button(role: .cancel) {
-
+                    viewModel.send(.rollbackUpdate)
                 }
             }
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button(role: .confirm) {
-
+                    viewModel.send(.confirmUpdate)
                 }
             }
         } else {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-
+                    viewModel.send(.rollbackUpdate)
                 } label: {
                     Text("취소")
                 }
@@ -125,7 +126,7 @@ struct PushNotificationSettingsView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-
+                    viewModel.send(.confirmUpdate)
                 } label: {
                     Text("확인")
                         .bold()
