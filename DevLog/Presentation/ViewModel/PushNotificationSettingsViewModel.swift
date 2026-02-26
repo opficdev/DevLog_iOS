@@ -32,7 +32,6 @@ final class PushNotificationSettingsViewModel: Store {
         case setAlert(Bool)
         case setLoading(Bool)
         case setPushNotificationEnable(Bool)
-        case setPushNotificationHour(Int)
         case setPushNotificationTime(view: Date? = nil, sheet: Date? = nil)
         case setShowTimePicker(Bool)
         case setSheetHeight(CGFloat)
@@ -71,15 +70,6 @@ final class PushNotificationSettingsViewModel: Store {
         case .setPushNotificationEnable(let value):
             state.pushNotificationEnable = value
             effects = [.updatePushNotificationSettings]
-        case .setPushNotificationHour(let value):
-            //  시간만 변경
-            if let newDate = calendar.date(
-                bySettingHour: value,
-                minute: 0, second: 0,
-                of: state.viewPushNotificationTime
-            ) {
-                state.viewPushNotificationTime = newDate
-            }
         case .setPushNotificationTime(let view, let sheet):
             if let value = view {
                 state.viewPushNotificationTime = value
