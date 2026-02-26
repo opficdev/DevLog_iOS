@@ -23,7 +23,7 @@ struct MainView: View {
                 Image(systemName: "house.fill")
                 Text("홈")
             }
-            PushNotificationView(viewModel: PushNotificationViewModel(
+            PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
                 deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
                 toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),

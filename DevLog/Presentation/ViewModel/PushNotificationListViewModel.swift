@@ -1,5 +1,5 @@
 //
-//  PushNotificationViewModel.swift
+//  PushNotificationListViewModel.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/22/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class PushNotificationViewModel: Store {
+final class PushNotificationListViewModel: Store {
     struct State {
         var notifications: [PushNotification] = []
         var showAlert: Bool = false
@@ -157,7 +157,7 @@ final class PushNotificationViewModel: Store {
 }
 
 // MARK: - Reduce Methods
-private extension PushNotificationViewModel {
+private extension PushNotificationListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .deleteNotification(let item):
@@ -252,7 +252,7 @@ private extension PushNotificationViewModel {
     }
 }
 
-private extension PushNotificationViewModel {
+private extension PushNotificationListViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool,
