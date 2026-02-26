@@ -185,12 +185,13 @@ private extension TodoListViewModel {
             if let (pendingItem, _) = state.pendingTask {
                 effects = [.delete(pendingItem.id)]
             }
-            guard let index = state.todos.firstIndex(where: { $0.id == todo.id }) else {
-                return []
+
+            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
+                state.pendingTask = (todo, index)
+                state.todos.remove(at: index)
+                setToast(&state, isPresented: true)
             }
-            state.pendingTask = (todo, index)
-            state.todos.remove(at: index)
-            setToast(&state, isPresented: true)
+
             return effects
         case .tapFilterOption(let option):
             state.filterOption = option
