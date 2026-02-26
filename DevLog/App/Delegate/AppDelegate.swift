@@ -83,11 +83,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     }
 
     private func updateUserTimeZone() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let settingsRef = Firestore.firestore().document("users/\(uid)/userData/settings")
+        Task {
+            do {
+                guard let uid = Auth.auth().currentUser?.uid else { return }
+                let settingsRef = Firestore.firestore().document("users/\(uid)/userData/settings")
 
-        settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true) { error in
-            if let error {
+                try await settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true)
+            } catch {
                 print("Failed to update timeZone: \(error)")
             }
         }
