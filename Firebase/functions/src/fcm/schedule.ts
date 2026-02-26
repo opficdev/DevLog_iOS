@@ -24,16 +24,6 @@ type ErrorLike = {
     stack?: unknown;
 };
 
-function serializeError(error: unknown): Record<string, unknown> {
-    const err = error as ErrorLike;
-    return {
-        code: err?.code ?? null,
-        details: err?.details ?? null,
-        message: err?.message ?? String(error),
-        stack: err?.stack ?? null
-    };
-}
-
 export const scheduleTodoReminder = onSchedule({
         region: LOCATION,
         schedule: "*/5 * * * *",
@@ -130,20 +120,36 @@ export const scheduleTodoReminder = onSchedule({
                         todoData.kind :
                         "etc";
 
+                    const notificationTaskRef = admin.firestore().collection("notificationTasks").doc();
+                    const notificationTaskData = {
+                        userId,
+                        todoId: todoDoc.id,
+                        todoKind,
+                        dueDateKey,
+                        title: "DevLog",
+                        body: `'${todoTitle}'의 마감일이 내일입니다.`,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    };
+
                     try {
-                        await queue.enqueue({
-                            userId,
-                            todoId: todoDoc.id,
-                            todoKind,
-                            dueDateKey,
-                            title: "DevLog",
-                            body: `'${todoTitle}'의 마감일이 내일입니다.`
-                        });
+                        await notificationTaskRef.set(notificationTaskData);
+                        await queue.enqueue({ taskId: notificationTaskRef.id });
                     } catch (error) {
+                        try {
+                            await notificationTaskRef.delete();
+                        } catch (cleanupError) {
+                            logger.warn("notificationTasks 정리 실패", {
+                                userId,
+                                todoId: todoDoc.id,
+                                taskId: notificationTaskRef.id,
+                                ...serializeError(cleanupError)
+                            });
+                        }
                         logger.error("Cloud Tasks enqueue 실패", {
                             userId,
                             todoId: todoDoc.id,
                             dueDateKey,
+                            taskId: notificationTaskRef.id,
                             ...serializeError(error)
                         });
                     }
@@ -156,6 +162,15 @@ export const scheduleTodoReminder = onSchedule({
     }
 );
 
+function serializeError(error: unknown): Record<string, unknown> {
+    const err = error as ErrorLike;
+    return {
+        code: err?.code ?? null,
+        details: err?.details ?? null,
+        message: err?.message ?? String(error),
+        stack: err?.stack ?? null
+    };
+}
 
 function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
     const parts = new Intl.DateTimeFormat("en-US", {
