@@ -28,7 +28,7 @@ final class PushNotificationSettingsViewModel: Store {
     }
 
     enum Action {
-        case onAppear
+        case fetchSettings
         case setAlert(Bool)
         case setLoading(Bool)
         case setPushNotificationEnable(Bool)
@@ -62,7 +62,7 @@ final class PushNotificationSettingsViewModel: Store {
         var state = self.state
         var effects: [SideEffect] = []
         switch action {
-        case .onAppear:
+        case .fetchSettings:
             effects = [.fetchPushNotificationSettings]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
@@ -140,6 +140,7 @@ final class PushNotificationSettingsViewModel: Store {
                     try await updatePushSettingsUseCase.execute(settings)
                 } catch {
                     send(.setAlert(true))
+                    send(.fetchSettings)
                 }
             }
         }

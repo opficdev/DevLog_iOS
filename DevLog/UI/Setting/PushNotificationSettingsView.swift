@@ -68,7 +68,7 @@ struct PushNotificationSettingsView: View {
             }
         }
         .onAppear {
-            viewModel.send(.onAppear)
+            viewModel.send(.fetchSettings)
         }
         .sheet(isPresented: Binding(
             get: { viewModel.state.showTimePicker },
