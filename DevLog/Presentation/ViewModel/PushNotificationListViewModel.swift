@@ -13,10 +13,8 @@ final class PushNotificationListViewModel: Store {
         var showAlert: Bool = false
         var showToast: Bool = false
         var alertTitle: String = ""
-        var alertType: AlertType?
         var alertMessage: String = ""
         var toastMessage: String = ""
-        var toastType: ToastType?
         var isLoading: Bool = false
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
@@ -32,8 +30,8 @@ final class PushNotificationListViewModel: Store {
         case toggleRead(PushNotification)
         case undoDelete
         case confirmDelete
-        case setAlert(isPresented: Bool, type: AlertType? = nil)
-        case setToast(isPresented: Bool, type: ToastType? = nil)
+        case setAlert(isPresented: Bool)
+        case setToast(isPresented: Bool)
         case setLoading(Bool)
         case appendNotifications([PushNotification], nextCursor: PushNotificationCursor?)
         case resetPagination
@@ -50,14 +48,6 @@ final class PushNotificationListViewModel: Store {
         case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
         case delete(PushNotification)
         case toggleRead(String)
-    }
-
-    enum AlertType {
-        case error
-    }
-
-    enum ToastType {
-        case delete
     }
 
     @Published private(set) var state: State
@@ -128,7 +118,7 @@ final class PushNotificationListViewModel: Store {
                     let hasMore = page.items.count == query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
                 } catch {
-                    send(.setAlert(isPresented: true, type: .error))
+                    send(.setAlert(isPresented: true))
                 }
 
             }
@@ -139,7 +129,7 @@ final class PushNotificationListViewModel: Store {
                     send(.setLoading(true))
                     try await deleteUseCase.execute(notification.id)
                 } catch {
-                    send(.setAlert(isPresented: true, type: .error))
+                    send(.setAlert(isPresented: true))
                 }
             }
         case .toggleRead(let todoID):
@@ -149,7 +139,7 @@ final class PushNotificationListViewModel: Store {
                     send(.setLoading(true))
                     try await toggleReadUseCase.execute(todoID)
                 } catch {
-                    send(.setAlert(isPresented: true, type: .error))
+                    send(.setAlert(isPresented: true))
                 }
             }
         }
@@ -169,7 +159,7 @@ private extension PushNotificationListViewModel {
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
                 state.pendingTask = (item, index)
                 state.notifications.remove(at: index)
-                setToast(&state, isPresented: true, for: .delete)
+                setToast(&state, isPresented: true)
             }
 
             return effects
@@ -182,8 +172,8 @@ private extension PushNotificationListViewModel {
             guard let (item, index) = state.pendingTask else { return [] }
             state.notifications.insert(item, at: index)
             state.pendingTask = nil
-        case .setAlert(let isPresented, let type):
-            setAlert(&state, isPresented: isPresented, for: type)
+        case .setAlert(let isPresented):
+            setAlert(&state, isPresented: isPresented)
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
             updateQueryUseCase.execute(state.query)
@@ -228,8 +218,8 @@ private extension PushNotificationListViewModel {
             guard let (item, _) = state.pendingTask else { return [] }
             state.pendingTask = nil
             return [.delete(item)]
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, for: type)
+        case .setToast(let isPresented):
+            setToast(&state, isPresented: isPresented)
         case .setSelectedTodoID(let todoID):
             state.selectedTodoID = todoID
         default:
@@ -266,32 +256,18 @@ private extension PushNotificationListViewModel {
 private extension PushNotificationListViewModel {
     func setAlert(
         _ state: inout State,
-        isPresented: Bool,
-        for type: AlertType?
+        isPresented: Bool
     ) {
-        switch type {
-        case .error:
-            state.alertTitle = "오류"
-            state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
-        case .none:
-            state.alertTitle = ""
-            state.alertMessage = ""
-        }
-        state.alertType = type
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
     }
 
     func setToast(
         _ state: inout State,
-        isPresented: Bool,
-        for type: ToastType?
+        isPresented: Bool
     ) {
-        switch type {
-        case .delete:
-            state.toastMessage = "실행 취소"
-        case .none:
-            state.toastMessage = ""
-        }
+        state.toastMessage = "실행 취소"
         state.showToast = isPresented
     }
 }
