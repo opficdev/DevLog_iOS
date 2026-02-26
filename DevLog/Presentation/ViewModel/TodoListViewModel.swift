@@ -181,12 +181,17 @@ private extension TodoListViewModel {
         case .setShowEditor(let value):
             state.showEditor = value
         case .swipeTodo(let todo):
+            var effects: [SideEffect] = []
+            if let (pendingItem, _) = state.pendingTask {
+                effects = [.delete(pendingItem.id)]
+            }
             guard let index = state.todos.firstIndex(where: { $0.id == todo.id }) else {
                 return []
             }
             state.pendingTask = (todo, index)
             state.todos.remove(at: index)
             setToast(&state, isPresented: true)
+            return effects
         case .tapFilterOption(let option):
             state.filterOption = option
         case .tapTogglePinned(let todo):
