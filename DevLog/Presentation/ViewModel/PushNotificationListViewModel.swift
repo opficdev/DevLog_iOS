@@ -198,8 +198,8 @@ private extension PushNotificationListViewModel {
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .tapNotification(let item):
+            state.selectedTodoID = TodoIDItem(id: item.todoID)
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }), !item.isRead {
-                state.selectedTodoID = TodoIDItem(id: item.todoID)
                 state.notifications[index].isRead.toggle()
                 return [.toggleRead(item.todoID)]
             }
