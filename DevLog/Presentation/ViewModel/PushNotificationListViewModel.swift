@@ -161,11 +161,17 @@ private extension PushNotificationListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .deleteNotification(let item):
-            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
-                state.pendingTask = (item, index)
-                state.notifications.remove(at: index)
-                setToast(&state, isPresented: true, for: .delete)
+            var effects: [SideEffect] = []
+            if let (pendingItem, _) = state.pendingTask {
+                effects.append(.delete(pendingItem))
             }
+            guard let index = state.notifications.firstIndex(where: { $0.id == item.id }) else {
+                return []
+            }
+            state.pendingTask = (item, index)
+            state.notifications.remove(at: index)
+            setToast(&state, isPresented: true, for: .delete)
+            return effects
         case .toggleRead(let item):
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
                 state.notifications[index].isRead.toggle()
