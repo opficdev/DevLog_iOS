@@ -48,6 +48,11 @@ final class UserService {
             userField["appleName"] = user.displayName
         }
 
+        let userDocument = try await userRef.getDocument()
+        if !userDocument.exists {
+            userField["statusMsg"] = ""
+        }
+
         var settingField = ["fcmToken": response.fcmToken]
 
         // 깃헙 로그인 시 추가 정보 저장
