@@ -9,7 +9,7 @@ import Foundation
 
 final class PushNotificationListViewModel: Store {
     struct State {
-        var notifications: [PushNotification] = []
+        var notifications: [PushNotificationItem] = []
         var showAlert: Bool = false
         var showToast: Bool = false
         var alertTitle: String = ""
@@ -18,7 +18,7 @@ final class PushNotificationListViewModel: Store {
         var isLoading: Bool = false
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
-        var pendingTask: (PushNotification, Int)?
+        var pendingTask: (PushNotificationItem, Int)?
         var query: PushNotificationQuery
         var selectedTodoID: TodoIDItem?
     }
@@ -26,27 +26,27 @@ final class PushNotificationListViewModel: Store {
     enum Action {
         case fetchNotifications
         case loadNextPage
-        case deleteNotification(PushNotification)
-        case toggleRead(PushNotification)
+        case deleteNotification(PushNotificationItem)
+        case toggleRead(PushNotificationItem)
         case undoDelete
         case confirmDelete
         case setAlert(isPresented: Bool)
         case setToast(isPresented: Bool)
         case setLoading(Bool)
-        case appendNotifications([PushNotification], nextCursor: PushNotificationCursor?)
+        case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
         case resetPagination
         case setHasMore(Bool)
         case toggleSortOption
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
         case resetFilters
-        case tapNotification(PushNotification)
+        case tapNotification(PushNotificationItem)
         case setSelectedTodoID(TodoIDItem?)
     }
 
     enum SideEffect {
         case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
-        case delete(PushNotification)
+        case delete(PushNotificationItem)
         case toggleRead(String)
     }
 
@@ -113,7 +113,12 @@ final class PushNotificationListViewModel: Store {
                     let page = try await fetchUseCase.execute(query, cursor: cursor)
 
                     if cursor == nil { send(.resetPagination) }
-                    send(.appendNotifications(page.items, nextCursor: page.nextCursor))
+                    send(
+                        .appendNotifications(
+                            page.items.map { PushNotificationItem(from: $0) },
+                            nextCursor: page.nextCursor
+                        )
+                    )
 
                     let hasMore = page.items.count == query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
@@ -238,7 +243,7 @@ private extension PushNotificationListViewModel {
             state.notifications = []
             state.nextCursor = nil
         case .appendNotifications(let notifications, let nextCursor):
-            let filteredNotifications: [PushNotification]
+            let filteredNotifications: [PushNotificationItem]
             if let (pendingItem, _) = state.pendingTask {
                 filteredNotifications = notifications.filter { $0.id != pendingItem.id }
             } else {

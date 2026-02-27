@@ -173,10 +173,10 @@ struct PushNotificationListView: View {
     }
 
     // swiftlint:disable function_body_length
-    private func notificationRow(_ notification: PushNotification) -> some View {
+    private func notificationRow(_ item: PushNotificationItem) -> some View {
         HStack {
             VStack {
-                let todoKind = notification.todoKind
+                let todoKind = item.todoKind
                 RoundedRectangle(cornerRadius: 8)
                     .fill(todoKind.color)
                     .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
@@ -188,14 +188,14 @@ struct PushNotificationListView: View {
                 Circle()
                     .fill(Color.blue)
                     .frame(width: 8, height: 8)
-                    .opacity(notification.isRead ? 0 : 1)
+                    .opacity(item.isRead ? 0 : 1)
             }
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(notification.title)
+                Text(item.title)
                     .font(.headline)
                     .lineLimit(1)
-                Text(notification.body)
+                Text(item.body)
                     .font(.subheadline)
                     .foregroundStyle(Color.gray)
                     .lineLimit(1)
@@ -204,7 +204,7 @@ struct PushNotificationListView: View {
             Spacer()
             
             TimelineView(.periodic(from: .now, by: 1.0)) { context in
-                Text(timeAgoText(from: notification.receivedAt, now: context.date))
+                Text(timeAgoText(from: item.receivedAt, now: context.date))
                     .font(.caption2)
                     .foregroundStyle(Color.gray)
             }
@@ -213,9 +213,9 @@ struct PushNotificationListView: View {
         .contentShape(.rect)
         .swipeActions(edge: .leading) {
             Button {
-                viewModel.send(.toggleRead(notification))
+                viewModel.send(.toggleRead(item))
             } label: {
-                Image(systemName: "checkmark.circle\(notification.isRead ? ".badge.xmark" : "")")
+                Image(systemName: "checkmark.circle\(item.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)
             }
         }
@@ -223,7 +223,7 @@ struct PushNotificationListView: View {
             Button(
                 role: .destructive,
                 action: {
-                    viewModel.send(.deleteNotification(notification))
+                    viewModel.send(.deleteNotification(item))
                 }
             ) {
                 Image(systemName: "trash")
