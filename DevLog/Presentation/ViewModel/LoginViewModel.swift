@@ -60,16 +60,15 @@ final class LoginViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
         
         switch action {
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .tapSignInButton(let authProvider):
-            self.state = state
-            return [.signIn(authProvider)]
+            effects = [.signIn(authProvider)]
         case .tapSignOutButton, .signOutAuto:
-            self.state = state
-            return [.signOut]
+            effects = [.signOut]
         case .setLoading(let value):
             state.isLoading = value
         case .setLogined(let result):
@@ -77,7 +76,7 @@ final class LoginViewModel: Store {
         }
         
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {

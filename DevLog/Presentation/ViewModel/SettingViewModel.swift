@@ -65,6 +65,9 @@ final class SettingViewModel: Store {
     }
 
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
+        var effects: [SideEffect] = []
+
         switch action {
         case .setAlert(let isPresented, let type):
             setAlert(&state, isPresented: isPresented, type: type)
@@ -76,9 +79,9 @@ final class SettingViewModel: Store {
         case .updateDirSize:
             state.dirSize = dirSizeInBytes()
         case .tapDeleteAuthButton:
-            return [.deleteAuth]
+            effects = [.deleteAuth]
         case .tapSignOutButton:
-            return [.signOut]
+            effects = [.signOut]
         case .tapRemoveCacheButton:
             setAlert(&state, isPresented: true, type: .removeCache)
         case .confirmRemoveCache:
@@ -90,7 +93,9 @@ final class SettingViewModel: Store {
                 setAlert(&state, isPresented: true, type: .error)
             }
         }
-        return []
+
+        self.state = state
+        return effects
     }
 
     func run(_ effect: SideEffect) {

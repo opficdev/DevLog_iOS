@@ -64,14 +64,15 @@ final class AccountViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
         case .onAppear:
-            return [.fetch]
+            effects = [.fetch]
         case .linkWithProvider(let value):
-            return [.link(value)]
+            effects = [.link(value)]
         case .unlinkFromProvider(let value):
-            return [.unlink(value)]
+            effects = [.unlink(value)]
         case .setAlert(let isPresented, let type):
             setAlert(&state, isPresented: isPresented, type: type)
         case .setToast(let isPresented, let type):
@@ -86,7 +87,7 @@ final class AccountViewModel: Store {
         }
 
         self.state = state
-        return []
+        return effects
     }
 
     func run(_ effect: SideEffect) {
