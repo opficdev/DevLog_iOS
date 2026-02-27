@@ -353,7 +353,7 @@ private struct DueDatePicker<Content: View>: View {
             )
             .labelsHidden()
             .datePickerStyle(.graphical)
-            .presentationDragIndicator(.hidden)
+            .presentationDragIndicator(.visible)
             .presentationDetents([.height(height)])
             .background {
                 GeometryReader { geometry in
