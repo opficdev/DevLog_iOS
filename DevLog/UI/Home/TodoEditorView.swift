@@ -315,10 +315,13 @@ private struct TagEditor<Content: View>: View {
                 tag = ""
             } label: {
                 Image(systemName: "plus")
-                    .font(.title.bold())
-                    .padding(.vertical, 5)
+                    .font(.largeTitle)
+                    .foregroundStyle(Color.white)
             }
-            .adaptiveButtonStyle((!tag.isEmpty && !tags.contains(tag)) ? .blue : .clear)
+            .adaptiveButtonStyle(
+                shape: .circle,
+                color: (!tag.isEmpty && !tags.contains(tag)) ? Color.blue : .gray.opacity(0.4)
+            )
             .disabled(tag.isEmpty || tags.contains(tag))
         }
     }
