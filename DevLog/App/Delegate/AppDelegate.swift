@@ -5,7 +5,6 @@
 //  Created by opfic on 5/7/25.
 //
 
-import Combine
 import UIKit
 import Firebase
 import FirebaseAuth
@@ -15,6 +14,7 @@ import GoogleSignIn
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
+    private let logger = Logger(category: "AppDelegate")
     func application(
         _ app: UIApplication,
         open url: URL,
@@ -33,9 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             if let error = error {
-                print("Notification authorization error: \(error)")
+                self.logger.error("Notification authorization error", error: error)
             } else {
-                print("Notification permission granted: \(granted)")
+                self.logger.info("Notification permission granted: \(granted)")
                 DispatchQueue.main.async {
                     UIApplication.shared.registerForRemoteNotifications()
                 }
@@ -61,7 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
-        print("APNs token: \(deviceToken.map { String(format: "%02.2hhx", $0) }.joined())")
+        logger.info("APNs token: \(deviceToken.map { String(format: "%02.2hhx", $0) }.joined())")
         Messaging.messaging().apnsToken = deviceToken
     }
 
@@ -69,7 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     func application(
         _ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
-        print("Failed to register APNs Token: \(error)")
+        logger.error("Failed to register APNs token", error: error)
     }
     
     // FCMToken 갱신
@@ -77,7 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         _ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?
     ) {
         if let fcmToken = fcmToken {
-            print("FCM token: \(fcmToken)")
+            logger.info("FCM token: \(fcmToken)")
             NotificationCenter.default.post(name: .fcmToken, object: nil, userInfo: ["fcmToken": fcmToken])
         }
     }
@@ -90,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
 
                 try await settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true)
             } catch {
-                print("Failed to update timeZone: \(error)")
+                logger.error("Failed to update timeZone", error: error)
             }
         }
     }
@@ -103,7 +103,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        print("Foreground notification: \(notification.request.content.userInfo)")
+        logger.info("Foreground notification: \(notification.request.content.userInfo)")
         completionHandler([.banner, .sound, .badge])
     }
 
@@ -113,7 +113,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        print("Tapped notification: \(response.notification.request.content.userInfo)")
+        logger.info("Tapped notification: \(response.notification.request.content.userInfo)")
         // userInfo["todoId"]로 이동할 Todo 식별
         let userInfo = response.notification.request.content.userInfo
         NotificationCenter.default.post(name: .pushTapped, object: nil, userInfo: userInfo)
