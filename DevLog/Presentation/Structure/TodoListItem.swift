@@ -13,24 +13,10 @@ struct TodoListItem: Identifiable, Hashable {
     let tags: [String]
     let isPinned: Bool
 
-    private init(
-        id: String,
-        title: String,
-        tags: [String],
-        isPinned: Bool
-    ) {
-        self.id = id
-        self.title = title
-        self.tags = tags
-        self.isPinned = isPinned
-    }
-
     init(from todo: Todo) {
-        self.init(
-            id: todo.id,
-            title: todo.title,
-            tags: todo.tags,
-            isPinned: todo.isPinned
-        )
+        self.id = todo.id
+        self.title = todo.title
+        self.tags = todo.tags
+        self.isPinned = todo.isPinned
     }
 }
