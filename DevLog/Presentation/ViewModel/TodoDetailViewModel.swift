@@ -62,7 +62,7 @@ final class TodoDetailViewModel: Store {
         case .setLoading(let value):
             state.isLoading = value
         case .upsertTodo(let todo):
-            return [.upsertTodo(todo)]
+            effects = [.upsertTodo(todo)]
         }
 
         self.state = state

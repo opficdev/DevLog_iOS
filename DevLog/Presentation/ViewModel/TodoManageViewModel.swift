@@ -26,6 +26,8 @@ final class TodoManageViewModel: Store {
     }
 
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
+
         switch action {
         case .moveItem(let from, let target):
             state.todoKindPreferences.move(fromOffsets: from, toOffset: target)
@@ -34,6 +36,8 @@ final class TodoManageViewModel: Store {
                 state.todoKindPreferences[index].isVisible.toggle()
             }
         }
+
+        self.state = state
         return []
     }
 }

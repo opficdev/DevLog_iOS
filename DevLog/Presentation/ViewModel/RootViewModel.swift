@@ -66,6 +66,7 @@ final class RootViewModel: Store {
     
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
         
         switch action {
         case .setAlert(let isPresented):
@@ -82,13 +83,13 @@ final class RootViewModel: Store {
         case .setTheme(let theme):
             state.theme = theme
         case .signOutAuto:
-            return [.signOut]
+            effects = [.signOut]
         case .didLogined(let result):
             state.signIn = result
         }
         
         self.state = state
-        return []
+        return effects
     }
     
     func run(_ effect: SideEffect) {

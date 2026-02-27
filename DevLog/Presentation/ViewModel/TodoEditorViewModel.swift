@@ -78,15 +78,19 @@ final class TodoEditorViewModel: Store {
     }
 
     func reduce(with action: Action) -> [SideEffect] {
+        var state = self.state
+
         switch action {
         case .addTag(let tag):
-            if !tag.isEmpty { state.tags.append(tag) }
+            if !tag.isEmpty {
+                state.tags.append(tag)
+            }
         case .removeTag(let tagText):
             state.tags.removeAll { $0 == tagText }
         case .setContent(let stringValue),
              .setTagText(let stringValue),
              .setTitle(let stringValue):
-            handleStringAction(action, stringValue: stringValue)
+            handleStringAction(action, stringValue: stringValue, state: &state)
         case .setDueDate(let dueDate):
             if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()), let dueDate {
                 state.dueDate = max(dueDate, tomorrowDate)
@@ -102,12 +106,18 @@ final class TodoEditorViewModel: Store {
                 state.dueDate = calendar.date(byAdding: .day, value: 1, to: Date())
             }
         }
+
+        self.state = state
         return []
     }
 }
 
 extension TodoEditorViewModel {
-    private func handleStringAction(_ action: Action, stringValue: String) {
+    private func handleStringAction(
+        _ action: Action,
+        stringValue: String,
+        state: inout State
+    ) {
         switch action {
         case .setContent:
             state.content = stringValue

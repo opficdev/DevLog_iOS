@@ -61,6 +61,7 @@ final class PushNotificationSettingsViewModel: Store {
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
+
         switch action {
         case .fetchSettings:
             effects = [.fetchPushNotificationSettings]
