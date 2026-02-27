@@ -32,7 +32,7 @@ struct PushNotificationSettingsView: View {
                             if viewModel.state.pushNotificationHour == hour &&
                                 viewModel.state.pushNotificationMinute == 0 {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(Color.blue)
                             }
                         }
                         .contentShape(Rectangle())
@@ -48,7 +48,7 @@ struct PushNotificationSettingsView: View {
                         .foregroundStyle(.secondary)
                     if viewModel.state.pushNotificationMinute != 0 {
                         Image(systemName: "checkmark")
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.blue)
                     }
                 }
                 .contentShape(Rectangle())
