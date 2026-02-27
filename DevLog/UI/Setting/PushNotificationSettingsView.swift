@@ -32,7 +32,7 @@ struct PushNotificationSettingsView: View {
                             if viewModel.state.pushNotificationHour == hour &&
                                 viewModel.state.pushNotificationMinute == 0 {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(Color.blue)
                             }
                         }
                         .contentShape(Rectangle())
@@ -48,7 +48,7 @@ struct PushNotificationSettingsView: View {
                         .foregroundStyle(.secondary)
                     if viewModel.state.pushNotificationMinute != 0 {
                         Image(systemName: "checkmark")
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.blue)
                     }
                 }
                 .contentShape(Rectangle())
@@ -88,7 +88,12 @@ struct PushNotificationSettingsView: View {
                 .presentationDetents([.height(viewModel.state.sheetHeight)])
                 .onAppear { UIDatePicker.appearance().minuteInterval = 5 }
                 .onDisappear { UIDatePicker.appearance().minuteInterval = 1 /* 기본값으로 복원 */ }
-                .toolbar { toolbar }
+                .toolbar {
+                    SheetToolbar(
+                        onCancel: { viewModel.send(.rollbackUpdate) },
+                        onConfirm: { viewModel.send(.confirmUpdate) }
+                    )
+                }
                 .background(
                     GeometryReader { geometry in
                         Color.clear.onAppear {
@@ -96,40 +101,6 @@ struct PushNotificationSettingsView: View {
                         }
                     }
                 )
-            }
-        }
-    }
-
-    @ToolbarContentBuilder
-    private var toolbar: some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(role: .cancel) {
-                    viewModel.send(.rollbackUpdate)
-                }
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(role: .confirm) {
-                    viewModel.send(.confirmUpdate)
-                }
-            }
-        } else {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    viewModel.send(.rollbackUpdate)
-                } label: {
-                    Text("취소")
-                }
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.send(.confirmUpdate)
-                } label: {
-                    Text("확인")
-                        .bold()
-                }
             }
         }
     }

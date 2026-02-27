@@ -123,7 +123,7 @@ struct PushNotificationListView: View {
                 } label: {
                     Text("정렬: \(viewModel.state.query.sortOrder.title)")
                 }
-                .adaptiveButtonStyle(viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
+                .adaptiveButtonStyle(color: viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
                 Menu {
                     ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
@@ -144,14 +144,15 @@ struct PushNotificationListView: View {
                 } label: {
                     Text("기간")
                 }
-                .adaptiveButtonStyle(viewModel.state.query.timeFilter == .none ? .clear : .blue)
+                .adaptiveButtonStyle(color: viewModel.state.query.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
                 } label: {
                     Text("읽지 않음")
+                        .foregroundStyle(viewModel.state.query.unreadOnly ? .white : Color(.label))
                 }
-                .adaptiveButtonStyle(viewModel.state.query.unreadOnly ? .blue : .clear)
+                .adaptiveButtonStyle(color: viewModel.state.query.unreadOnly ? .blue : .clear)
             }
         }
         .scrollIndicators(.never)

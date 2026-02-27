@@ -46,7 +46,16 @@ struct TodoEditorView: View {
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
-            .toolbar { toolBar }
+            .toolbar {
+                SheetToolbar(
+                    onCancel: { dismiss() },
+                    onConfirm: {
+                        onSubmit?(viewModel.upsertTodo())
+                        dismiss()
+                    },
+                    isConfirmEnabled: viewModel.state.isValidToSave
+                )
+            }
         }
     }
 
@@ -306,10 +315,13 @@ private struct TagEditor<Content: View>: View {
                 tag = ""
             } label: {
                 Image(systemName: "plus")
-                    .font(.title.bold())
-                    .padding(.vertical, 5)
+                    .font(.largeTitle)
+                    .foregroundStyle(Color.white)
             }
-            .adaptiveButtonStyle((!tag.isEmpty && !tags.contains(tag)) ? .blue : .clear)
+            .adaptiveButtonStyle(
+                shape: .circle,
+                color: (!tag.isEmpty && !tags.contains(tag)) ? Color.blue : .gray.opacity(0.4)
+            )
             .disabled(tag.isEmpty || tags.contains(tag))
         }
     }
@@ -344,7 +356,7 @@ private struct DueDatePicker<Content: View>: View {
             )
             .labelsHidden()
             .datePickerStyle(.graphical)
-            .presentationDragIndicator(.hidden)
+            .presentationDragIndicator(.visible)
             .presentationDetents([.height(height)])
             .background {
                 GeometryReader { geometry in

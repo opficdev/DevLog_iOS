@@ -9,25 +9,31 @@ import SwiftUI
 
 extension View {
     @ViewBuilder
-    func adaptiveButtonStyle(_ color: Color? = nil) -> some View {
-        if #available(iOS 26.0, *), color == nil {
-            self.buttonStyle(.glass)
+    func adaptiveButtonStyle(
+        shape: some Shape = .capsule,
+        color: Color = .clear)
+    -> some View {
+        if #available(iOS 26.0, *) {
+            self.foregroundStyle(Color(.label))
+                .padding(8)
+                .glassEffect(.regular.tint(color), in: shape)
         } else {
             self.foregroundStyle(Color(.label))
-                .font(.footnote)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
+                .padding(8)
                 .background {
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .background {
-                            Capsule()
-                                .fill(color ?? Color.clear)
+                    Group {
+                        if color == .clear {
+                            shape
+                                .fill(.ultraThinMaterial)
+                        } else {
+                            shape
+                                .fill(color)
                         }
-                        .overlay {
-                            Capsule()
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        }
+                    }
+                    .overlay {
+                        shape
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
                 }
         }
     }

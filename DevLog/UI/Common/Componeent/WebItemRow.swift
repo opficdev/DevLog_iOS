@@ -30,7 +30,7 @@ struct WebItemRow: View {
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(item.displayURL)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.blue)
                     .underline()
             }
             Spacer()
