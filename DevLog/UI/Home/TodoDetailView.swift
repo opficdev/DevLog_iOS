@@ -74,7 +74,6 @@ struct TodoDetailView: View {
                     viewModel.send(.setShowEditor(true))
                 } label: {
                     Text("수정")
-                        .foregroundColor(.accentColor)
                 }
             }
         }
