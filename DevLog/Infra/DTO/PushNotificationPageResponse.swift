@@ -7,5 +7,5 @@
 
 struct PushNotificationPageResponse {
     let items: [PushNotificationResponse]
-    let nextCursor: PushNotificationCursorResponse?
+    let nextCursor: PushNotificationCursorDTO?
 }

@@ -91,7 +91,7 @@ final class PushNotificationService {
     /// 푸시 알림 기록 요청
     func requestNotifications(
         _ query: PushNotificationQuery,
-        cursor: PushNotificationCursor?
+        cursor: PushNotificationCursorDTO?
     ) async throws -> PushNotificationPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
@@ -115,7 +115,7 @@ final class PushNotificationService {
 
         if let cursor {
             firestoreQuery = firestoreQuery.start(after: [
-                Timestamp(date: cursor.receivedAt),
+                cursor.receivedAt,
                 cursor.documentID
             ])
         }
@@ -128,12 +128,12 @@ final class PushNotificationService {
             try document.data(as: PushNotificationResponse.self)
         }
 
-        let nextCursor: PushNotificationCursorResponse? = snapshot.documents.last.map { document in
+        let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
             guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
                 return nil
             }
 
-            return PushNotificationCursorResponse(
+            return PushNotificationCursorDTO(
                 receivedAt: receivedAt,
                 documentID: document.documentID
             )
