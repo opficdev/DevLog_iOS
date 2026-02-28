@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoRequest: Dictionaryable {
+struct TodoRequest: Encodable {
     let id: String
     let isPinned: Bool
     let isCompleted: Bool

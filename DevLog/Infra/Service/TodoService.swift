@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 final class TodoService {
     private let store = Firestore.firestore()
+    private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoService")
     
     func fetchTodos(
@@ -86,7 +87,12 @@ final class TodoService {
         do {
             let collection = store.collection("users/\(uid)/todoLists/")
             let docRef = collection.document(request.id)
-            try await docRef.setData(request.toDictionary(), merge: true)
+            var data = try encoder.encode(request)
+            data.removeValue(forKey: TodoFieldKey.id.rawValue)
+            if request.dueDate == nil {
+                data[TodoFieldKey.dueDate.rawValue] = NSNull()
+            }
+            try await docRef.setData(data, merge: true)
             
             logger.info("Successfully upserted todo")
         } catch {
@@ -176,6 +182,7 @@ private extension TodoService {
     }
 
     enum TodoFieldKey: String {
+        case id
         case isPinned
         case isCompleted
         case isChecked

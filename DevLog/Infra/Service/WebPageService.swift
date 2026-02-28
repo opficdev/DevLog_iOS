@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 final class WebPageService {
     private let store = Firestore.firestore()
+    private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "WebPageService")
 
     /// 저장한 웹페이지를 모두 불러옴
@@ -56,7 +57,7 @@ final class WebPageService {
         do {
             let documentID = documentID(for: request.url)
             let docRef = store.document("users/\(uid)/webPages/\(documentID)")
-            let data = try Firestore.Encoder().encode(request)
+            let data = try encoder.encode(request)
             try await docRef.setData(data, merge: true)
             logger.info("Successfully upserted web page")
         } catch {
