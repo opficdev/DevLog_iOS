@@ -81,7 +81,7 @@ final class AppleAuthenticationService: AuthenticationService {
             let fcmToken = try await messaging.token()
 
             logger.info("Successfully signed in with Apple")
-            return result.user.toResponse(providerID: .apple, fcmToken: fcmToken)
+            return result.user.makeResponse(providerID: .apple, fcmToken: fcmToken)
         } catch {
             logger.error("Failed to sign in with Apple", error: error)
             throw error

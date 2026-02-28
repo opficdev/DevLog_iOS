@@ -5,7 +5,7 @@
 //  Created by 최윤진 on 2/9/26.
 //
 
-import FirebaseFirestore
+import Foundation
 
 struct WebPageRequest: Encodable {
     let title: String
@@ -14,8 +14,8 @@ struct WebPageRequest: Encodable {
     let imageURL: String
 }
 
-struct WebPageResponse: Decodable {
-    @DocumentID var id: String?
+struct WebPageResponse {
+    let id: String?
     let title: String
     let url: String
     let displayURL: String

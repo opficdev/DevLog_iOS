@@ -5,9 +5,9 @@
 //  Created by opfic on 2/21/26.
 //
 
-import FirebaseFirestore
+import Foundation
 
 struct TodoCursorDTO {
-    let createdAt: Timestamp
+    let createdAt: Date
     let documentID: String
 }

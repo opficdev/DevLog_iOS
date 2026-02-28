@@ -5,8 +5,6 @@
 //  Created by 최윤진 on 2/19/26.
 //
 
-import FirebaseFirestore
-
 extension TodoRequest {
     static func fromDomain(_ entity: Todo) -> Self {
         TodoRequest(
@@ -53,14 +51,14 @@ extension TodoResponse {
 extension TodoCursorDTO {
     func toDomain() -> TodoCursor {
         TodoCursor(
-            createdAt: createdAt.dateValue(),
+            createdAt: createdAt,
             documentID: documentID
         )
     }
 
     static func fromDomain(_ cursor: TodoCursor) -> Self {
         TodoCursorDTO(
-            createdAt: Timestamp(date: cursor.createdAt),
+            createdAt: cursor.createdAt,
             documentID: cursor.documentID
         )
     }

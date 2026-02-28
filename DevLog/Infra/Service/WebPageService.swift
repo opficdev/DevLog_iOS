@@ -24,9 +24,7 @@ final class WebPageService {
         do {
             let collectionRef = store.collection("users/\(uid)/webPages")
             let snapshot = try await collectionRef.getDocuments()
-            let items: [WebPageResponse] = snapshot.documents.compactMap { doc in
-                try? doc.data(as: WebPageResponse.self)
-            }
+            let items: [WebPageResponse] = snapshot.documents.compactMap { makeResponse(from: $0) }
 
             let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedQuery.isEmpty else {
@@ -96,5 +94,26 @@ final class WebPageService {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "=", with: "")
+    }
+}
+
+private extension WebPageService {
+    func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
+        let data = snapshot.data()
+        guard
+            let title = data["title"] as? String,
+            let url = data["url"] as? String,
+            let displayURL = data["displayURL"] as? String,
+            let imageURL = data["imageURL"] as? String else {
+            return nil
+        }
+
+        return WebPageResponse(
+            id: snapshot.documentID,
+            title: title,
+            url: url,
+            displayURL: displayURL,
+            imageURL: imageURL
+        )
     }
 }

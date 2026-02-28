@@ -9,7 +9,7 @@ import Foundation
 import FirebaseAuth
 
 extension FirebaseAuth.User {
-    func toResponse(
+    func makeResponse(
         providerID: AuthProviderID,
         fcmToken: String,
         accessToken: String? = nil

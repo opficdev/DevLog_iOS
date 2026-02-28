@@ -41,7 +41,7 @@ final class TodoService {
         if trimmedKeyword.isEmpty {
             if let cursor {
                 firestoreQuery = firestoreQuery.start(after: [
-                    cursor.createdAt,
+                    Timestamp(date: cursor.createdAt),
                     cursor.documentID
                 ])
             }
@@ -50,7 +50,7 @@ final class TodoService {
                 .limit(to: query.pageSize)
                 .getDocuments()
 
-            let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
+            let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
             let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
                 guard let createdAt = document.data()["createdAt"] as? Timestamp else {
@@ -58,7 +58,7 @@ final class TodoService {
                 }
 
                 return TodoCursorDTO(
-                    createdAt: createdAt,
+                    createdAt: createdAt.dateValue(),
                     documentID: document.documentID
                 )
             }
@@ -67,7 +67,7 @@ final class TodoService {
         }
 
         let snapshot = try await firestoreQuery.getDocuments()
-        let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
+        let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let filtered = todos.filter { todo in
             todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
@@ -120,7 +120,7 @@ final class TodoService {
         do {
             let docRef = store.collection("users/\(uid)/todoLists/").document(todoID)
             let snapshot = try await docRef.getDocument()
-            guard snapshot.exists, let todo = TodoResponse(from: snapshot) else {
+            guard snapshot.exists, let todo = makeResponse(from: snapshot) else {
                 throw FirestoreError.dataNotFound("Todo")
             }
 
@@ -130,5 +130,48 @@ final class TodoService {
             logger.error("Failed to fetch todo", error: error)
             throw error
         }
+    }
+}
+
+private extension TodoService {
+    func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
+        makeResponse(documentID: snapshot.documentID, data: snapshot.data())
+    }
+
+    func makeResponse(from snapshot: DocumentSnapshot) -> TodoResponse? {
+        guard let data = snapshot.data() else {
+            return nil
+        }
+        return makeResponse(documentID: snapshot.documentID, data: data)
+    }
+
+    func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
+        guard
+            let isPinned = data["isPinned"] as? Bool,
+            let isCompleted = data["isCompleted"] as? Bool,
+            let isChecked = data["isChecked"] as? Bool,
+            let title = data["title"] as? String,
+            let content = data["content"] as? String,
+            let createdAtTimestamp = data["createdAt"] as? Timestamp,
+            let updatedAtTimestamp = data["updatedAt"] as? Timestamp,
+            let tags = data["tags"] as? [String],
+            let kind = data["kind"] as? String else {
+            return nil
+        }
+
+        let dueDate = (data["dueDate"] as? Timestamp)?.dateValue()
+        return TodoResponse(
+            id: documentID,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            title: title,
+            content: content,
+            createdAt: createdAtTimestamp.dateValue(),
+            updatedAt: updatedAtTimestamp.dateValue(),
+            dueDate: dueDate,
+            tags: tags,
+            kind: kind
+        )
     }
 }

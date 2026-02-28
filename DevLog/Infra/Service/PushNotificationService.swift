@@ -115,7 +115,7 @@ final class PushNotificationService {
 
         if let cursor {
             firestoreQuery = firestoreQuery.start(after: [
-                cursor.receivedAt,
+                Timestamp(date: cursor.receivedAt),
                 cursor.documentID
             ])
         }
@@ -124,9 +124,7 @@ final class PushNotificationService {
             .limit(to: query.pageSize)
             .getDocuments()
 
-        let items = try snapshot.documents.compactMap { document in
-            try document.data(as: PushNotificationResponse.self)
-        }
+        let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
             guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
@@ -134,7 +132,7 @@ final class PushNotificationService {
             }
 
             return PushNotificationCursorDTO(
-                receivedAt: receivedAt,
+                receivedAt: receivedAt.dateValue(),
                 documentID: document.documentID
             )
         } ?? nil
@@ -175,5 +173,30 @@ final class PushNotificationService {
 
         try await document.reference.updateData(["isRead": !currentValue])
         logger.info("Successfully toggled notification read")
+    }
+}
+
+private extension PushNotificationService {
+    func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
+        let data = snapshot.data()
+        guard
+            let title = data["title"] as? String,
+            let body = data["body"] as? String,
+            let receivedAt = data["receivedAt"] as? Timestamp,
+            let isRead = data["isRead"] as? Bool,
+            let todoID = data["todoID"] as? String,
+            let todoKind = data["todoKind"] as? String else {
+            return nil
+        }
+
+        return PushNotificationResponse(
+            id: snapshot.documentID,
+            title: title,
+            body: body,
+            receivedAt: receivedAt.dateValue(),
+            isRead: isRead,
+            todoID: todoID,
+            todoKind: todoKind
+        )
     }
 }
