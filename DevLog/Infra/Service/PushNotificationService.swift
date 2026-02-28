@@ -115,7 +115,7 @@ final class PushNotificationService {
 
         if let cursor {
             firestoreQuery = firestoreQuery.start(after: [
-                cursor.receivedAt,
+                Timestamp(date: cursor.receivedAt),
                 cursor.documentID
             ])
         }
@@ -124,17 +124,15 @@ final class PushNotificationService {
             .limit(to: query.pageSize)
             .getDocuments()
 
-        let items = try snapshot.documents.compactMap { document in
-            try document.data(as: PushNotificationResponse.self)
-        }
+        let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-            guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
+            guard let receivedAt = document.data()[NotificationFieldKey.receivedAt.rawValue] as? Timestamp else {
                 return nil
             }
 
             return PushNotificationCursorDTO(
-                receivedAt: receivedAt,
+                receivedAt: receivedAt.dateValue(),
                 documentID: document.documentID
             )
         } ?? nil
@@ -175,5 +173,39 @@ final class PushNotificationService {
 
         try await document.reference.updateData(["isRead": !currentValue])
         logger.info("Successfully toggled notification read")
+    }
+}
+
+private extension PushNotificationService {
+    func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
+        let data = snapshot.data()
+        guard
+            let title = data[NotificationFieldKey.title.rawValue] as? String,
+            let body = data[NotificationFieldKey.body.rawValue] as? String,
+            let receivedAt = data[NotificationFieldKey.receivedAt.rawValue] as? Timestamp,
+            let isRead = data[NotificationFieldKey.isRead.rawValue] as? Bool,
+            let todoID = data[NotificationFieldKey.todoID.rawValue] as? String,
+            let todoKind = data[NotificationFieldKey.todoKind.rawValue] as? String else {
+            return nil
+        }
+
+        return PushNotificationResponse(
+            id: snapshot.documentID,
+            title: title,
+            body: body,
+            receivedAt: receivedAt.dateValue(),
+            isRead: isRead,
+            todoID: todoID,
+            todoKind: todoKind
+        )
+    }
+
+    enum NotificationFieldKey: String {
+        case title
+        case body
+        case receivedAt
+        case isRead
+        case todoID
+        case todoKind
     }
 }

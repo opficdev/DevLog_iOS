@@ -5,13 +5,8 @@
 //  Created by 최윤진 on 2/27/26.
 //
 
-import FirebaseFirestore
-
 extension PushNotificationResponse {
     func toDomain() throws -> PushNotification {
-        guard let id = self.id else {
-            throw DataError.invalidData("PushNotificationResponse.id is nil")
-        }
         guard let todoKind = TodoKind(rawValue: self.todoKind) else {
             throw DataError.invalidData("PushNotificationResponse.todoKind is invalid: \(self.todoKind)")
         }
@@ -20,7 +15,7 @@ extension PushNotificationResponse {
             id: id,
             title: self.title,
             body: self.body,
-            receivedAt: self.receivedAt.dateValue(),
+            receivedAt: self.receivedAt,
             isRead: self.isRead,
             todoID: self.todoID,
             todoKind: todoKind
@@ -31,14 +26,14 @@ extension PushNotificationResponse {
 extension PushNotificationCursorDTO {
     func toDomain() -> PushNotificationCursor {
         PushNotificationCursor(
-            receivedAt: self.receivedAt.dateValue(),
+            receivedAt: self.receivedAt,
             documentID: self.documentID
         )
     }
 
     static func fromDomain(_ cursor: PushNotificationCursor) -> Self {
         PushNotificationCursorDTO(
-            receivedAt: Timestamp(date: cursor.receivedAt),
+            receivedAt: cursor.receivedAt,
             documentID: cursor.documentID
         )
     }

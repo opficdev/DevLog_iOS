@@ -10,11 +10,12 @@ import FirebaseFirestore
 
 final class TodoService {
     private let store = Firestore.firestore()
+    private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoService")
     
     func fetchTodos(
         _ query: TodoQuery,
-        cursor: TodoCursorResponse?
+        cursor: TodoCursorDTO?
     ) async throws -> TodoPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
@@ -41,7 +42,7 @@ final class TodoService {
         if trimmedKeyword.isEmpty {
             if let cursor {
                 firestoreQuery = firestoreQuery.start(after: [
-                    cursor.createdAt,
+                    Timestamp(date: cursor.createdAt),
                     cursor.documentID
                 ])
             }
@@ -50,15 +51,15 @@ final class TodoService {
                 .limit(to: query.pageSize)
                 .getDocuments()
 
-            let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
+            let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
-            let nextCursor: TodoCursorResponse? = snapshot.documents.last.flatMap { document in
-                guard let createdAt = document.data()["createdAt"] as? Timestamp else {
+            let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
+                guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
                     return nil
                 }
 
-                return TodoCursorResponse(
-                    createdAt: createdAt,
+                return TodoCursorDTO(
+                    createdAt: createdAt.dateValue(),
                     documentID: document.documentID
                 )
             }
@@ -67,7 +68,7 @@ final class TodoService {
         }
 
         let snapshot = try await firestoreQuery.getDocuments()
-        let todos = snapshot.documents.compactMap { TodoResponse(from: $0) }
+        let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let filtered = todos.filter { todo in
             todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
@@ -86,7 +87,12 @@ final class TodoService {
         do {
             let collection = store.collection("users/\(uid)/todoLists/")
             let docRef = collection.document(request.id)
-            try await docRef.setData(request.toDictionary(), merge: true)
+            var data = try encoder.encode(request)
+            data.removeValue(forKey: TodoFieldKey.id.rawValue)
+            if request.dueDate == nil {
+                data[TodoFieldKey.dueDate.rawValue] = NSNull()
+            }
+            try await docRef.setData(data, merge: true)
             
             logger.info("Successfully upserted todo")
         } catch {
@@ -120,7 +126,7 @@ final class TodoService {
         do {
             let docRef = store.collection("users/\(uid)/todoLists/").document(todoID)
             let snapshot = try await docRef.getDocument()
-            guard snapshot.exists, let todo = TodoResponse(from: snapshot) else {
+            guard snapshot.exists, let todo = makeResponse(from: snapshot) else {
                 throw FirestoreError.dataNotFound("Todo")
             }
 
@@ -130,5 +136,62 @@ final class TodoService {
             logger.error("Failed to fetch todo", error: error)
             throw error
         }
+    }
+}
+
+private extension TodoService {
+    func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
+        makeResponse(documentID: snapshot.documentID, data: snapshot.data())
+    }
+
+    func makeResponse(from snapshot: DocumentSnapshot) -> TodoResponse? {
+        guard let data = snapshot.data() else {
+            return nil
+        }
+        return makeResponse(documentID: snapshot.documentID, data: data)
+    }
+
+    func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
+        guard
+            let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
+            let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
+            let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
+            let title = data[TodoFieldKey.title.rawValue] as? String,
+            let content = data[TodoFieldKey.content.rawValue] as? String,
+            let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
+            let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
+            let tags = data[TodoFieldKey.tags.rawValue] as? [String],
+            let kind = data[TodoFieldKey.kind.rawValue] as? String else {
+            return nil
+        }
+
+        let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
+        return TodoResponse(
+            id: documentID,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            title: title,
+            content: content,
+            createdAt: createdAtTimestamp.dateValue(),
+            updatedAt: updatedAtTimestamp.dateValue(),
+            dueDate: dueDate,
+            tags: tags,
+            kind: kind
+        )
+    }
+
+    enum TodoFieldKey: String {
+        case id
+        case isPinned
+        case isCompleted
+        case isChecked
+        case title
+        case content
+        case createdAt
+        case updatedAt
+        case dueDate
+        case tags
+        case kind
     }
 }

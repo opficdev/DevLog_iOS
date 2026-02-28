@@ -56,7 +56,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             let fcmToken = try await messaging.token()
 
             logger.info("Successfully signed in with GitHub")
-            return result.user.toResponse(
+            return result.user.makeResponse(
                 providerID: .gitHub,
                 fcmToken: fcmToken,
                 accessToken: accessToken

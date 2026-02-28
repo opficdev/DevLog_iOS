@@ -5,9 +5,9 @@
 //  Created by 최윤진 on 2/27/26.
 //
 
-import FirebaseFirestore
+import Foundation
 
 struct PushNotificationCursorDTO {
-    let receivedAt: Timestamp
+    let receivedAt: Date
     let documentID: String
 }

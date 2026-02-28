@@ -7,5 +7,5 @@
 
 struct TodoPageResponse {
     let items: [TodoResponse]
-    let nextCursor: TodoCursorResponse?
+    let nextCursor: TodoCursorDTO?
 }

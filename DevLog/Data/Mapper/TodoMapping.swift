@@ -5,8 +5,6 @@
 //  Created by 최윤진 on 2/19/26.
 //
 
-import FirebaseFirestore
-
 extension TodoRequest {
     static func fromDomain(_ entity: Todo) -> Self {
         TodoRequest(
@@ -27,9 +25,6 @@ extension TodoRequest {
 
 extension TodoResponse {
     func toDomain() throws -> Todo {
-        guard let id = self.id else {
-            throw DataError.invalidData("TodoResponse.id is nil")
-        }
         guard let kind = TodoKind(rawValue: self.kind) else {
             throw DataError.invalidData("TodoResponse.kind is invalid: \(self.kind)")
         }
@@ -50,17 +45,17 @@ extension TodoResponse {
     }
 }
 
-extension TodoCursorResponse {
+extension TodoCursorDTO {
     func toDomain() -> TodoCursor {
         TodoCursor(
-            createdAt: createdAt.dateValue(),
+            createdAt: createdAt,
             documentID: documentID
         )
     }
 
     static func fromDomain(_ cursor: TodoCursor) -> Self {
-        TodoCursorResponse(
-            createdAt: Timestamp(date: cursor.createdAt),
+        TodoCursorDTO(
+            createdAt: cursor.createdAt,
             documentID: cursor.documentID
         )
     }

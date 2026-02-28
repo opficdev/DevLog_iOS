@@ -5,13 +5,13 @@
 //  Created by 최윤진 on 2/10/26.
 //
 
-import FirebaseFirestore
+import Foundation
 
-struct PushNotificationResponse: Decodable {
-    @DocumentID var id: String?
+struct PushNotificationResponse {
+    let id: String
     let title: String
     let body: String
-    let receivedAt: Timestamp
+    let receivedAt: Date
     let isRead: Bool
     let todoID: String
     let todoKind: String
