@@ -101,10 +101,10 @@ private extension WebPageService {
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
         let data = snapshot.data()
         guard
-            let title = data["title"] as? String,
-            let url = data["url"] as? String,
-            let displayURL = data["displayURL"] as? String,
-            let imageURL = data["imageURL"] as? String else {
+            let title = data[WebPageFieldKey.title.rawValue] as? String,
+            let url = data[WebPageFieldKey.url.rawValue] as? String,
+            let displayURL = data[WebPageFieldKey.displayURL.rawValue] as? String,
+            let imageURL = data[WebPageFieldKey.imageURL.rawValue] as? String else {
             return nil
         }
 
@@ -115,5 +115,12 @@ private extension WebPageService {
             displayURL: displayURL,
             imageURL: imageURL
         )
+    }
+
+    enum WebPageFieldKey: String {
+        case title
+        case url
+        case displayURL
+        case imageURL
     }
 }

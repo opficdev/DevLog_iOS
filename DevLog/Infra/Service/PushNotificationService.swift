@@ -127,7 +127,7 @@ final class PushNotificationService {
         let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-            guard let receivedAt = document.data()["receivedAt"] as? Timestamp else {
+            guard let receivedAt = document.data()[NotificationFieldKey.receivedAt.rawValue] as? Timestamp else {
                 return nil
             }
 
@@ -180,12 +180,12 @@ private extension PushNotificationService {
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
         guard
-            let title = data["title"] as? String,
-            let body = data["body"] as? String,
-            let receivedAt = data["receivedAt"] as? Timestamp,
-            let isRead = data["isRead"] as? Bool,
-            let todoID = data["todoID"] as? String,
-            let todoKind = data["todoKind"] as? String else {
+            let title = data[NotificationFieldKey.title.rawValue] as? String,
+            let body = data[NotificationFieldKey.body.rawValue] as? String,
+            let receivedAt = data[NotificationFieldKey.receivedAt.rawValue] as? Timestamp,
+            let isRead = data[NotificationFieldKey.isRead.rawValue] as? Bool,
+            let todoID = data[NotificationFieldKey.todoID.rawValue] as? String,
+            let todoKind = data[NotificationFieldKey.todoKind.rawValue] as? String else {
             return nil
         }
 
@@ -198,5 +198,14 @@ private extension PushNotificationService {
             todoID: todoID,
             todoKind: todoKind
         )
+    }
+
+    enum NotificationFieldKey: String {
+        case title
+        case body
+        case receivedAt
+        case isRead
+        case todoID
+        case todoKind
     }
 }

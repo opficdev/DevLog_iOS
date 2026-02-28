@@ -53,7 +53,7 @@ final class TodoService {
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
             let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
-                guard let createdAt = document.data()["createdAt"] as? Timestamp else {
+                guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
                     return nil
                 }
 
@@ -147,19 +147,19 @@ private extension TodoService {
 
     func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
         guard
-            let isPinned = data["isPinned"] as? Bool,
-            let isCompleted = data["isCompleted"] as? Bool,
-            let isChecked = data["isChecked"] as? Bool,
-            let title = data["title"] as? String,
-            let content = data["content"] as? String,
-            let createdAtTimestamp = data["createdAt"] as? Timestamp,
-            let updatedAtTimestamp = data["updatedAt"] as? Timestamp,
-            let tags = data["tags"] as? [String],
-            let kind = data["kind"] as? String else {
+            let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
+            let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
+            let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
+            let title = data[TodoFieldKey.title.rawValue] as? String,
+            let content = data[TodoFieldKey.content.rawValue] as? String,
+            let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
+            let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
+            let tags = data[TodoFieldKey.tags.rawValue] as? [String],
+            let kind = data[TodoFieldKey.kind.rawValue] as? String else {
             return nil
         }
 
-        let dueDate = (data["dueDate"] as? Timestamp)?.dateValue()
+        let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
         return TodoResponse(
             id: documentID,
             isPinned: isPinned,
@@ -173,5 +173,18 @@ private extension TodoService {
             tags: tags,
             kind: kind
         )
+    }
+
+    enum TodoFieldKey: String {
+        case isPinned
+        case isCompleted
+        case isChecked
+        case title
+        case content
+        case createdAt
+        case updatedAt
+        case dueDate
+        case tags
+        case kind
     }
 }
