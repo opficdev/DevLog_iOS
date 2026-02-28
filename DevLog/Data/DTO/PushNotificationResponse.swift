@@ -8,7 +8,7 @@
 import Foundation
 
 struct PushNotificationResponse {
-    let id: String?
+    let id: String
     let title: String
     let body: String
     let receivedAt: Date

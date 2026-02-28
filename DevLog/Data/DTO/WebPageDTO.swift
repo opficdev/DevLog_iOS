@@ -15,7 +15,7 @@ struct WebPageRequest: Encodable {
 }
 
 struct WebPageResponse {
-    let id: String?
+    let id: String
     let title: String
     let url: String
     let displayURL: String

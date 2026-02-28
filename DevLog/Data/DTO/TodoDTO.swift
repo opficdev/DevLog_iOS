@@ -23,7 +23,7 @@ struct TodoRequest: Dictionaryable {
 }
 
 struct TodoResponse {
-    let id: String?
+    let id: String
     let isPinned: Bool
     let isCompleted: Bool
     let isChecked: Bool

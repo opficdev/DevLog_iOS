@@ -25,9 +25,6 @@ extension TodoRequest {
 
 extension TodoResponse {
     func toDomain() throws -> Todo {
-        guard let id = self.id else {
-            throw DataError.invalidData("TodoResponse.id is nil")
-        }
         guard let kind = TodoKind(rawValue: self.kind) else {
             throw DataError.invalidData("TodoResponse.kind is invalid: \(self.kind)")
         }

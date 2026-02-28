@@ -7,9 +7,6 @@
 
 extension PushNotificationResponse {
     func toDomain() throws -> PushNotification {
-        guard let id = self.id else {
-            throw DataError.invalidData("PushNotificationResponse.id is nil")
-        }
         guard let todoKind = TodoKind(rawValue: self.todoKind) else {
             throw DataError.invalidData("PushNotificationResponse.todoKind is invalid: \(self.todoKind)")
         }
