@@ -14,7 +14,7 @@ final class TodoService {
     
     func fetchTodos(
         _ query: TodoQuery,
-        cursor: TodoCursorResponse?
+        cursor: TodoCursorDTO?
     ) async throws -> TodoPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
@@ -52,12 +52,12 @@ final class TodoService {
 
             let items = snapshot.documents.compactMap { TodoResponse(from: $0) }
 
-            let nextCursor: TodoCursorResponse? = snapshot.documents.last.flatMap { document in
+            let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
                 guard let createdAt = document.data()["createdAt"] as? Timestamp else {
                     return nil
                 }
 
-                return TodoCursorResponse(
+                return TodoCursorDTO(
                     createdAt: createdAt,
                     documentID: document.documentID
                 )

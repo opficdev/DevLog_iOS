@@ -50,7 +50,7 @@ extension TodoResponse {
     }
 }
 
-extension TodoCursorResponse {
+extension TodoCursorDTO {
     func toDomain() -> TodoCursor {
         TodoCursor(
             createdAt: createdAt.dateValue(),
@@ -59,7 +59,7 @@ extension TodoCursorResponse {
     }
 
     static func fromDomain(_ cursor: TodoCursor) -> Self {
-        TodoCursorResponse(
+        TodoCursorDTO(
             createdAt: Timestamp(date: cursor.createdAt),
             documentID: cursor.documentID
         )

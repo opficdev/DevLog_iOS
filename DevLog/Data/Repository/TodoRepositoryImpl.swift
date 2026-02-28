@@ -15,7 +15,7 @@ final class TodoRepositoryImpl: TodoRepository {
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
-        let responseCursor = cursor.map { TodoCursorResponse.fromDomain($0) }
+        let responseCursor = cursor.map { TodoCursorDTO.fromDomain($0) }
         let response = try await todoService.fetchTodos(query, cursor: responseCursor)
         return try response.toDomain()
     }
