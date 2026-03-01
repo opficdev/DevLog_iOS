@@ -18,6 +18,7 @@ final class ProfileViewModel: Store {
         var quarterTodosCache: [Date: [Todo]] = [:]
         var selectedActivityTypes: Set<ProfileActivityType> = [.created, .completed]
         var selectedDay: ProfileCompletionDay?
+        var selectedActivityForSheet: ProfileSelectedDayActivity?
         var showDoneButton: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -92,6 +93,7 @@ final class ProfileViewModel: Store {
         case moveQuarter(Int)
         case toggleActivityType(ProfileActivityType)
         case selectDay(ProfileCompletionDay?)
+        case setSelectedActivityForSheet(ProfileSelectedDayActivity?)
         case updateStatusMessage(String)
         case updateStatusTextFieldFocus(Bool)
     }
@@ -162,6 +164,8 @@ final class ProfileViewModel: Store {
             } else {
                 state.selectedDay = day
             }
+        case .setSelectedActivityForSheet(let activity):
+            state.selectedActivityForSheet = activity
         case .moveQuarter(let delta):
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
             let calendar = Calendar.current
@@ -176,6 +180,7 @@ final class ProfileViewModel: Store {
 
             state.selectedQuarterStart = nextQuarterStart
             state.selectedDay = nil
+            state.selectedActivityForSheet = nil
             if state.completionQuarterCache[nextQuarterStart] == nil {
                 effects = [.fetchCompletionQuarter(nextQuarterStart)]
             }
