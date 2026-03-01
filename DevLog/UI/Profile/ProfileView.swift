@@ -259,6 +259,7 @@ struct ProfileView: View {
                                 )
                             Spacer()
                         }
+                        .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
                     .padding(.vertical, 2)
