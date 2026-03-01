@@ -128,7 +128,7 @@ struct ProfileView: View {
 
             quarterNavigator
 
-            if viewModel.state.completionQuarters.isEmpty {
+            if viewModel.state.selectedQuarter == nil {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 140)
             } else if let quarter = viewModel.state.selectedQuarter {
@@ -196,7 +196,7 @@ struct ProfileView: View {
     }
 
     private var quarterTitle: String {
-        guard let start = viewModel.state.selectedQuarter?.quarterStart else { return "" }
+        guard let start = viewModel.state.selectedQuarterStart else { return "" }
         let calendar = Calendar.current
         let year = calendar.component(.year, from: start)
         let month = calendar.component(.month, from: start)
@@ -287,7 +287,7 @@ private struct MonthCompactHeatmapView: View {
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 3)
                                         .stroke(
-                                            Color.secondary.opacity((day?.isInMonth ?? false) ? 0.2 : 0),
+                                            Color.secondary.opacity((day?.isInMonth ?? false) ? 0.5 : 0),
                                             lineWidth: 0.5
                                         )
                                 )

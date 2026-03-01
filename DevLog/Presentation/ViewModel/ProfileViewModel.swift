@@ -45,8 +45,8 @@ final class ProfileViewModel: Store {
         var email: String = ""
         var statusMessage: String = ""
         var avatarURL: URL?
-        var completionQuarters: [CompletionQuarter] = []
-        var selectedQuarterIndex: Int = 0
+        var selectedQuarterStart: Date?
+        var completionQuarterCache: [Date: CompletionQuarter] = [:]
         var selectedMetrics: Set<HeatmapMetric> = [.created, .completed]
         var showDoneButton: Bool = false
         var showAlert: Bool = false
@@ -57,16 +57,36 @@ final class ProfileViewModel: Store {
         }
 
         var selectedQuarter: CompletionQuarter? {
-            guard completionQuarters.indices.contains(selectedQuarterIndex) else { return nil }
-            return completionQuarters[selectedQuarterIndex]
+            guard let selectedQuarterStart else { return nil }
+            return completionQuarterCache[selectedQuarterStart]
         }
 
         var canMoveToPreviousQuarter: Bool {
-            selectedQuarterIndex > 0
+            guard let selectedQuarterStart else { return false }
+            let calendar = Calendar.current
+            guard let previousQuarterStart = calendar.date(byAdding: .month, value: -3, to: selectedQuarterStart) else {
+                return false
+            }
+            let today = calendar.startOfDay(for: Date())
+            return Self.canMove(to: previousQuarterStart, calendar: calendar, today: today)
         }
 
         var canMoveToNextQuarter: Bool {
-            selectedQuarterIndex < completionQuarters.count - 1
+            guard let selectedQuarterStart else { return false }
+            let calendar = Calendar.current
+            guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: selectedQuarterStart) else {
+                return false
+            }
+            let today = calendar.startOfDay(for: Date())
+            return Self.canMove(to: nextQuarterStart, calendar: calendar, today: today)
+        }
+
+        private static func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {
+            guard let quarterEnd = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
+                return false
+            }
+            let interval = DateInterval(start: quarterStart, end: quarterEnd)
+            return interval.contains(today) || quarterEnd <= today
         }
     }
 
@@ -76,7 +96,7 @@ final class ProfileViewModel: Store {
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
-        case setCompletionQuarters([CompletionQuarter])
+        case setCompletionQuarter(CompletionQuarter)
         case moveQuarter(Int)
         case toggleHeatmapMetric(HeatmapMetric)
         case updateStatusMessage(String)
@@ -85,7 +105,7 @@ final class ProfileViewModel: Store {
 
     enum SideEffect {
         case fetchUserData
-        case fetchCompletionMonths
+        case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
     }
 
@@ -109,7 +129,15 @@ final class ProfileViewModel: Store {
         var effects: [SideEffect] = []
         switch action {
         case .onAppear:
-            effects = [.fetchUserData, .fetchCompletionMonths]
+            let calendar = Calendar.current
+            if state.selectedQuarterStart == nil {
+                state.selectedQuarterStart = quarterStart(for: Date(), calendar: calendar)
+            }
+            effects = [.fetchUserData]
+            if let selectedQuarterStart = state.selectedQuarterStart,
+               state.completionQuarterCache[selectedQuarterStart] == nil {
+                effects.append(.fetchCompletionQuarter(selectedQuarterStart))
+            }
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .tapResetStatusMessageButton:
@@ -119,13 +147,22 @@ final class ProfileViewModel: Store {
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
-        case .setCompletionQuarters(let quarters):
-            state.completionQuarters = quarters
-            state.selectedQuarterIndex = max(0, quarters.count - 1)
+        case .setCompletionQuarter(let quarter):
+            state.completionQuarterCache[quarter.quarterStart] = quarter
         case .moveQuarter(let delta):
-            let newIndex = state.selectedQuarterIndex + delta
-            guard state.completionQuarters.indices.contains(newIndex) else { break }
-            state.selectedQuarterIndex = newIndex
+            guard let selectedQuarterStart = state.selectedQuarterStart else { break }
+            let calendar = Calendar.current
+            let monthDelta = 3 * delta
+            guard let nextQuarterStart = calendar.date(byAdding: .month, value: monthDelta, to: selectedQuarterStart) else {
+                break
+            }
+            let today = calendar.startOfDay(for: Date())
+            guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
+
+            state.selectedQuarterStart = nextQuarterStart
+            if state.completionQuarterCache[nextQuarterStart] == nil {
+                effects = [.fetchCompletionQuarter(nextQuarterStart)]
+            }
         case .toggleHeatmapMetric(let metric):
             if state.selectedMetrics.contains(metric), state.selectedMetrics.count == 1 {
                 break
@@ -159,19 +196,17 @@ final class ProfileViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .fetchCompletionMonths:
+        case .fetchCompletionQuarter(let quarterStart):
             Task {
-                let calendar = Calendar.current
-                let currentQuarterStart = quarterStart(for: Date(), calendar: calendar)
                 do {
-                    let todos = try await fetchAllTodos()
-                    let months = makeCompletionMonths(from: todos, quarterStart: currentQuarterStart)
-                    let quarter = CompletionQuarter(quarterStart: currentQuarterStart, months: months)
-                    send(.setCompletionQuarters([quarter]))
+                    let todos = try await fetchQuarterTodos(from: quarterStart)
+                    let months = makeCompletionMonths(from: todos, quarterStart: quarterStart)
+                    let quarter = CompletionQuarter(quarterStart: quarterStart, months: months)
+                    send(.setCompletionQuarter(quarter))
                 } catch {
-                    let months = makeCompletionMonths(from: [], quarterStart: currentQuarterStart)
-                    let quarter = CompletionQuarter(quarterStart: currentQuarterStart, months: months)
-                    send(.setCompletionQuarters([quarter]))
+                    let months = makeCompletionMonths(from: [], quarterStart: quarterStart)
+                    let quarter = CompletionQuarter(quarterStart: quarterStart, months: months)
+                    send(.setCompletionQuarter(quarter))
                 }
             }
         case .updateStatusMessage(let message):
@@ -187,17 +222,24 @@ final class ProfileViewModel: Store {
 }
 
 private extension ProfileViewModel {
-    func fetchAllTodos() async throws -> [Todo] {
+    func fetchQuarterTodos(from quarterStart: Date) async throws -> [Todo] {
         let calendar = Calendar.current
-        let currentQuarterStart = quarterStart(for: Date(), calendar: calendar)
-        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: currentQuarterStart) else {
+        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
             return []
         }
 
         return try await fetchTodosByDateRangeUseCase.execute(
-            from: currentQuarterStart,
+            from: quarterStart,
             to: nextQuarterStart
         )
+    }
+
+    func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {
+        guard let quarterEnd = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
+            return false
+        }
+        let interval = DateInterval(start: quarterStart, end: quarterEnd)
+        return interval.contains(today) || quarterEnd <= today
     }
 
     func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [CompletionMonth] {
