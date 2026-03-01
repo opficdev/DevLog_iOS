@@ -16,7 +16,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     HStack {
                         CacheableImage(url: viewModel.state.avatarURL)
                             .frame(width: 60, height: 60)
@@ -72,7 +72,7 @@ struct ProfileView: View {
                     }
                     activityHeatmapSection
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
             }
             .frame(maxWidth: .infinity)
             .background(Color(UIColor.systemGroupedBackground))
