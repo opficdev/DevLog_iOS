@@ -47,14 +47,14 @@ struct TodoEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
             .toolbar {
-                SheetToolbar(
-                    onCancel: { dismiss() },
-                    onConfirm: {
-                        onSubmit?(viewModel.upsertTodo())
-                        dismiss()
-                    },
-                    isConfirmEnabled: viewModel.state.isValidToSave
-                )
+                ToolbarLeadingButton {
+                    dismiss()
+                }
+                ToolbarTrailingButton {
+                    onSubmit?(viewModel.upsertTodo())
+                    dismiss()
+                }
+                .disabled(!viewModel.state.isValidToSave)
             }
         }
     }

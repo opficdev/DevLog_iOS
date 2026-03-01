@@ -29,6 +29,17 @@ struct ToolbarLeadingButton: ToolbarContent {
 
 struct ToolbarTrailingButton: ToolbarContent {
     var action: (() -> Void)?
+    private var isDisabled: Bool = false
+
+    init(action: (() -> Void)? = nil) {
+        self.action = action
+    }
+
+    func disabled(_ isDisabled: Bool) -> ToolbarTrailingButton {
+        var copy = self
+        copy.isDisabled = isDisabled
+        return copy
+    }
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -36,6 +47,7 @@ struct ToolbarTrailingButton: ToolbarContent {
                 Button(role: .confirm) {
                     action?()
                 }
+                .disabled(isDisabled)
             } else {
                 Button {
                     action?()
@@ -43,6 +55,7 @@ struct ToolbarTrailingButton: ToolbarContent {
                     Text("확인")
                         .bold()
                 }
+                .disabled(isDisabled)
             }
         }
     }

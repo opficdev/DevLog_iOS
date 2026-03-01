@@ -89,10 +89,12 @@ struct PushNotificationSettingsView: View {
                 .onAppear { UIDatePicker.appearance().minuteInterval = 5 }
                 .onDisappear { UIDatePicker.appearance().minuteInterval = 1 /* 기본값으로 복원 */ }
                 .toolbar {
-                    SheetToolbar(
-                        onCancel: { viewModel.send(.rollbackUpdate) },
-                        onConfirm: { viewModel.send(.confirmUpdate) }
-                    )
+                    ToolbarLeadingButton {
+                        viewModel.send(.rollbackUpdate)
+                    }
+                    ToolbarTrailingButton {
+                        viewModel.send(.confirmUpdate)
+                    }
                 }
                 .background(
                     GeometryReader { geometry in
