@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MarkdownUI
 
 struct TodoDetailView: View {
     @StateObject var viewModel: TodoDetailViewModel
@@ -15,16 +14,10 @@ struct TodoDetailView: View {
         ZStack {
             Color(.secondarySystemBackground).ignoresSafeArea()
             if let todo = viewModel.state.todo {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 10) {
-                        Text(todo.title)
-                            .font(.title3.bold())
-                            .padding(.horizontal)
-                        Divider()
-                        Markdown(todo.content)
-                            .padding(.horizontal)
-                    }
-                }
+                TodoDetailContentView(
+                    title: todo.title,
+                    content: todo.content
+                )
             } else if viewModel.state.isLoading {
                 LoadingView()
             }
@@ -72,61 +65,11 @@ struct TodoDetailView: View {
     }
 
     private var sheetContent: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 32) {
-                    VStack {
-                        HStack {
-                            Text("마감일")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        HStack(spacing: 8) {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.secondary)
-                            Text(
-                                viewModel.state.todo?.dueDate?
-                                    .formatted(date: .abbreviated, time: .omitted)
-                                    ?? "마감일 없음"
-                            )
-                            .foregroundStyle(
-                                viewModel.state.todo?.dueDate == nil ? .secondary : .primary
-                            )
-                            Spacer()
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.tertiarySystemFill))
-                        )
-                        Divider()
-                    }
-                    VStack {
-                        HStack {
-                            Text("태그")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        Divider()
-                        if let tags = viewModel.state.todo?.tags, !tags.isEmpty {
-                            TagLayout {
-                                ForEach(tags, id: \.self) { tag in
-                                    Tag(tag, isEditing: false)
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .toolbar {
-                ToolbarLeadingButton {
-                    viewModel.send(.setShowInfo(false))
-                }
-            }
+        TodoInfoSheetView(
+            dueDate: viewModel.state.todo?.dueDate,
+            tags: viewModel.state.todo?.tags ?? []
+        ) {
+            viewModel.send(.setShowInfo(false))
         }
     }
 }

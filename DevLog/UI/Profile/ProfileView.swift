@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MarkdownUI
 
 struct ProfileView: View {
     @StateObject var viewModel: ProfileViewModel
@@ -283,29 +282,11 @@ private struct ProfileActivityTodoSheetView: View {
         NavigationStack {
             ZStack {
                 Color(.secondarySystemBackground).ignoresSafeArea()
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text(activity.activityLabel)
-                                .font(.caption.bold())
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color(.systemGray4))
-                                )
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        Text(activity.todo.title)
-                            .font(.title3.bold())
-                            .padding(.horizontal)
-                        Divider()
-                        Markdown(activity.todo.content)
-                            .padding(.horizontal)
-                    }
-                }
+                TodoDetailContentView(
+                    title: activity.todo.title,
+                    content: activity.todo.content,
+                    activityLabel: activity.activityLabel
+                )
             }
             .sheet(isPresented: $showInfo) {
                 infoSheetContent
@@ -326,59 +307,11 @@ private struct ProfileActivityTodoSheetView: View {
     }
 
     private var infoSheetContent: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 32) {
-                    VStack {
-                        HStack {
-                            Text("마감일")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        HStack(spacing: 8) {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.secondary)
-                            Text(
-                                activity.todo.dueDate?
-                                    .formatted(date: .abbreviated, time: .omitted)
-                                    ?? "마감일 없음"
-                            )
-                            .foregroundStyle(activity.todo.dueDate == nil ? .secondary : .primary)
-                            Spacer()
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.tertiarySystemFill))
-                        )
-                        Divider()
-                    }
-                    VStack {
-                        HStack {
-                            Text("태그")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        Divider()
-                        if !activity.todo.tags.isEmpty {
-                            TagLayout {
-                                ForEach(activity.todo.tags, id: \.self) { tag in
-                                    Tag(tag, isEditing: false)
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .toolbar {
-                ToolbarLeadingButton {
-                    showInfo = false
-                }
-            }
+        TodoInfoSheetView(
+            dueDate: activity.todo.dueDate,
+            tags: activity.todo.tags
+        ) {
+            showInfo = false
         }
     }
 }
