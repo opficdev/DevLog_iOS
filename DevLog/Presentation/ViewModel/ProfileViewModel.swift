@@ -91,16 +91,16 @@ final class ProfileViewModel: Store {
 
     @Published private(set) var state = State()
     private let fetchUserDataUseCase: FetchUserDataUseCase
-    private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
+    private let fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
-        fetchTodosByKindUseCase: FetchTodosByKindUseCase,
+        fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
-        self.fetchTodosByKindUseCase = fetchTodosByKindUseCase
+        self.fetchTodosByDateRangeUseCase = fetchTodosByDateRangeUseCase
         self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
     }
 
@@ -161,13 +161,17 @@ final class ProfileViewModel: Store {
             }
         case .fetchCompletionMonths:
             Task {
+                let calendar = Calendar.current
+                let currentQuarterStart = quarterStart(for: Date(), calendar: calendar)
                 do {
                     let todos = try await fetchAllTodos()
-                    let months = makeCompletionMonths(from: todos)
-                    send(.setCompletionQuarters(makeCompletionQuarters(from: months)))
+                    let months = makeCompletionMonths(from: todos, quarterStart: currentQuarterStart)
+                    let quarter = CompletionQuarter(quarterStart: currentQuarterStart, months: months)
+                    send(.setCompletionQuarters([quarter]))
                 } catch {
-                    let months = makeCompletionMonths(from: [])
-                    send(.setCompletionQuarters(makeCompletionQuarters(from: months)))
+                    let months = makeCompletionMonths(from: [], quarterStart: currentQuarterStart)
+                    let quarter = CompletionQuarter(quarterStart: currentQuarterStart, months: months)
+                    send(.setCompletionQuarters([quarter]))
                 }
             }
         case .updateStatusMessage(let message):
@@ -184,22 +188,19 @@ final class ProfileViewModel: Store {
 
 private extension ProfileViewModel {
     func fetchAllTodos() async throws -> [Todo] {
-        var todos: [Todo] = []
-
-        for kind in TodoKind.allCases {
-            var cursor: TodoCursor?
-            while true {
-                let page = try await fetchTodosByKindUseCase.execute(kind, cursor: cursor)
-                todos.append(contentsOf: page.items)
-                guard let nextCursor = page.nextCursor else { break }
-                cursor = nextCursor
-            }
+        let calendar = Calendar.current
+        let currentQuarterStart = quarterStart(for: Date(), calendar: calendar)
+        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: currentQuarterStart) else {
+            return []
         }
 
-        return todos
+        return try await fetchTodosByDateRangeUseCase.execute(
+            from: currentQuarterStart,
+            to: nextQuarterStart
+        )
     }
 
-    func makeCompletionMonths(from todos: [Todo]) -> [CompletionMonth] {
+    func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [CompletionMonth] {
         let calendar = Calendar.current
         var dailyCreatedCount: [Date: Int] = [:]
         var dailyCompletedCount: [Date: Int] = [:]
@@ -214,21 +215,8 @@ private extension ProfileViewModel {
             }
         }
 
-        let currentMonthStart = startOfMonth(for: Date(), calendar: calendar)
-        let firstMonthStart: Date
-        let firstActivityDay = (Array(dailyCreatedCount.keys) + Array(dailyCompletedCount.keys)).min()
-        if let firstActivityDay {
-            firstMonthStart = startOfMonth(for: firstActivityDay, calendar: calendar)
-        } else {
-            firstMonthStart = currentMonthStart
-        }
-
-        var monthStarts: [Date] = []
-        var cursor = firstMonthStart
-        while cursor <= currentMonthStart {
-            monthStarts.append(cursor)
-            guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: cursor) else { break }
-            cursor = nextMonth
+        let monthStarts = (0..<3).compactMap {
+            calendar.date(byAdding: .month, value: $0, to: quarterStart)
         }
 
         return monthStarts.map { monthStart in
@@ -239,22 +227,6 @@ private extension ProfileViewModel {
                 calendar: calendar
             )
         }
-    }
-
-    func makeCompletionQuarters(from months: [CompletionMonth]) -> [CompletionQuarter] {
-        let calendar = Calendar.current
-        let grouped = Dictionary(grouping: months) { month -> Date in
-            quarterStart(for: month.monthStart, calendar: calendar)
-        }
-
-        return grouped
-            .map { quarterStart, quarterMonths in
-                CompletionQuarter(
-                    quarterStart: quarterStart,
-                    months: quarterMonths.sorted { $0.monthStart < $1.monthStart }
-                )
-            }
-            .sorted { $0.quarterStart < $1.quarterStart }
     }
 
     func makeCompletionMonth(

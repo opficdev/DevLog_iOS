@@ -63,6 +63,10 @@ private extension DomainAssembler {
             FetchTodosByKindUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
+        container.register(FetchTodosByDateRangeUseCase.self) {
+            FetchTodosByDateRangeUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+
         container.register(FetchTodosByKeywordUseCase.self) {
             FetchTodosByKeywordUseCaseImpl(container.resolve(TodoRepository.self))
         }

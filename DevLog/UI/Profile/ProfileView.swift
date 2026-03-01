@@ -300,7 +300,7 @@ private struct MonthCompactHeatmapView: View {
 
     private func fillColor(for day: ProfileViewModel.CompletionDay?) -> Color {
         guard let day, day.isInMonth else { return .clear }
-        return Color.accentColor.opacity(opacity(for: dayCount(for: day), max: monthMaxCount))
+        return Color.blue.opacity(opacity(for: dayCount(for: day), max: monthMaxCount))
     }
 
     private var monthMaxCount: Int {
@@ -323,7 +323,7 @@ private struct MonthCompactHeatmapView: View {
     }
 
     private func opacity(for count: Int, max: Int) -> Double {
-        guard count > 0 && max > 0 else { return 0 }
+        guard 0 < count && 0 < max else { return 0 }
         let ratio = Double(count) / Double(max)
         return floor(ratio * 10) / 10
     }

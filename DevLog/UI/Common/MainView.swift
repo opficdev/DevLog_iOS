@@ -36,7 +36,7 @@ struct MainView: View {
             }
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
-                fetchTodosByKindUseCase: container.resolve(FetchTodosByKindUseCase.self),
+                fetchTodosByDateRangeUseCase: container.resolve(FetchTodosByDateRangeUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self)
             ))
             .tabItem {

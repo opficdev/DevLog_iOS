@@ -23,12 +23,16 @@ final class TodoService {
         let logMessage = "Fetching todo page: kind=\(String(describing: query.kind)), "
             + "keyword=\(trimmedKeyword), "
             + "pinned=\(String(describing: query.isPinned)), "
+            + "createdAtFrom=\(String(describing: query.createdAtFrom)), "
+            + "createdAtTo=\(String(describing: query.createdAtTo)), "
+            + "createdAtDescending=\(query.createdAtDescending), "
+            + "pageSize=\(String(describing: query.pageSize)), "
             + "cursor=\(String(describing: cursor))"
         logger.info(logMessage)
 
         var firestoreQuery: Query = store
             .collection("users/\(uid)/todoLists/")
-            .order(by: "createdAt", descending: true)
+            .order(by: "createdAt", descending: query.createdAtDescending)
             .order(by: FieldPath.documentID())
 
         if let kind = query.kind {
@@ -39,6 +43,20 @@ final class TodoService {
             firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: isPinned)
         }
 
+        if let createdAtFrom = query.createdAtFrom {
+            firestoreQuery = firestoreQuery.whereField(
+                "createdAt",
+                isGreaterThanOrEqualTo: Timestamp(date: createdAtFrom)
+            )
+        }
+
+        if let createdAtTo = query.createdAtTo {
+            firestoreQuery = firestoreQuery.whereField(
+                "createdAt",
+                isLessThan: Timestamp(date: createdAtTo)
+            )
+        }
+
         if trimmedKeyword.isEmpty {
             if let cursor {
                 firestoreQuery = firestoreQuery.start(after: [
@@ -47,21 +65,31 @@ final class TodoService {
                 ])
             }
 
-            let snapshot = try await firestoreQuery
-                .limit(to: query.pageSize)
-                .getDocuments()
+            let snapshot: QuerySnapshot
+            if let pageSize = query.pageSize {
+                snapshot = try await firestoreQuery
+                    .limit(to: pageSize)
+                    .getDocuments()
+            } else {
+                snapshot = try await firestoreQuery.getDocuments()
+            }
 
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
-            let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
-                guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
-                    return nil
-                }
+            let nextCursor: TodoCursorDTO?
+            if query.pageSize == nil {
+                nextCursor = nil
+            } else {
+                nextCursor = snapshot.documents.last.flatMap { document in
+                    guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
+                        return nil
+                    }
 
-                return TodoCursorDTO(
-                    createdAt: createdAt.dateValue(),
-                    documentID: document.documentID
-                )
+                    return TodoCursorDTO(
+                        createdAt: createdAt.dateValue(),
+                        documentID: document.documentID
+                    )
+                }
             }
 
             return TodoPageResponse(items: items, nextCursor: nextCursor)
