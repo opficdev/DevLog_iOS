@@ -75,9 +75,9 @@ struct ProfileView: View {
                 .padding(.horizontal, 16)
             }
             .frame(maxWidth: .infinity)
-            .background(Color(UIColor.systemGroupedBackground))
+            .background(Color(.systemGroupedBackground))
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         Button {
                             router.push(Path.settings)
@@ -161,7 +161,7 @@ struct ProfileView: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .fill(Color(.secondarySystemGroupedBackground))
         )
     }
 
@@ -226,7 +226,7 @@ struct ProfileView: View {
         let activities = viewModel.state.selectedDayActivities
 
         VStack(alignment: .leading, spacing: 8) {
-            Text(day.date.formatted(.dateTime.month(.wide).day()))
+            Text(day.date.formatted(.dateTime.year().month(.wide).day()))
                 .font(.subheadline)
                 .bold()
 

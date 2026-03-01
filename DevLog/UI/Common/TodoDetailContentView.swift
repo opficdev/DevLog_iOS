@@ -11,7 +11,7 @@ import MarkdownUI
 struct TodoDetailContentView: View {
     let title: String
     let content: String
-    var activityLabel: String? = nil
+    var activityLabel: String?
 
     var body: some View {
         ScrollView {
