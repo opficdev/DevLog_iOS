@@ -284,13 +284,6 @@ private struct MonthCompactHeatmapView: View {
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(fillColor(for: day))
                                 .frame(width: cellSize, height: cellSize)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .stroke(
-                                            Color.secondary.opacity((day?.isInMonth ?? false) ? 0.5 : 0),
-                                            lineWidth: 0.5
-                                        )
-                                )
                         }
                     }
                 }
@@ -300,7 +293,11 @@ private struct MonthCompactHeatmapView: View {
 
     private func fillColor(for day: ProfileViewModel.CompletionDay?) -> Color {
         guard let day, day.isInMonth else { return .clear }
-        return Color.blue.opacity(opacity(for: dayCount(for: day), max: monthMaxCount))
+        let count = dayCount(for: day)
+        if count == 0 {
+            return Color(UIColor.systemGray5)
+        }
+        return Color.blue.opacity(opacity(for: count, max: monthMaxCount))
     }
 
     private var monthMaxCount: Int {
