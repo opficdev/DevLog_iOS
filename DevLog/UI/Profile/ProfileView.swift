@@ -152,7 +152,7 @@ struct ProfileView: View {
 
                 if let selectedDay = viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        .transition(.opacity)
                 }
             } else {
                 EmptyView()
