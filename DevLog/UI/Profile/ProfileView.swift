@@ -132,11 +132,22 @@ struct ProfileView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 140)
             } else if let quarter = viewModel.state.selectedQuarter {
-                QuarterHeatmapView(
+                ProfileHeatmapView(
                     quarter: quarter,
-                    selectedActivityTypes: viewModel.state.selectedActivityTypes
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes,
+                    selectedDay: viewModel.state.selectedDay,
+                    onSelectDay: { day in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.send(.selectDay(day))
+                        }
+                    }
                 )
                 .padding(.vertical, 6)
+
+                if let selectedDay = viewModel.state.selectedDay {
+                    selectedDayDetailSection(for: selectedDay)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             } else {
                 EmptyView()
             }
@@ -150,7 +161,7 @@ struct ProfileView: View {
 
     private var activityTypeSelector: some View {
         Menu {
-            ForEach(ProfileViewModel.ActivityType.allCases, id: \.self) { activityType in
+            ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
                 Button {
                     viewModel.send(.toggleActivityType(activityType))
                 } label: {
@@ -204,124 +215,49 @@ struct ProfileView: View {
         return "\(year) Q\(quarter)"
     }
 
-    private enum Path: Hashable {
-        case settings
-    }
-}
-
-private struct QuarterHeatmapView: View {
-    let quarter: ProfileViewModel.CompletionQuarter
-    let selectedActivityTypes: Set<ProfileViewModel.ActivityType>
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            weekdayLabel
-                .padding(.trailing, 10)
-            let months = quarter.months
-            ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
-                MonthCompactHeatmapView(
-                    month: month,
-                    selectedActivityTypes: selectedActivityTypes
-                )
-                if index < months.count - 1 {
-                    Spacer()
-                }
-            }
-        }
-    }
-
     @ViewBuilder
-    private var weekdayLabel: some View {
-        let labels: [Int: String] = [
-            2: "월",
-            4: "수",
-            6: "금"
-        ]
-        let orderedWeekdays = Array(1...7)
-        let cellSize: CGFloat = 16
+    private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
+        let activities = viewModel.state.selectedDayActivities
 
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(orderedWeekdays, id: \.self) { weekday in
-                Group {
-                    if let label = labels[weekday] {
-                        Text(label)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(day.date.formatted(.dateTime.month(.wide).day()))
+                .font(.subheadline)
+                .bold()
+
+            if activities.isEmpty {
+                Text("활동 없음")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(activities) { activity in
+                    HStack(spacing: 8) {
+                        Image(systemName: activity.todo.kind.symbolName)
+                            .foregroundStyle(activity.todo.kind.color)
+                            .frame(width: 20)
+                        Text(activity.todo.title)
+                            .font(.caption)
+                            .lineLimit(1)
+                        Text(activity.activityLabel)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                            .frame(width: cellSize, height: cellSize)
-                    } else {
-                        Color.clear
-                            .frame(width: cellSize, height: cellSize)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color(UIColor.systemGray5))
+                            )
+                        Spacer()
                     }
+                    .padding(.vertical, 2)
                 }
             }
         }
-        .padding(.top, 22)
-    }
-}
-
-private struct MonthCompactHeatmapView: View {
-    let month: ProfileViewModel.CompletionMonth
-    let selectedActivityTypes: Set<ProfileViewModel.ActivityType>
-    private let orderedWeekdays = Array(1...7)
-    private let cellSize: CGFloat = 16
-    private let cellSpacing: CGFloat = 4
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(month.monthStart.formatted(.dateTime.month(.abbreviated)))
-                .frame(height: cellSize)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: cellSpacing) {
-                ForEach(orderedWeekdays, id: \.self) { weekday in
-                    HStack(spacing: cellSpacing) {
-                        ForEach(month.weeks.indices, id: \.self) { weekIndex in
-                            let day = month.weeks[weekIndex].first {
-                                Calendar.current.component(.weekday, from: $0.date) == weekday
-                            }
-
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(fillColor(for: day))
-                                .frame(width: cellSize, height: cellSize)
-                        }
-                    }
-                }
-            }
-        }
+        .padding(.top, 4)
     }
 
-    private func fillColor(for day: ProfileViewModel.CompletionDay?) -> Color {
-        guard let day, day.isInMonth else { return .clear }
-        let count = dayCount(for: day)
-        if count == 0 {
-            return Color(UIColor.systemGray5)
-        }
-        return Color.blue.opacity(opacity(for: count, max: monthMaxCount))
-    }
-
-    private var monthMaxCount: Int {
-        month.weeks
-            .flatMap { $0 }
-            .filter { $0.isInMonth }
-            .map(dayCount(for:))
-            .max() ?? 0
-    }
-
-    private func dayCount(for day: ProfileViewModel.CompletionDay) -> Int {
-        var value = 0
-        if selectedActivityTypes.contains(.created) {
-            value += day.createdCount
-        }
-        if selectedActivityTypes.contains(.completed) {
-            value += day.completedCount
-        }
-        return value
-    }
-
-    private func opacity(for count: Int, max: Int) -> Double {
-        guard 0 < count && 0 < max else { return 0 }
-        let ratio = Double(count) / Double(max)
-        return floor(ratio * 10) / 10
+    private enum Path: Hashable {
+        case settings
     }
 }

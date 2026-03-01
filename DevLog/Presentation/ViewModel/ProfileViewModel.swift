@@ -8,46 +8,16 @@
 import Foundation
 
 final class ProfileViewModel: Store {
-    enum ActivityType: String, CaseIterable, Hashable {
-        case created
-        case completed
-
-        var title: String {
-            switch self {
-            case .created: return "생성"
-            case .completed: return "완료"
-            }
-        }
-    }
-
-    struct CompletionDay: Hashable {
-        let date: Date
-        let createdCount: Int
-        let completedCount: Int
-        let isInMonth: Bool
-    }
-
-    struct CompletionMonth: Identifiable, Hashable {
-        var id: Date { monthStart }
-        let monthStart: Date
-        let weeks: [[CompletionDay]]
-    }
-
-    struct CompletionQuarter: Identifiable, Hashable {
-        let quarterStart: Date
-        let months: [CompletionMonth]
-
-        var id: Date { quarterStart }
-    }
-
     struct State {
         var name: String = ""
         var email: String = ""
         var statusMessage: String = ""
         var avatarURL: URL?
         var selectedQuarterStart: Date?
-        var completionQuarterCache: [Date: CompletionQuarter] = [:]
-        var selectedActivityTypes: Set<ActivityType> = [.created, .completed]
+        var completionQuarterCache: [Date: ProfileCompletionQuarter] = [:]
+        var quarterTodosCache: [Date: [Todo]] = [:]
+        var selectedActivityTypes: Set<ProfileActivityType> = [.created, .completed]
+        var selectedDay: ProfileCompletionDay?
         var showDoneButton: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -56,9 +26,31 @@ final class ProfileViewModel: Store {
             !statusMessage.isEmpty && showDoneButton
         }
 
-        var selectedQuarter: CompletionQuarter? {
+        var selectedQuarter: ProfileCompletionQuarter? {
             guard let selectedQuarterStart else { return nil }
             return completionQuarterCache[selectedQuarterStart]
+        }
+
+        var selectedDayActivities: [ProfileSelectedDayActivity] {
+            guard let selectedDay,
+                  let selectedQuarterStart,
+                  let todos = quarterTodosCache[selectedQuarterStart] else { return [] }
+            let calendar = Calendar.current
+            let dayStart = calendar.startOfDay(for: selectedDay.date)
+
+            return todos.compactMap { todo in
+                let isCreated = selectedActivityTypes.contains(.created)
+                    && calendar.startOfDay(for: todo.createdAt) == dayStart
+                let isCompleted = selectedActivityTypes.contains(.completed)
+                    && todo.isCompleted
+                    && calendar.startOfDay(for: todo.updatedAt) == dayStart
+                guard isCreated || isCompleted else { return nil }
+                return ProfileSelectedDayActivity(
+                    todo: todo,
+                    showsCreated: isCreated,
+                    showsCompleted: isCompleted
+                )
+            }
         }
 
         var canMoveToPreviousQuarter: Bool {
@@ -96,9 +88,10 @@ final class ProfileViewModel: Store {
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
-        case setCompletionQuarter(CompletionQuarter)
+        case setCompletionQuarter(ProfileCompletionQuarter, [Todo])
         case moveQuarter(Int)
-        case toggleActivityType(ActivityType)
+        case toggleActivityType(ProfileActivityType)
+        case selectDay(ProfileCompletionDay?)
         case updateStatusMessage(String)
         case updateStatusTextFieldFocus(Bool)
     }
@@ -107,7 +100,7 @@ final class ProfileViewModel: Store {
         case fetchUserData
         case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
-        case updateHeatmapActivityTypes(Set<ActivityType>)
+        case updateHeatmapActivityTypes(Set<ProfileActivityType>)
     }
 
     @Published private(set) var state = State()
@@ -131,6 +124,7 @@ final class ProfileViewModel: Store {
         self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
     }
 
+    // swiftlint:disable cyclomatic_complexity
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
@@ -159,8 +153,15 @@ final class ProfileViewModel: Store {
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
-        case .setCompletionQuarter(let quarter):
+        case .setCompletionQuarter(let quarter, let todos):
             state.completionQuarterCache[quarter.quarterStart] = quarter
+            state.quarterTodosCache[quarter.quarterStart] = todos
+        case .selectDay(let day):
+            if let day, state.selectedDay?.date == day.date {
+                state.selectedDay = nil
+            } else {
+                state.selectedDay = day
+            }
         case .moveQuarter(let delta):
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
             let calendar = Calendar.current
@@ -174,6 +175,7 @@ final class ProfileViewModel: Store {
             guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
 
             state.selectedQuarterStart = nextQuarterStart
+            state.selectedDay = nil
             if state.completionQuarterCache[nextQuarterStart] == nil {
                 effects = [.fetchCompletionQuarter(nextQuarterStart)]
             }
@@ -199,6 +201,7 @@ final class ProfileViewModel: Store {
         self.state = state
         return effects
     }
+    // swiftlint:enable cyclomatic_complexity
 
     func run(_ effect: SideEffect) {
         switch effect {
@@ -216,12 +219,12 @@ final class ProfileViewModel: Store {
                 do {
                     let todos = try await fetchQuarterTodos(from: quarterStart)
                     let months = makeCompletionMonths(from: todos, quarterStart: quarterStart)
-                    let quarter = CompletionQuarter(quarterStart: quarterStart, months: months)
-                    send(.setCompletionQuarter(quarter))
+                    let quarter = ProfileCompletionQuarter(quarterStart: quarterStart, months: months)
+                    send(.setCompletionQuarter(quarter, todos))
                 } catch {
                     let months = makeCompletionMonths(from: [], quarterStart: quarterStart)
-                    let quarter = CompletionQuarter(quarterStart: quarterStart, months: months)
-                    send(.setCompletionQuarter(quarter))
+                    let quarter = ProfileCompletionQuarter(quarterStart: quarterStart, months: months)
+                    send(.setCompletionQuarter(quarter, []))
                 }
             }
         case .updateStatusMessage(let message):
@@ -233,7 +236,7 @@ final class ProfileViewModel: Store {
                 }
             }
         case .updateHeatmapActivityTypes(let activityTypes):
-            let rawValues = ActivityType.allCases
+            let rawValues = ProfileActivityType.allCases
                 .filter { activityTypes.contains($0) }
                 .map(\.rawValue)
             updateHeatmapActivityTypesUseCase.execute(rawValues)
@@ -262,11 +265,11 @@ private extension ProfileViewModel {
         return interval.contains(today) || quarterEnd <= today
     }
 
-    func normalizeActivityTypes(_ rawValues: [String]) -> Set<ActivityType> {
-        Set(rawValues.compactMap(ActivityType.init(rawValue:)))
+    func normalizeActivityTypes(_ rawValues: [String]) -> Set<ProfileActivityType> {
+        Set(rawValues.compactMap(ProfileActivityType.init(rawValue:)))
     }
 
-    func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [CompletionMonth] {
+    func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [ProfileCompletionMonth] {
         let calendar = Calendar.current
         var dailyCreatedCount: [Date: Int] = [:]
         var dailyCompletedCount: [Date: Int] = [:]
@@ -300,15 +303,15 @@ private extension ProfileViewModel {
         createdCounts: [Date: Int],
         completedCounts: [Date: Int],
         calendar: Calendar
-    ) -> CompletionMonth {
+    ) -> ProfileCompletionMonth {
         guard let monthInterval = calendar.dateInterval(of: .month, for: monthStart),
               let monthLastDay = calendar.date(byAdding: .day, value: -1, to: monthInterval.end),
               let firstWeekInterval = calendar.dateInterval(of: .weekOfYear, for: monthInterval.start),
               let lastWeekInterval = calendar.dateInterval(of: .weekOfYear, for: monthLastDay) else {
-            return CompletionMonth(monthStart: monthStart, weeks: [])
+            return ProfileCompletionMonth(monthStart: monthStart, weeks: [])
         }
 
-        var days: [CompletionDay] = []
+        var days: [ProfileCompletionDay] = []
         var cursor = firstWeekInterval.start
         while cursor < lastWeekInterval.end {
             let normalizedDate = calendar.startOfDay(for: cursor)
@@ -316,7 +319,7 @@ private extension ProfileViewModel {
             let createdCount = isInMonth ? (createdCounts[normalizedDate] ?? 0) : 0
             let completedCount = isInMonth ? (completedCounts[normalizedDate] ?? 0) : 0
             days.append(
-                CompletionDay(
+                ProfileCompletionDay(
                     date: normalizedDate,
                     createdCount: createdCount,
                     completedCount: completedCount,
@@ -327,7 +330,7 @@ private extension ProfileViewModel {
             cursor = nextDay
         }
 
-        var weeks: [[CompletionDay]] = []
+        var weeks: [[ProfileCompletionDay]] = []
         var index = 0
         while index < days.count {
             let endIndex = min(index + 7, days.count)
@@ -335,7 +338,7 @@ private extension ProfileViewModel {
             index += 7
         }
 
-        return CompletionMonth(monthStart: monthStart, weeks: weeks)
+        return ProfileCompletionMonth(monthStart: monthStart, weeks: weeks)
     }
 
     func startOfMonth(for date: Date, calendar: Calendar) -> Date {
