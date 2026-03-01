@@ -8,7 +8,7 @@
 import Foundation
 
 final class ProfileViewModel: Store {
-    enum HeatmapMetric: String, CaseIterable, Hashable {
+    enum ActivityType: String, CaseIterable, Hashable {
         case created
         case completed
 
@@ -47,7 +47,7 @@ final class ProfileViewModel: Store {
         var avatarURL: URL?
         var selectedQuarterStart: Date?
         var completionQuarterCache: [Date: CompletionQuarter] = [:]
-        var selectedMetrics: Set<HeatmapMetric> = [.created, .completed]
+        var selectedActivityTypes: Set<ActivityType> = [.created, .completed]
         var showDoneButton: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -98,7 +98,7 @@ final class ProfileViewModel: Store {
         case fetchUserData(UserProfile)
         case setCompletionQuarter(CompletionQuarter)
         case moveQuarter(Int)
-        case toggleHeatmapMetric(HeatmapMetric)
+        case toggleActivityType(ActivityType)
         case updateStatusMessage(String)
         case updateStatusTextFieldFocus(Bool)
     }
@@ -107,21 +107,28 @@ final class ProfileViewModel: Store {
         case fetchUserData
         case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
+        case updateHeatmapActivityTypes(Set<ActivityType>)
     }
 
     @Published private(set) var state = State()
     private let fetchUserDataUseCase: FetchUserDataUseCase
     private let fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
+    private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
+    private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
         fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase,
-        upsertStatusMessageUseCase: UpsertStatusMessageUseCase
+        upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
+        fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase,
+        updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
         self.fetchTodosByDateRangeUseCase = fetchTodosByDateRangeUseCase
         self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
+        self.fetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
+        self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -132,6 +139,11 @@ final class ProfileViewModel: Store {
             let calendar = Calendar.current
             if state.selectedQuarterStart == nil {
                 state.selectedQuarterStart = quarterStart(for: Date(), calendar: calendar)
+            }
+            let rawValues = fetchHeatmapActivityTypesUseCase.execute()
+            let settings = normalizeActivityTypes(rawValues)
+            if !settings.isEmpty {
+                state.selectedActivityTypes = settings
             }
             effects = [.fetchUserData]
             if let selectedQuarterStart = state.selectedQuarterStart,
@@ -153,9 +165,11 @@ final class ProfileViewModel: Store {
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
             let calendar = Calendar.current
             let monthDelta = 3 * delta
-            guard let nextQuarterStart = calendar.date(byAdding: .month, value: monthDelta, to: selectedQuarterStart) else {
-                break
-            }
+            guard let nextQuarterStart = calendar.date(
+                byAdding: .month,
+                value: monthDelta,
+                to: selectedQuarterStart
+            ) else { break }
             let today = calendar.startOfDay(for: Date())
             guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
 
@@ -163,16 +177,17 @@ final class ProfileViewModel: Store {
             if state.completionQuarterCache[nextQuarterStart] == nil {
                 effects = [.fetchCompletionQuarter(nextQuarterStart)]
             }
-        case .toggleHeatmapMetric(let metric):
-            if state.selectedMetrics.contains(metric), state.selectedMetrics.count == 1 {
+        case .toggleActivityType(let activityType):
+            if state.selectedActivityTypes.contains(activityType), state.selectedActivityTypes.count == 1 {
                 break
             }
 
-            if state.selectedMetrics.contains(metric) {
-                state.selectedMetrics.remove(metric)
+            if state.selectedActivityTypes.contains(activityType) {
+                state.selectedActivityTypes.remove(activityType)
             } else {
-                state.selectedMetrics.insert(metric)
+                state.selectedActivityTypes.insert(activityType)
             }
+            effects = [.updateHeatmapActivityTypes(state.selectedActivityTypes)]
         case .willUpdateStatusMessage:
             let message = self.state.statusMessage
             effects = [.updateStatusMessage(message)]
@@ -217,6 +232,11 @@ final class ProfileViewModel: Store {
                     send(.setAlert(true))
                 }
             }
+        case .updateHeatmapActivityTypes(let activityTypes):
+            let rawValues = ActivityType.allCases
+                .filter { activityTypes.contains($0) }
+                .map(\.rawValue)
+            updateHeatmapActivityTypesUseCase.execute(rawValues)
         }
     }
 }
@@ -240,6 +260,10 @@ private extension ProfileViewModel {
         }
         let interval = DateInterval(start: quarterStart, end: quarterEnd)
         return interval.contains(today) || quarterEnd <= today
+    }
+
+    func normalizeActivityTypes(_ rawValues: [String]) -> Set<ActivityType> {
+        Set(rawValues.compactMap(ActivityType.init(rawValue:)))
     }
 
     func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [CompletionMonth] {

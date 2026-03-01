@@ -16,6 +16,7 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         static let pushSortOrder = "PushNotification.sortOption"
         static let pushTimeFilter = "PushNotification.timeFilter"
         static let pushUnreadOnly = "PushNotification.showUnreadOnly"
+        static let profileHeatmapActivityTypes = "Profile.heatmap.activityTypes"
     }
 
     private let store: UserDefaultsStore
@@ -91,5 +92,13 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setPushNotificationUnreadOnly(_ value: Bool) {
         store.setBool(value, forKey: Key.pushUnreadOnly)
+    }
+
+    func profileHeatmapActivityTypes() -> [String] {
+        store.stringArray(forKey: Key.profileHeatmapActivityTypes)
+    }
+
+    func setProfileHeatmapActivityTypes(_ activityTypes: [String]) {
+        store.setStringArray(activityTypes, forKey: Key.profileHeatmapActivityTypes)
     }
 }

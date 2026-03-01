@@ -123,7 +123,7 @@ struct ProfileView: View {
                 Text("분기별 활동 히트맵")
                     .font(.headline)
                 Spacer()
-                metricSelector
+                activityTypeSelector
             }
 
             quarterNavigator
@@ -134,7 +134,7 @@ struct ProfileView: View {
             } else if let quarter = viewModel.state.selectedQuarter {
                 QuarterHeatmapView(
                     quarter: quarter,
-                    selectedMetrics: viewModel.state.selectedMetrics
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes
                 )
                 .padding(.vertical, 6)
             } else {
@@ -148,15 +148,15 @@ struct ProfileView: View {
         )
     }
 
-    private var metricSelector: some View {
+    private var activityTypeSelector: some View {
         Menu {
-            ForEach(ProfileViewModel.HeatmapMetric.allCases, id: \.self) { metric in
+            ForEach(ProfileViewModel.ActivityType.allCases, id: \.self) { activityType in
                 Button {
-                    viewModel.send(.toggleHeatmapMetric(metric))
+                    viewModel.send(.toggleActivityType(activityType))
                 } label: {
                     HStack {
-                        Text(metric.title)
-                        if viewModel.state.selectedMetrics.contains(metric) {
+                        Text(activityType.title)
+                        if viewModel.state.selectedActivityTypes.contains(activityType) {
                             Image(systemName: "checkmark")
                                 .tint(.blue)
                         }
@@ -211,7 +211,7 @@ struct ProfileView: View {
 
 private struct QuarterHeatmapView: View {
     let quarter: ProfileViewModel.CompletionQuarter
-    let selectedMetrics: Set<ProfileViewModel.HeatmapMetric>
+    let selectedActivityTypes: Set<ProfileViewModel.ActivityType>
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -221,7 +221,7 @@ private struct QuarterHeatmapView: View {
             ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
                 MonthCompactHeatmapView(
                     month: month,
-                    selectedMetrics: selectedMetrics
+                    selectedActivityTypes: selectedActivityTypes
                 )
                 if index < months.count - 1 {
                     Spacer()
@@ -261,7 +261,7 @@ private struct QuarterHeatmapView: View {
 
 private struct MonthCompactHeatmapView: View {
     let month: ProfileViewModel.CompletionMonth
-    let selectedMetrics: Set<ProfileViewModel.HeatmapMetric>
+    let selectedActivityTypes: Set<ProfileViewModel.ActivityType>
     private let orderedWeekdays = Array(1...7)
     private let cellSize: CGFloat = 16
     private let cellSpacing: CGFloat = 4
@@ -310,10 +310,10 @@ private struct MonthCompactHeatmapView: View {
 
     private func dayCount(for day: ProfileViewModel.CompletionDay) -> Int {
         var value = 0
-        if selectedMetrics.contains(.created) {
+        if selectedActivityTypes.contains(.created) {
             value += day.createdCount
         }
-        if selectedMetrics.contains(.completed) {
+        if selectedActivityTypes.contains(.completed) {
             value += day.completedCount
         }
         return value

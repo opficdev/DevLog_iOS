@@ -37,7 +37,9 @@ struct MainView: View {
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 fetchTodosByDateRangeUseCase: container.resolve(FetchTodosByDateRangeUseCase.self),
-                upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self)
+                upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
+                fetchHeatmapActivityTypesUseCase: container.resolve(FetchProfileHeatmapActivityTypesUseCase.self),
+                updateHeatmapActivityTypesUseCase: container.resolve(UpdateProfileHeatmapActivityTypesUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "person.crop.circle.fill")
