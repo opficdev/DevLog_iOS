@@ -18,35 +18,8 @@ struct TodoDetailView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 10) {
                         Text(todo.title)
-                            .font(.title3)
+                            .font(.title3.bold())
                             .padding(.horizontal)
-                        if let date = todo.dueDate {
-                            Divider()
-                            HStack {
-                                Text("마감일")
-                                Spacer()
-                                Text(date.formatted(date: .long, time: .omitted))
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.2))
-                                    )
-                            }
-                            .padding(.horizontal)
-                        }
-                        Divider()
-                        HStack {
-                            Text("태그")
-                            Divider()
-                            ScrollView(.horizontal) {
-                                HStack {
-                                    ForEach(todo.tags, id: \.self) { tag in
-                                        Tag(tag, isEditing: false)
-                                    }
-                                }
-                            }
-                            .scrollIndicators(.never)
-                        }
-                        .padding(.horizontal)
                         Divider()
                         Markdown(todo.content)
                             .padding(.horizontal)
@@ -57,6 +30,12 @@ struct TodoDetailView: View {
             }
         }
         .onAppear { viewModel.send(.onAppear) }
+        .sheet(isPresented: Binding(
+            get: { viewModel.state.showInfo },
+            set: { viewModel.send(.setShowInfo($0)) }
+        )) {
+            sheetContent
+        }
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
             set: { viewModel.send(.setShowEditor($0)) }
@@ -68,12 +47,84 @@ struct TodoDetailView: View {
                 )
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.send(.setShowEditor(true))
-                } label: {
-                    Text("수정")
+        .toolbar { toolbarContent }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.send(.setShowInfo(true))
+            } label: {
+                Image(systemName: "info.circle")
+            }
+        }
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.send(.setShowEditor(true))
+            } label: {
+                Text("수정")
+            }
+        }
+    }
+
+    private var sheetContent: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 32) {
+                    VStack {
+                        HStack {
+                            Text("마감일")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(.secondary)
+                            Text(
+                                viewModel.state.todo?.dueDate?
+                                    .formatted(date: .abbreviated, time: .omitted)
+                                    ?? "마감일 없음"
+                            )
+                            .foregroundStyle(
+                                viewModel.state.todo?.dueDate == nil ? .secondary : .primary
+                            )
+                            Spacer()
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.tertiarySystemFill))
+                        )
+                        Divider()
+                    }
+                    VStack {
+                        HStack {
+                            Text("태그")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        Divider()
+                        if let tags = viewModel.state.todo?.tags, !tags.isEmpty {
+                            TagLayout {
+                                ForEach(tags, id: \.self) { tag in
+                                    Tag(tag, isEditing: false)
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .toolbar {
+                ToolbarLeadingButton {
+                    viewModel.send(.setShowInfo(false))
                 }
             }
         }

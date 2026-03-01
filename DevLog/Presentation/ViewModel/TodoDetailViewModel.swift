@@ -10,17 +10,19 @@ import Foundation
 final class TodoDetailViewModel: Store {
     struct State {
         var todo: Todo?
-        var isLoading = false
-        var showEditor = false
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
+        var isLoading: Bool  = false
+        var showAlert: Bool  = false
+        var showEditor: Bool  = false
+        var showInfo: Bool = false
+        var alertTitle: String = ""
+        var alertMessage: String = ""
     }
 
     enum Action {
         case onAppear
         case setAlert(Bool)
         case setShowEditor(Bool)
+        case setShowInfo(Bool)
         case setTodo(Todo)
         case setLoading(Bool)
         case upsertTodo(Todo)
@@ -57,6 +59,8 @@ final class TodoDetailViewModel: Store {
             setAlert(&state, isPresented: isPresented)
         case .setShowEditor(let isPresented):
             state.showEditor = isPresented
+        case .setShowInfo(let presented):
+            state.showInfo = presented
         case .setTodo(let todo):
             state.todo = todo
         case .setLoading(let value):
