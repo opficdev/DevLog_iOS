@@ -49,6 +49,7 @@ final class TodoEditorViewModel: Store {
     private let isCompleted: Bool
     private let isChecked: Bool
     private let createdAt: Date?
+    private let completedAt: Date?
     private let kind: TodoKind
 
     // 새로운 Todo 생성용 생성자
@@ -59,6 +60,7 @@ final class TodoEditorViewModel: Store {
         self.isCompleted = false
         self.isChecked = false
         self.createdAt = nil
+        self.completedAt = nil
         self.kind = kind
     }
 
@@ -70,6 +72,7 @@ final class TodoEditorViewModel: Store {
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
         self.createdAt = todo.createdAt
+        self.completedAt = todo.completedAt
         self.kind = todo.kind
         state.title = todo.title
         state.content = todo.content
@@ -141,6 +144,7 @@ extension TodoEditorViewModel {
             content: state.content,
             createdAt: self.createdAt ?? date,
             updatedAt: date,
+            completedAt: self.completedAt,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
             kind: self.kind

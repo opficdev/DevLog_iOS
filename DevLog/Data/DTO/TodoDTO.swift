@@ -16,6 +16,7 @@ struct TodoRequest: Encodable {
     let content: String
     let createdAt: Date
     let updatedAt: Date
+    let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
     let kind: TodoKind
@@ -31,6 +32,7 @@ struct TodoResponse {
     let content: String
     let createdAt: Date
     let updatedAt: Date
+    let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
     let kind: String

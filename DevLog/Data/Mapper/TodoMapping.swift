@@ -16,6 +16,7 @@ extension TodoRequest {
             content: entity.content,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
+            completedAt: entity.completedAt,
             dueDate: entity.dueDate,
             tags: entity.tags,
             kind: entity.kind
@@ -38,6 +39,7 @@ extension TodoResponse {
             content: self.content,
             createdAt: self.createdAt,
             updatedAt: self.updatedAt,
+            completedAt: self.completedAt,
             dueDate: self.dueDate,
             tags: self.tags,
             kind: kind
