@@ -21,6 +21,7 @@ struct ProfileHeatmapView: View {
             ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
                 MonthCompactHeatmapView(
                     month: month,
+                    maxCount: quarter.maxCount,
                     selectedActivityTypes: selectedActivityTypes,
                     selectedDay: selectedDay,
                     onSelectDay: onSelectDay
@@ -64,6 +65,7 @@ struct ProfileHeatmapView: View {
 private struct MonthCompactHeatmapView: View {
     @Environment(\.colorScheme) private var colorScheme
     let month: ProfileCompletionMonth
+    let maxCount: Int
     let selectedActivityTypes: Set<ProfileActivityType>
     let selectedDay: ProfileCompletionDay?
     let onSelectDay: (ProfileCompletionDay) -> Void
@@ -72,12 +74,6 @@ private struct MonthCompactHeatmapView: View {
     private let cellSpacing: CGFloat = 4
 
     var body: some View {
-        let maxCount = month.weeks
-            .flatMap { $0 }
-            .filter { $0.isInMonth }
-            .map(dayCount(for:))
-            .max() ?? 0
-
         VStack(alignment: .leading, spacing: 6) {
             Text(month.monthStart.formatted(.dateTime.month(.abbreviated)))
                 .frame(height: cellSize)

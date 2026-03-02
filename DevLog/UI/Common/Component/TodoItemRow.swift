@@ -23,6 +23,11 @@ struct TodoItemRow: View {
                             .font(.headline)
                             .foregroundStyle(.orange)
                     }
+                    if item.isCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.headline)
+                            .foregroundStyle(.green)
+                    }
                     Text(item.title)
                         .font(.headline)
                         .foregroundStyle(Color(.label))

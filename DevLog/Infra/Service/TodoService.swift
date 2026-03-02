@@ -130,6 +130,9 @@ final class TodoService {
             let docRef = collection.document(request.id)
             var data = try encoder.encode(request)
             data.removeValue(forKey: TodoFieldKey.id.rawValue)
+            if request.completedAt == nil {
+                data[TodoFieldKey.completedAt.rawValue] = NSNull()
+            }
             if request.dueDate == nil {
                 data[TodoFieldKey.dueDate.rawValue] = NSNull()
             }
@@ -217,6 +220,7 @@ private extension TodoService {
             return nil
         }
 
+        let completedAt = (data[TodoFieldKey.completedAt.rawValue] as? Timestamp)?.dateValue()
         let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
         return TodoResponse(
             id: documentID,
@@ -227,6 +231,7 @@ private extension TodoService {
             content: content,
             createdAt: createdAtTimestamp.dateValue(),
             updatedAt: updatedAtTimestamp.dateValue(),
+            completedAt: completedAt,
             dueDate: dueDate,
             tags: tags,
             kind: kind
@@ -242,6 +247,7 @@ private extension TodoService {
         case content
         case createdAt
         case updatedAt
+        case completedAt
         case dueDate
         case tags
         case kind

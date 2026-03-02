@@ -241,7 +241,7 @@ private extension ProfileViewModel {
 
         for todo in todos {
             let createdDay = calendar.startOfDay(for: todo.createdAt)
-            let completedDay = todo.isCompleted ? calendar.startOfDay(for: todo.updatedAt) : nil
+            let completedDay = todo.completedAt.map { calendar.startOfDay(for: $0) }
 
             activitiesByDate[createdDay, default: []].append(
                 ProfileSelectedDayActivity(
@@ -305,8 +305,8 @@ private extension ProfileViewModel {
             let createdDay = calendar.startOfDay(for: todo.createdAt)
             dailyCreatedCount[createdDay, default: 0] += 1
 
-            if todo.isCompleted {
-                let completedDay = calendar.startOfDay(for: todo.updatedAt)
+            if let completedAt = todo.completedAt {
+                let completedDay = calendar.startOfDay(for: completedAt)
                 dailyCompletedCount[completedDay, default: 0] += 1
             }
         }

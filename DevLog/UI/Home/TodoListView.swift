@@ -47,6 +47,12 @@ struct TodoListView: View {
                                 Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
                             }
                             .tint(Color.orange)
+                            Button {
+                                viewModel.send(.tapToggleCompleted(todo))
+                            } label: {
+                                Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
+                            }
+                            .tint(Color.green)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive, action: {
@@ -54,7 +60,6 @@ struct TodoListView: View {
                             }) {
                                 Image(systemName: "trash")
                             }
-
                         }
                     }
                     .listStyle(.plain)
