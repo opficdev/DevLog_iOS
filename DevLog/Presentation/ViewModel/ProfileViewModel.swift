@@ -53,6 +53,7 @@ final class ProfileViewModel: Store {
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+    private let calendar = Calendar.current
 
     var resetButtonEnabled: Bool {
         !state.statusMessage.isEmpty && state.showDoneButton
@@ -67,7 +68,6 @@ final class ProfileViewModel: Store {
         guard let selectedDay = state.selectedDay,
               let selectedQuarterStart = state.selectedQuarterStart,
               let todos = state.quarterTodosCache[selectedQuarterStart] else { return [] }
-        let calendar = Calendar.current
         let dayStart = calendar.startOfDay(for: selectedDay.date)
 
         return todos.compactMap { todo in
@@ -87,7 +87,6 @@ final class ProfileViewModel: Store {
 
     var canMoveToPreviousQuarter: Bool {
         guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
-        let calendar = Calendar.current
         guard let previousQuarterStart = calendar.date(byAdding: .month, value: -3, to: selectedQuarterStart) else {
             return false
         }
@@ -97,7 +96,6 @@ final class ProfileViewModel: Store {
 
     var canMoveToNextQuarter: Bool {
         guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
-        let calendar = Calendar.current
         guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: selectedQuarterStart) else {
             return false
         }
@@ -125,7 +123,6 @@ final class ProfileViewModel: Store {
         var effects: [SideEffect] = []
         switch action {
         case .onAppear:
-            let calendar = Calendar.current
             if state.selectedQuarterStart == nil {
                 state.selectedQuarterStart = quarterStart(for: Date(), calendar: calendar)
             }
@@ -161,7 +158,6 @@ final class ProfileViewModel: Store {
             state.selectedActivityForSheet = activity
         case .moveQuarter(let delta):
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
-            let calendar = Calendar.current
             let monthDelta = 3 * delta
             guard let nextQuarterStart = calendar.date(
                 byAdding: .month,
@@ -242,7 +238,6 @@ final class ProfileViewModel: Store {
 
 private extension ProfileViewModel {
     func fetchQuarterTodos(from quarterStart: Date) async throws -> [Todo] {
-        let calendar = Calendar.current
         guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
             return []
         }
@@ -266,7 +261,6 @@ private extension ProfileViewModel {
     }
 
     func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [ProfileCompletionMonth] {
-        let calendar = Calendar.current
         var dailyCreatedCount: [Date: Int] = [:]
         var dailyCompletedCount: [Date: Int] = [:]
 
