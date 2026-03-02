@@ -55,6 +55,14 @@ final class ProfileViewModel: Store {
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     private let calendar = Calendar.current
 
+    var quarterTitle: String {
+        guard let start = state.selectedQuarterStart else { return "" }
+        let year = calendar.component(.year, from: start)
+        let month = calendar.component(.month, from: start)
+        let quarter = ((month - 1) / 3) + 1
+        return "\(year) Q\(quarter)"
+    }
+
     var resetButtonEnabled: Bool {
         !state.statusMessage.isEmpty && state.showDoneButton
     }

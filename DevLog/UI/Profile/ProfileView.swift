@@ -196,7 +196,7 @@ struct ProfileView: View {
 
             Spacer()
 
-            Text(quarterTitle)
+            Text(viewModel.quarterTitle)
             .font(.subheadline)
             .foregroundStyle(.secondary)
 
@@ -209,15 +209,6 @@ struct ProfileView: View {
             }
             .disabled(!viewModel.canMoveToNextQuarter)
         }
-    }
-
-    private var quarterTitle: String {
-        guard let start = viewModel.state.selectedQuarterStart else { return "" }
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: start)
-        let month = calendar.component(.month, from: start)
-        let quarter = ((month - 1) / 3) + 1
-        return "\(year) Q\(quarter)"
     }
 
     @ViewBuilder
