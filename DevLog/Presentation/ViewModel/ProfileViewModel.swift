@@ -14,8 +14,8 @@ final class ProfileViewModel: Store {
         var statusMessage: String = ""
         var avatarURL: URL?
         var selectedQuarterStart: Date?
-        var completionQuarterCache: [Date: ProfileCompletionQuarter] = [:]
-        var quarterTodosCache: [Date: [Todo]] = [:]
+        var completionQuarter: ProfileCompletionQuarter?
+        var dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
         var selectedActivityTypes: Set<ProfileActivityType> = [.created, .completed]
         var selectedDay: ProfileCompletionDay?
         var selectedActivityForSheet: ProfileSelectedDayActivity?
@@ -31,7 +31,11 @@ final class ProfileViewModel: Store {
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
-        case setCompletionQuarter(ProfileCompletionQuarter, [Todo])
+        case setCompletionQuarter(
+            quarterStart: Date,
+            quarter: ProfileCompletionQuarter,
+            dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]]
+        )
         case moveQuarter(Int)
         case toggleActivityType(ProfileActivityType)
         case selectDay(ProfileCompletionDay?)
@@ -68,28 +72,17 @@ final class ProfileViewModel: Store {
     }
 
     var selectedQuarter: ProfileCompletionQuarter? {
-        guard let selectedQuarterStart = state.selectedQuarterStart else { return nil }
-        return state.completionQuarterCache[selectedQuarterStart]
+        state.completionQuarter
     }
 
     var selectedDayActivities: [ProfileSelectedDayActivity] {
-        guard let selectedDay = state.selectedDay,
-              let selectedQuarterStart = state.selectedQuarterStart,
-              let todos = state.quarterTodosCache[selectedQuarterStart] else { return [] }
+        guard let selectedDay = state.selectedDay else { return [] }
         let dayStart = calendar.startOfDay(for: selectedDay.date)
+        let activities = state.dayActivitiesByDate[dayStart] ?? []
 
-        return todos.compactMap { todo in
-            let isCreated = state.selectedActivityTypes.contains(.created)
-            && calendar.startOfDay(for: todo.createdAt) == dayStart
-            let isCompleted = state.selectedActivityTypes.contains(.completed)
-            && todo.isCompleted
-            && calendar.startOfDay(for: todo.updatedAt) == dayStart
-            guard isCreated || isCompleted else { return nil }
-            return ProfileSelectedDayActivity(
-                todo: todo,
-                showsCreated: isCreated,
-                showsCompleted: isCompleted
-            )
+        return activities.filter { activity in
+            (state.selectedActivityTypes.contains(.created) && activity.showsCreated)
+                || (state.selectedActivityTypes.contains(.completed) && activity.showsCompleted)
         }
     }
 
@@ -130,8 +123,7 @@ final class ProfileViewModel: Store {
                 state.selectedActivityTypes = settings
             }
             effects = [.fetchUserData]
-            if let selectedQuarterStart = state.selectedQuarterStart,
-               state.completionQuarterCache[selectedQuarterStart] == nil {
+            if let selectedQuarterStart = state.selectedQuarterStart {
                 effects.append(.fetchCompletionQuarter(selectedQuarterStart))
             }
         case .setAlert(let isPresented):
@@ -143,9 +135,10 @@ final class ProfileViewModel: Store {
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
-        case .setCompletionQuarter(let quarter, let todos):
-            state.completionQuarterCache[quarter.quarterStart] = quarter
-            state.quarterTodosCache[quarter.quarterStart] = todos
+        case .setCompletionQuarter(let quarterStart, let quarter, let dayActivitiesByDate):
+            guard state.selectedQuarterStart == quarterStart else { break }
+            state.completionQuarter = quarter
+            state.dayActivitiesByDate = dayActivitiesByDate
         case .selectDay(let day):
             if let day, state.selectedDay?.date == day.date {
                 state.selectedDay = nil
@@ -166,11 +159,11 @@ final class ProfileViewModel: Store {
             guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
 
             state.selectedQuarterStart = nextQuarterStart
+            state.completionQuarter = nil
+            state.dayActivitiesByDate = [:]
             state.selectedDay = nil
             state.selectedActivityForSheet = nil
-            if state.completionQuarterCache[nextQuarterStart] == nil {
-                effects = [.fetchCompletionQuarter(nextQuarterStart)]
-            }
+            effects = [.fetchCompletionQuarter(nextQuarterStart)]
         case .toggleActivityType(let activityType):
             if state.selectedActivityTypes.contains(activityType), state.selectedActivityTypes.count == 1 {
                 break
@@ -212,7 +205,14 @@ final class ProfileViewModel: Store {
                     let todos = try await fetchQuarterTodos(from: quarterStart)
                     let months = makeCompletionMonths(from: todos, quarterStart: quarterStart)
                     let quarter = ProfileCompletionQuarter(quarterStart: quarterStart, months: months)
-                    send(.setCompletionQuarter(quarter, todos))
+                    let dayActivitiesByDate = makeDayActivitiesByDate(from: todos)
+                    send(
+                        .setCompletionQuarter(
+                            quarterStart: quarterStart,
+                            quarter: quarter,
+                            dayActivitiesByDate: dayActivitiesByDate
+                        )
+                    )
                 } catch {
                     send(.setAlert(true))
                 }
@@ -235,6 +235,35 @@ final class ProfileViewModel: Store {
 }
 
 private extension ProfileViewModel {
+    func makeDayActivitiesByDate(from todos: [Todo]) -> [Date: [ProfileSelectedDayActivity]] {
+        var activitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
+
+        for todo in todos {
+            let createdDay = calendar.startOfDay(for: todo.createdAt)
+            let completedDay = todo.isCompleted ? calendar.startOfDay(for: todo.updatedAt) : nil
+
+            activitiesByDate[createdDay, default: []].append(
+                ProfileSelectedDayActivity(
+                    todo: todo,
+                    showsCreated: true,
+                    showsCompleted: completedDay == createdDay
+                )
+            )
+
+            if let completedDay, completedDay != createdDay {
+                activitiesByDate[completedDay, default: []].append(
+                    ProfileSelectedDayActivity(
+                        todo: todo,
+                        showsCreated: false,
+                        showsCompleted: true
+                    )
+                )
+            }
+        }
+
+        return activitiesByDate
+    }
+
     func setAlert(
         _ state: inout State,
         isPresented: Bool
