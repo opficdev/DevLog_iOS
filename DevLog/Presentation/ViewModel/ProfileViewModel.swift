@@ -115,7 +115,8 @@ final class ProfileViewModel: Store {
         switch action {
         case .onAppear:
             if state.selectedQuarterStart == nil {
-                state.selectedQuarterStart = quarterStart(for: Date(), calendar: calendar)
+                guard let quarterStart = quarterStart(for: Date(), calendar: calendar) else { break }
+                state.selectedQuarterStart = quarterStart
             }
             let rawValues = fetchHeatmapActivityTypesUseCase.execute()
             let settings = normalizeActivityTypes(rawValues)
@@ -374,13 +375,13 @@ private extension ProfileViewModel {
         return monthInterval.start
     }
 
-    func quarterStart(for date: Date, calendar: Calendar) -> Date {
+    func quarterStart(for date: Date, calendar: Calendar) -> Date? {
         let month = calendar.component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
         var components = calendar.dateComponents([.year], from: date)
         components.month = startMonth
         components.day = 1
-        return calendar.date(from: components) ?? startOfMonth(for: date, calendar: calendar)
+        return calendar.date(from: components)
     }
 
     func canMoveToQuarter(offsetMonths: Int) -> Bool {
