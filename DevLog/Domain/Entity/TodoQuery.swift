@@ -14,7 +14,8 @@ struct TodoQuery {
     let createdAtFrom: Date?
     let createdAtTo: Date?
     let createdAtDescending: Bool
-    let pageSize: Int?
+    let pageSize: Int
+    let fetchAllPages: Bool
 
     init(
         kind: TodoKind? = nil,
@@ -23,7 +24,8 @@ struct TodoQuery {
         createdAtFrom: Date? = nil,
         createdAtTo: Date? = nil,
         createdAtDescending: Bool = true,
-        pageSize: Int? = 20
+        pageSize: Int = 20,
+        fetchAllPages: Bool = false
     ) {
         self.kind = kind
         self.keyword = keyword
@@ -32,5 +34,6 @@ struct TodoQuery {
         self.createdAtTo = createdAtTo
         self.createdAtDescending = createdAtDescending
         self.pageSize = pageSize
+        self.fetchAllPages = fetchAllPages
     }
 }

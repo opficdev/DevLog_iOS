@@ -18,7 +18,8 @@ final class FetchTodosByDateRangeUseCaseImpl: FetchTodosByDateRangeUseCase {
         let query = TodoQuery(
             createdAtFrom: startDate,
             createdAtTo: endDate,
-            pageSize: nil
+            pageSize: 100,
+            fetchAllPages: true
         )
         let page = try await repository.fetchTodos(query, cursor: nil)
         return page.items
