@@ -154,8 +154,10 @@ final class TodoListViewModel: Store {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
                     var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    let now = Date()
                     todo.isCompleted.toggle()
-                    todo.completedAt = todo.isCompleted ? Date() : nil
+                    todo.completedAt = todo.isCompleted ? now : nil
+                    todo.updatedAt = now
                     try await upsertTodoUseCase.execute(todo)
                     send(.didToggleCompleted(TodoListItem(from: todo)))
                 } catch {
