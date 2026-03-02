@@ -368,13 +368,6 @@ private extension ProfileViewModel {
         return ProfileCompletionMonth(monthStart: monthStart, weeks: weeks)
     }
 
-    func startOfMonth(for date: Date, calendar: Calendar) -> Date {
-        guard let monthInterval = calendar.dateInterval(of: .month, for: date) else {
-            return calendar.startOfDay(for: date)
-        }
-        return monthInterval.start
-    }
-
     func quarterStart(for date: Date, calendar: Calendar) -> Date? {
         let month = calendar.component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
