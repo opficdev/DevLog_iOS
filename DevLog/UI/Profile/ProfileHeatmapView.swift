@@ -155,6 +155,6 @@ private struct MonthCompactHeatmapView: View {
     private func opacity(for count: Int, max: Int) -> Double {
         guard 0 < count && 0 < max else { return 0 }
         let ratio = Double(count) / Double(max)
-        return floor(ratio * 10) / 10
+        return ceil(ratio * 10) / 10
     }
 }
