@@ -14,29 +14,32 @@ struct TodoDetailContentView: View {
     var activityLabel: String?
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 10) {
-                if let activityLabel {
-                    HStack {
-                        Text(activityLabel)
-                            .font(.caption.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(Color(.systemGray4))
-                            )
-                        Spacer()
+        ZStack {
+            Color(.secondarySystemBackground).ignoresSafeArea()
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    if let activityLabel {
+                        HStack {
+                            Text(activityLabel)
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(Color(.systemGray4))
+                                )
+                            Spacer()
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
+                    Text(title)
+                        .font(.title3.bold())
+                        .padding(.horizontal)
+                    Divider()
+                    Markdown(content)
+                        .padding(.horizontal)
                 }
-                Text(title)
-                    .font(.title3.bold())
-                    .padding(.horizontal)
-                Divider()
-                Markdown(content)
-                    .padding(.horizontal)
             }
         }
     }

@@ -282,14 +282,11 @@ private struct ProfileActivityTodoDetailView: View {
     @State private var showInfo: Bool = false
 
     var body: some View {
-        ZStack {
-            Color(.secondarySystemBackground).ignoresSafeArea()
-            TodoDetailContentView(
-                title: activity.todo.title,
-                content: activity.todo.content,
-                activityLabel: activity.activityLabel
-            )
-        }
+        TodoDetailContentView(
+            title: activity.todo.title,
+            content: activity.todo.content,
+            activityLabel: activity.activityLabel
+        )
         .sheet(isPresented: $showInfo) {
             infoSheetContent
         }
