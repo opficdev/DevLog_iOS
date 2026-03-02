@@ -220,9 +220,7 @@ final class ProfileViewModel: Store {
                     let quarter = ProfileCompletionQuarter(quarterStart: quarterStart, months: months)
                     send(.setCompletionQuarter(quarter, todos))
                 } catch {
-                    let months = makeCompletionMonths(from: [], quarterStart: quarterStart)
-                    let quarter = ProfileCompletionQuarter(quarterStart: quarterStart, months: months)
-                    send(.setCompletionQuarter(quarter, []))
+                    send(.setAlert(true))
                 }
             }
         case .updateStatusMessage(let message):
