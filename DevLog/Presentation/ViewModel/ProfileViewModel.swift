@@ -23,64 +23,6 @@ final class ProfileViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
-        var resetButtonEnabled: Bool {
-            !statusMessage.isEmpty && showDoneButton
-        }
-
-        var selectedQuarter: ProfileCompletionQuarter? {
-            guard let selectedQuarterStart else { return nil }
-            return completionQuarterCache[selectedQuarterStart]
-        }
-
-        var selectedDayActivities: [ProfileSelectedDayActivity] {
-            guard let selectedDay,
-                  let selectedQuarterStart,
-                  let todos = quarterTodosCache[selectedQuarterStart] else { return [] }
-            let calendar = Calendar.current
-            let dayStart = calendar.startOfDay(for: selectedDay.date)
-
-            return todos.compactMap { todo in
-                let isCreated = selectedActivityTypes.contains(.created)
-                    && calendar.startOfDay(for: todo.createdAt) == dayStart
-                let isCompleted = selectedActivityTypes.contains(.completed)
-                    && todo.isCompleted
-                    && calendar.startOfDay(for: todo.updatedAt) == dayStart
-                guard isCreated || isCompleted else { return nil }
-                return ProfileSelectedDayActivity(
-                    todo: todo,
-                    showsCreated: isCreated,
-                    showsCompleted: isCompleted
-                )
-            }
-        }
-
-        var canMoveToPreviousQuarter: Bool {
-            guard let selectedQuarterStart else { return false }
-            let calendar = Calendar.current
-            guard let previousQuarterStart = calendar.date(byAdding: .month, value: -3, to: selectedQuarterStart) else {
-                return false
-            }
-            let today = calendar.startOfDay(for: Date())
-            return Self.canMove(to: previousQuarterStart, calendar: calendar, today: today)
-        }
-
-        var canMoveToNextQuarter: Bool {
-            guard let selectedQuarterStart else { return false }
-            let calendar = Calendar.current
-            guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: selectedQuarterStart) else {
-                return false
-            }
-            let today = calendar.startOfDay(for: Date())
-            return Self.canMove(to: nextQuarterStart, calendar: calendar, today: today)
-        }
-
-        private static func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {
-            guard let quarterEnd = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
-                return false
-            }
-            let interval = DateInterval(start: quarterStart, end: quarterEnd)
-            return interval.contains(today) || quarterEnd <= today
-        }
     }
 
     enum Action {
@@ -111,6 +53,57 @@ final class ProfileViewModel: Store {
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+
+    var resetButtonEnabled: Bool {
+        !state.statusMessage.isEmpty && state.showDoneButton
+    }
+
+    var selectedQuarter: ProfileCompletionQuarter? {
+        guard let selectedQuarterStart = state.selectedQuarterStart else { return nil }
+        return state.completionQuarterCache[selectedQuarterStart]
+    }
+
+    var selectedDayActivities: [ProfileSelectedDayActivity] {
+        guard let selectedDay = state.selectedDay,
+              let selectedQuarterStart = state.selectedQuarterStart,
+              let todos = state.quarterTodosCache[selectedQuarterStart] else { return [] }
+        let calendar = Calendar.current
+        let dayStart = calendar.startOfDay(for: selectedDay.date)
+
+        return todos.compactMap { todo in
+            let isCreated = state.selectedActivityTypes.contains(.created)
+            && calendar.startOfDay(for: todo.createdAt) == dayStart
+            let isCompleted = state.selectedActivityTypes.contains(.completed)
+            && todo.isCompleted
+            && calendar.startOfDay(for: todo.updatedAt) == dayStart
+            guard isCreated || isCompleted else { return nil }
+            return ProfileSelectedDayActivity(
+                todo: todo,
+                showsCreated: isCreated,
+                showsCompleted: isCompleted
+            )
+        }
+    }
+
+    var canMoveToPreviousQuarter: Bool {
+        guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
+        let calendar = Calendar.current
+        guard let previousQuarterStart = calendar.date(byAdding: .month, value: -3, to: selectedQuarterStart) else {
+            return false
+        }
+        let today = calendar.startOfDay(for: Date())
+        return canMove(to: previousQuarterStart, calendar: calendar, today: today)
+    }
+
+    var canMoveToNextQuarter: Bool {
+        guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
+        let calendar = Calendar.current
+        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: selectedQuarterStart) else {
+            return false
+        }
+        let today = calendar.startOfDay(for: Date())
+        return canMove(to: nextQuarterStart, calendar: calendar, today: today)
+    }
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,

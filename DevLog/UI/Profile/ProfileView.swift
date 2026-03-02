@@ -45,7 +45,7 @@ struct ProfileView: View {
                             }
                             .focused($focusedOnStatusMessageTextField)
                             
-                            if viewModel.state.resetButtonEnabled {
+                            if viewModel.resetButtonEnabled {
                                 Button(action: {
                                     viewModel.send(.tapResetStatusMessageButton)
                                 }) {
@@ -133,10 +133,10 @@ struct ProfileView: View {
 
             quarterNavigator
 
-            if viewModel.state.selectedQuarter == nil {
+            if viewModel.selectedQuarter == nil {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 140)
-            } else if let quarter = viewModel.state.selectedQuarter {
+            } else if let quarter = viewModel.selectedQuarter {
                 ProfileHeatmapView(
                     quarter: quarter,
                     selectedActivityTypes: viewModel.state.selectedActivityTypes,
@@ -192,7 +192,7 @@ struct ProfileView: View {
             } label: {
                 Image(systemName: "chevron.left")
             }
-            .disabled(!viewModel.state.canMoveToPreviousQuarter)
+            .disabled(!viewModel.canMoveToPreviousQuarter)
 
             Spacer()
 
@@ -207,7 +207,7 @@ struct ProfileView: View {
             } label: {
                 Image(systemName: "chevron.right")
             }
-            .disabled(!viewModel.state.canMoveToNextQuarter)
+            .disabled(!viewModel.canMoveToNextQuarter)
         }
     }
 
@@ -222,7 +222,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
-        let activities = viewModel.state.selectedDayActivities
+        let activities = viewModel.selectedDayActivities
 
         VStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
