@@ -87,15 +87,20 @@ struct ProfileView: View {
                     }
                 }
             }
-            .navigationDestination(for: Path.self) { _ in
-                SettingView(viewModel: SettingViewModel(
-                    deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
-                    signOutUseCase: container.resolve(SignOutUseCase.self),
-                    sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                    observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                    updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
-                ))
-                .environmentObject(router)
+            .navigationDestination(for: Path.self) { path in
+                switch path {
+                case .settings:
+                    SettingView(viewModel: SettingViewModel(
+                        deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
+                        signOutUseCase: container.resolve(SignOutUseCase.self),
+                        sessionUseCase: container.resolve(AuthSessionUseCase.self),
+                        observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                        updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
+                    ))
+                    .environmentObject(router)
+                case .activity(let activity):
+                    ProfileActivityTodoDetailView(activity: activity)
+                }
             }
             .onAppear {
                 viewModel.send(.onAppear)
@@ -113,12 +118,6 @@ struct ProfileView: View {
                 Button("확인", role: .cancel) { }
             } message: {
                 Text(viewModel.state.alertMessage)
-            }
-            .sheet(item: Binding(
-                get: { viewModel.state.selectedActivityForSheet },
-                set: { viewModel.send(.setSelectedActivityForSheet($0)) }
-            )) { activity in
-                ProfileActivityTodoSheetView(activity: activity)
             }
         }
     }
@@ -225,7 +224,7 @@ struct ProfileView: View {
     private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
         let activities = viewModel.state.selectedDayActivities
 
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
                 .font(.subheadline)
                 .bold()
@@ -239,7 +238,7 @@ struct ProfileView: View {
             } else {
                 ForEach(activities) { activity in
                     Button {
-                        viewModel.send(.setSelectedActivityForSheet(activity))
+                        router.push(Path.activity(activity))
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: activity.todo.kind.symbolName)
@@ -258,6 +257,9 @@ struct ProfileView: View {
                                         .fill(Color(.systemGray4))
                                 )
                             Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
                         .contentShape(.rect)
                     }
@@ -271,37 +273,32 @@ struct ProfileView: View {
 
     private enum Path: Hashable {
         case settings
+        case activity(ProfileSelectedDayActivity)
     }
 }
 
-private struct ProfileActivityTodoSheetView: View {
-    @Environment(\.dismiss) private var dismiss
+private struct ProfileActivityTodoDetailView: View {
     let activity: ProfileSelectedDayActivity
     @State private var showInfo: Bool = false
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color(.secondarySystemBackground).ignoresSafeArea()
-                TodoDetailContentView(
-                    title: activity.todo.title,
-                    content: activity.todo.content,
-                    activityLabel: activity.activityLabel
-                )
-            }
-            .sheet(isPresented: $showInfo) {
-                infoSheetContent
-            }
-            .toolbar {
-                ToolbarLeadingButton {
-                    dismiss()
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showInfo = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                    }
+        ZStack {
+            Color(.secondarySystemBackground).ignoresSafeArea()
+            TodoDetailContentView(
+                title: activity.todo.title,
+                content: activity.todo.content,
+                activityLabel: activity.activityLabel
+            )
+        }
+        .sheet(isPresented: $showInfo) {
+            infoSheetContent
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showInfo = true
+                } label: {
+                    Image(systemName: "info.circle")
                 }
             }
         }
