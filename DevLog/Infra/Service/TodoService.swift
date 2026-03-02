@@ -67,14 +67,11 @@ final class TodoService {
                 ])
             }
 
-            let snapshot: QuerySnapshot
             if let pageSize = query.pageSize {
-                snapshot = try await firestoreQuery
-                    .limit(to: pageSize)
-                    .getDocuments()
-            } else {
-                snapshot = try await firestoreQuery.getDocuments()
+                firestoreQuery = firestoreQuery.limit(to: pageSize)
             }
+
+            let snapshot = try await firestoreQuery.getDocuments()
 
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
