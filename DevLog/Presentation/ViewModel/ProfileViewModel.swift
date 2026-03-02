@@ -94,21 +94,11 @@ final class ProfileViewModel: Store {
     }
 
     var canMoveToPreviousQuarter: Bool {
-        guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
-        guard let previousQuarterStart = calendar.date(byAdding: .month, value: -3, to: selectedQuarterStart) else {
-            return false
-        }
-        let today = calendar.startOfDay(for: Date())
-        return canMove(to: previousQuarterStart, calendar: calendar, today: today)
+        canMoveToQuarter(offsetMonths: -3)
     }
 
     var canMoveToNextQuarter: Bool {
-        guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
-        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: selectedQuarterStart) else {
-            return false
-        }
-        let today = calendar.startOfDay(for: Date())
-        return canMove(to: nextQuarterStart, calendar: calendar, today: today)
+        canMoveToQuarter(offsetMonths: 3)
     }
 
     init(
@@ -245,6 +235,15 @@ final class ProfileViewModel: Store {
 }
 
 private extension ProfileViewModel {
+    func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = "오류"
+        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.showAlert = isPresented
+    }
+
     func fetchQuarterTodos(from quarterStart: Date) async throws -> [Todo] {
         guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
             return []
@@ -355,12 +354,14 @@ private extension ProfileViewModel {
         return calendar.date(from: components) ?? startOfMonth(for: date, calendar: calendar)
     }
 
-    func setAlert(
-        _ state: inout State,
-        isPresented: Bool
-    ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
-        state.showAlert = isPresented
+    func canMoveToQuarter(offsetMonths: Int) -> Bool {
+        guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
+        guard let targetQuarterStart = calendar.date(
+            byAdding: .month, value: offsetMonths, to: selectedQuarterStart)
+        else {
+            return false
+        }
+        let today = calendar.startOfDay(for: Date())
+        return canMove(to: targetQuarterStart, calendar: calendar, today: today)
     }
 }
