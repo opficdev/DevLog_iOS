@@ -20,6 +20,7 @@ struct PushNotificationSettingsView: View {
                         )) {
                             Text("푸시 알람 활성화")
                         }
+                        .tint(.blue)
             }, footer: {
                 Text("설정에서의 푸시 알람 설정과 별개입니다.")
             })

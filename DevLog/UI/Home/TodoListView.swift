@@ -59,7 +59,7 @@ struct TodoListView: View {
                             }) {
                                 Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
                             }
-                            .tint(Color.green)
+                            .tint(Color.blue)
                         }
                     }
                     .listStyle(.plain)
