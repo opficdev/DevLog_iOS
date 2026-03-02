@@ -37,6 +37,7 @@ final class TodoListViewModel: Store {
         case setShowEditor(Bool)
         case swipeTodo(TodoListItem)
         case tapFilterOption(FilterOption)
+        case tapToggleCompleted(TodoListItem)
         case tapTogglePinned(TodoListItem)
         case undoDelete
 
@@ -50,6 +51,7 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
+        case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
         case setLoading(Bool)
         case appendTodos([TodoListItem], nextCursor: TodoCursor?)
@@ -62,6 +64,7 @@ final class TodoListViewModel: Store {
         case loadNextPage
         case upsert(Todo)
         case delete(String)
+        case toggleCompleted(TodoListItem)
         case togglePinned(TodoListItem)
     }
 
@@ -91,13 +94,13 @@ final class TodoListViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .setShowEditor, .swipeTodo, .tapFilterOption, .tapTogglePinned, .undoDelete:
+        case .refresh, .setAlert, .setShowEditor, .swipeTodo, .tapFilterOption, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
         case .confirmDelete, .onAppear, .loadNextPage, .setScope, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
+        case .didToggleCompleted, .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -141,6 +144,19 @@ final class TodoListViewModel: Store {
                     send(.setLoading(true))
                     try await upsertTodoUseCase.execute(item)
                     send(.refresh)
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .toggleCompleted(let item):
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    todo.isCompleted.toggle()
+                    try await upsertTodoUseCase.execute(todo)
+                    send(.didToggleCompleted(TodoListItem(from: todo)))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -195,6 +211,8 @@ private extension TodoListViewModel {
             return effects
         case .tapFilterOption(let option):
             state.filterOption = option
+        case .tapToggleCompleted(let todo):
+            return [.toggleCompleted(todo)]
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .undoDelete:
@@ -238,6 +256,10 @@ private extension TodoListViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
+        case .didToggleCompleted(let todo):
+            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
+                state.todos[index] = todo
+            }
         case .didTogglePinned(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo

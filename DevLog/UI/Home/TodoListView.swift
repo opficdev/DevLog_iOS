@@ -54,7 +54,12 @@ struct TodoListView: View {
                             }) {
                                 Image(systemName: "trash")
                             }
-
+                            Button(action: {
+                                viewModel.send(.tapToggleCompleted(todo))
+                            }) {
+                                Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
+                            }
+                            .tint(Color.green)
                         }
                     }
                     .listStyle(.plain)
