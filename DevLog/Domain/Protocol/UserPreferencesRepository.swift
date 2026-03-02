@@ -27,4 +27,7 @@ protocol UserPreferencesRepository {
 
     func pushNotificationUnreadOnly() -> Bool
     func setPushNotificationUnreadOnly(_ value: Bool)
+
+    func profileHeatmapActivityTypes() -> [String]
+    func setProfileHeatmapActivityTypes(_ activityTypes: [String])
 }

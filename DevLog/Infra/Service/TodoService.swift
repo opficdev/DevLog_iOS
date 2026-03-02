@@ -20,15 +20,22 @@ final class TodoService {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let trimmedKeyword = query.keyword?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let logMessage = "Fetching todo page: kind=\(String(describing: query.kind)), "
-            + "keyword=\(trimmedKeyword), "
-            + "pinned=\(String(describing: query.isPinned)), "
-            + "cursor=\(String(describing: cursor))"
-        logger.info(logMessage)
+        let logComponents: [String?] = [
+            "createdAtDescending=\(query.createdAtDescending)",
+            query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
+            query.kind != nil ? "kind=\(query.kind!.rawValue)" : nil,
+            query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
+            query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
+            query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
+            "pageSize=\(query.pageSize)",
+            query.fetchAllPages ? "fetchAllPages=true" : nil,
+            cursor != nil ? "cursor=\(cursor!)" : nil
+        ]
+        logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
         var firestoreQuery: Query = store
             .collection("users/\(uid)/todoLists/")
-            .order(by: "createdAt", descending: true)
+            .order(by: "createdAt", descending: query.createdAtDescending)
             .order(by: FieldPath.documentID())
 
         if let kind = query.kind {
@@ -39,7 +46,53 @@ final class TodoService {
             firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: isPinned)
         }
 
+        if let createdAtFrom = query.createdAtFrom {
+            firestoreQuery = firestoreQuery.whereField(
+                "createdAt",
+                isGreaterThanOrEqualTo: Timestamp(date: createdAtFrom)
+            )
+        }
+
+        if let createdAtTo = query.createdAtTo {
+            firestoreQuery = firestoreQuery.whereField(
+                "createdAt",
+                isLessThan: Timestamp(date: createdAtTo)
+            )
+        }
+
         if trimmedKeyword.isEmpty {
+            if query.fetchAllPages {
+                var allItems: [TodoResponse] = []
+                var pageCursor = cursor
+
+                while true {
+                    var pageQuery = firestoreQuery
+                    if let pageCursor {
+                        pageQuery = pageQuery.start(after: [
+                            Timestamp(date: pageCursor.createdAt),
+                            pageCursor.documentID
+                        ])
+                    }
+
+                    pageQuery = pageQuery.limit(to: query.pageSize)
+                    let snapshot = try await pageQuery.getDocuments()
+                    allItems.append(contentsOf: snapshot.documents.compactMap { makeResponse(from: $0) })
+
+                    guard snapshot.documents.count == query.pageSize else {
+                        break
+                    }
+
+                    guard let lastDocument = snapshot.documents.last,
+                          let nextCursor = makeCursor(from: lastDocument) else {
+                        break
+                    }
+
+                    pageCursor = nextCursor
+                }
+
+                return TodoPageResponse(items: allItems, nextCursor: nil)
+            }
+
             if let cursor {
                 firestoreQuery = firestoreQuery.start(after: [
                     Timestamp(date: cursor.createdAt),
@@ -47,22 +100,10 @@ final class TodoService {
                 ])
             }
 
-            let snapshot = try await firestoreQuery
-                .limit(to: query.pageSize)
-                .getDocuments()
-
+            firestoreQuery = firestoreQuery.limit(to: query.pageSize)
+            let snapshot = try await firestoreQuery.getDocuments()
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
-
-            let nextCursor: TodoCursorDTO? = snapshot.documents.last.flatMap { document in
-                guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
-                    return nil
-                }
-
-                return TodoCursorDTO(
-                    createdAt: createdAt.dateValue(),
-                    documentID: document.documentID
-                )
-            }
+            let nextCursor = snapshot.documents.last.flatMap { makeCursor(from: $0) }
 
             return TodoPageResponse(items: items, nextCursor: nextCursor)
         }
@@ -140,6 +181,17 @@ final class TodoService {
 }
 
 private extension TodoService {
+    func makeCursor(from document: QueryDocumentSnapshot) -> TodoCursorDTO? {
+        guard let createdAt = document.data()[TodoFieldKey.createdAt.rawValue] as? Timestamp else {
+            return nil
+        }
+
+        return TodoCursorDTO(
+            createdAt: createdAt.dateValue(),
+            documentID: document.documentID
+        )
+    }
+
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
         makeResponse(documentID: snapshot.documentID, data: snapshot.data())
     }

@@ -12,12 +12,11 @@ struct ProfileView: View {
     @StateObject private var router = NavigationRouter()
     @Environment(\.diContainer) private var container
     @FocusState private var focusedOnStatusMessageTextField: Bool
-    @State private var showDoneBtn: Bool = false
 
     var body: some View {
         NavigationStack(path: $router.path) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     HStack {
                         CacheableImage(url: viewModel.state.avatarURL)
                             .frame(width: 60, height: 60)
@@ -46,7 +45,7 @@ struct ProfileView: View {
                             }
                             .focused($focusedOnStatusMessageTextField)
                             
-                            if viewModel.state.resetButtonEnabled {
+                            if viewModel.resetButtonEnabled {
                                 Button(action: {
                                     viewModel.send(.tapResetStatusMessageButton)
                                 }) {
@@ -71,36 +70,37 @@ struct ProfileView: View {
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                     }
+                    activityHeatmapSection
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
             }
             .frame(maxWidth: .infinity)
-            .background(Color(UIColor.systemGroupedBackground))
+            .background(Color(.systemGroupedBackground))
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         Button {
                             router.push(Path.settings)
                         } label: {
                             Image(systemName: "gearshape")
                         }
-                        Button(action: {
-                            // TODO: 기능 추가 생각해야함
-                        }) {
-                            Image(systemName: "plus")
-                        }
                     }
                 }
             }
-            .navigationDestination(for: Path.self) { _ in
-                SettingView(viewModel: SettingViewModel(
-                    deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
-                    signOutUseCase: container.resolve(SignOutUseCase.self),
-                    sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                    observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                    updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
-                ))
-                .environmentObject(router)
+            .navigationDestination(for: Path.self) { path in
+                switch path {
+                case .settings:
+                    SettingView(viewModel: SettingViewModel(
+                        deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
+                        signOutUseCase: container.resolve(SignOutUseCase.self),
+                        sessionUseCase: container.resolve(AuthSessionUseCase.self),
+                        observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                        updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
+                    ))
+                    .environmentObject(router)
+                case .activity(let activity):
+                    ProfileActivityTodoDetailView(activity: activity)
+                }
             }
             .onAppear {
                 viewModel.send(.onAppear)
@@ -122,7 +122,182 @@ struct ProfileView: View {
         }
     }
 
+    private var activityHeatmapSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("분기별 활동 히트맵")
+                    .font(.headline)
+                Spacer()
+                activityTypeSelector
+            }
+
+            quarterNavigator
+
+            if viewModel.selectedQuarter == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 140)
+            } else if let quarter = viewModel.selectedQuarter {
+                ProfileHeatmapView(
+                    quarter: quarter,
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes,
+                    selectedDay: viewModel.state.selectedDay,
+                    onSelectDay: { day in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.send(.selectDay(day))
+                        }
+                    }
+                )
+                .padding(.vertical, 6)
+
+                if let selectedDay = viewModel.state.selectedDay {
+                    selectedDayDetailSection(for: selectedDay)
+                        .transition(.opacity)
+                }
+            } else {
+                EmptyView()
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+    }
+
+    private var activityTypeSelector: some View {
+        Menu {
+            ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
+                Button {
+                    viewModel.send(.toggleActivityType(activityType))
+                } label: {
+                    HStack {
+                        Text(activityType.title)
+                        if viewModel.state.selectedActivityTypes.contains(activityType) {
+                            Image(systemName: "checkmark")
+                                .tint(.blue)
+                        }
+                    }
+                }
+            }
+        } label: {
+            Text("편집")
+                .foregroundStyle(.blue)
+        }
+    }
+
+    private var quarterNavigator: some View {
+        HStack {
+            Button {
+                viewModel.send(.moveQuarter(-1))
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(!viewModel.canMoveToPreviousQuarter)
+
+            Spacer()
+
+            Text(viewModel.quarterTitle)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button {
+                viewModel.send(.moveQuarter(1))
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(!viewModel.canMoveToNextQuarter)
+        }
+    }
+
+    @ViewBuilder
+    private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
+        let activities = viewModel.selectedDayActivities
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text(day.date.formatted(.dateTime.year().month(.wide).day()))
+                .font(.subheadline)
+                .bold()
+
+            if activities.isEmpty {
+                Text("활동 없음")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(activities) { activity in
+                    Button {
+                        router.push(Path.activity(activity))
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: activity.todo.kind.symbolName)
+                                .foregroundStyle(activity.todo.kind.color)
+                                .frame(width: 20)
+                            Text(activity.todo.title)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Text(activity.activityLabel)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Color(.systemGray4))
+                                )
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        .padding(.top, 4)
+    }
+
     private enum Path: Hashable {
         case settings
+        case activity(ProfileSelectedDayActivity)
+    }
+}
+
+private struct ProfileActivityTodoDetailView: View {
+    let activity: ProfileSelectedDayActivity
+    @State private var showInfo: Bool = false
+
+    var body: some View {
+        TodoDetailContentView(
+            title: activity.todo.title,
+            content: activity.todo.content,
+            activityLabel: activity.activityLabel
+        )
+        .sheet(isPresented: $showInfo) {
+            infoSheetContent
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showInfo = true
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+            }
+        }
+    }
+
+    private var infoSheetContent: some View {
+        TodoInfoSheetView(
+            dueDate: activity.todo.dueDate,
+            tags: activity.todo.tags
+        ) {
+            showInfo = false
+        }
     }
 }

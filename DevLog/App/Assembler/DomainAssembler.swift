@@ -63,6 +63,10 @@ private extension DomainAssembler {
             FetchTodosByKindUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
+        container.register(FetchTodosByDateRangeUseCase.self) {
+            FetchTodosByDateRangeUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+
         container.register(FetchTodosByKeywordUseCase.self) {
             FetchTodosByKeywordUseCaseImpl(container.resolve(TodoRepository.self))
         }
@@ -153,6 +157,14 @@ private extension DomainAssembler {
 
         container.register(UpdatePushNotificationQueryUseCase.self) {
             UpdatePushNotificationQueryUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(FetchProfileHeatmapActivityTypesUseCase.self) {
+            FetchProfileHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdateProfileHeatmapActivityTypesUseCase.self) {
+            UpdateProfileHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
     }
 }
