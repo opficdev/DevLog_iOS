@@ -72,6 +72,12 @@ private struct MonthCompactHeatmapView: View {
     private let cellSpacing: CGFloat = 4
 
     var body: some View {
+        let maxCount = month.weeks
+            .flatMap { $0 }
+            .filter { $0.isInMonth }
+            .map(dayCount(for:))
+            .max() ?? 0
+
         VStack(alignment: .leading, spacing: 6) {
             Text(month.monthStart.formatted(.dateTime.month(.abbreviated)))
                 .frame(height: cellSize)
@@ -87,7 +93,7 @@ private struct MonthCompactHeatmapView: View {
                             }
 
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(fillColor(for: day))
+                                .fill(fillColor(for: day, with: maxCount))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 3)
                                         .stroke(selectionInnerBorderColor(for: day), lineWidth: 2)
@@ -126,21 +132,13 @@ private struct MonthCompactHeatmapView: View {
         return .clear
     }
 
-    private func fillColor(for day: ProfileCompletionDay?) -> Color {
+    private func fillColor(for day: ProfileCompletionDay?, with maxCount: Int) -> Color {
         guard let day, day.isInMonth else { return .clear }
         let count = dayCount(for: day)
         if count == 0 {
-            return Color(UIColor.systemGray5)
+            return Color(.systemGray5)
         }
-        return Color.blue.opacity(opacity(for: count, max: monthMaxCount))
-    }
-
-    private var monthMaxCount: Int {
-        month.weeks
-            .flatMap { $0 }
-            .filter { $0.isInMonth }
-            .map(dayCount(for:))
-            .max() ?? 0
+        return Color.blue.opacity(opacity(for: count, max: maxCount))
     }
 
     private func dayCount(for day: ProfileCompletionDay) -> Int {
