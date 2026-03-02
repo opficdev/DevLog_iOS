@@ -20,15 +20,17 @@ final class TodoService {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let trimmedKeyword = query.keyword?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let logMessage = "Fetching todo page: kind=\(String(describing: query.kind)), "
-            + "keyword=\(trimmedKeyword), "
-            + "pinned=\(String(describing: query.isPinned)), "
-            + "createdAtFrom=\(String(describing: query.createdAtFrom)), "
-            + "createdAtTo=\(String(describing: query.createdAtTo)), "
-            + "createdAtDescending=\(query.createdAtDescending), "
-            + "pageSize=\(String(describing: query.pageSize)), "
-            + "cursor=\(String(describing: cursor))"
-        logger.info(logMessage)
+        let logComponents: [String?] = [
+            "createdAtDescending=\(query.createdAtDescending)",
+            query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
+            query.kind != nil ? "kind=\(query.kind!.rawValue)" : nil,
+            query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
+            query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
+            query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
+            query.pageSize != nil ? "pageSize=\(query.pageSize!)" : nil,
+            cursor != nil ? "cursor=\(cursor!)" : nil
+        ]
+        logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
         var firestoreQuery: Query = store
             .collection("users/\(uid)/todoLists/")
