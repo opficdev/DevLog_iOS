@@ -315,6 +315,7 @@ private extension TodoListViewModel {
             if trimmed.isEmpty {
                 cancelDebounce()
                 state.searchResults = []
+                state.isLoading = false
             } else {
                 state.isLoading = true
                 scheduleDebouncedQuery(text)
