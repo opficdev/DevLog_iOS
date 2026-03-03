@@ -85,8 +85,6 @@ struct PushNotificationSettingsView: View {
                 )
                 .datePickerStyle(.wheel)
                 .labelsHidden()
-                .presentationDragIndicator(.hidden)
-                .presentationDetents([.height(viewModel.state.sheetHeight)])
                 .onAppear { UIDatePicker.appearance().minuteInterval = 5 }
                 .onDisappear { UIDatePicker.appearance().minuteInterval = 1 /* 기본값으로 복원 */ }
                 .toolbar {
@@ -105,6 +103,8 @@ struct PushNotificationSettingsView: View {
                     }
                 )
             }
+            .presentationDragIndicator(.hidden)
+            .presentationDetents([.height(viewModel.state.sheetHeight)])
         }
     }
 
