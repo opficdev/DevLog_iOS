@@ -14,6 +14,79 @@ struct TodoListView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        Group {
+            if viewModel.state.isSearching {
+                todoSearchContent
+            } else {
+                todoListContent
+            }
+        }
+        .navigationDestination(for: Path.self) { path in
+            switch path {
+            case .detail(let todoID):
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoID: todoID
+                ))
+            }
+        }
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert($0)) }
+        )) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { viewModel.send(.setToast(isPresented: $0)) }
+            ),
+            duration: 5,
+            action: { viewModel.send(.undoDelete) },
+            onDismiss: { viewModel.send(.confirmDelete) }
+        ) {
+            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+        }
+        .navigationTitle(viewModel.state.kind.localizedName)
+        .navigationBarTitleDisplayMode(.large)
+        .fullScreenCover(isPresented: Binding(
+            get: { viewModel.state.showEditor },
+            set: { viewModel.send(.setShowEditor($0)) }
+        )) {
+            TodoEditorView(
+                viewModel: TodoEditorViewModel(kind: viewModel.state.kind),
+                onSubmit: { viewModel.send(.upsertTodo($0)) }
+            )
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.send(.setShowEditor(true))
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.send(.setIsSearching(true))
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                }
+            }
+        }
+        .toolbarBackground(.visible, for: .navigationBar)
+        .task { viewModel.send(.onAppear) }
+    }
+
+    private var todoListContent: some View {
         ZStack {
             List {
                 Section {
@@ -72,80 +145,92 @@ struct TodoListView: View {
             .refreshable {
                 viewModel.send(.refresh)
             }
-            .navigationDestination(for: Path.self) { path in
-                switch path {
-                case .detail(let todoID):
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: todoID
-                    ))
-                }
-            }
 
             if viewModel.state.isLoading {
                 LoadingView()
             }
         }
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert($0)) }
-        )) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
-        }
-        .toast(
-            isPresented: Binding(
-                get: { viewModel.state.showToast },
-                set: { viewModel.send(.setToast(isPresented: $0)) }
-            ),
-            duration: 5,
-            action: { viewModel.send(.undoDelete) },
-            onDismiss: { viewModel.send(.confirmDelete) }
-        ) {
-            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-        }
-        .navigationTitle(viewModel.state.kind.localizedName)
-        .navigationBarTitleDisplayMode(.large)
-        .fullScreenCover(isPresented: Binding(
-            get: { viewModel.state.showEditor },
-            set: { viewModel.send(.setShowEditor($0)) }
-        )) {
-            TodoEditorView(
-                viewModel: TodoEditorViewModel(kind: viewModel.state.kind),
-                onSubmit: { viewModel.send(.upsertTodo($0)) }
-            )
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    viewModel.send(.setShowEditor(true))
-                } label: {
-                    Image(systemName: "plus")
+    }
+
+    @ViewBuilder
+    private var todoSearchContent: some View {
+        let searchTextBinding = Binding(
+            get: { viewModel.state.searchText },
+            set: { viewModel.send(.setSearchText($0)) }
+        )
+        let isSearchingBinding = Binding(
+            get: { viewModel.state.isSearching },
+            set: { viewModel.send(.setIsSearching($0)) }
+        )
+
+        let searchResults = viewModel.state.searchResults
+        let limit = viewModel.searchResultsLimit
+        let displayedTodos = viewModel.state.showAllSearchResults
+            ? searchResults
+            : Array(searchResults.prefix(limit))
+
+        let content = ScrollView {
+            LazyVStack(spacing: 0) {
+                if viewModel.state.searchText.isEmpty {
+                    Text("검색어를 입력해주세요.")
+                        .foregroundStyle(Color.gray)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 40)
+                } else if viewModel.state.isLoading {
+                    LoadingView()
+                        .padding(.top, 40)
+                } else if searchResults.isEmpty {
+                    Text("검색 결과가 없습니다.")
+                        .foregroundStyle(Color.gray)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 40)
+                } else {
+                    ForEach(displayedTodos) { todo in
+                        Button {
+                            router.push(Path.detail(todo.id))
+                        } label: {
+                            VStack(spacing: 0) {
+                                TodoItemRow(todo)
+                                Divider()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+
+                    if !viewModel.state.showAllSearchResults, limit < searchResults.count {
+                        Button("더보기") {
+                            viewModel.send(.setShowAllSearchResults(true))
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Color.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 4)
+                    }
                 }
             }
         }
-        .toolbarBackground(.visible, for: .navigationBar)
-        .searchable(
-            text: Binding(
-                get: { viewModel.state.searchText },
-                set: { viewModel.send(.setSearchText($0)) }
-            ),
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "\(viewModel.state.kind.localizedName) 검색"
-        )
-        .searchScopes(Binding(
-            get: { viewModel.state.scope },
-            set: { viewModel.send(.setScope($0)) }
-        )) {
-            ForEach(TodoScope.allCases, id: \.self) { scope in
-                Text(scope.localizedName).tag(scope)
+
+        Group {
+            if #available(iOS 17.0, *) {
+                content.searchable(
+                    text: searchTextBinding,
+                    isPresented: isSearchingBinding,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "\(viewModel.state.kind.localizedName) 검색"
+                )
+            } else {
+                content.searchable(
+                    text: searchTextBinding,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "\(viewModel.state.kind.localizedName) 검색"
+                )
             }
         }
-        .task { viewModel.send(.onAppear) }
+        .onAppear {
+            DispatchQueue.main.async {
+                viewModel.send(.setIsSearching(true))
+            }
+        }
     }
 
     private var headerView: some View {

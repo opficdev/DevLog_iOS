@@ -234,26 +234,6 @@
     "Todos" : {
 
     },
-    "TodoScope.content" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내용"
-          }
-        }
-      }
-    },
-    "TodoScope.title" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "제목"
-          }
-        }
-      }
-    },
     "Web Page" : {
 
     },
@@ -270,6 +250,9 @@
 
     },
     "검색어를 입력해 저장한 앱 컨텐츠를 찾아보세요." : {
+
+    },
+    "검색어를 입력해주세요." : {
 
     },
     "계정 삭제" : {
