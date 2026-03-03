@@ -60,7 +60,7 @@ struct TodoInfoSheetView: View {
                         Divider()
                     }
                     VStack(alignment: .leading) {
-                        Text("완료 시점")
+                        Text("완료일")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         HStack(spacing: 8) {
