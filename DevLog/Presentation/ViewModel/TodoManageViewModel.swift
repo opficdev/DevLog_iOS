@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class TodoManageViewModel: Store {
     struct State {
         var todoKindPreferences: [TodoKindPreference]
@@ -19,7 +20,7 @@ final class TodoManageViewModel: Store {
 
     enum SideEffect { }
 
-    @Published private(set) var state: State
+    private(set) var state: State
 
     init(_ todoKindPreferences: [TodoKindPreference]) {
         self.state = State(todoKindPreferences: todoKindPreferences)

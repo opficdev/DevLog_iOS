@@ -10,7 +10,7 @@ import OrderedCollections
 import SwiftUI
 
 struct TodoEditorView: View {
-    @StateObject var viewModel: TodoEditorViewModel
+    @State var viewModel: TodoEditorViewModel
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
@@ -245,7 +245,7 @@ private struct TagEditor<Content: View>: View {
                                         sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
                                     }
                                 }
-                                .onChange(of: tags) { newTags in
+                                .onChange(of: tags) { _, newTags in
                                     DispatchQueue.main.async {
                                         tagsHeight = geometry.size.height
                                         sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)

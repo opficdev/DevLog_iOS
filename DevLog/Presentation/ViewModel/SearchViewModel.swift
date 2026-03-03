@@ -8,6 +8,7 @@
 import Foundation
 import OrderedCollections
 
+@Observable
 final class SearchViewModel: Store {
     struct State {
         var isLoading: Bool = false
@@ -42,7 +43,7 @@ final class SearchViewModel: Store {
         case fetch(String)
     }
 
-    @Published private(set) var state: State = .init()
+    private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase

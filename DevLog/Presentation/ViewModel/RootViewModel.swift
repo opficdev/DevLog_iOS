@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@Observable
 final class RootViewModel: Store {
     struct State {
         var showAlert: Bool = false
@@ -32,7 +33,7 @@ final class RootViewModel: Store {
         case signOut
     }
 
-    @Published private(set) var state: State
+    private(set) var state: State
     private let connectivityProvider = NWPathConnectivityProvider()
     private var cancellables = Set<AnyCancellable>()
     private let sessionUseCase: AuthSessionUseCase

@@ -11,8 +11,8 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.diContainer) private var container: DIContainer
-    @StateObject private var router = NavigationRouter()
-    @StateObject var viewModel: SearchViewModel
+    @State private var router = NavigationRouter()
+    @State var viewModel: SearchViewModel
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -41,7 +41,7 @@ struct SearchView: View {
                         viewModel.send(.setSearching(true))
                     }
                 }
-                .onChange(of: viewModel.state.isSearching) { isSearching in
+                .onChange(of: viewModel.state.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
                     }
@@ -54,8 +54,6 @@ struct SearchView: View {
                 } message: {
                     Text(viewModel.state.alertMessage)
                 }
-                // TODO: iOS 16에서 introspect 모듈을 사용하여 .searchable의 isPresented를 관리한다
-                // .introspect(.searchField, on: iOS(.v16)) { searchBar in }
         }
     }
 

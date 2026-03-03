@@ -9,8 +9,8 @@ import SwiftUI
 
 struct SettingView: View {
     @Environment(\.diContainer) var container: DIContainer
-    @StateObject var viewModel: SettingViewModel
-    @EnvironmentObject var router: NavigationRouter
+    @State var viewModel: SettingViewModel
+    @Environment(NavigationRouter.self) var router
 
     var body: some View {
         Form {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodoDetailView: View {
-    @StateObject var viewModel: TodoDetailViewModel
+    @State var viewModel: TodoDetailViewModel
 
     var body: some View {
         ZStack {

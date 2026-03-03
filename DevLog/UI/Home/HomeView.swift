@@ -10,8 +10,8 @@ import SwiftUI
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
     @Environment(\.sceneWidth) var sceneWidth: CGFloat
-    @StateObject private var router = NavigationRouter()
-    @StateObject var viewModel: HomeViewModel
+    @State private var router = NavigationRouter()
+    @State var viewModel: HomeViewModel
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -32,7 +32,7 @@ struct HomeView: View {
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         kind: todoKind
                     ))
-                    .environmentObject(router)
+                    .environment(router)
                 case .detail(let todoID):
                     TodoDetailView(viewModel: TodoDetailViewModel(
                         fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),

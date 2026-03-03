@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @StateObject var viewModel: ProfileViewModel
-    @StateObject private var router = NavigationRouter()
+    @State var viewModel: ProfileViewModel
+    @State private var router = NavigationRouter()
     @Environment(\.diContainer) private var container
     @FocusState private var focusedOnStatusMessageTextField: Bool
 
@@ -97,7 +97,7 @@ struct ProfileView: View {
                         observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                         updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
                     ))
-                    .environmentObject(router)
+                    .environment(router)
                 case .activity(let activity):
                     ProfileActivityTodoDetailView(activity: activity)
                 }
@@ -105,7 +105,7 @@ struct ProfileView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
-            .onChange(of: focusedOnStatusMessageTextField) { newValue in
+            .onChange(of: focusedOnStatusMessageTextField) { _, newValue in
                 withAnimation {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }

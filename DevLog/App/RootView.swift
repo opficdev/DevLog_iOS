@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
-    @StateObject var viewModel: RootViewModel
+    @State var viewModel: RootViewModel
 
     var body: some View {
         ZStack {
@@ -50,7 +50,7 @@ struct RootView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
-        .onChange(of: viewModel.state.isFirstLaunch) { newValue in
+        .onChange(of: viewModel.state.isFirstLaunch) { _, newValue in
             if newValue {
                 viewModel.send(.setFirstLaunch(false))
                 viewModel.send(.signOutAuto)

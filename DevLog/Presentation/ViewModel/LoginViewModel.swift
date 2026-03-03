@@ -10,6 +10,7 @@ import Foundation
 import FirebaseAuth
 import GoogleSignIn
 
+@Observable
 final class LoginViewModel: Store {
     struct State {
         var signIn: Bool?
@@ -37,7 +38,7 @@ final class LoginViewModel: Store {
     private let signOutUseCase: SignOutUseCase
     private let sessionUseCase: AuthSessionUseCase
 
-    @Published private(set) var state = State()
+    private(set) var state = State()
     private var cancellables = Set<AnyCancellable>()
 
     init(

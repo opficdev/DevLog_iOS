@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct PushNotificationListView: View {
-    @StateObject private var router = NavigationRouter()
-    @StateObject var viewModel: PushNotificationListViewModel
+    @State private var router = NavigationRouter()
+    @State var viewModel: PushNotificationListViewModel
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
