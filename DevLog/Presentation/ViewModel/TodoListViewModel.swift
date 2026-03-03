@@ -16,7 +16,8 @@ final class TodoListViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
-        var scope: TodoScope = .title
+        var isSearching: Bool = false
+        var showAllSearchResults: Bool = false
         var query: TodoQuery
         var isLoading: Bool = false
         var showToast: Bool = false
@@ -37,6 +38,8 @@ final class TodoListViewModel: Store {
         case togglePinnedOnly
         case setCompletionFilter(TodoQuery.CompletionFilter)
         case resetFilters
+        case setIsSearching(Bool)
+        case setShowAllSearchResults(Bool)
         case tapToggleCompleted(TodoListItem)
         case tapTogglePinned(TodoListItem)
         case undoDelete
@@ -45,7 +48,6 @@ final class TodoListViewModel: Store {
         case confirmDelete
         case onAppear
         case loadNextPage
-        case setScope(TodoScope)
         case setSearchText(String)
         case setToast(isPresented: Bool)
         case upsertTodo(Todo)
@@ -91,6 +93,8 @@ final class TodoListViewModel: Store {
         )
     }
 
+    let searchResultsLimit = 5
+
     var appliedFilterCount: Int {
         var count = 0
         if state.query.sortTarget != .createdAt { count += 1 }
@@ -106,11 +110,11 @@ final class TodoListViewModel: Store {
 
         switch action {
         case .refresh, .setAlert, .setShowEditor, .swipeTodo, .setSortTarget, .setSortOrder,
-                .togglePinnedOnly, .setCompletionFilter, .resetFilters, .tapToggleCompleted,
-                .tapTogglePinned, .undoDelete:
+                .togglePinnedOnly, .setCompletionFilter, .resetFilters, .setIsSearching,
+                .setShowAllSearchResults, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
-        case .confirmDelete, .onAppear, .loadNextPage, .setScope, .setSearchText, .setToast, .upsertTodo:
+        case .confirmDelete, .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
         case .didToggleCompleted, .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
@@ -246,6 +250,14 @@ private extension TodoListViewModel {
             state.query = TodoQuery(kind: state.kind)
             state.nextCursor = nil
             return [.fetch]
+        case .setIsSearching(let value):
+            state.isSearching = value
+            if !value {
+                state.searchText = ""
+                state.showAllSearchResults = false
+            }
+        case .setShowAllSearchResults(let value):
+            state.showAllSearchResults = value
         case .tapToggleCompleted(let todo):
             return [.toggleCompleted(todo)]
         case .tapTogglePinned(let todo):
@@ -275,10 +287,9 @@ private extension TodoListViewModel {
         case .loadNextPage:
             guard state.hasMore, !state.isLoading, state.pendingTask == nil else { return [] }
             return [.loadNextPage]
-        case .setScope(let scope):
-            state.scope = scope
         case .setSearchText(let text):
             state.searchText = text
+            state.showAllSearchResults = false
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
         case .upsertTodo(let todo):

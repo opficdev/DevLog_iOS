@@ -235,6 +235,7 @@
 
     },
     "TodoScope.content" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -245,6 +246,7 @@
       }
     },
     "TodoScope.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -270,6 +272,9 @@
 
     },
     "검색어를 입력해 저장한 앱 컨텐츠를 찾아보세요." : {
+
+    },
+    "검색어를 입력해주세요." : {
 
     },
     "계정 삭제" : {
