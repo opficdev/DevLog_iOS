@@ -248,10 +248,10 @@ struct TodoListView: View {
                 Text("필터 옵션")
                 Image(systemName: "chevron.down")
             }
-                .adaptiveButtonStyle(
-                    color: viewModel.state.query.isPinned == true ||
-                    viewModel.state.query.completionFilter != .all ? .blue : .clear
-                )
+            .adaptiveButtonStyle(
+                color: viewModel.state.query.isPinned == true ||
+                viewModel.state.query.completionFilter != .all ? .blue : .clear
+            )
         }
     }
 

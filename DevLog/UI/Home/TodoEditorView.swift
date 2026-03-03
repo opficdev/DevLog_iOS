@@ -138,8 +138,8 @@ struct TodoEditorView: View {
                     Image(systemName: "tag")
                         .foregroundStyle(.gray)
                 }
+                .adaptiveButtonStyle()
             }
-            .adaptiveButtonStyle()
             DueDatePicker(selection: Binding(
                 get: { viewModel.state.dueDate ?? Date() },
                 set: { viewModel.send(.setDueDate($0)) }
@@ -161,8 +161,8 @@ struct TodoEditorView: View {
                             viewModel.send(.setDueDate(viewModel.state.hasDueDate ? nil : Date()))
                         }
                 }
+                .adaptiveButtonStyle()
             }
-            .adaptiveButtonStyle()
         }
     }
 
@@ -317,11 +317,11 @@ private struct TagEditor<Content: View>: View {
                 Image(systemName: "plus")
                     .font(.largeTitle)
                     .foregroundStyle(Color.white)
+                    .adaptiveButtonStyle(
+                        shape: .circle,
+                        color: (!tag.isEmpty && !tags.contains(tag)) ? Color.blue : .gray.opacity(0.4)
+                    )
             }
-            .adaptiveButtonStyle(
-                shape: .circle,
-                color: (!tag.isEmpty && !tags.contains(tag)) ? Color.blue : .gray.opacity(0.4)
-            )
             .disabled(tag.isEmpty || tags.contains(tag))
         }
     }

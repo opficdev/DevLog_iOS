@@ -125,8 +125,8 @@ struct PushNotificationListView: View {
                         Text("정렬: \(viewModel.state.query.sortOrder.title)")
                         Image(systemName: "chevron.down")
                     }
+                    .adaptiveButtonStyle(color: viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
                 Menu {
                     ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
