@@ -10,14 +10,14 @@ import OrderedCollections
 
 @Observable
 final class TodoEditorViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
-        var hasDueDate: Bool { return dueDate != nil }
+        var hasDueDate: Bool { dueDate != nil }
         var tabViewTag: Tag = .editor
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -111,7 +111,7 @@ final class TodoEditorViewModel: Store {
             }
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return []
     }
 }

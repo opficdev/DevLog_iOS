@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class PushNotificationListViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var notifications: [PushNotificationItem] = []
         var showAlert: Bool = false
         var showToast: Bool = false
@@ -19,7 +19,6 @@ final class PushNotificationListViewModel: Store {
         var isLoading: Bool = false
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
-        var pendingTask: (PushNotificationItem, Int)?
         var query: PushNotificationQuery
         var selectedTodoID: TodoIDItem?
     }
@@ -57,6 +56,7 @@ final class PushNotificationListViewModel: Store {
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
     private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
     private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
+    private var pendingTask: (PushNotificationItem, Int)?
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
@@ -99,7 +99,7 @@ final class PushNotificationListViewModel: Store {
             effects = reduceByRun(action, state: &state)
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 
@@ -158,12 +158,12 @@ private extension PushNotificationListViewModel {
         switch action {
         case .deleteNotification(let item):
             var effects: [SideEffect] = []
-            if let (pendingItem, _) = state.pendingTask {
+            if let (pendingItem, _) = pendingTask {
                 effects = [.delete(pendingItem)]
             }
 
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
-                state.pendingTask = (item, index)
+                pendingTask = (item, index)
                 state.notifications.remove(at: index)
                 setToast(&state, isPresented: true)
             }
@@ -175,9 +175,9 @@ private extension PushNotificationListViewModel {
                 return [.toggleRead(item.todoID)]
             }
         case .undoDelete:
-            guard let (item, index) = state.pendingTask else { return [] }
+            guard let (item, index) = pendingTask else { return [] }
             state.notifications.insert(item, at: index)
-            state.pendingTask = nil
+            pendingTask = nil
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .toggleSortOption:
@@ -218,11 +218,11 @@ private extension PushNotificationListViewModel {
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading, state.pendingTask == nil else { return [] }
+            guard state.hasMore, !state.isLoading, pendingTask == nil else { return [] }
             return [.fetchNotifications(state.query, cursor: state.nextCursor)]
         case .confirmDelete:
-            guard let (item, _) = state.pendingTask else { return [] }
-            state.pendingTask = nil
+            guard let (item, _) = pendingTask else { return [] }
+            pendingTask = nil
             return [.delete(item)]
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
@@ -245,7 +245,7 @@ private extension PushNotificationListViewModel {
             state.nextCursor = nil
         case .appendNotifications(let notifications, let nextCursor):
             let filteredNotifications: [PushNotificationItem]
-            if let (pendingItem, _) = state.pendingTask {
+            if let (pendingItem, _) = pendingTask {
                 filteredNotifications = notifications.filter { $0.id != pendingItem.id }
             } else {
                 filteredNotifications = notifications

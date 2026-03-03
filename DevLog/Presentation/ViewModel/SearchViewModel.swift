@@ -10,7 +10,7 @@ import OrderedCollections
 
 @Observable
 final class SearchViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var isLoading: Bool = false
         var isSearching: Bool = false
         var searchQuery: String = ""
@@ -124,7 +124,7 @@ final class SearchViewModel: Store {
             state.showAllWebPages = shouldShowAll
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 

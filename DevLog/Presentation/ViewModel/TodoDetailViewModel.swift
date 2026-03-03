@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class TodoDetailViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var todo: Todo?
         var isLoading: Bool  = false
         var showAlert: Bool  = false
@@ -70,7 +70,7 @@ final class TodoDetailViewModel: Store {
             effects = [.upsertTodo(todo)]
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 

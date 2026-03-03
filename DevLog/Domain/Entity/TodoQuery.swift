@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoQuery {
+struct TodoQuery: Equatable {
     enum SortTarget: Equatable, Hashable {
         case createdAt
         case updatedAt

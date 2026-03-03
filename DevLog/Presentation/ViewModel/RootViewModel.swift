@@ -10,7 +10,7 @@ import Combine
 
 @Observable
 final class RootViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
@@ -89,7 +89,7 @@ final class RootViewModel: Store {
             state.signIn = result
         }
         
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
     

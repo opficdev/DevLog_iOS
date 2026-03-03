@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class ProfileViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var name: String = ""
         var email: String = ""
         var statusMessage: String = ""
@@ -185,7 +185,7 @@ final class ProfileViewModel: Store {
         case .updateStatusTextFieldFocus(let focused):
             state.showDoneButton = focused
         }
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
     // swiftlint:enable cyclomatic_complexity

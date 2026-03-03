@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class PushNotificationSettingsViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var pushNotificationEnable: Bool = false
         var viewPushNotificationTime: Date = .init()
         var sheetPushNotificationTime: Date = .init()
@@ -99,7 +99,7 @@ final class PushNotificationSettingsViewModel: Store {
             state.showTimePicker = false
             state.sheetPushNotificationTime = state.viewPushNotificationTime
         }
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 

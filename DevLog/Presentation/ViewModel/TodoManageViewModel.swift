@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class TodoManageViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var todoKindPreferences: [TodoKindPreference]
     }
 
@@ -38,7 +38,7 @@ final class TodoManageViewModel: Store {
             }
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return []
     }
 }

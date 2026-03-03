@@ -10,7 +10,7 @@ import Combine
 
 @Observable
 final class SettingViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0
         var isLoading = false
@@ -95,7 +95,7 @@ final class SettingViewModel: Store {
             }
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 
