@@ -17,7 +17,7 @@ final class TodoListViewModel: Store {
         var alertTitle: String = ""
         var alertMessage: String = ""
         var scope: TodoScope = .title
-        var filterOption: FilterOption = .create
+        var query: TodoQuery
         var isLoading: Bool = false
         var showToast: Bool = false
         var toastMessage: String = ""
@@ -26,17 +26,17 @@ final class TodoListViewModel: Store {
         var pendingTask: (TodoListItem, Int)?
     }
 
-    enum FilterOption {
-        case create, update, day, week, month, year
-    }
-
     enum Action {
         // User
         case refresh
         case setAlert(Bool)
         case setShowEditor(Bool)
         case swipeTodo(TodoListItem)
-        case tapFilterOption(FilterOption)
+        case setSortTarget(TodoQuery.SortTarget)
+        case setSortOrder(TodoQuery.SortOrder)
+        case togglePinnedOnly
+        case setCompletionFilter(TodoQuery.CompletionFilter)
+        case resetFilters
         case tapToggleCompleted(TodoListItem)
         case tapTogglePinned(TodoListItem)
         case undoDelete
@@ -73,7 +73,6 @@ final class TodoListViewModel: Store {
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
-    private let pageSize = 20
 
     init(
         fetchTodosByKindUseCase: FetchTodosByKindUseCase,
@@ -86,7 +85,19 @@ final class TodoListViewModel: Store {
         self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
-        self.state = State(kind: kind)
+        self.state = State(
+            kind: kind,
+            query: TodoQuery(kind: kind)
+        )
+    }
+
+    var appliedFilterCount: Int {
+        var count = 0
+        if state.query.sortTarget != .createdAt { count += 1 }
+        if state.query.sortOrder != .latest { count += 1 }
+        if state.query.isPinned != nil { count += 1 }
+        if state.query.completionFilter != .all { count += 1 }
+        return count
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -94,7 +105,9 @@ final class TodoListViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .setShowEditor, .swipeTodo, .tapFilterOption, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
+        case .refresh, .setAlert, .setShowEditor, .swipeTodo, .setSortTarget, .setSortOrder,
+                .togglePinnedOnly, .setCompletionFilter, .resetFilters, .tapToggleCompleted,
+                .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
         case .confirmDelete, .onAppear, .loadNextPage, .setScope, .setSearchText, .setToast, .upsertTodo:
@@ -115,10 +128,10 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosByKindUseCase.execute(state.kind, cursor: nil)
+                    let page = try await fetchTodosByKindUseCase.execute(state.query, cursor: nil)
                     send(.resetPagination)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
-                    let hasMore = page.items.count == pageSize && page.nextCursor != nil
+                    let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
                 } catch {
                     send(.setAlert(true))
@@ -129,9 +142,9 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosByKindUseCase.execute(state.kind, cursor: state.nextCursor)
+                    let page = try await fetchTodosByKindUseCase.execute(state.query, cursor: state.nextCursor)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
-                    let hasMore = page.items.count == pageSize && page.nextCursor != nil
+                    let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
                 } catch {
                     send(.setAlert(true))
@@ -171,6 +184,7 @@ final class TodoListViewModel: Store {
                     send(.setLoading(true))
                     var todo = try await fetchTodoByIDUseCase.execute(item.id)
                     todo.isPinned.toggle()
+                    todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
                     send(.didTogglePinned(TodoListItem(from: todo)))
                 } catch {
@@ -212,8 +226,26 @@ private extension TodoListViewModel {
             }
 
             return effects
-        case .tapFilterOption(let option):
-            state.filterOption = option
+        case .setSortTarget(let target):
+            state.query.sortTarget = target
+            state.nextCursor = nil
+            return [.fetch]
+        case .setSortOrder(let order):
+            state.query.sortOrder = order
+            state.nextCursor = nil
+            return [.fetch]
+        case .togglePinnedOnly:
+            state.query.isPinned = state.query.isPinned == true ? nil : true
+            state.nextCursor = nil
+            return [.fetch]
+        case .setCompletionFilter(let filter):
+            state.query.completionFilter = filter
+            state.nextCursor = nil
+            return [.fetch]
+        case .resetFilters:
+            state.query = TodoQuery(kind: state.kind)
+            state.nextCursor = nil
+            return [.fetch]
         case .tapToggleCompleted(let todo):
             return [.toggleCompleted(todo)]
         case .tapTogglePinned(let todo):
@@ -308,5 +340,40 @@ private extension TodoListViewModel {
     ) {
         state.toastMessage = "실행 취소"
         state.showToast = isPresented
+    }
+}
+
+extension TodoQuery.SortTarget {
+    var title: String {
+        switch self {
+        case .createdAt:
+            return "생성"
+        case .updatedAt:
+            return "수정"
+        }
+    }
+}
+
+extension TodoQuery.SortOrder {
+    var title: String {
+        switch self {
+        case .latest:
+            return "최신순"
+        case .oldest:
+            return "예전순"
+        }
+    }
+}
+
+extension TodoQuery.CompletionFilter {
+    var title: String {
+        switch self {
+        case .all:
+            return "완료 + 미완료"
+        case .incomplete:
+            return "미완료"
+        case .completed:
+            return "완료"
+        }
     }
 }

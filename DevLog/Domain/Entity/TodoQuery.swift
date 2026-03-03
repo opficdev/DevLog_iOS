@@ -8,31 +8,77 @@
 import Foundation
 
 struct TodoQuery {
-    let kind: TodoKind?
-    let keyword: String?
-    let isPinned: Bool?
-    let createdAtFrom: Date?
-    let createdAtTo: Date?
-    let createdAtDescending: Bool
-    let pageSize: Int
-    let fetchAllPages: Bool
+    enum SortTarget: Equatable, Hashable {
+        case createdAt
+        case updatedAt
+
+        var fieldName: String {
+            switch self {
+            case .createdAt:
+                return "createdAt"
+            case .updatedAt:
+                return "updatedAt"
+            }
+        }
+    }
+
+    enum SortOrder: Equatable, Hashable {
+        case latest
+        case oldest
+
+        var isDescending: Bool {
+            self == .latest
+        }
+    }
+
+    enum CompletionFilter: Equatable, Hashable {
+        case all
+        case incomplete
+        case completed
+
+        var isCompletedValue: Bool? {
+            switch self {
+            case .all:
+                return nil
+            case .incomplete:
+                return false
+            case .completed:
+                return true
+            }
+        }
+    }
+
+    var kind: TodoKind?
+    var keyword: String?
+    var isPinned: Bool?
+    var completionFilter: CompletionFilter
+    var createdAtFrom: Date?
+    var createdAtTo: Date?
+    var sortTarget: SortTarget
+    var sortOrder: SortOrder
+    var pageSize: Int
+    var fetchAllPages: Bool
 
     init(
         kind: TodoKind? = nil,
         keyword: String? = nil,
         isPinned: Bool? = nil,
+        completionFilter: CompletionFilter = .all,
         createdAtFrom: Date? = nil,
         createdAtTo: Date? = nil,
-        createdAtDescending: Bool = true,
+        sortTarget: SortTarget = .createdAt,
+        sortOrder: SortOrder = .latest,
         pageSize: Int = 20,
         fetchAllPages: Bool = false
     ) {
         self.kind = kind
         self.keyword = keyword
         self.isPinned = isPinned
+        self.completionFilter = completionFilter
         self.createdAtFrom = createdAtFrom
         self.createdAtTo = createdAtTo
-        self.createdAtDescending = createdAtDescending
+        self.sortTarget = sortTarget
+        self.sortOrder = sortOrder
         self.pageSize = pageSize
         self.fetchAllPages = fetchAllPages
     }

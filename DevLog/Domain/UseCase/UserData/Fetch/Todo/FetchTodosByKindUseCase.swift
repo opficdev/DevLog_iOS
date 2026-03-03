@@ -6,5 +6,5 @@
 //
 
 protocol FetchTodosByKindUseCase {
-    func execute(_ kind: TodoKind, cursor: TodoCursor?) async throws -> TodoPage
+    func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage
 }

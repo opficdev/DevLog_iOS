@@ -8,6 +8,6 @@
 import Foundation
 
 struct TodoCursor {
-    let createdAt: Date
+    let orderedAt: Date
     let documentID: String
 }
