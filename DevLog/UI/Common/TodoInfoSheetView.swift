@@ -21,7 +21,7 @@ struct TodoInfoSheetView: View {
                     VStack(alignment: .leading) {
                         Text("생성일")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white)
                         HStack(spacing: 8) {
                             Image(systemName: "calendar")
                                 .foregroundStyle(.white)
