@@ -64,12 +64,17 @@ struct TodoDetailView: View {
         }
     }
 
+    @ViewBuilder
     private var sheetContent: some View {
-        TodoInfoSheetView(
-            dueDate: viewModel.state.todo?.dueDate,
-            tags: viewModel.state.todo?.tags ?? []
-        ) {
-            viewModel.send(.setShowInfo(false))
+        if let todo = viewModel.state.todo {
+            TodoInfoSheetView(
+                createdAt: todo.createdAt,
+                completedAt: todo.completedAt,
+                dueDate: todo.dueDate,
+                tags: todo.tags
+            ) {
+                viewModel.send(.setShowInfo(false))
+            }
         }
     }
 }
