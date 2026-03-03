@@ -207,14 +207,13 @@ struct TodoListView: View {
                 Text("정렬 순서")
             }
         } label: {
+            let condition = viewModel.state.query.sortTarget == .createdAt && viewModel.state.query.sortOrder == .latest
             HStack {
                 Text("정렬: \(viewModel.state.query.sortTarget.title) / \(viewModel.state.query.sortOrder.title)")
                 Image(systemName: "chevron.down")
             }
-            .adaptiveButtonStyle(
-                color: viewModel.state.query.sortTarget == .createdAt &&
-                viewModel.state.query.sortOrder == .latest ? .clear : .blue
-            )
+            .foregroundStyle(condition ? Color(.label) : .white)
+            .adaptiveButtonStyle(color: condition ? .clear : .blue)
         }
     }
 
@@ -244,14 +243,13 @@ struct TodoListView: View {
                 Text("완료 상태")
             }
         } label: {
+            let condition = viewModel.state.query.isPinned == true || viewModel.state.query.completionFilter != .all
             HStack {
                 Text("필터 옵션")
                 Image(systemName: "chevron.down")
             }
-            .adaptiveButtonStyle(
-                color: viewModel.state.query.isPinned == true ||
-                viewModel.state.query.completionFilter != .all ? .blue : .clear
-            )
+            .foregroundStyle(condition ? Color(.label) : .white)
+            .adaptiveButtonStyle(color: condition ? .blue : .clear)
         }
     }
 
