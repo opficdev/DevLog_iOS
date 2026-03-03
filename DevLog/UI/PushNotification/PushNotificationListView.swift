@@ -114,14 +114,17 @@ struct PushNotificationListView: View {
                             Image(systemName: "line.3.horizontal.decrease")
                             filterBadge
                         }
+                        .adaptiveButtonStyle()
                     }
-                    .adaptiveButtonStyle()
                 }
 
                 Button {
                     viewModel.send(.toggleSortOption)
                 } label: {
-                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                    HStack {
+                        Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                        Image(systemName: "chevron.down")
+                    }
                 }
                 .adaptiveButtonStyle(color: viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
@@ -142,17 +145,20 @@ struct PushNotificationListView: View {
                         }
                     }
                 } label: {
-                    Text("기간")
+                    HStack {
+                        Text("기간")
+                        Image(systemName: "chevron.down")
+                    }
+                    .adaptiveButtonStyle(color: viewModel.state.query.timeFilter == .none ? .clear : .blue)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
                 } label: {
                     Text("읽지 않음")
                         .foregroundStyle(viewModel.state.query.unreadOnly ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: viewModel.state.query.unreadOnly ? .blue : .clear)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.unreadOnly ? .blue : .clear)
             }
         }
         .scrollIndicators(.never)
