@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TodoInfoSheetView: View {
+    let createdAt: Date
+    let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
     let onClose: () -> Void
@@ -16,13 +18,28 @@ struct TodoInfoSheetView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 32) {
-                    VStack {
-                        HStack {
-                            Text("마감일")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                    VStack(alignment: .leading) {
+                        Text("생성일")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(.white)
+                            Text(createdAt.formatted(date: .abbreviated, time: .omitted))
                             Spacer()
                         }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.blue)
+                        )
+                        Divider()
+                    }
+                    VStack(alignment: .leading) {
+                        Text("마감일")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         HStack(spacing: 8) {
                             Image(systemName: "calendar")
                                 .foregroundStyle(.secondary)
@@ -42,13 +59,33 @@ struct TodoInfoSheetView: View {
                         )
                         Divider()
                     }
-                    VStack {
-                        HStack {
-                            Text("태그")
-                                .font(.subheadline)
+                    VStack(alignment: .leading) {
+                        Text("완료 시점")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
                                 .foregroundStyle(.secondary)
+                            Text(
+                                completedAt?
+                                    .formatted(date: .abbreviated, time: .omitted)
+                                ?? "완료하지 않음"
+                            )
+                            .foregroundStyle(.white)
                             Spacer()
                         }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.green)
+                        )
+                        Divider()
+                    }
+                    VStack(alignment: .leading) {
+                        Text("태그")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         Divider()
                         if !tags.isEmpty {
                             TagLayout {

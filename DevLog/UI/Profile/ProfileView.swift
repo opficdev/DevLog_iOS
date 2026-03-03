@@ -294,6 +294,8 @@ private struct ProfileActivityTodoDetailView: View {
 
     private var infoSheetContent: some View {
         TodoInfoSheetView(
+            createdAt: activity.todo.createdAt,
+            completedAt: activity.todo.completedAt,
             dueDate: activity.todo.dueDate,
             tags: activity.todo.tags
         ) {
