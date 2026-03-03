@@ -1,10 +1,10 @@
 //
-//  FetchTodosByKindUseCase.swift
+//  FetchTodosUseCase.swift
 //  DevLog
 //
-//  Created by 최윤진 on 2/1/26.
+//  Created by opfic on 3/3/26.
 //
 
-protocol FetchTodosByKindUseCase {
+protocol FetchTodosUseCase {
     func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage
 }

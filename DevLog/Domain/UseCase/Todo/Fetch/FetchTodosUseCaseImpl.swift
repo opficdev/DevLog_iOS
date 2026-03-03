@@ -1,11 +1,11 @@
 //
-//  FetchTodosByKindUseCaseImpl.swift
+//  FetchTodosUseCaseImpl.swift
 //  DevLog
 //
-//  Created by 최윤진 on 2/1/26.
+//  Created by opfic on 3/3/26.
 //
 
-final class FetchTodosByKindUseCaseImpl: FetchTodosByKindUseCase {
+final class FetchTodosUseCaseImpl: FetchTodosUseCase {
     private let repository: TodoRepository
 
     init(_ repository: TodoRepository) {
@@ -13,6 +13,6 @@ final class FetchTodosByKindUseCaseImpl: FetchTodosByKindUseCase {
     }
 
     func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
-        return try await repository.fetchTodos(query, cursor: cursor)
+        try await repository.fetchTodos(query, cursor: cursor)
     }
 }

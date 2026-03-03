@@ -16,7 +16,7 @@ struct MainView: View {
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                fetchPinnedTodosUseCase: container.resolve(FetchPinnedTodosUseCase.self),
+                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
             ))
             .tabItem {
@@ -36,7 +36,7 @@ struct MainView: View {
             }
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
-                fetchTodosByDateRangeUseCase: container.resolve(FetchTodosByDateRangeUseCase.self),
+                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
                 fetchHeatmapActivityTypesUseCase: container.resolve(FetchProfileHeatmapActivityTypesUseCase.self),
                 updateHeatmapActivityTypesUseCase: container.resolve(UpdateProfileHeatmapActivityTypesUseCase.self)

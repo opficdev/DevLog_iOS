@@ -69,19 +69,19 @@ final class TodoListViewModel: Store {
     }
 
     @Published private(set) var state: State
-    private let fetchTodosByKindUseCase: FetchTodosByKindUseCase
+    private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
 
     init(
-        fetchTodosByKindUseCase: FetchTodosByKindUseCase,
+        fetchTodosUseCase: FetchTodosUseCase,
         fetchTodoByIDUseCase: FetchTodoByIDUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
         kind: TodoKind
     ) {
-        self.fetchTodosByKindUseCase = fetchTodosByKindUseCase
+        self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
@@ -128,7 +128,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosByKindUseCase.execute(state.query, cursor: nil)
+                    let page = try await fetchTodosUseCase.execute(state.query, cursor: nil)
                     send(.resetPagination)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
@@ -142,7 +142,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosByKindUseCase.execute(state.query, cursor: state.nextCursor)
+                    let page = try await fetchTodosUseCase.execute(state.query, cursor: state.nextCursor)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
