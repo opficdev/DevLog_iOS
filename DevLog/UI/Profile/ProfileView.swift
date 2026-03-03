@@ -105,7 +105,7 @@ struct ProfileView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
-            .onChange(of: focusedOnStatusMessageTextField) { newValue in
+            .onChange(of: focusedOnStatusMessageTextField) { _, newValue in
                 withAnimation {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }

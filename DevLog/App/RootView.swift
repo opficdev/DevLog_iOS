@@ -50,7 +50,7 @@ struct RootView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
-        .onChange(of: viewModel.state.isFirstLaunch) { newValue in
+        .onChange(of: viewModel.state.isFirstLaunch) { _, newValue in
             if newValue {
                 viewModel.send(.setFirstLaunch(false))
                 viewModel.send(.signOutAuto)

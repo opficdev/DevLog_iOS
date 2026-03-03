@@ -51,7 +51,7 @@ private struct ToastOverlayView<Label: View>: View {
             )
             .offset(y: yOffset)
             .opacity(opacityValue)
-            .onChange(of: isPresented) { newValue in
+            .onChange(of: isPresented) { _, newValue in
                 if newValue {
                     resetForNewPresentation()
                     presentAnimated()

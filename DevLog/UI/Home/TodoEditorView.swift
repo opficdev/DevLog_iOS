@@ -245,7 +245,7 @@ private struct TagEditor<Content: View>: View {
                                         sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
                                     }
                                 }
-                                .onChange(of: tags) { newTags in
+                                .onChange(of: tags) { _, newTags in
                                     DispatchQueue.main.async {
                                         tagsHeight = geometry.size.height
                                         sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)

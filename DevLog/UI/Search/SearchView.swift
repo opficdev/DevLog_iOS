@@ -41,7 +41,7 @@ struct SearchView: View {
                         viewModel.send(.setSearching(true))
                     }
                 }
-                .onChange(of: viewModel.state.isSearching) { isSearching in
+                .onChange(of: viewModel.state.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
                     }
@@ -54,8 +54,6 @@ struct SearchView: View {
                 } message: {
                     Text(viewModel.state.alertMessage)
                 }
-                // TODO: iOS 16에서 introspect 모듈을 사용하여 .searchable의 isPresented를 관리한다
-                // .introspect(.searchField, on: iOS(.v16)) { searchBar in }
         }
     }
 
