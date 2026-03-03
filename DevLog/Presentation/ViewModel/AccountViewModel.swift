@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class AccountViewModel: Store {
     struct State {
         var currentProvider: AuthProvider?
@@ -47,7 +48,7 @@ final class AccountViewModel: Store {
         case unlinkSuccess
     }
 
-    @Published private(set) var state: State = .init()
+    private(set) var state: State = .init()
     private let fetchProvidersUseCase: FetchAuthProvidersUseCase
     private let linkProviderUseCase: LinkAuthProviderUseCase
     private let unlinkProviderUseCase: UnlinkAuthProviderUseCase

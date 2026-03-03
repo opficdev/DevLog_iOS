@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-protocol Store: ObservableObject {
+protocol Store: AnyObject {
     associatedtype State
     associatedtype Action
     associatedtype SideEffect

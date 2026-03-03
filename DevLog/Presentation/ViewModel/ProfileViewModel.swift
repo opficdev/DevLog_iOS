@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class ProfileViewModel: Store {
     struct State {
         var name: String = ""
@@ -51,7 +52,7 @@ final class ProfileViewModel: Store {
         case updateHeatmapActivityTypes(Set<ProfileActivityType>)
     }
 
-    @Published private(set) var state = State()
+    private(set) var state = State()
     private let fetchUserDataUseCase: FetchUserDataUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase

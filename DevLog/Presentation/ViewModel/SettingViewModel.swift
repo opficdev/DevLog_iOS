@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@Observable
 final class SettingViewModel: Store {
     struct State {
         var theme: SystemTheme = .automatic
@@ -41,7 +42,7 @@ final class SettingViewModel: Store {
         case signOut, deleteAuth, error, removeCache
     }
 
-    @Published private(set) var state = State()
+    private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
     private let sessionUseCase: AuthSessionUseCase

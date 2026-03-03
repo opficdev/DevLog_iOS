@@ -8,6 +8,7 @@
 import Foundation
 import OrderedCollections
 
+@Observable
 final class TodoEditorViewModel: Store {
     struct State {
         var title: String = ""
@@ -41,7 +42,7 @@ final class TodoEditorViewModel: Store {
 
     enum SideEffect { }
 
-    @Published private(set) var state = State()
+    private(set) var state = State()
     private let calendar = Calendar.current
     let navigationTitle: String
     private let id: String

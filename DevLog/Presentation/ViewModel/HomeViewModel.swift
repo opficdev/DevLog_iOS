@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
@@ -81,7 +82,7 @@ final class HomeViewModel: Store {
         case urlInputAlert
     }
 
-    @Published private(set) var state = State()
+    private(set) var state = State()
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase

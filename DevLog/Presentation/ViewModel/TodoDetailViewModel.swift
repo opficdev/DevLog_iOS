@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class TodoDetailViewModel: Store {
     struct State {
         var todo: Todo?
@@ -33,7 +34,7 @@ final class TodoDetailViewModel: Store {
         case upsertTodo(Todo)
     }
 
-    @Published private(set) var state: State = .init()
+    private(set) var state: State = .init()
     private let fetchUseCase: FetchTodoByIDUseCase
     private let upsertUseCase: UpsertTodoUseCase
     private let todoID: String

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class PushNotificationSettingsViewModel: Store {
     struct State {
         var pushNotificationEnable: Bool = false
@@ -45,7 +46,7 @@ final class PushNotificationSettingsViewModel: Store {
         case updatePushNotificationSettings
     }
 
-    @Published private(set) var state: State = .init()
+    private(set) var state: State = .init()
     private let calendar = Calendar.current
     private let fetchPushSettingsUseCase: FetchPushSettingsUseCase
     private let updatePushSettingsUseCase: UpdatePushSettingsUseCase

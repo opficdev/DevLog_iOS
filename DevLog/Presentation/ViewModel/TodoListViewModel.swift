@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class TodoListViewModel: Store {
     struct State {
         var todos: [TodoListItem] = []
@@ -74,7 +75,7 @@ final class TodoListViewModel: Store {
         case togglePinned(TodoListItem)
     }
 
-    @Published private(set) var state: State
+    private(set) var state: State
     private let searchDebounceDelay: Double = 0.4
     private var searchDebounceTask: Task<Void, Never>?
     private let fetchTodosUseCase: FetchTodosUseCase

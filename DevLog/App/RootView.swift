@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
-    @StateObject var viewModel: RootViewModel
+    @State var viewModel: RootViewModel
 
     var body: some View {
         ZStack {

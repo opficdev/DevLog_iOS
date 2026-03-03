@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodoManageView: View {
-    @StateObject var viewModel: TodoManageViewModel
+    @State var viewModel: TodoManageViewModel
     var onDismiss: (([TodoKindPreference]) -> Void)?
 
     var body: some View {

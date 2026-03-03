@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class PushNotificationListViewModel: Store {
     struct State {
         var notifications: [PushNotificationItem] = []
@@ -50,7 +51,7 @@ final class PushNotificationListViewModel: Store {
         case toggleRead(String)
     }
 
-    @Published private(set) var state: State
+    private(set) var state: State
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase

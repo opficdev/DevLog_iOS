@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-final class NavigationRouter: ObservableObject {
-    @Published var path = NavigationPath()
+@Observable
+final class NavigationRouter {
+    var path = NavigationPath()
 
     func push(_ element: any Hashable) {
         Task { @MainActor in

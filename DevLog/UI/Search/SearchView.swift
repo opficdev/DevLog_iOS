@@ -11,8 +11,8 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.diContainer) private var container: DIContainer
-    @StateObject private var router = NavigationRouter()
-    @StateObject var viewModel: SearchViewModel
+    @State private var router = NavigationRouter()
+    @State var viewModel: SearchViewModel
 
     var body: some View {
         NavigationStack(path: $router.path) {

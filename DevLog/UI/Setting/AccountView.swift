@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct AccountView: View {
-    @StateObject var viewModel: AccountViewModel
+    @State var viewModel: AccountViewModel
 
     var body: some View {
         List {

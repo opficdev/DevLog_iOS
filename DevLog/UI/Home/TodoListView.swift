@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct TodoListView: View {
-    @StateObject var viewModel: TodoListViewModel
-    @EnvironmentObject var router: NavigationRouter
+    @State var viewModel: TodoListViewModel
+    @Environment(NavigationRouter.self) var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
 
