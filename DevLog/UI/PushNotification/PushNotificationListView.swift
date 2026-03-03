@@ -114,16 +114,18 @@ struct PushNotificationListView: View {
                             Image(systemName: "line.3.horizontal.decrease")
                             filterBadge
                         }
+                        .adaptiveButtonStyle()
                     }
-                    .adaptiveButtonStyle()
                 }
 
                 Button {
                     viewModel.send(.toggleSortOption)
                 } label: {
+                    let condition = viewModel.state.query.sortOrder == .oldest
                     Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                        .foregroundStyle(condition ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.sortOrder == .oldest ? .blue : .clear)
 
                 Menu {
                     ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
@@ -142,17 +144,23 @@ struct PushNotificationListView: View {
                         }
                     }
                 } label: {
-                    Text("기간")
+                    let condition = viewModel.state.query.timeFilter == .none
+                    HStack {
+                        Text("기간")
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color(.label) : .white)
+                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.timeFilter == .none ? .clear : .blue)
 
                 Button {
                     viewModel.send(.toggleUnreadOnly)
                 } label: {
+                    let condition = viewModel.state.query.unreadOnly
                     Text("읽지 않음")
-                        .foregroundStyle(viewModel.state.query.unreadOnly ? .white : Color(.label))
+                        .foregroundStyle(condition ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
                 }
-                .adaptiveButtonStyle(color: viewModel.state.query.unreadOnly ? .blue : .clear)
             }
         }
         .scrollIndicators(.never)
