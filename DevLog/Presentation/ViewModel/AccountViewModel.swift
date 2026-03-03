@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class AccountViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var currentProvider: AuthProvider?
         var connectedProviders: [AuthProvider] = []
         var disconnectedProviders: [AuthProvider] = []
@@ -87,7 +87,7 @@ final class AccountViewModel: Store {
                 .filter { !allProviders.contains($0) }
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 

@@ -12,7 +12,7 @@ import GoogleSignIn
 
 @Observable
 final class LoginViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var signIn: Bool?
         var isLoading = false
         var showAlert: Bool = false
@@ -76,7 +76,7 @@ final class LoginViewModel: Store {
             state.signIn = result
         }
         
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 

@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 final class TodoListViewModel: Store {
-    struct State {
+    struct State: Equatable {
         var todos: [TodoListItem] = []
         var searchText: String = ""
         var searchResults: [TodoListItem] = []
@@ -25,8 +25,6 @@ final class TodoListViewModel: Store {
         var showToast: Bool = false
         var toastMessage: String = ""
         var hasMore: Bool = false
-        var nextCursor: TodoCursor?
-        var pendingTask: (TodoListItem, Int)?
     }
 
     enum Action {
@@ -82,6 +80,8 @@ final class TodoListViewModel: Store {
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
+    private var pendingTask: (TodoListItem, Int)?
+    private var nextCursor: TodoCursor?
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -129,7 +129,7 @@ final class TodoListViewModel: Store {
             effects = reduceByRun(action, state: &state)
         }
 
-        self.state = state
+        if self.state != state { self.state = state }
         return effects
     }
 
@@ -154,7 +154,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosUseCase.execute(state.query, cursor: state.nextCursor)
+                    let page = try await fetchTodosUseCase.execute(state.query, cursor: nextCursor)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
@@ -239,12 +239,12 @@ private extension TodoListViewModel {
             state.showEditor = value
         case .swipeTodo(let todo):
             var effects: [SideEffect] = []
-            if let (pendingItem, _) = state.pendingTask {
+            if let (pendingItem, _) = pendingTask {
                 effects = [.delete(pendingItem.id)]
             }
 
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
-                state.pendingTask = (todo, index)
+                pendingTask = (todo, index)
                 state.todos.remove(at: index)
                 setToast(&state, isPresented: true)
             }
@@ -252,23 +252,23 @@ private extension TodoListViewModel {
             return effects
         case .setSortTarget(let target):
             state.query.sortTarget = target
-            state.nextCursor = nil
+            self.nextCursor = nil
             return [.fetch]
         case .setSortOrder(let order):
             state.query.sortOrder = order
-            state.nextCursor = nil
+            self.nextCursor = nil
             return [.fetch]
         case .togglePinnedOnly:
             state.query.isPinned = state.query.isPinned == true ? nil : true
-            state.nextCursor = nil
+            self.nextCursor = nil
             return [.fetch]
         case .setCompletionFilter(let filter):
             state.query.completionFilter = filter
-            state.nextCursor = nil
+            self.nextCursor = nil
             return [.fetch]
         case .resetFilters:
             state.query = TodoQuery(kind: state.kind)
-            state.nextCursor = nil
+            self.nextCursor = nil
             return [.fetch]
         case .setIsSearching(let value):
             state.isSearching = value
@@ -285,11 +285,11 @@ private extension TodoListViewModel {
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .undoDelete:
-            guard let (todo, index) = state.pendingTask else { return [] }
+            guard let (todo, index) = pendingTask else { return [] }
             if index <= state.todos.count {
                 state.todos.insert(todo, at: index)
             }
-            state.pendingTask = nil
+            pendingTask = nil
         default:
             break
         }
@@ -299,15 +299,15 @@ private extension TodoListViewModel {
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .confirmDelete:
-            guard let (item, _) = state.pendingTask else {
+            guard let (item, _) = pendingTask else {
                 return []
             }
-            state.pendingTask = nil
+            pendingTask = nil
             return [.delete(item.id)]
         case .onAppear:
             return [.fetch]
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading, state.pendingTask == nil else { return [] }
+            guard state.hasMore, !state.isLoading, pendingTask == nil else { return [] }
             return [.loadNextPage]
         case .setSearchText(let text):
             state.searchText = text
@@ -354,16 +354,16 @@ private extension TodoListViewModel {
             state.isLoading = value
         case .appendTodos(let todos, let nextCursor):
             let filteredTodos: [TodoListItem]
-            if let (pendingItem, _) = state.pendingTask {
+            if let (pendingItem, _) = pendingTask {
                 filteredTodos = todos.filter { $0.id != pendingItem.id }
             } else {
                 filteredTodos = todos
             }
             state.todos.append(contentsOf: filteredTodos)
-            state.nextCursor = nextCursor
+            self.nextCursor = nextCursor
         case .resetPagination:
             state.todos = []
-            state.nextCursor = nil
+            self.nextCursor = nil
             state.hasMore = false
         case .setHasMore(let value):
             state.hasMore = value
