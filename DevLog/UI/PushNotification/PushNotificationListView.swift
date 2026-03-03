@@ -122,12 +122,9 @@ struct PushNotificationListView: View {
                     viewModel.send(.toggleSortOption)
                 } label: {
                     let condition = viewModel.state.query.sortOrder == .oldest
-                    HStack {
-                        Text("정렬: \(viewModel.state.query.sortOrder.title)")
-                        Image(systemName: "chevron.down")
-                    }
-                    .foregroundStyle(condition ? .white : Color(.label))
-                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                        .foregroundStyle(condition ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
                 }
 
                 Menu {
