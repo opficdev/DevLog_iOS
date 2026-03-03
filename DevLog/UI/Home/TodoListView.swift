@@ -163,14 +163,11 @@ struct TodoListView: View {
             set: { viewModel.send(.setIsSearching($0)) }
         )
 
-        let filteredTodos = viewModel.state.todos.filter { todo in
-            guard !viewModel.state.searchText.isEmpty else { return true }
-            return todo.title.localizedCaseInsensitiveContains(viewModel.state.searchText)
-        }
+        let searchResults = viewModel.state.searchResults
         let limit = viewModel.searchResultsLimit
         let displayedTodos = viewModel.state.showAllSearchResults
-            ? filteredTodos
-            : Array(filteredTodos.prefix(limit))
+            ? searchResults
+            : Array(searchResults.prefix(limit))
 
         let content = ScrollView {
             LazyVStack(spacing: 0) {
@@ -179,7 +176,10 @@ struct TodoListView: View {
                         .foregroundStyle(Color.gray)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
-                } else if filteredTodos.isEmpty {
+                } else if viewModel.state.isLoading {
+                    LoadingView()
+                        .padding(.top, 40)
+                } else if searchResults.isEmpty {
                     Text("검색 결과가 없습니다.")
                         .foregroundStyle(Color.gray)
                         .frame(maxWidth: .infinity)
@@ -197,7 +197,7 @@ struct TodoListView: View {
                     }
                     .padding(.horizontal, 16)
 
-                    if !viewModel.state.showAllSearchResults, limit < filteredTodos.count {
+                    if !viewModel.state.showAllSearchResults, limit < searchResults.count {
                         Button("더보기") {
                             viewModel.send(.setShowAllSearchResults(true))
                         }

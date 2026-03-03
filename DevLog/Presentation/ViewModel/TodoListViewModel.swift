@@ -11,6 +11,7 @@ final class TodoListViewModel: Store {
     struct State {
         var todos: [TodoListItem] = []
         var searchText: String = ""
+        var searchResults: [TodoListItem] = []
         let kind: TodoKind
         var showEditor: Bool = false
         var showAlert: Bool = false
@@ -53,6 +54,8 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
+        case setSearchQuery(String)
+        case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
         case setLoading(Bool)
@@ -64,6 +67,7 @@ final class TodoListViewModel: Store {
     enum SideEffect {
         case fetch
         case loadNextPage
+        case search(String)
         case upsert(Todo)
         case delete(String)
         case toggleCompleted(TodoListItem)
@@ -119,7 +123,8 @@ final class TodoListViewModel: Store {
         case .confirmDelete, .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .didToggleCompleted, .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
+        case .setSearchQuery, .fetchSearchResults,
+                .didToggleCompleted, .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -152,6 +157,18 @@ final class TodoListViewModel: Store {
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .search(let keyword):
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    send(.setLoading(true))
+                    let query = TodoQuery(kind: state.kind, keyword: keyword)
+                    let page = try await fetchTodosUseCase.execute(query, cursor: nil)
+                    send(.fetchSearchResults(page.items.map { TodoListItem(from: $0) }))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -257,6 +274,7 @@ private extension TodoListViewModel {
             if !value {
                 cancelDebounce()
                 state.searchText = ""
+                state.searchResults = []
                 state.showAllSearchResults = false
             }
         case .setShowAllSearchResults(let value):
@@ -313,6 +331,15 @@ private extension TodoListViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
+        case .setSearchQuery(let query):
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.searchResults = []
+            } else {
+                return [.search(trimmed)]
+            }
+        case .fetchSearchResults(let items):
+            state.searchResults = items
         case .didToggleCompleted(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo
@@ -371,7 +398,7 @@ private extension TodoListViewModel {
             try? await Task.sleep(for: .seconds(searchDebounceDelay))
             if Task.isCancelled { return }
             await MainActor.run {
-                self.send(.applySearchQuery(query))
+                self.send(.setSearchQuery(query))
             }
         }
     }
