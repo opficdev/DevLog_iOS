@@ -24,10 +24,10 @@ struct TodoInfoSheetView: View {
                             .foregroundStyle(.white)
                         HStack(spacing: 8) {
                             Image(systemName: "calendar")
-                                .foregroundStyle(.white)
                             Text(createdAt.formatted(date: .abbreviated, time: .omitted))
                             Spacer()
                         }
+                        .foregroundStyle(.white)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .background(

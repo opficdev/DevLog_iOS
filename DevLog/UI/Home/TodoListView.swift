@@ -248,7 +248,7 @@ struct TodoListView: View {
                 Text("필터 옵션")
                 Image(systemName: "chevron.down")
             }
-            .foregroundStyle(condition ? Color(.label) : .white)
+            .foregroundStyle(condition ? .white : Color(.label))
             .adaptiveButtonStyle(color: condition ? .blue : .clear)
         }
     }
