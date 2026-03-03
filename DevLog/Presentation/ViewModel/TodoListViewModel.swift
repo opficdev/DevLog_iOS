@@ -71,6 +71,8 @@ final class TodoListViewModel: Store {
     }
 
     @Published private(set) var state: State
+    private let searchDebounceDelay: Double = 0.4
+    private var searchDebounceTask: Task<Void, Never>?
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -253,6 +255,7 @@ private extension TodoListViewModel {
         case .setIsSearching(let value):
             state.isSearching = value
             if !value {
+                cancelDebounce()
                 state.searchText = ""
                 state.showAllSearchResults = false
             }
@@ -290,6 +293,14 @@ private extension TodoListViewModel {
         case .setSearchText(let text):
             state.searchText = text
             state.showAllSearchResults = false
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                cancelDebounce()
+                state.searchResults = []
+            } else {
+                state.isLoading = true
+                scheduleDebouncedQuery(text)
+            }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
         case .upsertTodo(let todo):
@@ -351,6 +362,23 @@ private extension TodoListViewModel {
     ) {
         state.toastMessage = "실행 취소"
         state.showToast = isPresented
+    }
+
+    func scheduleDebouncedQuery(_ query: String) {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: .seconds(searchDebounceDelay))
+            if Task.isCancelled { return }
+            await MainActor.run {
+                self.send(.applySearchQuery(query))
+            }
+        }
+    }
+
+    func cancelDebounce() {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = nil
     }
 }
 
