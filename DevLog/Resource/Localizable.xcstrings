@@ -234,28 +234,6 @@
     "Todos" : {
 
     },
-    "TodoScope.content" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내용"
-          }
-        }
-      }
-    },
-    "TodoScope.title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "제목"
-          }
-        }
-      }
-    },
     "Web Page" : {
 
     },
