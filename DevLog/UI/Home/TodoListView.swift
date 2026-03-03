@@ -226,6 +226,11 @@ struct TodoListView: View {
                 )
             }
         }
+        .onAppear {
+            DispatchQueue.main.async {
+                viewModel.send(.setIsSearching(true))
+            }
+        }
     }
 
     private var headerView: some View {
