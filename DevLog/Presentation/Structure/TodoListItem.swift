@@ -13,6 +13,8 @@ struct TodoListItem: Identifiable, Hashable {
     let tags: [String]
     let isPinned: Bool
     let isCompleted: Bool
+    let createdAt: Date
+    let updatedAt: Date
 
     init(from todo: Todo) {
         self.id = todo.id
@@ -20,5 +22,7 @@ struct TodoListItem: Identifiable, Hashable {
         self.tags = todo.tags
         self.isPinned = todo.isPinned
         self.isCompleted = todo.isCompleted
+        self.createdAt = todo.createdAt
+        self.updatedAt = todo.updatedAt
     }
 }

@@ -26,7 +26,7 @@ struct HomeView: View {
                 switch path {
                 case .kind(let todoKind):
                     TodoListView(viewModel: TodoListViewModel(
-                        fetchTodosByKindUseCase: container.resolve(FetchTodosByKindUseCase.self),
+                        fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                         fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
@@ -90,7 +90,7 @@ struct HomeView: View {
             )) {
                 SearchView(viewModel: SearchViewModel(
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                    fetchTodosByKeywordUseCase: container.resolve(FetchTodosByKeywordUseCase.self),
+                    fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                     fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
                     updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
                 ))

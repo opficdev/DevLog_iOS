@@ -50,14 +50,14 @@ extension TodoResponse {
 extension TodoCursorDTO {
     func toDomain() -> TodoCursor {
         TodoCursor(
-            createdAt: createdAt,
+            orderedAt: orderedAt,
             documentID: documentID
         )
     }
 
     static func fromDomain(_ cursor: TodoCursor) -> Self {
         TodoCursorDTO(
-            createdAt: cursor.createdAt,
+            orderedAt: cursor.orderedAt,
             documentID: cursor.documentID
         )
     }

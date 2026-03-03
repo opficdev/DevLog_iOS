@@ -44,7 +44,7 @@ final class SearchViewModel: Store {
 
     @Published private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
-    private let fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase
+    private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase
     private let updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
     let contentsLimit: Int = 5
@@ -55,12 +55,12 @@ final class SearchViewModel: Store {
 
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
-        fetchTodosByKeywordUseCase: FetchTodosByKeywordUseCase,
+        fetchTodosUseCase: FetchTodosUseCase,
         fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase,
         updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
     ) {
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
-        self.fetchTodosByKeywordUseCase = fetchTodosByKeywordUseCase
+        self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchRecentSearchQueriesUseCase = fetchRecentSearchQueriesUseCase
         self.updateRecentSearchQueriesUseCase = updateRecentSearchQueriesUseCase
         self.state.recentQueries = OrderedSet(fetchRecentSearchQueriesUseCase.execute())
@@ -134,9 +134,9 @@ final class SearchViewModel: Store {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
-                    async let todos = fetchTodosByKeywordUseCase.execute(query)
+                    async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
                     async let webPages = fetchWebPagesUseCase.execute(query)
-                    let todoItems = try await todos.map { TodoListItem(from: $0) }
+                    let todoItems = try await todos.items.map { TodoListItem(from: $0) }
                     let webPageItems = try await webPages.map { WebPageItem(from: $0) }
                     send(.fetchTodos(todoItems))
                     send(.fetchWebPage(webPageItems))

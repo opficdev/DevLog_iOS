@@ -53,7 +53,7 @@ final class ProfileViewModel: Store {
 
     @Published private(set) var state = State()
     private let fetchUserDataUseCase: FetchUserDataUseCase
-    private let fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase
+    private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
@@ -96,13 +96,13 @@ final class ProfileViewModel: Store {
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
-        fetchTodosByDateRangeUseCase: FetchTodosByDateRangeUseCase,
+        fetchTodosUseCase: FetchTodosUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
         fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase,
         updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
-        self.fetchTodosByDateRangeUseCase = fetchTodosByDateRangeUseCase
+        self.fetchTodosUseCase = fetchTodosUseCase
         self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
         self.fetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
         self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
@@ -279,10 +279,16 @@ private extension ProfileViewModel {
             return []
         }
 
-        return try await fetchTodosByDateRangeUseCase.execute(
-            from: quarterStart,
-            to: nextQuarterStart
+        let page = try await fetchTodosUseCase.execute(
+            TodoQuery(
+                createdAtFrom: quarterStart,
+                createdAtTo: nextQuarterStart,
+                pageSize: 100,
+                fetchAllPages: true
+            ),
+            cursor: nil
         )
+        return page.items
     }
 
     func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {

@@ -85,7 +85,7 @@ final class HomeViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
-    private let fetchPinnedTodosUseCase: FetchPinnedTodosUseCase
+    private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private var pendingTask: (WebPageItem, Int)?
 
@@ -93,13 +93,13 @@ final class HomeViewModel: Store {
         addWebPageUseCase: AddWebPageUseCase,
         deleteWebPageUseCase: DeleteWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
-        fetchPinnedTodosUseCase: FetchPinnedTodosUseCase,
+        fetchTodosUseCase: FetchTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase
     ) {
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
-        self.fetchPinnedTodosUseCase = fetchPinnedTodosUseCase
+        self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
     }
 
@@ -168,7 +168,8 @@ final class HomeViewModel: Store {
                 do {
                     defer { send(.setPinnedLoading(false)) }
                     send(.setPinnedLoading(true))
-                    let todos = try await fetchPinnedTodosUseCase.execute()
+                    let page = try await fetchTodosUseCase.execute(TodoQuery(isPinned: true), cursor: nil)
+                    let todos = page.items
                     send(.fetchPinnedTodos(todos.map { PinnedTodoItem(from: $0) }))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
