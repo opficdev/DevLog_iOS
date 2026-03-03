@@ -9,9 +9,11 @@ import Combine
 
 final class AuthSessionRepositoryImpl: AuthSessionRepository {
     private let authService: AuthService
+    private let userDefaultsStore: UserDefaultsStore
 
-    init(authService: AuthService) {
+    init(authService: AuthService, userDefaultsStore: UserDefaultsStore) {
         self.authService = authService
+        self.userDefaultsStore = userDefaultsStore
         self.signIn = authService.uid != nil
     }
 
@@ -22,6 +24,9 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
     }
 
     func setSession(_ signedIn: Bool) {
+        if !signedIn {
+            userDefaultsStore.removeAll()
+        }
         self.signIn = signedIn
     }
 }

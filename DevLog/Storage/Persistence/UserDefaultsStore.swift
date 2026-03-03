@@ -37,4 +37,9 @@ final class UserDefaultsStore {
     func setBool(_ value: Bool, forKey key: String) {
         userDefaults.set(value, forKey: key)
     }
+
+    func removeAll() {
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
+        userDefaults.removePersistentDomain(forName: bundleIdentifier)
+    }
 }
