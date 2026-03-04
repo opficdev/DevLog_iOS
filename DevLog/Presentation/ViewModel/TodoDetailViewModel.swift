@@ -35,6 +35,7 @@ final class TodoDetailViewModel: Store {
     }
 
     private(set) var state: State = .init()
+    let showEditButton: Bool
     private let fetchUseCase: FetchTodoByIDUseCase
     private let upsertUseCase: UpsertTodoUseCase
     private let todoID: String
@@ -42,11 +43,13 @@ final class TodoDetailViewModel: Store {
     init(
         fetchUseCase: FetchTodoByIDUseCase,
         upsertUseCase: UpsertTodoUseCase,
-        todoID: String
+        todoID: String,
+        showEditButton: Bool = true
     ) {
         self.fetchUseCase = fetchUseCase
         self.upsertUseCase = upsertUseCase
         self.todoID = todoID
+        self.showEditButton = showEditButton
     }
 
     func reduce(with action: Action) -> [SideEffect] {

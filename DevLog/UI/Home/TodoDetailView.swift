@@ -52,14 +52,16 @@ struct TodoDetailView: View {
                 Image(systemName: "info.circle")
             }
         }
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                viewModel.send(.setShowEditor(true))
-            } label: {
-                Text("수정")
+        if viewModel.showEditButton {
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.send(.setShowEditor(true))
+                } label: {
+                    Text("수정")
+                }
             }
         }
     }

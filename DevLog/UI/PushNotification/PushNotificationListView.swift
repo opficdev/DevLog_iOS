@@ -79,13 +79,18 @@ struct PushNotificationListView: View {
                 get: { viewModel.state.selectedTodoID },
                 set: { viewModel.send(.setSelectedTodoID($0)) }
             )) { item in
-                VStack(spacing: 0) {
-                    Spacer(minLength: 16)
+                NavigationStack {
                     TodoDetailView(viewModel: TodoDetailViewModel(
                         fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: item.id
+                        todoID: item.id,
+                        showEditButton: false
                     ))
+                    .toolbar {
+                        ToolbarLeadingButton {
+                            viewModel.send(.setSelectedTodoID(nil))
+                        }
+                    }
                 }
                 .background(Color(.secondarySystemBackground))
                 .presentationDragIndicator(.visible)
