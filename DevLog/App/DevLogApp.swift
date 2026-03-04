@@ -26,6 +26,7 @@ struct DevLogApp: App {
                 observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                 updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
             ))
+            .autocorrectionDisabled()
         }
     }
 }
