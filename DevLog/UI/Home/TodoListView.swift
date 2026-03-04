@@ -23,16 +23,20 @@ struct TodoListView: View {
                 }
             } else {
                 Group {
-                    if viewModel.state.searchText.isEmpty {
-                        todoListContent
-                    } else {
+                    if viewModel.state.isSearching {
                         searchResultsContent
+                    } else {
+                        todoListContent
                     }
                 }
                 .searchable(
                     text: Binding(
                         get: { viewModel.state.searchText },
                         set: { viewModel.send(.setSearchText($0)) }
+                    ),
+                    isPresented: Binding(
+                        get: { viewModel.state.isSearching },
+                        set: { viewModel.send(.setIsSearching($0)) }
                     ),
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "\(viewModel.state.kind.localizedName) 검색"
@@ -162,9 +166,8 @@ struct TodoListView: View {
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
-            .refreshable {
-                viewModel.send(.refresh)
-            }
+            .refreshable { viewModel.send(.refresh) }
+            .scrollDisabled(viewModel.state.todos.isEmpty || viewModel.state.isLoading)
 
             if viewModel.state.isLoading {
                 LoadingView()
@@ -189,6 +192,7 @@ struct TodoListView: View {
             )
     }
 
+    @ViewBuilder
     private var searchResultsContent: some View {
         let searchResults = viewModel.state.searchResults
         let limit = viewModel.searchResultsLimit
@@ -196,17 +200,21 @@ struct TodoListView: View {
             ? searchResults
             : Array(searchResults.prefix(limit))
 
-        return ScrollView {
-            LazyVStack(spacing: 0) {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                        .padding(.top, 40)
-                } else if searchResults.isEmpty {
-                    Text("검색 결과가 없습니다.")
-                        .foregroundStyle(Color.gray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                } else {
+        if viewModel.state.searchText.isEmpty {
+            Text("\(viewModel.state.kind.localizedName)의 제목이나 내용을 검색해 보세요.")
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+        } else if viewModel.state.isLoading {
+            LoadingView()
+        } else if searchResults.isEmpty {
+            Spacer()
+            Text("검색 결과가 없습니다.")
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+            Spacer()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
                     ForEach(displayedTodos) { todo in
                         Button {
                             router.push(Path.detail(todo.id))
