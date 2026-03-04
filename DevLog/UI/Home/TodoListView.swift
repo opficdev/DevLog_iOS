@@ -15,10 +15,28 @@ struct TodoListView: View {
 
     var body: some View {
         Group {
-            if viewModel.state.isSearching {
-                todoSearchContent
+            if #available(iOS 18, *) {
+                if viewModel.state.isSearching {
+                    todoSearchContent
+                } else {
+                    todoListContent
+                }
             } else {
-                todoListContent
+                Group {
+                    if viewModel.state.searchText.isEmpty {
+                        todoListContent
+                    } else {
+                        searchResultsContent
+                    }
+                }
+                .searchable(
+                    text: Binding(
+                        get: { viewModel.state.searchText },
+                        set: { viewModel.send(.setSearchText($0)) }
+                    ),
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "\(viewModel.state.kind.localizedName) 검색"
+                )
             }
         }
         .navigationDestination(for: Path.self) { path in
@@ -74,11 +92,13 @@ struct TodoListView: View {
             if #available(iOS 26.0, *) {
                 ToolbarSpacer(.fixed, placement: .topBarTrailing)
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.send(.setIsSearching(true))
-                } label: {
-                    Image(systemName: "magnifyingglass")
+            if #available(iOS 18, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.send(.setIsSearching(true))
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
                 }
             }
         }
@@ -152,31 +172,33 @@ struct TodoListView: View {
         }
     }
 
-    @ViewBuilder
+    @available(iOS 18, *)
     private var todoSearchContent: some View {
-        let searchTextBinding = Binding(
-            get: { viewModel.state.searchText },
-            set: { viewModel.send(.setSearchText($0)) }
-        )
-        let isSearchingBinding = Binding(
-            get: { viewModel.state.isSearching },
-            set: { viewModel.send(.setIsSearching($0)) }
-        )
+        searchResultsContent
+            .searchable(
+                text: Binding(
+                    get: { viewModel.state.searchText },
+                    set: { viewModel.send(.setSearchText($0)) }
+                ),
+                isPresented: Binding(
+                    get: { viewModel.state.isSearching },
+                    set: { viewModel.send(.setIsSearching($0)) }
+                ),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "\(viewModel.state.kind.localizedName) 검색"
+            )
+    }
 
+    private var searchResultsContent: some View {
         let searchResults = viewModel.state.searchResults
         let limit = viewModel.searchResultsLimit
         let displayedTodos = viewModel.state.showAllSearchResults
             ? searchResults
             : Array(searchResults.prefix(limit))
 
-        let content = ScrollView {
+        return ScrollView {
             LazyVStack(spacing: 0) {
-                if viewModel.state.searchText.isEmpty {
-                    Text("검색어를 입력해주세요.")
-                        .foregroundStyle(Color.gray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                } else if viewModel.state.isLoading {
+                if viewModel.state.isLoading {
                     LoadingView()
                         .padding(.top, 40)
                 } else if searchResults.isEmpty {
@@ -207,28 +229,6 @@ struct TodoListView: View {
                         .padding(.top, 4)
                     }
                 }
-            }
-        }
-
-        Group {
-            if #available(iOS 17.0, *) {
-                content.searchable(
-                    text: searchTextBinding,
-                    isPresented: isSearchingBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(viewModel.state.kind.localizedName) 검색"
-                )
-            } else {
-                content.searchable(
-                    text: searchTextBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(viewModel.state.kind.localizedName) 검색"
-                )
-            }
-        }
-        .onAppear {
-            DispatchQueue.main.async {
-                viewModel.send(.setIsSearching(true))
             }
         }
     }

@@ -59,16 +59,7 @@ struct SearchView: View {
 
     @ViewBuilder
     private var searchableContent: some View {
-        let searchQueryBinding = Binding(
-            get: { viewModel.state.searchQuery },
-            set: { viewModel.send(.setSearchQuery($0)) }
-        )
-        let searchingBinding = Binding(
-            get: { viewModel.state.isSearching },
-            set: { viewModel.send(.setSearching($0)) }
-        )
-
-        let scrollContent = ScrollView {
+        ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 if viewModel.state.isLoading {
                     LoadingView()
@@ -86,23 +77,18 @@ struct SearchView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-
-        Group {
-            if #available(iOS 17.0, *) {
-                scrollContent.searchable(
-                    text: searchQueryBinding,
-                    isPresented: searchingBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "검색"
-                )
-            } else {
-                scrollContent.searchable(
-                    text: searchQueryBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "검색"
-                )
-            }
-        }
+        .searchable(
+            text: Binding(
+                get: { viewModel.state.searchQuery },
+                set: { viewModel.send(.setSearchQuery($0)) }
+            ),
+            isPresented: Binding(
+                get: { viewModel.state.isSearching },
+                set: { viewModel.send(.setSearching($0)) }
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "검색"
+        )
         .onSubmit(of: .search) {
             viewModel.send(.addRecentQuery(viewModel.state.searchQuery))
         }
