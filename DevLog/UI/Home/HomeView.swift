@@ -143,7 +143,6 @@ struct HomeView: View {
             )
             .textInputAutocapitalization(.never)
             .keyboardType(.URL)
-            .autocorrectionDisabled()
             Button("추가") {
                 viewModel.send(.addWebPage)
             }
