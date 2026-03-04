@@ -154,22 +154,13 @@ struct TodoListView: View {
 
     @ViewBuilder
     private var todoSearchContent: some View {
-        let searchTextBinding = Binding(
-            get: { viewModel.state.searchText },
-            set: { viewModel.send(.setSearchText($0)) }
-        )
-        let isSearchingBinding = Binding(
-            get: { viewModel.state.isSearching },
-            set: { viewModel.send(.setIsSearching($0)) }
-        )
-
         let searchResults = viewModel.state.searchResults
         let limit = viewModel.searchResultsLimit
         let displayedTodos = viewModel.state.showAllSearchResults
             ? searchResults
             : Array(searchResults.prefix(limit))
 
-        let content = ScrollView {
+        ScrollView {
             LazyVStack(spacing: 0) {
                 if viewModel.state.searchText.isEmpty {
                     Text("검색어를 입력해주세요.")
@@ -209,28 +200,18 @@ struct TodoListView: View {
                 }
             }
         }
-
-        Group {
-            if #available(iOS 17.0, *) {
-                content.searchable(
-                    text: searchTextBinding,
-                    isPresented: isSearchingBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(viewModel.state.kind.localizedName) 검색"
-                )
-            } else {
-                content.searchable(
-                    text: searchTextBinding,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(viewModel.state.kind.localizedName) 검색"
-                )
-            }
-        }
-        .onAppear {
-            DispatchQueue.main.async {
-                viewModel.send(.setIsSearching(true))
-            }
-        }
+        .searchable(
+            text: Binding(
+                get: { viewModel.state.searchText },
+                set: { viewModel.send(.setSearchText($0)) }
+            ),
+            isPresented: Binding(
+                get: { viewModel.state.isSearching },
+                set: { viewModel.send(.setIsSearching($0)) }
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "\(viewModel.state.kind.localizedName) 검색"
+        )
     }
 
     private var headerView: some View {
