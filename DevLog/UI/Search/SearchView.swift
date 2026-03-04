@@ -59,23 +59,25 @@ struct SearchView: View {
 
     @ViewBuilder
     private var searchableContent: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                } else if viewModel.state.searchQuery.isEmpty {
-                    if viewModel.state.recentQueries.isEmpty {
-                        searchInstruction
-                    } else {
+        Group {
+            if viewModel.state.isLoading {
+                LoadingView()
+            } else if viewModel.state.searchQuery.isEmpty {
+                if viewModel.state.recentQueries.isEmpty {
+                    searchInstruction
+                } else {
+                    ScrollView {
                         recentQueries
                     }
-                } else if viewModel.state.webPages.isEmpty && viewModel.state.todos.isEmpty {
-                    emptySearchResult
-                } else {
+                }
+            } else if viewModel.state.webPages.isEmpty && viewModel.state.todos.isEmpty {
+                emptySearchResult
+            } else {
+                ScrollView {
                     searchResults
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .searchable(
             text: Binding(

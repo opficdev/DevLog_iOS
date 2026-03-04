@@ -192,6 +192,7 @@ struct TodoListView: View {
             )
     }
 
+    @ViewBuilder
     private var searchResultsContent: some View {
         let searchResults = viewModel.state.searchResults
         let limit = viewModel.searchResultsLimit
@@ -199,20 +200,21 @@ struct TodoListView: View {
             ? searchResults
             : Array(searchResults.prefix(limit))
 
-        return ScrollView {
-            LazyVStack(spacing: 0) {
-                if viewModel.state.searchText.isEmpty {
-                    Text("\(viewModel.state.kind.localizedName)의 제목이나 내용을 검색해 보세요.")
-                        .foregroundStyle(Color.gray)
-                        .frame(maxWidth: .infinity)
-                } else if viewModel.state.isLoading {
-                    LoadingView()
-                        .padding(.top, 40)
-                } else if searchResults.isEmpty {
-                    Text("검색 결과가 없습니다.")
-                        .foregroundStyle(Color.gray)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
+        if viewModel.state.searchText.isEmpty {
+            Text("\(viewModel.state.kind.localizedName)의 제목이나 내용을 검색해 보세요.")
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+        } else if viewModel.state.isLoading {
+            LoadingView()
+        } else if searchResults.isEmpty {
+            Spacer()
+            Text("검색 결과가 없습니다.")
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+            Spacer()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
                     ForEach(displayedTodos) { todo in
                         Button {
                             router.push(Path.detail(todo.id))
@@ -237,7 +239,6 @@ struct TodoListView: View {
                 }
             }
         }
-        .scrollDisabled(viewModel.state.searchText.isEmpty || viewModel.state.isLoading || searchResults.isEmpty)
     }
 
     private var headerView: some View {
