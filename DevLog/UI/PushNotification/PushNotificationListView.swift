@@ -13,11 +13,13 @@ struct PushNotificationListView: View {
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
+    @State private var headerOffset: CGFloat = 0
+    @State private var isScrollTrackingEnabled = false
 
     var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                Section {
+                Group {
                     if viewModel.state.notifications.isEmpty {
                         HStack {
                             Spacer()
@@ -27,11 +29,13 @@ struct PushNotificationListView: View {
                         }
                         .listRowSeparator(.hidden)
                     } else {
-                        ForEach(viewModel.state.notifications, id: \.id) { notification in
+                        let notifications = viewModel.state.notifications
+                        ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
                             Button {
                                 viewModel.send(.tapNotification(notification))
                             } label: {
                                 notificationRow(notification)
+                                    .padding(.vertical, 8)
                             }
                             .buttonStyle(.plain)
                             .onAppear {
@@ -40,14 +44,45 @@ struct PushNotificationListView: View {
                                     viewModel.send(.loadNextPage)
                                 }
                             }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            .overlay(alignment: .top) {
+                                if #available(iOS 26.0, *) {
+                                    if idx == 0 {
+                                        Divider()
+                                            .padding(.horizontal, -16)
+                                    }
+                                }
+                            }
                         }
                     }
-                } header: {
-                    headerView
                 }
+                .listSectionSeparator(.hidden, edges: .top)
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
+            .background(NavigationBarConfigurator(.secondarySystemBackground))
+            .onScrollOffsetChange { offset in
+                guard isScrollTrackingEnabled else { return }
+                headerOffset = max(0, -offset)
+            }
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 4) {
+                    headerView
+                        .clipped()
+                    if #unavailable(iOS 26) {
+                        Divider()
+                            .padding(.horizontal, -16)
+                    }
+                }
+                .background {
+                    if #available(iOS 26.0, *) {
+                        Color.clear
+                    } else {
+                        Color(.secondarySystemBackground)
+                    }
+                }
+                .offset(y: headerOffset)
+            }
             .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
             .refreshable { viewModel.send(.fetchNotifications) }
@@ -167,8 +202,18 @@ struct PushNotificationListView: View {
                         .adaptiveButtonStyle(color: condition ? .blue : .clear)
                 }
             }
+            .frame(height: 36)
         }
         .scrollIndicators(.never)
+        .scrollDisabled(!isScrollTrackingEnabled)
+        .contentMargins(.leading, 16, for: .scrollContent)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
+            }
+        }
     }
 
     private var filterBadge: some View {

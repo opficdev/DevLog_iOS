@@ -23,6 +23,7 @@ struct TodoDetailView: View {
             }
         }
         .onAppear { viewModel.send(.onAppear) }
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: Binding(
             get: { viewModel.state.showInfo },
             set: { viewModel.send(.setShowInfo($0)) }

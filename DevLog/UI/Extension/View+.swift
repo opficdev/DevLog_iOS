@@ -9,6 +9,90 @@ import SwiftUI
 
 extension View {
     @ViewBuilder
+    func onScrollOffsetChange(action: @escaping (CGFloat) -> Void) -> some View {
+        if #available(iOS 18, *) {
+            self.onScrollGeometryChange(for: CGFloat.self) { geo in
+                geo.contentOffset.y + geo.contentInsets.top
+            } action: { _, newOffset in
+                action(newOffset)
+            }
+        } else {
+            self.background(ScrollViewOffsetTracker(onChange: action))
+        }
+    }
+}
+
+private struct ScrollViewOffsetTracker: UIViewRepresentable {
+    var onChange: (CGFloat) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onChange: onChange)
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.isHidden = true
+        view.isUserInteractionEnabled = false
+        DispatchQueue.main.async {
+            guard let scrollView = Self.findScrollView(from: view) else { return }
+            context.coordinator.observe(scrollView)
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    private static func findScrollView(from view: UIView) -> UIScrollView? {
+        var current = view.superview
+        while let superview = current {
+            if let scrollView = superview as? UIScrollView {
+                return scrollView
+            }
+            for sibling in superview.subviews where sibling !== view {
+                if let scrollView = findScrollViewInSubviews(of: sibling) {
+                    return scrollView
+                }
+            }
+            current = superview.superview
+        }
+        return nil
+    }
+
+    private static func findScrollViewInSubviews(of view: UIView) -> UIScrollView? {
+        if let scrollView = view as? UIScrollView {
+            return scrollView
+        }
+        for subview in view.subviews {
+            if let scrollView = findScrollViewInSubviews(of: subview) {
+                return scrollView
+            }
+        }
+        return nil
+    }
+
+    class Coordinator: NSObject {
+        private var onChange: (CGFloat) -> Void
+        private var observation: NSKeyValueObservation?
+
+        init(onChange: @escaping (CGFloat) -> Void) {
+            self.onChange = onChange
+        }
+
+        func observe(_ scrollView: UIScrollView) {
+            observation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] scrollView, _ in
+                let offset = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
+                self?.onChange(offset)
+            }
+        }
+
+        deinit {
+            observation?.invalidate()
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder
     func adaptiveButtonStyle(
         shape: some Shape = .capsule,
         color: Color = .clear)
