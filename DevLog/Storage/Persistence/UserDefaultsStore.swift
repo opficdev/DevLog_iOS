@@ -40,6 +40,10 @@ final class UserDefaultsStore {
 
     func removeAll() {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
+        let firstLaunch = userDefaults.object(forKey: "isFirstLaunch")
         userDefaults.removePersistentDomain(forName: bundleIdentifier)
+        if let value = firstLaunch as? Bool {
+            userDefaults.set(value, forKey: "isFirstLaunch")
+        }
     }
 }
