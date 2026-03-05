@@ -12,6 +12,8 @@ struct TodoListView: View {
     @Environment(NavigationRouter.self) var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
+    @State private var headerOffset: CGFloat = 0
+    @State private var isScrollTrackingEnabled = false
 
     var body: some View {
         Group {
@@ -106,14 +108,14 @@ struct TodoListView: View {
                 }
             }
         }
-        .toolbarBackground(.visible, for: .navigationBar)
+        .background(NavigationBarConfigurator())
         .task { viewModel.send(.onAppear) }
     }
 
     private var todoListContent: some View {
         ZStack {
             List {
-                Section {
+                Group {
                     if viewModel.state.todos.isEmpty, !viewModel.state.isLoading {
                         HStack {
                             Spacer()
@@ -123,7 +125,8 @@ struct TodoListView: View {
                         }
                         .listRowSeparator(.hidden)
                     } else {
-                        ForEach(viewModel.state.todos) { todo in
+                        let todos = viewModel.state.todos
+                        ForEach(Array(zip(todos.indices, todos)), id: \.1.id) { idx, todo in
                             Button {
                                 router.push(Path.detail(todo.id))
                             } label: {
@@ -131,6 +134,14 @@ struct TodoListView: View {
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                             .alignmentGuide(.listRowSeparatorLeading) { _ in return 0 }
+                            .overlay(alignment: .top) {
+                                if #available(iOS 26.0, *) {
+                                    if idx == 0 {
+                                        Divider()
+                                            .padding(.horizontal, -16)
+                                    }
+                                }
+                            }
                             .onAppear {
                                 let lastID = viewModel.state.todos.last?.id
                                 if todo.id == lastID, viewModel.state.hasMore {
@@ -160,12 +171,32 @@ struct TodoListView: View {
                             }
                         }
                     }
-                } header: {
-                    headerView
                 }
                 .listRowBackground(Color.clear)
+                .listSectionSeparator(.hidden, edges: .top)
             }
             .listStyle(.plain)
+            .onScrollOffsetChange { offset in
+                guard isScrollTrackingEnabled else { return }
+                headerOffset = max(0, -offset)
+            }
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 4) {
+                    headerView
+                    if #unavailable(iOS 26) {
+                        Divider()
+                            .padding(.horizontal, -16)
+                    }
+                }
+                .background {
+                    if #available(iOS 26.0, *) {
+                        Color.clear
+                    } else {
+                        Color(.secondarySystemBackground)
+                    }
+                }
+                .offset(y: headerOffset)
+            }
             .refreshable { viewModel.send(.refresh) }
             .scrollDisabled(viewModel.state.todos.isEmpty || viewModel.state.isLoading)
 
@@ -266,6 +297,16 @@ struct TodoListView: View {
             }
         }
         .scrollIndicators(.never)
+        .scrollDisabled(!isScrollTrackingEnabled)
+        .contentMargins(.leading, 16, for: .scrollContent)
+        .frame(height: 36)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
+            }
+        }
     }
 
     private var sortMenu: some View {

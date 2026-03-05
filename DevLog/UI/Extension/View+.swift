@@ -9,6 +9,19 @@ import SwiftUI
 
 extension View {
     @ViewBuilder
+    func onScrollOffsetChange(action: @escaping (CGFloat) -> Void) -> some View {
+        if #available(iOS 18, *) {
+            self.onScrollGeometryChange(for: CGFloat.self) { geo in
+                geo.contentOffset.y + geo.contentInsets.top
+            } action: { _, newOffset in
+                action(newOffset)
+            }
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
     func adaptiveButtonStyle(
         shape: some Shape = .capsule,
         color: Color = .clear)
