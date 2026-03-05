@@ -321,8 +321,6 @@ struct TodoListView: View {
             } label: {
                 Text("정렬 기준")
             }
-            .tint(.blue)
-
             Picker(selection: Binding(
                 get: { viewModel.state.query.sortOrder },
                 set: { viewModel.send(.setSortOrder($0)) }
@@ -333,7 +331,6 @@ struct TodoListView: View {
             } label: {
                 Text("정렬 순서")
             }
-            .tint(.blue)
         } label: {
             let condition = viewModel.state.query.sortTarget == .createdAt && viewModel.state.query.sortOrder == .latest
             HStack {
