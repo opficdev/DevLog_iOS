@@ -101,6 +101,7 @@ extension View {
             self.foregroundStyle(Color(.label))
                 .padding(8)
                 .glassEffect(.regular.tint(color), in: shape)
+                .clipShape(shape)
         } else {
             self.foregroundStyle(Color(.label))
                 .padding(8)
