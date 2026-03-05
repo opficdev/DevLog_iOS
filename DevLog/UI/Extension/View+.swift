@@ -108,7 +108,7 @@ extension View {
                     Group {
                         if color == .clear {
                             shape
-                                .fill(.ultraThinMaterial)
+                                .fill((Color(.systemGray5)))
                         } else {
                             shape
                                 .fill(color)
