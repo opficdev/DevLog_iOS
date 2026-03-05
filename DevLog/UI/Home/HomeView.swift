@@ -215,7 +215,6 @@ struct HomeView: View {
                                 }
                             VStack(alignment: .leading) {
                                 Text(todo.title)
-                                    .bold()
                                     .foregroundStyle(Color.primary)
                                 Text(todo.dueDate?
                                     .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
@@ -265,7 +264,6 @@ struct HomeView: View {
                     .foregroundStyle(Color.primary)
                     .font(.title2.bold())
                 Spacer()
-
             }
             .listRowInsets(EdgeInsets())
         }

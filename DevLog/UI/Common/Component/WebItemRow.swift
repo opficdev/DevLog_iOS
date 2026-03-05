@@ -26,7 +26,6 @@ struct WebItemRow: View {
             VStack(alignment: .leading) {
                 Text(item.title)
                     .foregroundStyle(Color.primary)
-                    .bold()
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(item.displayURL)
