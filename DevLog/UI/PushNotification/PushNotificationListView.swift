@@ -130,6 +130,11 @@ struct PushNotificationListView: View {
                 .background(Color(.secondarySystemBackground))
                 .presentationDragIndicator(.visible)
             }
+            .overlay {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                }
+            }
         }
     }
 
