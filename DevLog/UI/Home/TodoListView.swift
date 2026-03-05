@@ -311,35 +311,29 @@ struct TodoListView: View {
 
     private var sortMenu: some View {
         Menu {
-            Section {
+            Picker(selection: Binding(
+                get: { viewModel.state.query.sortTarget },
+                set: { viewModel.send(.setSortTarget($0)) }
+            )) {
                 ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
-                    Button {
-                        viewModel.send(.setSortTarget(option))
-                    } label: {
-                        selectionLabel(
-                            title: option.title,
-                            isSelected: viewModel.state.query.sortTarget == option
-                        )
-                    }
+                    Text(option.title).tag(option)
                 }
-            } header: {
+            } label: {
                 Text("정렬 기준")
             }
+            .tint(.blue)
 
-            Section {
+            Picker(selection: Binding(
+                get: { viewModel.state.query.sortOrder },
+                set: { viewModel.send(.setSortOrder($0)) }
+            )) {
                 ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
-                    Button {
-                        viewModel.send(.setSortOrder(option))
-                    } label: {
-                        selectionLabel(
-                            title: option.title,
-                            isSelected: viewModel.state.query.sortOrder == option
-                        )
-                    }
+                    Text(option.title).tag(option)
                 }
-            } header: {
+            } label: {
                 Text("정렬 순서")
             }
+            .tint(.blue)
         } label: {
             let condition = viewModel.state.query.sortTarget == .createdAt && viewModel.state.query.sortOrder == .latest
             HStack {
@@ -353,27 +347,21 @@ struct TodoListView: View {
 
     private var filterMenu: some View {
         Menu {
-            Button {
-                viewModel.send(.togglePinnedOnly)
-            } label: {
-                selectionLabel(
-                    title: "중요 표시",
-                    isSelected: viewModel.state.query.isPinned == true
-                )
+            Toggle(isOn: Binding(
+                get: { viewModel.state.query.isPinned == true },
+                set: { _ in viewModel.send(.togglePinnedOnly) }
+            )) {
+                Text("중요 표시")
             }
 
-            Section {
+            Picker(selection: Binding(
+                get: { viewModel.state.query.completionFilter },
+                set: { viewModel.send(.setCompletionFilter($0)) }
+            )) {
                 ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
-                    Button {
-                        viewModel.send(.setCompletionFilter(option))
-                    } label: {
-                        selectionLabel(
-                            title: option.title,
-                            isSelected: viewModel.state.query.completionFilter == option
-                        )
-                    }
+                    Text(option.title).tag(option)
                 }
-            } header: {
+            } label: {
                 Text("완료 상태")
             }
         } label: {
@@ -402,19 +390,7 @@ struct TodoListView: View {
             .background(Circle().fill(backgroundColor))
     }
 
-    private func selectionLabel(title: String, isSelected: Bool) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            if isSelected {
-                Image(systemName: "checkmark")
-                    .tint(.blue)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private enum Path: Hashable {
+private enum Path: Hashable {
         case detail(String)
     }
 }
