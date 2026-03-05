@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct NavigationBarConfigurator: UIViewControllerRepresentable {
+    private let backgroundColor: UIColor
+
+    init(_ backgroundColor: UIColor = .systemBackground) {
+        self.backgroundColor = backgroundColor
+    }
+
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
     }
@@ -18,7 +24,7 @@ struct NavigationBarConfigurator: UIViewControllerRepresentable {
             guard let navigationBar = uiViewController.navigationController?.navigationBar else { return }
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .secondarySystemBackground
+            appearance.backgroundColor = backgroundColor
             appearance.shadowColor = .clear
             navigationBar.standardAppearance = appearance
             navigationBar.scrollEdgeAppearance = appearance
