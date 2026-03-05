@@ -168,20 +168,15 @@ struct PushNotificationListView: View {
                 }
 
                 Menu {
-                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.id) { option in
-                        Button {
-                            viewModel.send(.setTimeFilter(option))
-                        } label: {
-                            HStack {
-                                Text(option.title)
-                                Spacer()
-                                if viewModel.state.query.timeFilter == option {
-                                    Image(systemName: "checkmark")
-                                        .tint(.blue)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    Picker(selection: Binding(
+                        get: { viewModel.state.query.timeFilter },
+                        set: { viewModel.send(.setTimeFilter($0)) }
+                    )) {
+                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                            Text(option.title).tag(option)
                         }
+                    } label: {
+                        Text("기간")
                     }
                 } label: {
                     let condition = viewModel.state.query.timeFilter == .none

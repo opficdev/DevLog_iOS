@@ -13,7 +13,7 @@ struct PushNotificationQuery: Equatable {
         case oldest
     }
 
-    enum TimeFilter: Equatable {
+    enum TimeFilter: Equatable, Hashable {
         case none
         case hours(Int)
         case days(Int)
