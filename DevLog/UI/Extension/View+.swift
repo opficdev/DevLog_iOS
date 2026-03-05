@@ -109,7 +109,7 @@ extension View {
                     Group {
                         if color == .clear {
                             shape
-                                .fill((Color(.systemGray5)))
+                                .fill(Color(.systemGray5))
                         } else {
                             shape
                                 .fill(color)
