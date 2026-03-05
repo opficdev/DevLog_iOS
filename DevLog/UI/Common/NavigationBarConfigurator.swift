@@ -14,6 +14,10 @@ struct NavigationBarConfigurator: UIViewControllerRepresentable {
         self.backgroundColor = backgroundColor
     }
 
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
     }
@@ -22,25 +26,37 @@ struct NavigationBarConfigurator: UIViewControllerRepresentable {
         if #available(iOS 26, *) { return }
         DispatchQueue.main.async {
             guard let navigationBar = uiViewController.navigationController?.navigationBar else { return }
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = backgroundColor
-            appearance.shadowColor = .clear
-            navigationBar.standardAppearance = appearance
-            navigationBar.scrollEdgeAppearance = appearance
-            navigationBar.compactAppearance = appearance
-            navigationBar.compactScrollEdgeAppearance = appearance
+            let coordinator = context.coordinator
+            if coordinator.originalShadowColor == nil {
+                coordinator.originalShadowColor = navigationBar.standardAppearance.shadowColor
+                coordinator.originalBackgroundColor = navigationBar.standardAppearance.backgroundColor
+            }
+            navigationBar.standardAppearance.shadowColor = .clear
+            navigationBar.standardAppearance.backgroundColor = backgroundColor
+            navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+            navigationBar.scrollEdgeAppearance?.backgroundColor = backgroundColor
+            navigationBar.compactAppearance?.shadowColor = .clear
+            navigationBar.compactAppearance?.backgroundColor = backgroundColor
+            navigationBar.compactScrollEdgeAppearance?.shadowColor = .clear
+            navigationBar.compactScrollEdgeAppearance?.backgroundColor = backgroundColor
         }
     }
 
-    static func dismantleUIViewController(_ uiViewController: UIViewController, coordinator: ()) {
+    static func dismantleUIViewController(_ uiViewController: UIViewController, coordinator: Coordinator) {
         if #available(iOS 26, *) { return }
         guard let navigationBar = uiViewController.navigationController?.navigationBar else { return }
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
-        navigationBar.standardAppearance = appearance
-        navigationBar.scrollEdgeAppearance = appearance
-        navigationBar.compactAppearance = appearance
-        navigationBar.compactScrollEdgeAppearance = appearance
+        navigationBar.standardAppearance.shadowColor = coordinator.originalShadowColor
+        navigationBar.standardAppearance.backgroundColor = coordinator.originalBackgroundColor
+        navigationBar.scrollEdgeAppearance?.shadowColor = coordinator.originalShadowColor
+        navigationBar.scrollEdgeAppearance?.backgroundColor = coordinator.originalBackgroundColor
+        navigationBar.compactAppearance?.shadowColor = coordinator.originalShadowColor
+        navigationBar.compactAppearance?.backgroundColor = coordinator.originalBackgroundColor
+        navigationBar.compactScrollEdgeAppearance?.shadowColor = coordinator.originalShadowColor
+        navigationBar.compactScrollEdgeAppearance?.backgroundColor = coordinator.originalBackgroundColor
+    }
+
+    class Coordinator {
+        var originalShadowColor: UIColor?
+        var originalBackgroundColor: UIColor?
     }
 }
