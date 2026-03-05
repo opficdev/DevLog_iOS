@@ -60,7 +60,7 @@ struct PushNotificationListView: View {
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
-            .background(NavigationBarConfigurator(.secondarySystemBackground))
+            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
             .onScrollOffsetChange { offset in
                 guard isScrollTrackingEnabled else { return }
                 headerOffset = max(0, -offset)
