@@ -119,6 +119,12 @@ struct ProfileView: View {
             } message: {
                 Text(viewModel.state.alertMessage)
             }
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.showQuarterPicker },
+                set: { viewModel.send(.setQuarterPickerPresented($0)) }
+            )) {
+                quarterPickerSheet
+            }
         }
     }
 
@@ -221,9 +227,18 @@ struct ProfileView: View {
             }
             .disabled(!viewModel.canMoveToPreviousQuarter)
             Spacer()
-            Text(viewModel.quarterTitle)
-                .font(.subheadline)
+            Button {
+                viewModel.send(.openQuarterPicker)
+            } label: {
+                HStack(spacing: 4) {
+                    Text(viewModel.quarterTitle)
+                        .font(.subheadline)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2)
+                }
                 .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
             Spacer()
             Button {
                 viewModel.send(.moveQuarter(1))
@@ -232,6 +247,71 @@ struct ProfileView: View {
             }
             .disabled(!viewModel.canMoveToNextQuarter)
         }
+    }
+
+    private var quarterPickerSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack {
+                    Text("연도")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { viewModel.state.selectedQuarterPickerYear },
+                        set: { viewModel.send(.setQuarterPickerYear($0)) }
+                    )) {
+                        ForEach(viewModel.availableQuarterYears, id: \.self) { year in
+                            Text(year.formatted(.number.grouping(.never)) + "년").tag(year)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                }
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                    ForEach(1...4, id: \.self) { quarter in
+                        quarterSelectionButton(for: quarter)
+                    }
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(20)
+            .navigationTitle("분기 선택")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarTrailingButton {
+                    viewModel.send(.setQuarterPickerPresented(false))
+                }
+            }
+        }
+        .presentationDetents([.fraction(0.3)])
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func quarterSelectionButton(for quarter: Int) -> some View {
+        let quarterStart = viewModel.quarterStartForPicker(quarter: quarter)
+        let isEnabled = viewModel.isQuarterSelectableForPicker(quarter)
+        let isSelected = viewModel.isQuarterSelectedForPicker(quarter)
+
+        Button {
+            guard let quarterStart else { return }
+            viewModel.send(.selectQuarter(quarterStart))
+        } label: {
+            Text("Q\(quarter)")
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(isSelected ? Color.blue : Color(.systemGray5))
+                )
+                .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
     }
 
     @ViewBuilder
