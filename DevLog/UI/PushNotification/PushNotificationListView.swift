@@ -18,71 +18,14 @@ struct PushNotificationListView: View {
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            List {
-                Group {
-                    if viewModel.state.notifications.isEmpty {
-                        HStack {
-                            Spacer()
-                            Text("받은 알림이 없습니다.")
-                                .foregroundStyle(Color.gray)
-                            Spacer()
-                        }
-                        .listRowSeparator(.hidden)
-                    } else {
-                        let notifications = viewModel.state.notifications
-                        ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
-                            Button {
-                                viewModel.send(.tapNotification(notification))
-                            } label: {
-                                notificationRow(notification)
-                                    .padding(.vertical, 8)
-                            }
-                            .buttonStyle(.plain)
-                            .onAppear {
-                                let lastID = viewModel.state.notifications.last?.id
-                                if notification.id == lastID, viewModel.state.hasMore {
-                                    viewModel.send(.loadNextPage)
-                                }
-                            }
-                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            .overlay(alignment: .top) {
-                                if #available(iOS 26.0, *) {
-                                    if idx == 0 {
-                                        Divider()
-                                            .padding(.horizontal, -16)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                .listSectionSeparator(.hidden, edges: .top)
-                .listRowBackground(Color.clear)
-            }
+            notificationList
             .listStyle(.plain)
             .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
             .onScrollOffsetChange { offset in
                 guard isScrollTrackingEnabled else { return }
                 headerOffset = max(0, -offset)
             }
-            .safeAreaInset(edge: .top) {
-                VStack(spacing: 4) {
-                    headerView
-                        .clipped()
-                    if #unavailable(iOS 26) {
-                        Divider()
-                            .padding(.horizontal, -16)
-                    }
-                }
-                .background {
-                    if #available(iOS 26.0, *) {
-                        Color.clear
-                    } else {
-                        Color(.secondarySystemBackground)
-                    }
-                }
-                .offset(y: headerOffset)
-            }
+            .safeAreaInset(edge: .top) { safeAreaHeader }
             .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
             .refreshable { viewModel.send(.fetchNotifications) }
@@ -136,6 +79,69 @@ struct PushNotificationListView: View {
                 }
             }
         }
+    }
+
+    private var notificationList: some View {
+        List {
+            Group {
+                if viewModel.state.notifications.isEmpty {
+                    HStack {
+                        Spacer()
+                        Text("받은 알림이 없습니다.")
+                            .foregroundStyle(Color.gray)
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
+                } else {
+                    let notifications = viewModel.state.notifications
+                    ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
+                        Button {
+                            viewModel.send(.tapNotification(notification))
+                        } label: {
+                            notificationRow(notification)
+                                .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.plain)
+                        .onAppear {
+                            let lastID = viewModel.state.notifications.last?.id
+                            if notification.id == lastID, viewModel.state.hasMore {
+                                viewModel.send(.loadNextPage)
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .overlay(alignment: .top) {
+                            if #available(iOS 26.0, *) {
+                                if idx == 0 {
+                                    Divider()
+                                        .padding(.horizontal, -16)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .listSectionSeparator(.hidden, edges: .top)
+            .listRowBackground(Color.clear)
+        }
+    }
+
+    private var safeAreaHeader: some View {
+        VStack(spacing: 4) {
+            headerView
+                .clipped()
+            if #unavailable(iOS 26) {
+                Divider()
+                    .padding(.horizontal, -16)
+            }
+        }
+        .background {
+            if #available(iOS 26.0, *) {
+                Color.clear
+            } else {
+                Color(.secondarySystemBackground)
+            }
+        }
+        .offset(y: headerOffset)
     }
 
     private var headerView: some View {
