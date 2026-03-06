@@ -68,14 +68,6 @@ final class ProfileViewModel: Store {
         return "\(year) Q\(quarter)"
     }
 
-    var resetButtonEnabled: Bool {
-        !state.statusMessage.isEmpty && state.showDoneButton
-    }
-
-    var selectedQuarter: ProfileCompletionQuarter? {
-        state.completionQuarter
-    }
-
     var selectedDayActivities: [ProfileSelectedDayActivity] {
         guard let selectedDay = state.selectedDay else { return [] }
         let dayStart = calendar.startOfDay(for: selectedDay.date)

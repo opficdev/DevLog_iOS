@@ -44,8 +44,8 @@ struct ProfileView: View {
                                 }
                             }
                             .focused($focusedOnStatusMessageTextField)
-                            
-                            if viewModel.resetButtonEnabled {
+
+                            if !viewModel.state.statusMessage.isEmpty && viewModel.state.showDoneButton {
                                 Button(action: {
                                     viewModel.send(.tapResetStatusMessageButton)
                                 }) {
@@ -123,9 +123,9 @@ struct ProfileView: View {
     }
 
     private var activityHeatmapSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("분기별 활동 히트맵")
+                Text("분기별 활동")
                     .font(.headline)
                 Spacer()
                 activityTypeSelector
@@ -133,28 +133,34 @@ struct ProfileView: View {
 
             quarterNavigator
 
-            if viewModel.selectedQuarter == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 140)
-            } else if let quarter = viewModel.selectedQuarter {
-                ProfileHeatmapView(
-                    quarter: quarter,
-                    selectedActivityTypes: viewModel.state.selectedActivityTypes,
-                    selectedDay: viewModel.state.selectedDay,
-                    onSelectDay: { day in
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.send(.selectDay(day))
-                        }
-                    }
+            if let quarter = viewModel.state.completionQuarter {
                 )
-                .padding(.vertical, 6)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("활동 히트맵")
+                        .font(.subheadline)
+                        .bold()
+
+                    ProfileHeatmapView(
+                        quarter: quarter,
+                        selectedActivityTypes: viewModel.state.selectedActivityTypes,
+                        selectedDay: viewModel.state.selectedDay,
+                        onSelectDay: { day in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                viewModel.send(.selectDay(day))
+                            }
+                        }
+                    )
+                    .padding(.vertical, 2)
+                }
 
                 if let selectedDay = viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
                         .transition(.opacity)
                 }
             } else {
-                EmptyView()
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 140)
             }
         }
         .padding(12)
