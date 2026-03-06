@@ -130,8 +130,8 @@ struct TodoEditorView: View {
                 Label {
                     Text("중요")
                 } icon: {
-                    Image(systemName: viewModel.state.isPinned ? "star.fill" : "star.slash")
-                        .foregroundStyle(.yellow)
+                    Image(systemName: viewModel.state.isPinned ? "star.fill" : "star")
+                        .foregroundStyle(viewModel.state.isPinned ? .yellow : .gray)
                 }
                 .adaptiveButtonStyle()
             }
