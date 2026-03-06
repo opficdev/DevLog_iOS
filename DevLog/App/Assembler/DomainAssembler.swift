@@ -154,5 +154,13 @@ private extension DomainAssembler {
         container.register(UpdateProfileHeatmapActivityTypesUseCase.self) {
             UpdateProfileHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
+
+        container.register(FetchTodayDisplayOptionsUseCase.self) {
+            FetchTodayDisplayOptionsUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
+
+        container.register(UpdateTodayDisplayOptionsUseCase.self) {
+            UpdateTodayDisplayOptionsUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        }
     }
 }

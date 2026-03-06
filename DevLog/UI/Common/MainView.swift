@@ -23,6 +23,17 @@ struct MainView: View {
                 Image(systemName: "house.fill")
                 Text("홈")
             }
+            TodayView(viewModel: TodayViewModel(
+                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+                fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
+                updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
+            ))
+            .tabItem {
+                Image(systemName: "sun.max.fill")
+                Text("오늘")
+            }
             PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
                 deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),

@@ -11,6 +11,7 @@ struct TodoQuery: Equatable {
     enum SortTarget: Equatable, Hashable {
         case createdAt
         case updatedAt
+        case dueDate
 
         var fieldName: String {
             switch self {
@@ -18,6 +19,8 @@ struct TodoQuery: Equatable {
                 return "createdAt"
             case .updatedAt:
                 return "updatedAt"
+            case .dueDate:
+                return "dueDate"
             }
         }
     }
@@ -48,10 +51,17 @@ struct TodoQuery: Equatable {
         }
     }
 
+    enum DueDateFilter: Equatable, Hashable {
+        case all
+        case withDueDate
+        case withoutDueDate
+    }
+
     var kind: TodoKind?
     var keyword: String?
     var isPinned: Bool?
     var completionFilter: CompletionFilter
+    var dueDateFilter: DueDateFilter
     var createdAtFrom: Date?
     var createdAtTo: Date?
     var sortTarget: SortTarget
@@ -64,6 +74,7 @@ struct TodoQuery: Equatable {
         keyword: String? = nil,
         isPinned: Bool? = nil,
         completionFilter: CompletionFilter = .all,
+        dueDateFilter: DueDateFilter = .all,
         createdAtFrom: Date? = nil,
         createdAtTo: Date? = nil,
         sortTarget: SortTarget = .createdAt,
@@ -75,6 +86,7 @@ struct TodoQuery: Equatable {
         self.keyword = keyword
         self.isPinned = isPinned
         self.completionFilter = completionFilter
+        self.dueDateFilter = dueDateFilter
         self.createdAtFrom = createdAtFrom
         self.createdAtTo = createdAtTo
         self.sortTarget = sortTarget
