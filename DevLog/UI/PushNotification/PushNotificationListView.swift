@@ -152,69 +152,79 @@ struct PushNotificationListView: View {
     }
 
     private var headerView: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                if 0 < viewModel.appliedFilterCount {
-                    Menu {
-                        Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
-                        Button(role: .destructive) {
-                            viewModel.send(.resetFilters)
-                        } label: {
-                            Text("모든 필터 지우기")
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "line.3.horizontal.decrease")
-                            filterBadge
-                        }
-                        .adaptiveButtonStyle()
-                    }
-                }
+        Group {
+            if #available(iOS 18, *) {
+                ScrollView(.horizontal) { headerContent }
+                .scrollIndicators(.never)
+                .scrollDisabled(!isScrollTrackingEnabled)
+                .contentMargins(.leading, 16, for: .scrollContent)
+            } else {
+                headerContent
+                    .padding(.leading, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
 
-                Button {
-                    viewModel.send(.toggleSortOption)
-                } label: {
-                    let condition = viewModel.state.query.sortOrder == .oldest
-                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
-                        .foregroundStyle(condition ? .white : Color(.label))
-                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
-                }
-
+    private var headerContent: some View {
+        HStack(spacing: 8) {
+            if 0 < viewModel.appliedFilterCount {
                 Menu {
-                    Picker(selection: Binding(
-                        get: { viewModel.state.query.timeFilter },
-                        set: { viewModel.send(.setTimeFilter($0)) }
-                    )) {
-                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
-                            Text(option.title).tag(option)
-                        }
+                    Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
+                    Button(role: .destructive) {
+                        viewModel.send(.resetFilters)
                     } label: {
-                        Text("기간")
+                        Text("모든 필터 지우기")
                     }
                 } label: {
-                    let condition = viewModel.state.query.timeFilter == .none
-                    HStack {
-                        Text("기간")
-                        Image(systemName: "chevron.down")
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        filterBadge
                     }
-                    .foregroundStyle(condition ? Color(.label) : .white)
-                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
-                }
-
-                Button {
-                    viewModel.send(.toggleUnreadOnly)
-                } label: {
-                    let condition = viewModel.state.query.unreadOnly
-                    Text("읽지 않음")
-                        .foregroundStyle(condition ? .white : Color(.label))
-                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                    .adaptiveButtonStyle()
                 }
             }
-            .frame(height: 36)
+
+            Button {
+                viewModel.send(.toggleSortOption)
+            } label: {
+                let condition = viewModel.state.query.sortOrder == .oldest
+                Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+            }
+
+            Menu {
+                Picker(selection: Binding(
+                    get: { viewModel.state.query.timeFilter },
+                    set: { viewModel.send(.setTimeFilter($0)) }
+                )) {
+                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                } label: {
+                    Text("기간")
+                }
+            } label: {
+                let condition = viewModel.state.query.timeFilter == .none
+                HStack {
+                    Text("기간")
+                    Image(systemName: "chevron.down")
+                }
+                .foregroundStyle(condition ? Color(.label) : .white)
+                .adaptiveButtonStyle(color: condition ? .clear : .blue)
+            }
+
+            Button {
+                viewModel.send(.toggleUnreadOnly)
+            } label: {
+                let condition = viewModel.state.query.unreadOnly
+                Text("읽지 않음")
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+            }
         }
-        .scrollIndicators(.never)
-        .scrollDisabled(!isScrollTrackingEnabled)
-        .contentMargins(.leading, 16, for: .scrollContent)
+        .frame(height: 36)
     }
 
     private var filterBadge: some View {
