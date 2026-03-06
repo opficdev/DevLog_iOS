@@ -22,6 +22,14 @@ final class TodayViewModel: Store {
         let items: [TodayTodoItem]
     }
 
+    struct SectionBuckets {
+        var focused: [TodayTodoItem] = []
+        var overdue: [TodayTodoItem] = []
+        var dueSoon: [TodayTodoItem] = []
+        var later: [TodayTodoItem] = []
+        var unscheduled: [TodayTodoItem] = []
+    }
+
     struct State: Equatable {
         var todos: [TodayTodoItem] = []
         var isLoading: Bool = false
@@ -78,12 +86,13 @@ final class TodayViewModel: Store {
     }
 
     var sections: [SectionContent] {
+        let groupedItems = groupedSectionItems(from: displayedTodos)
         let allSections: [SectionContent] = [
-            SectionContent(title: "집중할 일", items: displayedTodos.filter(\.isPinned)),
-            SectionContent(title: "지난 마감", items: displayedTodos.filter { !$0.isPinned && isOverdue($0) }),
-            SectionContent(title: "\(upcomingWindowDays)일 내 일정", items: displayedTodos.filter { !$0.isPinned && isDueSoon($0) }),
-            SectionContent(title: "나중 일정", items: displayedTodos.filter { !$0.isPinned && isScheduledLater($0) }),
-            SectionContent(title: "일정 미정", items: displayedTodos.filter { !$0.isPinned && $0.dueDate == nil })
+            SectionContent(title: "집중할 일", items: groupedItems.focused),
+            SectionContent(title: "지난 마감", items: groupedItems.overdue),
+            SectionContent(title: "\(upcomingWindowDays)일 내 일정", items: groupedItems.dueSoon),
+            SectionContent(title: "나중 일정", items: groupedItems.later),
+            SectionContent(title: "일정 미정", items: groupedItems.unscheduled)
         ]
 
         switch state.selectedSummaryScope {
@@ -289,6 +298,43 @@ private extension TodayViewModel {
         }
     }
 
+    func groupedSectionItems(
+        from items: [TodayTodoItem]
+    ) -> SectionBuckets {
+        let startOfToday = calendar.startOfDay(for: Date())
+        guard let windowEnd = calendar.date(byAdding: .day, value: upcomingWindowDays, to: startOfToday) else {
+            return SectionBuckets(
+                focused: items.filter(\.isPinned),
+                unscheduled: items.filter { !$0.isPinned && $0.dueDate == nil }
+            )
+        }
+
+        var buckets = SectionBuckets()
+
+        for item in items {
+            if item.isPinned {
+                buckets.focused.append(item)
+                continue
+            }
+
+            guard let dueDate = item.dueDate else {
+                buckets.unscheduled.append(item)
+                continue
+            }
+
+            let dueDay = calendar.startOfDay(for: dueDate)
+            if dueDay < startOfToday {
+                buckets.overdue.append(item)
+            } else if dueDay <= windowEnd {
+                buckets.dueSoon.append(item)
+            } else {
+                buckets.later.append(item)
+            }
+        }
+
+        return buckets
+    }
+
     func isOverdue(_ item: TodayTodoItem) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         return calendar.startOfDay(for: dueDate) < calendar.startOfDay(for: Date())
@@ -302,15 +348,5 @@ private extension TodayViewModel {
         }
         let dueDay = calendar.startOfDay(for: dueDate)
         return startOfToday <= dueDay && dueDay <= windowEnd
-    }
-
-    func isScheduledLater(_ item: TodayTodoItem) -> Bool {
-        guard let dueDate = item.dueDate else { return false }
-        let startOfToday = calendar.startOfDay(for: Date())
-        guard let windowEnd = calendar.date(byAdding: .day, value: upcomingWindowDays, to: startOfToday) else {
-            return false
-        }
-        let dueDay = calendar.startOfDay(for: dueDate)
-        return windowEnd < dueDay
     }
 }
