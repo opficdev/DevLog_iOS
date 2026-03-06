@@ -16,7 +16,6 @@ struct MainView: View {
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
             ))
             .tabItem {

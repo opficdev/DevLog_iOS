@@ -17,7 +17,6 @@ struct HomeView: View {
         NavigationStack(path: $router.path) {
             List {
                 todoSection
-                pinnedSection
                 webPageSection
             }
             .listStyle(.insetGrouped)
@@ -33,12 +32,6 @@ struct HomeView: View {
                         kind: todoKind
                     ))
                     .environment(router)
-                case .detail(let todoID):
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: todoID
-                    ))
                 case .web(let page):
                     WebView(url: page.url)
                         .navigationBarTitleDisplayMode(.inline)
@@ -188,57 +181,6 @@ struct HomeView: View {
         })
     }
 
-    private var pinnedSection: some View {
-        Section(content: {
-            if viewModel.state.pinnedTodos.isEmpty {
-                if viewModel.state.isPinnedLoading {
-                    LoadingView()
-                } else {
-                    HStack {
-                        Spacer()
-                        Text("최근에 중요 표시를 한 Todo가 표시됩니다.")
-                            .font(.callout)
-                        Spacer()
-                    }
-                }
-            } else {
-                ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
-                    NavigationLink(value: Path.detail(todo.id)) {
-                        HStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(todo.kind.color)
-                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                                .overlay {
-                                    Image(systemName: todo.kind.symbolName)
-                                        .foregroundStyle(Color.white)
-                                        .font(.title3)
-                                }
-                            VStack(alignment: .leading) {
-                                Text(todo.title)
-                                    .foregroundStyle(Color.primary)
-                                Text(todo.dueDate?
-                                    .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
-                                )
-                                .font(.caption2)
-                                .foregroundStyle(Color.gray)
-                            }
-                        }
-                        .padding(.vertical, -6)
-                    }
-                }
-            }
-        }, header: {
-            HStack {
-                Text("중요 표시")
-                    .foregroundStyle(Color.primary)
-                    .font(.title2.bold())
-                Spacer()
-
-            }
-            .listRowInsets(EdgeInsets())
-        })
-    }
-
     private var webPageSection: some View {
         Section {
             if viewModel.state.webPages.isEmpty {
@@ -382,7 +324,6 @@ struct HomeView: View {
 
     private enum Path: Hashable {
         case kind(TodoKind)
-        case detail(String)
         case web(WebPageItem)
     }
 }
