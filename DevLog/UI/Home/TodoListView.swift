@@ -77,7 +77,6 @@ struct TodoListView: View {
             Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
         }
         .navigationTitle(viewModel.state.kind.localizedName)
-        .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
             set: { viewModel.send(.setShowEditor($0)) }

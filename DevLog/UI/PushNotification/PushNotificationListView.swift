@@ -18,73 +18,23 @@ struct PushNotificationListView: View {
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            List {
-                Group {
-                    if viewModel.state.notifications.isEmpty {
-                        HStack {
-                            Spacer()
-                            Text("받은 알림이 없습니다.")
-                                .foregroundStyle(Color.gray)
-                            Spacer()
-                        }
-                        .listRowSeparator(.hidden)
-                    } else {
-                        let notifications = viewModel.state.notifications
-                        ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
-                            Button {
-                                viewModel.send(.tapNotification(notification))
-                            } label: {
-                                notificationRow(notification)
-                                    .padding(.vertical, 8)
-                            }
-                            .buttonStyle(.plain)
-                            .onAppear {
-                                let lastID = viewModel.state.notifications.last?.id
-                                if notification.id == lastID, viewModel.state.hasMore {
-                                    viewModel.send(.loadNextPage)
-                                }
-                            }
-                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            .overlay(alignment: .top) {
-                                if #available(iOS 26.0, *) {
-                                    if idx == 0 {
-                                        Divider()
-                                            .padding(.horizontal, -16)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                .listSectionSeparator(.hidden, edges: .top)
-                .listRowBackground(Color.clear)
-            }
+            notificationList
             .listStyle(.plain)
-            .background(NavigationBarConfigurator(.secondarySystemBackground))
+            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
             .onScrollOffsetChange { offset in
                 guard isScrollTrackingEnabled else { return }
                 headerOffset = max(0, -offset)
             }
-            .safeAreaInset(edge: .top) {
-                VStack(spacing: 4) {
-                    headerView
-                        .clipped()
-                    if #unavailable(iOS 26) {
-                        Divider()
-                            .padding(.horizontal, -16)
-                    }
-                }
-                .background {
-                    if #available(iOS 26.0, *) {
-                        Color.clear
-                    } else {
-                        Color(.secondarySystemBackground)
-                    }
-                }
-                .offset(y: headerOffset)
-            }
+            .safeAreaInset(edge: .top) { safeAreaHeader }
             .background(Color(.secondarySystemBackground))
-            .onAppear { viewModel.send(.fetchNotifications) }
+            .onAppear {
+                viewModel.send(.fetchNotifications)
+                headerOffset = 0
+                isScrollTrackingEnabled = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isScrollTrackingEnabled = true
+                }
+            }
             .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
             .alert(
@@ -138,77 +88,143 @@ struct PushNotificationListView: View {
         }
     }
 
-    private var headerView: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                if 0 < viewModel.appliedFilterCount {
-                    Menu {
-                        Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
-                        Button(role: .destructive) {
-                            viewModel.send(.resetFilters)
-                        } label: {
-                            Text("모든 필터 지우기")
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "line.3.horizontal.decrease")
-                            filterBadge
-                        }
-                        .adaptiveButtonStyle()
-                    }
-                }
-
-                Button {
-                    viewModel.send(.toggleSortOption)
-                } label: {
-                    let condition = viewModel.state.query.sortOrder == .oldest
-                    Text("정렬: \(viewModel.state.query.sortOrder.title)")
-                        .foregroundStyle(condition ? .white : Color(.label))
-                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
-                }
-
-                Menu {
-                    Picker(selection: Binding(
-                        get: { viewModel.state.query.timeFilter },
-                        set: { viewModel.send(.setTimeFilter($0)) }
-                    )) {
-                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
-                            Text(option.title).tag(option)
-                        }
-                    } label: {
-                        Text("기간")
-                    }
-                } label: {
-                    let condition = viewModel.state.query.timeFilter == .none
+    private var notificationList: some View {
+        List {
+            Group {
+                if viewModel.state.notifications.isEmpty {
                     HStack {
-                        Text("기간")
-                        Image(systemName: "chevron.down")
+                        Spacer()
+                        Text("받은 알림이 없습니다.")
+                            .foregroundStyle(Color.gray)
+                        Spacer()
                     }
-                    .foregroundStyle(condition ? Color(.label) : .white)
-                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
+                    .listRowSeparator(.hidden)
+                } else {
+                    let notifications = viewModel.state.notifications
+                    ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
+                        Button {
+                            viewModel.send(.tapNotification(notification))
+                        } label: {
+                            notificationRow(notification)
+                                .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.plain)
+                        .onAppear {
+                            let lastID = viewModel.state.notifications.last?.id
+                            if notification.id == lastID, viewModel.state.hasMore {
+                                viewModel.send(.loadNextPage)
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .overlay(alignment: .top) {
+                            if #available(iOS 26.0, *) {
+                                if idx == 0 {
+                                    Divider()
+                                        .padding(.horizontal, -16)
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            .listSectionSeparator(.hidden, edges: .top)
+            .listRowBackground(Color.clear)
+        }
+    }
 
-                Button {
-                    viewModel.send(.toggleUnreadOnly)
+    private var safeAreaHeader: some View {
+        VStack(spacing: 4) {
+            headerView
+                .clipped()
+            if #unavailable(iOS 26) {
+                Divider()
+                    .padding(.horizontal, -16)
+            }
+        }
+        .background {
+            if #available(iOS 26.0, *) {
+                Color.clear
+            } else {
+                Color(.secondarySystemBackground)
+            }
+        }
+        .offset(y: headerOffset)
+    }
+
+    private var headerView: some View {
+        Group {
+            if #available(iOS 18, *) {
+                ScrollView(.horizontal) { headerContent }
+                .scrollIndicators(.never)
+                .scrollDisabled(!isScrollTrackingEnabled)
+                .contentMargins(.leading, 16, for: .scrollContent)
+            } else {
+                headerContent
+                    .padding(.leading, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private var headerContent: some View {
+        HStack(spacing: 8) {
+            if 0 < viewModel.appliedFilterCount {
+                Menu {
+                    Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
+                    Button(role: .destructive) {
+                        viewModel.send(.resetFilters)
+                    } label: {
+                        Text("모든 필터 지우기")
+                    }
                 } label: {
-                    let condition = viewModel.state.query.unreadOnly
-                    Text("읽지 않음")
-                        .foregroundStyle(condition ? .white : Color(.label))
-                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        filterBadge
+                    }
+                    .adaptiveButtonStyle()
                 }
             }
-            .frame(height: 36)
-        }
-        .scrollIndicators(.never)
-        .scrollDisabled(!isScrollTrackingEnabled)
-        .contentMargins(.leading, 16, for: .scrollContent)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
+
+            Button {
+                viewModel.send(.toggleSortOption)
+            } label: {
+                let condition = viewModel.state.query.sortOrder == .oldest
+                Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+            }
+
+            Menu {
+                Picker(selection: Binding(
+                    get: { viewModel.state.query.timeFilter },
+                    set: { viewModel.send(.setTimeFilter($0)) }
+                )) {
+                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                } label: {
+                    Text("기간")
+                }
+            } label: {
+                let condition = viewModel.state.query.timeFilter == .none
+                HStack {
+                    Text("기간")
+                    Image(systemName: "chevron.down")
+                }
+                .foregroundStyle(condition ? Color(.label) : .white)
+                .adaptiveButtonStyle(color: condition ? .clear : .blue)
+            }
+
+            Button {
+                viewModel.send(.toggleUnreadOnly)
+            } label: {
+                let condition = viewModel.state.query.unreadOnly
+                Text("읽지 않음")
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
         }
+        .frame(height: 36)
     }
 
     private var filterBadge: some View {
