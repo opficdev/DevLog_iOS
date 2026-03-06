@@ -98,6 +98,7 @@ final class SearchViewModel: Store {
         case .setSearching(let isSearching):
             state.isSearching = isSearching
         case .setSearchQuery(let query):
+            guard state.searchQuery != query else { return [] }
             state.searchQuery = query
             state.showAllTodos = false
             state.showAllWebPages = false
