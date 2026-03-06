@@ -11,7 +11,7 @@ struct ProfileView: View {
     @State var viewModel: ProfileViewModel
     @State private var router = NavigationRouter()
     @Environment(\.diContainer) private var container
-    @FocusState private var focusedOnStatusMessageTextField: Bool
+    @FocusState private var focused: Bool
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -43,9 +43,9 @@ struct ProfileView: View {
                                     Text("상태 설정")
                                 }
                             }
-                            .focused($focusedOnStatusMessageTextField)
-                            
-                            if viewModel.resetButtonEnabled {
+                            .focused($focused)
+
+                            if !viewModel.state.statusMessage.isEmpty && viewModel.state.showDoneButton {
                                 Button(action: {
                                     viewModel.send(.tapResetStatusMessageButton)
                                 }) {
@@ -62,7 +62,7 @@ struct ProfileView: View {
                         )
                         if viewModel.state.showDoneButton {
                             Button(action: {
-                                focusedOnStatusMessageTextField = false
+                                focused = false
                                 viewModel.send(.willUpdateStatusMessage)
                             }) {
                                 Text("완료")
@@ -105,7 +105,7 @@ struct ProfileView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
-            .onChange(of: focusedOnStatusMessageTextField) { _, newValue in
+            .onChange(of: focused) { _, newValue in
                 withAnimation {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }
@@ -119,24 +119,32 @@ struct ProfileView: View {
             } message: {
                 Text(viewModel.state.alertMessage)
             }
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.showQuarterPicker },
+                set: { viewModel.send(.setQuarterPickerPresented($0)) }
+            )) {
+                quarterPickerSheet
+            }
         }
     }
 
     private var activityHeatmapSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("분기별 활동 히트맵")
+                Text("분기별 활동")
                     .font(.headline)
                 Spacer()
+                quarterResetButton
                 activityTypeSelector
             }
 
             quarterNavigator
 
-            if viewModel.selectedQuarter == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 140)
-            } else if let quarter = viewModel.selectedQuarter {
+            if let quarter = viewModel.state.completionQuarter {
+                ProfileTrendChartView(
+                    trendPoints: viewModel.state.completionQuarter?.weeklyTrendPoints ?? [],
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes
+                )
                 ProfileHeatmapView(
                     quarter: quarter,
                     selectedActivityTypes: viewModel.state.selectedActivityTypes,
@@ -147,14 +155,13 @@ struct ProfileView: View {
                         }
                     }
                 )
-                .padding(.vertical, 6)
-
                 if let selectedDay = viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
                         .transition(.opacity)
                 }
             } else {
-                EmptyView()
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 140)
             }
         }
         .padding(12)
@@ -164,23 +171,40 @@ struct ProfileView: View {
         )
     }
 
+    @ViewBuilder
+    private var quarterResetButton: some View {
+        if !viewModel.isViewingCurrentQuarter {
+            Button {
+                viewModel.send(.moveToCurrentQuarter)
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+                    .bold()
+                    .foregroundStyle(.blue)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     private var activityTypeSelector: some View {
         Menu {
             ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
-                Button {
-                    viewModel.send(.toggleActivityType(activityType))
-                } label: {
-                    HStack {
-                        Text(activityType.title)
-                        if viewModel.state.selectedActivityTypes.contains(activityType) {
-                            Image(systemName: "checkmark")
-                                .tint(.blue)
+                Toggle(
+                    activityType.title,
+                    isOn: Binding(
+                        get: { viewModel.state.selectedActivityTypes.contains(activityType) },
+                        set: { _ in
+                            viewModel.send(.toggleActivityType(activityType))
                         }
-                    }
-                }
+                    )
+                )
+                .disabled(
+                    viewModel.state.selectedActivityTypes.count == 1
+                        && viewModel.state.selectedActivityTypes.contains(activityType)
+                )
             }
         } label: {
-            Text("편집")
+            Image(systemName: "line.3.horizontal.decrease")
+                .bold()
                 .foregroundStyle(.blue)
         }
     }
@@ -193,15 +217,20 @@ struct ProfileView: View {
                 Image(systemName: "chevron.left")
             }
             .disabled(!viewModel.canMoveToPreviousQuarter)
-
             Spacer()
-
-            Text(viewModel.quarterTitle)
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-
+            Button {
+                viewModel.send(.openQuarterPicker)
+            } label: {
+                HStack(spacing: 4) {
+                    Text(viewModel.quarterTitle)
+                        .font(.subheadline)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2)
+                }
+                .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
             Spacer()
-
             Button {
                 viewModel.send(.moveQuarter(1))
             } label: {
@@ -209,6 +238,71 @@ struct ProfileView: View {
             }
             .disabled(!viewModel.canMoveToNextQuarter)
         }
+    }
+
+    private var quarterPickerSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack {
+                    Text("연도")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { viewModel.state.selectedQuarterPickerYear },
+                        set: { viewModel.send(.setQuarterPickerYear($0)) }
+                    )) {
+                        ForEach(viewModel.availableQuarterYears, id: \.self) { year in
+                            Text(year.formatted(.number.grouping(.never)) + "년").tag(year)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                }
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                    ForEach(1...4, id: \.self) { quarter in
+                        quarterSelectionButton(for: quarter)
+                    }
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(20)
+            .navigationTitle("분기 선택")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarTrailingButton {
+                    viewModel.send(.setQuarterPickerPresented(false))
+                }
+            }
+        }
+        .presentationDetents([.fraction(0.3)])
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func quarterSelectionButton(for quarter: Int) -> some View {
+        let quarterStart = viewModel.quarterStartForPicker(quarter: quarter)
+        let isEnabled = viewModel.isQuarterSelectableForPicker(quarter)
+        let isSelected = viewModel.isQuarterSelectedForPicker(quarter)
+
+        Button {
+            guard let quarterStart else { return }
+            viewModel.send(.selectQuarter(quarterStart))
+        } label: {
+            Text("Q\(quarter)")
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(isSelected ? Color.blue : Color(.systemGray5))
+                )
+                .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
     }
 
     @ViewBuilder

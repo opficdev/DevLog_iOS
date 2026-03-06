@@ -14,7 +14,10 @@ final class ProfileViewModel: Store {
         var email: String = ""
         var statusMessage: String = ""
         var avatarURL: URL?
+        var earliestQuarterStart: Date?
         var selectedQuarterStart: Date?
+        var showQuarterPicker: Bool = false
+        var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
         var completionQuarter: ProfileCompletionQuarter?
         var dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
         var selectedActivityTypes: Set<ProfileActivityType> = [.created, .completed]
@@ -37,6 +40,12 @@ final class ProfileViewModel: Store {
             quarter: ProfileCompletionQuarter,
             dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]]
         )
+        case setEarliestQuarterStart(Date)
+        case setQuarterPickerPresented(Bool)
+        case setQuarterPickerYear(Int)
+        case openQuarterPicker
+        case selectQuarter(Date)
+        case moveToCurrentQuarter
         case moveQuarter(Int)
         case toggleActivityType(ProfileActivityType)
         case selectDay(ProfileCompletionDay?)
@@ -47,6 +56,7 @@ final class ProfileViewModel: Store {
 
     enum SideEffect {
         case fetchUserData
+        case fetchEarliestQuarterStart
         case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
         case updateHeatmapActivityTypes(Set<ProfileActivityType>)
@@ -59,41 +69,6 @@ final class ProfileViewModel: Store {
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     private let calendar = Calendar.current
-
-    var quarterTitle: String {
-        guard let start = state.selectedQuarterStart else { return "" }
-        let year = calendar.component(.year, from: start)
-        let month = calendar.component(.month, from: start)
-        let quarter = ((month - 1) / 3) + 1
-        return "\(year) Q\(quarter)"
-    }
-
-    var resetButtonEnabled: Bool {
-        !state.statusMessage.isEmpty && state.showDoneButton
-    }
-
-    var selectedQuarter: ProfileCompletionQuarter? {
-        state.completionQuarter
-    }
-
-    var selectedDayActivities: [ProfileSelectedDayActivity] {
-        guard let selectedDay = state.selectedDay else { return [] }
-        let dayStart = calendar.startOfDay(for: selectedDay.date)
-        let activities = state.dayActivitiesByDate[dayStart] ?? []
-
-        return activities.filter { activity in
-            (state.selectedActivityTypes.contains(.created) && activity.showsCreated)
-                || (state.selectedActivityTypes.contains(.completed) && activity.showsCompleted)
-        }
-    }
-
-    var canMoveToPreviousQuarter: Bool {
-        canMoveToQuarter(offsetMonths: -3)
-    }
-
-    var canMoveToNextQuarter: Bool {
-        canMoveToQuarter(offsetMonths: 3)
-    }
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
@@ -116,15 +91,19 @@ final class ProfileViewModel: Store {
         switch action {
         case .onAppear:
             if state.selectedQuarterStart == nil {
-                guard let quarterStart = quarterStart(for: Date(), calendar: calendar) else { break }
+                guard let quarterStart = quarterStart(for: Date()) else { break }
                 state.selectedQuarterStart = quarterStart
+            }
+            effects = [.fetchUserData]
+            if state.earliestQuarterStart == nil {
+                state.earliestQuarterStart = state.selectedQuarterStart
+                effects.append(.fetchEarliestQuarterStart)
             }
             let rawValues = fetchHeatmapActivityTypesUseCase.execute()
             let settings = normalizeActivityTypes(rawValues)
             if !settings.isEmpty {
                 state.selectedActivityTypes = settings
             }
-            effects = [.fetchUserData]
             if let selectedQuarterStart = state.selectedQuarterStart {
                 effects.append(.fetchCompletionQuarter(selectedQuarterStart))
             }
@@ -137,6 +116,17 @@ final class ProfileViewModel: Store {
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
+        case .setEarliestQuarterStart(let quarterStart):
+            state.earliestQuarterStart = quarterStart
+        case .setQuarterPickerPresented(let isPresented):
+            state.showQuarterPicker = isPresented
+        case .setQuarterPickerYear(let year):
+            state.selectedQuarterPickerYear = year
+        case .openQuarterPicker:
+            if let selectedQuarterStart = state.selectedQuarterStart {
+                state.selectedQuarterPickerYear = calendar.component(.year, from: selectedQuarterStart)
+            }
+            state.showQuarterPicker = true
         case .setCompletionQuarter(let quarterStart, let quarter, let dayActivitiesByDate):
             guard state.selectedQuarterStart == quarterStart else { break }
             state.completionQuarter = quarter
@@ -149,6 +139,14 @@ final class ProfileViewModel: Store {
             }
         case .setSelectedActivityForSheet(let activity):
             state.selectedActivityForSheet = activity
+        case .selectQuarter(let quarterStart):
+            guard canSelectQuarter(quarterStart) else { break }
+            state.showQuarterPicker = false
+            updateSelectedQuarter(to: quarterStart, state: &state, effects: &effects)
+        case .moveToCurrentQuarter:
+            guard let currentQuarterStart = quarterStart(for: Date()),
+                  state.selectedQuarterStart != currentQuarterStart else { break }
+            updateSelectedQuarter(to: currentQuarterStart, state: &state, effects: &effects)
         case .moveQuarter(let delta):
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
             let monthDelta = 3 * delta
@@ -157,15 +155,8 @@ final class ProfileViewModel: Store {
                 value: monthDelta,
                 to: selectedQuarterStart
             ) else { break }
-            let today = calendar.startOfDay(for: Date())
-            guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
-
-            state.selectedQuarterStart = nextQuarterStart
-            state.completionQuarter = nil
-            state.dayActivitiesByDate = [:]
-            state.selectedDay = nil
-            state.selectedActivityForSheet = nil
-            effects = [.fetchCompletionQuarter(nextQuarterStart)]
+            guard canSelectQuarter(nextQuarterStart) else { break }
+            updateSelectedQuarter(to: nextQuarterStart, state: &state, effects: &effects)
         case .toggleActivityType(let activityType):
             if state.selectedActivityTypes.contains(activityType), state.selectedActivityTypes.count == 1 {
                 break
@@ -197,6 +188,15 @@ final class ProfileViewModel: Store {
                 do {
                     let profile = try await fetchUserDataUseCase.execute()
                     send(.fetchUserData(profile))
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .fetchEarliestQuarterStart:
+            Task {
+                do {
+                    let earliestQuarterStart = try await fetchEarliestQuarterStart()
+                    send(.setEarliestQuarterStart(earliestQuarterStart))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -236,7 +236,79 @@ final class ProfileViewModel: Store {
     }
 }
 
+extension ProfileViewModel {
+    var quarterTitle: String {
+        guard let start = state.selectedQuarterStart else { return "" }
+        let year = calendar.component(.year, from: start)
+        let month = calendar.component(.month, from: start)
+        let quarter = ((month - 1) / 3) + 1
+        return "\(year) Q\(quarter)"
+    }
+
+    var selectedDayActivities: [ProfileSelectedDayActivity] {
+        guard let selectedDay = state.selectedDay else { return [] }
+        let dayStart = calendar.startOfDay(for: selectedDay.date)
+        let activities = state.dayActivitiesByDate[dayStart] ?? []
+
+        return activities.filter { activity in
+            (state.selectedActivityTypes.contains(.created) && activity.showsCreated)
+            || (state.selectedActivityTypes.contains(.completed) && activity.showsCompleted)
+        }
+    }
+
+    var canMoveToPreviousQuarter: Bool {
+        canMoveToQuarter(offsetMonths: -3)
+    }
+
+    var canMoveToNextQuarter: Bool {
+        canMoveToQuarter(offsetMonths: 3)
+    }
+
+    var isViewingCurrentQuarter: Bool {
+        guard let selectedQuarterStart = state.selectedQuarterStart,
+              let currentQuarterStart = quarterStart(for: Date()) else {
+            return false
+        }
+        return selectedQuarterStart == currentQuarterStart
+    }
+
+    var availableQuarterYears: [Int] {
+        guard let earliestQuarterStart = state.earliestQuarterStart,
+              let currentQuarterStart = quarterStart(for: Date()) else { return [state.selectedQuarterPickerYear] }
+        let earliestYear = calendar.component(.year, from: earliestQuarterStart)
+        let currentYear = calendar.component(.year, from: currentQuarterStart)
+        return Array(stride(from: currentYear, through: earliestYear, by: -1))
+    }
+
+    func quarterStartForPicker(quarter: Int) -> Date? {
+        quarterStart(year: state.selectedQuarterPickerYear, quarter: quarter)
+    }
+
+    func isQuarterSelectableForPicker(_ quarter: Int) -> Bool {
+        guard let quarterStart = quarterStartForPicker(quarter: quarter) else { return false }
+        return canSelectQuarter(quarterStart)
+    }
+
+    func isQuarterSelectedForPicker(_ quarter: Int) -> Bool {
+        quarterStartForPicker(quarter: quarter) == state.selectedQuarterStart
+    }
+}
+
 private extension ProfileViewModel {
+    func updateSelectedQuarter(
+        to quarterStart: Date,
+        state: inout State,
+        effects: inout [SideEffect]
+    ) {
+        guard state.selectedQuarterStart != quarterStart else { return }
+        state.selectedQuarterStart = quarterStart
+        state.completionQuarter = nil
+        state.dayActivitiesByDate = [:]
+        state.selectedDay = nil
+        state.selectedActivityForSheet = nil
+        effects = [.fetchCompletionQuarter(quarterStart)]
+    }
+
     func makeDayActivitiesByDate(from todos: [Todo]) -> [Date: [ProfileSelectedDayActivity]] {
         var activitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
 
@@ -292,12 +364,23 @@ private extension ProfileViewModel {
         return page.items
     }
 
-    func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {
-        guard let quarterEnd = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
-            return false
-        }
-        let interval = DateInterval(start: quarterStart, end: quarterEnd)
-        return interval.contains(today) || quarterEnd <= today
+    func fetchEarliestQuarterStart() async throws -> Date {
+        let page = try await fetchTodosUseCase.execute(
+            TodoQuery(
+                sortTarget: .createdAt,
+                sortOrder: .oldest,
+                pageSize: 1
+            ),
+            cursor: nil
+        )
+        let baseDate = page.items.first?.createdAt ?? Date()
+        return quarterStart(for: baseDate) ?? calendar.startOfDay(for: baseDate)
+    }
+
+    func canSelectQuarter(_ quarterStart: Date) -> Bool {
+        guard let earliestQuarterStart = state.earliestQuarterStart,
+              let currentQuarterStart = self.quarterStart(for: Date()) else { return false }
+        return earliestQuarterStart <= quarterStart && quarterStart <= currentQuarterStart
     }
 
     func normalizeActivityTypes(_ rawValues: [String]) -> Set<ProfileActivityType> {
@@ -375,11 +458,20 @@ private extension ProfileViewModel {
         return ProfileCompletionMonth(monthStart: monthStart, weeks: weeks)
     }
 
-    func quarterStart(for date: Date, calendar: Calendar) -> Date? {
+    func quarterStart(for date: Date) -> Date? {
         let month = calendar.component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
         var components = calendar.dateComponents([.year], from: date)
         components.month = startMonth
+        components.day = 1
+        return calendar.date(from: components)
+    }
+
+    func quarterStart(year: Int, quarter: Int) -> Date? {
+        guard (1...4).contains(quarter) else { return nil }
+        var components = DateComponents()
+        components.year = year
+        components.month = ((quarter - 1) * 3) + 1
         components.day = 1
         return calendar.date(from: components)
     }
@@ -391,7 +483,6 @@ private extension ProfileViewModel {
         else {
             return false
         }
-        let today = calendar.startOfDay(for: Date())
-        return canMove(to: targetQuarterStart, calendar: calendar, today: today)
+        return canSelectQuarter(targetQuarterStart)
     }
 }

@@ -14,22 +14,28 @@ struct ProfileHeatmapView: View {
     let onSelectDay: (ProfileCompletionDay) -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            weekdayLabel
-                .padding(.trailing, 10)
-            let months = quarter.months
-            ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
-                MonthCompactHeatmapView(
-                    month: month,
-                    maxCount: quarter.maxCount,
-                    selectedActivityTypes: selectedActivityTypes,
-                    selectedDay: selectedDay,
-                    onSelectDay: onSelectDay
-                )
-                if index < months.count - 1 {
-                    Spacer()
+        VStack(alignment: .leading, spacing: 10) {
+            Text("활동 히트맵")
+                .font(.subheadline)
+                .bold()
+            HStack(alignment: .top, spacing: 0) {
+                weekdayLabel
+                    .padding(.trailing, 10)
+                let months = quarter.months
+                ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
+                    MonthCompactHeatmapView(
+                        month: month,
+                        maxCount: quarter.maxCount,
+                        selectedActivityTypes: selectedActivityTypes,
+                        selectedDay: selectedDay,
+                        onSelectDay: onSelectDay
+                    )
+                    if index < months.count - 1 {
+                        Spacer()
+                    }
                 }
             }
+            .padding(.vertical, 2)
         }
     }
 
