@@ -155,8 +155,7 @@ final class ProfileViewModel: Store {
                 value: monthDelta,
                 to: selectedQuarterStart
             ) else { break }
-            let today = calendar.startOfDay(for: Date())
-            guard canMove(to: nextQuarterStart, calendar: calendar, today: today) else { break }
+            guard canSelectQuarter(nextQuarterStart) else { break }
             updateSelectedQuarter(to: nextQuarterStart, state: &state, effects: &effects)
         case .toggleActivityType(let activityType):
             if state.selectedActivityTypes.contains(activityType), state.selectedActivityTypes.count == 1 {
@@ -378,14 +377,6 @@ private extension ProfileViewModel {
         return quarterStart(for: baseDate) ?? calendar.startOfDay(for: baseDate)
     }
 
-    func canMove(to quarterStart: Date, calendar: Calendar, today: Date) -> Bool {
-        guard let quarterEnd = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
-            return false
-        }
-        let interval = DateInterval(start: quarterStart, end: quarterEnd)
-        return interval.contains(today) || quarterEnd <= today
-    }
-
     func canSelectQuarter(_ quarterStart: Date) -> Bool {
         guard let earliestQuarterStart = state.earliestQuarterStart,
               let currentQuarterStart = self.quarterStart(for: Date()) else { return false }
@@ -492,7 +483,6 @@ private extension ProfileViewModel {
         else {
             return false
         }
-        let today = calendar.startOfDay(for: Date())
-        return canMove(to: targetQuarterStart, calendar: calendar, today: today)
+        return canSelectQuarter(targetQuarterStart)
     }
 }
