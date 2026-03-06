@@ -310,6 +310,7 @@ private extension TodoListViewModel {
             guard state.hasMore, !state.isLoading, pendingTask == nil else { return [] }
             return [.loadNextPage]
         case .setSearchText(let text):
+            guard state.searchText != text else { return [] }
             state.searchText = text
             state.showAllSearchResults = false
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
