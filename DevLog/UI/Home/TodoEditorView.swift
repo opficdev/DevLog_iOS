@@ -164,7 +164,6 @@ struct TodoEditorView: View {
     }
 
     private func submit() {
-        if !viewModel.isReadyToSubmit { return }
         let todo = viewModel.makeTodo()
         onSubmit?(todo)
         dismiss()
