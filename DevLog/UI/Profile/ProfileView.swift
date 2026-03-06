@@ -11,7 +11,7 @@ struct ProfileView: View {
     @State var viewModel: ProfileViewModel
     @State private var router = NavigationRouter()
     @Environment(\.diContainer) private var container
-    @FocusState private var focusedOnStatusMessageTextField: Bool
+    @FocusState private var focused: Bool
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -43,7 +43,7 @@ struct ProfileView: View {
                                     Text("상태 설정")
                                 }
                             }
-                            .focused($focusedOnStatusMessageTextField)
+                            .focused($focused)
 
                             if !viewModel.state.statusMessage.isEmpty && viewModel.state.showDoneButton {
                                 Button(action: {
@@ -62,7 +62,7 @@ struct ProfileView: View {
                         )
                         if viewModel.state.showDoneButton {
                             Button(action: {
-                                focusedOnStatusMessageTextField = false
+                                focused = false
                                 viewModel.send(.willUpdateStatusMessage)
                             }) {
                                 Text("완료")
@@ -105,7 +105,7 @@ struct ProfileView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
-            .onChange(of: focusedOnStatusMessageTextField) { _, newValue in
+            .onChange(of: focused) { _, newValue in
                 withAnimation {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }
