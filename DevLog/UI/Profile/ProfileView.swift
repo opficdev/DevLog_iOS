@@ -134,6 +134,9 @@ struct ProfileView: View {
             quarterNavigator
 
             if let quarter = viewModel.state.completionQuarter {
+                ProfileTrendChartView(
+                    trendPoints: viewModel.state.completionQuarter?.weeklyTrendPoints ?? [],
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes
                 )
 
                 VStack(alignment: .leading, spacing: 10) {
