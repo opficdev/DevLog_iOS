@@ -145,25 +145,16 @@ struct ProfileView: View {
                     trendPoints: viewModel.state.completionQuarter?.weeklyTrendPoints ?? [],
                     selectedActivityTypes: viewModel.state.selectedActivityTypes
                 )
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("활동 히트맵")
-                        .font(.subheadline)
-                        .bold()
-
-                    ProfileHeatmapView(
-                        quarter: quarter,
-                        selectedActivityTypes: viewModel.state.selectedActivityTypes,
-                        selectedDay: viewModel.state.selectedDay,
-                        onSelectDay: { day in
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                viewModel.send(.selectDay(day))
-                            }
+                ProfileHeatmapView(
+                    quarter: quarter,
+                    selectedActivityTypes: viewModel.state.selectedActivityTypes,
+                    selectedDay: viewModel.state.selectedDay,
+                    onSelectDay: { day in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.send(.selectDay(day))
                         }
-                    )
-                    .padding(.vertical, 2)
-                }
-
+                    }
+                )
                 if let selectedDay = viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
                         .transition(.opacity)
