@@ -27,6 +27,7 @@ final class TodoService {
             query.kind != nil ? "kind=\(query.kind!.rawValue)" : nil,
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
+            query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
             query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
             query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
             "pageSize=\(query.pageSize)",
@@ -35,10 +36,7 @@ final class TodoService {
         ]
         logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
-        var firestoreQuery: Query = store
-            .collection("users/\(uid)/todoLists/")
-            .order(by: query.sortTarget.fieldName, descending: query.sortOrder.isDescending)
-            .order(by: FieldPath.documentID())
+        var firestoreQuery: Query = makeOrderedQuery(uid: uid, query: query)
 
         if let kind = query.kind {
             firestoreQuery = firestoreQuery.whereField("kind", isEqualTo: kind.rawValue)
@@ -50,6 +48,18 @@ final class TodoService {
 
         if let isCompleted = query.completionFilter.isCompletedValue {
             firestoreQuery = firestoreQuery.whereField("isCompleted", isEqualTo: isCompleted)
+        }
+
+        switch query.dueDateFilter {
+        case .all:
+            break
+        case .withDueDate:
+            firestoreQuery = firestoreQuery.whereField(
+                "dueDate",
+                isGreaterThan: Timestamp(date: Date(timeIntervalSince1970: 0))
+            )
+        case .withoutDueDate:
+            firestoreQuery = firestoreQuery.whereField("dueDate", isEqualTo: NSNull())
         }
 
         if let createdAtFrom = query.createdAtFrom {
@@ -74,10 +84,7 @@ final class TodoService {
                 while true {
                     var pageQuery = firestoreQuery
                     if let pageCursor {
-                        pageQuery = pageQuery.start(after: [
-                            Timestamp(date: pageCursor.orderedAt),
-                            pageCursor.documentID
-                        ])
+                        pageQuery = pageQuery.start(after: cursorValues(for: query, cursor: pageCursor))
                     }
 
                     pageQuery = pageQuery.limit(to: query.pageSize)
@@ -91,7 +98,7 @@ final class TodoService {
                     guard let lastDocument = snapshot.documents.last,
                           let nextCursor = makeCursor(
                             from: lastDocument,
-                            orderField: query.sortTarget.fieldName
+                            query: query
                           ) else {
                         break
                     }
@@ -103,17 +110,14 @@ final class TodoService {
             }
 
             if let cursor {
-                firestoreQuery = firestoreQuery.start(after: [
-                    Timestamp(date: cursor.orderedAt),
-                    cursor.documentID
-                ])
+                firestoreQuery = firestoreQuery.start(after: cursorValues(for: query, cursor: cursor))
             }
 
             firestoreQuery = firestoreQuery.limit(to: query.pageSize)
             let snapshot = try await firestoreQuery.getDocuments()
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
             let nextCursor = snapshot.documents.last.flatMap {
-                makeCursor(from: $0, orderField: query.sortTarget.fieldName)
+                makeCursor(from: $0, query: query)
             }
 
             return TodoPageResponse(items: items, nextCursor: nextCursor)
@@ -195,16 +199,76 @@ final class TodoService {
 }
 
 private extension TodoService {
+    func makeOrderedQuery(uid: String, query: TodoQuery) -> Query {
+        let collection = store.collection("users/\(uid)/todoLists/")
+
+        switch query.sortTarget {
+        case .dueDate:
+            return collection
+                .order(by: query.sortTarget.fieldName, descending: query.sortOrder.isDescending)
+                .order(by: "updatedAt", descending: true)
+                .order(by: FieldPath.documentID())
+        case .createdAt, .updatedAt:
+            return collection
+                .order(by: query.sortTarget.fieldName, descending: query.sortOrder.isDescending)
+                .order(by: FieldPath.documentID())
+        }
+    }
+
+    func cursorValues(
+        for query: TodoQuery,
+        cursor: TodoCursorDTO
+    ) -> [Any] {
+        let primaryValue: Any = cursor.primarySortDate.map { Timestamp(date: $0) } ?? NSNull()
+
+        switch query.sortTarget {
+        case .dueDate:
+            guard let secondarySortDate = cursor.secondarySortDate else {
+                return [primaryValue, cursor.documentID]
+            }
+            return [
+                primaryValue,
+                Timestamp(date: secondarySortDate),
+                cursor.documentID
+            ]
+        case .createdAt, .updatedAt:
+            return [
+                primaryValue,
+                cursor.documentID
+            ]
+        }
+    }
+
     func makeCursor(
         from document: QueryDocumentSnapshot,
-        orderField: String
+        query: TodoQuery
     ) -> TodoCursorDTO? {
-        guard let orderedAt = document.data()[orderField] as? Timestamp else {
+        let data = document.data()
+        let orderField = query.sortTarget.fieldName
+        let primarySortDate: Date?
+        let secondarySortDate: Date?
+
+        if let timestamp = data[orderField] as? Timestamp {
+            primarySortDate = timestamp.dateValue()
+        } else if data[orderField] is NSNull {
+            primarySortDate = nil
+        } else {
             return nil
         }
 
+        switch query.sortTarget {
+        case .dueDate:
+            guard let updatedAt = data["updatedAt"] as? Timestamp else {
+                return nil
+            }
+            secondarySortDate = updatedAt.dateValue()
+        case .createdAt, .updatedAt:
+            secondarySortDate = nil
+        }
+
         return TodoCursorDTO(
-            orderedAt: orderedAt.dateValue(),
+            primarySortDate: primarySortDate,
+            secondarySortDate: secondarySortDate,
             documentID: document.documentID
         )
     }

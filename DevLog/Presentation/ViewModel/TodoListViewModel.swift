@@ -419,6 +419,8 @@ extension TodoQuery.SortTarget {
             return "생성"
         case .updatedAt:
             return "수정"
+        case .dueDate:
+            return "마감"
         }
     }
 }

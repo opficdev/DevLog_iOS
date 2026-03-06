@@ -69,12 +69,13 @@ final class TodayViewModel: Store {
         state.todos.filter(isDueSoon).count
     }
 
-    var sections: [SectionContent] {[
-            ("집중할 일", sortedScheduledItems(state.todos.filter(\.isPinned))),
-            ("지난 마감", sortedScheduledItems(state.todos.filter { !$0.isPinned && isOverdue($0) })),
-            ("\(upcomingWindowDays)일 내 일정", sortedScheduledItems(state.todos.filter { !$0.isPinned && isDueSoon($0) })),
-            ("나중 일정", sortedScheduledItems(state.todos.filter { !$0.isPinned && isScheduledLater($0) })),
-            ("일정 미정", unscheduledItems)
+    var sections: [SectionContent] {
+        [
+            ("집중할 일", state.todos.filter(\.isPinned)),
+            ("지난 마감", state.todos.filter { !$0.isPinned && isOverdue($0) }),
+            ("\(upcomingWindowDays)일 내 일정", state.todos.filter { !$0.isPinned && isDueSoon($0) }),
+            ("나중 일정", state.todos.filter { !$0.isPinned && isScheduledLater($0) }),
+            ("일정 미정", state.todos.filter { !$0.isPinned && $0.dueDate == nil })
         ]
         .filter { !$0.items.isEmpty }
     }
@@ -103,9 +104,21 @@ final class TodayViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let page = try await fetchTodosUseCase.execute(
+                    async let todosWithDueDatePage = fetchTodosUseCase.execute(
                         TodoQuery(
                             completionFilter: .incomplete,
+                            dueDateFilter: .withDueDate,
+                            sortTarget: .dueDate,
+                            sortOrder: .oldest,
+                            pageSize: pageSize,
+                            fetchAllPages: true
+                        ),
+                        cursor: nil
+                    )
+                    async let todosWithoutDueDatePage = fetchTodosUseCase.execute(
+                        TodoQuery(
+                            completionFilter: .incomplete,
+                            dueDateFilter: .withoutDueDate,
                             sortTarget: .updatedAt,
                             sortOrder: .latest,
                             pageSize: pageSize,
@@ -113,7 +126,9 @@ final class TodayViewModel: Store {
                         ),
                         cursor: nil
                     )
-                    send(.fetchTodos(page.items.map { TodayTodoItem(from: $0) }))
+                    let todosWithDueDate = try await todosWithDueDatePage.items.map { TodayTodoItem(from: $0) }
+                    let todosWithoutDueDate = try await todosWithoutDueDatePage.items.map { TodayTodoItem(from: $0) }
+                    send(.fetchTodos(todosWithDueDate + todosWithoutDueDate))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -231,29 +246,5 @@ private extension TodayViewModel {
         }
         let dueDay = calendar.startOfDay(for: dueDate)
         return windowEnd < dueDay
-    }
-
-    func sortedScheduledItems(_ items: [TodayTodoItem]) -> [TodayTodoItem] {
-        items.sorted { lhs, rhs in
-            switch (lhs.dueDate, rhs.dueDate) {
-            case let (left?, right?):
-                let leftDay = calendar.startOfDay(for: left)
-                let rightDay = calendar.startOfDay(for: right)
-                if leftDay != rightDay { return leftDay < rightDay }
-                return lhs.updatedAt > rhs.updatedAt
-            case (.some, .none):
-                return true
-            case (.none, .some):
-                return false
-            case (.none, .none):
-                return lhs.updatedAt > rhs.updatedAt
-            }
-        }
-    }
-
-    var unscheduledItems: [TodayTodoItem] {
-        state.todos
-            .filter { !$0.isPinned && $0.dueDate == nil }
-            .sorted { $0.updatedAt > $1.updatedAt }
     }
 }
