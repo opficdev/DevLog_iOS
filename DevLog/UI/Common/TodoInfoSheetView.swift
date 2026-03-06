@@ -88,11 +88,7 @@ struct TodoInfoSheetView: View {
                             .foregroundStyle(.secondary)
                         Divider()
                         if !tags.isEmpty {
-                            TagLayout {
-                                ForEach(tags, id: \.self) { tag in
-                                    Tag(tag, isEditing: false)
-                                }
-                            }
+                            TagList(tags)
                         }
                     }
                 }

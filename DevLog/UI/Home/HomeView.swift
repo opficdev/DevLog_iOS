@@ -17,7 +17,7 @@ struct HomeView: View {
         NavigationStack(path: $router.path) {
             List {
                 todoSection
-                pinnedSection
+                recentTodoSection
                 webPageSection
             }
             .listStyle(.insetGrouped)
@@ -188,55 +188,36 @@ struct HomeView: View {
         })
     }
 
-    private var pinnedSection: some View {
-        Section(content: {
-            if viewModel.state.pinnedTodos.isEmpty {
-                if viewModel.state.isPinnedLoading {
+    private var recentTodoSection: some View {
+        Section {
+            if viewModel.state.recentTodos.isEmpty {
+                if viewModel.state.isRecentTodosLoading {
                     LoadingView()
                 } else {
                     HStack {
                         Spacer()
-                        Text("최근에 중요 표시를 한 Todo가 표시됩니다.")
+                        Text("최근 수정한 Todo가 없습니다.")
                             .font(.callout)
                         Spacer()
                     }
                 }
             } else {
-                ForEach(viewModel.state.pinnedTodos, id: \.id) { todo in
+                ForEach(viewModel.state.recentTodos, id: \.id) { todo in
                     NavigationLink(value: Path.detail(todo.id)) {
-                        HStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(todo.kind.color)
-                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
-                                .overlay {
-                                    Image(systemName: todo.kind.symbolName)
-                                        .foregroundStyle(Color.white)
-                                        .font(.title3)
-                                }
-                            VStack(alignment: .leading) {
-                                Text(todo.title)
-                                    .foregroundStyle(Color.primary)
-                                Text(todo.dueDate?
-                                    .formatted(date: .abbreviated, time: .omitted) ?? "마감일 없음"
-                                )
-                                .font(.caption2)
-                                .foregroundStyle(Color.gray)
-                            }
-                        }
-                        .padding(.vertical, -6)
+                        RecentTodoRow(todo: todo, sceneWidth: sceneWidth)
+                            .padding(.vertical, -4)
                     }
                 }
             }
-        }, header: {
+        } header: {
             HStack {
-                Text("중요 표시")
+                Text("최근 수정")
                     .foregroundStyle(Color.primary)
                     .font(.title2.bold())
                 Spacer()
-
             }
             .listRowInsets(EdgeInsets())
-        })
+        }
     }
 
     private var webPageSection: some View {
@@ -384,5 +365,70 @@ struct HomeView: View {
         case kind(TodoKind)
         case detail(String)
         case web(WebPageItem)
+    }
+}
+
+private struct RecentTodoRow: View {
+    let todo: RecentTodoItem
+    let sceneWidth: CGFloat
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(todo.kind.color)
+                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .overlay {
+                    Image(systemName: todo.kind.symbolName)
+                        .foregroundStyle(Color.white)
+                        .font(.title3)
+                }
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    if todo.isPinned {
+                        Image(systemName: "star.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
+                    Text(todo.title)
+                        .foregroundStyle(Color.primary)
+                        .font(.headline)
+                        .lineLimit(1)
+                }
+
+                HStack(spacing: 6) {
+                    Text(todo.kind.localizedName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(todo.kind.color)
+
+                    TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                        Text(timeAgoText(from: todo.updatedAt, now: context.date))
+                            .font(.caption2)
+                            .foregroundStyle(Color.gray)
+                    }
+                }
+
+                if !todo.tags.isEmpty {
+                    TagList(todo.tags, lineLimit: 1)
+                }
+            }
+        }
+    }
+
+    private func timeAgoText(from date: Date, now: Date) -> String {
+        let seconds = Int(now.timeIntervalSince(date))
+
+        if seconds < 60 {
+            return "\(max(0, seconds))초 전"
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return "\(minutes)분 전"
+        } else if seconds < 86400 {
+            let hours = seconds / 3600
+            return "\(hours)시간 전"
+        } else {
+            let days = seconds / 86400
+            return "\(days)일 전"
+        }
     }
 }

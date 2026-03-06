@@ -63,30 +63,98 @@ struct Tag: View {
     }
 }
 
-struct TagLayout: Layout {
+struct TagList: View {
+    private let tags: [String]
+    private let lineLimit: Int?
+    private let showsOverflowIndicator: Bool
+    private let isEditing: Bool
+    private let action: ((String) -> Void)?
+    private let verticalSpacing: CGFloat
+    private let horizontalSpacing: CGFloat
+
+    init<C: Collection>(
+        _ tags: C,
+        lineLimit: Int? = nil,
+        showsOverflowIndicator: Bool = true,
+        isEditing: Bool = false,
+        verticalSpacing: CGFloat = 8,
+        horizontalSpacing: CGFloat = 8,
+        action: ((String) -> Void)? = nil
+    ) where C.Element == String {
+        self.tags = Array(tags)
+        self.lineLimit = lineLimit
+        self.showsOverflowIndicator = showsOverflowIndicator
+        self.isEditing = isEditing
+        self.verticalSpacing = verticalSpacing
+        self.horizontalSpacing = horizontalSpacing
+        self.action = action
+    }
+
+    var body: some View {
+        Group {
+            if let lineLimit {
+                TagLayout(
+                    lineLimit: lineLimit,
+                    showsOverflowIndicator: showsOverflowIndicator,
+                    verticalSpacing: verticalSpacing,
+                    horizontalSpacing: horizontalSpacing
+                ) {
+                    contentTags
+                    if showsOverflowIndicator {
+                        Tag("...", isEditing: false)
+                    }
+                }
+            } else {
+                TagLayout(
+                    showsOverflowIndicator: false,
+                    verticalSpacing: verticalSpacing,
+                    horizontalSpacing: horizontalSpacing
+                ) {
+                    contentTags
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var contentTags: some View {
+        ForEach(tags, id: \.self) { tagText in
+            Tag(tagText, isEditing: isEditing) {
+                action?(tagText)
+            }
+        }
+    }
+}
+
+private struct TagLayout: Layout {
     struct Cache {
         var maxWidth: CGFloat = 0
         var rows: [Row] = []
     }
 
     var lineLimit: Int?
+    var showsOverflowIndicator: Bool
     var verticalSpacing: CGFloat
     var horizontalSpacing: CGFloat
 
     init(
+        showsOverflowIndicator: Bool = true,
         verticalSpacing: CGFloat = 8,
         horizontalSpacing: CGFloat = 8
     ) {
+        self.showsOverflowIndicator = showsOverflowIndicator
         self.verticalSpacing = verticalSpacing
         self.horizontalSpacing = horizontalSpacing
     }
 
     init(
         lineLimit: Int,
+        showsOverflowIndicator: Bool = true,
         verticalSpacing: CGFloat = 8,
         horizontalSpacing: CGFloat = 8
     ) {
         self.lineLimit = lineLimit
+        self.showsOverflowIndicator = showsOverflowIndicator
         self.verticalSpacing = verticalSpacing
         self.horizontalSpacing = horizontalSpacing
     }
@@ -118,7 +186,7 @@ struct TagLayout: Layout {
         cache: inout Cache
     ) -> CGSize {
         updateCache(&cache, subviews: subviews, proposal: proposal)
-        let rows = limitedRows(cache.rows)
+        let rows = limitedRows(cache.rows, subviews: subviews, maxWidth: cache.maxWidth)
         let height = rows.reduce(0) { $0 + $1.maxHeight } + CGFloat(max(0, rows.count - 1)) * verticalSpacing
         let rowsWidth = rows.map { $0.width }.max() ?? 0
         let width = (proposal.width ?? 0) > 0 ? (proposal.width ?? 0) : rowsWidth
@@ -139,7 +207,7 @@ struct TagLayout: Layout {
             cache.maxWidth = width
             cache.rows = computeRows(maxWidth: width, subviews: subviews)
         }
-        let rows = limitedRows(cache.rows)
+        let rows = limitedRows(cache.rows, subviews: subviews, maxWidth: width)
         let allowedIndices = Set(rows.flatMap { $0.indices })
         var minY = bounds.minY
 
@@ -188,8 +256,12 @@ struct TagLayout: Layout {
         var rows: [Row] = []
         var currentRow = Row()
         var currentWidth: CGFloat = 0
+        let overflowIndex = subviews.count - 1
+        let usesOverflowIndicator = usesOverflowIndicator
+        let contentIndices = subviews.indices.filter { !usesOverflowIndicator || $0 != overflowIndex }
 
-        for (index, subview) in subviews.enumerated() {
+        for index in contentIndices {
+            let subview = subviews[index]
             let size = subview.sizeThatFits(.unspecified)
 
             if currentWidth + size.width > availableWidth && !currentRow.indices.isEmpty {
@@ -211,11 +283,64 @@ struct TagLayout: Layout {
         return rows
     }
 
-    private func limitedRows(_ rows: [Row]) -> [Row] {
+    private func limitedRows(
+        _ rows: [Row],
+        subviews: Subviews,
+        maxWidth: CGFloat
+    ) -> [Row] {
         guard let lineLimit, 0 < lineLimit else {
             return rows
         }
-        return Array(rows.prefix(lineLimit))
+        let limited = Array(rows.prefix(lineLimit))
+
+        guard usesOverflowIndicator,
+              lineLimit < rows.count,
+              !subviews.isEmpty else {
+            return limited
+        }
+
+        let overflowIndex = subviews.count - 1
+        let overflowSize = subviews[overflowIndex].sizeThatFits(.unspecified)
+        guard !limited.isEmpty else {
+            return [Row(indices: [overflowIndex], maxHeight: overflowSize.height, width: overflowSize.width)]
+        }
+
+        var adjustedRows = limited
+        var lastRow = adjustedRows.removeLast()
+        var candidateIndices = lastRow.indices
+
+        while !candidateIndices.isEmpty {
+            let rowIndices = candidateIndices + [overflowIndex]
+            let rowWidth = width(for: rowIndices, subviews: subviews)
+            if rowWidth <= maxWidth {
+                lastRow.indices = rowIndices
+                lastRow.maxHeight = max(lastRow.maxHeight, overflowSize.height)
+                lastRow.width = rowWidth
+                adjustedRows.append(lastRow)
+                return adjustedRows
+            }
+            candidateIndices.removeLast()
+        }
+
+        adjustedRows.append(
+            Row(indices: [overflowIndex], maxHeight: overflowSize.height, width: overflowSize.width)
+        )
+        return adjustedRows
+    }
+
+    private func width(
+        for indices: [Int],
+        subviews: Subviews
+    ) -> CGFloat {
+        guard !indices.isEmpty else { return 0 }
+        let widths = indices.reduce(CGFloat.zero) { partialResult, index in
+            partialResult + subviews[index].sizeThatFits(.unspecified).width
+        }
+        return widths + CGFloat(max(0, indices.count - 1)) * horizontalSpacing
+    }
+
+    private var usesOverflowIndicator: Bool {
+        showsOverflowIndicator && (lineLimit ?? 0) > 0
     }
 
     struct Row {
