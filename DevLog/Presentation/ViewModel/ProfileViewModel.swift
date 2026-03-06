@@ -37,6 +37,7 @@ final class ProfileViewModel: Store {
             quarter: ProfileCompletionQuarter,
             dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]]
         )
+        case moveToCurrentQuarter
         case moveQuarter(Int)
         case toggleActivityType(ProfileActivityType)
         case selectDay(ProfileCompletionDay?)
@@ -85,6 +86,14 @@ final class ProfileViewModel: Store {
 
     var canMoveToNextQuarter: Bool {
         canMoveToQuarter(offsetMonths: 3)
+    }
+
+    var isViewingCurrentQuarter: Bool {
+        guard let selectedQuarterStart = state.selectedQuarterStart,
+              let currentQuarterStart = quarterStart(for: Date(), calendar: calendar) else {
+            return false
+        }
+        return selectedQuarterStart == currentQuarterStart
     }
 
     init(
@@ -141,6 +150,15 @@ final class ProfileViewModel: Store {
             }
         case .setSelectedActivityForSheet(let activity):
             state.selectedActivityForSheet = activity
+        case .moveToCurrentQuarter:
+            guard let currentQuarterStart = quarterStart(for: Date(), calendar: calendar),
+                  state.selectedQuarterStart != currentQuarterStart else { break }
+            state.selectedQuarterStart = currentQuarterStart
+            state.completionQuarter = nil
+            state.dayActivitiesByDate = [:]
+            state.selectedDay = nil
+            state.selectedActivityForSheet = nil
+            effects = [.fetchCompletionQuarter(currentQuarterStart)]
         case .moveQuarter(let delta):
             guard let selectedQuarterStart = state.selectedQuarterStart else { break }
             let monthDelta = 3 * delta

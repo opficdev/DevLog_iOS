@@ -128,6 +128,7 @@ struct ProfileView: View {
                 Text("분기별 활동")
                     .font(.headline)
                 Spacer()
+                quarterResetButton
                 activityTypeSelector
             }
 
@@ -173,6 +174,20 @@ struct ProfileView: View {
         )
     }
 
+    @ViewBuilder
+    private var quarterResetButton: some View {
+        if !viewModel.isViewingCurrentQuarter {
+            Button {
+                viewModel.send(.moveToCurrentQuarter)
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+                    .bold()
+                    .foregroundStyle(.blue)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     private var activityTypeSelector: some View {
         Menu {
             ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
@@ -192,6 +207,7 @@ struct ProfileView: View {
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
+                .bold()
                 .foregroundStyle(.blue)
         }
     }
@@ -204,15 +220,11 @@ struct ProfileView: View {
                 Image(systemName: "chevron.left")
             }
             .disabled(!viewModel.canMoveToPreviousQuarter)
-
             Spacer()
-
             Text(viewModel.quarterTitle)
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             Spacer()
-
             Button {
                 viewModel.send(.moveQuarter(1))
             } label: {
