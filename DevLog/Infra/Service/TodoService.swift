@@ -13,6 +13,7 @@ final class TodoService {
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoService")
     
+    // swiftlint:disable function_body_length
     func fetchTodos(
         _ query: TodoQuery,
         cursor: TodoCursorDTO?
@@ -84,7 +85,11 @@ final class TodoService {
                 while true {
                     var pageQuery = firestoreQuery
                     if let pageCursor {
-                        pageQuery = pageQuery.start(after: cursorValues(for: query, cursor: pageCursor))
+                        guard let cursorValues = cursorValues(for: query, cursor: pageCursor) else {
+                            logger.error("Failed to build cursor values for paginated todo fetch.")
+                            break
+                        }
+                        pageQuery = pageQuery.start(after: cursorValues)
                     }
 
                     pageQuery = pageQuery.limit(to: query.pageSize)
@@ -110,7 +115,11 @@ final class TodoService {
             }
 
             if let cursor {
-                firestoreQuery = firestoreQuery.start(after: cursorValues(for: query, cursor: cursor))
+                guard let cursorValues = cursorValues(for: query, cursor: cursor) else {
+                    logger.error("Failed to build cursor values for todo fetch.")
+                    return TodoPageResponse(items: [], nextCursor: nil)
+                }
+                firestoreQuery = firestoreQuery.start(after: cursorValues)
             }
 
             firestoreQuery = firestoreQuery.limit(to: query.pageSize)
@@ -134,6 +143,7 @@ final class TodoService {
 
         return TodoPageResponse(items: filtered, nextCursor: nil)
     }
+    // swiftlint:enable function_body_length
 
     func upsertTodo(request: TodoRequest) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
@@ -218,17 +228,15 @@ private extension TodoService {
     func cursorValues(
         for query: TodoQuery,
         cursor: TodoCursorDTO
-    ) -> [Any] {
+    ) -> [Any]? {
         let primaryValue: Any = cursor.primarySortDate.map { Timestamp(date: $0) } ?? NSNull()
 
         switch query.sortTarget {
         case .dueDate:
-            guard let secondarySortDate = cursor.secondarySortDate else {
-                return [primaryValue, cursor.documentID]
-            }
+            guard let sortDate = cursor.secondarySortDate else { return nil }
             return [
                 primaryValue,
-                Timestamp(date: secondarySortDate),
+                Timestamp(date: sortDate),
                 cursor.documentID
             ]
         case .createdAt, .updatedAt:
