@@ -186,7 +186,7 @@ struct ProfileView: View {
                 }
             }
         } label: {
-            Text("편집")
+            Image(systemName: "line.3.horizontal.decrease")
                 .foregroundStyle(.blue)
         }
     }
