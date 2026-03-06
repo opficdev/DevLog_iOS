@@ -65,26 +65,21 @@ struct TodayView: View {
         Section {
             ScrollView(.horizontal) {
                 HStack(spacing: 12) {
-                    SummaryCard(
-                        title: "남은 일",
-                        value: viewModel.remainingCount,
-                        accentColor: .blue
-                    )
-                    SummaryCard(
-                        title: "집중",
-                        value: viewModel.focusedCount,
-                        accentColor: .orange
-                    )
-                    SummaryCard(
-                        title: "지연",
-                        value: viewModel.overdueCount,
-                        accentColor: .red
-                    )
-                    SummaryCard(
-                        title: "7일 내",
-                        value: viewModel.dueSoonCount,
-                        accentColor: .green
-                    )
+                    ForEach(TodayViewModel.SummaryScope.allCases, id: \.self) { scope in
+                        Button {
+                            withAnimation(.easeInOut) {
+                                viewModel.send(.setSummaryScope(scope))
+                            }
+                        } label: {
+                            SummaryCard(
+                                title: scope.title,
+                                value: viewModel.summaryValue(for: scope),
+                                accentColor: scope.accentColor,
+                                isSelected: viewModel.selectedSummaryScope == scope
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             .scrollIndicators(.never)
@@ -96,9 +91,9 @@ struct TodayView: View {
     private var emptySection: some View {
         Section {
             VStack(spacing: 8) {
-                Text("남아 있는 Todo가 없습니다.")
+                Text(viewModel.emptyStateTitle)
                     .foregroundStyle(.primary)
-                Text("완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다.")
+                Text(viewModel.emptyStateMessage)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -145,16 +140,45 @@ struct TodayView: View {
     }
 }
 
+private extension TodayViewModel.SummaryScope {
+    var title: String {
+        switch self {
+        case .all:
+            return "남은 일"
+        case .focused:
+            return "집중"
+        case .overdue:
+            return "지연"
+        case .dueSoon:
+            return "7일 내"
+        }
+    }
+
+    var accentColor: Color {
+        switch self {
+        case .all:
+            return .blue
+        case .focused:
+            return .orange
+        case .overdue:
+            return .red
+        case .dueSoon:
+            return .green
+        }
+    }
+}
+
 private struct SummaryCard: View {
     let title: String
     let value: Int
     let accentColor: Color
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isSelected ? accentColor : .secondary)
             Text("\(value)")
                 .font(.title2.bold())
                 .foregroundStyle(Color(.label))
@@ -163,12 +187,13 @@ private struct SummaryCard: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(accentColor.opacity(0.12))
+                .fill(isSelected ? accentColor.opacity(0.2) : accentColor.opacity(0.12))
+                .strokeBorder(
+                    isSelected ? accentColor.opacity(0.55) : accentColor.opacity(0.18),
+                    lineWidth: isSelected ? 1.5 : 1
+                )
         )
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(accentColor.opacity(0.18), lineWidth: 1)
-        }
+        .scaleEffect(isSelected ? 1 : 0.98)
     }
 }
 

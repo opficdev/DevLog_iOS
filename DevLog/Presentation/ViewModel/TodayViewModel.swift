@@ -10,6 +10,13 @@ import Foundation
 @Observable
 final class TodayViewModel: Store {
     typealias SectionContent = (title: String, items: [TodayTodoItem])
+    
+    enum SummaryScope: Hashable, CaseIterable {
+        case all
+        case focused
+        case overdue
+        case dueSoon
+    }
 
     struct State: Equatable {
         var todos: [TodayTodoItem] = []
@@ -17,11 +24,13 @@ final class TodayViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
+        var selectedSummaryScope: SummaryScope = .all
     }
 
     enum Action {
         case refresh
         case setAlert(Bool)
+        case setSummaryScope(SummaryScope)
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
         case onAppear
@@ -69,15 +78,68 @@ final class TodayViewModel: Store {
         state.todos.filter(isDueSoon).count
     }
 
+    var selectedSummaryScope: SummaryScope {
+        state.selectedSummaryScope
+    }
+
+    func summaryValue(for scope: SummaryScope) -> Int {
+        switch scope {
+        case .all:
+            return remainingCount
+        case .focused:
+            return focusedCount
+        case .overdue:
+            return overdueCount
+        case .dueSoon:
+            return dueSoonCount
+        }
+    }
+
+    var emptyStateTitle: String {
+        switch state.selectedSummaryScope {
+        case .all:
+            return "남아 있는 Todo가 없습니다."
+        case .focused:
+            return "집중할 일이 없습니다."
+        case .overdue:
+            return "지난 마감 Todo가 없습니다."
+        case .dueSoon:
+            return "\(upcomingWindowDays)일 내 일정이 없습니다."
+        }
+    }
+
+    var emptyStateMessage: String {
+        switch state.selectedSummaryScope {
+        case .all:
+            return "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+        case .focused:
+            return "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+        case .overdue:
+            return "지금은 기한이 지난 Todo가 없습니다."
+        case .dueSoon:
+            return "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+        }
+    }
+
     var sections: [SectionContent] {
-        [
+        let allSections: [SectionContent] = [
             ("집중할 일", state.todos.filter(\.isPinned)),
             ("지난 마감", state.todos.filter { !$0.isPinned && isOverdue($0) }),
             ("\(upcomingWindowDays)일 내 일정", state.todos.filter { !$0.isPinned && isDueSoon($0) }),
             ("나중 일정", state.todos.filter { !$0.isPinned && isScheduledLater($0) }),
             ("일정 미정", state.todos.filter { !$0.isPinned && $0.dueDate == nil })
         ]
-        .filter { !$0.items.isEmpty }
+
+        switch state.selectedSummaryScope {
+        case .all:
+            return allSections.filter { !$0.items.isEmpty }
+        case .focused:
+            return allSections.filter { $0.title == "집중할 일" && !$0.items.isEmpty }
+        case .overdue:
+            return allSections.filter { $0.title == "지난 마감" && !$0.items.isEmpty }
+        case .dueSoon:
+            return allSections.filter { $0.title == "\(upcomingWindowDays)일 내 일정" && !$0.items.isEmpty }
+        }
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -85,7 +147,7 @@ final class TodayViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .completeTodo, .togglePinned:
+        case .refresh, .setAlert, .setSummaryScope, .completeTodo, .togglePinned:
             effects = reduceByUser(action, state: &state)
         case .onAppear:
             effects = reduceByView(action, state: &state)
@@ -174,6 +236,12 @@ private extension TodayViewModel {
             return [.fetchTodos]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
+        case .setSummaryScope(let scope):
+            if state.selectedSummaryScope == scope, scope != .all {
+                state.selectedSummaryScope = .all
+            } else {
+                state.selectedSummaryScope = scope
+            }
         case .completeTodo(let item):
             return [.completeTodo(item)]
         case .togglePinned(let item):
