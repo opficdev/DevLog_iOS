@@ -173,17 +173,19 @@ struct ProfileView: View {
     private var activityTypeSelector: some View {
         Menu {
             ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
-                Button {
-                    viewModel.send(.toggleActivityType(activityType))
-                } label: {
-                    HStack {
-                        Text(activityType.title)
-                        if viewModel.state.selectedActivityTypes.contains(activityType) {
-                            Image(systemName: "checkmark")
-                                .tint(.blue)
+                Toggle(
+                    activityType.title,
+                    isOn: Binding(
+                        get: { viewModel.state.selectedActivityTypes.contains(activityType) },
+                        set: { _ in
+                            viewModel.send(.toggleActivityType(activityType))
                         }
-                    }
-                }
+                    )
+                )
+                .disabled(
+                    viewModel.state.selectedActivityTypes.count == 1
+                        && viewModel.state.selectedActivityTypes.contains(activityType)
+                )
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
