@@ -440,7 +440,7 @@ private extension ProfileViewModel {
                     date: normalizedDate,
                     createdCount: createdCount,
                     completedCount: completedCount,
-                    isInMonth: isInMonth
+                    isVisible: isInMonth
                 )
             )
             guard let nextDay = calendar.date(byAdding: .day, value: 1, to: cursor) else { break }

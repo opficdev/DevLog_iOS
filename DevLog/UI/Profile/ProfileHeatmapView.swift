@@ -8,30 +8,35 @@
 import SwiftUI
 
 struct ProfileHeatmapView: View {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @Environment(\.sceneWidth) private var sceneWidth
     let quarter: ProfileCompletionQuarter
     let selectedActivityTypes: Set<ProfileActivityType>
     let selectedDay: ProfileCompletionDay?
     let onSelectDay: (ProfileCompletionDay) -> Void
 
     var body: some View {
+        let layout = ProfileHeatmapLayout(
+            availableWidth: availableWidth,
+            weekCounts: quarter.months.map(\.weeks.count)
+        )
+
         VStack(alignment: .leading, spacing: 10) {
             Text("활동 히트맵")
                 .font(.subheadline)
                 .bold()
             HStack(alignment: .top, spacing: 0) {
-                weekdayLabel
-                    .padding(.trailing, 10)
-                let months = quarter.months
-                ForEach(Array(zip(months.indices, months)), id: \.1) { index, month in
-                    MonthCompactHeatmapView(
-                        month: month,
-                        maxCount: quarter.maxCount,
-                        selectedActivityTypes: selectedActivityTypes,
-                        selectedDay: selectedDay,
-                        onSelectDay: onSelectDay
-                    )
-                    if index < months.count - 1 {
-                        Spacer()
+                weekdayLabel(layout: layout)
+                HStack(alignment: .top, spacing: layout.monthSpacing) {
+                    ForEach(quarter.months) { month in
+                        MonthCompactHeatmapView(
+                            month: month,
+                            maxCount: quarter.maxCount,
+                            layout: layout,
+                            selectedActivityTypes: selectedActivityTypes,
+                            selectedDay: selectedDay,
+                            onSelectDay: onSelectDay
+                        )
                     }
                 }
             }
@@ -40,31 +45,78 @@ struct ProfileHeatmapView: View {
     }
 
     @ViewBuilder
-    private var weekdayLabel: some View {
+    private func weekdayLabel(layout: ProfileHeatmapLayout) -> some View {
         let labels: [Int: String] = [
             2: "월",
             4: "수",
             6: "금"
         ]
         let orderedWeekdays = Array(1...7)
-        let cellSize: CGFloat = 16
 
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: layout.cellSpacing) {
             ForEach(orderedWeekdays, id: \.self) { weekday in
                 Group {
                     if let label = labels[weekday] {
                         Text(label)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                            .frame(width: cellSize, height: cellSize)
+                            .frame(
+                                width: layout.cellSize,
+                                height: layout.cellSize,
+                                alignment: .leading
+                            )
                     } else {
                         Color.clear
-                            .frame(width: cellSize, height: cellSize)
+                            .frame(
+                                width: layout.cellSize,
+                                height: layout.cellSize
+                            )
                     }
                 }
             }
         }
-        .padding(.top, 22)
+        .padding(.top, layout.weekdayTopPadding)
+    }
+
+    private var availableWidth: CGFloat {
+        let horizontalPadding: CGFloat = 16 + 12
+        return max(
+            0,
+            sceneWidth
+                - safeAreaInsets.leading
+                - safeAreaInsets.trailing
+                - (horizontalPadding * 2)
+        )
+    }
+}
+
+private struct ProfileHeatmapLayout {
+    let cellSize: CGFloat
+    let cellSpacing: CGFloat = 4
+    let monthSpacing: CGFloat = 12
+    let monthTitleSpacing: CGFloat = 6
+
+    init(availableWidth: CGFloat, weekCounts: [Int]) {
+        let sanitizedWeekCounts = weekCounts.filter { 0 < $0 }
+        let totalColumns = max(sanitizedWeekCounts.reduce(0, +), 1)
+        let totalColumnSpacings = sanitizedWeekCounts.reduce(0) { partialResult, count in
+            partialResult + max(count - 1, 0)
+        }
+        let fixedWidth = monthSpacing * CGFloat(max(sanitizedWeekCounts.count - 1, 0))
+            + cellSpacing * CGFloat(totalColumnSpacings)
+        cellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns + 1)
+    }
+
+    var weekdayTopPadding: CGFloat {
+        cellSize + monthTitleSpacing
+    }
+
+    var cellCornerRadius: CGFloat {
+        max(2, cellSize * 0.2)
+    }
+
+    var innerSelectionLineWidth: CGFloat {
+        max(1.2, cellSize * 0.12)
     }
 }
 
@@ -72,42 +124,41 @@ private struct MonthCompactHeatmapView: View {
     @Environment(\.colorScheme) private var colorScheme
     let month: ProfileCompletionMonth
     let maxCount: Int
+    let layout: ProfileHeatmapLayout
     let selectedActivityTypes: Set<ProfileActivityType>
     let selectedDay: ProfileCompletionDay?
     let onSelectDay: (ProfileCompletionDay) -> Void
     private let orderedWeekdays = Array(1...7)
-    private let cellSize: CGFloat = 16
-    private let cellSpacing: CGFloat = 4
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: layout.monthTitleSpacing) {
             Text(month.monthStart.formatted(.dateTime.month(.abbreviated)))
-                .frame(height: cellSize)
+                .frame(height: layout.cellSize)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            VStack(alignment: .leading, spacing: cellSpacing) {
+            VStack(alignment: .leading, spacing: layout.cellSpacing) {
                 ForEach(orderedWeekdays, id: \.self) { weekday in
-                    HStack(spacing: cellSpacing) {
+                    HStack(spacing: layout.cellSpacing) {
                         ForEach(month.weeks.indices, id: \.self) { weekIndex in
                             let day = month.weeks[weekIndex].first {
                                 Calendar.current.component(.weekday, from: $0.date) == weekday
                             }
 
-                            RoundedRectangle(cornerRadius: 3)
+                            RoundedRectangle(cornerRadius: layout.cellCornerRadius)
                                 .fill(fillColor(for: day, with: maxCount))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .stroke(selectionInnerBorderColor(for: day), lineWidth: 2)
+                                .stroke(
+                                    selectionInnerBorderColor(for: day),
+                                    lineWidth: layout.innerSelectionLineWidth
                                 )
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
+                                    RoundedRectangle(cornerRadius: layout.cellCornerRadius + 1)
                                         .stroke(selectionOuterBorderColor(for: day), lineWidth: 0.8)
                                         .padding(-1)
                                 )
-                                .frame(width: cellSize, height: cellSize)
+                                .frame(width: layout.cellSize, height: layout.cellSize)
                                 .onTapGesture {
-                                    if let day, day.isInMonth {
+                                    if let day, day.isVisible {
                                         onSelectDay(day)
                                     }
                                 }
@@ -135,7 +186,7 @@ private struct MonthCompactHeatmapView: View {
     }
 
     private func fillColor(for day: ProfileCompletionDay?, with maxCount: Int) -> Color {
-        guard let day, day.isInMonth else { return .clear }
+        guard let day, day.isVisible else { return .clear }
         let count = dayCount(for: day)
         if count == 0 {
             return Color(.systemGray5)
