@@ -17,6 +17,7 @@ struct HomeView: View {
         NavigationStack(path: $router.path) {
             List {
                 todoSection
+                recentTodoSection
                 webPageSection
             }
             .listStyle(.insetGrouped)
@@ -32,6 +33,12 @@ struct HomeView: View {
                         kind: todoKind
                     ))
                     .environment(router)
+                case .detail(let todoID):
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoID: todoID
+                    ))
                 case .web(let page):
                     WebView(url: page.url)
                         .navigationBarTitleDisplayMode(.inline)
@@ -181,6 +188,54 @@ struct HomeView: View {
         })
     }
 
+    private var recentTodoSection: some View {
+        Section {
+            if viewModel.state.recentTodos.isEmpty {
+                if viewModel.state.isRecentTodosLoading {
+                    LoadingView()
+                } else {
+                    HStack {
+                        Spacer()
+                        Text("최근 수정한 Todo가 없습니다.")
+                            .font(.callout)
+                        Spacer()
+                    }
+                }
+            } else {
+                ForEach(viewModel.state.recentTodos, id: \.id) { todo in
+                    NavigationLink(value: Path.detail(todo.id)) {
+                        HStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(todo.kind.color)
+                                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                                .overlay {
+                                    Image(systemName: todo.kind.symbolName)
+                                        .foregroundStyle(Color.white)
+                                        .font(.title3)
+                                }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(todo.title)
+                                    .foregroundStyle(Color.primary)
+                                Text(todo.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption2)
+                                    .foregroundStyle(Color.gray)
+                            }
+                        }
+                        .padding(.vertical, -6)
+                    }
+                }
+            }
+        } header: {
+            HStack {
+                Text("최근 수정")
+                    .foregroundStyle(Color.primary)
+                    .font(.title2.bold())
+                Spacer()
+            }
+            .listRowInsets(EdgeInsets())
+        }
+    }
+
     private var webPageSection: some View {
         Section {
             if viewModel.state.webPages.isEmpty {
@@ -324,6 +379,7 @@ struct HomeView: View {
 
     private enum Path: Hashable {
         case kind(TodoKind)
+        case detail(String)
         case web(WebPageItem)
     }
 }

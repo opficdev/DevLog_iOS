@@ -11,6 +11,7 @@ import Foundation
 final class HomeViewModel: Store {
     struct State: Equatable {
         var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
+        var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
         var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
@@ -20,6 +21,7 @@ final class HomeViewModel: Store {
         var searchText: String = ""
         var isSearching: Bool = false
         var reorderTodo: Bool = false
+        var isRecentTodosLoading: Bool = false
         var isWebPageLoading: Bool = false
         var isWebPageInputLoading: Bool = false
         var showAlert: Bool = false
@@ -49,7 +51,9 @@ final class HomeViewModel: Store {
         case undoDeleteWebPage
         case confirmDeleteWebPage
         case setToast(isPresented: Bool, type: ToastType? = nil)
+        case fetchRecentTodos([RecentTodoItem])
         case fetchWebPages([WebPageItem])
+        case setRecentTodosLoading(Bool)
         case setWebPageLoading(Bool)
         case setWebPageInputLoading(Bool)
     }
@@ -58,6 +62,7 @@ final class HomeViewModel: Store {
         case upsertTodo(Todo)
         case addWebPage(String)
         case deleteWebPage(String)
+        case fetchRecentTodos
         case fetchWebPages
         case showModalAfterDelay(ModalType)
     }
@@ -81,6 +86,7 @@ final class HomeViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
+    private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private var pendingTask: (WebPageItem, Int)?
 
@@ -88,11 +94,13 @@ final class HomeViewModel: Store {
         addWebPageUseCase: AddWebPageUseCase,
         deleteWebPageUseCase: DeleteWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
+        fetchTodosUseCase: FetchTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase
     ) {
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
+        self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
     }
 
@@ -111,7 +119,8 @@ final class HomeViewModel: Store {
                 .addWebPage, .confirmDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .fetchWebPages, .setWebPageLoading, .setWebPageInputLoading:
+        case .fetchRecentTodos, .fetchWebPages, .setRecentTodosLoading,
+                .setWebPageLoading, .setWebPageInputLoading:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -125,6 +134,27 @@ final class HomeViewModel: Store {
             Task {
                 do {
                     try await upsertTodoUseCase.execute(todo)
+                    let page = try await fetchRecentTodos()
+                    let items = page.items
+                        .filter { $0.createdAt != $0.updatedAt }
+                        .prefix(5)
+                        .map { RecentTodoItem(from: $0) }
+                    send(.fetchRecentTodos(items))
+                } catch {
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
+        case .fetchRecentTodos:
+            Task {
+                do {
+                    defer { send(.setRecentTodosLoading(false)) }
+                    send(.setRecentTodosLoading(true))
+                    let page = try await fetchRecentTodos()
+                    let items = page.items
+                        .filter { $0.createdAt != $0.updatedAt }
+                        .prefix(5)
+                        .map { RecentTodoItem(from: $0) }
+                    send(.fetchRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -228,7 +258,7 @@ private extension HomeViewModel {
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .onAppear:
-            return [.fetchWebPages]
+            return [.fetchRecentTodos, .fetchWebPages]
         case .updateSearching(let isSearching):
             state.isSearching = isSearching
         case .updateSearchText(let text):
@@ -254,6 +284,8 @@ private extension HomeViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
+        case .fetchRecentTodos(let todos):
+            state.recentTodos = todos
         case .fetchWebPages(let pages):
             let filteredPages: [WebPageItem]
             if let (pendingPage, _) = pendingTask {
@@ -262,6 +294,8 @@ private extension HomeViewModel {
                 filteredPages = pages
             }
             state.webPages = filteredPages
+        case .setRecentTodosLoading(let isLoading):
+            state.isRecentTodosLoading = isLoading
         case .setWebPageLoading(let isLoading):
             state.isWebPageLoading = isLoading
         case .setWebPageInputLoading(let isLoading):
@@ -324,5 +358,16 @@ private extension HomeViewModel {
             return trimmed
         }
         return "https://" + trimmed
+    }
+
+    func fetchRecentTodos() async throws -> TodoPage {
+        try await fetchTodosUseCase.execute(
+            TodoQuery(
+                sortTarget: .updatedAt,
+                sortOrder: .latest,
+                pageSize: 100
+            ),
+            cursor: nil
+        )
     }
 }
