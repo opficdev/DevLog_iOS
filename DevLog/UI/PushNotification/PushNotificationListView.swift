@@ -27,7 +27,14 @@ struct PushNotificationListView: View {
             }
             .safeAreaInset(edge: .top) { safeAreaHeader }
             .background(Color(.secondarySystemBackground))
-            .onAppear { viewModel.send(.fetchNotifications) }
+            .onAppear {
+                viewModel.send(.fetchNotifications)
+                headerOffset = 0
+                isScrollTrackingEnabled = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isScrollTrackingEnabled = true
+                }
+            }
             .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle("받은 푸시 알람")
             .alert(
@@ -208,13 +215,6 @@ struct PushNotificationListView: View {
         .scrollIndicators(.never)
         .scrollDisabled(!isScrollTrackingEnabled)
         .contentMargins(.leading, 16, for: .scrollContent)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
-            }
-        }
     }
 
     private var filterBadge: some View {
