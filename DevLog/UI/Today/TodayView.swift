@@ -13,22 +13,20 @@ struct TodayView: View {
     @State var viewModel: TodayViewModel
 
     var body: some View {
-        let sections = viewModel.sections
-
         NavigationStack(path: $router.path) {
             List {
                 summarySection
-                if sections.isEmpty, !viewModel.state.isLoading {
+                if viewModel.sections.isEmpty, !viewModel.state.isLoading {
                     emptySection
                 } else {
-                    ForEach(Array(sections.indices), id: \.self) { index in
-                        let section = sections[index]
+                    ForEach(viewModel.sections) { section in
                         todoSection(section.title, items: section.items)
                     }
                 }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("오늘")
+            .toolbar { toolbarContent }
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .detail(let todoID):
@@ -75,7 +73,7 @@ struct TodayView: View {
                                 title: scope.title,
                                 value: viewModel.summaryValue(for: scope),
                                 accentColor: scope.accentColor,
-                                isSelected: viewModel.selectedSummaryScope == scope
+                                isSelected: viewModel.state.selectedSummaryScope == scope
                             )
                         }
                         .buttonStyle(.plain)
@@ -88,12 +86,46 @@ struct TodayView: View {
         .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
     }
 
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker(
+                    "보기 범위",
+                    selection: Binding(
+                        get: { viewModel.state.displayOptions.dueDateVisibility },
+                        set: { viewModel.send(.setDueDateVisibility($0)) }
+                    )
+                ) {
+                    ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+
+                Picker(
+                    "집중 표시",
+                    selection: Binding(
+                        get: { viewModel.state.displayOptions.focusVisibility },
+                        set: { viewModel.send(.setFocusVisibility($0)) }
+                    )
+                ) {
+                    ForEach(TodayDisplayOptions.FocusVisibility.allCases, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+            } label: {
+                let options = viewModel.state.displayOptions
+                Image(systemName: "line.3.horizontal.decrease.circle\(options == .default ? "" : ".fill")")
+            }
+        }
+    }
+
     private var emptySection: some View {
         Section {
             VStack(spacing: 8) {
-                Text(viewModel.emptyStateTitle)
+                Text(emptyStateTitle)
                     .foregroundStyle(.primary)
-                Text(viewModel.emptyStateMessage)
+                Text(emptyStateMessage)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -138,6 +170,58 @@ struct TodayView: View {
     private enum Path: Hashable {
         case detail(String)
     }
+
+    private var emptyStateTitle: String {
+        if viewModel.state.selectedSummaryScope == .all, viewModel.state.todos.isEmpty {
+            return "남아 있는 Todo가 없습니다."
+        }
+        if viewModel.state.selectedSummaryScope == .all, viewModel.sections.isEmpty {
+            return "선택한 보기 옵션에 맞는 Todo가 없습니다."
+        }
+
+        switch viewModel.state.selectedSummaryScope {
+        case .all:
+            return "남아 있는 Todo가 없습니다."
+        case .focused:
+            return "집중할 일이 없습니다."
+        case .overdue:
+            return "지난 마감 Todo가 없습니다."
+        case .dueSoon:
+            return "7일 내 일정이 없습니다."
+        }
+    }
+
+    private var emptyStateMessage: String {
+        if viewModel.state.selectedSummaryScope == .all,
+           !viewModel.state.todos.isEmpty,
+           viewModel.sections.isEmpty {
+            return "툴바에서 보기 범위를 조정하거나 전체 보기로 돌아가세요."
+        }
+
+        switch viewModel.state.selectedSummaryScope {
+        case .all:
+            return "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+        case .focused:
+            return "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+        case .overdue:
+            return "지금은 기한이 지난 Todo가 없습니다."
+        case .dueSoon:
+            return "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+        }
+    }
+}
+
+private extension TodayDisplayOptions.DueDateVisibility {
+    var title: String {
+        switch self {
+        case .all:
+            return "전체"
+        case .withDueDateOnly:
+            return "기한 있는 Todo만"
+        case .withoutDueDateOnly:
+            return "기한 없는 Todo만"
+        }
+    }
 }
 
 private extension TodayViewModel.SummaryScope {
@@ -164,6 +248,17 @@ private extension TodayViewModel.SummaryScope {
             return .red
         case .dueSoon:
             return .green
+        }
+    }
+}
+
+private extension TodayDisplayOptions.FocusVisibility {
+    var title: String {
+        switch self {
+        case .all:
+            return "전체"
+        case .focusedOnly:
+            return "중요 표시만"
         }
     }
 }

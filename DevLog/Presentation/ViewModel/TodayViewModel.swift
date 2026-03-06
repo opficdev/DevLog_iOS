@@ -9,13 +9,17 @@ import Foundation
 
 @Observable
 final class TodayViewModel: Store {
-    typealias SectionContent = (title: String, items: [TodayTodoItem])
-    
     enum SummaryScope: Hashable, CaseIterable {
         case all
         case focused
         case overdue
         case dueSoon
+    }
+
+    struct SectionContent: Identifiable, Equatable {
+        var id: String { title }
+        let title: String
+        let items: [TodayTodoItem]
     }
 
     struct State: Equatable {
@@ -25,12 +29,16 @@ final class TodayViewModel: Store {
         var alertTitle: String = ""
         var alertMessage: String = ""
         var selectedSummaryScope: SummaryScope = .all
+        var displayOptions: TodayDisplayOptions = .default
     }
 
     enum Action {
         case refresh
         case setAlert(Bool)
         case setSummaryScope(SummaryScope)
+        case setDueDateVisibility(TodayDisplayOptions.DueDateVisibility)
+        case setFocusVisibility(TodayDisplayOptions.FocusVisibility)
+        case resetDisplayOptions
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
         case onAppear
@@ -53,81 +61,29 @@ final class TodayViewModel: Store {
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
+    private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
         fetchTodoByIDUseCase: FetchTodoByIDUseCase,
-        upsertTodoUseCase: UpsertTodoUseCase
+        upsertTodoUseCase: UpsertTodoUseCase,
+        fetchTodayDisplayOptionsUseCase: FetchTodayDisplayOptionsUseCase,
+        updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
-    }
-
-    var remainingCount: Int { state.todos.count }
-
-    var focusedCount: Int {
-        state.todos.filter(\.isPinned).count
-    }
-
-    var overdueCount: Int {
-        state.todos.filter(isOverdue).count
-    }
-
-    var dueSoonCount: Int {
-        state.todos.filter(isDueSoon).count
-    }
-
-    var selectedSummaryScope: SummaryScope {
-        state.selectedSummaryScope
-    }
-
-    func summaryValue(for scope: SummaryScope) -> Int {
-        switch scope {
-        case .all:
-            return remainingCount
-        case .focused:
-            return focusedCount
-        case .overdue:
-            return overdueCount
-        case .dueSoon:
-            return dueSoonCount
-        }
-    }
-
-    var emptyStateTitle: String {
-        switch state.selectedSummaryScope {
-        case .all:
-            return "남아 있는 Todo가 없습니다."
-        case .focused:
-            return "집중할 일이 없습니다."
-        case .overdue:
-            return "지난 마감 Todo가 없습니다."
-        case .dueSoon:
-            return "\(upcomingWindowDays)일 내 일정이 없습니다."
-        }
-    }
-
-    var emptyStateMessage: String {
-        switch state.selectedSummaryScope {
-        case .all:
-            return "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
-        case .focused:
-            return "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
-        case .overdue:
-            return "지금은 기한이 지난 Todo가 없습니다."
-        case .dueSoon:
-            return "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
-        }
+        self.updateTodayDisplayOptionsUseCase = updateTodayDisplayOptionsUseCase
+        self.state.displayOptions = fetchTodayDisplayOptionsUseCase.execute()
     }
 
     var sections: [SectionContent] {
         let allSections: [SectionContent] = [
-            ("집중할 일", state.todos.filter(\.isPinned)),
-            ("지난 마감", state.todos.filter { !$0.isPinned && isOverdue($0) }),
-            ("\(upcomingWindowDays)일 내 일정", state.todos.filter { !$0.isPinned && isDueSoon($0) }),
-            ("나중 일정", state.todos.filter { !$0.isPinned && isScheduledLater($0) }),
-            ("일정 미정", state.todos.filter { !$0.isPinned && $0.dueDate == nil })
+            SectionContent(title: "집중할 일", items: displayedTodos.filter(\.isPinned)),
+            SectionContent(title: "지난 마감", items: displayedTodos.filter { !$0.isPinned && isOverdue($0) }),
+            SectionContent(title: "\(upcomingWindowDays)일 내 일정", items: displayedTodos.filter { !$0.isPinned && isDueSoon($0) }),
+            SectionContent(title: "나중 일정", items: displayedTodos.filter { !$0.isPinned && isScheduledLater($0) }),
+            SectionContent(title: "일정 미정", items: displayedTodos.filter { !$0.isPinned && $0.dueDate == nil })
         ]
 
         switch state.selectedSummaryScope {
@@ -142,12 +98,26 @@ final class TodayViewModel: Store {
         }
     }
 
+    func summaryValue(for scope: SummaryScope) -> Int {
+        switch scope {
+        case .all:
+            return displayedTodos.count
+        case .focused:
+            return displayedTodos.filter(\.isPinned).count
+        case .overdue:
+            return displayedTodos.filter(isOverdue).count
+        case .dueSoon:
+            return displayedTodos.filter(isDueSoon).count
+        }
+    }
+
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .setSummaryScope, .completeTodo, .togglePinned:
+        case .refresh, .setAlert, .setSummaryScope, .setDueDateVisibility, .setFocusVisibility,
+                .resetDisplayOptions, .completeTodo, .togglePinned:
             effects = reduceByUser(action, state: &state)
         case .onAppear:
             effects = reduceByView(action, state: &state)
@@ -242,6 +212,15 @@ private extension TodayViewModel {
             } else {
                 state.selectedSummaryScope = scope
             }
+        case .setDueDateVisibility(let visibility):
+            state.displayOptions.dueDateVisibility = visibility
+            updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
+        case .setFocusVisibility(let visibility):
+            state.displayOptions.focusVisibility = visibility
+            updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
+        case .resetDisplayOptions:
+            state.displayOptions = .default
+            updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
         case .completeTodo(let item):
             return [.completeTodo(item)]
         case .togglePinned(let item):
@@ -289,6 +268,25 @@ private extension TodayViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    var displayedTodos: [TodayTodoItem] {
+        let dueDateFilteredTodos: [TodayTodoItem]
+        switch state.displayOptions.dueDateVisibility {
+        case .all:
+            dueDateFilteredTodos = state.todos
+        case .withDueDateOnly:
+            dueDateFilteredTodos = state.todos.filter { $0.dueDate != nil }
+        case .withoutDueDateOnly:
+            dueDateFilteredTodos = state.todos.filter { $0.dueDate == nil }
+        }
+
+        switch state.displayOptions.focusVisibility {
+        case .all:
+            return dueDateFilteredTodos
+        case .focusedOnly:
+            return dueDateFilteredTodos.filter(\.isPinned)
+        }
     }
 
     func isOverdue(_ item: TodayTodoItem) -> Bool {

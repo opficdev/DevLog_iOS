@@ -26,7 +26,9 @@ struct MainView: View {
             TodayView(viewModel: TodayViewModel(
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
-                upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self)
+                upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
+                updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "sun.max.fill")

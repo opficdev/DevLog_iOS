@@ -30,4 +30,7 @@ protocol UserPreferencesRepository {
 
     func profileHeatmapActivityTypes() -> [String]
     func setProfileHeatmapActivityTypes(_ activityTypes: [String])
+
+    func todayDisplayOptions() -> TodayDisplayOptions
+    func setTodayDisplayOptions(_ options: TodayDisplayOptions)
 }

@@ -17,6 +17,8 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         static let pushTimeFilter = "PushNotification.timeFilter"
         static let pushUnreadOnly = "PushNotification.showUnreadOnly"
         static let profileHeatmapActivityTypes = "Profile.heatmap.activityTypes"
+        static let todayDueDateVisibility = "Today.dueDateVisibility"
+        static let todayFocusVisibility = "Today.focusVisibility"
     }
 
     private let store: UserDefaultsStore
@@ -100,5 +102,24 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setProfileHeatmapActivityTypes(_ activityTypes: [String]) {
         store.setStringArray(activityTypes, forKey: Key.profileHeatmapActivityTypes)
+    }
+
+    func todayDisplayOptions() -> TodayDisplayOptions {
+        let dueDateVisibilityRawValue = store.string(forKey: Key.todayDueDateVisibility)
+        let focusVisibilityRawValue = store.string(forKey: Key.todayFocusVisibility)
+
+        return TodayDisplayOptions(
+            dueDateVisibility: TodayDisplayOptions.DueDateVisibility(
+                rawValue: dueDateVisibilityRawValue ?? ""
+            ) ?? .all,
+            focusVisibility: TodayDisplayOptions.FocusVisibility(
+                rawValue: focusVisibilityRawValue ?? ""
+            ) ?? .all
+        )
+    }
+
+    func setTodayDisplayOptions(_ options: TodayDisplayOptions) {
+        store.setString(options.dueDateVisibility.rawValue, forKey: Key.todayDueDateVisibility)
+        store.setString(options.focusVisibility.rawValue, forKey: Key.todayFocusVisibility)
     }
 }
