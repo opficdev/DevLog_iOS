@@ -10,6 +10,27 @@ import OrderedCollections
 
 @Observable
 final class TodoEditorViewModel: Store {
+    private struct Draft: Equatable {
+        let title: String
+        let content: String
+        let dueDate: Date?
+        let tags: [String]
+
+        init(todo: Todo) {
+            self.title = todo.title
+            self.content = todo.content
+            self.dueDate = todo.dueDate
+            self.tags = todo.tags
+        }
+
+        init(state: State) {
+            self.title = state.title
+            self.content = state.content
+            self.dueDate = state.dueDate
+            self.tags = Array(state.tags)
+        }
+    }
+
     struct State: Equatable {
         var title: String = ""
         var content: String = ""
@@ -52,6 +73,16 @@ final class TodoEditorViewModel: Store {
     private let createdAt: Date?
     private let completedAt: Date?
     private let kind: TodoKind
+    private let originalDraft: Draft?
+
+    var hasChanges: Bool {
+        guard let originalDraft else { return true }
+        return originalDraft != Draft(state: state)
+    }
+
+    var isReadyToSubmit: Bool {
+        state.isValidToSave && hasChanges
+    }
 
     // 새로운 Todo 생성용 생성자
     init(kind: TodoKind) {
@@ -63,6 +94,7 @@ final class TodoEditorViewModel: Store {
         self.createdAt = nil
         self.completedAt = nil
         self.kind = kind
+        self.originalDraft = nil
     }
 
     // 기존 Todo 편집용 생성자
@@ -75,6 +107,7 @@ final class TodoEditorViewModel: Store {
         self.createdAt = todo.createdAt
         self.completedAt = todo.completedAt
         self.kind = todo.kind
+        self.originalDraft = Draft(todo: todo)
         state.title = todo.title
         state.content = todo.content
         state.dueDate = todo.dueDate
@@ -134,7 +167,7 @@ extension TodoEditorViewModel {
         }
     }
 
-    func upsertTodo() -> Todo {
+    func makeTodo() -> Todo {
         let date = Date()
         return Todo(
             id: self.id,
