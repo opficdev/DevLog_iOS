@@ -11,12 +11,14 @@ import OrderedCollections
 @Observable
 final class TodoEditorViewModel: Store {
     private struct Draft: Equatable {
+        let isPinned: Bool
         let title: String
         let content: String
         let dueDate: Date?
         let tags: [String]
 
         init(todo: Todo) {
+            self.isPinned = todo.isPinned
             self.title = todo.title
             self.content = todo.content
             self.dueDate = todo.dueDate
@@ -24,6 +26,7 @@ final class TodoEditorViewModel: Store {
         }
 
         init(state: State) {
+            self.isPinned = state.isPinned
             self.title = state.title
             self.content = state.content
             self.dueDate = state.dueDate
@@ -32,6 +35,7 @@ final class TodoEditorViewModel: Store {
     }
 
     struct State: Equatable {
+        var isPinned: Bool = false
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
@@ -58,6 +62,7 @@ final class TodoEditorViewModel: Store {
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
+        case togglePinned
         case toggleDueDate
     }
 
@@ -67,7 +72,6 @@ final class TodoEditorViewModel: Store {
     private let calendar = Calendar.current
     let navigationTitle: String
     private let id: String
-    private let isPinned: Bool
     private let isCompleted: Bool
     private let isChecked: Bool
     private let createdAt: Date?
@@ -88,7 +92,6 @@ final class TodoEditorViewModel: Store {
     init(kind: TodoKind) {
         self.navigationTitle = "새 \(kind.localizedName) 추가"
         self.id = UUID().uuidString
-        self.isPinned = false
         self.isCompleted = false
         self.isChecked = false
         self.createdAt = nil
@@ -101,13 +104,13 @@ final class TodoEditorViewModel: Store {
     init(todo: Todo) {
         self.navigationTitle = "편집"
         self.id = todo.id
-        self.isPinned = todo.isPinned
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
         self.createdAt = todo.createdAt
         self.completedAt = todo.completedAt
         self.kind = todo.kind
         self.originalDraft = Draft(todo: todo)
+        state.isPinned = todo.isPinned
         state.title = todo.title
         state.content = todo.content
         state.dueDate = todo.dueDate
@@ -136,6 +139,8 @@ final class TodoEditorViewModel: Store {
             }
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
+        case .togglePinned:
+            state.isPinned.toggle()
         case .toggleDueDate:
             if state.hasDueDate {
                 state.dueDate = nil
@@ -171,7 +176,7 @@ extension TodoEditorViewModel {
         let date = Date()
         return Todo(
             id: self.id,
-            isPinned: self.isPinned,
+            isPinned: state.isPinned,
             isCompleted: self.isCompleted,
             isChecked: self.isChecked,
             title: state.title,

@@ -124,6 +124,17 @@ struct TodoEditorView: View {
 
     private var accessoryBar: some View {
         HStack {
+            Button {
+                viewModel.send(.togglePinned)
+            } label: {
+                Label {
+                    Text("중요")
+                } icon: {
+                    Image(systemName: viewModel.state.isPinned ? "star.fill" : "star.slash")
+                        .foregroundStyle(.yellow)
+                }
+                .adaptiveButtonStyle()
+            }
             TagEditor(
                 tags: viewModel.state.tags,
                 addAction: { viewModel.send(.addTag($0)) },
