@@ -102,16 +102,20 @@ struct TodayView: View {
                     }
                 }
 
-                Picker(
-                    "집중 표시",
-                    selection: Binding(
-                        get: { viewModel.state.displayOptions.focusVisibility },
-                        set: { viewModel.send(.setFocusVisibility($0)) }
+                Toggle(
+                    "중요 표시만",
+                    isOn: Binding(
+                        get: { viewModel.state.displayOptions.focusVisibility == .focusedOnly },
+                        set: {
+                            viewModel.send(.setFocusVisibility($0 ? .focusedOnly : .all))
+                        }
                     )
-                ) {
-                    ForEach(TodayDisplayOptions.FocusVisibility.allCases, id: \.self) { option in
-                        Text(option.title).tag(option)
-                    }
+                )
+                .tint(.orange)
+
+                if viewModel.state.displayOptions.focusVisibility == .focusedOnly {
+                    Text("중요 표시한 Todo만 표시됩니다.")
+                        .font(.caption)
                 }
             } label: {
                 let options = viewModel.state.displayOptions
@@ -248,17 +252,6 @@ private extension TodayViewModel.SummaryScope {
             return .red
         case .dueSoon:
             return .green
-        }
-    }
-}
-
-private extension TodayDisplayOptions.FocusVisibility {
-    var title: String {
-        switch self {
-        case .all:
-            return "전체"
-        case .focusedOnly:
-            return "중요 표시만"
         }
     }
 }
