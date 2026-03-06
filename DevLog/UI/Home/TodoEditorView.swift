@@ -47,14 +47,11 @@ struct TodoEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
             .toolbar {
-                ToolbarLeadingButton {
-                    dismiss()
-                }
+                ToolbarLeadingButton { dismiss() }
                 ToolbarTrailingButton {
-                    onSubmit?(viewModel.upsertTodo())
-                    dismiss()
+                    submit()
                 }
-                .disabled(!viewModel.state.isValidToSave)
+                .disabled(!viewModel.isReadyToSubmit)
             }
         }
     }
@@ -166,25 +163,11 @@ struct TodoEditorView: View {
         }
     }
 
-    @ToolbarContentBuilder
-    private var toolBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .bold()
-            }
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            Button(action: {
-                onSubmit?(viewModel.upsertTodo())
-                dismiss()
-            }) {
-                Text("추가")
-            }
-            .disabled(!viewModel.state.isValidToSave)
-        }
+    private func submit() {
+        if !viewModel.isReadyToSubmit { return }
+        let todo = viewModel.makeTodo()
+        onSubmit?(todo)
+        dismiss()
     }
 
     private enum Field: Hashable {
