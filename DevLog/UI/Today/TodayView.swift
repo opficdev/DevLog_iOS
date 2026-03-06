@@ -127,9 +127,9 @@ struct TodayView: View {
     private var emptySection: some View {
         Section {
             VStack(spacing: 8) {
-                Text(emptyStateTitle)
+                Text(emptyStateContent.title)
                     .foregroundStyle(.primary)
-                Text(emptyStateMessage)
+                Text(emptyStateContent.message)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -171,47 +171,44 @@ struct TodayView: View {
         }
     }
 
+    private var emptyStateContent: EmptyStateContent {
+        switch viewModel.state.selectedSummaryScope {
+        case .all:
+            if viewModel.state.todos.isEmpty {
+                return EmptyStateContent(
+                    title: "남아 있는 Todo가 없습니다.",
+                    message: "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+                )
+            }
+            return EmptyStateContent(
+                title: "선택한 보기 옵션에 맞는 Todo가 없습니다.",
+                message: "툴바에서 보기 범위를 조정하거나 전체 보기로 돌아가세요."
+            )
+        case .focused:
+            return EmptyStateContent(
+                title: "집중할 일이 없습니다.",
+                message: "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+            )
+        case .overdue:
+            return EmptyStateContent(
+                title: "지난 마감 Todo가 없습니다.",
+                message: "지금은 기한이 지난 Todo가 없습니다."
+            )
+        case .dueSoon:
+            return EmptyStateContent(
+                title: "7일 내 일정이 없습니다.",
+                message: "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+            )
+        }
+    }
+
+    private struct EmptyStateContent {
+        let title: String
+        let message: String
+    }
+
     private enum Path: Hashable {
         case detail(String)
-    }
-
-    private var emptyStateTitle: String {
-        if viewModel.state.selectedSummaryScope == .all, viewModel.state.todos.isEmpty {
-            return "남아 있는 Todo가 없습니다."
-        }
-        if viewModel.state.selectedSummaryScope == .all, viewModel.sections.isEmpty {
-            return "선택한 보기 옵션에 맞는 Todo가 없습니다."
-        }
-
-        switch viewModel.state.selectedSummaryScope {
-        case .all:
-            return "남아 있는 Todo가 없습니다."
-        case .focused:
-            return "집중할 일이 없습니다."
-        case .overdue:
-            return "지난 마감 Todo가 없습니다."
-        case .dueSoon:
-            return "7일 내 일정이 없습니다."
-        }
-    }
-
-    private var emptyStateMessage: String {
-        if viewModel.state.selectedSummaryScope == .all,
-           !viewModel.state.todos.isEmpty,
-           viewModel.sections.isEmpty {
-            return "툴바에서 보기 범위를 조정하거나 전체 보기로 돌아가세요."
-        }
-
-        switch viewModel.state.selectedSummaryScope {
-        case .all:
-            return "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
-        case .focused:
-            return "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
-        case .overdue:
-            return "지금은 기한이 지난 Todo가 없습니다."
-        case .dueSoon:
-            return "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
-        }
     }
 }
 
