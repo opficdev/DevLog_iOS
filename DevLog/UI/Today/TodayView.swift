@@ -318,11 +318,7 @@ private struct TodayTodoRow: View {
             }
 
             if !item.tags.isEmpty {
-                TagLayout(lineLimit: 1) {
-                    ForEach(item.tags, id: \.self) { tagText in
-                        Tag(tagText, isEditing: false)
-                    }
-                }
+                TagList(item.tags, lineLimit: 1)
             }
         }
     }

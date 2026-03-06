@@ -229,13 +229,7 @@ private struct TagEditor<Content: View>: View {
         ) {
             VStack(spacing: tags.isEmpty ? 0 : spacing) {
                 ScrollView {
-                    TagLayout {
-                        ForEach(tags, id: \.self) { tagText in
-                            Tag(tagText, isEditing: true) {
-                                deleteAction(tagText)
-                            }
-                        }
-                    }
+                    TagList(tags, isEditing: true, action: deleteAction)
                     .background {
                         GeometryReader { geometry in
                             Color.clear

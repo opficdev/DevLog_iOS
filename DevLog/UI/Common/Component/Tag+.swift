@@ -63,7 +63,70 @@ struct Tag: View {
     }
 }
 
-struct TagLayout: Layout {
+struct TagList: View {
+    private let tags: [String]
+    private let lineLimit: Int?
+    private let showsOverflowIndicator: Bool
+    private let isEditing: Bool
+    private let action: ((String) -> Void)?
+    private let verticalSpacing: CGFloat
+    private let horizontalSpacing: CGFloat
+
+    init<C: Collection>(
+        _ tags: C,
+        lineLimit: Int? = nil,
+        showsOverflowIndicator: Bool = true,
+        isEditing: Bool = false,
+        verticalSpacing: CGFloat = 8,
+        horizontalSpacing: CGFloat = 8,
+        action: ((String) -> Void)? = nil
+    ) where C.Element == String {
+        self.tags = Array(tags)
+        self.lineLimit = lineLimit
+        self.showsOverflowIndicator = showsOverflowIndicator
+        self.isEditing = isEditing
+        self.verticalSpacing = verticalSpacing
+        self.horizontalSpacing = horizontalSpacing
+        self.action = action
+    }
+
+    var body: some View {
+        Group {
+            if let lineLimit {
+                TagLayout(
+                    lineLimit: lineLimit,
+                    showsOverflowIndicator: showsOverflowIndicator,
+                    verticalSpacing: verticalSpacing,
+                    horizontalSpacing: horizontalSpacing
+                ) {
+                    contentTags
+                    if showsOverflowIndicator {
+                        Tag("...", isEditing: false)
+                    }
+                }
+            } else {
+                TagLayout(
+                    showsOverflowIndicator: false,
+                    verticalSpacing: verticalSpacing,
+                    horizontalSpacing: horizontalSpacing
+                ) {
+                    contentTags
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var contentTags: some View {
+        ForEach(tags, id: \.self) { tagText in
+            Tag(tagText, isEditing: isEditing) {
+                action?(tagText)
+            }
+        }
+    }
+}
+
+private struct TagLayout: Layout {
     struct Cache {
         var maxWidth: CGFloat = 0
         var rows: [Row] = []
