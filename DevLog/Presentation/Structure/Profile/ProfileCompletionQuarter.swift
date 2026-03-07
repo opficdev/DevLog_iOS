@@ -20,7 +20,7 @@ struct ProfileCompletionQuarter: Identifiable, Hashable {
         months
             .flatMap { $0.weeks }
             .flatMap { $0 }
-            .filter { $0.isInMonth }
+            .filter { $0.isVisible }
             .map { $0.createdCount + $0.completedCount }
             .max() ?? 0
     }
@@ -32,7 +32,7 @@ struct ProfileCompletionQuarter: Identifiable, Hashable {
         let days = months
             .flatMap(\.weeks)
             .flatMap { $0 }
-            .filter(\.isInMonth)
+            .filter(\.isVisible)
         let groupedByWeekStart = Dictionary(grouping: days) { day in
             calendar.dateInterval(of: .weekOfYear, for: day.date)?.start
                 ?? calendar.startOfDay(for: day.date)

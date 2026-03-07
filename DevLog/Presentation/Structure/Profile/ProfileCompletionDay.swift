@@ -11,5 +11,5 @@ struct ProfileCompletionDay: Hashable {
     let date: Date
     let createdCount: Int
     let completedCount: Int
-    let isInMonth: Bool
+    let isVisible: Bool
 }
