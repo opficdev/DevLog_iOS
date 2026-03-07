@@ -79,14 +79,6 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 
 <img alt="architecture" src="https://github.com/user-attachments/assets/5aa15b55-9aff-40b5-9b3d-9d2e5bd7f94b" />
 
-- `UI`: SwiftUI 화면과 사용자 인터랙션 담당
-- `Presentation`: Observable 기반 ViewModel 상태 및 액션 관리
-- `State Flow`: `State -> Action -> reduce -> SideEffect -> state update` 흐름 적용
-- `Domain`: UseCase 중심 비즈니스 규칙 분리
-- `Data`: Repository를 통한 Domain과 Infra 연결
-- `Infra`: Firebase, 네트워크 상태 감지, 메타데이터 조회 등 외부 의존성 캡슐화
-- 앱 시작 시 Assembler와 DI Container를 통한 의존성 등록
-
 ---
 
 ## 프로젝트 구조
