@@ -79,6 +79,7 @@ struct ProfileHeatmapView: View {
     }
 
     private var availableWidth: CGFloat {
+        // ProfileView의 바깥 가로 패딩(16)과 히트맵 카드 내부 패딩(12)을 합한 값
         let horizontalPadding: CGFloat = 16 + 12
         return max(
             0,
