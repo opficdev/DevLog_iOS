@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State var viewModel: RootViewModel
+    @State private var selectedRoute: AppRoute?
 
     var body: some View {
         ZStack {
@@ -55,6 +56,30 @@ struct RootView: View {
                 viewModel.send(.setFirstLaunch(false))
                 viewModel.send(.signOutAuto)
             }
+        }
+        .sheet(item: $selectedRoute) { route in
+            switch route {
+            case .todoDetail(let todoId):
+                NavigationStack {
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoId: todoId,
+                        showEditButton: false
+                    ))
+                    .toolbar {
+                        ToolbarLeadingButton {
+                            selectedRoute = nil
+                        }
+                    }
+                }
+                .background(Color(.secondarySystemBackground))
+                .presentationDragIndicator(.visible)
+            }
+        }
+        .onReceive(PushNotificationRoute.shared.publisher) { route in
+            selectedRoute = route
+            PushNotificationRoute.shared.clear()
         }
     }
 }

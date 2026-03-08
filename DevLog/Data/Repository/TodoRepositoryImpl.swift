@@ -20,8 +20,8 @@ final class TodoRepositoryImpl: TodoRepository {
         return try response.toDomain()
     }
 
-    func fetchTodo(_ todoID: String) async throws -> Todo {
-        let response = try await todoService.fetchTodo(todoID: todoID)
+    func fetchTodo(_ todoId: String) async throws -> Todo {
+        let response = try await todoService.fetchTodo(todoId: todoId)
         return try response.toDomain()
     }
     
@@ -30,7 +30,7 @@ final class TodoRepositoryImpl: TodoRepository {
         try await todoService.upsertTodo(request: request)
     }
     
-    func deleteTodo(_ todoID: String) async throws {
-        try await todoService.deleteTodo(todoID: todoID)
+    func deleteTodo(_ todoId: String) async throws {
+        try await todoService.deleteTodo(todoId: todoId)
     }
 }

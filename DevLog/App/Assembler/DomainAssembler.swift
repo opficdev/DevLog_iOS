@@ -51,8 +51,8 @@ private extension DomainAssembler {
     }
 
     func registerTodoUseCases(_ container: DIContainer) {
-        container.register(FetchTodoByIDUseCase.self) {
-            FetchTodoByIDUseCaseImpl(container.resolve(TodoRepository.self))
+        container.register(FetchTodoByIdUseCase.self) {
+            FetchTodoByIdUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
         container.register(FetchTodosUseCase.self) {

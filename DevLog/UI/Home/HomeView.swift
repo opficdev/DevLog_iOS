@@ -27,17 +27,17 @@ struct HomeView: View {
                 case .kind(let todoKind):
                     TodoListView(viewModel: TodoListViewModel(
                         fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                        fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         kind: todoKind
                     ))
                     .environment(router)
-                case .detail(let todoID):
+                case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: todoID
+                        todoId: todoId
                     ))
                 case .web(let page):
                     WebView(url: page.url)

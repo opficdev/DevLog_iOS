@@ -47,11 +47,11 @@ struct TodoListView: View {
         }
         .navigationDestination(for: Path.self) { path in
             switch path {
-            case .detail(let todoID):
+            case .detail(let todoId):
                 TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                    fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
                     upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                    todoID: todoID
+                    todoId: todoId
                 ))
             }
         }

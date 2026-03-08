@@ -61,19 +61,19 @@ struct PushNotificationListView: View {
                     .lineLimit(3)
             }
             .sheet(item: Binding(
-                get: { viewModel.state.selectedTodoID },
-                set: { viewModel.send(.setSelectedTodoID($0)) }
+                get: { viewModel.state.selectedTodoId },
+                set: { viewModel.send(.setSelectedTodoId($0)) }
             )) { item in
                 NavigationStack {
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: item.id,
+                        todoId: item.id,
                         showEditButton: false
                     ))
                     .toolbar {
                         ToolbarLeadingButton {
-                            viewModel.send(.setSelectedTodoID(nil))
+                            viewModel.send(.setSelectedTodoId(nil))
                         }
                     }
                 }

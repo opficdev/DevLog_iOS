@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
     private let service: PushNotificationService
@@ -41,13 +42,22 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         return try response.toDomain()
     }
 
+    func observeNotifications(
+        _ query: PushNotificationQuery,
+        limit: Int
+    ) throws -> AnyPublisher<PushNotificationPage, Error> {
+        try service.observeNotifications(query, limit: limit)
+            .tryMap { try $0.toDomain() }
+            .eraseToAnyPublisher()
+    }
+
     // 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         try await service.deleteNotification(notificationID)
     }
 
     // 푸시 알림 읽음/안읽음 토글
-    func toggleNotificationRead(_ todoID: String) async throws {
-        try await service.toggleNotificationRead(todoID)
+    func toggleNotificationRead(_ todoId: String) async throws {
+        try await service.toggleNotificationRead(todoId)
     }
 }

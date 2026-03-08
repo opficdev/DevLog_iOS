@@ -5,6 +5,6 @@
 //  Created by opfic on 2/15/26.
 //
 
-protocol FetchTodoByIDUseCase {
-    func execute(_ todoID: String) async throws -> Todo
+protocol FetchTodoByIdUseCase {
+    func execute(_ todoId: String) async throws -> Todo
 }

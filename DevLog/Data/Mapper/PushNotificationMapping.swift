@@ -17,7 +17,7 @@ extension PushNotificationResponse {
             body: self.body,
             receivedAt: self.receivedAt,
             isRead: self.isRead,
-            todoID: self.todoID,
+            todoId: self.todoId,
             todoKind: todoKind
         )
     }

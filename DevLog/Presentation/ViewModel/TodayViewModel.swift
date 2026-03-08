@@ -67,19 +67,19 @@ final class TodayViewModel: Store {
     private let pageSize = 20
     private let upcomingWindowDays = 7
     private let fetchTodosUseCase: FetchTodosUseCase
-    private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
+    private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
-        fetchTodoByIDUseCase: FetchTodoByIDUseCase,
+        fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodayDisplayOptionsUseCase: FetchTodayDisplayOptionsUseCase,
         updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
-        self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
+        self.fetchTodoByIdUseCase = fetchTodoByIdUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.updateTodayDisplayOptionsUseCase = updateTodayDisplayOptionsUseCase
         self.state.displayOptions = fetchTodayDisplayOptionsUseCase.execute()
@@ -179,7 +179,7 @@ final class TodayViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     let now = Date()
                     todo.isCompleted = true
                     todo.completedAt = now
@@ -195,7 +195,7 @@ final class TodayViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
@@ -262,8 +262,8 @@ private extension TodayViewModel {
             } else {
                 state.todos.append(item)
             }
-        case .removeTodo(let todoID):
-            state.todos.removeAll { $0.id == todoID }
+        case .removeTodo(let todoId):
+            state.todos.removeAll { $0.id == todoId }
         default:
             break
         }

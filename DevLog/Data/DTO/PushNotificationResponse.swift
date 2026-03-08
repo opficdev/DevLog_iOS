@@ -13,6 +13,6 @@ struct PushNotificationResponse {
     let body: String
     let receivedAt: Date
     let isRead: Bool
-    let todoID: String
+    let todoId: String
     let todoKind: String
 }

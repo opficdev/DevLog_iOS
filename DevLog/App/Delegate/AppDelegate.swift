@@ -50,7 +50,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         
         // 앱이 완전 종료되어도, 알림을 통해 앱이 시작된 경우 처리
         if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
-            NotificationCenter.default.post(name: .pushTapped, object: nil, userInfo: remoteNotification)
+            Task { @MainActor in
+                PushNotificationRoute.shared.handlePushTap(userInfo: remoteNotification)
+            }
         }
         
         return true
@@ -114,14 +116,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         logger.info("Tapped notification: \(response.notification.request.content.userInfo)")
-        // userInfo["todoId"]로 이동할 Todo 식별
         let userInfo = response.notification.request.content.userInfo
-        NotificationCenter.default.post(name: .pushTapped, object: nil, userInfo: userInfo)
+        Task { @MainActor in
+            PushNotificationRoute.shared.handlePushTap(userInfo: userInfo)
+        }
         completionHandler()
     }
 }
 
 extension Notification.Name {
     static let fcmToken = Notification.Name("fcmToken")
-    static let pushTapped = Notification.Name("pushTapped")
 }

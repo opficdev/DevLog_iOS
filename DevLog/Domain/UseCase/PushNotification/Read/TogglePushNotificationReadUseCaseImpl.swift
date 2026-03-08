@@ -12,7 +12,7 @@ final class TogglePushNotificationReadUseCaseImpl: TogglePushNotificationReadUse
         self.repository = repository
     }
 
-    func execute(_ todoID: String) async throws {
-        try await repository.toggleNotificationRead(todoID)
+    func execute(_ todoId: String) async throws {
+        try await repository.toggleNotificationRead(todoId)
     }
 }

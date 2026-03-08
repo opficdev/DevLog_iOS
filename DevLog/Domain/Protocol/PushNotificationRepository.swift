@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 protocol PushNotificationRepository {
     func fetchPushNotificationEnabled() async throws -> Bool
@@ -15,6 +16,10 @@ protocol PushNotificationRepository {
         _ query: PushNotificationQuery,
         cursor: PushNotificationCursor?
     ) async throws -> PushNotificationPage
+    func observeNotifications(
+        _ query: PushNotificationQuery,
+        limit: Int
+    ) throws -> AnyPublisher<PushNotificationPage, Error>
     func deleteNotification(_ notificationID: String) async throws
-    func toggleNotificationRead(_ todoID: String) async throws
+    func toggleNotificationRead(_ todoId: String) async throws
 }
