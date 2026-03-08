@@ -50,7 +50,21 @@ export const sendPushNotification = onTaskDispatched({
             }
 
             const notificationDocId = `${todoId}_${dueDateKey}`;
+            const dedupeDocRef = admin.firestore().doc(`users/${userId}/notificationReceipts/${notificationDocId}`);
             const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${notificationDocId}`);
+
+            try {
+                await dedupeDocRef.create({
+                    todoId,
+                    dueDateKey,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                if (isAlreadyExistsError(error)) {
+                    return;
+                }
+                throw error;
+            }
 
             const notificationData = {
                 title: "Todo 알림",
@@ -60,14 +74,7 @@ export const sendPushNotification = onTaskDispatched({
                 todoId: todoId,
                 todoKind: todoKind
             };
-            try {
-                await notificationDocRef.create(notificationData);
-            } catch (error) {
-                if (isAlreadyExistsError(error)) {
-                    return;
-                }
-                throw error;
-            }
+            await notificationDocRef.set(notificationData, { merge: true });
 
             // 1. 사용자 FCM 토큰 가져오기
             const tokenDoc = await admin.firestore().doc(`users/${userId}/userData/tokens`).get();
