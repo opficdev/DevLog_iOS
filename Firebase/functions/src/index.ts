@@ -33,7 +33,8 @@ import {
 } from "./fcm/schedule";
 
 import {
-    deleteTodoNotificationReceipts
+    deleteTodoNotificationReceipts,
+    deleteCompletedTodoReceipts
 } from "./todo/delete";
 
 
@@ -73,5 +74,6 @@ export {
 };
 
 export {
-    deleteTodoNotificationReceipts
+    deleteTodoNotificationReceipts,
+    deleteCompletedTodoReceipts
 };
