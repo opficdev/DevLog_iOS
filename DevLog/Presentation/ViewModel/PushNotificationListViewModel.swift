@@ -20,7 +20,7 @@ final class PushNotificationListViewModel: Store {
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
         var query: PushNotificationQuery
-        var selectedTodoID: TodoIDItem?
+        var selectedTodoId: TodoIdItem?
     }
 
     enum Action {
@@ -41,7 +41,7 @@ final class PushNotificationListViewModel: Store {
         case toggleUnreadOnly
         case resetFilters
         case tapNotification(PushNotificationItem)
-        case setSelectedTodoID(TodoIDItem?)
+        case setSelectedTodoId(TodoIdItem?)
     }
 
     enum SideEffect {
@@ -92,7 +92,7 @@ final class PushNotificationListViewModel: Store {
                 .setTimeFilter, .toggleUnreadOnly, .resetFilters, .tapNotification:
             effects = reduceByUser(action, state: &state)
 
-        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoID, .loadNextPage:
+        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoId, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
         case .setLoading, .appendNotifications, .resetPagination, .setHasMore:
@@ -138,12 +138,12 @@ final class PushNotificationListViewModel: Store {
                     send(.setAlert(isPresented: true))
                 }
             }
-        case .toggleRead(let todoID):
+        case .toggleRead(let todoId):
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    try await toggleReadUseCase.execute(todoID)
+                    try await toggleReadUseCase.execute(todoId)
                 } catch {
                     send(.setAlert(isPresented: true))
                 }
@@ -172,7 +172,7 @@ private extension PushNotificationListViewModel {
         case .toggleRead(let item):
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
                 state.notifications[index].isRead.toggle()
-                return [.toggleRead(item.todoID)]
+                return [.toggleRead(item.todoId)]
             }
         case .undoDelete:
             guard let (item, index) = pendingTask else { return [] }
@@ -201,10 +201,10 @@ private extension PushNotificationListViewModel {
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .tapNotification(let item):
-            state.selectedTodoID = TodoIDItem(id: item.todoID)
+            state.selectedTodoId = TodoIdItem(id: item.todoId)
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }), !item.isRead {
                 state.notifications[index].isRead.toggle()
-                return [.toggleRead(item.todoID)]
+                return [.toggleRead(item.todoId)]
             }
         default:
             break
@@ -226,8 +226,8 @@ private extension PushNotificationListViewModel {
             return [.delete(item)]
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
-        case .setSelectedTodoID(let todoID):
-            state.selectedTodoID = todoID
+        case .setSelectedTodoId(let todoId):
+            state.selectedTodoId = todoId
         default:
             break
         }

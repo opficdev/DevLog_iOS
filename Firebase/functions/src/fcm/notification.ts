@@ -57,7 +57,7 @@ export const sendPushNotification = onTaskDispatched({
                 body,
                 receivedAt: admin.firestore.FieldValue.serverTimestamp(),
                 isRead: false,
-                todoID: todoId,
+                todoId: todoId,
                 todoKind: todoKind
             };
             try {
@@ -82,7 +82,6 @@ export const sendPushNotification = onTaskDispatched({
             const message = {
                 notification: { title, body },
                 data: {
-                    todoID: todoId,
                     todoId: todoId,
                     todoKind: todoKind
                 },

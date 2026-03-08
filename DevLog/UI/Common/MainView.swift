@@ -25,7 +25,7 @@ struct MainView: View {
             }
             TodayView(viewModel: TodayViewModel(
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                fetchTodoByIDUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
                 updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)

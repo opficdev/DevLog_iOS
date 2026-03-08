@@ -6,5 +6,5 @@
 //
 
 protocol DeleteTodoUseCase {
-    func execute(_ todoID: String) async throws
+    func execute(_ todoId: String) async throws
 }

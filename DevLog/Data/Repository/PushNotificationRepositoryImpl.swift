@@ -47,7 +47,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
     }
 
     // 푸시 알림 읽음/안읽음 토글
-    func toggleNotificationRead(_ todoID: String) async throws {
-        try await service.toggleNotificationRead(todoID)
+    func toggleNotificationRead(_ todoId: String) async throws {
+        try await service.toggleNotificationRead(todoId)
     }
 }

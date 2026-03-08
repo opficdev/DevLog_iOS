@@ -62,12 +62,12 @@ struct RootView: View {
             set: { selectedRoute = $0 }
         )) { route in
             switch route {
-            case .todoDetail(let todoID):
+            case .todoDetail(let todoId):
                 NavigationStack {
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoID: todoID,
+                        todoId: todoId,
                         showEditButton: false
                     ))
                     .toolbar {

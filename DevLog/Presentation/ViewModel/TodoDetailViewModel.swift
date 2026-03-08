@@ -36,19 +36,19 @@ final class TodoDetailViewModel: Store {
 
     private(set) var state: State = .init()
     let showEditButton: Bool
-    private let fetchUseCase: FetchTodoByIDUseCase
+    private let fetchUseCase: FetchTodoByIdUseCase
     private let upsertUseCase: UpsertTodoUseCase
-    private let todoID: String
+    private let todoId: String
 
     init(
-        fetchUseCase: FetchTodoByIDUseCase,
+        fetchUseCase: FetchTodoByIdUseCase,
         upsertUseCase: UpsertTodoUseCase,
-        todoID: String,
+        todoId: String,
         showEditButton: Bool = true
     ) {
         self.fetchUseCase = fetchUseCase
         self.upsertUseCase = upsertUseCase
-        self.todoID = todoID
+        self.todoId = todoId
         self.showEditButton = showEditButton
     }
 
@@ -84,7 +84,7 @@ final class TodoDetailViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    let todo = try await fetchUseCase.execute(todoID)
+                    let todo = try await fetchUseCase.execute(todoId)
                     send(.setTodo(todo))
                 } catch {
                     send(.setAlert(true))

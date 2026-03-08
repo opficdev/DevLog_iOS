@@ -150,8 +150,8 @@ final class PushNotificationService {
     }
 
     /// 푸시 알림 읽음/안읽음 토글
-    func toggleNotificationRead(_ todoID: String) async throws {
-        logger.info("Toggling notification read for todoID: \(todoID)")
+    func toggleNotificationRead(_ todoId: String) async throws {
+        logger.info("Toggling notification read for todoId: \(todoId)")
 
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
@@ -159,10 +159,10 @@ final class PushNotificationService {
         }
 
         let collection = store.collection("users/\(uid)/notifications")
-        let snapshot = try await collection.whereField("todoID", isEqualTo: todoID).getDocuments()
+        let snapshot = try await collection.whereField("todoId", isEqualTo: todoId).getDocuments()
 
         guard let document = snapshot.documents.first else {
-            logger.error("Notification not found for todoID: \(todoID)")
+            logger.error("Notification not found for todoId: \(todoId)")
             throw FirestoreError.dataNotFound("notification")
         }
 
@@ -184,7 +184,7 @@ private extension PushNotificationService {
             let body = data[NotificationFieldKey.body.rawValue] as? String,
             let receivedAt = data[NotificationFieldKey.receivedAt.rawValue] as? Timestamp,
             let isRead = data[NotificationFieldKey.isRead.rawValue] as? Bool,
-            let todoID = data[NotificationFieldKey.todoID.rawValue] as? String,
+            let todoId = data[NotificationFieldKey.todoId.rawValue] as? String,
             let todoKind = data[NotificationFieldKey.todoKind.rawValue] as? String else {
             return nil
         }
@@ -195,7 +195,7 @@ private extension PushNotificationService {
             body: body,
             receivedAt: receivedAt.dateValue(),
             isRead: isRead,
-            todoID: todoID,
+            todoId: todoId,
             todoKind: todoKind
         )
     }
@@ -205,7 +205,7 @@ private extension PushNotificationService {
         case body
         case receivedAt
         case isRead
-        case todoID
+        case todoId
         case todoKind
     }
 }

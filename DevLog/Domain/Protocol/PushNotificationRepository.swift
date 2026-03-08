@@ -16,5 +16,5 @@ protocol PushNotificationRepository {
         cursor: PushNotificationCursor?
     ) async throws -> PushNotificationPage
     func deleteNotification(_ notificationID: String) async throws
-    func toggleNotificationRead(_ todoID: String) async throws
+    func toggleNotificationRead(_ todoId: String) async throws
 }

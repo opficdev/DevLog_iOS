@@ -170,14 +170,14 @@ final class TodoService {
         }
     }
     
-    func deleteTodo(todoID: String) async throws {
+    func deleteTodo(todoId: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Deleting todo: \(todoID)")
+        logger.info("Deleting todo: \(todoId)")
         
         do {
             let collection = store.collection("users/\(uid)/todoLists/")
-            let docRef = collection.document(todoID)
+            let docRef = collection.document(todoId)
             try await docRef.delete()
             
             logger.info("Successfully deleted todo")
@@ -187,13 +187,13 @@ final class TodoService {
         }
     }
 
-    func fetchTodo(todoID: String) async throws -> TodoResponse {
+    func fetchTodo(todoId: String) async throws -> TodoResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Fetching todo: \(todoID) for user: \(uid)")
+        logger.info("Fetching todo: \(todoId) for user: \(uid)")
 
         do {
-            let docRef = store.collection("users/\(uid)/todoLists/").document(todoID)
+            let docRef = store.collection("users/\(uid)/todoLists/").document(todoId)
             let snapshot = try await docRef.getDocument()
             guard snapshot.exists, let todo = makeResponse(from: snapshot) else {
                 throw FirestoreError.dataNotFound("Todo")

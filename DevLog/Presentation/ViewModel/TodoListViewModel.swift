@@ -77,7 +77,7 @@ final class TodoListViewModel: Store {
     private let searchDebounceDelay: Double = 0.4
     private var searchDebounceTask: Task<Void, Never>?
     private let fetchTodosUseCase: FetchTodosUseCase
-    private let fetchTodoByIDUseCase: FetchTodoByIDUseCase
+    private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
     private var pendingTask: (TodoListItem, Int)?
@@ -85,13 +85,13 @@ final class TodoListViewModel: Store {
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
-        fetchTodoByIDUseCase: FetchTodoByIDUseCase,
+        fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
         kind: TodoKind
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
-        self.fetchTodoByIDUseCase = fetchTodoByIDUseCase
+        self.fetchTodoByIdUseCase = fetchTodoByIdUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
         self.state = State(
@@ -190,7 +190,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     let now = Date()
                     todo.isCompleted.toggle()
                     todo.completedAt = todo.isCompleted ? now : nil
@@ -206,7 +206,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    var todo = try await fetchTodoByIDUseCase.execute(item.id)
+                    var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
@@ -215,10 +215,10 @@ final class TodoListViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .delete(let todoID):
+        case .delete(let todoId):
             Task {
                 do {
-                    try await deleteTodoUseCase.execute(todoID)
+                    try await deleteTodoUseCase.execute(todoId)
                 } catch {
                     send(.setAlert(true))
                 }

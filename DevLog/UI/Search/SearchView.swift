@@ -19,11 +19,11 @@ struct SearchView: View {
             searchableContent
                 .navigationDestination(for: Path.self) { path in
                     switch path {
-                    case .todo(let todoID):
+                    case .todo(let todoId):
                         TodoDetailView(viewModel: TodoDetailViewModel(
-                            fetchUseCase: container.resolve(FetchTodoByIDUseCase.self),
+                            fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
                             upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                            todoID: todoID
+                            todoId: todoId
                         ))
                     case .web(let page):
                         WebView(url: page.url)

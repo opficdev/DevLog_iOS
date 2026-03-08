@@ -12,7 +12,7 @@ final class DeleteTodoUseCaseImpl: DeleteTodoUseCase {
         self.repository = repository
     }
     
-    func execute(_ todoID: String) async throws {
-        try await repository.deleteTodo(todoID)
+    func execute(_ todoId: String) async throws {
+        try await repository.deleteTodo(todoId)
     }
 }

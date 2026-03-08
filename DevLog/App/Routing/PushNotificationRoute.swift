@@ -13,8 +13,8 @@ enum AppRoute: Equatable, Identifiable {
 
     var id: String {
         switch self {
-        case .todoDetail(let todoID):
-            return "todo:\(todoID)"
+        case .todoDetail(let todoId):
+            return "todo:\(todoId)"
         }
     }
 }
@@ -33,23 +33,18 @@ final class PushNotificationRoute {
     private init() { }
 
     func handlePushTap(userInfo: [AnyHashable: Any]) {
-        guard let todoID = extractTodoID(from: userInfo) else { return }
-        subject.send(.todoDetail(todoID))
+        guard let todoId = extractTodoId(from: userInfo) else { return }
+        subject.send(.todoDetail(todoId))
     }
 
     func clear() {
         subject.send(nil)
     }
 
-    private func extractTodoID(from userInfo: [AnyHashable: Any]) -> String? {
-        if let todoID = userInfo["todoId"] as? String, !todoID.isEmpty {
-            return todoID
+    private func extractTodoId(from userInfo: [AnyHashable: Any]) -> String? {
+        if let todoId = userInfo["todoId"] as? String, !todoId.isEmpty {
+            return todoId
         }
-
-        if let todoID = userInfo["todoID"] as? String, !todoID.isEmpty {
-            return todoID
-        }
-
         return nil
     }
 }
