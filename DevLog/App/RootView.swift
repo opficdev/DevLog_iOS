@@ -57,10 +57,7 @@ struct RootView: View {
                 viewModel.send(.signOutAuto)
             }
         }
-        .sheet(item: Binding(
-            get: { selectedRoute },
-            set: { selectedRoute = $0 }
-        )) { route in
+        .sheet(item: $selectedRoute) { route in
             switch route {
             case .todoDetail(let todoId):
                 NavigationStack {
