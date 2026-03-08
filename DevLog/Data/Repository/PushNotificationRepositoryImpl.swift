@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
     private let service: PushNotificationService
@@ -39,6 +40,15 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         let cursorDTO = cursor.map { PushNotificationCursorDTO.fromDomain($0) }
         let response = try await service.requestNotifications(query, cursor: cursorDTO)
         return try response.toDomain()
+    }
+
+    func observeNotifications(
+        _ query: PushNotificationQuery,
+        limit: Int
+    ) throws -> AnyPublisher<PushNotificationPage, Error> {
+        try service.observeNotifications(query, limit: limit)
+            .tryMap { try $0.toDomain() }
+            .eraseToAnyPublisher()
     }
 
     // 푸시 알림 기록 삭제

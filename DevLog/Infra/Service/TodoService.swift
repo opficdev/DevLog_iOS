@@ -37,7 +37,7 @@ final class TodoService {
         ]
         logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
-        var firestoreQuery: Query = makeOrderedQuery(uid: uid, query: query)
+        var firestoreQuery = makeQuery(uid: uid, query: query)
 
         if let kind = query.kind {
             firestoreQuery = firestoreQuery.whereField("kind", isEqualTo: kind.rawValue)
@@ -209,7 +209,7 @@ final class TodoService {
 }
 
 private extension TodoService {
-    func makeOrderedQuery(uid: String, query: TodoQuery) -> Query {
+    func makeQuery(uid: String, query: TodoQuery) -> Query {
         let collection = store.collection("users/\(uid)/todoLists/")
 
         switch query.sortTarget {

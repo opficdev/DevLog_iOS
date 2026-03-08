@@ -6,6 +6,7 @@
 //
 
 import FirebaseAuth
+import Combine
 import FirebaseFirestore
 
 final class PushNotificationService {
@@ -90,28 +91,12 @@ final class PushNotificationService {
 
     /// 푸시 알림 기록 요청
     func requestNotifications(
-        _ query: PushNotificationQuery,
+        _ notificationQuery: PushNotificationQuery,
         cursor: PushNotificationCursorDTO?
     ) async throws -> PushNotificationPageResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
-
-        if let thresholdDate = query.timeFilter.thresholdDate {
-            firestoreQuery = firestoreQuery.whereField(
-                "receivedAt",
-                isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
-            )
-        }
-
-        if query.unreadOnly {
-            firestoreQuery = firestoreQuery.whereField("isRead", isEqualTo: false)
-        }
-
-        let isDescending = query.sortOrder == .latest
-        firestoreQuery = firestoreQuery
-            .order(by: "receivedAt", descending: isDescending)
-            .order(by: FieldPath.documentID())
+        var firestoreQuery = makeQuery(uid: uid, query: notificationQuery)
 
         if let cursor {
             firestoreQuery = firestoreQuery.start(after: [
@@ -121,13 +106,13 @@ final class PushNotificationService {
         }
 
         let snapshot = try await firestoreQuery
-            .limit(to: query.pageSize)
+            .limit(to: notificationQuery.pageSize)
             .getDocuments()
 
         let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
         let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-            guard let receivedAt = document.data()[NotificationFieldKey.receivedAt.rawValue] as? Timestamp else {
+            guard let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
                 return nil
             }
 
@@ -138,6 +123,39 @@ final class PushNotificationService {
         } ?? nil
 
         return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
+    }
+
+    func observeNotifications(
+        _ query: PushNotificationQuery,
+        limit: Int
+    ) throws -> AnyPublisher<PushNotificationPageResponse, Error> {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let subject = PassthroughSubject<PushNotificationPageResponse, Error>()
+        let pageLimit = max(query.pageSize, limit)
+        let listener = makeQuery(uid: uid, query: query)
+            .limit(to: pageLimit)
+            .addSnapshotListener { [weak self] snapshot, error in
+                if let error {
+                    subject.send(completion: .failure(error))
+                    return
+                }
+
+                guard let self, let snapshot else { return }
+
+                let items = snapshot.documents.compactMap { self.makeResponse(from: $0) }
+                let nextCursor = self.makeNextCursor(from: snapshot.documents.last)
+                subject.send(
+                    PushNotificationPageResponse(
+                        items: items,
+                        nextCursor: nextCursor
+                    )
+                )
+            }
+
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
     }
 
     /// 푸시 알림 기록 삭제
@@ -177,15 +195,51 @@ final class PushNotificationService {
 }
 
 private extension PushNotificationService {
+    func makeQuery(
+        uid: String,
+        query: PushNotificationQuery
+    ) -> Query {
+        var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
+
+        if let thresholdDate = query.timeFilter.thresholdDate {
+            firestoreQuery = firestoreQuery.whereField(
+                "receivedAt",
+                isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)
+            )
+        }
+
+        if query.unreadOnly {
+            firestoreQuery = firestoreQuery.whereField("isRead", isEqualTo: false)
+        }
+
+        let isDescending = query.sortOrder == .latest
+        return firestoreQuery
+            .order(by: "receivedAt", descending: isDescending)
+            .order(by: FieldPath.documentID())
+    }
+
+    func makeNextCursor(from document: QueryDocumentSnapshot?) -> PushNotificationCursorDTO? {
+        guard
+            let document,
+            let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
+            return nil
+        }
+
+        return PushNotificationCursorDTO(
+            receivedAt: receivedAt.dateValue(),
+            documentID: document.documentID
+        )
+    }
+
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
         guard
-            let title = data[NotificationFieldKey.title.rawValue] as? String,
-            let body = data[NotificationFieldKey.body.rawValue] as? String,
-            let receivedAt = data[NotificationFieldKey.receivedAt.rawValue] as? Timestamp,
-            let isRead = data[NotificationFieldKey.isRead.rawValue] as? Bool,
-            let todoId = data[NotificationFieldKey.todoId.rawValue] as? String,
-            let todoKind = data[NotificationFieldKey.todoKind.rawValue] as? String else {
+            let title = data[Key.title.rawValue] as? String,
+            let body = data[Key.body.rawValue] as? String,
+            let receivedAt = data[Key.receivedAt.rawValue] as? Timestamp,
+            let isRead = data[Key.isRead.rawValue] as? Bool,
+            let todoId = data[Key.todoId.rawValue] as? String,
+            let todoKind = data[Key.todoKind.rawValue] as? String else {
             return nil
         }
 
@@ -200,7 +254,7 @@ private extension PushNotificationService {
         )
     }
 
-    enum NotificationFieldKey: String {
+    enum Key: String {
         case title
         case body
         case receivedAt

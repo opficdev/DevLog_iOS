@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @Observable
 final class PushNotificationListViewModel: Store {
@@ -36,6 +37,7 @@ final class PushNotificationListViewModel: Store {
         case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
         case resetPagination
         case setHasMore(Bool)
+        case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
         case toggleSortOption
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
@@ -57,6 +59,7 @@ final class PushNotificationListViewModel: Store {
     private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
     private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
     private var pendingTask: (PushNotificationItem, Int)?
+    private var cancellable: AnyCancellable?
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
@@ -95,7 +98,7 @@ final class PushNotificationListViewModel: Store {
         case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoId, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .appendNotifications, .resetPagination, .setHasMore:
+        case .setLoading, .appendNotifications, .resetPagination, .setHasMore, .syncNotifications:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -106,10 +109,14 @@ final class PushNotificationListViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchNotifications(let query, let cursor):
+            if cursor == nil {
+                stopObservingNotifications()
+            }
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
+                    let existingCount = cursor == nil ? 0 : self.state.notifications.count
 
                     let page = try await fetchUseCase.execute(query, cursor: cursor)
 
@@ -123,6 +130,10 @@ final class PushNotificationListViewModel: Store {
 
                     let hasMore = page.items.count == query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
+                    startObservingNotifications(
+                        query: query,
+                        limit: max(query.pageSize, existingCount + page.items.count)
+                    )
                 } catch {
                     send(.setAlert(isPresented: true))
                 }
@@ -252,6 +263,16 @@ private extension PushNotificationListViewModel {
             }
             state.notifications.append(contentsOf: filteredNotifications)
             state.nextCursor = nextCursor
+        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+            let filteredNotifications: [PushNotificationItem]
+            if let (pendingItem, _) = pendingTask {
+                filteredNotifications = notifications.filter { $0.id != pendingItem.id }
+            } else {
+                filteredNotifications = notifications
+            }
+            state.notifications = filteredNotifications
+            state.nextCursor = nextCursor
+            state.hasMore = hasMore
         default:
             break
         }
@@ -275,6 +296,33 @@ private extension PushNotificationListViewModel {
     ) {
         state.toastMessage = "실행 취소"
         state.showToast = isPresented
+    }
+
+    func startObservingNotifications(
+        query: PushNotificationQuery,
+        limit: Int
+    ) {
+        cancellable = try? fetchUseCase.observe(query, limit: limit)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    guard let self else { return }
+                    if case .failure = completion {
+                        self.send(.setAlert(isPresented: true))
+                    }
+                },
+                receiveValue: { [weak self] page in
+                    guard let self else { return }
+                    let items = page.items.map { PushNotificationItem(from: $0) }
+                    let hasMore = items.count == max(query.pageSize, limit) && page.nextCursor != nil
+                    self.send(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore))
+                }
+            )
+    }
+
+    func stopObservingNotifications() {
+        cancellable?.cancel()
+        cancellable = nil
     }
 }
 
