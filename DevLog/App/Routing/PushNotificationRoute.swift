@@ -42,9 +42,9 @@ final class PushNotificationRoute {
     }
 
     private func extractTodoId(from userInfo: [AnyHashable: Any]) -> String? {
-        if let todoId = userInfo["todoId"] as? String, !todoId.isEmpty {
-            return todoId
+        guard let todoId = userInfo["todoId"] as? String, !todoId.isEmpty else {
+            return nil
         }
-        return nil
+        return todoId
     }
 }
