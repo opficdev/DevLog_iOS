@@ -43,17 +43,44 @@ export const sendPushNotification = onTaskDispatched({
             }
             const { userId, todoId, todoKind, dueDateKey, title, body } = parsed;
 
-            const settingsDoc = await admin.firestore().doc(`users/${userId}/userData/settings`).get();
-            const allowPushNotification = settingsDoc.data()?.allowPushNotification ?? true;
-            if (!allowPushNotification) {
-                return;
+            const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
+            const todoDocRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+            const [settingsDoc, todoDoc] = await Promise.all([
+                settingsDocRef.get(),
+                todoDocRef.get()
+            ]);
+            const settingsData = settingsDoc.data();
+            const allowPushNotification = settingsData?.allowPushNotification ?? true;
+            if (!allowPushNotification) { return; }
+
+            const todoData = todoDoc.data();
+            if (!todoDoc.exists || !todoData || todoData.isCompleted === true) { return; }
+
+            const candidate = settingsData?.timeZone ?? settingsData?.timezone ?? settingsData?.region;
+            let timeZone = "UTC";
+            if (typeof candidate === "string" && candidate.trim()) {
+                try {
+                    new Intl.DateTimeFormat("en-US", { timeZone: candidate }).format(new Date());
+                    timeZone = candidate;
+                } catch {
+                    timeZone = "UTC";
+                }
             }
 
-            const notificationDocId = `${todoId}_${dueDateKey}`;
+            const dueDateValue = todoData.dueDate;
+            const currentDueDate = dueDateValue instanceof admin.firestore.Timestamp ?
+                dueDateValue.toDate() :
+                dueDateValue instanceof Date ?
+                    dueDateValue :
+                    null;
+            if (!currentDueDate) { return; }
+            if (formatDateKey(currentDueDate, timeZone) !== dueDateKey) { return; }
+
+            const id = `${todoId}_${dueDateKey}`;
             const receiptDocRef = admin.firestore().doc(
-                `users/${userId}/notificationReceipts/${notificationDocId}`
+                `users/${userId}/notificationReceipts/${id}`
             );
-            const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${notificationDocId}`);
+            const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${id}`);
 
             try {
                 await receiptDocRef.create({
@@ -126,10 +153,6 @@ function isValidTaskId(value: unknown): value is string {
     return typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
 }
 
-function hasPathSeparator(value: string): boolean {
-    return value.includes("/");
-}
-
 function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): TaskPayload | null {
     const {
         userId,
@@ -151,7 +174,7 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
         return null;
     }
 
-    if (hasPathSeparator(userId) || hasPathSeparator(todoId)) {
+    if (userId.includes("/") || todoId.includes("/")) {
         return null;
     }
 
@@ -168,4 +191,20 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
 function isAlreadyExistsError(error: unknown): boolean {
     const code = (error as FirestoreErrorLike)?.code;
     return code === 6 || code === "6" || code === "already-exists";
+}
+
+function formatDateKey(date: Date, timeZone: string): string {
+    const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).formatToParts(date);
+
+    const byType = (type: string): number => {
+        const found = parts.find((part) => part.type === type)?.value;
+        return Number(found);
+    };
+
+    return `${byType("year")}-${byType("month").toString().padStart(2, "0")}-${byType("day").toString().padStart(2, "0")}`;
 }

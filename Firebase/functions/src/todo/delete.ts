@@ -39,8 +39,15 @@ export const deleteCompletedTodoReceipts = onDocumentUpdated({
         if (!beforeData || !afterData) { return; }
         if (beforeData.isCompleted === true || afterData.isCompleted !== true) { return; }
 
-        const dueDate = extractDate(afterData.dueDate);
-        if (!dueDate || dueDate.getTime() >= Date.now()) { return; }
+        const dueDateValue = afterData.dueDate;
+        let dueDate: Date | null = null;
+        if (dueDateValue instanceof admin.firestore.Timestamp) {
+            dueDate = dueDateValue.toDate();
+        } else if (dueDateValue instanceof Date) {
+            dueDate = dueDateValue;
+        }
+        
+        if (!dueDate ||  Date.now() <= dueDate.getTime()) { return; }
 
         try {
             await deleteByTodoId(userId, "notificationReceipts", todoId);
@@ -76,16 +83,4 @@ async function deleteByTodoId(
 
         if (snapshot.size < DELETE_BATCH_SIZE) { return; }
     }
-}
-
-function extractDate(value: unknown): Date | null {
-    if (value instanceof admin.firestore.Timestamp) {
-        return value.toDate();
-    }
-
-    if (value instanceof Date) {
-        return value;
-    }
-
-    return null;
 }
