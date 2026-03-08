@@ -32,6 +32,10 @@ import {
     scheduleTodoReminder
 } from "./fcm/schedule";
 
+import {
+    deleteTodoNotificationReceipts
+} from "./todo/delete";
+
 
 // .env 파일 로드
 dotenv.config({
@@ -66,4 +70,8 @@ export {
 export {
     sendPushNotification,
     scheduleTodoReminder
+};
+
+export {
+    deleteTodoNotificationReceipts
 };
