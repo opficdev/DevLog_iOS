@@ -50,11 +50,13 @@ export const sendPushNotification = onTaskDispatched({
             }
 
             const notificationDocId = `${todoId}_${dueDateKey}`;
-            const dedupeDocRef = admin.firestore().doc(`users/${userId}/notificationReceipts/${notificationDocId}`);
+            const receiptDocRef = admin.firestore().doc(
+                `users/${userId}/notificationReceipts/${notificationDocId}`
+            );
             const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${notificationDocId}`);
 
             try {
-                await dedupeDocRef.create({
+                await receiptDocRef.create({
                     todoId,
                     dueDateKey,
                     createdAt: admin.firestore.FieldValue.serverTimestamp()
