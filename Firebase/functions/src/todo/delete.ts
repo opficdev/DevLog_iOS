@@ -1,11 +1,13 @@
 import { onDocumentDeleted, onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
 const LOCATION = "asia-northeast3";
 const DELETE_BATCH_SIZE = 200;
+const CLEANUP_QUERY_BATCH_SIZE = 100;
 
-export const deleteTodoNotificationReceipts = onDocumentDeleted({
+export const removeTodoNotificationDocuments = onDocumentDeleted({
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },
@@ -26,7 +28,7 @@ export const deleteTodoNotificationReceipts = onDocumentDeleted({
     }
 );
 
-export const deleteCompletedTodoReceipts = onDocumentUpdated({
+export const removeCompletedTodoReceipts = onDocumentUpdated({
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },
@@ -57,6 +59,48 @@ export const deleteCompletedTodoReceipts = onDocumentUpdated({
                 todoId,
                 error
             });
+        }
+    }
+);
+
+export const removeExpiredCompletedTodoReceipts = onSchedule({
+        region: LOCATION,
+        schedule: "0 * * * *",
+        timeZone: "UTC"
+    },
+    async () => {
+        try {
+            let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
+            while (true) {
+                let query = admin.firestore()
+                    .collectionGroup("todoLists")
+                    .where("dueDate", "<", admin.firestore.Timestamp.now())
+                    .orderBy("dueDate")
+                    .limit(CLEANUP_QUERY_BATCH_SIZE);
+
+                if (lastDoc) {
+                    query = query.startAfter(lastDoc);
+                }
+
+                const snapshot = await query.get();
+                if (snapshot.empty) { return; }
+
+                for (const todoDoc of snapshot.docs) {
+                    const todoData = todoDoc.data();
+                    if (todoData.isCompleted !== true) { continue; }
+
+                    const userId = todoDoc.ref.parent.parent?.id;
+                    if (!userId) { continue; }
+
+                    await deleteByTodoId(userId, "notificationReceipts", todoDoc.id);
+                }
+
+                if (snapshot.size < CLEANUP_QUERY_BATCH_SIZE) { return; }
+                lastDoc = snapshot.docs[snapshot.docs.length - 1];
+            }
+        } catch (error) {
+            logger.error("지난 마감일의 완료된 todo receipt 정리 실패", { error });
         }
     }
 );
