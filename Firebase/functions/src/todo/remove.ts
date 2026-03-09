@@ -5,7 +5,7 @@ import * as logger from "firebase-functions/logger";
 
 const LOCATION = "asia-northeast3";
 const DELETE_BATCH_SIZE = 200;
-const CLEANUP_QUERY_BATCH_SIZE = 100;
+const QUERY_BATCH_SIZE = 100;
 
 export const removeTodoNotificationDocuments = onDocumentDeleted({
         document: "users/{userId}/todoLists/{todoId}",
@@ -63,44 +63,75 @@ export const removeCompletedTodoReceipts = onDocumentUpdated({
     }
 );
 
-export const removeExpiredCompletedTodoReceipts = onSchedule({
+export const removeStaleTodoReceipts = onSchedule({
         region: LOCATION,
         schedule: "0 * * * *",
         timeZone: "UTC"
     },
     async () => {
         try {
-            let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+            let lastExpiredCompletedTodo:
+                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
 
             while (true) {
                 let query = admin.firestore()
                     .collectionGroup("todoLists")
+                    .where("isCompleted", "==", true)
                     .where("dueDate", "<", admin.firestore.Timestamp.now())
                     .orderBy("dueDate")
-                    .limit(CLEANUP_QUERY_BATCH_SIZE);
+                    .limit(QUERY_BATCH_SIZE);
 
-                if (lastDoc) {
-                    query = query.startAfter(lastDoc);
+                if (lastExpiredCompletedTodo) {
+                    query = query.startAfter(lastExpiredCompletedTodo);
                 }
 
                 const snapshot = await query.get();
-                if (snapshot.empty) { return; }
+                if (snapshot.empty) { break; }
 
                 for (const todoDoc of snapshot.docs) {
-                    const todoData = todoDoc.data();
-                    if (todoData.isCompleted !== true) { continue; }
-
                     const userId = todoDoc.ref.parent.parent?.id;
                     if (!userId) { continue; }
 
                     await deleteByTodoId(userId, "notificationReceipts", todoDoc.id);
                 }
 
-                if (snapshot.size < CLEANUP_QUERY_BATCH_SIZE) { return; }
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
+                if (snapshot.size < QUERY_BATCH_SIZE) { break; }
+                lastExpiredCompletedTodo = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
             logger.error("지난 마감일의 완료된 todo receipt 정리 실패", { error });
+        }
+
+        try {
+            let lastTodoWithoutDueDate:
+                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
+            while (true) {
+                let query = admin.firestore()
+                    .collectionGroup("todoLists")
+                    .where("dueDate", "==", null)
+                    .orderBy(admin.firestore.FieldPath.documentId())
+                    .limit(QUERY_BATCH_SIZE);
+
+                if (lastTodoWithoutDueDate) {
+                    query = query.startAfter(lastTodoWithoutDueDate);
+                }
+
+                const snapshot = await query.get();
+                if (snapshot.empty) { break; }
+
+                for (const todoDoc of snapshot.docs) {
+                    const userId = todoDoc.ref.parent.parent?.id;
+                    if (!userId) { continue; }
+
+                    await deleteByTodoId(userId, "notificationReceipts", todoDoc.id);
+                }
+
+                if (snapshot.size < QUERY_BATCH_SIZE) { break; }
+                lastTodoWithoutDueDate = snapshot.docs[snapshot.docs.length - 1];
+            }
+        } catch (error) {
+            logger.error("마감일이 없는 todo receipt 정리 실패", { error });
         }
     }
 );

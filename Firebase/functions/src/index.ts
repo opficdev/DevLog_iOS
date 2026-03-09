@@ -35,8 +35,8 @@ import {
 import {
     removeTodoNotificationDocuments,
     removeCompletedTodoReceipts,
-    removeExpiredCompletedTodoReceipts
-} from "./todo/delete";
+    removeStaleTodoReceipts
+} from "./todo/remove";
 
 
 // .env 파일 로드
@@ -77,5 +77,5 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoReceipts,
-    removeExpiredCompletedTodoReceipts
+    removeStaleTodoReceipts
 };
