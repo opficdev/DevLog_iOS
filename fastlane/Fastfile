@@ -39,14 +39,14 @@ platform :ios do
     build_app(
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
-      export_method: "app-store-connect",
+      export_method: "app-store",
       xcargs: "-skipPackagePluginValidation"
     )
 
     next api_key
   end
 
-  lane :testflight do
+  lane :deploy_testflight do
     api_key = build_for_store
 
     upload_to_testflight(

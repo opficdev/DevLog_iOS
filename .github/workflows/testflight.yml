@@ -45,4 +45,4 @@ jobs:
           printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
 
       - name: Upload to TestFlight
-        run: bundle exec fastlane testflight
+        run: bundle exec fastlane deploy_testflight
