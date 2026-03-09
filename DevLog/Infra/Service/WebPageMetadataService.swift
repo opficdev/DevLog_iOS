@@ -61,43 +61,6 @@ final class WebPageMetadataService {
         }
     }
 
-    func removeUnusedCachedImages(keeping imageURLStrings: [String]) async {
-        let keptPaths: Set<String> = Set(
-            imageURLStrings.compactMap { imageURLString in
-                guard let url = URL(string: imageURLString), url.isFileURL else {
-                    return nil
-                }
-                return url.path
-            }
-        )
-
-        do {
-            let removedCount = try await Task.detached(priority: .utility) {
-                let imageDir = try Self.imageDirectoryURL()
-                guard FileManager.default.fileExists(atPath: imageDir.path) else { return 0 }
-
-                let cachedFileURLs = try FileManager.default.contentsOfDirectory(
-                    at: imageDir,
-                    includingPropertiesForKeys: nil,
-                    options: [.skipsHiddenFiles]
-                )
-
-                var removedCount = 0
-                for fileURL in cachedFileURLs where !keptPaths.contains(fileURL.path) {
-                    try FileManager.default.removeItem(at: fileURL)
-                    removedCount += 1
-                }
-                return removedCount
-            }.value
-
-            if 0 < removedCount {
-                logger.info("Removed \(removedCount) unused cached images")
-            }
-        } catch {
-            logger.error("Failed to remove unused cached images", error: error)
-        }
-    }
-
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
         guard let imageProvider else { return nil }
 

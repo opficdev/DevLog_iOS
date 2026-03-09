@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class WebPageRepositoryImpl: WebPageRepository {
     private let webPageService: WebPageService
@@ -25,20 +26,17 @@ final class WebPageRepositoryImpl: WebPageRepository {
         pages.reserveCapacity(responses.count)
 
         for response in responses {
-            if needsImageRestore(response), let restored = try? await restoreWebPage(response) {
-                pages.append(restored)
+            if await needsImageRestore(response) {
+                if let restored = try? await restoreWebPage(response) {
+                    pages.append(restored)
+                } else if let page = try? responseWithoutImage(response).toDomain() {
+                    pages.append(page)
+                }
                 continue
             }
             if let page = try? response.toDomain() {
                 pages.append(page)
             }
-        }
-
-        // 쿼리가 비어있을 때 모든 웹페이지를 fetch 해오기 때문에 가능한 것
-        if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            await metadataService.removeUnusedCachedImages(
-                keeping: responses.map(\.imageURL)
-            )
         }
 
         return pages
@@ -62,13 +60,24 @@ final class WebPageRepositoryImpl: WebPageRepository {
 }
 
 private extension WebPageRepositoryImpl {
-    func needsImageRestore(_ response: WebPageResponse) -> Bool {
+    func needsImageRestore(_ response: WebPageResponse) async -> Bool {
         guard !response.imageURL.isEmpty,
               let url = URL(string: response.imageURL),
               url.isFileURL else {
             return false
         }
-        return !FileManager.default.fileExists(atPath: url.path)
+
+        return await Task.detached(priority: .utility) {
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                return true
+            }
+
+            guard let imageData = try? Data(contentsOf: url) else {
+                return true
+            }
+
+            return UIImage(data: imageData) == nil
+        }.value
     }
 
     func restoreWebPage(_ response: WebPageResponse) async throws -> WebPage? {
@@ -90,5 +99,15 @@ private extension WebPageRepositoryImpl {
         )
 
         return try? newResponse.toDomain()
+    }
+
+    func responseWithoutImage(_ response: WebPageResponse) -> WebPageResponse {
+        WebPageResponse(
+            id: response.id,
+            title: response.title,
+            url: response.url,
+            displayURL: response.displayURL,
+            imageURL: ""
+        )
     }
 }
