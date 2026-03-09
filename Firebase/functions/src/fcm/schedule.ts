@@ -2,11 +2,11 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { resolveTimeZone } from "./shared";
 
 const LOCATION = "asia-northeast3";
 const DEFAULT_HOUR = 9;
 const DEFAULT_MINUTE = 0;
-const DEFAULT_TIMEZONE = "UTC";
 const MINUTE_INTERVAL = 5;
 
 type ZonedDateParts = {
@@ -58,20 +58,22 @@ export const scheduleTodoReminder = onSchedule({
                     continue;
                 }
                 const settings = settingsDoc.data();
-                if (!settings || settings.allowPushNotification !== true) {
-                    continue;
-                }
-                
-                const hour = Number.isInteger(settings.pushNotificationHour) ?
-                    settings.pushNotificationHour :
-                    DEFAULT_HOUR;
-                const minute = normalizeMinute(settings.pushNotificationMinute);
+                if (!settings || settings.allowPushNotification !== true) { continue; }
+
+                const hour = Number.isInteger(settings.pushNotificationHour) ? settings.pushNotificationHour : DEFAULT_HOUR;
+                const configuredMinute = Number.isInteger(settings.pushNotificationMinute) ?
+                    Number(settings.pushNotificationMinute) :
+                    DEFAULT_MINUTE;
+                const minute = configuredMinute < 0 || configuredMinute > 59 ?
+                    DEFAULT_MINUTE :
+                    configuredMinute - (configuredMinute % MINUTE_INTERVAL);
+
                 const timeZone = resolveTimeZone(settings);
 
                 const localNow = getZonedParts(now, timeZone);
-                if (!isWithinNotificationWindow(localNow, hour, minute)) {
-                    continue;
-                }
+                if (localNow.hour !== hour) { continue; }
+                const windowEnd = Math.min(minute + MINUTE_INTERVAL, 60);
+                if (localNow.minute < minute || localNow.minute >= windowEnd) { continue; }
 
                 const tomorrow = addDays(localNow.year, localNow.month, localNow.day, 1);
                 const dayAfterTomorrow = addDays(localNow.year, localNow.month, localNow.day, 2);
@@ -90,19 +92,18 @@ export const scheduleTodoReminder = onSchedule({
                     timeZone
                 );
 
-                const dueDateKey = formatDateKey(startUTC, timeZone);
+                const dueDateKey = `${tomorrow.year}-${tomorrow.month.toString().padStart(2, "0")}-${tomorrow.day.toString().padStart(2, "0")}`;
                 let todosSnapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>;
                 try {
                     todosSnapshot = await admin.firestore()
                         .collection(`users/${userId}/todoLists`)
-                        .where("isCompleted", "==", false)
                         .where("dueDate", ">=", admin.firestore.Timestamp.fromDate(startUTC))
                         .where("dueDate", "<", admin.firestore.Timestamp.fromDate(endUTC))
                         .get();
                 } catch (error) {
                     logger.error("todoLists 조회 실패", {
                         userId,
-                        at: "todoLists.where(isCompleted==false).where(dueDate>=start).where(dueDate<end)",
+                        at: "todoLists.where(dueDate>=start).where(dueDate<end)",
                         startUTC: startUTC.toISOString(),
                         endUTC: endUTC.toISOString(),
                         dueDateKey,
@@ -197,20 +198,6 @@ function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
     };
 }
 
-function formatDateKey(date: Date, timeZone: string): string {
-    const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    }).formatToParts(date);
-
-    const year = parts.find((part) => part.type === "year")?.value ?? "1970";
-    const month = parts.find((part) => part.type === "month")?.value ?? "01";
-    const day = parts.find((part) => part.type === "day")?.value ?? "01";
-    return `${year}-${month}-${day}`;
-}
-
 function parseShortOffsetToMinutes(shortOffset: string): number {
     if (shortOffset === "GMT" || shortOffset === "UTC") return 0;
     const match = shortOffset.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
@@ -264,33 +251,4 @@ function addDays(year: number, month: number, day: number, value: number): {
         month: utcDate.getUTCMonth() + 1,
         day: utcDate.getUTCDate()
     };
-}
-
-function normalizeMinute(value: unknown): number {
-    if (!Number.isInteger(value)) return DEFAULT_MINUTE;
-    const minute = Number(value);
-    if (minute < 0 || minute > 59) return DEFAULT_MINUTE;
-    return minute - (minute % MINUTE_INTERVAL);
-}
-
-function isWithinNotificationWindow(
-    localNow: ZonedDateParts,
-    configuredHour: number,
-    configuredMinute: number
-): boolean {
-    if (localNow.hour !== configuredHour) return false;
-    const windowStart = configuredMinute;
-    const windowEnd = Math.min(configuredMinute + MINUTE_INTERVAL, 60);
-    return localNow.minute >= windowStart && localNow.minute < windowEnd;
-}
-
-function resolveTimeZone(settings: FirebaseFirestore.DocumentData | undefined): string {
-    const candidate = settings?.timeZone ?? settings?.timezone ?? settings?.region;
-    if (typeof candidate !== "string" || !candidate.trim()) return DEFAULT_TIMEZONE;
-    try {
-        new Intl.DateTimeFormat("en-US", { timeZone: candidate }).format(new Date());
-        return candidate;
-    } catch {
-        return DEFAULT_TIMEZONE;
-    }
 }
