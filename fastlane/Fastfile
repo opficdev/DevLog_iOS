@@ -39,7 +39,8 @@ platform :ios do
     build_app(
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
-      export_method: "app-store"
+      export_method: "app-store-connect",
+      xcargs: "-skipPackagePluginValidation"
     )
 
     next api_key
