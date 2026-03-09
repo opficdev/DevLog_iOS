@@ -18,7 +18,12 @@ struct ProfileView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        CacheableImage(url: viewModel.state.avatarURL)
+                        CacheableImage(url: viewModel.state.avatarURL) {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .scaledToFill()
+                                .foregroundStyle(Color(.systemGray2))
+                        }
                             .frame(width: 60, height: 60)
                             .cornerRadius(30)
                             .foregroundStyle(Color.gray)
