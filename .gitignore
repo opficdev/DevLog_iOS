@@ -21,3 +21,13 @@ ContentView.swift
 node_modules/
 *.log
 lib/
+
+# Gem
+vendor/bundle/
+
+# Fastlane
+.fastlane/
+
+# Build Artifacts
+*.ipa
+*.dSYM.zip
