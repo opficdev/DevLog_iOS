@@ -44,39 +44,39 @@ final class AppleAuthenticationService: AuthenticationService {
             logger.debug("Signing in with custom token")
             let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
-        let changeRequest = result.user.createProfileChangeRequest()
-        var displayName: String?
+            let changeRequest = result.user.createProfileChangeRequest()
+            var displayName: String?
 
-        // 최초 사용자 가입 시 사용자 이름 설정
-        if let fullName = credential.fullName {
-            let formatter = PersonNameComponentsFormatter()
-            formatter.style = .long
-            let formattedName = formatter.string(from: fullName)
-            if !formattedName.isEmpty {
-                displayName = formattedName
+            // 최초 사용자 가입 시 사용자 이름 설정
+            if let fullName = credential.fullName {
+                let formatter = PersonNameComponentsFormatter()
+                formatter.style = .long
+                let formattedName = formatter.string(from: fullName)
+                if !formattedName.isEmpty {
+                    displayName = formattedName
+                }
             }
-        }
 
-        // 이미 가입된 사용자일 경우 Firestore에서 사용자 이름 가져오기
-        if displayName == nil {
-            let doc = try await store.document("users/\(result.user.uid)/userData/info").getDocument()
-            displayName = doc.data()?["appleName"] as? String
-        }
+            // 이미 가입된 사용자일 경우 Firestore에서 사용자 이름 가져오기
+            if displayName == nil {
+                let doc = try await store.document("users/\(result.user.uid)/userData/info").getDocument()
+                displayName = doc.data()?["appleName"] as? String
+            }
 
-        // FirebaseAuth 사용자 프로필 업데이트
-        changeRequest.displayName = displayName ?? ""
-        changeRequest.photoURL = nil    //  Apple ID 프로필 사진 URL은 제공되지 않음
-        try await changeRequest.commitChanges()
+            // FirebaseAuth 사용자 프로필 업데이트
+            changeRequest.displayName = displayName ?? ""
+            changeRequest.photoURL = nil    //  Apple ID 프로필 사진 URL은 제공되지 않음
+            try await changeRequest.commitChanges()
         
-        // FirebaseAuth 계정에 Apple ID 연결
-        if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
-            let appleCredential = OAuthProvider.credential(
-                providerID: providerID,
-                idToken: idTokenString,
-                rawNonce: nonce
-            )
-            try await result.user.link(with: appleCredential)
-        }
+            // FirebaseAuth 계정에 Apple ID 연결
+            if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
+                let appleCredential = OAuthProvider.credential(
+                    providerID: providerID,
+                    idToken: idTokenString,
+                    rawNonce: nonce
+                )
+                try await result.user.link(with: appleCredential)
+            }
 
             let fcmToken = try await messaging.token()
 
