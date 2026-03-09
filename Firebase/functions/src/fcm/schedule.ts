@@ -2,11 +2,11 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { resolveTimeZone } from "./shared";
 
 const LOCATION = "asia-northeast3";
 const DEFAULT_HOUR = 9;
 const DEFAULT_MINUTE = 0;
-const DEFAULT_TIMEZONE = "UTC";
 const MINUTE_INTERVAL = 5;
 
 type ZonedDateParts = {
@@ -68,16 +68,7 @@ export const scheduleTodoReminder = onSchedule({
                     DEFAULT_MINUTE :
                     configuredMinute - (configuredMinute % MINUTE_INTERVAL);
 
-                const candidate = settings.timeZone ?? settings.timezone ?? settings.region;
-                let timeZone = DEFAULT_TIMEZONE;
-                if (typeof candidate === "string" && candidate.trim()) {
-                    try {
-                        new Intl.DateTimeFormat("en-US", { timeZone: candidate }).format(new Date());
-                        timeZone = candidate;
-                    } catch {
-                        timeZone = DEFAULT_TIMEZONE;
-                    }
-                }
+                const timeZone = resolveTimeZone(settings);
 
                 const localNow = getZonedParts(now, timeZone);
                 if (localNow.hour !== hour) { continue; }

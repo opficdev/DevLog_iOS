@@ -1,6 +1,7 @@
 import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { resolveTimeZone } from "./shared";
 
 type TaskPayload = {
     userId: string;
@@ -56,16 +57,7 @@ export const sendPushNotification = onTaskDispatched({
             const todoData = todoDoc.data();
             if (!todoDoc.exists || !todoData || todoData.isCompleted === true) { return; }
 
-            const candidate = settingsData?.timeZone ?? settingsData?.timezone ?? settingsData?.region;
-            let timeZone = "UTC";
-            if (typeof candidate === "string" && candidate.trim()) {
-                try {
-                    new Intl.DateTimeFormat("en-US", { timeZone: candidate }).format(new Date());
-                    timeZone = candidate;
-                } catch {
-                    timeZone = "UTC";
-                }
-            }
+            const timeZone = resolveTimeZone(settingsData);
 
             const dueDateValue = todoData.dueDate;
             const currentDueDate = dueDateValue instanceof admin.firestore.Timestamp ?
