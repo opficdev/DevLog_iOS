@@ -37,7 +37,7 @@ platform :ios do
     next api_key
   end
 
-  lane :beta do
+  lane :testflight do
     api_key = build_for_store
 
     upload_to_testflight(
