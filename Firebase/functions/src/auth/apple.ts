@@ -24,12 +24,32 @@ function getAppleConfiguration() {
     const clientId = process.env.APPLE_CLIENT_ID;
     const keyId = process.env.APPLE_KEY_ID;
     const privateKey = (process.env.APPLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+    const configs = {
+        APPLE_TEAM_ID: teamId,
+        APPLE_CLIENT_ID: clientId,
+        APPLE_KEY_ID: keyId,
+        APPLE_PRIVATE_KEY: privateKey
+    };
+    const missingKeys = Object.entries(configs)
+        .filter(([, value]) => !value)
+        .map(([key]) => key);
 
-    if (!teamId || !clientId || !keyId || !privateKey) {
-        throw new HttpsError('internal', 'Missing Apple configuration');
+    if (0 < missingKeys.length) {
+        console.error("Missing Apple configuration", {
+            missingKeys
+        });
+        throw new HttpsError(
+            'internal',
+            `Missing Apple configuration for: ${missingKeys.join(", ")}`
+        );
     }
 
-    return { teamId, clientId, keyId, privateKey };
+    return {
+        teamId: teamId!,
+        clientId: clientId!,
+        keyId: keyId!,
+        privateKey: privateKey!
+    };
 }
 
 export const requestAppleCustomToken = onCall({
