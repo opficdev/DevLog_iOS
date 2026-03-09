@@ -1,3 +1,5 @@
+require "shellwords"
+
 default_platform(:ios)
 
 platform :ios do
@@ -35,6 +37,19 @@ platform :ios do
       type: "appstore",
       readonly: ENV["CI"] == "true"
     )
+
+    matchProvisioningProfileMapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+    provisioningProfileSpecifier = matchProvisioningProfileMapping["opfic.DevLog"].to_s.strip
+
+    UI.user_error!("Missing provisioning profile mapping for opfic.DevLog") if provisioningProfileSpecifier.empty?
+
+    buildAppXcargs = [
+      "-skipPackagePluginValidation",
+      "CODE_SIGN_STYLE=Manual",
+      "DEVELOPMENT_TEAM=#{ENV["APP_STORE_TEAM_ID"]}",
+      "CODE_SIGN_IDENTITY=#{Shellwords.escape("Apple Distribution")}",
+      "PROVISIONING_PROFILE_SPECIFIER=#{Shellwords.escape(provisioningProfileSpecifier)}"
+    ]
 
     build_app(
       project: "DevLog.xcodeproj",
