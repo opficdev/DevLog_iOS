@@ -55,7 +55,8 @@ platform :ios do
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
       export_method: "app-store",
-      xcargs: buildAppXcargs.join(" ")
+      codesigning_identity: "Apple Distribution",
+      xcargs: "-skipPackagePluginValidation"
     )
 
     next api_key
