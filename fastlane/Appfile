@@ -1,0 +1,2 @@
+app_identifier("opfic.DevLog")
+team_id(ENV["APP_STORE_TEAM_ID"])
