@@ -19,11 +19,18 @@ interface AppleTokenPayload {
   auth_time?: number;   // 인증 시간
 }
 
-// Apple 설정 불러오기
-const teamId = process.env.APPLE_TEAM_ID;
-const clientId = process.env.APPLE_CLIENT_ID;
-const keyId = process.env.APPLE_KEY_ID;
-const privateKey = (process.env.APPLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+function getAppleConfiguration() {
+    const teamId = process.env.APPLE_TEAM_ID;
+    const clientId = process.env.APPLE_CLIENT_ID;
+    const keyId = process.env.APPLE_KEY_ID;
+    const privateKey = (process.env.APPLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+
+    if (!teamId || !clientId || !keyId || !privateKey) {
+        throw new HttpsError('internal', 'Missing Apple configuration');
+    }
+
+    return { teamId, clientId, keyId, privateKey };
+}
 
 export const requestAppleCustomToken = onCall({
     cors: true,
@@ -35,11 +42,6 @@ export const requestAppleCustomToken = onCall({
     
         if (!idToken || !authorizationCode) {
             throw new HttpsError('invalid-argument', 'ID token and authorization code are required');
-        }
-
-        // Apple 설정 불러오기
-        if (!teamId || !clientId || !keyId || !privateKey) {
-            throw new HttpsError('internal', 'Missing Apple configuration');
         }
 
         // // 1. Verify and decode the Apple ID token
@@ -143,10 +145,6 @@ export const requestAppleRefreshToken = onCall({
       if (!authorizationCode || !uid) {
         throw new HttpsError("invalid-argument", "Authorization code and uid are required");
       }
-  
-      if (!teamId || !clientId || !keyId || !privateKey) {
-        throw new HttpsError("internal", "Missing Apple configuration");
-      }
 
       const refreshToken = await requestAppleRefreshTokenHelper(authorizationCode);
       console.log("appleRefreshToken:", refreshToken);
@@ -197,13 +195,7 @@ export const refreshAppleAccessToken = onCall({
     }
     
     console.log("Successfully retrieved refresh token from Firestore");
-    
-    if (!teamId || !clientId || !keyId || !privateKey) {
-        throw new HttpsError(
-                             "internal",
-                             "Missing Apple configuration environment variables."
-        );
-    }
+    const { teamId, clientId, keyId, privateKey } = getAppleConfiguration();
 
     // Create client_secret JWT
     const clientSecret = jwt.sign({}, privateKey, {
@@ -265,13 +257,10 @@ export const revokeAppleAccessToken = onCall({
 
     try {
         const { token } = request.data;
+        const { teamId, clientId, keyId, privateKey } = getAppleConfiguration();
     
         if (!token) {
             throw new HttpsError("invalid-argument", "Token is required");
-        }
-
-        if (!teamId || !clientId || !keyId || !privateKey) {
-            throw new HttpsError("internal", "Missing Apple configuration");
         }
 
             // JWT 생성
@@ -323,10 +312,7 @@ export const revokeAppleAccessToken = onCall({
 });
 
 export async function requestAppleRefreshTokenHelper(authorizationCode: string): Promise<string> {
-    // Apple 설정 불러오기
-    if (!teamId || !clientId || !keyId || !privateKey) {
-        throw new HttpsError('internal', 'Missing Apple configuration');
-    }
+    const { teamId, clientId, keyId, privateKey } = getAppleConfiguration();
 
     // JWT 생성
     const clientSecret = jwt.sign({}, privateKey, {
