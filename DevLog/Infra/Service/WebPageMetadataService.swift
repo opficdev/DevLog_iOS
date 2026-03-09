@@ -11,6 +11,7 @@ import UIKit
 
 final class WebPageMetadataService {
     private let logger = Logger(category: "WebPageMetadataService")
+
     func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse {
         logger.info("Fetching metadata for URL: \(urlString)")
         
@@ -38,6 +39,36 @@ final class WebPageMetadataService {
         }
     }
 
+    func removeCachedImage(for urlString: String) async {
+        guard let url = URL(string: urlString) else {
+            logger.error("Invalid URL for cached image removal: \(urlString)")
+            return
+        }
+
+        do {
+            let removed = try await Task.detached(priority: .utility) {
+                let fileURL = try Self.cacheFileURL(for: url)
+                guard FileManager.default.fileExists(atPath: fileURL.path) else { return false }
+                try FileManager.default.removeItem(at: fileURL)
+                return true
+            }.value
+
+            if removed {
+                logger.info("Removed cached image for URL: \(urlString)")
+            }
+        } catch {
+            logger.error("Failed to remove cached image", error: error)
+        }
+    }
+
+    func cachedImageURL(for urlString: String) throws -> URL {
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+
+        return try Self.cacheFileURL(for: url)
+    }
+
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
         guard let imageProvider else { return nil }
 
@@ -58,13 +89,6 @@ final class WebPageMetadataService {
                     let fileURL = try Self.cacheFileURL(for: url)
                     Task.detached { [data, fileURL] in
                         do {
-                            if FileManager.default.fileExists(atPath: fileURL.path) {
-                                if let existingData = try? Data(contentsOf: fileURL),
-                                   UIImage(data: existingData) != nil {
-                                    continuation.resume(returning: fileURL)
-                                    return
-                                }
-                            }
                             try data.write(to: fileURL, options: [.atomic])
                             continuation.resume(returning: fileURL)
                         } catch {
@@ -79,6 +103,17 @@ final class WebPageMetadataService {
     }
 
     private static func cacheFileURL(for url: URL) throws -> URL {
+        let imageDir = try imageDirectoryURL()
+
+        let fileName = url.absoluteString
+            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
+
+        return imageDir
+            .appendingPathComponent(fileName)
+            .appendingPathExtension("jpeg")
+    }
+
+    private static func imageDirectoryURL() throws -> URL {
         let cachesDir = try FileManager.default.url(
             for: .cachesDirectory,
             in: .userDomainMask,
@@ -90,11 +125,6 @@ final class WebPageMetadataService {
             try FileManager.default.createDirectory(at: imageDir, withIntermediateDirectories: true)
         }
 
-        let fileName = url.absoluteString
-            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
-
         return imageDir
-            .appendingPathComponent(fileName)
-            .appendingPathExtension("jpeg")
     }
 }

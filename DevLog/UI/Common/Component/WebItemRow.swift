@@ -15,11 +15,7 @@ struct WebItemRow: View {
 
     var body: some View {
         HStack {
-            CacheableImage(url: item.imageURL) {
-                Image(systemName: "globe")
-                    .resizable()
-                    .scaledToFit()
-            }
+            thumbnail
             .frame(width: sceneWidth / 10, height: sceneWidth / 10)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
@@ -40,5 +36,31 @@ struct WebItemRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private var thumbnail: some View {
+        if let imageURL = item.imageURL {
+            AsyncImage(url: imageURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .empty:
+                    ProgressView()
+                default:
+                    placeholderImage
+                }
+            }
+        } else {
+            placeholderImage
+        }
+    }
+
+    private var placeholderImage: some View {
+        Image(systemName: "globe")
+            .resizable()
+            .scaledToFit()
     }
 }
