@@ -27,6 +27,9 @@ vendor/bundle/
 
 # Fastlane
 .fastlane/
+fastlane/report.xml
+fastlane/test_output/
+fastlane/logs/
 
 # Build Artifacts
 *.ipa
