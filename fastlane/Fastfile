@@ -39,7 +39,7 @@ platform :ios do
     build_app(
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
-      export_method: "app-store-connect",
+      export_method: "app-store",
       xcargs: "-skipPackagePluginValidation"
     )
 
