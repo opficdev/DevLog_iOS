@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  beta:
+  testflight:
     runs-on: macos-latest
     timeout-minutes: 45
     env:
@@ -45,4 +45,4 @@ jobs:
           printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
 
       - name: Upload to TestFlight
-        run: bundle exec fastlane beta
+        run: bundle exec fastlane testflight
