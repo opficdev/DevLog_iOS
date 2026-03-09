@@ -75,13 +75,6 @@ final class WebPageMetadataService {
                     let fileURL = try Self.cacheFileURL(for: url)
                     Task.detached { [data, fileURL] in
                         do {
-                            if FileManager.default.fileExists(atPath: fileURL.path) {
-                                if let existingData = try? Data(contentsOf: fileURL),
-                                   UIImage(data: existingData) != nil {
-                                    continuation.resume(returning: fileURL)
-                                    return
-                                }
-                            }
                             try data.write(to: fileURL, options: [.atomic])
                             continuation.resume(returning: fileURL)
                         } catch {
