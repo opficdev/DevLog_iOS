@@ -201,10 +201,18 @@ function formatDateKey(date: Date, timeZone: string): string {
         day: "2-digit"
     }).formatToParts(date);
 
-    const byType = (type: string): number => {
-        const found = parts.find((part) => part.type === type)?.value;
-        return Number(found);
-    };
+    const partMap = new Map(parts.map(p => [p.type, p.value]));
+    const year = partMap.get("year");
+    const month = partMap.get("month");
+    const day = partMap.get("day");
 
-    return `${byType("year")}-${byType("month").toString().padStart(2, "0")}-${byType("day").toString().padStart(2, "0")}`;
+    if (!year || !month || !day) {
+        logger.warn("formatDateKey 파트 추출 실패", {
+            date: date.toISOString(),
+            timeZone,
+            parts
+        });
+    }
+
+    return `${year ?? "1970"}-${month ?? "01"}-${day ?? "01"}`;
 }
