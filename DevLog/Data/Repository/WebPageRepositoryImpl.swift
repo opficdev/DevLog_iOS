@@ -34,6 +34,13 @@ final class WebPageRepositoryImpl: WebPageRepository {
             }
         }
 
+        // 쿼리가 비어있을 때 모든 웹페이지를 fetch 해오기 때문에 가능한 것
+        if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            await metadataService.removeUnusedCachedImages(
+                keeping: responses.map(\.imageURL)
+            )
+        }
+
         return pages
     }
 
@@ -50,7 +57,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func delete(_ urlString: String) async throws {
         try await webPageService.deleteWebPage(urlString)
-        metadataService.removeCachedImage(for: urlString)
+        await metadataService.removeCachedImage(for: urlString)
     }
 }
 

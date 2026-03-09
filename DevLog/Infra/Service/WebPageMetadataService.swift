@@ -39,19 +39,62 @@ final class WebPageMetadataService {
         }
     }
 
-    func removeCachedImage(for urlString: String) {
+    func removeCachedImage(for urlString: String) async {
         guard let url = URL(string: urlString) else {
             logger.error("Invalid URL for cached image removal: \(urlString)")
             return
         }
 
         do {
-            let fileURL = try Self.cacheFileURL(for: url)
-            guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-            try FileManager.default.removeItem(at: fileURL)
-            logger.info("Removed cached image for URL: \(urlString)")
+            let removed = try await Task.detached(priority: .utility) {
+                let fileURL = try Self.cacheFileURL(for: url)
+                guard FileManager.default.fileExists(atPath: fileURL.path) else { return false }
+                try FileManager.default.removeItem(at: fileURL)
+                return true
+            }.value
+
+            if removed {
+                logger.info("Removed cached image for URL: \(urlString)")
+            }
         } catch {
             logger.error("Failed to remove cached image", error: error)
+        }
+    }
+
+    func removeUnusedCachedImages(keeping imageURLStrings: [String]) async {
+        let keptPaths: Set<String> = Set(
+            imageURLStrings.compactMap { imageURLString in
+                guard let url = URL(string: imageURLString), url.isFileURL else {
+                    return nil
+                }
+                return url.path
+            }
+        )
+
+        do {
+            let removedCount = try await Task.detached(priority: .utility) {
+                let imageDir = try Self.imageDirectoryURL()
+                guard FileManager.default.fileExists(atPath: imageDir.path) else { return 0 }
+
+                let cachedFileURLs = try FileManager.default.contentsOfDirectory(
+                    at: imageDir,
+                    includingPropertiesForKeys: nil,
+                    options: [.skipsHiddenFiles]
+                )
+
+                var removedCount = 0
+                for fileURL in cachedFileURLs where !keptPaths.contains(fileURL.path) {
+                    try FileManager.default.removeItem(at: fileURL)
+                    removedCount += 1
+                }
+                return removedCount
+            }.value
+
+            if 0 < removedCount {
+                logger.info("Removed \(removedCount) unused cached images")
+            }
+        } catch {
+            logger.error("Failed to remove unused cached images", error: error)
         }
     }
 
@@ -89,6 +132,17 @@ final class WebPageMetadataService {
     }
 
     private static func cacheFileURL(for url: URL) throws -> URL {
+        let imageDir = try imageDirectoryURL()
+
+        let fileName = url.absoluteString
+            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
+
+        return imageDir
+            .appendingPathComponent(fileName)
+            .appendingPathExtension("jpeg")
+    }
+
+    private static func imageDirectoryURL() throws -> URL {
         let cachesDir = try FileManager.default.url(
             for: .cachesDirectory,
             in: .userDomainMask,
@@ -100,11 +154,6 @@ final class WebPageMetadataService {
             try FileManager.default.createDirectory(at: imageDir, withIntermediateDirectories: true)
         }
 
-        let fileName = url.absoluteString
-            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
-
         return imageDir
-            .appendingPathComponent(fileName)
-            .appendingPathExtension("jpeg")
     }
 }
