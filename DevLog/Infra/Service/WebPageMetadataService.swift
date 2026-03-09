@@ -11,6 +11,7 @@ import UIKit
 
 final class WebPageMetadataService {
     private let logger = Logger(category: "WebPageMetadataService")
+
     func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse {
         logger.info("Fetching metadata for URL: \(urlString)")
         
@@ -35,6 +36,22 @@ final class WebPageMetadataService {
         } catch {
             logger.error("Failed to fetch metadata", error: error)
             throw error
+        }
+    }
+
+    func removeCachedImage(for urlString: String) {
+        guard let url = URL(string: urlString) else {
+            logger.error("Invalid URL for cached image removal: \(urlString)")
+            return
+        }
+
+        do {
+            let fileURL = try Self.cacheFileURL(for: url)
+            guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+            try FileManager.default.removeItem(at: fileURL)
+            logger.info("Removed cached image for URL: \(urlString)")
+        } catch {
+            logger.error("Failed to remove cached image", error: error)
         }
     }
 

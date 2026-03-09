@@ -50,6 +50,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func delete(_ urlString: String) async throws {
         try await webPageService.deleteWebPage(urlString)
+        metadataService.removeCachedImage(for: urlString)
     }
 }
 
