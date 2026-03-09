@@ -61,6 +61,14 @@ final class WebPageMetadataService {
         }
     }
 
+    func cachedImageURL(for urlString: String) throws -> URL {
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+
+        return try Self.cacheFileURL(for: url)
+    }
+
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
         guard let imageProvider else { return nil }
 

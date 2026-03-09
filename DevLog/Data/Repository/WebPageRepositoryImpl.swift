@@ -62,17 +62,28 @@ final class WebPageRepositoryImpl: WebPageRepository {
 private extension WebPageRepositoryImpl {
     func needsImageRestore(_ response: WebPageResponse) async -> Bool {
         guard !response.imageURL.isEmpty,
-              let url = URL(string: response.imageURL),
-              url.isFileURL else {
+              let imageURL = URL(string: response.imageURL),
+              imageURL.isFileURL else {
             return false
         }
 
+        let expectedImageURL: URL
+        do {
+            expectedImageURL = try metadataService.cachedImageURL(for: response.url)
+        } catch {
+            return true
+        }
+
+        if imageURL.standardizedFileURL != expectedImageURL.standardizedFileURL {
+            return true
+        }
+
         return await Task.detached(priority: .utility) {
-            guard FileManager.default.fileExists(atPath: url.path) else {
+            guard FileManager.default.fileExists(atPath: imageURL.path) else {
                 return true
             }
 
-            guard let imageData = try? Data(contentsOf: url) else {
+            guard let imageData = try? Data(contentsOf: imageURL) else {
                 return true
             }
 
