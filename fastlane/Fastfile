@@ -8,17 +8,17 @@ platform :ios do
   private_lane :fetch_latest_testflight_build_number do |options|
     require "spaceship"
 
-    apiKey = options[:api_key]
-    versionNumber = options[:version]
+    api_key = options[:api_key]
+    version_number = options[:version]
 
-    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(**apiKey)
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(**api_key)
 
     app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
     UI.user_error!("Could not find app for #{APP_IDENTIFIER}") if app.nil?
 
     filter = {
       "state" => "PROCESSING,FAILED,COMPLETE",
-      "cfBundleShortVersionString" => versionNumber,
+      "cfBundleShortVersionString" => version_number,
       "platform" => Spaceship::ConnectAPI::Platform.map("ios")
     }
 
@@ -54,21 +54,21 @@ platform :ios do
 
     api_key = asc_api_key
 
-    versionNumber = get_version_number(
+    version_number = get_version_number(
       xcodeproj: XCODE_PROJ,
       target: TARGET_NAME
     )
 
-    latestTestflightBuildNumber = fetch_latest_testflight_build_number(
+    latest_testflight_build_number = fetch_latest_testflight_build_number(
       api_key: api_key,
-      version: versionNumber
+      version: version_number
     )
 
     setup_ci if ENV["CI"]
 
     increment_build_number(
       xcodeproj: XCODE_PROJ,
-      build_number: latestTestflightBuildNumber + 1
+      build_number: latest_testflight_build_number + 1
     )
 
     match(
@@ -84,8 +84,8 @@ platform :ios do
     )
 
     if ENV["CI"] == "true"
-      provisioningProfileSpecifier = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING][APP_IDENTIFIER].to_s
-      UI.user_error!("Missing App Store provisioning profile mapping for #{APP_IDENTIFIER}") if provisioningProfileSpecifier.empty?
+      provisioning_profile_specifier = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING][APP_IDENTIFIER].to_s
+      UI.user_error!("Missing App Store provisioning profile mapping for #{APP_IDENTIFIER}") if provisioning_profile_specifier.empty?
 
       update_code_signing_settings(
         use_automatic_signing: false,
@@ -95,7 +95,7 @@ platform :ios do
         targets: [TARGET_NAME],
         build_configurations: ["Release"],
         code_sign_identity: "Apple Distribution",
-        profile_name: provisioningProfileSpecifier
+        profile_name: provisioning_profile_specifier
       )
     end
 
@@ -124,21 +124,21 @@ platform :ios do
 
   lane :release do
     api_key = asc_api_key
-    versionNumber = get_version_number(
+    version_number = get_version_number(
       xcodeproj: XCODE_PROJ,
       target: TARGET_NAME
     )
-    latestTestflightBuildNumber = fetch_latest_testflight_build_number(
+    latest_testflight_build_number = fetch_latest_testflight_build_number(
       api_key: api_key,
-      version: versionNumber
+      version: version_number
     )
 
-    UI.user_error!("No existing TestFlight build found for #{versionNumber}") if latestTestflightBuildNumber <= 0
+    UI.user_error!("No existing TestFlight build found for #{version_number}") if latest_testflight_build_number <= 0
 
     upload_to_app_store(
       api_key: api_key,
-      app_version: versionNumber,
-      build_number: latestTestflightBuildNumber.to_s,
+      app_version: version_number,
+      build_number: latest_testflight_build_number.to_s,
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
