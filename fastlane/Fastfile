@@ -8,7 +8,10 @@ platform :ios do
   private_lane :fetch_latest_testflight_build_number do |options|
     require "spaceship"
 
+    apiKey = options[:api_key]
     versionNumber = options[:version]
+
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(**apiKey)
 
     app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
     UI.user_error!("Could not find app for #{APP_IDENTIFIER}") if app.nil?
@@ -57,6 +60,7 @@ platform :ios do
     )
 
     latestTestflightBuildNumber = fetch_latest_testflight_build_number(
+      api_key: api_key,
       version: versionNumber
     )
 
