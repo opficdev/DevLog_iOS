@@ -277,13 +277,19 @@ export const revokeAppleAccessToken = onCall({
 
     try {
         const { token } = request.data;
-        const { teamId, clientId, keyId, privateKey } = getAppleConfiguration();
     
         if (!token) {
             throw new HttpsError("invalid-argument", "Token is required");
         }
 
-            // JWT 생성
+        console.log("Starting Apple token revocation", {
+            uid: request.auth.uid
+        });
+
+        console.log("Starting Apple configuration load for token revocation");
+        const { teamId, clientId, keyId, privateKey } = getAppleConfiguration();
+
+        console.log("Starting Apple client secret creation for token revocation");
         const clientSecret = jwt.sign({}, privateKey, {
             algorithm: "ES256",
             expiresIn: "5m",
@@ -293,14 +299,15 @@ export const revokeAppleAccessToken = onCall({
             keyid: keyId,
         });
 
-        // Apple 서버에 토큰 취소 요청
-        await axios.post("https://appleid.apple.com/auth/revoke",
-                         new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            token: token,
-            token_type_hint: "access_token" // access_token 또는 refresh_token 지정 가능
-        }).toString(), {
+        console.log("Starting Apple revoke API request");
+        await axios.post(
+            "https://appleid.apple.com/auth/revoke",
+            new URLSearchParams({
+                client_id: clientId,
+                client_secret: clientSecret,
+                token: token,
+                token_type_hint: "access_token" // access_token 또는 refresh_token 지정 가능
+            }).toString(), {
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
         });
 

@@ -126,18 +126,17 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     func unlink(_ uid: String) async throws {
-        logger.info("Unlinking GitHub account for user: \(uid)")
-        
         do {
+            logger.info("Starting GitHub access token revocation for unlink. uid: \(uid)")
             try await revokeAccessToken()
 
             let tokensRef = store.document("users/\(uid)/userData/tokens")
 
+            logger.info("Starting GitHub access token deletion from Firestore for unlink. uid: \(uid)")
             try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
 
+            logger.info("Starting Firebase GitHub provider unlink. uid: \(uid)")
             _ = try await user?.unlink(fromProvider: providerID.rawValue)
-            
-            logger.info("Successfully unlinked GitHub account")
         } catch {
             logger.error("Failed to unlink GitHub account", error: error)
             throw error
