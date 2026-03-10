@@ -51,5 +51,10 @@ jobs:
         run: |
           shasum -a 256 "$ASC_KEY_PATH"
 
+      - name: Debug ASC metadata fingerprint
+        run: |
+          printf '%s' "$ASC_KEY_ID" | shasum -a 256
+          printf '%s' "$ASC_ISSUER_ID" | shasum -a 256
+
       - name: Upload to TestFlight
         run: bundle exec fastlane deploy_testflight
