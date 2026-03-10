@@ -1,7 +1,6 @@
 XCODE_PROJ = "DevLog.xcodeproj"
 APP_IDENTIFIER = "opfic.DevLog"
 TARGET_NAME = "DevLog"
-PROJECT_ROOT = File.expand_path("..", __dir__)
 
 default_platform(:ios)
 
@@ -10,14 +9,6 @@ platform :ios do
     require "spaceship"
 
     versionNumber = options[:version]
-    ascKeyPath = File.expand_path(ENV["ASC_KEY_PATH"], PROJECT_ROOT)
-
-    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
-      key_id: ENV["ASC_KEY_ID"],
-      issuer_id: ENV["ASC_ISSUER_ID"],
-      key: File.binread(ascKeyPath),
-      in_house: false
-    )
 
     app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
     UI.user_error!("Could not find app for #{APP_IDENTIFIER}") if app.nil?
