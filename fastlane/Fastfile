@@ -30,8 +30,8 @@ platform :ios do
       target: TARGET_NAME
     )
 
-    latestTestflightBuildNumber = latest_testflight_build_number(
-      api_key: api_key,
+    latestTestflightBuildNumber = app_store_build_number(
+      live: false,
       app_identifier: APP_IDENTIFIER,
       version: versionNumber,
       initial_build_number: 0
