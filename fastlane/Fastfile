@@ -32,6 +32,12 @@ platform :ios do
 
     match(
       api_key: api_key,
+      type: "development",
+      readonly: ENV["CI"] == "true"
+    )
+
+    match(
+      api_key: api_key,
       type: "appstore",
       readonly: ENV["CI"] == "true"
     )
@@ -40,7 +46,6 @@ platform :ios do
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
       export_method: "app-store",
-      codesigning_identity: "Apple Distribution",
       xcargs: "-skipPackagePluginValidation"
     )
 
