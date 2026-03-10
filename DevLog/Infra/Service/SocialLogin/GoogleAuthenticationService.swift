@@ -119,12 +119,17 @@ final class GoogleAuthenticationService: AuthenticationService {
     }
 
     func unlink(_ uid: String) async throws {
-        logger.info("Starting Google disconnect for unlink. uid: \(uid)")
-        GIDSignIn.sharedInstance.signOut()
-        try await GIDSignIn.sharedInstance.disconnect()
+        do {
+            logger.info("Starting Google disconnect for unlink. uid: \(uid)")
+            GIDSignIn.sharedInstance.signOut()
+            try await GIDSignIn.sharedInstance.disconnect()
 
-        logger.info("Starting Firebase Google provider unlink. uid: \(uid)")
-        _ = try await user?.unlink(fromProvider: AuthProviderID.google.rawValue)
+            logger.info("Starting Firebase Google provider unlink. uid: \(uid)")
+            _ = try await user?.unlink(fromProvider: AuthProviderID.google.rawValue)
+        } catch {
+            logger.error("Failed to unlink Google account", error: error)
+            throw error
+        }
     }
 
 }
