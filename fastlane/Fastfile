@@ -52,6 +52,22 @@ platform :ios do
       readonly: ENV["CI"] == "true"
     )
 
+    if ENV["CI"] == "true"
+      provisioningProfileSpecifier = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]["opfic.DevLog"].to_s
+      UI.user_error!("Missing App Store provisioning profile mapping for opfic.DevLog") if provisioningProfileSpecifier.empty?
+
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        path: "DevLog.xcodeproj",
+        sdk: "iphoneos*",
+        team_id: ENV["APP_STORE_TEAM_ID"],
+        targets: ["DevLog"],
+        build_configurations: ["Release"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: provisioningProfileSpecifier
+      )
+    end
+
     build_app(
       project: "DevLog.xcodeproj",
       scheme: "DevLog",
