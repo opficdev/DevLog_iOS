@@ -20,7 +20,7 @@ env:
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release:
@@ -62,3 +62,24 @@ jobs:
 
       - name: Release to App Store Connect
         run: bundle exec fastlane release
+
+      - name: Read release version
+        id: release_version
+        run: |
+          version=$(ruby -e 'project = File.read("DevLog.xcodeproj/project.pbxproj"); match = project.match(/MARKETING_VERSION = ([^;]+);/); abort("MARKETING_VERSION not found") if match.nil?; puts match[1]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.release_version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Release already exists for ${{ steps.release_version.outputs.tag }}"
+            exit 0
+          fi
+
+          gh release create "${{ steps.release_version.outputs.tag }}" \
+            --target "${{ github.event.pull_request.merge_commit_sha }}" \
+            --title "${{ steps.release_version.outputs.tag }}" \
+            --generate-notes
