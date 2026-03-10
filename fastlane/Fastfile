@@ -5,6 +5,39 @@ TARGET_NAME = "DevLog"
 default_platform(:ios)
 
 platform :ios do
+  private_lane :fetch_latest_testflight_build_number do |options|
+    require "spaceship"
+
+    versionNumber = options[:version]
+
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key: File.binread(ENV["ASC_KEY_PATH"]),
+      in_house: false
+    )
+
+    app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
+    UI.user_error!("Could not find app for #{APP_IDENTIFIER}") if app.nil?
+
+    filter = {
+      "state" => "PROCESSING,FAILED,COMPLETE",
+      "cfBundleShortVersionString" => versionNumber,
+      "platform" => Spaceship::ConnectAPI::Platform.map("ios")
+    }
+
+    build = Spaceship::ConnectAPI.get_build_uploads(
+      app_id: app.id,
+      filter: filter,
+      sort: "-uploadedDate",
+      limit: 1
+    ).first
+
+    next 0 if build.nil?
+
+    next build.cf_build_version.to_i
+  end
+
   private_lane :asc_api_key do
     app_store_connect_api_key(
       key_id: ENV["ASC_KEY_ID"],
@@ -30,11 +63,8 @@ platform :ios do
       target: TARGET_NAME
     )
 
-    latestTestflightBuildNumber = app_store_build_number(
-      live: false,
-      app_identifier: APP_IDENTIFIER,
-      version: versionNumber,
-      initial_build_number: 0
+    latestTestflightBuildNumber = fetch_latest_testflight_build_number(
+      version: versionNumber
     )
 
     setup_ci if ENV["CI"]
