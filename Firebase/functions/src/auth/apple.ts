@@ -300,13 +300,14 @@ export const revokeAppleAccessToken = onCall({
         });
 
         console.log("Starting Apple revoke API request");
-        await axios.post("https://appleid.apple.com/auth/revoke",
-                         new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            token: token,
-            token_type_hint: "access_token" // access_token 또는 refresh_token 지정 가능
-        }).toString(), {
+        await axios.post(
+            "https://appleid.apple.com/auth/revoke",
+            new URLSearchParams({
+                client_id: clientId,
+                client_secret: clientSecret,
+                token: token,
+                token_type_hint: "access_token" // access_token 또는 refresh_token 지정 가능
+            }).toString(), {
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
         });
 
