@@ -144,21 +144,31 @@ final class AppleAuthenticationService: AuthenticationService {
     }
 
     func unlink(_ uid: String) async throws {
-        let accessToken = try await refreshAppleAccessToken()
+        do {
+            logger.info("Starting Apple access token refresh for unlink. uid: \(uid)")
+            let accessToken = try await refreshAppleAccessToken()
 
-        try await revokeAppleAccessToken(token: accessToken)
+            logger.info("Starting Apple access token revocation for unlink. uid: \(uid)")
+            try await revokeAppleAccessToken(token: accessToken)
 
-        let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let tokensRef = store.document("users/\(uid)/userData/tokens")
 
-        let doc = try await tokensRef.getDocument()
+            logger.info("Starting Apple token document fetch for unlink. uid: \(uid)")
+            let doc = try await tokensRef.getDocument()
 
-        if doc.exists {
-            try await tokensRef.updateData([
-                "appleRefreshToken": FieldValue.delete()
-            ])
+            if doc.exists {
+                logger.info("Starting Apple refresh token deletion from Firestore for unlink. uid: \(uid)")
+                try await tokensRef.updateData([
+                    "appleRefreshToken": FieldValue.delete()
+                ])
+            }
+
+            logger.info("Starting Firebase Apple provider unlink. uid: \(uid)")
+            _ = try await user?.unlink(fromProvider: providerID.rawValue)
+        } catch {
+            logger.error("Failed to unlink Apple account", error: error)
+            throw error
         }
-
-        _ = try await user?.unlink(fromProvider: providerID.rawValue)
     }
 
     // Apple 인증 메서드
