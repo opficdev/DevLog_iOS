@@ -1,3 +1,5 @@
+require "shellwords"
+
 default_platform(:ios)
 
 platform :ios do
@@ -38,6 +40,12 @@ platform :ios do
     increment_build_number(
       xcodeproj: "DevLog.xcodeproj",
       build_number: latestTestflightBuildNumber + 1
+    )
+
+    match(
+      api_key: api_key,
+      type: "development",
+      readonly: ENV["CI"] == "true"
     )
 
     match(
