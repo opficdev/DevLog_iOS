@@ -2,8 +2,8 @@ name: iOS TestFlight
 
 on:
   push:
-    branches:
-      - develop
+    tags:
+      - "qa-*"
   workflow_dispatch:
 
 env:
