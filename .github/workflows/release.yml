@@ -7,6 +7,18 @@ on:
     branches:
       - main
 
+env:
+  RUBY_VERSION: "3.2"
+  XCODE_VERSION: latest
+  APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_KEY_PATH: fastlane/AuthKey.p8
+  SPACESHIP_CONNECT_API_IN_HOUSE: "false"
+  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+
 permissions:
   contents: read
 
@@ -15,15 +27,6 @@ jobs:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'develop'
     runs-on: macos-latest
     timeout-minutes: 45
-    env:
-      APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
-      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      ASC_KEY_PATH: fastlane/AuthKey.p8
-      SPACESHIP_CONNECT_API_IN_HOUSE: "false"
-      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
 
     steps:
       - name: Checkout merge commit
@@ -35,12 +38,12 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: "3.2"
+          ruby-version: ${{ env.RUBY_VERSION }}
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Write App Store Connect API key
         env:
