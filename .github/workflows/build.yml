@@ -14,7 +14,36 @@ permissions:
   checks: write
 
 jobs:
+  detect_qa_tag:
+    runs-on: macos-latest
+    outputs:
+      has_qa_tag: ${{ steps.detect.outputs.has_qa_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Detect QA Tag on PR Head
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          MATCHED_TAG="$(git tag --points-at "$PR_HEAD_SHA" | grep -E '^qa(-local)?-' | head -n 1 || true)"
+
+          if [ -n "$MATCHED_TAG" ]; then
+            echo "Found QA tag on PR head: $MATCHED_TAG"
+            echo "has_qa_tag=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "No QA tag found on PR head"
+          echo "has_qa_tag=false" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: detect_qa_tag
+    if: needs.detect_qa_tag.outputs.has_qa_tag != 'true'
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
