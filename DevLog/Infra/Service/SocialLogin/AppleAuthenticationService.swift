@@ -105,14 +105,6 @@ final class AppleAuthenticationService: AuthenticationService {
         let token = try await refreshAppleAccessToken()
 
         try await revokeAppleAccessToken(token: token)
-
-        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
-
-        _ = try await deleteFunction.call(["uid": uid])
-
-        try await user?.delete()
-        try await messaging.deleteToken()
-        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {

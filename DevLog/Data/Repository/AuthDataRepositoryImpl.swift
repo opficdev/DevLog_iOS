@@ -33,7 +33,7 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
     }
     
     func fetchAllProviders() async throws -> [AuthProvider] {
-        let providerStrings = authService.providerIDs ?? []
+        let providerStrings = authService.providerIDs
         return providerStrings.compactMap { AuthProvider(rawValue: $0) }
     }
     

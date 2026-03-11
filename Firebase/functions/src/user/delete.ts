@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import * as logger from "firebase-functions/logger";
 
 export const deleteUserFirestoreData = onCall({
         cors: true,
@@ -7,9 +8,14 @@ export const deleteUserFirestoreData = onCall({
         region: "asia-northeast3"
     },
     async (request) => {
-        if (!request.auth) throw new HttpsError("unauthenticated", "로그인 필요");
-        const uid = request.data.uid;
-        if (!uid) throw new HttpsError("invalid-argument", "uid 필요");
+        if (!request.auth?.uid) {
+            logger.error("deleteUserFirestoreData called without authenticated uid", {
+                auth: request.auth ?? null
+            });
+            throw new HttpsError("unauthenticated", "로그인 필요");
+        }
+
+        const uid = request.auth.uid;
 
         try {
             const userDocRef = admin.firestore().doc(`users/${uid}`);
