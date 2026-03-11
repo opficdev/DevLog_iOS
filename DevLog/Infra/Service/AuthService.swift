@@ -68,7 +68,11 @@ final class AuthService {
     func clearCurrentSession() async throws {
         logger.info("Clearing current auth session")
 
-        try await messaging.deleteToken()
+        do {
+            try await messaging.deleteToken()
+        } catch {
+            logger.error("Failed to delete FCM token while clearing session", error: error)
+        }
         try Auth.auth().signOut()
     }
 }
