@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 env:
+  SCHEME: DevLog
   RUBY_VERSION: "3.2"
   XCODE_VERSION: latest
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
@@ -22,7 +23,37 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/SourcePackages
+            .spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Validate Debug Simulator Build
+        uses: ./.github/actions/ios-simulator-build
+        with:
+          scheme: ${{ env.SCHEME }}
+
   testflight:
+    needs: validate
     runs-on: macos-latest
     timeout-minutes: 45
 
@@ -47,5 +78,13 @@ jobs:
         run: |
           printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
 
+      - name: Build for TestFlight
+        run: bundle exec fastlane testflight_build_only
+
+      - name: Skip TestFlight Upload for Local QA Tag
+        if: github.event_name == 'push' && startsWith(github.ref_name, 'qa-local-')
+        run: echo "Skipping TestFlight upload for local QA tag ${GITHUB_REF_NAME}"
+
       - name: Upload to TestFlight
-        run: bundle exec fastlane deploy_testflight
+        if: github.event_name != 'push' || !startsWith(github.ref_name, 'qa-local-')
+        run: bundle exec fastlane upload_testflight_build
