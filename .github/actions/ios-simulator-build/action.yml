@@ -15,72 +15,61 @@ runs:
       run: |
         set -euo pipefail
 
-        # macOS 메인 버전에 맞는 iOS 버전 중 최신 버전의 iPhone 선택
+        # 설치된 iPhone 시뮬레이터 중 최신 iOS 버전 선택
         RESULT=$(python3 - <<'PY'
         import re, subprocess, sys
 
-        xcode_ver = subprocess.check_output(["xcodebuild", "-version"], text=True).splitlines()[0].strip()
-        xcode_major = xcode_ver.split()[1].split('.')[0]
-        try:
-          xcode_major_num = int(xcode_major)
-        except ValueError:
-          xcode_major_num = None
-        if xcode_major_num is not None and xcode_major_num <= 15:
-          xcode_major = "26"
+        def ver_key(version):
+          return tuple(int(part) for part in version.split('.'))
 
         text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
         lines = text.splitlines()
-
-        def ver_key(v):
-          return tuple(int(x) for x in v.split('.'))
-
-        # 1) 최신 iOS 버전(해당 mac 메이저) 찾기
-        latest_ver = None
-        for line in lines:
-          header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
-          if not header:
-            continue
-          ver = header.group(1)
-          if not ver.startswith(f"{xcode_major}."):
-            continue
-          if latest_ver is None or ver_key(ver) > ver_key(latest_ver):
-            latest_ver = ver
-
-        if latest_ver is None:
-          print(f"No iOS versions found for Xcode major {xcode_major}", file=sys.stderr)
-          sys.exit(1)
-
-        # 2) 해당 버전 섹션에서 첫 iPhone 찾고 즉시 종료
         current_ver = None
+        candidates = []
+
         for line in lines:
           header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
           if header:
             current_ver = header.group(1)
             continue
-          if current_ver != latest_ver:
+          if current_ver is None:
             continue
           if "(unavailable)" in line:
             continue
-          if "iPhone" in line:
-            raw = line.strip()
-            # key:value 형태면 딕셔너리로 파싱해서 name만 사용
-            if "platform:" in raw and "name:" in raw and "OS:" in raw:
-              kv = {}
-              for part in raw.split(","):
-                if ":" not in part:
-                  continue
-                k, v = part.split(":", 1)
-                kv[k.strip()] = v.strip()
-              name = kv.get("name", raw)
-            else:
-              name = raw
-              # UUID/상태만 제거하고 모델명 괄호는 유지
-              name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
-            print(f"{latest_ver}|{name}")
-            sys.exit(0)
+          if "iPhone" not in line:
+            continue
 
-        print(f"No iPhone candidates found for iOS {latest_ver}", file=sys.stderr)
-        sys.exit(1)
+          raw = line.strip()
+          if "platform:" in raw and "name:" in raw and "OS:" in raw:
+            kv = {}
+            for part in raw.split(","):
+              if ":" not in part:
+                continue
+              k, v = part.split(":", 1)
+              kv[k.strip()] = v.strip()
+            name = kv.get("name", raw)
+          else:
+            name = raw
+            name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
+
+          candidates.append((current_ver, name))
+
+        if len(candidates) <= 0:
+          print("No available iPhone simulators found", file=sys.stderr)
+          sys.exit(1)
+
+        latest_version = max(candidate[0] for candidate in candidates, key=ver_key)
+        latest_candidates = [
+          candidate for candidate in candidates
+          if candidate[0] == latest_version
+        ]
+        chosen_version, chosen_device_name = min(
+          latest_candidates,
+          key=lambda candidate: candidate[1]
+        )
+
+        print(f"{chosen_version}|{chosen_device_name}")
+        sys.exit(0)
         PY
         )
 
