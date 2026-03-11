@@ -36,19 +36,17 @@ enum SocialLoginError: Error {
 
 extension Error {
     var isSocialLoginCancelled: Bool {
+        switch self {
         // Apple 로그인 취소
-        if let authorizationError = self as? ASAuthorizationError {
-            return authorizationError.code == .canceled
-        }
-
+        case let authError as ASAuthorizationError:
+            return authError.code == .canceled
         // Github 로그인 취소
-        if let webAuthenticationSessionError = self as? ASWebAuthenticationSessionError {
-            return webAuthenticationSessionError.code == .canceledLogin
+        case let webAuthError as ASWebAuthenticationSessionError:
+            return webAuthError.code == .canceledLogin
+        default:
+            let nsError = self as NSError
+            // Google 로그인 취소
+            return nsError.domain == kGIDSignInErrorDomain && nsError.code == GIDSignInError.canceled.rawValue
         }
-
-        let error = self as NSError
-        // Google 로그인 취소
-        return error.domain == kGIDSignInErrorDomain
-            && error.code == GIDSignInError.canceled.rawValue
     }
 }
