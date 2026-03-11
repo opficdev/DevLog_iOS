@@ -99,17 +99,19 @@ runs:
 
     - name: Build
       shell: bash
+      env:
+        SCHEME: ${{ inputs.scheme }}
+        IOS_VER: ${{ steps.pick_ios.outputs.ios_version }}
+        DEVICE_NAME: ${{ steps.pick_ios.outputs.device_name }}
       run: |
         set -euo pipefail
         set -x
-        IOS_VER="${{ steps.pick_ios.outputs.ios_version }}"
-        DEVICE_NAME="${{ steps.pick_ios.outputs.device_name }}"
         SPM_DIR="$GITHUB_WORKSPACE/.spm"
         mkdir -p "$SPM_DIR"
 
         xcodebuild -version
 
-        echo "Using scheme: ${{ inputs.scheme }}"
+        echo "Using scheme: $SCHEME"
 
         echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
 
@@ -117,13 +119,13 @@ runs:
         set +e
         echo "== Resolving Swift Package dependencies =="
         xcodebuild \
-          -scheme "${{ inputs.scheme }}" \
+          -scheme "$SCHEME" \
           -configuration Debug \
           -clonedSourcePackagesDirPath "$SPM_DIR" \
           -resolvePackageDependencies
         echo "== Starting xcodebuild build =="
         xcodebuild \
-          -scheme "${{ inputs.scheme }}" \
+          -scheme "$SCHEME" \
           -configuration Debug \
           -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
           -clonedSourcePackagesDirPath "$SPM_DIR" \
