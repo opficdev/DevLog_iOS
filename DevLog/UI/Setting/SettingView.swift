@@ -50,31 +50,25 @@ struct SettingView: View {
             }
             
             Section {
-                if let appVersion = viewModel.state.appVersion {
+                if let appVersion = viewModel.appVersion {
                     HStack {
                         Text("버전 정보")
                         Spacer()
                         Text(appVersion)
                     }
                 }
-                if let ppurl = viewModel.state.policyURL {
-                    Link(destination: URL(string: ppurl)!) {
+                if let policyString = viewModel.policyURL,
+                   let url = URL(string: policyString) {
+                    Link(destination: url) {
                         Text("개인정보 처리방침")
                             .foregroundColor(Color.blue)
                     }
                 }
                 Button(action: {
-                    if let url = URL(string: "itms-beta://") {
-                           UIApplication.shared.open(url, options: [:]) { success in
-                               if !success {
-                                   if let urlString = Bundle.main.object(
-                                    forInfoDictionaryKey: "APPSTORE_URL") as? String,
-                                      let appStoreURL = URL(string: urlString) {
-                                       UIApplication.shared.open(appStoreURL)
-                                   }
-                               }
-                           }
-                       }
+                    if let appStoreString = viewModel.appstoreUrl,
+                       let url = URL(string: appStoreString) {
+                        UIApplication.shared.open(url)
+                    }
                 }) {
                     VStack(alignment: .leading) {
                         Text("베타 테스트 참여")
