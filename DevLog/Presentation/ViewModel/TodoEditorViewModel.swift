@@ -45,8 +45,7 @@ final class TodoEditorViewModel: Store {
         var hasDueDate: Bool { dueDate != nil }
         var tabViewTag: Tag = .editor
         var isValidToSave: Bool {
-            !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
 
