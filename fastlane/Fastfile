@@ -125,7 +125,7 @@ platform :ios do
 
   lane :upload_testflight_build do
     api_key = asc_api_key
-    ipa_output_path = File.expand_path(TESTFLIGHT_IPA_OUTPUT_PATH, Dir.pwd)
+    ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
 
