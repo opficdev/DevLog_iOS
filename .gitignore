@@ -23,6 +23,7 @@ node_modules/
 lib/
 
 # Gem
+.bundle/
 vendor/bundle/
 
 # Fastlane
