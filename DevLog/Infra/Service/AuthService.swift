@@ -20,8 +20,8 @@ final class AuthService {
         Auth.auth().currentUser?.uid
     }
 
-    var providerIDs: [String]? {
-        Auth.auth().currentUser?.providerData.map { $0.providerID }
+    var providerIDs: [String] {
+        Auth.auth().currentUser?.providerData.map { $0.providerID } ?? []
     }
 
     func getProviderID() async throws -> String? {

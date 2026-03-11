@@ -67,7 +67,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             throw AuthError.notAuthenticated
         }
 
-        let providers = (authService.providerIDs ?? []).compactMap { AuthProvider(rawValue: $0) }
+        let providers = authService.providerIDs.compactMap { AuthProvider(rawValue: $0) }
 
         for provider in providers {
             switch provider {
