@@ -187,7 +187,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
                 // 반환된 state 값 확인 / 받아온 값이 다르면 CSRF 공격 가능성 있음
                 guard let returnedState = queryItems.first(where: { $0.name == "state" })?.value,
                     returnedState == state else {
-                    continuation.resume(throwing: URLError(.userCancelledAuthentication))
+                    continuation.resume(throwing: SocialLoginError.invalidOAuthState)
                     return
                 }
 
@@ -198,7 +198,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             session.prefersEphemeralWebBrowserSession = false   //  웹에서 깃헙 로그인 후 세션 유지
             
             if !session.start() {
-                continuation.resume(throwing: URLError(.userCancelledAuthentication))
+                continuation.resume(throwing: SocialLoginError.failedToStartWebAuthenticationSession)
             }
         }
     }

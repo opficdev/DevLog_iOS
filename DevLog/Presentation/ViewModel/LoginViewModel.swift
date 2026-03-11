@@ -8,7 +8,6 @@
 import Combine
 import Foundation
 import FirebaseAuth
-import GoogleSignIn
 
 @Observable
 final class LoginViewModel: Store {
@@ -93,6 +92,7 @@ final class LoginViewModel: Store {
                 } catch {
                     send(.setLogined(false))
                     sessionUseCase.execute(false)
+                    if error.isSocialLoginCancelled { return }
                     send(.setAlert(true))
                 }
             }
