@@ -1,6 +1,8 @@
 XCODE_PROJ = "DevLog.xcodeproj"
 APP_IDENTIFIER = "opfic.DevLog"
 TARGET_NAME = "DevLog"
+TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = "fastlane/testflight_build"
+TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{TARGET_NAME}.ipa")
 
 default_platform(:ios)
 
@@ -103,6 +105,8 @@ platform :ios do
       project: XCODE_PROJ,
       scheme: TARGET_NAME,
       export_method: "app-store",
+      output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
+      output_name: "#{TARGET_NAME}.ipa",
       xcargs: "-skipPackagePluginValidation"
     )
 
@@ -110,16 +114,26 @@ platform :ios do
   end
 
   lane :deploy_testflight do
-    api_key = build_for_store
+    build_for_store
 
-    upload_to_testflight(
-      api_key: api_key,
-      skip_waiting_for_build_processing: true
-    )
+    upload_testflight_build
   end
 
   lane :testflight_build_only do
     build_for_store
+  end
+
+  lane :upload_testflight_build do
+    api_key = asc_api_key
+    ipa_output_path = File.expand_path(TESTFLIGHT_IPA_OUTPUT_PATH, Dir.pwd)
+
+    UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa_output_path,
+      skip_waiting_for_build_processing: true
+    )
   end
 
   lane :release do
