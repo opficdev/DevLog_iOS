@@ -63,20 +63,25 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func delete() async throws {
-        guard let uid = authService.uid,
-              let providerID = try await authService.getProviderID(),
-              let provider = AuthProvider(rawValue: providerID)
-        else {
+        guard let uid = authService.uid else {
             throw AuthError.notAuthenticated
         }
 
-        switch provider {
-        case .apple:
-            try await appleAuthService.deleteAuth(uid)
-        case .github:
-            try await githubAuthService.deleteAuth(uid)
-        case .google:
-            try await googleAuthService.deleteAuth(uid)
+        let providers = (authService.providerIDs ?? []).compactMap { AuthProvider(rawValue: $0) }
+
+        for provider in providers {
+            switch provider {
+            case .apple:
+                try await appleAuthService.deleteAuth(uid)
+            case .github:
+                try await githubAuthService.deleteAuth(uid)
+            case .google:
+                try await googleAuthService.deleteAuth(uid)
+            }
         }
+
+        try await authService.deleteFirestoreUserData(uid)
+        try await authService.deleteCurrentUser()
+        try await authService.clearCurrentSession()
     }
 }

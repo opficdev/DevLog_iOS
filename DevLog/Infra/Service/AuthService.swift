@@ -7,9 +7,13 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
+import FirebaseMessaging
 
 final class AuthService {
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
+    private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthService")
 
     var uid: String? {
@@ -41,5 +45,30 @@ final class AuthService {
             logger.error("Failed to fetch provider ID", error: error)
             throw error
         }
+    }
+
+    func deleteFirestoreUserData(_ uid: String) async throws {
+        logger.info("Deleting Firestore user data. uid: \(uid)")
+
+        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
+        _ = try await deleteFunction.call(["uid": uid])
+    }
+
+    func deleteCurrentUser() async throws {
+        logger.info("Deleting FirebaseAuth current user")
+
+        guard let currentUser = Auth.auth().currentUser else {
+            logger.warning("No current user to delete")
+            throw AuthError.notAuthenticated
+        }
+
+        try await currentUser.delete()
+    }
+
+    func clearCurrentSession() async throws {
+        logger.info("Clearing current auth session")
+
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 }
