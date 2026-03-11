@@ -5,7 +5,9 @@
 //  Created by opfic on 3/11/26.
 //
 
+import AuthenticationServices
 import Foundation
+import GoogleSignIn
 
 enum FirestoreError: Error, LocalizedError {
     case dataNotFound(_ key: String)
@@ -25,4 +27,28 @@ enum UIError: Error {
 enum EmailFetchError: Error, Equatable {
     case emailNotFound
     case emailMismatch
+}
+
+enum SocialLoginError: Error {
+    case invalidOAuthState
+    case failedToStartWebAuthenticationSession
+}
+
+extension Error {
+    var isSocialLoginCancelled: Bool {
+        // Apple 로그인 취소
+        if let authorizationError = self as? ASAuthorizationError {
+            return authorizationError.code == .canceled
+        }
+
+        // Github 로그인 취소
+        if let webAuthenticationSessionError = self as? ASWebAuthenticationSessionError {
+            return webAuthenticationSessionError.code == .canceledLogin
+        }
+
+        let error = self as NSError
+        // Google 로그인 취소
+        return error.domain == kGIDSignInErrorDomain
+            && error.code == GIDSignInError.canceled.rawValue
+    }
 }
