@@ -58,7 +58,7 @@ runs:
           print("No available iPhone simulators found", file=sys.stderr)
           sys.exit(1)
 
-        latest_version = max(candidate[0] for candidate in candidates, key=ver_key)
+        latest_version = max((candidate[0] for candidate in candidates), key=ver_key)
         latest_candidates = [
           candidate for candidate in candidates
           if candidate[0] == latest_version
