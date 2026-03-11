@@ -18,8 +18,6 @@ final class SettingViewModel: Store {
         var alertTitle: String = ""
         var alertType: AlertType?
         var alertMessage: String = ""
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
     }
 
     enum Action {
@@ -49,6 +47,10 @@ final class SettingViewModel: Store {
     private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
     private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
     private var cancellables = Set<AnyCancellable>()
+
+    let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    let appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "APPSTORE_URL") as? String
+    let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
 
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
