@@ -78,12 +78,19 @@ final class GoogleAuthenticationService: AuthenticationService {
     }
 
     func deleteAuth(_ uid: String) async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw AuthError.notAuthenticated
+        }
+
         let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
 
         _ = try await deleteFunction.call(["uid": uid])
 
-        try await signOut(uid)
-        try await Auth.auth().currentUser?.delete()
+        try await currentUser.delete()
+        GIDSignIn.sharedInstance.signOut()
+        try await GIDSignIn.sharedInstance.disconnect()
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {

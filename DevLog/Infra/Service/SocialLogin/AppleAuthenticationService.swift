@@ -102,6 +102,10 @@ final class AppleAuthenticationService: AuthenticationService {
     }
 
     func deleteAuth(_ uid: String) async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw AuthError.notAuthenticated
+        }
+
         let token = try await refreshAppleAccessToken()
 
         try await revokeAppleAccessToken(token: token)
@@ -110,8 +114,9 @@ final class AppleAuthenticationService: AuthenticationService {
 
         _ = try await deleteFunction.call(["uid": uid])
 
-        try await signOut(uid)
-        try await user?.delete()
+        try await currentUser.delete()
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {

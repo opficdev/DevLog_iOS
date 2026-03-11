@@ -108,6 +108,7 @@ final class SettingViewModel: Store {
                     send(.setAlert(isPresented: false))
                     send(.setLoading(true))
                     try await deleteAuthuseCase.execute()
+                    sessionUseCase.execute(false)
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }

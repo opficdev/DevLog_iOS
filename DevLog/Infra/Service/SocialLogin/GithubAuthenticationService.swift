@@ -81,14 +81,19 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     func deleteAuth(_ uid: String) async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw AuthError.notAuthenticated
+        }
+
         try await revokeAccessToken()
 
         let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
 
         _ = try await deleteFunction.call(["uid": uid])
 
-        try await signOut(uid)
-        try await user?.delete()
+        try await currentUser.delete()
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {
