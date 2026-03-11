@@ -110,8 +110,9 @@ final class AppleAuthenticationService: AuthenticationService {
 
         _ = try await deleteFunction.call(["uid": uid])
 
-        try await signOut(uid)
         try await user?.delete()
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {

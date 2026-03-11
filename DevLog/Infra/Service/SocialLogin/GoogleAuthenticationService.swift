@@ -82,8 +82,11 @@ final class GoogleAuthenticationService: AuthenticationService {
 
         _ = try await deleteFunction.call(["uid": uid])
 
-        try await signOut(uid)
-        try await Auth.auth().currentUser?.delete()
+        try await user?.delete()
+        GIDSignIn.sharedInstance.signOut()
+        try await GIDSignIn.sharedInstance.disconnect()
+        try await messaging.deleteToken()
+        try Auth.auth().signOut()
     }
 
     func link(uid: String, email: String) async throws {
