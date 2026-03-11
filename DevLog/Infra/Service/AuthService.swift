@@ -47,11 +47,11 @@ final class AuthService {
         }
     }
 
-    func deleteFirestoreUserData(_ uid: String) async throws {
-        logger.info("Deleting Firestore user data. uid: \(uid)")
+    func deleteFirestoreUserData() async throws {
+        logger.info("Deleting Firestore user data")
 
         let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
-        _ = try await deleteFunction.call(["uid": uid])
+        _ = try await deleteFunction.call()
     }
 
     func deleteCurrentUser() async throws {
