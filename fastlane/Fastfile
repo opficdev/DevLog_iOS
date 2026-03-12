@@ -119,7 +119,9 @@ platform :ios do
 
   lane :upload_testflight_build do
     api_key = asc_api_key
+    # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
+    ipa_output_path = File.expand_path(TESTFLIGHT_IPA_OUTPUT_PATH, Dir.pwd) if ipa_output_path.empty?
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
 
