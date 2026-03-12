@@ -53,8 +53,12 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
         case .github:
             service = githubAuthService
         }
-        
-        try await service.link(uid: uid, email: email)
+
+        do {
+            try await service.link(uid: uid, email: email)
+        } catch {
+            throw mapLinkError(error)
+        }
     }
     
     func unlinkProvider(_ provider: AuthProvider) async throws {
@@ -78,5 +82,28 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
         }
         
         try await service.unlink(uid)
+    }
+}
+
+private extension AuthDataRepositoryImpl {
+    func mapLinkError(_ error: Error) -> Error {
+        if let emailFetchError = error as? EmailFetchError {
+            switch emailFetchError {
+            case .emailNotFound:
+                return AuthError.linkEmailNotFound
+            case .emailMismatch:
+                return AuthError.linkEmailMismatch
+            }
+        }
+
+        let nsError = error as NSError
+        if nsError.domain == AuthErrorDomain,
+           let authErrorCode = AuthErrorCode(rawValue: nsError.code) {
+            if authErrorCode == .credentialAlreadyInUse {
+                return AuthError.linkCredentialAlreadyInUse
+            }
+        }
+
+        return error
     }
 }
