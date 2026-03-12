@@ -10,6 +10,9 @@ import Foundation
 enum AuthError: Error {
     case notAuthenticated
     case failedToUnlinkLastProvider
+    case linkEmailNotFound
+    case linkEmailMismatch
+    case linkCredentialAlreadyInUse
     case unsupportedProvider
 }
 

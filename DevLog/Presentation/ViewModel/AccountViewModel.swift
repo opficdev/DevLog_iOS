@@ -40,6 +40,9 @@ final class AccountViewModel: Store {
     }
 
     enum AlertType {
+        case linkEmailNotFound
+        case linkEmailMismatch
+        case linkCredentialAlreadyInUse
         case error
     }
 
@@ -114,7 +117,7 @@ final class AccountViewModel: Store {
                     let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
                 } catch {
-                    send(.setAlert(isPresented: true, type: .error))
+                    send(.setAlert(isPresented: true, type: linkAlertType(for: error)))
                 }
             }
         case .unlink(let provider):
@@ -137,8 +140,34 @@ final class AccountViewModel: Store {
 }
 
 private extension AccountViewModel {
+    func linkAlertType(for error: Error) -> AlertType {
+        if let authError = error as? AuthError {
+            switch authError {
+            case .linkEmailNotFound:
+                return .linkEmailNotFound
+            case .linkEmailMismatch:
+                return .linkEmailMismatch
+            case .linkCredentialAlreadyInUse:
+                return .linkCredentialAlreadyInUse
+            default:
+                break
+            }
+        }
+
+        return .error
+    }
+
     func setAlert(_ state: inout State, isPresented: Bool, type: AlertType?) {
         switch type {
+        case .linkEmailNotFound:
+            state.alertTitle = "이메일 확인 불가"
+            state.alertMessage = "선택한 계정의 이메일 정보를 확인할 수 없어 연결할 수 없어요. 계정 설정을 확인한 뒤 다시 시도해주세요."
+        case .linkEmailMismatch:
+            state.alertTitle = "연결할 수 없음"
+            state.alertMessage = "현재 로그인한 계정과 선택한 계정의 이메일이 달라 연결할 수 없어요. 같은 이메일의 계정으로 다시 시도해주세요."
+        case .linkCredentialAlreadyInUse:
+            state.alertTitle = "이미 연결된 계정"
+            state.alertMessage = "선택한 계정은 이미 다른 계정에 연결되어 있어요. 해당 계정으로 로그인한 뒤 이용해주세요."
         case .error:
             state.alertTitle = "오류"
             state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
