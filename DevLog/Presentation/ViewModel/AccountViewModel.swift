@@ -77,10 +77,10 @@ final class AccountViewModel: Store {
             effects = [.link(value)]
         case .unlinkFromProvider(let value):
             effects = [.unlink(value)]
-        case .setAlert(let isPresented, let type):
-            setAlert(&state, isPresented: isPresented, type: type)
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, type: type)
+        case .setAlert(let presented, let type):
+            setAlert(&state, isPresented: presented, type: type)
+        case .setToast(let presented, let type):
+            setToast(&state, isPresented: presented, type: type)
         case .setLoading(let value):
             state.isLoading = value
         case .updateProviders(let currentProvider, let allProviders):

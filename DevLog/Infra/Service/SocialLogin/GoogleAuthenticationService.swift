@@ -82,11 +82,9 @@ final class GoogleAuthenticationService: AuthenticationService {
         try await GIDSignIn.sharedInstance.disconnect()
     }
 
+    @MainActor
     func link(uid: String, email: String) async throws {
-        let topViewController = await MainActor.run {
-            provider.topViewController()
-        }
-        guard let topViewController = topViewController else {
+        guard let topViewController = provider.topViewController() else {
             throw UIError.notFoundTopViewController
         }
 
