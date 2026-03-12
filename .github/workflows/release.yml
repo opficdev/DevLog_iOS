@@ -46,10 +46,27 @@ jobs:
           bundler-cache: true
           ruby-version: ${{ env.RUBY_VERSION }}
 
-      - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$XCODE_VERSION" = "latest" ]; then
+            XCODE_APP="$(find /Applications -maxdepth 1 -name 'Xcode*.app' -type d | sort -V | tail -n 1)"
+          else
+            XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
+            if [ ! -d "$XCODE_APP" ]; then
+              XCODE_APP="/Applications/Xcode-${XCODE_VERSION}.app"
+            fi
+          fi
+
+          if [ ! -d "${XCODE_APP:-}" ]; then
+            echo "Requested Xcode not found for version: $XCODE_VERSION" >&2
+            exit 1
+          fi
+
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
 
       - name: Write App Store Connect API key
         env:
