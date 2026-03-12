@@ -23,43 +23,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
-    runs-on: macos-latest
-    timeout-minutes: 30
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install private config files
-        uses: ./.github/actions/install-private-config
-        with:
-          git_url: ${{ env.MATCH_GIT_URL }}
-          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
-
-      - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-
-      - name: Cache SwiftPM
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.swiftpm
-            ~/Library/Caches/org.swift.swiftpm
-            ~/Library/Developer/Xcode/SourcePackages
-            .spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Validate Debug Simulator Build
-        uses: ./.github/actions/ios-simulator-build
-        with:
-          scheme: ${{ env.SCHEME }}
-
   testflight:
-    needs: validate
     runs-on: macos-latest
     timeout-minutes: 45
 

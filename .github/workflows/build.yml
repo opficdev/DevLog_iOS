@@ -74,10 +74,131 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
+      - name: Select iOS Simulator Runtime (installed)
+        id: pick_ios
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RESULT=$(python3 - <<'PY'
+          import re, subprocess, sys
+
+          def ver_key(version):
+            return tuple(int(part) for part in version.split('.'))
+
+          text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+          lines = text.splitlines()
+          current_ver = None
+          candidates = []
+
+          for line in lines:
+            header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+            if header:
+              current_ver = header.group(1)
+              continue
+            if current_ver is None:
+              continue
+            if "(unavailable)" in line:
+              continue
+            if "iPhone" not in line:
+              continue
+
+            raw = line.strip()
+            if "platform:" in raw and "name:" in raw and "OS:" in raw:
+              kv = {}
+              for part in raw.split(","):
+                if ":" not in part:
+                  continue
+                k, v = part.split(":", 1)
+                kv[k.strip()] = v.strip()
+              name = kv.get("name", raw)
+            else:
+              name = raw
+              name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
+
+            candidates.append((current_ver, name))
+
+          if len(candidates) <= 0:
+            print("No available iPhone simulators found", file=sys.stderr)
+            sys.exit(1)
+
+          latest_version = max((candidate[0] for candidate in candidates), key=ver_key)
+          latest_candidates = [
+            candidate for candidate in candidates
+            if candidate[0] == latest_version
+          ]
+          chosen_version, chosen_device_name = min(
+            latest_candidates,
+            key=lambda candidate: candidate[1]
+          )
+
+          print(f"{chosen_version}|{chosen_device_name}")
+          sys.exit(0)
+          PY
+          )
+
+          if [ -z "${RESULT:-}" ]; then
+            echo "No iPhone simulator devices detected." >&2
+            exit 1
+          fi
+
+          IFS='|' read -r IOS_VER DEVICE_NAME <<< "$RESULT"
+
+          echo "Chosen iOS runtime version (iPhone): $IOS_VER"
+          echo "Chosen simulator: $DEVICE_NAME"
+
+          echo "ios_version=$IOS_VER" >> "$GITHUB_OUTPUT"
+          echo "device_name=$DEVICE_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Build
-        uses: ./.github/actions/ios-simulator-build
-        with:
-          scheme: ${{ env.SCHEME }}
+        shell: bash
+        env:
+          IOS_VER: ${{ steps.pick_ios.outputs.ios_version }}
+          DEVICE_NAME: ${{ steps.pick_ios.outputs.device_name }}
+        run: |
+          set -euo pipefail
+          set -x
+          SPM_DIR="$GITHUB_WORKSPACE/.spm"
+          mkdir -p "$SPM_DIR"
+
+          xcodebuild -version
+
+          echo "Using scheme: $SCHEME"
+          echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
+
+          set -o pipefail
+          set +e
+          echo "== Resolving Swift Package dependencies =="
+          xcodebuild \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -resolvePackageDependencies
+          echo "== Starting xcodebuild build =="
+          xcodebuild \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -showBuildTimingSummary \
+            build \
+            | tee build.log
+          echo "== xcodebuild finished =="
+          XC_STATUS=${PIPESTATUS[0]}
+          set -e
+
+          if [ -f build.log ]; then
+            echo "== error: lines =="
+            if grep -i "error:" build.log; then
+              if [ "$XC_STATUS" -eq 0 ]; then
+                XC_STATUS=1
+              fi
+            fi
+          fi
+
+          exit $XC_STATUS
 
       - name: Comment build failure on PR
         if: failure() && github.event.pull_request.head.repo.fork == false
