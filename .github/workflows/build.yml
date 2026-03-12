@@ -6,6 +6,8 @@ on:
 env:
   SCHEME: DevLog
   XCODE_VERSION: latest
+  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
 
 permissions:
   contents: read
@@ -48,6 +50,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install private config files
+        uses: ./.github/actions/install-private-config
+        with:
+          git_url: ${{ env.MATCH_GIT_URL }}
+          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
