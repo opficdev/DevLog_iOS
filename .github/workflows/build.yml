@@ -21,7 +21,7 @@ jobs:
     outputs:
       has_qa_tag: ${{ steps.detect.outputs.has_qa_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -49,7 +49,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install private config files
         uses: ./.github/actions/install-private-config
@@ -63,7 +63,7 @@ jobs:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Cache SwiftPM
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.swiftpm
