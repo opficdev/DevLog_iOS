@@ -80,7 +80,6 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             }
         }
 
-        try await authService.deleteFirestoreUserData()
         try await authService.deleteCurrentUser()
         try await authService.clearCurrentSession()
     }

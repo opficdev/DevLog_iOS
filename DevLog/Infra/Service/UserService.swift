@@ -23,71 +23,76 @@ final class UserService {
             throw AuthError.notAuthenticated
         }
 
-        let userRef = store.document("users/\(user.uid)")
-        let infoRef = store.document("users/\(user.uid)/userData/info")
-        let tokensRef = store.document("users/\(user.uid)/userData/tokens")
-        let settingsRef = store.document("users/\(user.uid)/userData/settings")
+        do {
+            let userRef = store.document("users/\(user.uid)")
+            let infoRef = store.document("users/\(user.uid)/userData/info")
+            let tokensRef = store.document("users/\(user.uid)/userData/tokens")
+            let settingsRef = store.document("users/\(user.uid)/userData/settings")
 
-        // 사용자 기본 정보
-        var userField: [String: Any] = [
-            "currentProvider": response.providerID
-        ]
+            // 사용자 기본 정보
+            var userField: [String: Any] = [
+                "currentProvider": response.providerID
+            ]
 
-        // 공급자 이슈로 인한 nil 방지
-        if let email = user.email {
-            userField["email"] = email
+            // 공급자 이슈로 인한 nil 방지
+            if let email = user.email {
+                userField["email"] = email
+            }
+            
+            if let displayName = user.displayName, displayName != "" {
+                userField["name"] = displayName
+            }
+
+            // Apple은 최초 새 이름 설정 시에만 이름을 제공
+            if response.providerID == "apple.com" &&
+                user.displayName != nil && user.displayName != "" {
+                userField["appleName"] = user.displayName
+            }
+
+            let userDocument = try await userRef.getDocument()
+            if !userDocument.exists {
+                userField["statusMsg"] = ""
+            }
+
+            var settingField = ["fcmToken": response.fcmToken]
+
+            // 깃헙 로그인 시 추가 정보 저장
+            if response.providerID == "github.com", let accessToken = response.accessToken {
+                settingField["githubAccessToken"] = accessToken
+            }
+
+            // Reference to capture ~ in concurrently-executing code; Swift 6 lang mode의 경고 해결
+            let userFieldSnapshot = userField
+            let settingFieldSnapshot = settingField
+            // -----------------------------------------------------
+
+            async let userUpdate: Void = userRef.setData(
+                ["updatedAt": FieldValue.serverTimestamp()],
+                merge: true
+            )
+            async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
+            async let tokensUpdate: Void = tokensRef.setData(settingFieldSnapshot, merge: true)
+
+            let settingsDocument = try await settingsRef.getDocument()
+            var settingsField: [String: Any] = [
+                "timeZone": TimeZone.autoupdatingCurrent.identifier
+            ]
+            if !settingsDocument.exists {
+                settingsField["allowPushNotification"] = true
+                settingsField["pushNotificationHour"] = 9
+                settingsField["pushNotificationMinute"] = 0
+            }
+
+            let settingsFieldSnapshot = settingsField
+            async let settingsUpdate: Void = settingsRef.setData(settingsFieldSnapshot, merge: true)
+
+            _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate)
+            
+            logger.info("Successfully upserted user: \(user.uid)")
+        } catch {
+            logger.error("Failed to upsert user", error: error)
+            throw error
         }
-        
-        if let displayName = user.displayName, displayName != "" {
-            userField["name"] = displayName
-        }
-
-        // Apple은 최초 새 이름 설정 시에만 이름을 제공
-        if response.providerID == "apple.com" &&
-            user.displayName != nil && user.displayName != "" {
-            userField["appleName"] = user.displayName
-        }
-
-        let userDocument = try await userRef.getDocument()
-        if !userDocument.exists {
-            userField["statusMsg"] = ""
-        }
-
-        var settingField = ["fcmToken": response.fcmToken]
-
-        // 깃헙 로그인 시 추가 정보 저장
-        if response.providerID == "github.com", let accessToken = response.accessToken {
-            settingField["githubAccessToken"] = accessToken
-        }
-
-        // Reference to capture ~ in concurrently-executing code; Swift 6 lang mode의 경고 해결
-        let userFieldSnapshot = userField
-        let settingFieldSnapshot = settingField
-        // -----------------------------------------------------
-
-        async let userUpdate: Void = userRef.setData(
-            ["updatedAt": FieldValue.serverTimestamp()],
-            merge: true
-        )
-        async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
-        async let tokensUpdate: Void = tokensRef.setData(settingFieldSnapshot, merge: true)
-
-        let settingsDocument = try await settingsRef.getDocument()
-        var settingsField: [String: Any] = [
-            "timeZone": TimeZone.autoupdatingCurrent.identifier
-        ]
-        if !settingsDocument.exists {
-            settingsField["allowPushNotification"] = true
-            settingsField["pushNotificationHour"] = 9
-            settingsField["pushNotificationMinute"] = 0
-        }
-
-        let settingsFieldSnapshot = settingsField
-        async let settingsUpdate: Void = settingsRef.setData(settingsFieldSnapshot, merge: true)
-
-        _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate)
-        
-        logger.info("Successfully upserted user: \(user.uid)")
     }
     
     func fetchUserProfile() async throws -> UserProfileResponse {

@@ -7,12 +7,10 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import FirebaseMessaging
 
 final class AuthService {
     private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthService")
 
@@ -47,13 +45,6 @@ final class AuthService {
         }
     }
 
-    func deleteFirestoreUserData() async throws {
-        logger.info("Deleting Firestore user data")
-
-        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
-        _ = try await deleteFunction.call()
-    }
-
     func deleteCurrentUser() async throws {
         logger.info("Deleting FirebaseAuth current user")
 
@@ -62,7 +53,12 @@ final class AuthService {
             throw AuthError.notAuthenticated
         }
 
-        try await currentUser.delete()
+        do {
+            try await currentUser.delete()
+        } catch {
+            logger.error("Failed to delete FirebaseAuth current user", error: error)
+            throw error
+        }
     }
 
     func clearCurrentSession() async throws {
@@ -73,6 +69,12 @@ final class AuthService {
         } catch {
             logger.error("Failed to delete FCM token while clearing session", error: error)
         }
-        try Auth.auth().signOut()
+
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            logger.error("Failed to sign out while clearing session", error: error)
+            throw error
+        }
     }
 }
