@@ -99,11 +99,8 @@ private extension AuthDataRepositoryImpl {
         let nsError = error as NSError
         if nsError.domain == AuthErrorDomain,
            let authErrorCode = AuthErrorCode(rawValue: nsError.code) {
-            switch authErrorCode {
-            case .credentialAlreadyInUse:
+            if authErrorCode == .credentialAlreadyInUse {
                 return AuthError.linkCredentialAlreadyInUse
-            default:
-                break
             }
         }
 

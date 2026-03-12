@@ -142,20 +142,20 @@ final class AccountViewModel: Store {
 
 private extension AccountViewModel {
     func linkAlertType(for error: Error) -> AlertType {
-        if let authError = error as? AuthError {
-            switch authError {
-            case .linkEmailNotFound:
-                return .linkEmailNotFound
-            case .linkEmailMismatch:
-                return .linkEmailMismatch
-            case .linkCredentialAlreadyInUse:
-                return .linkCredentialAlreadyInUse
-            default:
-                break
-            }
+        guard let authError = error as? AuthError else {
+            return .error
         }
 
-        return .error
+        switch authError {
+        case .linkEmailNotFound:
+            return .linkEmailNotFound
+        case .linkEmailMismatch:
+            return .linkEmailMismatch
+        case .linkCredentialAlreadyInUse:
+            return .linkCredentialAlreadyInUse
+        case .notAuthenticated, .failedToUnlinkLastProvider, .unsupportedProvider:
+            return .error
+        }
     }
 
     func setAlert(_ state: inout State, isPresented: Bool, type: AlertType?) {
