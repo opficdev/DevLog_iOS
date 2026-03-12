@@ -1,0 +1,65 @@
+name: Install Private Config
+description: Fetch Config.xcconfig and GoogleService-Info.plist from a private repository.
+
+inputs:
+  git_url:
+    description: Private repository git URL
+    required: true
+  git_basic_authorization:
+    description: Base64-encoded basic authorization header value
+    required: true
+  ref:
+    description: Git ref to fetch from the private repository
+    required: false
+    default: iOS
+
+runs:
+  using: composite
+  steps:
+    - name: Install private config files
+      shell: bash
+      env:
+        PRIVATE_CONFIG_GIT_URL: ${{ inputs.git_url }}
+        PRIVATE_CONFIG_GIT_BASIC_AUTHORIZATION: ${{ inputs.git_basic_authorization }}
+        PRIVATE_CONFIG_REF: ${{ inputs.ref }}
+      run: |
+        set -euo pipefail
+
+        privateConfigCheckoutPath="$RUNNER_TEMP/private-config"
+        configSourcePath="$privateConfigCheckoutPath/resources/DevLog/Config.xcconfig"
+        googleServiceInfoSourcePath="$privateConfigCheckoutPath/resources/DevLog/GoogleService-Info.plist"
+        configDestinationPath="$GITHUB_WORKSPACE/DevLog/Resource/Config.xcconfig"
+        googleServiceInfoDestinationPath="$GITHUB_WORKSPACE/DevLog/Resource/GoogleService-Info.plist"
+
+        rm -rf "$privateConfigCheckoutPath"
+        mkdir -p "$privateConfigCheckoutPath"
+
+        git init "$privateConfigCheckoutPath"
+        git -C "$privateConfigCheckoutPath" remote add origin "$PRIVATE_CONFIG_GIT_URL"
+        git -C "$privateConfigCheckoutPath" config core.sparseCheckout true
+        printf '%s\n' \
+          'resources/DevLog/Config.xcconfig' \
+          'resources/DevLog/GoogleService-Info.plist' \
+          > "$privateConfigCheckoutPath/.git/info/sparse-checkout"
+
+        git -C "$privateConfigCheckoutPath" \
+          -c http.extraheader="Authorization: Basic $PRIVATE_CONFIG_GIT_BASIC_AUTHORIZATION" \
+          fetch --depth 1 origin "$PRIVATE_CONFIG_REF"
+        git -C "$privateConfigCheckoutPath" checkout FETCH_HEAD
+
+        if [ ! -f "$configSourcePath" ]; then
+          echo "Missing private config file at $configSourcePath" >&2
+          exit 1
+        fi
+
+        if [ ! -f "$googleServiceInfoSourcePath" ]; then
+          echo "Missing private GoogleService-Info.plist at $googleServiceInfoSourcePath" >&2
+          exit 1
+        fi
+
+        install -m 600 "$configSourcePath" "$configDestinationPath"
+        install -m 600 "$googleServiceInfoSourcePath" "$googleServiceInfoDestinationPath"
+
+    - name: Clean private config checkout
+      shell: bash
+      run: rm -rf "$RUNNER_TEMP/private-config"

@@ -34,6 +34,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
 
+      - name: Install private config files
+        uses: ./.github/actions/install-private-config
+        with:
+          git_url: ${{ env.MATCH_GIT_URL }}
+          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
