@@ -7,12 +7,10 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import FirebaseMessaging
 
 final class AuthService {
     private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthService")
 
@@ -43,18 +41,6 @@ final class AuthService {
             return providerID
         } catch {
             logger.error("Failed to fetch provider ID", error: error)
-            throw error
-        }
-    }
-
-    func deleteFirestoreUserData() async throws {
-        logger.info("Deleting Firestore user data")
-
-        do {
-            let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
-            _ = try await deleteFunction.call()
-        } catch {
-            logger.error("Failed to delete Firestore user data", error: error)
             throw error
         }
     }

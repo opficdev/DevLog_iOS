@@ -21,7 +21,7 @@ import {
 // } from "./auth/google";
 
 import {
-    deleteUserFirestoreData
+    cleanupDeletedUserFirestoreData
 } from "./user/delete";
 
 import {
@@ -65,7 +65,7 @@ export {
 // Google 인증 함수들 (나중에 구현되면 추가)
 
 export {
-    deleteUserFirestoreData
+    cleanupDeletedUserFirestoreData
 };
 
 // FCM 관련 함수들 내보내기
