@@ -63,9 +63,10 @@ struct TodoEditorView: View {
                 get: { viewModel.state.title },
                 set: { viewModel.send(.setTitle($0)) }
             ),
-            prompt: Text("제목").foregroundColor(Color.gray)
+            prompt: Text("제목(필수)").foregroundColor(Color.gray)
         )
-        .frame(height: 22)
+        .font(.title2)
+        .frame(height: 30)
         .focused($field, equals: .title)
         .padding(.horizontal)
     }
@@ -109,9 +110,10 @@ struct TodoEditorView: View {
                         get: { viewModel.state.content },
                         set: { viewModel.send(.setContent($0)) }
                     ),
-                    prompt: Text("설명(선택 사항)").font(.callout),
+                    prompt: Text("설명(선택)").foregroundColor(Color.gray),
                     axis: .vertical
                 )
+                .font(.callout)
                 .focused($field, equals: .description)
             } else {
                 Markdown(viewModel.state.content)
