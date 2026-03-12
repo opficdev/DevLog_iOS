@@ -62,54 +62,69 @@ final class GoogleAuthenticationService: AuthenticationService {
     }
 
     func signOut(_ uid: String) async throws {
-        let infoRef = store.document("users/\(uid)/userData/tokens")
-        let doc = try await infoRef.getDocument()
+        do {
+            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let doc = try await infoRef.getDocument()
 
-        if doc.exists {
-            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            if doc.exists {
+                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            }
+
+            GIDSignIn.sharedInstance.signOut()
+            try await GIDSignIn.sharedInstance.disconnect()
+
+            try await messaging.deleteToken()
+
+            try Auth.auth().signOut()
+        } catch {
+            logger.error("Failed to sign out with Google", error: error)
+            throw error
         }
-
-        GIDSignIn.sharedInstance.signOut()
-        try await GIDSignIn.sharedInstance.disconnect()
-
-        try await messaging.deleteToken()
-
-        try Auth.auth().signOut()
     }
 
     func deleteAuth(_ uid: String) async throws {
-        GIDSignIn.sharedInstance.signOut()
-        try await GIDSignIn.sharedInstance.disconnect()
+        do {
+            GIDSignIn.sharedInstance.signOut()
+            try await GIDSignIn.sharedInstance.disconnect()
+        } catch {
+            logger.error("Failed to delete Google auth", error: error)
+            throw error
+        }
     }
 
     @MainActor
     func link(uid: String, email: String) async throws {
-        guard let topViewController = provider.topViewController() else {
-            throw UIError.notFoundTopViewController
+        do {
+            guard let topViewController = provider.topViewController() else {
+                throw UIError.notFoundTopViewController
+            }
+
+            if GIDSignIn.sharedInstance.hasPreviousSignIn() {
+                GIDSignIn.sharedInstance.signOut()
+            }
+
+            let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+
+            guard let googleEmail = signIn.user.profile?.email else {
+                throw EmailFetchError.emailNotFound
+            }
+
+            if googleEmail != email {
+                throw EmailFetchError.emailMismatch
+            }
+
+            guard let idToken = signIn.user.idToken?.tokenString else {
+                throw URLError(.badServerResponse)
+            }
+
+            let accessToken = signIn.user.accessToken.tokenString
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+
+            try await user?.link(with: credential)
+        } catch {
+            logger.error("Failed to link Google account", error: error)
+            throw error
         }
-
-        if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-            GIDSignIn.sharedInstance.signOut()
-        }
-
-        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
-
-        guard let googleEmail = signIn.user.profile?.email else {
-            throw EmailFetchError.emailNotFound
-        }
-
-        if googleEmail != email {
-            throw EmailFetchError.emailMismatch
-        }
-
-        guard let idToken = signIn.user.idToken?.tokenString else {
-            throw URLError(.badServerResponse)
-        }
-
-        let accessToken = signIn.user.accessToken.tokenString
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-
-        try await user?.link(with: credential)
     }
 
     func unlink(_ uid: String) async throws {

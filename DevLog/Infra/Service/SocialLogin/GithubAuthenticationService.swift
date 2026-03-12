@@ -68,20 +68,30 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     func signOut(_ uid: String) async throws {
-        let infoRef = store.document("users/\(uid)/userData/tokens")
-        let doc = try await infoRef.getDocument()
+        do {
+            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let doc = try await infoRef.getDocument()
 
-        if doc.exists {
-            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            if doc.exists {
+                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            }
+
+            try await messaging.deleteToken()
+
+            try Auth.auth().signOut()
+        } catch {
+            logger.error("Failed to sign out with GitHub", error: error)
+            throw error
         }
-
-        try await messaging.deleteToken()
-
-        try Auth.auth().signOut()
     }
 
     func deleteAuth(_ uid: String) async throws {
-        try await revokeAccessToken()
+        do {
+            try await revokeAccessToken()
+        } catch {
+            logger.error("Failed to delete GitHub auth", error: error)
+            throw error
+        }
     }
 
     func link(uid: String, email: String) async throws {

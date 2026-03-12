@@ -89,51 +89,66 @@ final class AppleAuthenticationService: AuthenticationService {
     }
 
     func signOut(_ uid: String) async throws {
-        let infoRef = store.document("users/\(uid)/userData/tokens")
-        let doc = try await infoRef.getDocument()
+        do {
+            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let doc = try await infoRef.getDocument()
 
-        if doc.exists {
-            try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            if doc.exists {
+                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            }
+
+            try await messaging.deleteToken()
+
+            try Auth.auth().signOut()
+        } catch {
+            logger.error("Failed to sign out with Apple", error: error)
+            throw error
         }
-
-        try await messaging.deleteToken()
-
-        try Auth.auth().signOut()
     }
 
     func deleteAuth(_ uid: String) async throws {
-        let token = try await refreshAppleAccessToken()
+        do {
+            let token = try await refreshAppleAccessToken()
 
-        try await revokeAppleAccessToken(token: token)
+            try await revokeAppleAccessToken(token: token)
+        } catch {
+            logger.error("Failed to delete Apple auth", error: error)
+            throw error
+        }
     }
 
     func link(uid: String, email: String) async throws {
-        let response = try await authenticateWithAppleAsync()
+        do {
+            let response = try await authenticateWithAppleAsync()
 
-        let nonce = response.nonce
-        let credential = response.credential
-        let authorizationCode = response.authorizationCode
-        let idTokenString = response.idTokenString
+            let nonce = response.nonce
+            let credential = response.credential
+            let authorizationCode = response.authorizationCode
+            let idTokenString = response.idTokenString
 
-        let refreshToken = try await requestAppleRefreshToken(uid: uid, authorizationCode: authorizationCode)
+            let refreshToken = try await requestAppleRefreshToken(uid: uid, authorizationCode: authorizationCode)
 
-        guard let appleEmail = credential.email else {
-            try await revokeAppleAccessToken(token: refreshToken)
-            throw EmailFetchError.emailNotFound
+            guard let appleEmail = credential.email else {
+                try await revokeAppleAccessToken(token: refreshToken)
+                throw EmailFetchError.emailNotFound
+            }
+
+            if appleEmail != email {
+                try await revokeAppleAccessToken(token: refreshToken)
+                throw EmailFetchError.emailMismatch
+            }
+
+            let appleCredential = OAuthProvider.credential(
+                providerID: providerID,
+                idToken: idTokenString,
+                rawNonce: nonce
+            )
+
+            try await user?.link(with: appleCredential)
+        } catch {
+            logger.error("Failed to link Apple account", error: error)
+            throw error
         }
-
-        if appleEmail != email {
-            try await revokeAppleAccessToken(token: refreshToken)
-            throw EmailFetchError.emailMismatch
-        }
-
-        let appleCredential = OAuthProvider.credential(
-            providerID: providerID,
-            idToken: idTokenString,
-            rawNonce: nonce
-        )
-
-        try await user?.link(with: appleCredential)
     }
 
     func unlink(_ uid: String) async throws {

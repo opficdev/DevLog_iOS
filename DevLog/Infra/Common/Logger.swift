@@ -55,7 +55,7 @@ final class Logger {
     ) {
         var fullMessage = message
         if let error = error {
-            fullMessage += " | Error: \(error.localizedDescription)"
+            fullMessage += " | Error: \(error)"
         }
         log(fullMessage, type: .error, file: file, function: function, line: line)
     }
@@ -69,7 +69,7 @@ final class Logger {
     ) {
         var fullMessage = message
         if let error = error {
-            fullMessage += " | Error: \(error.localizedDescription)"
+            fullMessage += " | Error: \(error)"
         }
         log(fullMessage, type: .fault, file: file, function: function, line: line)
     }

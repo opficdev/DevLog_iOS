@@ -41,22 +41,30 @@ final class PushNotificationService {
 
     /// 푸시 알림 시간 설정
     func fetchPushNotificationTime() async throws -> DateComponents {
+        logger.info("Fetching push notification time")
+
         guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
 
-        let settingsRef = store.document("users/\(uid)/userData/settings")
-        let doc = try await settingsRef.getDocument()
+        do {
+            let settingsRef = store.document("users/\(uid)/userData/settings")
+            let doc = try await settingsRef.getDocument()
 
-        guard let hour = doc.data()?["pushNotificationHour"] as? Int else {
-            throw FirestoreError.dataNotFound("pushNotificationHour")
+            guard let hour = doc.data()?["pushNotificationHour"] as? Int else {
+                throw FirestoreError.dataNotFound("pushNotificationHour")
+            }
+
+            guard let minute = doc.data()?["pushNotificationMinute"] as? Int else {
+                throw FirestoreError.dataNotFound("pushNotificationMinute")
+            }
+
+            return DateComponents(hour: hour, minute: minute)
+        } catch {
+            logger.error("Failed to fetch push notification time", error: error)
+            throw error
         }
-
-        guard let minute = doc.data()?["pushNotificationMinute"] as? Int else {
-            throw FirestoreError.dataNotFound("pushNotificationMinute")
-        }
-
-        return DateComponents(hour: hour, minute: minute)
     }
 
     /// 푸시 알림 설정 업데이트
@@ -94,35 +102,40 @@ final class PushNotificationService {
         _ notificationQuery: PushNotificationQuery,
         cursor: PushNotificationCursorDTO?
     ) async throws -> PushNotificationPageResponse {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        do {
+            guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        var firestoreQuery = makeQuery(uid: uid, query: notificationQuery)
+            var firestoreQuery = makeQuery(uid: uid, query: notificationQuery)
 
-        if let cursor {
-            firestoreQuery = firestoreQuery.start(after: [
-                Timestamp(date: cursor.receivedAt),
-                cursor.documentID
-            ])
-        }
-
-        let snapshot = try await firestoreQuery
-            .limit(to: notificationQuery.pageSize)
-            .getDocuments()
-
-        let items = snapshot.documents.compactMap { makeResponse(from: $0) }
-
-        let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-            guard let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
-                return nil
+            if let cursor {
+                firestoreQuery = firestoreQuery.start(after: [
+                    Timestamp(date: cursor.receivedAt),
+                    cursor.documentID
+                ])
             }
 
-            return PushNotificationCursorDTO(
-                receivedAt: receivedAt.dateValue(),
-                documentID: document.documentID
-            )
-        } ?? nil
+            let snapshot = try await firestoreQuery
+                .limit(to: notificationQuery.pageSize)
+                .getDocuments()
 
-        return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
+            let items = snapshot.documents.compactMap { makeResponse(from: $0) }
+
+            let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
+                guard let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
+                    return nil
+                }
+
+                return PushNotificationCursorDTO(
+                    receivedAt: receivedAt.dateValue(),
+                    documentID: document.documentID
+                )
+            } ?? nil
+
+            return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
+        } catch {
+            logger.error("Failed to request notifications", error: error)
+            throw error
+        }
     }
 
     func observeNotifications(
@@ -160,37 +173,47 @@ final class PushNotificationService {
 
     /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        do {
+            guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        let docRef = store.collection("users/\(uid)/notifications").document(notificationID)
+            let docRef = store.collection("users/\(uid)/notifications").document(notificationID)
 
-        try await docRef.delete()
+            try await docRef.delete()
+        } catch {
+            logger.error("Failed to delete notification", error: error)
+            throw error
+        }
     }
 
     /// 푸시 알림 읽음/안읽음 토글
     func toggleNotificationRead(_ todoId: String) async throws {
         logger.info("Toggling notification read for todoId: \(todoId)")
 
-        guard let uid = Auth.auth().currentUser?.uid else {
-            logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+        do {
+            guard let uid = Auth.auth().currentUser?.uid else {
+                logger.error("User not authenticated")
+                throw AuthError.notAuthenticated
+            }
+
+            let collection = store.collection("users/\(uid)/notifications")
+            let snapshot = try await collection.whereField("todoId", isEqualTo: todoId).getDocuments()
+
+            guard let document = snapshot.documents.first else {
+                logger.error("Notification not found for todoId: \(todoId)")
+                throw FirestoreError.dataNotFound("notification")
+            }
+
+            guard let currentValue = document.data()["isRead"] as? Bool else {
+                logger.error("isRead not found for notification: \(document.documentID)")
+                throw FirestoreError.dataNotFound("isRead")
+            }
+
+            try await document.reference.updateData(["isRead": !currentValue])
+            logger.info("Successfully toggled notification read")
+        } catch {
+            logger.error("Failed to toggle notification read", error: error)
+            throw error
         }
-
-        let collection = store.collection("users/\(uid)/notifications")
-        let snapshot = try await collection.whereField("todoId", isEqualTo: todoId).getDocuments()
-
-        guard let document = snapshot.documents.first else {
-            logger.error("Notification not found for todoId: \(todoId)")
-            throw FirestoreError.dataNotFound("notification")
-        }
-
-        guard let currentValue = document.data()["isRead"] as? Bool else {
-            logger.error("isRead not found for notification: \(document.documentID)")
-            throw FirestoreError.dataNotFound("isRead")
-        }
-
-        try await document.reference.updateData(["isRead": !currentValue])
-        logger.info("Successfully toggled notification read")
     }
 }
 

@@ -50,8 +50,13 @@ final class AuthService {
     func deleteFirestoreUserData() async throws {
         logger.info("Deleting Firestore user data")
 
-        let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
-        _ = try await deleteFunction.call()
+        do {
+            let deleteFunction = functions.httpsCallable("deleteUserFirestoreData")
+            _ = try await deleteFunction.call()
+        } catch {
+            logger.error("Failed to delete Firestore user data", error: error)
+            throw error
+        }
     }
 
     func deleteCurrentUser() async throws {
@@ -62,7 +67,12 @@ final class AuthService {
             throw AuthError.notAuthenticated
         }
 
-        try await currentUser.delete()
+        do {
+            try await currentUser.delete()
+        } catch {
+            logger.error("Failed to delete FirebaseAuth current user", error: error)
+            throw error
+        }
     }
 
     func clearCurrentSession() async throws {
@@ -73,6 +83,12 @@ final class AuthService {
         } catch {
             logger.error("Failed to delete FCM token while clearing session", error: error)
         }
-        try Auth.auth().signOut()
+
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            logger.error("Failed to sign out while clearing session", error: error)
+            throw error
+        }
     }
 }
