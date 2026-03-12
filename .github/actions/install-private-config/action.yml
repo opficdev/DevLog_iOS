@@ -26,6 +26,7 @@ runs:
         set -euo pipefail
 
         privateConfigCheckoutPath="$RUNNER_TEMP/private-config"
+        trap 'rm -rf "$privateConfigCheckoutPath"' EXIT
         configSourcePath="$privateConfigCheckoutPath/resources/DevLog/Config.xcconfig"
         googleServiceInfoSourcePath="$privateConfigCheckoutPath/resources/DevLog/GoogleService-Info.plist"
         configDestinationPath="$GITHUB_WORKSPACE/DevLog/Resource/Config.xcconfig"
@@ -59,7 +60,3 @@ runs:
 
         install -m 600 "$configSourcePath" "$configDestinationPath"
         install -m 600 "$googleServiceInfoSourcePath" "$googleServiceInfoDestinationPath"
-
-    - name: Clean private config checkout
-      shell: bash
-      run: rm -rf "$RUNNER_TEMP/private-config"
