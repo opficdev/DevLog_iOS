@@ -117,6 +117,7 @@ final class AccountViewModel: Store {
                     let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
                 } catch {
+                    if error.isSocialLoginCancelled { return }
                     send(.setAlert(isPresented: true, type: linkAlertType(for: error)))
                 }
             }
