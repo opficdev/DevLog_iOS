@@ -63,7 +63,7 @@ struct TodoEditorView: View {
                 get: { viewModel.state.title },
                 set: { viewModel.send(.setTitle($0)) }
             ),
-            prompt: Text("제목(필수)").foregroundColor(Color.gray)
+            prompt: Text("제목(필수)").foregroundColor(Color.secondary),
         )
         .font(.title2)
         .frame(height: 30)
@@ -97,31 +97,56 @@ struct TodoEditorView: View {
                 }
             }
             .padding(.vertical, 10)
-            .background(Color(UIColor.systemBackground))
+            .background(Color(.systemBackground))
         }
     }
 
     private var tabView: some View {
         Group {
             if viewModel.state.tabViewTag == .editor {
-                TextField(
-                    "",
-                    text: Binding(
-                        get: { viewModel.state.content },
-                        set: { viewModel.send(.setContent($0)) }
-                    ),
-                    prompt: Text("설명(선택)").foregroundColor(Color.gray),
-                    axis: .vertical
-                )
-                .font(.callout)
-                .focused($field, equals: .description)
+                VStack(alignment: .leading, spacing: 8) {
+                    markdownHint
+                    TextField(
+                        "",
+                        text: Binding(
+                            get: { viewModel.state.content },
+                            set: { viewModel.send(.setContent($0)) }
+                        ),
+                        prompt: Text("설명(선택)").foregroundColor(Color.secondary),
+                        axis: .vertical
+                    )
+                    .font(.callout)
+                    .focused($field, equals: .description)
+                }
             } else {
-                Markdown(viewModel.state.content)
-                    .markdownTheme(.basic)
+                if viewModel.state.content.isEmpty {
+                    previewPlaceholder
+                } else {
+                    Markdown(viewModel.state.content)
+                        .markdownTheme(.basic)
+                }
             }
         }
         .padding(.horizontal)
         .padding(.top, 10)
+    }
+
+    private var markdownHint: some View {
+        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private var previewPlaceholder: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Markdown 미리보기")
+                .font(.subheadline.weight(.semibold))
+            Text("편집 탭에서 Markdown으로 작성하면 여기에서 서식이 적용되어 보여요.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 8)
     }
 
     private var accessoryBar: some View {

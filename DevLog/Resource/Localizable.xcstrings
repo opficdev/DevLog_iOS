@@ -33,6 +33,12 @@
         }
       }
     },
+    "Markdown 미리보기" : {
+
+    },
+    "Markdown 지원 · 예: # 제목, - 목록, **굵게**" : {
+
+    },
     "night_sky" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -452,6 +458,9 @@
 
     },
     "편집" : {
+
+    },
+    "편집 탭에서 Markdown으로 작성하면 여기에서 서식이 적용되어 보여요." : {
 
     },
     "푸시 알람 활성화" : {
