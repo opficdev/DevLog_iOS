@@ -125,24 +125,45 @@ private extension AppDelegate {
         }
     }
 
-    func startObservingBadgeCount() {
-        cancellable = try? observeUnreadNotificationCount()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    guard let self else { return }
+    func syncBadgeCount() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard Auth.auth().currentUser != nil else {
+                self.updateBadgeCount(0)
+                return
+            }
 
-                    if case .failure(let error) = completion {
-                        self.logger.error("Failed to observe unread notification count", error: error)
-                    }
-                },
-                receiveValue: { [weak self] count in
-                    self?.updateBadgeCount(count)
-                }
-            )
+            do {
+                let unreadNotificationCount = try await self.fetchUnreadNotificationCount()
+                self.updateBadgeCount(unreadNotificationCount)
+            } catch {
+                self.logger.error("Failed to fetch unread notification count", error: error)
+            }
+        }
     }
 
-    func fetchUnreadNotificationCount() async throws -> Int {
+    private func startObservingBadgeCount() {
+        do {
+            cancellable = try observeUnreadNotificationCount()
+                .receive(on: DispatchQueue.main)
+                .sink(
+                    receiveCompletion: { [weak self] completion in
+                        guard let self else { return }
+
+                        if case .failure(let error) = completion {
+                            self.logger.error("Failed to observe unread notification count", error: error)
+                        }
+                    },
+                    receiveValue: { [weak self] count in
+                        self?.updateBadgeCount(count)
+                    }
+                )
+        } catch {
+            logger.error("Failed to start observing badge count", error: error)
+        }
+    }
+
+    private func fetchUnreadNotificationCount() async throws -> Int {
         logger.info("Fetching unread notification count")
 
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -164,7 +185,7 @@ private extension AppDelegate {
         }
     }
 
-    func observeUnreadNotificationCount() throws -> AnyPublisher<Int, Error> {
+    private func observeUnreadNotificationCount() throws -> AnyPublisher<Int, Error> {
         logger.info("Observing unread notification count")
 
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -192,23 +213,6 @@ private extension AppDelegate {
         return subject
             .handleEvents(receiveCancel: { listener.remove() })
             .eraseToAnyPublisher()
-    }
-
-    func syncBadgeCount() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            guard Auth.auth().currentUser != nil else {
-                self.updateBadgeCount(0)
-                return
-            }
-
-            do {
-                let unreadNotificationCount = try await self.fetchUnreadNotificationCount()
-                self.updateBadgeCount(unreadNotificationCount)
-            } catch {
-                self.logger.error("Failed to fetch unread notification count", error: error)
-            }
-        }
     }
 
     @MainActor
