@@ -11,10 +11,15 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
 import GoogleSignIn
+import Combine
 import UserNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     private let logger = Logger(category: "AppDelegate")
+    private var store: Firestore { Firestore.firestore() }
+    private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
+    private var cancellable: AnyCancellable?
+
     func application(
         _ app: UIApplication,
         open url: URL,
@@ -47,6 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
 
         // Firebase Messaging 설정
         Messaging.messaging().delegate = self
+        observeAuthState()
         
         // 앱이 완전 종료되어도, 알림을 통해 앱이 시작된 경우 처리
         if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
@@ -73,6 +79,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     ) {
         logger.error("Failed to register APNs token", error: error)
     }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        syncBadgeCount()
+    }
     
     // FCMToken 갱신
     func messaging(
@@ -83,8 +93,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
             NotificationCenter.default.post(name: .fcmToken, object: nil, userInfo: ["fcmToken": fcmToken])
         }
     }
+}
 
-    private func updateUserTimeZone() {
+private extension AppDelegate {
+    func updateUserTimeZone() {
         Task {
             do {
                 guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -93,6 +105,117 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
                 try await settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true)
             } catch {
                 logger.error("Failed to update timeZone", error: error)
+            }
+        }
+    }
+
+    func observeAuthState() {
+        authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            guard let self else { return }
+
+            self.cancellable?.cancel()
+
+            guard user != nil else {
+                self.updateBadgeCount(0)
+                return
+            }
+
+            self.startObservingBadgeCount()
+            self.syncBadgeCount()
+        }
+    }
+
+    func startObservingBadgeCount() {
+        cancellable = try? observeUnreadNotificationCount()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    guard let self else { return }
+
+                    if case .failure(let error) = completion {
+                        self.logger.error("Failed to observe unread notification count", error: error)
+                    }
+                },
+                receiveValue: { [weak self] count in
+                    self?.updateBadgeCount(count)
+                }
+            )
+    }
+
+    func fetchUnreadNotificationCount() async throws -> Int {
+        logger.info("Fetching unread notification count")
+
+        guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
+            throw AuthError.notAuthenticated
+        }
+
+        do {
+            let snapshot = try await store.collection("users/\(uid)/notifications")
+                .whereField("isRead", isEqualTo: false)
+                .getDocuments()
+
+            let unreadNotificationCount = snapshot.documents.count
+            logger.info("Unread notification count: \(unreadNotificationCount)")
+            return unreadNotificationCount
+        } catch {
+            logger.error("Failed to fetch unread notification count", error: error)
+            throw error
+        }
+    }
+
+    func observeUnreadNotificationCount() throws -> AnyPublisher<Int, Error> {
+        logger.info("Observing unread notification count")
+
+        guard let uid = Auth.auth().currentUser?.uid else {
+            logger.error("User not authenticated")
+            throw AuthError.notAuthenticated
+        }
+
+        let subject = PassthroughSubject<Int, Error>()
+        let listener = store.collection("users/\(uid)/notifications")
+            .whereField("isRead", isEqualTo: false)
+            .addSnapshotListener { [weak self] snapshot, error in
+                if let error {
+                    self?.logger.error("Failed to observe unread notification count", error: error)
+                    subject.send(completion: .failure(error))
+                    return
+                }
+
+                guard let snapshot else { return }
+
+                let unreadNotificationCount = snapshot.documents.count
+                self?.logger.info("Observed unread notification count: \(unreadNotificationCount)")
+                subject.send(unreadNotificationCount)
+            }
+
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
+    }
+
+    func syncBadgeCount() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard Auth.auth().currentUser != nil else {
+                self.updateBadgeCount(0)
+                return
+            }
+
+            do {
+                let unreadNotificationCount = try await self.fetchUnreadNotificationCount()
+                self.updateBadgeCount(unreadNotificationCount)
+            } catch {
+                self.logger.error("Failed to fetch unread notification count", error: error)
+            }
+        }
+    }
+
+    @MainActor
+    private func updateBadgeCount(_ count: Int) {
+        UNUserNotificationCenter.current().setBadgeCount(count) { [weak self] error in
+            if let error {
+                self?.logger.error("Failed to update badge count", error: error)
             }
         }
     }
