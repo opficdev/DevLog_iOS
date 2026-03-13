@@ -197,8 +197,9 @@ private extension AppDelegate {
         let listener = store.collection("users/\(uid)/notifications")
             .whereField("isRead", isEqualTo: false)
             .addSnapshotListener { [weak self] snapshot, error in
+                guard let self else { return }
                 if let error {
-                    self?.logger.error("Failed to observe unread notification count", error: error)
+                    self.logger.error("Failed to observe unread notification count", error: error)
                     subject.send(completion: .failure(error))
                     return
                 }
@@ -206,7 +207,7 @@ private extension AppDelegate {
                 guard let snapshot else { return }
 
                 let unreadNotificationCount = snapshot.documents.count
-                self?.logger.info("Observed unread notification count: \(unreadNotificationCount)")
+                self.logger.info("Observed unread notification count: \(unreadNotificationCount)")
                 subject.send(unreadNotificationCount)
             }
 
