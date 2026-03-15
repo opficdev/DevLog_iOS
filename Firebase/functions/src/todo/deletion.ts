@@ -3,6 +3,7 @@ import {onTaskDispatched} from "firebase-functions/v2/tasks";
 import {getFunctions} from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import {normalizeError} from "../common/error";
 
 const LOCATION = "asia-northeast3";
 const DELETE_DELAY_SECONDS = 5;
@@ -234,13 +235,4 @@ async function updateNotificationsDeletingAt(
 
         if (snapshot.size < QUERY_BATCH_SIZE) { return; }
     }
-}
-
-function normalizeError(error: unknown): Record<string, unknown> {
-    const normalized = error as {code?: unknown; message?: unknown; stack?: unknown};
-    return {
-        code: normalized?.code ?? null,
-        message: normalized?.message ?? String(error),
-        stack: normalized?.stack ?? null
-    };
 }
