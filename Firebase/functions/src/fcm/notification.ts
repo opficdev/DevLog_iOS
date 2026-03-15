@@ -103,6 +103,7 @@ export const sendPushNotification = onTaskDispatched({
                 .where("isRead", "==", false)
                 .count()
                 .get();
+            // 2. 사용자 FCM 토큰 가져오기
             const tokenDocPromise = admin.firestore().doc(`users/${userId}/userData/tokens`).get();
             const [tokenDoc, unreadCountSnapshot] = await Promise.all([
                 tokenDocPromise,
