@@ -81,7 +81,7 @@ struct HomeView: View {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
                         viewModel: TodoEditorViewModel(kind: selectedKind),
-                        onSubmit: { viewModel.send(.upsertTodo($0)) }
+                        onSubmit: { viewModel.send(.addTodo($0)) }
                     )
                 }
             }
@@ -123,7 +123,7 @@ struct HomeView: View {
                 viewModel.send(.onAppear)
             }
             .overlay {
-                if viewModel.state.isWebPageInputLoading {
+                if viewModel.state.isAppending {
                     LoadingView()
                 }
             }

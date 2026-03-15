@@ -16,8 +16,8 @@ struct WebItemRow: View {
     var body: some View {
         HStack {
             thumbnail
-            .frame(width: sceneWidth / 10, height: sceneWidth / 10)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+                .frame(width: sceneWidth / 10, height: sceneWidth / 10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading) {
                 Text(item.title)

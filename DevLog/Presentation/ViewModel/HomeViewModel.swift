@@ -23,7 +23,7 @@ final class HomeViewModel: Store {
         var reorderTodo: Bool = false
         var isRecentTodosLoading: Bool = false
         var isWebPageLoading: Bool = false
-        var isWebPageInputLoading: Bool = false
+        var isAppending: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertType: AlertType?
@@ -45,7 +45,7 @@ final class HomeViewModel: Store {
         case updateWebPageURLInput(String)
         case updateSearching(Bool)
         case updateSearchText(String)
-        case upsertTodo(Todo)
+        case addTodo(Todo)
         case addWebPage
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage
@@ -55,11 +55,11 @@ final class HomeViewModel: Store {
         case restoreWebPage(WebPageItem, Int)
         case setRecentTodosLoading(Bool)
         case setWebPageLoading(Bool)
-        case setWebPageInputLoading(Bool)
+        case setAppending(Bool)
     }
 
     enum SideEffect {
-        case upsertTodo(Todo)
+        case addTodo(Todo)
         case addWebPage(String)
         case deleteWebPage(WebPageItem, Int)
         case undoDeleteWebPage(String)
@@ -119,11 +119,11 @@ final class HomeViewModel: Store {
                 .undoDeleteWebPage, .setToast:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage:
+        case .onAppear, .updateSearching, .updateSearchText, .addTodo, .addWebPage:
             effects = reduceByView(action, state: &state)
 
         case .fetchRecentTodos, .fetchWebPages, .restoreWebPage, .setRecentTodosLoading,
-                .setWebPageLoading, .setWebPageInputLoading:
+                .setWebPageLoading, .setAppending:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -133,9 +133,10 @@ final class HomeViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
-        case .upsertTodo(let todo):
+        case .addTodo(let todo):
             Task {
                 do {
+                    send(.setAppending(true))
                     try await upsertTodoUseCase.execute(todo)
                     let page = try await fetchRecentTodos()
                     let items = page.items
@@ -165,8 +166,8 @@ final class HomeViewModel: Store {
         case .addWebPage(let urlString):
             Task {
                 do {
-                    defer { send(.setWebPageInputLoading(false)) }
-                    send(.setWebPageInputLoading(true))
+                    defer { send(.setAppending(false)) }
+                    send(.setAppending(true))
                     try await addWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
@@ -285,8 +286,8 @@ private extension HomeViewModel {
             state.isSearching = isSearching
         case .updateSearchText(let text):
             state.searchText = text
-        case .upsertTodo(let todo):
-            return [.upsertTodo(todo)]
+        case .addTodo(let todo):
+            return [.addTodo(todo)]
         case .addWebPage:
             guard let normalizedURL = normalizedWebPageURL(state.webPageURLInput) else {
                 setAlert(&state, isPresented: true, type: .invalidURL)
@@ -320,8 +321,8 @@ private extension HomeViewModel {
             state.isRecentTodosLoading = isLoading
         case .setWebPageLoading(let isLoading):
             state.isWebPageLoading = isLoading
-        case .setWebPageInputLoading(let isLoading):
-            state.isWebPageInputLoading = isLoading
+        case .setAppending(let isLoading):
+            state.isAppending = isLoading
         default:
             break
         }
