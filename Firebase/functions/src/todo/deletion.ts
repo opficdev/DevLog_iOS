@@ -47,7 +47,6 @@ export const requestTodoDeletion = onCall({
 
         try {
             await taskRef.set(taskData);
-            const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
             await todoRef.set({
                 // deletingAt: 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태를 의미한다.
                 deletingAt: admin.firestore.FieldValue.serverTimestamp()
@@ -78,10 +77,9 @@ export const requestTodoDeletion = onCall({
                 });
             }
 
-            const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
-            const todoSnapshotForCleanup = await todoRef.get();
+            const todoSnapshot = await todoRef.get();
 
-            if (todoSnapshotForCleanup.exists) {
+            if (todoSnapshot.exists) {
                 await todoRef.update({
                     deletingAt: admin.firestore.FieldValue.delete()
                 });
