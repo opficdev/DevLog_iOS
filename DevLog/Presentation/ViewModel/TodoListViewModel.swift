@@ -233,9 +233,9 @@ final class TodoListViewModel: Store {
             Task {
                 do {
                     try await undoDeleteTodoUseCase.execute(todoId)
-                } catch {
-                    send(.setAlert(true))
                     send(.refresh)
+                } catch {
+                    send(.setAlert(true)); send(.refresh)
                 }
             }
         }
@@ -294,10 +294,7 @@ private extension TodoListViewModel {
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .undoDelete:
-            guard let (todo, index) = pendingTask else { return [] }
-            if index <= state.todos.count {
-                state.todos.insert(todo, at: index)
-            }
+            guard let (todo, _) = pendingTask else { return [] }
             pendingTask = nil
             return [.undoDelete(todo.id)]
         default:
