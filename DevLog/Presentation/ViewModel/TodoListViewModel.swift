@@ -70,6 +70,7 @@ final class TodoListViewModel: Store {
         case search(String)
         case upsert(Todo)
         case delete(TodoListItem, Int)
+        case undoDelete(String)
         case toggleCompleted(TodoListItem)
         case togglePinned(TodoListItem)
     }
@@ -81,6 +82,7 @@ final class TodoListViewModel: Store {
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
+    private let undoDeleteTodoUseCase: UndoDeleteTodoUseCase
     private var pendingTask: (TodoListItem, Int)?
     private var nextCursor: TodoCursor?
 
@@ -89,12 +91,14 @@ final class TodoListViewModel: Store {
         fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        undoDeleteTodoUseCase: UndoDeleteTodoUseCase,
         kind: TodoKind
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchTodoByIdUseCase = fetchTodoByIdUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.undoDeleteTodoUseCase = undoDeleteTodoUseCase
         self.state = State(
             kind: kind,
             query: TodoQuery(kind: kind)
@@ -225,6 +229,15 @@ final class TodoListViewModel: Store {
                     send(.setAlert(true))
                 }
             }
+        case .undoDelete(let todoId):
+            Task {
+                do {
+                    try await undoDeleteTodoUseCase.execute(todoId)
+                } catch {
+                    send(.setAlert(true))
+                    send(.refresh)
+                }
+            }
         }
     }
 }
@@ -240,19 +253,12 @@ private extension TodoListViewModel {
         case .setShowEditor(let value):
             state.showEditor = value
         case .swipeTodo(let todo):
-            var effects: [SideEffect] = []
-            if let (pendingItem, _) = pendingTask {
-                effects = [.delete(pendingItem.id)]
-            }
-
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 pendingTask = (todo, index)
                 state.todos.remove(at: index)
                 setToast(&state, isPresented: true)
                 return [.delete(todo, index)]
             }
-
-            return effects
         case .setSortTarget(let target):
             state.query.sortTarget = target
             self.nextCursor = nil
@@ -293,6 +299,7 @@ private extension TodoListViewModel {
                 state.todos.insert(todo, at: index)
             }
             pendingTask = nil
+            return [.undoDelete(todo.id)]
         default:
             break
         }
@@ -302,11 +309,7 @@ private extension TodoListViewModel {
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .confirmDelete:
-            guard let (item, _) = pendingTask else {
-                return []
-            }
             pendingTask = nil
-            return [.delete(item.id)]
         case .onAppear:
             return [.fetch]
         case .loadNextPage:

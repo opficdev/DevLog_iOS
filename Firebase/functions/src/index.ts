@@ -40,6 +40,7 @@ import {
 
 import {
     requestTodoDeletion,
+    undoTodoDeletion,
     completeTodoDeletion
 } from "./todo/deletion";
 
@@ -84,5 +85,6 @@ export {
     removeCompletedTodoReceipts,
     removeStaleTodoReceipts,
     requestTodoDeletion,
+    undoTodoDeletion,
     completeTodoDeletion
 };

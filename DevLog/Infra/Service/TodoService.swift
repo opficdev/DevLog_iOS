@@ -188,6 +188,22 @@ final class TodoService {
         }
     }
 
+    func undoDeleteTodo(todoId: String) async throws {
+        guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+
+        logger.info("Undoing todo deletion: \(todoId)")
+
+        do {
+            let function = functions.httpsCallable("undoTodoDeletion")
+            _ = try await function.call(["todoId": todoId])
+
+            logger.info("Successfully undone todo deletion")
+        } catch {
+            logger.error("Failed to undo todo deletion", error: error)
+            throw error
+        }
+    }
+
     func fetchTodo(todoId: String) async throws -> TodoResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 

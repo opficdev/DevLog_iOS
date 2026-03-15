@@ -66,6 +66,10 @@ private extension DomainAssembler {
         container.register(DeleteTodoUseCase.self) {
             DeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }
+
+        container.register(UndoDeleteTodoUseCase.self) {
+            UndoDeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
     }
 
     func registerUserDataUseCases(_ container: DIContainer) {

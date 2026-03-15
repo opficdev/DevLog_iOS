@@ -104,6 +104,65 @@ export const requestTodoDeletion = onCall({
     }
 );
 
+export const undoTodoDeletion = onCall({
+        cors: true,
+        maxInstances: 10,
+        region: LOCATION,
+    },
+    async (request) => {
+        const userId = request.auth?.uid;
+        const todoId = typeof request.data?.todoId === "string" ? request.data.todoId.trim() : "";
+
+        if (!userId) {
+            throw new HttpsError("unauthenticated", "인증된 사용자가 아닙니다.");
+        }
+
+        if (!todoId) {
+            throw new HttpsError("invalid-argument", "todoId가 필요합니다.");
+        }
+
+        const taskSnapshot = await admin.firestore()
+            .collection("todoDeletionTasks")
+            .where("userId", "==", userId)
+            .where("todoId", "==", todoId)
+            .get();
+
+        try {
+            const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+            const todoSnapshot = await todoRef.get();
+
+            if (todoSnapshot.exists) {
+                await todoRef.update({
+                    deletingAt: admin.firestore.FieldValue.delete()
+                });
+            }
+
+            await updateNotificationsDeletingAt(
+                userId,
+                todoId,
+                admin.firestore.FieldValue.delete()
+            );
+
+            if (!taskSnapshot.empty) {
+                const batch = admin.firestore().batch();
+                taskSnapshot.docs.forEach((document) => {
+                    batch.delete(document.ref);
+                });
+                await batch.commit();
+            }
+        } catch (error) {
+            logger.error("todo 삭제 취소 실패", {
+                userId,
+                todoId,
+                error: normalizeError(error)
+            });
+            throw new HttpsError("internal", "Todo 삭제 취소에 실패했습니다.");
+        }
+
+        return {success: true};
+    }
+);
+
 export const completeTodoDeletion = onTaskDispatched({
         region: LOCATION,
         retryConfig: {maxAttempts: 3, minBackoffSeconds: 5},
