@@ -7,9 +7,11 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
 
 final class TodoService {
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoService")
     
@@ -171,18 +173,17 @@ final class TodoService {
     }
     
     func deleteTodo(todoId: String) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-        logger.info("Deleting todo: \(todoId)")
+        logger.info("Requesting todo deletion: \(todoId)")
         
         do {
-            let collection = store.collection("users/\(uid)/todoLists/")
-            let docRef = collection.document(todoId)
-            try await docRef.delete()
+            let function = functions.httpsCallable("requestTodoDeletion")
+            _ = try await function.call(["todoId": todoId])
             
-            logger.info("Successfully deleted todo")
+            logger.info("Successfully requested todo deletion")
         } catch {
-            logger.error("Failed to delete todo", error: error)
+            logger.error("Failed to request todo deletion", error: error)
             throw error
         }
     }
@@ -282,7 +283,10 @@ private extension TodoService {
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
-        makeResponse(documentID: snapshot.documentID, data: snapshot.data())
+        if snapshot.data()[TodoFieldKey.deletingAt.rawValue] is Timestamp {
+            return nil
+        }
+        return makeResponse(documentID: snapshot.documentID, data: snapshot.data())
     }
 
     func makeResponse(from snapshot: DocumentSnapshot) -> TodoResponse? {
@@ -337,5 +341,6 @@ private extension TodoService {
         case dueDate
         case tags
         case kind
+        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 }

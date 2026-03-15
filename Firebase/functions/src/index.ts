@@ -38,6 +38,11 @@ import {
     removeStaleTodoReceipts
 } from "./todo/remove";
 
+import {
+    requestTodoDeletion,
+    completeTodoDeletion
+} from "./todo/deletion";
+
 
 // .env 파일 로드
 dotenv.config({
@@ -77,5 +82,7 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoReceipts,
-    removeStaleTodoReceipts
+    removeStaleTodoReceipts,
+    requestTodoDeletion,
+    completeTodoDeletion
 };

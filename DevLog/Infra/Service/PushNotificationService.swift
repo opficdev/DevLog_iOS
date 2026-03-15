@@ -256,6 +256,9 @@ private extension PushNotificationService {
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
+        if data[Key.deletingAt.rawValue] is Timestamp {
+            return nil
+        }
         guard
             let title = data[Key.title.rawValue] as? String,
             let body = data[Key.body.rawValue] as? String,
@@ -284,5 +287,6 @@ private extension PushNotificationService {
         case isRead
         case todoId
         case todoKind
+        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 }
