@@ -57,6 +57,7 @@ final class TodoListViewModel: Store {
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
+        case restoreTodo(TodoListItem, Int)
         case setLoading(Bool)
         case appendTodos([TodoListItem], nextCursor: TodoCursor?)
         case resetPagination
@@ -68,7 +69,7 @@ final class TodoListViewModel: Store {
         case loadNextPage
         case search(String)
         case upsert(Todo)
-        case delete(String)
+        case delete(TodoListItem, Int)
         case toggleCompleted(TodoListItem)
         case togglePinned(TodoListItem)
     }
@@ -124,8 +125,8 @@ final class TodoListViewModel: Store {
         case .confirmDelete, .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .setSearchQuery, .fetchSearchResults,
-                .didToggleCompleted, .didTogglePinned, .setLoading, .appendTodos, .resetPagination, .setHasMore:
+        case .setSearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
+                .restoreTodo, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -215,11 +216,12 @@ final class TodoListViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .delete(let todoId):
+        case .delete(let item, let index):
             Task {
                 do {
-                    try await deleteTodoUseCase.execute(todoId)
+                    try await deleteTodoUseCase.execute(item.id)
                 } catch {
+                    send(.restoreTodo(item, index))
                     send(.setAlert(true))
                 }
             }
@@ -247,6 +249,7 @@ private extension TodoListViewModel {
                 pendingTask = (todo, index)
                 state.todos.remove(at: index)
                 setToast(&state, isPresented: true)
+                return [.delete(todo, index)]
             }
 
             return effects
@@ -350,6 +353,18 @@ private extension TodoListViewModel {
         case .didTogglePinned(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo
+            }
+        case .restoreTodo(let todo, let index):
+            if state.todos.contains(where: { $0.id == todo.id }) { break }
+
+            if index <= state.todos.count {
+                state.todos.insert(todo, at: index)
+            } else {
+                state.todos.append(todo)
+            }
+
+            if let (pendingItem, _) = pendingTask, pendingItem.id == todo.id {
+                pendingTask = nil
             }
         case .setLoading(let value):
             state.isLoading = value
