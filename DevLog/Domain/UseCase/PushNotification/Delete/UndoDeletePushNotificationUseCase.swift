@@ -1,0 +1,10 @@
+//
+//  UndoDeletePushNotificationUseCase.swift
+//  DevLog
+//
+//  Created by opfic on 3/16/26.
+//
+
+protocol UndoDeletePushNotificationUseCase {
+    func execute(_ notificationID: String) async throws
+}

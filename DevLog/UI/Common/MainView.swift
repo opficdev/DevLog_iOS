@@ -37,6 +37,7 @@ struct MainView: View {
             PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
                 deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
+                undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
                 toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
                 fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
                 updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
