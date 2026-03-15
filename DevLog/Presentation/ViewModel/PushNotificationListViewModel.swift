@@ -151,6 +151,7 @@ final class PushNotificationListViewModel: Store {
                     send(.setLoading(true))
                     try await deleteUseCase.execute(item.id)
                 } catch {
+                    send(.restoreNotification(item, index))
                     send(.setAlert(isPresented: true))
                 }
             }
