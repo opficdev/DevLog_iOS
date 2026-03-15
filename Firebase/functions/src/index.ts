@@ -50,6 +50,12 @@ import {
     completePushNotificationDeletion
 } from "./notification/deletion";
 
+import {
+    requestWebPageDeletion,
+    undoWebPageDeletion,
+    completeWebPageDeletion
+} from "./webPage/deletion";
+
 
 // .env 파일 로드
 dotenv.config({
@@ -95,5 +101,8 @@ export {
     completeTodoDeletion,
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
-    completePushNotificationDeletion
+    completePushNotificationDeletion,
+    requestWebPageDeletion,
+    undoWebPageDeletion,
+    completeWebPageDeletion
 };

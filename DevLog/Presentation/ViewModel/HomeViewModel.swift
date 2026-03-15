@@ -49,10 +49,10 @@ final class HomeViewModel: Store {
         case addWebPage
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage
-        case confirmDeleteWebPage
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case fetchRecentTodos([RecentTodoItem])
         case fetchWebPages([WebPageItem])
+        case restoreWebPage(WebPageItem, Int)
         case setRecentTodosLoading(Bool)
         case setWebPageLoading(Bool)
         case setWebPageInputLoading(Bool)
@@ -61,7 +61,8 @@ final class HomeViewModel: Store {
     enum SideEffect {
         case upsertTodo(Todo)
         case addWebPage(String)
-        case deleteWebPage(String)
+        case deleteWebPage(WebPageItem, Int)
+        case undoDeleteWebPage(String)
         case fetchRecentTodos
         case fetchWebPages
         case showModalAfterDelay(ModalType)
@@ -86,19 +87,22 @@ final class HomeViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
+    private let undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
-    private var pendingTask: (WebPageItem, Int)?
+    private var undoDeleteWebPageURLString: String?
 
     init(
         addWebPageUseCase: AddWebPageUseCase,
         deleteWebPageUseCase: DeleteWebPageUseCase,
+        undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase
     ) {
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
+        self.undoDeleteWebPageUseCase = undoDeleteWebPageUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
@@ -115,11 +119,10 @@ final class HomeViewModel: Store {
                 .undoDeleteWebPage, .setToast:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo,
-                .addWebPage, .confirmDeleteWebPage:
+        case .onAppear, .updateSearching, .updateSearchText, .upsertTodo, .addWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .fetchRecentTodos, .fetchWebPages, .setRecentTodosLoading,
+        case .fetchRecentTodos, .fetchWebPages, .restoreWebPage, .setRecentTodosLoading,
                 .setWebPageLoading, .setWebPageInputLoading:
             effects = reduceByRun(action, state: &state)
         }
@@ -172,17 +175,32 @@ final class HomeViewModel: Store {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
-        case .deleteWebPage(let urlString):
+        case .deleteWebPage(let page, let index):
             Task {
                 do {
                     defer { send(.setWebPageLoading(false)) }
                     send(.setWebPageLoading(true))
-                    try await deleteWebPageUseCase.execute(urlString)
+                    try await deleteWebPageUseCase.execute(page.url.absoluteString)
+                } catch {
+                    send(.restoreWebPage(page, index))
+                    send(.setWebPageLoading(false))
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
+        case .undoDeleteWebPage(let urlString):
+            Task {
+                do {
+                    defer { send(.setWebPageLoading(false)) }
+                    send(.setWebPageLoading(true))
+                    try await undoDeleteWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
-                    send(.setWebPageLoading(false))
                     send(.setAlert(isPresented: true, type: .error))
+                    let pages = try? await fetchWebPagesUseCase.execute("")
+                    if let pages {
+                        send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
+                    }
                 }
             }
         case .fetchWebPages:
@@ -239,16 +257,20 @@ private extension HomeViewModel {
             setAlert(&state, isPresented: presented, type: type)
         case .deleteWebPage(let page):
             if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
-                pendingTask = (page, index)
+                undoDeleteWebPageURLString = page.url.absoluteString
                 state.webPages.remove(at: index)
                 setToast(&state, isPresented: true, for: .deleteWebPage)
+                return [.deleteWebPage(page, index)]
             }
         case .undoDeleteWebPage:
-            guard let (page, index) = pendingTask else { return [] }
-            state.webPages.insert(page, at: index)
-            pendingTask = nil
+            guard let undoDeleteWebPageURLString else { return [] }
+            self.undoDeleteWebPageURLString = nil
+            return [.undoDeleteWebPage(undoDeleteWebPageURLString)]
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
+            if !isPresented {
+                undoDeleteWebPageURLString = nil
+            }
         default:
             break
         }
@@ -272,10 +294,6 @@ private extension HomeViewModel {
             }
             setAlert(&state, isPresented: false, type: nil)
             return [.addWebPage(normalizedURL)]
-        case .confirmDeleteWebPage:
-            guard let (page, _) = pendingTask else { return [] }
-            pendingTask = nil
-            return [.deleteWebPage(page.url.absoluteString)]
         default:
             break
         }
@@ -287,13 +305,17 @@ private extension HomeViewModel {
         case .fetchRecentTodos(let todos):
             state.recentTodos = todos
         case .fetchWebPages(let pages):
-            let filteredPages: [WebPageItem]
-            if let (pendingPage, _) = pendingTask {
-                filteredPages = pages.filter { $0.id != pendingPage.id }
+            state.webPages = pages
+        case .restoreWebPage(let page, let index):
+            if state.webPages.contains(where: { $0.id == page.id }) { break }
+            if index <= state.webPages.count {
+                state.webPages.insert(page, at: index)
             } else {
-                filteredPages = pages
+                state.webPages.append(page)
             }
-            state.webPages = filteredPages
+            if undoDeleteWebPageURLString == page.url.absoluteString {
+                undoDeleteWebPageURLString = nil
+            }
         case .setRecentTodosLoading(let isLoading):
             state.isRecentTodosLoading = isLoading
         case .setWebPageLoading(let isLoading):

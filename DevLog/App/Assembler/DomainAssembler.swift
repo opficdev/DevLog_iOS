@@ -120,6 +120,10 @@ private extension DomainAssembler {
         container.register(DeleteWebPageUseCase.self) {
             DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
+
+        container.register(UndoDeleteWebPageUseCase.self) {
+            UndoDeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
     }
 
     func registerUserPreferencesUseCases(_ container: DIContainer) {

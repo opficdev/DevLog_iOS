@@ -7,9 +7,16 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
 
 final class WebPageService {
+    private enum FunctionName: String {
+        case requestWebPageDeletion
+        case undoWebPageDeletion
+    }
+
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "WebPageService")
 
@@ -67,21 +74,37 @@ final class WebPageService {
     }
 
     func deleteWebPage(_ urlString: String) async throws {
-        logger.info("Deleting web page: \(urlString)")
+        logger.info("Requesting web page deletion: \(urlString)")
 
-        guard let uid = Auth.auth().currentUser?.uid else {
+        guard Auth.auth().currentUser?.uid != nil else {
             logger.error("User not authenticated")
             throw AuthError.notAuthenticated
         }
 
         do {
-            let documentID = documentID(for: urlString)
-            let docRef = store
-                .document("users/\(uid)/webPages/\(documentID)")
-            try await docRef.delete()
-            logger.info("Successfully deleted web page")
+            let function = functions.httpsCallable(FunctionName.requestWebPageDeletion)
+            _ = try await function.call(["urlString": urlString])
+            logger.info("Successfully requested web page deletion")
         } catch {
-            logger.error("Failed to delete web page", error: error)
+            logger.error("Failed to request web page deletion", error: error)
+            throw error
+        }
+    }
+
+    func undoDeleteWebPage(_ urlString: String) async throws {
+        logger.info("Undoing web page deletion: \(urlString)")
+
+        guard Auth.auth().currentUser?.uid != nil else {
+            logger.error("User not authenticated")
+            throw AuthError.notAuthenticated
+        }
+
+        do {
+            let function = functions.httpsCallable(FunctionName.undoWebPageDeletion)
+            _ = try await function.call(["urlString": urlString])
+            logger.info("Successfully undone web page deletion")
+        } catch {
+            logger.error("Failed to undo web page deletion", error: error)
             throw error
         }
     }
@@ -101,6 +124,9 @@ final class WebPageService {
 private extension WebPageService {
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
         let data = snapshot.data()
+        if data[WebPageFieldKey.deletingAt.rawValue] is Timestamp {
+            return nil
+        }
         guard
             let title = data[WebPageFieldKey.title.rawValue] as? String,
             let url = data[WebPageFieldKey.url.rawValue] as? String,
@@ -123,5 +149,6 @@ private extension WebPageService {
         case url
         case displayURL
         case imageURL
+        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 }

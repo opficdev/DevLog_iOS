@@ -15,6 +15,7 @@ struct MainView: View {
             HomeView(viewModel: HomeViewModel(
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
+                undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)

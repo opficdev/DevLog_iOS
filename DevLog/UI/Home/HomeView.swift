@@ -113,8 +113,7 @@ struct HomeView: View {
                     set: { viewModel.send(.setToast(isPresented: $0)) }
                 ),
                 duration: 5,
-                action: { viewModel.send(.undoDeleteWebPage) },
-                onDismiss: { viewModel.send(.confirmDeleteWebPage) }
+                action: { viewModel.send(.undoDeleteWebPage) }
             ) {
                 Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
                     .font(.caption)
