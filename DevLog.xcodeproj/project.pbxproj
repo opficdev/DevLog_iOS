@@ -15,29 +15,13 @@
 		DFABA3B02E23526500FEFBDB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3AF2E23526500FEFBDB /* FirebaseFirestore */; };
 		DFABA3B22E23526500FEFBDB /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B12E23526500FEFBDB /* FirebaseFunctions */; };
 		DFABA3B42E23526500FEFBDB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B32E23526500FEFBDB /* FirebaseMessaging */; };
-		DFD643A72EC787AB0073E133 /* firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A42EC787AB0073E133 /* firebase.json */; };
-		DFD643A92EC787AB0073E133 /* package.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A02EC787AB0073E133 /* package.json */; };
-		DFD643AC2EC787AB0073E133 /* tsconfig.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A22EC787AB0073E133 /* tsconfig.json */; };
-		DFD643AE2EC787AB0073E133 /* package-lock.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A12EC787AB0073E133 /* package-lock.json */; };
 		DFD645402EC827A10073E133 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = DFD6453F2EC827A10073E133 /* .gitignore */; };
 		DFD74E2F2E423EA700613803 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFD74E2E2E423EA700613803 /* README.md */; };
 		DFF2DACE2EDC02AD00778738 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DFF2DACD2EDC02AD00778738 /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DF3416452E45F67C00F9312B /* DevLog_Unit.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLog_Unit.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD643952EC787AB0073E133 /* apple.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = apple.ts; sourceTree = "<group>"; };
-		DFD643962EC787AB0073E133 /* github.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = github.ts; sourceTree = "<group>"; };
-		DFD643972EC787AB0073E133 /* google.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = google.ts; sourceTree = "<group>"; };
-		DFD643992EC787AB0073E133 /* notification.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = notification.ts; sourceTree = "<group>"; };
-		DFD6439A2EC787AB0073E133 /* schedule.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = schedule.ts; sourceTree = "<group>"; };
-		DFD6439C2EC787AB0073E133 /* delete.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = delete.ts; sourceTree = "<group>"; };
-		DFD6439E2EC787AB0073E133 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
-		DFD643A02EC787AB0073E133 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		DFD643A12EC787AB0073E133 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
-		DFD643A22EC787AB0073E133 /* tsconfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tsconfig.json; sourceTree = "<group>"; };
-		DFD643A42EC787AB0073E133 /* firebase.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = firebase.json; sourceTree = "<group>"; };
 		DFD6453F2EC827A10073E133 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		DFD74E2E2E423EA700613803 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -54,11 +38,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DF3416462E45F67C00F9312B /* DevLog_Unit */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DevLog_Unit;
-			sourceTree = "<group>";
-		};
 		DF8AB7982E938B0B00E50BBF /* DevLog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -70,13 +49,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		DF3416422E45F67C00F9312B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DFD48AFD2DC4D6E2005905C5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -102,10 +74,8 @@
 				DFD6453F2EC827A10073E133 /* .gitignore */,
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
 				DFD74E2E2E423EA700613803 /* README.md */,
-				DF3416462E45F67C00F9312B /* DevLog_Unit */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
-				DFD643A52EC787AB0073E133 /* Firebase */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,67 +83,8 @@
 			isa = PBXGroup;
 			children = (
 				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
-				DF3416452E45F67C00F9312B /* DevLog_Unit.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		DFD643982EC787AB0073E133 /* auth */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643952EC787AB0073E133 /* apple.ts */,
-				DFD643962EC787AB0073E133 /* github.ts */,
-				DFD643972EC787AB0073E133 /* google.ts */,
-			);
-			path = auth;
-			sourceTree = "<group>";
-		};
-		DFD6439B2EC787AB0073E133 /* fcm */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643992EC787AB0073E133 /* notification.ts */,
-				DFD6439A2EC787AB0073E133 /* schedule.ts */,
-			);
-			path = fcm;
-			sourceTree = "<group>";
-		};
-		DFD6439D2EC787AB0073E133 /* user */ = {
-			isa = PBXGroup;
-			children = (
-				DFD6439C2EC787AB0073E133 /* delete.ts */,
-			);
-			path = user;
-			sourceTree = "<group>";
-		};
-		DFD6439F2EC787AB0073E133 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643982EC787AB0073E133 /* auth */,
-				DFD6439B2EC787AB0073E133 /* fcm */,
-				DFD6439D2EC787AB0073E133 /* user */,
-				DFD6439E2EC787AB0073E133 /* index.ts */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		DFD643A32EC787AB0073E133 /* functions */ = {
-			isa = PBXGroup;
-			children = (
-				DFD6439F2EC787AB0073E133 /* src */,
-				DFD643A02EC787AB0073E133 /* package.json */,
-				DFD643A12EC787AB0073E133 /* package-lock.json */,
-				DFD643A22EC787AB0073E133 /* tsconfig.json */,
-			);
-			path = functions;
-			sourceTree = "<group>";
-		};
-		DFD643A52EC787AB0073E133 /* Firebase */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643A32EC787AB0073E133 /* functions */,
-				DFD643A42EC787AB0073E133 /* firebase.json */,
-			);
-			path = Firebase;
 			sourceTree = "<group>";
 		};
 		DFE28EB62DCCF26300B28FE5 /* Frameworks */ = {
@@ -186,28 +97,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DF3416442E45F67C00F9312B /* DevLog_Unit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DF34164B2E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */;
-			buildPhases = (
-				DF3416412E45F67C00F9312B /* Sources */,
-				DF3416422E45F67C00F9312B /* Frameworks */,
-				DF3416432E45F67C00F9312B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				DF3416462E45F67C00F9312B /* DevLog_Unit */,
-			);
-			name = DevLog_Unit;
-			packageProductDependencies = (
-			);
-			productName = DevLog_Unit;
-			productReference = DF3416452E45F67C00F9312B /* DevLog_Unit.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		DFD48AFF2DC4D6E2005905C5 /* DevLog */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DFD48B112DC4D6E4005905C5 /* Build configuration list for PBXNativeTarget "DevLog" */;
@@ -250,9 +139,6 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					DF3416442E45F67C00F9312B = {
-						CreatedOnToolsVersion = 16.4;
-					};
 					DFD48AFF2DC4D6E2005905C5 = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -279,42 +165,23 @@
 			projectRoot = "";
 			targets = (
 				DFD48AFF2DC4D6E2005905C5 /* DevLog */,
-				DF3416442E45F67C00F9312B /* DevLog_Unit */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		DF3416432E45F67C00F9312B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DFD48AFE2DC4D6E2005905C5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				DFD645402EC827A10073E133 /* .gitignore in Resources */,
 				DFD74E2F2E423EA700613803 /* README.md in Resources */,
-				DFD643A72EC787AB0073E133 /* firebase.json in Resources */,
-				DFD643A92EC787AB0073E133 /* package.json in Resources */,
-				DFD643AC2EC787AB0073E133 /* tsconfig.json in Resources */,
-				DFD643AE2EC787AB0073E133 /* package-lock.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		DF3416412E45F67C00F9312B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DFD48AFC2DC4D6E2005905C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -332,40 +199,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		DF3416492E45F67C00F9312B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "opfic.DevLog-Unit";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		DF34164A2E45F67C00F9312B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "opfic.DevLog-Unit";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 		DFD48B122DC4D6E4005905C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* DevLog */;
@@ -592,15 +425,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DF34164B2E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DF3416492E45F67C00F9312B /* Debug */,
-				DF34164A2E45F67C00F9312B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		DFD48AFB2DC4D6E2005905C5 /* Build configuration list for PBXProject "DevLog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
