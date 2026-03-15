@@ -12,4 +12,5 @@ protocol TodoRepository {
     func fetchTodo(_ todoId: String) async throws -> Todo
     func upsertTodo(_ todo: Todo) async throws
     func deleteTodo(_ todoId: String) async throws
+    func undoDeleteTodo(_ todoId: String) async throws
 }

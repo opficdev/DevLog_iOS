@@ -33,4 +33,8 @@ final class TodoRepositoryImpl: TodoRepository {
     func deleteTodo(_ todoId: String) async throws {
         try await todoService.deleteTodo(todoId: todoId)
     }
+
+    func undoDeleteTodo(_ todoId: String) async throws {
+        try await todoService.undoDeleteTodo(todoId: todoId)
+    }
 }

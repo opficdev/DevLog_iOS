@@ -30,6 +30,7 @@ struct HomeView: View {
                         fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+                        undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
                         kind: todoKind
                     ))
                     .environment(router)

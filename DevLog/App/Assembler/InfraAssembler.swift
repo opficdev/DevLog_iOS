@@ -52,12 +52,5 @@ final class InfraAssembler: Assembler {
             WebPageMetadataService()
         }
 
-        container.register(UserDefaultsStore.self) {
-            UserDefaultsStore()
-        }
-
-        container.register(ThemeStore.self) {
-            ThemeStore()
-        }
     }
 }
