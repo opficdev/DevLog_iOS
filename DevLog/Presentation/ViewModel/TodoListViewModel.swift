@@ -45,7 +45,6 @@ final class TodoListViewModel: Store {
         case undoDelete
 
         // View
-        case confirmDelete
         case onAppear
         case loadNextPage
         case setSearchText(String)
@@ -83,7 +82,7 @@ final class TodoListViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
     private let undoDeleteTodoUseCase: UndoDeleteTodoUseCase
-    private var pendingTask: (TodoListItem, Int)?
+    private var undoDeleteTodoId: String?
     private var nextCursor: TodoCursor?
 
     init(
@@ -126,7 +125,7 @@ final class TodoListViewModel: Store {
                 .setShowAllSearchResults, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
-        case .confirmDelete, .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
+        case .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
         case .setSearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
@@ -254,7 +253,7 @@ private extension TodoListViewModel {
             state.showEditor = value
         case .swipeTodo(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
-                pendingTask = (todo, index)
+                undoDeleteTodoId = todo.id
                 state.todos.remove(at: index)
                 setToast(&state, isPresented: true)
                 return [.delete(todo, index)]
@@ -294,9 +293,9 @@ private extension TodoListViewModel {
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .undoDelete:
-            guard let (todo, _) = pendingTask else { return [] }
-            pendingTask = nil
-            return [.undoDelete(todo.id)]
+            guard let undoDeleteTodoId else { return [] }
+            self.undoDeleteTodoId = nil
+            return [.undoDelete(undoDeleteTodoId)]
         default:
             break
         }
@@ -305,12 +304,10 @@ private extension TodoListViewModel {
 
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .confirmDelete:
-            pendingTask = nil
         case .onAppear:
             return [.fetch]
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading, pendingTask == nil else { return [] }
+            guard state.hasMore, !state.isLoading else { return [] }
             return [.loadNextPage]
         case .setSearchText(let text):
             guard state.searchText != text else { return [] }
@@ -327,6 +324,7 @@ private extension TodoListViewModel {
             }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
+            if !isPresented { undoDeleteTodoId = nil }
         case .upsertTodo(let todo):
             return [.upsert(todo)]
         default:
@@ -363,19 +361,13 @@ private extension TodoListViewModel {
                 state.todos.append(todo)
             }
 
-            if let (pendingItem, _) = pendingTask, pendingItem.id == todo.id {
-                pendingTask = nil
+            if undoDeleteTodoId == todo.id {
+                undoDeleteTodoId = nil
             }
         case .setLoading(let value):
             state.isLoading = value
         case .appendTodos(let todos, let nextCursor):
-            let filteredTodos: [TodoListItem]
-            if let (pendingItem, _) = pendingTask {
-                filteredTodos = todos.filter { $0.id != pendingItem.id }
-            } else {
-                filteredTodos = todos
-            }
-            state.todos.append(contentsOf: filteredTodos)
+            state.todos.append(contentsOf: todos)
             self.nextCursor = nextCursor
         case .resetPagination:
             state.todos = []

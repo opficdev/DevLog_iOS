@@ -71,8 +71,7 @@ struct TodoListView: View {
                 set: { viewModel.send(.setToast(isPresented: $0)) }
             ),
             duration: 5,
-            action: { viewModel.send(.undoDelete) },
-            onDismiss: { viewModel.send(.confirmDelete) }
+            action: { viewModel.send(.undoDelete) }
         ) {
             Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
         }
