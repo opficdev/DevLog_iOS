@@ -7,14 +7,12 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
 final class GoogleAuthenticationService: AuthenticationService {
     private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let provider = TopViewControllerProvider()

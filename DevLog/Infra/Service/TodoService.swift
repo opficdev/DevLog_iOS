@@ -10,6 +10,11 @@ import FirebaseFirestore
 import FirebaseFunctions
 
 final class TodoService {
+    private enum FunctionName: String {
+        case requestTodoDeletion
+        case undoTodoDeletion
+    }
+
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let encoder = Firestore.Encoder()
@@ -178,7 +183,7 @@ final class TodoService {
         logger.info("Requesting todo deletion: \(todoId)")
         
         do {
-            let function = functions.httpsCallable("requestTodoDeletion")
+            let function = functions.httpsCallable(FunctionName.requestTodoDeletion)
             _ = try await function.call(["todoId": todoId])
             
             logger.info("Successfully requested todo deletion")
@@ -194,7 +199,7 @@ final class TodoService {
         logger.info("Undoing todo deletion: \(todoId)")
 
         do {
-            let function = functions.httpsCallable("undoTodoDeletion")
+            let function = functions.httpsCallable(FunctionName.undoTodoDeletion)
             _ = try await function.call(["todoId": todoId])
 
             logger.info("Successfully undone todo deletion")

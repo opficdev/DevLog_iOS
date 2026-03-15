@@ -7,11 +7,9 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 
 final class UserService {
     private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
     private let logger = Logger(category: "UserService")
     
     // 유저를 Firestore에 저장 및 업데이트

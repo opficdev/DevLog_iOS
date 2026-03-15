@@ -1,5 +1,5 @@
 //
-//  FirebaseAuthUser.swift
+//  FirebaseAuthUser+.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/3/25.

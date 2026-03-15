@@ -14,6 +14,13 @@ import FirebaseMessaging
 import Foundation
 
 final class AppleAuthenticationService: AuthenticationService {
+    private enum FunctionName: String {
+        case requestAppleCustomToken
+        case refreshAppleAccessToken
+        case requestAppleRefreshToken
+        case revokeAppleAccessToken
+    }
+
     private var appleSignInDelegate: AppleSignInDelegate?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
@@ -222,7 +229,7 @@ final class AppleAuthenticationService: AuthenticationService {
             throw URLError(.badServerResponse)
         }
         
-        let requestTokenFunction = functions.httpsCallable("requestAppleCustomToken")
+        let requestTokenFunction = functions.httpsCallable(FunctionName.requestAppleCustomToken)
         let result = try await requestTokenFunction.call([
             "idToken": idToken,
             "authorizationCode": authorizationCode
@@ -236,7 +243,7 @@ final class AppleAuthenticationService: AuthenticationService {
 
     // Apple AceessToken 재발급 메서드
     private func refreshAppleAccessToken() async throws -> String {
-        let refreshFunction = functions.httpsCallable("refreshAppleAccessToken")
+        let refreshFunction = functions.httpsCallable(FunctionName.refreshAppleAccessToken)
         let result = try await refreshFunction.call()
 
         guard let data = result.data as? [String: Any],
@@ -253,7 +260,7 @@ final class AppleAuthenticationService: AuthenticationService {
             throw URLError(.userAuthenticationRequired)
         }
         
-        let requestFuction = functions.httpsCallable("requestAppleRefreshToken")
+        let requestFuction = functions.httpsCallable(FunctionName.requestAppleRefreshToken)
         
         let params: [String: Any] = [
             "authorizationCode": authorizationCode,
@@ -270,7 +277,7 @@ final class AppleAuthenticationService: AuthenticationService {
     
     // Apple AccessToken 취소 메서드
     func revokeAppleAccessToken(token: String) async throws {
-        let revokeFunction = functions.httpsCallable("revokeAppleAccessToken")
+        let revokeFunction = functions.httpsCallable(FunctionName.revokeAppleAccessToken)
         
         _ = try await revokeFunction.call(["token": token])
     }
