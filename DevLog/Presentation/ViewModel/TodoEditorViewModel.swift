@@ -42,7 +42,6 @@ final class TodoEditorViewModel: Store {
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
-        var hasDueDate: Bool { dueDate != nil }
         var tabViewTag: Tag = .editor
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -141,10 +140,10 @@ final class TodoEditorViewModel: Store {
         case .togglePinned:
             state.isPinned.toggle()
         case .toggleDueDate:
-            if state.hasDueDate {
-                state.dueDate = nil
-            } else {
+            if state.dueDate == nil {
                 state.dueDate = calendar.date(byAdding: .day, value: 1, to: Date())
+            } else {
+                state.dueDate = nil
             }
         }
 
