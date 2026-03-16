@@ -172,7 +172,6 @@ final class HomeViewModel: Store {
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
-                    send(.setWebPageInputLoading(false))
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
@@ -184,7 +183,6 @@ final class HomeViewModel: Store {
                     try await deleteWebPageUseCase.execute(page.url.absoluteString)
                 } catch {
                     send(.restoreWebPage(page, index))
-                    send(.setWebPageLoading(false))
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
