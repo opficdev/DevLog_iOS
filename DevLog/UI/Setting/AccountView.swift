@@ -16,31 +16,33 @@ struct AccountView: View {
             Section("현재 계정") {
                 HStack {
                     if let provider = viewModel.state.currentProvider {
-                        let formattedProvider = formattedProviderName(provider)
-                        Image(formattedProvider)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: UIFont.labelFontSize)
-                        Text(formattedProvider)
+                        providerContent(provider)
                     }
                 }
             }
-            Section("연동된 계정") {
-                ForEach(viewModel.state.connectedProviders, id: \.self) { provider in
+            Section("소셜 계정") {
+                let providers = AuthProvider.allCases.filter { $0 != viewModel.state.currentProvider }
+                ForEach(providers, id: \.self) { provider in
+                    let isConnected = viewModel.state.connectedProviders.contains(provider)
                     HStack {
-                        let formattedProvider = formattedProviderName(provider)
-                        Image(formattedProvider)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: UIFont.labelFontSize)
-                        Text(formattedProvider)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive, action: {
-                            viewModel.send(.unlinkFromProvider(provider))
-                        }) {
-                            Label("계정 삭제", systemImage: "trash")
+                        providerContent(provider)
+                        Spacer()
+                        Button {
+                            if isConnected {
+                                viewModel.send(.unlinkFromProvider(provider))
+                            } else {
+                                viewModel.send(.linkWithProvider(provider))
+                            }
+                        } label: {
+                            Text(isConnected ? "연결 해제" : "연결")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(isConnected ? Color.red : .blue)
+                                .clipShape(.capsule)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -48,26 +50,6 @@ struct AccountView: View {
         .scrollDisabled(true)
         .listStyle(.insetGrouped)
         .navigationTitle("계정 연동")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu("새 계정 연동", systemImage: "plus") {
-                    ForEach(viewModel.state.disconnectedProviders, id: \.self) { provider in
-                        Button(action: {
-                            viewModel.send(.linkWithProvider(provider))
-                        }) {
-                            HStack {
-                                let formattedProvider = formattedProviderName(provider)
-                                Image(formattedProvider)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: UIFont.systemFontSize, height: UIFont.systemFontSize)
-                                Text(formattedProvider)
-                            }
-                        }
-                    }
-                }
-            }
-        }
         .onAppear {
             viewModel.send(.onAppear)
         }
@@ -97,5 +79,14 @@ struct AccountView: View {
         let providerPrefix = rawValue.prefix(1).uppercased()
         let providerSuffix = rawValue.dropFirst().prefix(while: { $0 != "." })
         return providerPrefix + providerSuffix
+    }
+
+    @ViewBuilder
+    private func providerContent(_ provider: AuthProvider) -> some View {
+        Image(formattedProviderName(provider))
+            .resizable()
+            .scaledToFit()
+            .frame(width: UIFont.labelFontSize)
+        Text(formattedProviderName(provider))
     }
 }
