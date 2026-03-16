@@ -190,18 +190,26 @@ final class HomeViewModel: Store {
             }
         case .undoDeleteWebPage(let urlString):
             Task {
+                defer { send(.setWebPageLoading(false)) }
+                send(.setWebPageLoading(true))
+
+                var shouldPresentError = false
+
                 do {
-                    defer { send(.setWebPageLoading(false)) }
-                    send(.setWebPageLoading(true))
                     try await undoDeleteWebPageUseCase.execute(urlString)
+                } catch {
+                    shouldPresentError = true
+                }
+
+                do {
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
+                    shouldPresentError = true
+                }
+
+                if shouldPresentError {
                     send(.setAlert(isPresented: true, type: .error))
-                    let pages = try? await fetchWebPagesUseCase.execute("")
-                    if let pages {
-                        send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
-                    }
                 }
             }
         case .fetchWebPages:
