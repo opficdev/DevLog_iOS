@@ -70,6 +70,7 @@ final class TodayViewModel: Store {
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
+    private let loadingState = LoadingState()
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -141,10 +142,10 @@ final class TodayViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodos:
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     async let todosWithDueDatePage = fetchTodosUseCase.execute(
                         TodoQuery(
                             completionFilter: .incomplete,
@@ -175,10 +176,10 @@ final class TodayViewModel: Store {
                 }
             }
         case .completeTodo(let item):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     let now = Date()
                     todo.isCompleted = true
@@ -191,10 +192,10 @@ final class TodayViewModel: Store {
                 }
             }
         case .togglePinned(let item):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
@@ -338,6 +339,18 @@ private extension TodayViewModel {
     func isOverdue(_ item: TodayTodoItem) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         return calendar.startOfDay(for: dueDate) < calendar.startOfDay(for: Date())
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 
     func isDueSoon(_ item: TodayTodoItem) -> Bool {

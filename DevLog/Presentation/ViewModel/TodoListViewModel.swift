@@ -82,6 +82,7 @@ final class TodoListViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
     private let undoDeleteTodoUseCase: UndoDeleteTodoUseCase
+    private let loadingState = LoadingState()
     private var undoDeleteTodoId: String?
     private var nextCursor: TodoCursor?
 
@@ -141,10 +142,10 @@ final class TodoListViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetch:
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nil)
                     send(.resetPagination)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
@@ -155,10 +156,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .loadNextPage:
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nextCursor)
                     send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
@@ -168,10 +169,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .search(let keyword):
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let query = TodoQuery(kind: state.kind, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
                     send(.fetchSearchResults(page.items.map { TodoListItem(from: $0) }))
@@ -180,10 +181,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .upsert(let item):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await upsertTodoUseCase.execute(item)
                     send(.refresh)
                 } catch {
@@ -191,10 +192,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .toggleCompleted(let item):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     let now = Date()
                     todo.isCompleted.toggle()
@@ -207,10 +208,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .togglePinned(let item):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     var todo = try await fetchTodoByIdUseCase.execute(item.id)
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
@@ -230,11 +231,11 @@ final class TodoListViewModel: Store {
                 }
             }
         case .undoDelete(let todoId):
+            beginLoading(.delayed)
             Task {
-                // defer을 통해 setLoading을 false로 제어하지 않는 이유
-                // send(.refresh)를 통해 false로 처리될 것이기 때문
-                send(.setLoading(true))
-
+                // endLoading(.delayed)를 defer로 두지 않는 이유
+                // send(.refresh)가 같은 턴에서 beginLoading(.immediate)를 먼저 올린 뒤
+                // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteTodoUseCase.execute(todoId)
                 } catch {
@@ -242,6 +243,7 @@ final class TodoListViewModel: Store {
                 }
 
                 send(.refresh)
+                endLoading(.delayed)
             }
         }
     }
@@ -423,6 +425,18 @@ private extension TodoListViewModel {
     func cancelDebounce() {
         searchDebounceTask?.cancel()
         searchDebounceTask = nil
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }
 

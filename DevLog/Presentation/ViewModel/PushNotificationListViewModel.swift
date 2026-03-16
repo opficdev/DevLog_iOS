@@ -60,6 +60,7 @@ final class PushNotificationListViewModel: Store {
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
     private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
     private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
+    private let loadingState = LoadingState()
     private var undoDeleteNotificationId: String?
     private var cancellable: AnyCancellable?
 
@@ -117,10 +118,10 @@ final class PushNotificationListViewModel: Store {
             if cursor == nil {
                 stopObservingNotifications()
             }
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let existingCount = cursor == nil ? 0 : self.state.notifications.count
 
                     let page = try await fetchUseCase.execute(query, cursor: cursor)
@@ -145,10 +146,10 @@ final class PushNotificationListViewModel: Store {
 
             }
         case .delete(let item, let index):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await deleteUseCase.execute(item.id)
                 } catch {
                     send(.restoreNotification(item, index))
@@ -156,11 +157,11 @@ final class PushNotificationListViewModel: Store {
                 }
             }
         case .undoDelete(let notificationId):
+            beginLoading(.delayed)
             Task {
-                // defer을 통해 setLoading을 false로 제어하지 않는 이유
-                // send(.fetchNotifications)를 통해 false로 처리될 것이기 때문
-                send(.setLoading(true))
-
+                // endLoading(.delayed)를 defer로 두지 않는 이유
+                // send(.fetchNotifications)가 같은 턴에서 beginLoading(.immediate)를 먼저 올린 뒤
+                // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteUseCase.execute(notificationId)
                 } catch {
@@ -168,12 +169,13 @@ final class PushNotificationListViewModel: Store {
                 }
 
                 send(.fetchNotifications)
+                endLoading(.delayed)
             }
         case .toggleRead(let todoId):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await toggleReadUseCase.execute(todoId)
                 } catch {
                     send(.setAlert(isPresented: true))
@@ -337,6 +339,18 @@ private extension PushNotificationListViewModel {
     func stopObservingNotifications() {
         cancellable?.cancel()
         cancellable = nil
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }
 

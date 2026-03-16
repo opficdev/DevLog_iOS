@@ -55,6 +55,7 @@ final class AccountViewModel: Store {
     private let fetchProvidersUseCase: FetchAuthProvidersUseCase
     private let linkProviderUseCase: LinkAuthProviderUseCase
     private let unlinkProviderUseCase: UnlinkAuthProviderUseCase
+    private let loadingState = LoadingState()
 
     init(
         fetchProvidersUseCase: FetchAuthProvidersUseCase,
@@ -106,11 +107,10 @@ final class AccountViewModel: Store {
                 }
             }
         case .link(let provider):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
-                    
+                    defer { endLoading(.delayed) }
                     try await linkProviderUseCase.execute(provider)
                     send(.setToast(isPresented: true, type: .linkSuccess))
 
@@ -122,11 +122,10 @@ final class AccountViewModel: Store {
                 }
             }
         case .unlink(let provider):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
-                    
+                    defer { endLoading(.delayed) }
                     try await unlinkProviderUseCase.execute(provider)
                     send(.setToast(isPresented: true, type: .unlinkSuccess))
                     
@@ -191,5 +190,17 @@ private extension AccountViewModel {
         }
         state.showToast = isPresented
         state.toastType = type
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }
