@@ -81,7 +81,7 @@ final class HomeViewModel: Store {
         case searchView
     }
 
-    enum LoadingTarget {
+    enum LoadingTarget: Hashable {
         case recentTodos
         case webPage
         case overlay
@@ -94,6 +94,7 @@ final class HomeViewModel: Store {
     private let undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
+    private let loadingState = LoadingState()
     private var deletedWebPageURLString: String?
 
     init(
@@ -133,10 +134,10 @@ final class HomeViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .addTodo(let todo):
+            beginLoading(for: .overlay, mode: .delayed)
             Task {
                 do {
-                    defer { send(.setLoading(.overlay, false)) }
-                    send(.setLoading(.overlay, true))
+                    defer { endLoading(for: .overlay, mode: .delayed) }
                     try await upsertTodoUseCase.execute(todo)
                     let page = try await fetchRecentTodos()
                     let items = page.items
@@ -149,10 +150,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .fetchRecentTodos:
+            beginLoading(for: .recentTodos, mode: .immediate)
             Task {
                 do {
-                    defer { send(.setLoading(.recentTodos, false)) }
-                    send(.setLoading(.recentTodos, true))
+                    defer { endLoading(for: .recentTodos, mode: .immediate) }
                     let page = try await fetchRecentTodos()
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
@@ -164,10 +165,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .addWebPage(let urlString):
+            beginLoading(for: .overlay, mode: .delayed)
             Task {
                 do {
-                    defer { send(.setLoading(.overlay, false)) }
-                    send(.setLoading(.overlay, true))
+                    defer { endLoading(for: .overlay, mode: .delayed) }
                     try await addWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
@@ -176,10 +177,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .deleteWebPage(let page, let index):
+            beginLoading(for: .webPage, mode: .delayed)
             Task {
                 do {
-                    defer { send(.setLoading(.webPage, false)) }
-                    send(.setLoading(.webPage, true))
+                    defer { endLoading(for: .webPage, mode: .delayed) }
                     try await deleteWebPageUseCase.execute(page.url.absoluteString)
                 } catch {
                     send(.restoreWebPage(page, index))
@@ -187,9 +188,9 @@ final class HomeViewModel: Store {
                 }
             }
         case .undoDeleteWebPage(let urlString):
+            beginLoading(for: .webPage, mode: .delayed)
             Task {
-                defer { send(.setLoading(.webPage, false)) }
-                send(.setLoading(.webPage, true))
+                defer { endLoading(for: .webPage, mode: .delayed) }
 
                 var shouldPresentError = false
 
@@ -211,10 +212,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .fetchWebPages:
+            beginLoading(for: .webPage, mode: .immediate)
             Task {
                 do {
-                    defer { send(.setLoading(.webPage, false)) }
-                    send(.setLoading(.webPage, true))
+                    defer { endLoading(for: .webPage, mode: .immediate) }
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
@@ -410,5 +411,23 @@ private extension HomeViewModel {
             ),
             cursor: nil
         )
+    }
+
+    private func beginLoading(
+        for target: LoadingTarget,
+        mode: LoadingState.Mode
+    ) {
+        loadingState.begin(target: target, mode: mode) { [weak self] target, isLoading in
+            self?.send(.setLoading(target, isLoading))
+        }
+    }
+
+    private func endLoading(
+        for target: LoadingTarget,
+        mode: LoadingState.Mode
+    ) {
+        loadingState.end(target: target, mode: mode) { [weak self] target, isLoading in
+            self?.send(.setLoading(target, isLoading))
+        }
     }
 }

@@ -39,6 +39,7 @@ final class TodoDetailViewModel: Store {
     private let fetchUseCase: FetchTodoByIdUseCase
     private let upsertUseCase: UpsertTodoUseCase
     private let todoId: String
+    private let loadingState = LoadingState()
 
     init(
         fetchUseCase: FetchTodoByIdUseCase,
@@ -80,10 +81,10 @@ final class TodoDetailViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodo:
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let todo = try await fetchUseCase.execute(todoId)
                     send(.setTodo(todo))
                 } catch {
@@ -91,10 +92,10 @@ final class TodoDetailViewModel: Store {
                 }
             }
         case .upsertTodo(let todo):
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await upsertUseCase.execute(todo)
                     send(.setTodo(todo))
                 } catch {
@@ -113,5 +114,17 @@ private extension TodoDetailViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }
