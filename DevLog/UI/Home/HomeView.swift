@@ -56,12 +56,12 @@ struct HomeView: View {
             .toolbar { toolbar }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { viewModel.send(.setReorderTodo($0)) }
+                set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
             )) {
                 TodoManageView(
                     viewModel: TodoManageViewModel(viewModel.state.todoKindPreferences),
                     onDismiss: { array in
-                        viewModel.send(.setReorderTodo(false))
+                        viewModel.send(.setPresentation(.reorderTodo, false))
                         withAnimation {
                             viewModel.send(.orderTodoKindPreferences(array))
                         }
@@ -76,7 +76,7 @@ struct HomeView: View {
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showTodoEditor },
-                set: { viewModel.send(.setShowTodoEditor($0)) }
+                set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
             )) {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
@@ -87,7 +87,7 @@ struct HomeView: View {
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showSearchView },
-                set: { viewModel.send(.setShowSearchView($0)) }
+                set: { viewModel.send(.setPresentation(.searchView, $0)) }
             )) {
                 SearchView(viewModel: SearchViewModel(
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
@@ -177,7 +177,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    viewModel.send(.setReorderTodo(true))
+                    viewModel.send(.setPresentation(.reorderTodo, true))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -251,7 +251,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowContentPicker(true))
+                viewModel.send(.setPresentation(.contentPicker, true))
             } label: {
                 Image(systemName: "plus")
             }
@@ -261,7 +261,7 @@ struct HomeView: View {
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowSearchView(true))
+                viewModel.send(.setPresentation(.searchView, true))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -327,7 +327,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        viewModel.send(.setShowContentPicker(false))
+                        viewModel.send(.setPresentation(.contentPicker, false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()
