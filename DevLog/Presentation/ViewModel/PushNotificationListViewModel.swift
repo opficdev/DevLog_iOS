@@ -160,7 +160,8 @@ final class PushNotificationListViewModel: Store {
             beginLoading(.delayed)
             Task {
                 // endLoading(.delayed)를 defer로 두지 않는 이유
-                // send(.fetchNotifications)로 이어지는 즉시 로딩이 같은 isLoading을 이어서 제어해야 하기 때문
+                // send(.fetchNotifications)가 같은 턴에서 beginLoading(.immediate)를 먼저 올린 뒤
+                // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteUseCase.execute(notificationId)
                 } catch {
