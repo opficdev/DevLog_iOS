@@ -169,12 +169,12 @@ final class PushNotificationListViewModel: Store {
 
                 send(.fetchNotifications)
             }
-        case .toggleRead(let notificationId):
+        case .toggleRead(let todoId):
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    try await toggleReadUseCase.execute(notificationId)
+                    try await toggleReadUseCase.execute(todoId)
                 } catch {
                     send(.setAlert(isPresented: true))
                 }
