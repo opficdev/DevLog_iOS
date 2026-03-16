@@ -42,7 +42,6 @@ final class TodoEditorViewModel: Store {
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
-        var hasDueDate: Bool { dueDate != nil }
         var tabViewTag: Tag = .editor
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -62,7 +61,6 @@ final class TodoEditorViewModel: Store {
         case setTagText(String)
         case setTitle(String)
         case togglePinned
-        case toggleDueDate
     }
 
     enum SideEffect { }
@@ -140,12 +138,6 @@ final class TodoEditorViewModel: Store {
             state.tabViewTag = tag
         case .togglePinned:
             state.isPinned.toggle()
-        case .toggleDueDate:
-            if state.hasDueDate {
-                state.dueDate = nil
-            } else {
-                state.dueDate = calendar.date(byAdding: .day, value: 1, to: Date())
-            }
         }
 
         if self.state != state { self.state = state }

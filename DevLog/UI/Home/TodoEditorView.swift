@@ -15,6 +15,7 @@ struct TodoEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
     @State private var showDueDatePicker: Bool = false
+    private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
 
     var body: some View {
@@ -175,30 +176,30 @@ struct TodoEditorView: View {
                 }
                 .adaptiveButtonStyle()
             }
-            DueDatePicker(selection: Binding(
-                get: { viewModel.state.dueDate ?? Date() },
-                set: { viewModel.send(.setDueDate($0)) }
-            )) {
-                HStack {
-                    Label {
-                        Text("마감일")
-                    } icon: {
-                        Image(systemName: "calendar")
-                            .foregroundStyle(.gray)
+            dueDateControl
+        }
+    }
+
+    private var dueDateControl: some View {
+        DueDatePicker(selection: Binding(
+            get: { viewModel.state.dueDate ?? Date() },
+            set: { viewModel.send(.setDueDate($0)) }
+        )) {
+            Label {
+                if let dueDate = viewModel.state.dueDate {
+                    Tag(dueDateText(for: dueDate), isEditing: true) {
+                        viewModel.send(.setDueDate(nil))
                     }
-                    Image(systemName: "checkmark.square")
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(
-                            viewModel.state.hasDueDate ? .blue : .clear,
-                            .gray
-                        )
-                        .onTapGesture {
-                            viewModel.send(.setDueDate(viewModel.state.hasDueDate ? nil : Date()))
-                        }
+                    .padding(.vertical, -4)
+                } else {
+                    Text("마감일")
                 }
-                .adaptiveButtonStyle()
+            } icon: {
+                Image(systemName: "calendar")
+                    .foregroundStyle(.gray)
             }
         }
+        .adaptiveButtonStyle()
     }
 
     private func submit() {
@@ -209,6 +210,21 @@ struct TodoEditorView: View {
 
     private enum Field: Hashable {
         case title, description, tag
+    }
+
+    private func dueDateText(for dueDate: Date) -> String {
+        let currentYear = calendar.component(.year, from: Date())
+        let dueDateYear = calendar.component(.year, from: dueDate)
+
+        if currentYear == dueDateYear {
+            return dueDate.formatted(
+                .dateTime.month(.defaultDigits).day(.defaultDigits)
+            )
+        }
+
+        return dueDate.formatted(
+            .dateTime.year(.twoDigits).month(.defaultDigits).day(.defaultDigits)
+        )
     }
 }
 
