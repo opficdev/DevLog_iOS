@@ -90,7 +90,7 @@ final class HomeViewModel: Store {
     private let undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
-    private var undoDeleteWebPageURLString: String?
+    private var deletedWebPageURLString: String?
 
     init(
         addWebPageUseCase: AddWebPageUseCase,
@@ -264,19 +264,19 @@ private extension HomeViewModel {
             setAlert(&state, isPresented: presented, type: type)
         case .deleteWebPage(let page):
             if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
-                undoDeleteWebPageURLString = page.url.absoluteString
+                deletedWebPageURLString = page.url.absoluteString
                 state.webPages.remove(at: index)
                 setToast(&state, isPresented: true, for: .deleteWebPage)
                 return [.deleteWebPage(page, index)]
             }
         case .undoDeleteWebPage:
-            guard let undoDeleteWebPageURLString else { return [] }
-            self.undoDeleteWebPageURLString = nil
-            return [.undoDeleteWebPage(undoDeleteWebPageURLString)]
+            guard let deletedWebPageURLString else { return [] }
+            self.deletedWebPageURLString = nil
+            return [.undoDeleteWebPage(deletedWebPageURLString)]
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
             if !isPresented {
-                undoDeleteWebPageURLString = nil
+                deletedWebPageURLString = nil
             }
         default:
             break
@@ -320,8 +320,8 @@ private extension HomeViewModel {
             } else {
                 state.webPages.append(page)
             }
-            if undoDeleteWebPageURLString == page.url.absoluteString {
-                undoDeleteWebPageURLString = nil
+            if deletedWebPageURLString == page.url.absoluteString {
+                deletedWebPageURLString = nil
             }
         case .setRecentTodosLoading(let isLoading):
             state.isRecentTodosLoading = isLoading
