@@ -61,7 +61,6 @@ final class TodoEditorViewModel: Store {
         case setTagText(String)
         case setTitle(String)
         case togglePinned
-        case toggleDueDate
     }
 
     enum SideEffect { }
@@ -139,12 +138,6 @@ final class TodoEditorViewModel: Store {
             state.tabViewTag = tag
         case .togglePinned:
             state.isPinned.toggle()
-        case .toggleDueDate:
-            if state.dueDate == nil {
-                state.dueDate = calendar.date(byAdding: .day, value: 1, to: Date())
-            } else {
-                state.dueDate = nil
-            }
         }
 
         if self.state != state { self.state = state }
