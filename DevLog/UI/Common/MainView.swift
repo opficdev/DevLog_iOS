@@ -15,6 +15,7 @@ struct MainView: View {
             HomeView(viewModel: HomeViewModel(
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
+                undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
@@ -37,6 +38,7 @@ struct MainView: View {
             PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
                 deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
+                undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
                 toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
                 fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
                 updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)

@@ -30,7 +30,6 @@ final class PushNotificationListViewModel: Store {
         case deleteNotification(PushNotificationItem)
         case toggleRead(PushNotificationItem)
         case undoDelete
-        case confirmDelete
         case setAlert(isPresented: Bool)
         case setToast(isPresented: Bool)
         case setLoading(Bool)
@@ -38,6 +37,7 @@ final class PushNotificationListViewModel: Store {
         case resetPagination
         case setHasMore(Bool)
         case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
+        case restoreNotification(PushNotificationItem, Int)
         case toggleSortOption
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
@@ -48,28 +48,32 @@ final class PushNotificationListViewModel: Store {
 
     enum SideEffect {
         case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
-        case delete(PushNotificationItem)
+        case delete(PushNotificationItem, Int)
+        case undoDelete(String)
         case toggleRead(String)
     }
 
     private(set) var state: State
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
+    private let undoDeleteUseCase: UndoDeletePushNotificationUseCase
     private let toggleReadUseCase: TogglePushNotificationReadUseCase
     private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
     private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
-    private var pendingTask: (PushNotificationItem, Int)?
+    private var undoDeleteNotificationId: String?
     private var cancellable: AnyCancellable?
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase,
         deleteUseCase: DeletePushNotificationUseCase,
+        undoDeleteUseCase: UndoDeletePushNotificationUseCase,
         toggleReadUseCase: TogglePushNotificationReadUseCase,
         fetchQueryUseCase: FetchPushNotificationQueryUseCase,
         updateQueryUseCase: UpdatePushNotificationQueryUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
+        self.undoDeleteUseCase = undoDeleteUseCase
         self.toggleReadUseCase = toggleReadUseCase
         self.fetchQueryUseCase = fetchQueryUseCase
         self.updateQueryUseCase = updateQueryUseCase
@@ -95,10 +99,11 @@ final class PushNotificationListViewModel: Store {
                 .setTimeFilter, .toggleUnreadOnly, .resetFilters, .tapNotification:
             effects = reduceByUser(action, state: &state)
 
-        case .fetchNotifications, .confirmDelete, .setToast, .setSelectedTodoId, .loadNextPage:
+        case .fetchNotifications, .setToast, .setSelectedTodoId, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .appendNotifications, .resetPagination, .setHasMore, .syncNotifications:
+        case .setLoading, .appendNotifications, .resetPagination, .setHasMore,
+                .syncNotifications, .restoreNotification:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -139,15 +144,30 @@ final class PushNotificationListViewModel: Store {
                 }
 
             }
-        case .delete(let notification):
+        case .delete(let item, let index):
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     send(.setLoading(true))
-                    try await deleteUseCase.execute(notification.id)
+                    try await deleteUseCase.execute(item.id)
+                } catch {
+                    send(.restoreNotification(item, index))
+                    send(.setAlert(isPresented: true))
+                }
+            }
+        case .undoDelete(let notificationId):
+            Task {
+                // defer을 통해 setLoading을 false로 제어하지 않는 이유
+                // send(.fetchNotifications)를 통해 false로 처리될 것이기 때문
+                send(.setLoading(true))
+
+                do {
+                    try await undoDeleteUseCase.execute(notificationId)
                 } catch {
                     send(.setAlert(isPresented: true))
                 }
+
+                send(.fetchNotifications)
             }
         case .toggleRead(let todoId):
             Task {
@@ -168,27 +188,22 @@ private extension PushNotificationListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .deleteNotification(let item):
-            var effects: [SideEffect] = []
-            if let (pendingItem, _) = pendingTask {
-                effects = [.delete(pendingItem)]
-            }
-
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
-                pendingTask = (item, index)
+                undoDeleteNotificationId = item.id
                 state.notifications.remove(at: index)
                 setToast(&state, isPresented: true)
+                return [.delete(item, index)]
             }
-
-            return effects
+            return []
         case .toggleRead(let item):
             if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
                 state.notifications[index].isRead.toggle()
                 return [.toggleRead(item.todoId)]
             }
         case .undoDelete:
-            guard let (item, index) = pendingTask else { return [] }
-            state.notifications.insert(item, at: index)
-            pendingTask = nil
+            guard let undoDeleteNotificationId else { return [] }
+            self.undoDeleteNotificationId = nil
+            return [.undoDelete(undoDeleteNotificationId)]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .toggleSortOption:
@@ -229,14 +244,13 @@ private extension PushNotificationListViewModel {
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading, pendingTask == nil else { return [] }
+            guard state.hasMore, !state.isLoading else { return [] }
             return [.fetchNotifications(state.query, cursor: state.nextCursor)]
-        case .confirmDelete:
-            guard let (item, _) = pendingTask else { return [] }
-            pendingTask = nil
-            return [.delete(item)]
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
+            if !isPresented {
+                undoDeleteNotificationId = nil
+            }
         case .setSelectedTodoId(let todoId):
             state.selectedTodoId = todoId
         default:
@@ -255,24 +269,24 @@ private extension PushNotificationListViewModel {
             state.notifications = []
             state.nextCursor = nil
         case .appendNotifications(let notifications, let nextCursor):
-            let filteredNotifications: [PushNotificationItem]
-            if let (pendingItem, _) = pendingTask {
-                filteredNotifications = notifications.filter { $0.id != pendingItem.id }
-            } else {
-                filteredNotifications = notifications
-            }
-            state.notifications.append(contentsOf: filteredNotifications)
+            state.notifications.append(contentsOf: notifications)
             state.nextCursor = nextCursor
         case .syncNotifications(let notifications, let nextCursor, let hasMore):
-            let filteredNotifications: [PushNotificationItem]
-            if let (pendingItem, _) = pendingTask {
-                filteredNotifications = notifications.filter { $0.id != pendingItem.id }
-            } else {
-                filteredNotifications = notifications
-            }
-            state.notifications = filteredNotifications
+            state.notifications = notifications
             state.nextCursor = nextCursor
             state.hasMore = hasMore
+        case .restoreNotification(let notification, let index):
+            if state.notifications.contains(where: { $0.id == notification.id }) { break }
+
+            if index <= state.notifications.count {
+                state.notifications.insert(notification, at: index)
+            } else {
+                state.notifications.append(notification)
+            }
+
+            if undoDeleteNotificationId == notification.id {
+                undoDeleteNotificationId = nil
+            }
         default:
             break
         }

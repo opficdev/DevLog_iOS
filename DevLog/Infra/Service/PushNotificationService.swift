@@ -8,9 +8,16 @@
 import FirebaseAuth
 import Combine
 import FirebaseFirestore
+import FirebaseFunctions
 
 final class PushNotificationService {
+    private enum FunctionName: String {
+        case requestPushNotificationDeletion
+        case undoPushNotificationDeletion
+    }
+
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
     private let logger = Logger(category: "PushNotificationService")
 
     /// 푸시 알림 On/Off 설정
@@ -174,13 +181,24 @@ final class PushNotificationService {
     /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         do {
-            guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-            let docRef = store.collection("users/\(uid)/notifications").document(notificationID)
-
-            try await docRef.delete()
+            let function = functions.httpsCallable(FunctionName.requestPushNotificationDeletion)
+            _ = try await function.call(["notificationId": notificationID])
         } catch {
-            logger.error("Failed to delete notification", error: error)
+            logger.error("Failed to request notification deletion", error: error)
+            throw error
+        }
+    }
+
+    func undoDeleteNotification(_ notificationID: String) async throws {
+        do {
+            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+
+            let function = functions.httpsCallable(FunctionName.undoPushNotificationDeletion)
+            _ = try await function.call(["notificationId": notificationID])
+        } catch {
+            logger.error("Failed to undo notification deletion", error: error)
             throw error
         }
     }

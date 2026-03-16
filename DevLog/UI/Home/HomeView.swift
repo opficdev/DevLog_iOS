@@ -81,7 +81,7 @@ struct HomeView: View {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
                         viewModel: TodoEditorViewModel(kind: selectedKind),
-                        onSubmit: { viewModel.send(.upsertTodo($0)) }
+                        onSubmit: { viewModel.send(.addTodo($0)) }
                     )
                 }
             }
@@ -113,8 +113,7 @@ struct HomeView: View {
                     set: { viewModel.send(.setToast(isPresented: $0)) }
                 ),
                 duration: 5,
-                action: { viewModel.send(.undoDeleteWebPage) },
-                onDismiss: { viewModel.send(.confirmDeleteWebPage) }
+                action: { viewModel.send(.undoDeleteWebPage) }
             ) {
                 Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
                     .font(.caption)
@@ -124,7 +123,7 @@ struct HomeView: View {
                 viewModel.send(.onAppear)
             }
             .overlay {
-                if viewModel.state.isWebPageInputLoading {
+                if viewModel.state.isAppending {
                     LoadingView()
                 }
             }
@@ -191,16 +190,14 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if viewModel.state.recentTodos.isEmpty {
-                if viewModel.state.isRecentTodosLoading {
-                    LoadingView()
-                } else {
-                    HStack {
-                        Spacer()
-                        Text("최근 수정한 Todo가 없습니다.")
-                            .font(.callout)
-                        Spacer()
-                    }
+            if viewModel.state.isRecentTodosLoading {
+                LoadingView()
+            } else if viewModel.state.recentTodos.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("최근 수정한 Todo가 없습니다.")
+                        .font(.callout)
+                    Spacer()
                 }
             } else {
                 ForEach(viewModel.state.recentTodos, id: \.id) { todo in
@@ -223,16 +220,15 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            if viewModel.state.webPages.isEmpty {
-                if viewModel.state.isWebPageLoading {
-                    LoadingView()
-                } else {
-                    HStack {
-                        Spacer()
-                        Text("저장한 Web Page가 표시됩니다.")
-                            .font(.callout)
-                        Spacer()
-                    }
+            if viewModel.state.isWebPageLoading {
+                LoadingView()
+                    .id(UUID()) //  id 부여를 통해 렌더링 강제
+            } else if viewModel.state.webPages.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("저장한 Web Page가 표시됩니다.")
+                        .font(.callout)
+                    Spacer()
                 }
             } else {
                 ForEach(viewModel.state.webPages, id: \.id) { page in

@@ -95,6 +95,10 @@ private extension DomainAssembler {
             DeletePushNotificationUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
+        container.register(UndoDeletePushNotificationUseCase.self) {
+            UndoDeletePushNotificationUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
         container.register(FetchPushNotificationsUseCase.self) {
             FetchPushNotificationsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
@@ -115,6 +119,10 @@ private extension DomainAssembler {
 
         container.register(DeleteWebPageUseCase.self) {
             DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
+
+        container.register(UndoDeleteWebPageUseCase.self) {
+            UndoDeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
     }
 
