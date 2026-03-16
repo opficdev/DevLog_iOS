@@ -137,6 +137,7 @@ final class TodoListViewModel: Store {
         return effects
     }
 
+    // swiftlint:disable function_body_length
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetch:
@@ -230,15 +231,21 @@ final class TodoListViewModel: Store {
             }
         case .undoDelete(let todoId):
             Task {
+                // defer을 통해 setLoading을 false로 제어하지 않는 이유
+                // send(.refresh)를 통해 false로 처리될 것이기 때문
+                send(.setLoading(true))
+
                 do {
                     try await undoDeleteTodoUseCase.execute(todoId)
-                    send(.refresh)
                 } catch {
-                    send(.setAlert(true)); send(.refresh)
+                    send(.setAlert(true))
                 }
+
+                send(.refresh)
             }
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 // MARK: - Reduce Methods

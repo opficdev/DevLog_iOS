@@ -157,13 +157,17 @@ final class PushNotificationListViewModel: Store {
             }
         case .undoDelete(let notificationId):
             Task {
+                // defer을 통해 setLoading을 false로 제어하지 않는 이유
+                // send(.fetchNotifications)를 통해 false로 처리될 것이기 때문
+                send(.setLoading(true))
+
                 do {
                     try await undoDeleteUseCase.execute(notificationId)
-                    send(.fetchNotifications)
                 } catch {
                     send(.setAlert(isPresented: true))
-                    send(.fetchNotifications)
                 }
+
+                send(.fetchNotifications)
             }
         case .toggleRead(let notificationId):
             Task {
