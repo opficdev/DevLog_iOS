@@ -90,7 +90,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     ) {
         if let fcmToken = fcmToken {
             logger.info("FCM token: \(fcmToken)")
-            NotificationCenter.default.post(name: .fcmToken, object: nil, userInfo: ["fcmToken": fcmToken])
         }
     }
 }
@@ -250,8 +249,4 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
         completionHandler()
     }
-}
-
-extension Notification.Name {
-    static let fcmToken = Notification.Name("fcmToken")
 }
