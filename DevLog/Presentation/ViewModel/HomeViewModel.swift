@@ -18,8 +18,6 @@ final class HomeViewModel: Store {
         var showSearchView: Bool = false
         var webPageURLInput: String = "https://"
         var selectedTodoKind: TodoKind?
-        var searchText: String = ""
-        var isSearching: Bool = false
         var reorderTodo: Bool = false
         var isRecentTodosLoading: Bool = false
         var isWebPageLoading: Bool = false
@@ -34,28 +32,21 @@ final class HomeViewModel: Store {
     }
 
     enum Action {
+        case onAppear
+        case setPresentation(Presentation, Bool)
+        case setAlert(isPresented: Bool, type: AlertType? = nil)
+        case setToast(isPresented: Bool, type: ToastType? = nil)
+        case setLoading(LoadingTarget, Bool)
         case tapTodoKind(TodoKind)
         case orderTodoKindPreferences([TodoKindPreference])
-        case setReorderTodo(Bool)
-        case setShowTodoEditor(Bool)
-        case setShowContentPicker(Bool)
-        case setShowSearchView(Bool)
-        case setAlert(isPresented: Bool, type: AlertType? = nil)
-        case onAppear
-        case updateWebPageURLInput(String)
-        case updateSearching(Bool)
-        case updateSearchText(String)
         case addTodo(Todo)
+        case updateRecentTodos([RecentTodoItem])
+        case updateWebPageURLInput(String)
         case addWebPage
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage
-        case setToast(isPresented: Bool, type: ToastType? = nil)
-        case fetchRecentTodos([RecentTodoItem])
-        case fetchWebPages([WebPageItem])
+        case updateWebPages([WebPageItem])
         case restoreWebPage(WebPageItem, Int)
-        case setRecentTodosLoading(Bool)
-        case setWebPageLoading(Bool)
-        case setAppending(Bool)
     }
 
     enum SideEffect {
@@ -81,6 +72,19 @@ final class HomeViewModel: Store {
     enum ModalType {
         case todoEditor
         case urlInputAlert
+    }
+
+    enum Presentation {
+        case reorderTodo
+        case todoEditor
+        case contentPicker
+        case searchView
+    }
+
+    enum LoadingTarget {
+        case recentTodos
+        case webPage
+        case overlay
     }
 
     private(set) var state = State()
@@ -113,17 +117,12 @@ final class HomeViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .tapTodoKind, .orderTodoKindPreferences, .setReorderTodo,
-                .setShowTodoEditor, .setShowContentPicker, .setShowSearchView,
-                .updateWebPageURLInput, .setAlert, .deleteWebPage,
-                .undoDeleteWebPage, .setToast:
-            effects = reduceByUser(action, state: &state)
-
-        case .onAppear, .updateSearching, .updateSearchText, .addTodo, .addWebPage:
+        case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoKind,
+                .orderTodoKindPreferences, .addTodo, .updateWebPageURLInput,
+                .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .fetchRecentTodos, .fetchWebPages, .restoreWebPage, .setRecentTodosLoading,
-                .setWebPageLoading, .setAppending:
+        case .setLoading, .updateRecentTodos, .updateWebPages, .restoreWebPage:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -136,14 +135,15 @@ final class HomeViewModel: Store {
         case .addTodo(let todo):
             Task {
                 do {
-                    send(.setAppending(true))
+                    defer { send(.setLoading(.overlay, false)) }
+                    send(.setLoading(.overlay, true))
                     try await upsertTodoUseCase.execute(todo)
                     let page = try await fetchRecentTodos()
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
                         .prefix(5)
                         .map { RecentTodoItem(from: $0) }
-                    send(.fetchRecentTodos(items))
+                    send(.updateRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -151,14 +151,14 @@ final class HomeViewModel: Store {
         case .fetchRecentTodos:
             Task {
                 do {
-                    defer { send(.setRecentTodosLoading(false)) }
-                    send(.setRecentTodosLoading(true))
+                    defer { send(.setLoading(.recentTodos, false)) }
+                    send(.setLoading(.recentTodos, true))
                     let page = try await fetchRecentTodos()
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
                         .prefix(5)
                         .map { RecentTodoItem(from: $0) }
-                    send(.fetchRecentTodos(items))
+                    send(.updateRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -166,11 +166,11 @@ final class HomeViewModel: Store {
         case .addWebPage(let urlString):
             Task {
                 do {
-                    defer { send(.setAppending(false)) }
-                    send(.setAppending(true))
+                    defer { send(.setLoading(.overlay, false)) }
+                    send(.setLoading(.overlay, true))
                     try await addWebPageUseCase.execute(urlString)
                     let pages = try await fetchWebPagesUseCase.execute("")
-                    send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
+                    send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -178,8 +178,8 @@ final class HomeViewModel: Store {
         case .deleteWebPage(let page, let index):
             Task {
                 do {
-                    defer { send(.setWebPageLoading(false)) }
-                    send(.setWebPageLoading(true))
+                    defer { send(.setLoading(.webPage, false)) }
+                    send(.setLoading(.webPage, true))
                     try await deleteWebPageUseCase.execute(page.url.absoluteString)
                 } catch {
                     send(.restoreWebPage(page, index))
@@ -188,8 +188,8 @@ final class HomeViewModel: Store {
             }
         case .undoDeleteWebPage(let urlString):
             Task {
-                defer { send(.setWebPageLoading(false)) }
-                send(.setWebPageLoading(true))
+                defer { send(.setLoading(.webPage, false)) }
+                send(.setLoading(.webPage, true))
 
                 var shouldPresentError = false
 
@@ -201,7 +201,7 @@ final class HomeViewModel: Store {
 
                 do {
                     let pages = try await fetchWebPagesUseCase.execute("")
-                    send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
+                    send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
                     shouldPresentError = true
                 }
@@ -213,10 +213,10 @@ final class HomeViewModel: Store {
         case .fetchWebPages:
             Task {
                 do {
-                    defer { send(.setWebPageLoading(false)) }
-                    send(.setWebPageLoading(true))
+                    defer { send(.setLoading(.webPage, false)) }
+                    send(.setLoading(.webPage, true))
                     let pages = try await fetchWebPagesUseCase.execute("")
-                    send(.fetchWebPages(pages.map { WebPageItem(from: $0) }))
+                    send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -226,7 +226,7 @@ final class HomeViewModel: Store {
                 try await Task.sleep(for: .seconds(0.1))
                 switch type {
                 case .todoEditor:
-                    send(.setShowTodoEditor(true))
+                    send(.setPresentation(.todoEditor, true))
                 case .urlInputAlert:
                     send(.setAlert(isPresented: true, type: .webPageInput))
                 }
@@ -237,31 +237,41 @@ final class HomeViewModel: Store {
 
 // MARK: - Reduce Methods
 private extension HomeViewModel {
-    func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
+    // swiftlint:disable cyclomatic_complexity
+    func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .tapTodoKind(let kind):
-            state.selectedTodoKind = kind
-            state.showContentPicker = false
-            return [.showModalAfterDelay(.todoEditor)]
-        case .orderTodoKindPreferences(let preferences):
-            state.todoKindPreferences = preferences
-        case .setReorderTodo(let presented):
-            state.reorderTodo = presented
-        case .setShowTodoEditor(let presented):
-            state.showTodoEditor = presented
-            if !presented { state.selectedTodoKind = nil }
-        case .setShowContentPicker(let presented):
-            state.showContentPicker = presented
-        case .setShowSearchView(let presented):
-            state.showSearchView = presented
-        case .updateWebPageURLInput(let text):
-            state.webPageURLInput = text
+        case .onAppear:
+            return [.fetchRecentTodos, .fetchWebPages]
+        case .setPresentation(let presentation, let isPresented):
+            setPresentation(&state, presentation: presentation, isPresented: isPresented)
         case .setAlert(let presented, let type):
             if presented && type == .webPageInput && state.showContentPicker {
                 state.showContentPicker = false
                 return [.showModalAfterDelay(.urlInputAlert)]
             }
             setAlert(&state, isPresented: presented, type: type)
+        case .setToast(let isPresented, let type):
+            setToast(&state, isPresented: isPresented, for: type)
+            if !isPresented {
+                deletedWebPageURLString = nil
+            }
+        case .tapTodoKind(let kind):
+            state.selectedTodoKind = kind
+            state.showContentPicker = false
+            return [.showModalAfterDelay(.todoEditor)]
+        case .orderTodoKindPreferences(let preferences):
+            state.todoKindPreferences = preferences
+        case .addTodo(let todo):
+            return [.addTodo(todo)]
+        case .updateWebPageURLInput(let text):
+            state.webPageURLInput = text
+        case .addWebPage:
+            guard let normalizedURL = normalizedWebPageURL(state.webPageURLInput) else {
+                setAlert(&state, isPresented: true, type: .invalidURL)
+                return []
+            }
+            setAlert(&state, isPresented: false, type: nil)
+            return [.addWebPage(normalizedURL)]
         case .deleteWebPage(let page):
             if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
                 deletedWebPageURLString = page.url.absoluteString
@@ -273,45 +283,20 @@ private extension HomeViewModel {
             guard let deletedWebPageURLString else { return [] }
             self.deletedWebPageURLString = nil
             return [.undoDeleteWebPage(deletedWebPageURLString)]
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, for: type)
-            if !isPresented {
-                deletedWebPageURLString = nil
-            }
         default:
             break
         }
         return []
     }
-
-    func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
-        switch action {
-        case .onAppear:
-            return [.fetchRecentTodos, .fetchWebPages]
-        case .updateSearching(let isSearching):
-            state.isSearching = isSearching
-        case .updateSearchText(let text):
-            state.searchText = text
-        case .addTodo(let todo):
-            return [.addTodo(todo)]
-        case .addWebPage:
-            guard let normalizedURL = normalizedWebPageURL(state.webPageURLInput) else {
-                setAlert(&state, isPresented: true, type: .invalidURL)
-                return []
-            }
-            setAlert(&state, isPresented: false, type: nil)
-            return [.addWebPage(normalizedURL)]
-        default:
-            break
-        }
-        return []
-    }
+    // swiftlint:enable cyclomatic_complexity
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .fetchRecentTodos(let todos):
+        case .setLoading(let loadingTarget, let isLoading):
+            setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
+        case .updateRecentTodos(let todos):
             state.recentTodos = todos
-        case .fetchWebPages(let pages):
+        case .updateWebPages(let pages):
             state.webPages = pages
         case .restoreWebPage(let page, let index):
             if state.webPages.contains(where: { $0.id == page.id }) { break }
@@ -323,12 +308,6 @@ private extension HomeViewModel {
             if deletedWebPageURLString == page.url.absoluteString {
                 deletedWebPageURLString = nil
             }
-        case .setRecentTodosLoading(let isLoading):
-            state.isRecentTodosLoading = isLoading
-        case .setWebPageLoading(let isLoading):
-            state.isWebPageLoading = isLoading
-        case .setAppending(let isLoading):
-            state.isAppending = isLoading
         default:
             break
         }
@@ -338,6 +317,24 @@ private extension HomeViewModel {
 
 // MARK: - Helper Methods
 private extension HomeViewModel {
+    func setPresentation(
+        _ state: inout State,
+        presentation: Presentation,
+        isPresented: Bool
+    ) {
+        switch presentation {
+        case .reorderTodo:
+            state.reorderTodo = isPresented
+        case .todoEditor:
+            state.showTodoEditor = isPresented
+            if !isPresented { state.selectedTodoKind = nil }
+        case .contentPicker:
+            state.showContentPicker = isPresented
+        case .searchView:
+            state.showSearchView = isPresented
+        }
+    }
+
     func setAlert(
         _ state: inout State,
         isPresented: Bool,
@@ -375,6 +372,21 @@ private extension HomeViewModel {
         }
         state.showToast = isPresented
         state.toastType = type
+    }
+
+    func setLoading(
+        _ state: inout State,
+        loadingTarget: LoadingTarget,
+        isLoading: Bool
+    ) {
+        switch loadingTarget {
+        case .recentTodos:
+            state.isRecentTodosLoading = isLoading
+        case .webPage:
+            state.isWebPageLoading = isLoading
+        case .overlay:
+            state.isAppending = isLoading
+        }
     }
 
     func normalizedWebPageURL(_ input: String) -> String? {
