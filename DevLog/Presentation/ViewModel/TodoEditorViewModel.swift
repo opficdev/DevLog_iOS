@@ -11,6 +11,7 @@ import OrderedCollections
 @Observable
 final class TodoEditorViewModel: Store {
     private struct Draft: Equatable {
+        let isCompleted: Bool
         let isPinned: Bool
         let title: String
         let content: String
@@ -19,6 +20,7 @@ final class TodoEditorViewModel: Store {
         let kind: TodoKind
 
         init(todo: Todo) {
+            self.isCompleted = todo.isCompleted
             self.isPinned = todo.isPinned
             self.title = todo.title
             self.content = todo.content
@@ -28,6 +30,7 @@ final class TodoEditorViewModel: Store {
         }
 
         init(state: State) {
+            self.isCompleted = state.isCompleted
             self.isPinned = state.isPinned
             self.title = state.title
             self.content = state.content
@@ -38,6 +41,7 @@ final class TodoEditorViewModel: Store {
     }
 
     struct State: Equatable {
+        var isCompleted: Bool = false
         var isPinned: Bool = false
         var title: String = ""
         var content: String = ""
@@ -61,6 +65,7 @@ final class TodoEditorViewModel: Store {
         case addTag(String)
         case removeTag(String)
         case setContent(String)
+        case setCompleted(Bool)
         case setDueDate(Date?)
         case setKind(TodoKind)
         case setPinned(Bool)
@@ -117,6 +122,7 @@ final class TodoEditorViewModel: Store {
         self.createdAt = todo.createdAt
         self.completedAt = todo.completedAt
         self.originalDraft = Draft(todo: todo)
+        state.isCompleted = todo.isCompleted
         state.isPinned = todo.isPinned
         state.title = todo.title
         state.content = todo.content
@@ -145,6 +151,8 @@ final class TodoEditorViewModel: Store {
             } else {
                 state.dueDate = nil
             }
+        case .setCompleted(let isCompleted):
+            state.isCompleted = isCompleted
         case .setKind(let todoKind):
             state.kind = todoKind
         case .setPinned(let isPinned):
@@ -183,13 +191,13 @@ extension TodoEditorViewModel {
         return Todo(
             id: self.id,
             isPinned: state.isPinned,
-            isCompleted: self.isCompleted,
+            isCompleted: state.isCompleted,
             isChecked: self.isChecked,
             title: state.title,
             content: state.content,
             createdAt: self.createdAt ?? date,
             updatedAt: date,
-            completedAt: self.completedAt,
+            completedAt: state.isCompleted ? (self.completedAt ?? date) : nil,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
             kind: state.kind

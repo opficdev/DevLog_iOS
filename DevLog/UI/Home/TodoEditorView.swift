@@ -193,6 +193,15 @@ private struct TodoEditorInfoSheetView: View {
                     }
 
                     Toggle(
+                        "완료",
+                        isOn: Binding(
+                            get: { viewModel.state.isCompleted },
+                            set: { viewModel.send(.setCompleted($0)) }
+                        )
+                    )
+                    .tint(.blue)
+
+                    Toggle(
                         "중요 표시",
                         isOn: Binding(
                             get: { viewModel.state.isPinned },
