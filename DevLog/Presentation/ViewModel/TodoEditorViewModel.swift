@@ -16,6 +16,7 @@ final class TodoEditorViewModel: Store {
         let content: String
         let dueDate: Date?
         let tags: [String]
+        let kind: TodoKind
 
         init(todo: Todo) {
             self.isPinned = todo.isPinned
@@ -23,6 +24,7 @@ final class TodoEditorViewModel: Store {
             self.content = todo.content
             self.dueDate = todo.dueDate
             self.tags = todo.tags
+            self.kind = todo.kind
         }
 
         init(state: State) {
@@ -31,6 +33,7 @@ final class TodoEditorViewModel: Store {
             self.content = state.content
             self.dueDate = state.dueDate
             self.tags = Array(state.tags)
+            self.kind = state.kind
         }
     }
 
@@ -39,10 +42,12 @@ final class TodoEditorViewModel: Store {
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
+        var showInfo: Bool = false
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
+        var kind: TodoKind = .etc
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -57,24 +62,32 @@ final class TodoEditorViewModel: Store {
         case removeTag(String)
         case setContent(String)
         case setDueDate(Date?)
+        case setKind(TodoKind)
+        case setPinned(Bool)
+        case setShowInfo(Bool)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
-        case togglePinned
     }
 
     enum SideEffect { }
 
     private(set) var state = State()
     private let calendar = Calendar.current
-    let navigationTitle: String
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
     private let createdAt: Date?
     private let completedAt: Date?
-    private let kind: TodoKind
     private let originalDraft: Draft?
+
+    var navigationTitle: String {
+        if originalDraft == nil {
+            return "새 \(state.kind.localizedName) 추가"
+        }
+
+        return "편집"
+    }
 
     var hasChanges: Bool {
         guard let originalDraft else { return true }
@@ -87,31 +100,29 @@ final class TodoEditorViewModel: Store {
 
     // 새로운 Todo 생성용 생성자
     init(kind: TodoKind) {
-        self.navigationTitle = "새 \(kind.localizedName) 추가"
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
         self.createdAt = nil
         self.completedAt = nil
-        self.kind = kind
         self.originalDraft = nil
+        state.kind = kind
     }
 
     // 기존 Todo 편집용 생성자
     init(todo: Todo) {
-        self.navigationTitle = "편집"
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
         self.createdAt = todo.createdAt
         self.completedAt = todo.completedAt
-        self.kind = todo.kind
         self.originalDraft = Draft(todo: todo)
         state.isPinned = todo.isPinned
         state.title = todo.title
         state.content = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
+        state.kind = todo.kind
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -134,10 +145,14 @@ final class TodoEditorViewModel: Store {
             } else {
                 state.dueDate = nil
             }
+        case .setKind(let todoKind):
+            state.kind = todoKind
+        case .setPinned(let isPinned):
+            state.isPinned = isPinned
+        case .setShowInfo(let isPresented):
+            state.showInfo = isPresented
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
-        case .togglePinned:
-            state.isPinned.toggle()
         }
 
         if self.state != state { self.state = state }
@@ -177,7 +192,7 @@ extension TodoEditorViewModel {
             completedAt: self.completedAt,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
-            kind: self.kind
+            kind: state.kind
         )
     }
 }
