@@ -272,9 +272,7 @@ private struct TodoEditorInfoSheetView: View {
             HStack {
                 Text("마감일")
                     .foregroundStyle(.primary)
-
                 Spacer()
-
                 if let dueDate = viewModel.state.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
                         viewModel.send(.setDueDate(nil))
