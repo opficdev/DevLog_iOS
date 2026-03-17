@@ -193,6 +193,15 @@ private struct TodoEditorInfoSheetView: View {
                     }
 
                     Toggle(
+                        "완료",
+                        isOn: Binding(
+                            get: { viewModel.state.isCompleted },
+                            set: { viewModel.send(.setCompleted($0)) }
+                        )
+                    )
+                    .tint(.blue)
+
+                    Toggle(
                         "중요 표시",
                         isOn: Binding(
                             get: { viewModel.state.isPinned },
@@ -263,9 +272,7 @@ private struct TodoEditorInfoSheetView: View {
             HStack {
                 Text("마감일")
                     .foregroundStyle(.primary)
-
                 Spacer()
-
                 if let dueDate = viewModel.state.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
                         viewModel.send(.setDueDate(nil))
