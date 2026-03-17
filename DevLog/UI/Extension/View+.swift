@@ -93,10 +93,10 @@ private struct ScrollViewOffsetTracker: UIViewRepresentable {
 
 extension View {
     @ViewBuilder
-    func adaptiveButtonStyle(
-        shape: some Shape = .capsule,
-        color: Color = .clear)
-    -> some View {
+    func adaptiveButtonStyle<S: InsettableShape>(
+        shape: S = Capsule(),
+        color: Color = .clear
+    ) -> some View {
         if #available(iOS 26.0, *) {
             self.foregroundStyle(Color(.label))
                 .padding(8)
@@ -106,19 +106,9 @@ extension View {
             self.foregroundStyle(Color(.label))
                 .padding(8)
                 .background {
-                    Group {
-                        if color == .clear {
-                            shape
-                                .fill(Color(.systemGray5))
-                        } else {
-                            shape
-                                .fill(color)
-                        }
-                    }
-                    .overlay {
-                        shape
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    }
+                    shape
+                        .fill(color == .clear ? Color(.systemGray5) : color)
+                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
                 }
         }
     }
