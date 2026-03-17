@@ -11,44 +11,48 @@ import SwiftUI
 
 struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
-    @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
-    @State private var showDueDatePicker: Bool = false
+    @State private var showInfo: Bool = false
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    LazyVStack(spacing: 10) {
-                        titleField
-                        LazyVStack(
-                            alignment: .leading,
-                            spacing: 0,
-                            pinnedViews: [.sectionHeaders]
-                        ) {
-                            Section {
-                                tabView
-                            } header: {
-                                tabViewSelector
-                            }
+            ScrollView {
+                LazyVStack(spacing: 10) {
+                    titleField
+                    LazyVStack(
+                        alignment: .leading,
+                        spacing: 0,
+                        pinnedViews: [.sectionHeaders]
+                    ) {
+                        Section {
+                            tabView
+                        } header: {
+                            tabViewSelector
                         }
                     }
                 }
-                .onTapGesture {
-                    field = .description
-                }
-                accessoryBar
-                    .padding(.horizontal)
-                    .padding(.bottom, 16 + safeAreaInsets.bottom / 4)
+            }
+            .onTapGesture {
+                field = .description
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
+            .sheet(isPresented: $showInfo) {
+                editorInfoSheet
+            }
             .toolbar {
                 ToolbarLeadingButton { dismiss() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showInfo = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                    }
+                }
                 ToolbarTrailingButton {
                     submit()
                 }
@@ -150,33 +154,65 @@ struct TodoEditorView: View {
         .padding(.vertical, 8)
     }
 
-    private var accessoryBar: some View {
-        HStack {
-            Button {
-                viewModel.send(.togglePinned)
-            } label: {
-                Label {
-                    Text("중요")
-                } icon: {
-                    Image(systemName: viewModel.state.isPinned ? "star.fill" : "star")
-                        .foregroundStyle(viewModel.state.isPinned ? .yellow : .gray)
+    private var editorInfoSheet: some View {
+        NavigationStack {
+            List {
+                Section("카테고리") {
+                    Picker(
+                        "카테고리",
+                        selection: Binding(
+                            get: { viewModel.state.kind },
+                            set: { viewModel.send(.setKind($0)) }
+                        )
+                    ) {
+                        ForEach(TodoKind.allCases) { todoKind in
+                            Label(todoKind.localizedName, systemImage: todoKind.symbolName)
+                                .tag(todoKind)
+                        }
+                    }
                 }
-                .adaptiveButtonStyle()
-            }
-            TagEditor(
-                tags: viewModel.state.tags,
-                addAction: { viewModel.send(.addTag($0)) },
-                deleteAction: { viewModel.send(.removeTag($0)) }
-            ) {
-                Label {
-                    Text("태그")
-                } icon: {
-                    Image(systemName: "tag")
-                        .foregroundStyle(.gray)
+
+                Section("옵션") {
+                    Toggle(
+                        "중요 표시",
+                        isOn: Binding(
+                            get: { viewModel.state.isPinned },
+                            set: { isPinned in
+                                if viewModel.state.isPinned != isPinned {
+                                    viewModel.send(.togglePinned)
+                                }
+                            }
+                        )
+                    )
+
+                    dueDateControl
                 }
-                .adaptiveButtonStyle()
+
+                Section("태그") {
+                    TagEditor(
+                        tags: viewModel.state.tags,
+                        addAction: { viewModel.send(.addTag($0)) },
+                        deleteAction: { viewModel.send(.removeTag($0)) }
+                    ) {
+                        Label("태그 편집", systemImage: "tag")
+                    }
+
+                    if viewModel.state.tags.isEmpty {
+                        Text("태그 없음")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        TagList(viewModel.state.tags)
+                            .padding(.vertical, 4)
+                    }
+                }
             }
-            dueDateControl
+            .navigationTitle("세부 정보")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarLeadingButton {
+                    showInfo = false
+                }
+            }
         }
     }
 
@@ -185,21 +221,23 @@ struct TodoEditorView: View {
             get: { viewModel.state.dueDate ?? Date() },
             set: { viewModel.send(.setDueDate($0)) }
         )) {
-            Label {
+            HStack {
+                Label("마감일", systemImage: "calendar")
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
                 if let dueDate = viewModel.state.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
                         viewModel.send(.setDueDate(nil))
                     }
                     .padding(.vertical, -4)
                 } else {
-                    Text("마감일")
+                    Text("없음")
+                        .foregroundStyle(.secondary)
                 }
-            } icon: {
-                Image(systemName: "calendar")
-                    .foregroundStyle(.gray)
             }
         }
-        .adaptiveButtonStyle()
     }
 
     private func submit() {
