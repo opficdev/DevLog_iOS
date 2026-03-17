@@ -61,6 +61,9 @@ struct MainView: View {
                 Text("프로필")
             }
         }
+        .onAppear {
+            viewModel.send(.onAppear)
+        }
         .alert(
             viewModel.state.alertTitle,
             isPresented: Binding(

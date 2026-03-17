@@ -19,23 +19,25 @@ final class MainViewModel: Store {
     }
 
     enum Action {
+        case onAppear
         case setUnreadPushCount(Int)
         case setAlert(Bool)
     }
 
     enum SideEffect {
+        case observeUnreadPushCount
         case updateBadgeCount(Int)
     }
 
     private(set) var state = State()
     private var cancellables = Set<AnyCancellable>()
+    private var isObservingUnreadPushCount = false
     private let observeUnreadPushCountUseCase: ObserveUnreadPushCountUseCase
 
     init(
         observeUnreadPushCountUseCase: ObserveUnreadPushCountUseCase
     ) {
         self.observeUnreadPushCountUseCase = observeUnreadPushCountUseCase
-        observeUnreadPushCount()
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -43,6 +45,11 @@ final class MainViewModel: Store {
         var sideEffects: [SideEffect] = []
 
         switch action {
+        case .onAppear:
+            if !isObservingUnreadPushCount {
+                isObservingUnreadPushCount = true
+                sideEffects = [.observeUnreadPushCount]
+            }
         case .setUnreadPushCount(let count):
             state.unreadPushCount = count
             sideEffects = [.updateBadgeCount(count)]
@@ -56,6 +63,8 @@ final class MainViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
+        case .observeUnreadPushCount:
+            observeUnreadPushCount()
         case .updateBadgeCount(let count):
             updateBadgeCount(count)
         }
