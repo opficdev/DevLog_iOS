@@ -63,11 +63,11 @@ final class TodoEditorViewModel: Store {
         case setContent(String)
         case setDueDate(Date?)
         case setKind(TodoKind)
+        case setPinned(Bool)
         case setShowInfo(Bool)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
-        case togglePinned
     }
 
     enum SideEffect { }
@@ -147,12 +147,12 @@ final class TodoEditorViewModel: Store {
             }
         case .setKind(let todoKind):
             state.kind = todoKind
+        case .setPinned(let isPinned):
+            state.isPinned = isPinned
         case .setShowInfo(let isPresented):
             state.showInfo = isPresented
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
-        case .togglePinned:
-            state.isPinned.toggle()
         }
 
         if self.state != state { self.state = state }

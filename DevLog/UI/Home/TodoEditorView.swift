@@ -196,11 +196,7 @@ private struct TodoEditorInfoSheetView: View {
                         "중요 표시",
                         isOn: Binding(
                             get: { viewModel.state.isPinned },
-                            set: { isPinned in
-                                if viewModel.state.isPinned != isPinned {
-                                    viewModel.send(.togglePinned)
-                                }
-                            }
+                            set: { viewModel.send(.setPinned($0)) }
                         )
                     )
                     .tint(.blue)
