@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
+    @State var viewModel: MainViewModel
 
     var body: some View {
         TabView {
@@ -47,6 +48,7 @@ struct MainView: View {
                 Image(systemName: "bell.fill")
                 Text("알림")
             }
+            .badge(viewModel.state.unreadPushCount)
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
@@ -58,6 +60,17 @@ struct MainView: View {
                 Image(systemName: "person.crop.circle.fill")
                 Text("프로필")
             }
+        }
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert($0)) }
+            )
+        ) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
         }
     }
 }

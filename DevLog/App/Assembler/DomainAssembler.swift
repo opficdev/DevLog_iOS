@@ -103,6 +103,10 @@ private extension DomainAssembler {
             FetchPushNotificationsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
+        container.register(ObserveUnreadPushCountUseCase.self) {
+            ObserveUnreadPushCountUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
         container.register(TogglePushNotificationReadUseCase.self) {
             TogglePushNotificationReadUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
