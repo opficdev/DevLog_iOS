@@ -203,6 +203,7 @@ private struct TodoEditorInfoSheetView: View {
                             }
                         )
                     )
+                    .tint(.blue)
 
                     dueDateControl
                 }
