@@ -191,7 +191,10 @@ final class PushNotificationService {
                 }
 
                 guard let snapshot else { return }
-                subject.send(snapshot.documents.count)
+                let unreadPushCount = snapshot.documents.filter { document in
+                    !(document.data()[Key.deletingAt.rawValue] is Timestamp)
+                }.count
+                subject.send(unreadPushCount)
             }
 
         return subject
