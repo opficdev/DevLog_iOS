@@ -30,6 +30,7 @@ final class MainViewModel: Store {
     }
 
     private(set) var state = State()
+    private let logger = Logger(category: "MainViewModel")
     private var cancellables = Set<AnyCancellable>()
     private var isObservingUnreadPushCount = false
     private let observeUnreadPushCountUseCase: ObserveUnreadPushCountUseCase
@@ -88,7 +89,8 @@ private extension MainViewModel {
                 .sink(
                     receiveCompletion: { [weak self] completion in
                         guard let self else { return }
-                        if case .failure = completion {
+                        if case .failure(let error) = completion {
+                            logger.error("Failed to observe unread push count", error: error)
                             self.send(.setAlert(true))
                         }
                     },
@@ -98,11 +100,16 @@ private extension MainViewModel {
                 )
                 .store(in: &cancellables)
         } catch {
+            logger.error("Failed to start observing unread push count", error: error)
             send(.setAlert(true))
         }
     }
 
     func updateBadgeCount(_ count: Int) {
-        UNUserNotificationCenter.current().setBadgeCount(count) { _ in }
+        UNUserNotificationCenter.current().setBadgeCount(count) { [weak self] error in
+            if let error {
+                self?.logger.error("Failed to update application badge count", error: error)
+            }
+        }
     }
 }
