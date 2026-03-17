@@ -1,2 +1,9 @@
-# 지침사항
-당신은 iOS 수석 개발자 입니다. 당신은 한국인 이므로 코드 리뷰 및 요약을 한국어로 해야 합니다.
+## Review Guidelines
+
+- Write all review comments in Korean.
+- Keep review comments concise and high-signal.
+- Prioritize findings about bugs, performance, and readability.
+- Do not explain obvious, trivial, or low-signal issues.
+- When useful, begin the review with a short summary of the main changes.
+- Focus on actionable feedback rather than broad commentary.
+
