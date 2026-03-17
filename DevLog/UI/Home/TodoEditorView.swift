@@ -43,6 +43,10 @@ struct TodoEditorView: View {
             .sheet(isPresented: Binding(
                 get: { viewModel.state.showInfo },
                 set: { viewModel.send(.setShowInfo($0)) }
+            )) {
+                TodoEditorInfoSheetView(viewModel: viewModel) {
+                    viewModel.send(.setShowInfo(false))
+                }
             }
             .toolbar {
                 ToolbarLeadingButton { dismiss() }
@@ -154,7 +158,24 @@ struct TodoEditorView: View {
         .padding(.vertical, 8)
     }
 
-    private var editorInfoSheet: some View {
+    private func submit() {
+        let todo = viewModel.makeTodo()
+        onSubmit?(todo)
+        dismiss()
+    }
+
+    private enum Field: Hashable {
+        case title, content
+    }
+}
+
+private struct TodoEditorInfoSheetView: View {
+    @Bindable var viewModel: TodoEditorViewModel
+    let onClose: () -> Void
+    @FocusState private var isTagFieldFocused: Bool
+    private let calendar = Calendar.current
+
+    var body: some View {
         NavigationStack {
             List {
                 Section("옵션") {
@@ -187,28 +208,51 @@ struct TodoEditorView: View {
                 }
 
                 Section("태그") {
-                    TagEditor(
-                        tags: viewModel.state.tags,
-                        addAction: { viewModel.send(.addTag($0)) },
-                        deleteAction: { viewModel.send(.removeTag($0)) }
-                    ) {
-                        Label("태그 편집", systemImage: "tag")
+                    HStack(spacing: 12) {
+                        TextField(
+                            "추가",
+                            text: Binding(
+                                get: { viewModel.state.tagText },
+                                set: { viewModel.send(.setTagText($0)) }
+                            )
+                        )
+                        .frame(height: UIFont.preferredFont(forTextStyle: .title2).lineHeight)
+                        .textInputAutocapitalization(.never)
+                        .focused($isTagFieldFocused)
+                        .onSubmit {
+                            submitTag()
+                        }
+
+                        if isTagFieldFocused {
+                            Button {
+                                submitTag()
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(canSubmitTag ? .blue : .secondary)
+                            }
+                            .disabled(!canSubmitTag)
+                        }
                     }
 
                     if viewModel.state.tags.isEmpty {
                         Text("태그 없음")
                             .foregroundStyle(.secondary)
-                    } else {
-                        TagList(viewModel.state.tags)
                             .padding(.vertical, 4)
+                    } else {
+                        TagList(
+                            viewModel.state.tags,
+                            isEditing: isTagFieldFocused,
+                            action: { viewModel.send(.removeTag($0)) }
+                        )
                     }
                 }
-                .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
             }
             .navigationTitle("세부 정보")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarLeadingButton {
+                    onClose()
                 }
             }
         }
@@ -220,7 +264,7 @@ struct TodoEditorView: View {
             set: { viewModel.send(.setDueDate($0)) }
         )) {
             HStack {
-                Label("마감일", systemImage: "calendar")
+                Text("마감일")
                     .foregroundStyle(.primary)
 
                 Spacer()
@@ -238,14 +282,20 @@ struct TodoEditorView: View {
         }
     }
 
-    private func submit() {
-        let todo = viewModel.makeTodo()
-        onSubmit?(todo)
-        dismiss()
+    private func submitTag() {
+        guard canSubmitTag else { return }
+
+        let tagText = normalizedTagText
+        viewModel.send(.addTag(tagText))
+        viewModel.send(.setTagText(""))
     }
 
-    private enum Field: Hashable {
-        case title, description, tag
+    private var normalizedTagText: String {
+        viewModel.state.tagText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var canSubmitTag: Bool {
+        !normalizedTagText.isEmpty && !viewModel.state.tags.contains(normalizedTagText)
     }
 
     private func dueDateText(for dueDate: Date) -> String {
@@ -261,135 +311,6 @@ struct TodoEditorView: View {
         return dueDate.formatted(
             .dateTime.year(.twoDigits).month(.defaultDigits).day(.defaultDigits)
         )
-    }
-}
-
-private struct TagEditor<Content: View>: View {
-    @Environment(\.safeAreaInsets) private var safeAreaInsets
-    @State private var isPresented: Bool = false
-    @State private var sheetHeight: CGFloat = .pi
-    @State private var tagsHeight: CGFloat = 0
-    @State private var fieldHeight: CGFloat = 0
-    @State private var tag = ""
-    @ViewBuilder private var content: () -> Content
-    private let tags: OrderedSet<String>
-    private let addAction: (String) -> Void
-    private let deleteAction: (String) -> Void
-    private let spacing: CGFloat = 8
-
-    init(
-        tags: OrderedSet<String>,
-        addAction: @escaping (String) -> Void = { _ in },
-        deleteAction: @escaping (String) -> Void = { _ in },
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.tags = tags
-        self.addAction = addAction
-        self.deleteAction = deleteAction
-        self.content = content
-    }
-
-    var body: some View {
-        Button {
-            isPresented = true
-        } label: {
-            content()
-        }
-        .sheet(
-            isPresented: $isPresented,
-            onDismiss: { tag = "" }
-        ) {
-            VStack(spacing: tags.isEmpty ? 0 : spacing) {
-                ScrollView {
-                    TagList(tags, isEditing: true, action: deleteAction)
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear
-                                .onAppear {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        tagsHeight = geometry.size.height
-                                        sheetHeight += tagsHeight + (tagsHeight == 0 ? 0 : spacing)
-                                    }
-                                }
-                                .onChange(of: tags) { _, newTags in
-                                    DispatchQueue.main.async {
-                                        tagsHeight = geometry.size.height
-                                        sheetHeight = fieldHeight + tagsHeight + (newTags.isEmpty ? 0 : spacing)
-                                    }
-                                }
-                        }
-                    }
-                }
-                .scrollIndicators(.hidden)
-                .frame(maxHeight: tagsHeight)
-                .padding(.top, tags.isEmpty ? 0 : 8)
-
-                tagField
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear
-                                .onAppear {
-                                    fieldHeight = geometry.size.height + 16
-                                    sheetHeight = fieldHeight
-                                }
-                        }
-                    }
-
-            }
-            .padding(.horizontal)
-            .presentationDragIndicator(.hidden)
-            .presentationDetents([.height(sheetHeight)])
-        }
-    }
-
-    private var tagField: some View {
-        HStack {
-            HStack {
-                TextField("태그 입력", text: $tag)
-                    .keyboardType(.webSearch)
-                    .padding(tag.isEmpty ? .all : [.leading, .vertical])
-                    .onSubmit {
-                        isPresented = false
-                    }
-
-                if !tag.isEmpty {
-                    Button {
-                        tag = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title)
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(
-                                Color(.label),
-                                Color(.systemBackground)
-                            )
-                    }
-                    .padding(.trailing)
-                }
-            }
-            .background {
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        Capsule()
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    }
-            }
-
-            Button {
-                addAction(tag)
-                tag = ""
-            } label: {
-                Image(systemName: "plus")
-                    .font(.largeTitle)
-                    .foregroundStyle(Color.white)
-                    .adaptiveButtonStyle(
-                        shape: .circle,
-                        color: (!tag.isEmpty && !tags.contains(tag)) ? Color.blue : .gray.opacity(0.4)
-                    )
-            }
-            .disabled(tag.isEmpty || tags.contains(tag))
-        }
     }
 }
 
