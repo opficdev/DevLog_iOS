@@ -157,7 +157,7 @@ struct TodoEditorView: View {
     private var editorInfoSheet: some View {
         NavigationStack {
             List {
-                Section("카테고리") {
+                Section("옵션") {
                     Picker(
                         "카테고리",
                         selection: Binding(
@@ -166,13 +166,11 @@ struct TodoEditorView: View {
                         )
                     ) {
                         ForEach(TodoKind.allCases) { todoKind in
-                            Label(todoKind.localizedName, systemImage: todoKind.symbolName)
+                            Text(todoKind.localizedName)
                                 .tag(todoKind)
                         }
                     }
-                }
 
-                Section("옵션") {
                     Toggle(
                         "중요 표시",
                         isOn: Binding(
@@ -205,6 +203,7 @@ struct TodoEditorView: View {
                             .padding(.vertical, 4)
                     }
                 }
+                .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
             }
             .navigationTitle("세부 정보")
             .navigationBarTitleDisplayMode(.inline)
