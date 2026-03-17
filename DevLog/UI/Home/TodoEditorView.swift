@@ -13,7 +13,6 @@ struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
-    @State private var showInfo: Bool = false
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
 
@@ -41,14 +40,15 @@ struct TodoEditorView: View {
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
-            .sheet(isPresented: $showInfo) {
-                editorInfoSheet
+            .sheet(isPresented: Binding(
+                get: { viewModel.state.showInfo },
+                set: { viewModel.send(.setShowInfo($0)) }
             }
             .toolbar {
                 ToolbarLeadingButton { dismiss() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showInfo = true
+                        viewModel.send(.setShowInfo(true))
                     } label: {
                         Image(systemName: "info.circle")
                     }
@@ -209,7 +209,6 @@ struct TodoEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarLeadingButton {
-                    showInfo = false
                 }
             }
         }

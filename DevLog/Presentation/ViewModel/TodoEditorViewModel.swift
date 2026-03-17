@@ -42,6 +42,7 @@ final class TodoEditorViewModel: Store {
         var title: String = ""
         var content: String = ""
         var dueDate: Date?
+        var showInfo: Bool = false
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
@@ -62,6 +63,7 @@ final class TodoEditorViewModel: Store {
         case setContent(String)
         case setDueDate(Date?)
         case setKind(TodoKind)
+        case setShowInfo(Bool)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
@@ -145,6 +147,8 @@ final class TodoEditorViewModel: Store {
             }
         case .setKind(let todoKind):
             state.kind = todoKind
+        case .setShowInfo(let isPresented):
+            state.showInfo = isPresented
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
         case .togglePinned:
