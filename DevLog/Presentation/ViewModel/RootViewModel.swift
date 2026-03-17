@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UserNotifications
 
 @Observable
 final class RootViewModel: Store {
@@ -21,6 +22,7 @@ final class RootViewModel: Store {
     }
     
     enum Action {
+        case onAppear
         case setAlert(Bool)
         case networkStatusChanged(Bool)
         case setFirstLaunch(Bool)
@@ -30,6 +32,7 @@ final class RootViewModel: Store {
     }
 
     enum SideEffect {
+        case clearApplicationBadgeCount
         case signOut
     }
 
@@ -70,6 +73,13 @@ final class RootViewModel: Store {
         var effects: [SideEffect] = []
         
         switch action {
+        case .onAppear:
+            effects = [.clearApplicationBadgeCount]
+            if state.isFirstLaunch {
+                state.isFirstLaunch = false
+                updateFirstLaunchUseCase.execute(false)
+                effects.append(.signOut)
+            }
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .networkStatusChanged(let isConnected):
@@ -95,6 +105,8 @@ final class RootViewModel: Store {
     
     func run(_ effect: SideEffect) {
         switch effect {
+        case .clearApplicationBadgeCount:
+            clearApplicationBadgeCount()
         case .signOut:
             Task {
                 try? await signOutUseCase.execute()
@@ -107,6 +119,10 @@ final class RootViewModel: Store {
 
 // MARK: - Helper Methods
 private extension RootViewModel {
+    func clearApplicationBadgeCount() {
+        UNUserNotificationCenter.current().setBadgeCount(0) { _ in }
+    }
+
     func setAlert(
         _ state: inout State,
         isPresented: Bool

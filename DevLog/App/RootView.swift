@@ -27,10 +27,7 @@ struct RootView: View {
                         sessionUseCase: container.resolve(AuthSessionUseCase.self))
                     )
                     .onAppear {
-                        if viewModel.state.isFirstLaunch {
-                            viewModel.send(.setFirstLaunch(false))
-                            viewModel.send(.signOutAuto)
-                        }
+                        viewModel.send(.onAppear)
                     }
                 }
             } else {
