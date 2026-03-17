@@ -35,7 +35,7 @@ struct TodoEditorView: View {
                 }
             }
             .onTapGesture {
-                field = .description
+                field = .content
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -81,7 +81,7 @@ struct TodoEditorView: View {
             HStack(spacing: 0) {
                 Button(action: {
                     viewModel.send(.setTabViewTag(.editor))
-                    field = .description
+                    field = .content
                 }) {
                     Text("편집")
                         .frame(maxWidth: .infinity)
@@ -121,7 +121,7 @@ struct TodoEditorView: View {
                         axis: .vertical
                     )
                     .font(.callout)
-                    .focused($field, equals: .description)
+                    .focused($field, equals: .content)
                 }
             } else {
                 if viewModel.state.content.isEmpty {
