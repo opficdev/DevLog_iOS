@@ -17,7 +17,9 @@ struct RootView: View {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
             if let signIn = viewModel.state.signIn {
                 if signIn && !viewModel.state.isFirstLaunch {
-                    MainView()
+                    MainView(viewModel: MainViewModel(
+                        observeUnreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
+                    ))
                 } else {
                     LoginView(viewModel: LoginViewModel(
                         signInUseCase: container.resolve(SignInUseCase.self),
@@ -25,10 +27,7 @@ struct RootView: View {
                         sessionUseCase: container.resolve(AuthSessionUseCase.self))
                     )
                     .onAppear {
-                        if viewModel.state.isFirstLaunch {
-                            viewModel.send(.setFirstLaunch(false))
-                            viewModel.send(.signOutAuto)
-                        }
+                        viewModel.send(.onAppear)
                     }
                 }
             } else {

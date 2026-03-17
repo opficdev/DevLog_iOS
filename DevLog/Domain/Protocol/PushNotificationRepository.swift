@@ -20,6 +20,7 @@ protocol PushNotificationRepository {
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPage, Error>
+    func observeUnreadPushCount() throws -> AnyPublisher<Int, Error>
     func deleteNotification(_ notificationID: String) async throws
     func undoDeleteNotification(_ notificationID: String) async throws
     func toggleNotificationRead(_ todoId: String) async throws

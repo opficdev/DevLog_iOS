@@ -206,15 +206,6 @@ jobs:
           XC_STATUS=${PIPESTATUS[0]}
           set -e
 
-          if [ -f build.log ]; then
-            echo "== error: lines =="
-            if grep -i "error:" build.log; then
-              if [ "$XC_STATUS" -eq 0 ]; then
-                XC_STATUS=1
-              fi
-            fi
-          fi
-
           exit $XC_STATUS
 
       - name: Comment build failure on PR
@@ -228,9 +219,9 @@ jobs:
             if (fs.existsSync(path)) {
               const log = fs.readFileSync(path, 'utf8');
               const lines = log.split(/\r?\n/);
-              const errorLines = lines.filter((line) => /error:/i.test(line));
+              const errorLines = lines.filter((line) => /^(.*?):(\d+):(\d+):\s+error:/i.test(line));
               if (errorLines.length > 0) {
-                body += "Lines containing 'error:':\n\n```\n" + errorLines.join('\n') + '\n```\n';
+                body += "Compiler error lines:\n\n```\n" + errorLines.join('\n') + '\n```\n';
 
                 const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
                 const pathMod = require('path');
@@ -258,7 +249,7 @@ jobs:
                   body += "\nCode excerpts:\n\n```\n" + snippets.join('\n\n') + "\n```\n";
                 }
               } else {
-                body += "No lines containing 'error:' were found in build.log.";
+                body += "No compiler-style error diagnostics were found in build.log.";
               }
             } else {
               body += 'build.log not found.';

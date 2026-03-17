@@ -178,6 +178,30 @@ final class PushNotificationService {
             .eraseToAnyPublisher()
     }
 
+    func observeUnreadPushCount() throws -> AnyPublisher<Int, Error> {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let subject = PassthroughSubject<Int, Error>()
+        let listener = store.collection("users/\(uid)/notifications")
+            .whereField("isRead", isEqualTo: false)
+            .addSnapshotListener { snapshot, error in
+                if let error {
+                    subject.send(completion: .failure(error))
+                    return
+                }
+
+                guard let snapshot else { return }
+                let unreadPushCount = snapshot.documents.filter { document in
+                    !(document.data()[Key.deletingAt.rawValue] is Timestamp)
+                }.count
+                subject.send(unreadPushCount)
+            }
+
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
+    }
+
     /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         do {
