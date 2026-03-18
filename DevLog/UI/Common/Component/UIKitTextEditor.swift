@@ -10,8 +10,8 @@ import UIKit
 
 struct UIKitTextEditor: View {
     @Binding var text: String
-    @Binding var isFocused: Bool
     @State private var minHeight = TextEditorMetrics.font.lineHeight
+    private let focusBinding: Binding<Bool>
     private let placeholder: String
 
     init(
@@ -20,7 +20,7 @@ struct UIKitTextEditor: View {
         placeholder: String = ""
     ) {
         self._text = text
-        self._isFocused = isFocused
+        self.focusBinding = isFocused
         self.placeholder = placeholder
     }
 
@@ -28,31 +28,31 @@ struct UIKitTextEditor: View {
         UIKitTextEditorRepresentable(
             text: $text,
             minHeight: $minHeight,
-            isFocused: isFocused,
+            focusBinding: focusBinding,
             placeholder: placeholder
         )
         .frame(maxWidth: .infinity, minHeight: minHeight)
     }
 }
 
-fileprivate enum TextEditorMetrics {
+private enum TextEditorMetrics {
     static let font = UIFont.preferredFont(forTextStyle: .callout)
 }
 
 private struct UIKitTextEditorRepresentable: UIViewRepresentable {
     @Binding var text: String
     @Binding var minHeight: CGFloat
-    private let isFocused: Bool
+    private let focusBinding: Binding<Bool>
     private let placeholder: String
 
     init(
         text: Binding<String>,
         minHeight: Binding<CGFloat>,
-        isFocused: Bool,
+        focusBinding: Binding<Bool>,
         placeholder: String
     ) {
         self._text = text
-        self.isFocused = isFocused
+        self.focusBinding = focusBinding
         self._minHeight = minHeight
         self.placeholder = placeholder
     }
@@ -90,7 +90,7 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
         context.coordinator.applyPlaceholderIfNeeded(to: uiView)
 
         DispatchQueue.main.async {
-            if isFocused {
+            if focusBinding.wrappedValue {
                 if !uiView.isFirstResponder {
                     context.coordinator.preserveAncestorScrollOffset(for: uiView)
                     uiView.becomeFirstResponder()
@@ -122,6 +122,10 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
                 textView.textColor = .label
             }
 
+            if !parent.focusBinding.wrappedValue {
+                parent.focusBinding.wrappedValue = true
+            }
+
             restoreAncestorScrollOffsetIfNeeded()
 
             DispatchQueue.main.async { [weak self] in
@@ -141,6 +145,10 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
+            if parent.focusBinding.wrappedValue {
+                parent.focusBinding.wrappedValue = false
+            }
+
             applyPlaceholderIfNeeded(to: textView)
         }
 
