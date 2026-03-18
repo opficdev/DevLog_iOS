@@ -15,6 +15,7 @@ struct TodoEditorView: View {
     @FocusState private var field: Field?
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
+    @State private var isContentFocused = false
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,8 @@ struct TodoEditorView: View {
             }
             .onTapGesture {
                 field = .content
+                // 나중에 제거
+                isContentFocused = true
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -62,6 +65,11 @@ struct TodoEditorView: View {
                 }
                 .disabled(!viewModel.isReadyToSubmit)
             }
+            .onChange(of: field) { _, value in
+                if value == .title {
+                    isContentFocused = false
+                }
+            }
         }
     }
 
@@ -85,7 +93,10 @@ struct TodoEditorView: View {
             HStack(spacing: 0) {
                 Button(action: {
                     viewModel.send(.setTabViewTag(.editor))
-                    field = .content
+                    field = nil
+                    DispatchQueue.main.async {
+                        isContentFocused = true
+                    }
                 }) {
                     Text("편집")
                         .frame(maxWidth: .infinity)
@@ -95,8 +106,7 @@ struct TodoEditorView: View {
                 }
                 Divider()
                 Button(action: {
-                    viewModel.send(.setTabViewTag(.preview))
-                    field = nil
+                    transitionToPreview()
                 }) {
                     Text("미리보기")
                         .frame(maxWidth: .infinity)
@@ -115,17 +125,14 @@ struct TodoEditorView: View {
             if viewModel.state.tabViewTag == .editor {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
-                    TextField(
-                        "",
+                    UIKitTextEditor(
                         text: Binding(
                             get: { viewModel.state.content },
                             set: { viewModel.send(.setContent($0)) }
                         ),
-                        prompt: Text("설명(선택)").foregroundColor(Color.secondary),
-                        axis: .vertical
+                        isFocused: $isContentFocused,
+                        placeholder: "설명(선택)"
                     )
-                    .font(.callout)
-                    .focused($field, equals: .content)
                 }
             } else {
                 if viewModel.state.content.isEmpty {
@@ -162,6 +169,15 @@ struct TodoEditorView: View {
         let todo = viewModel.makeTodo()
         onSubmit?(todo)
         dismiss()
+    }
+
+    private func transitionToPreview() {
+        field = nil
+        isContentFocused = false
+
+        DispatchQueue.main.async {
+            viewModel.send(.setTabViewTag(.preview))
+        }
     }
 
     private enum Field: Hashable {
