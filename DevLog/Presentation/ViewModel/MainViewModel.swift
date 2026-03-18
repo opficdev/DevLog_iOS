@@ -108,7 +108,9 @@ private extension MainViewModel {
     func updateBadgeCount(_ count: Int) {
         UNUserNotificationCenter.current().setBadgeCount(count) { [weak self] error in
             if let error {
-                self?.logger.error("Failed to update application badge count", error: error)
+                Task { @MainActor in
+                    self?.logger.error("Failed to update application badge count", error: error)
+                }
             }
         }
     }

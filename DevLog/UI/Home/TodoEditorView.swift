@@ -95,8 +95,7 @@ struct TodoEditorView: View {
                 }
                 Divider()
                 Button(action: {
-                    viewModel.send(.setTabViewTag(.preview))
-                    field = nil
+                    transitionToPreview()
                 }) {
                     Text("미리보기")
                         .frame(maxWidth: .infinity)
@@ -115,16 +114,13 @@ struct TodoEditorView: View {
             if viewModel.state.tabViewTag == .editor {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
-                    TextField(
-                        "",
+                    UIKitTextEditor(
                         text: Binding(
                             get: { viewModel.state.content },
                             set: { viewModel.send(.setContent($0)) }
                         ),
-                        prompt: Text("설명(선택)").foregroundColor(Color.secondary),
-                        axis: .vertical
+                        placeholder: "설명(선택)"
                     )
-                    .font(.callout)
                     .focused($field, equals: .content)
                 }
             } else {
@@ -162,6 +158,14 @@ struct TodoEditorView: View {
         let todo = viewModel.makeTodo()
         onSubmit?(todo)
         dismiss()
+    }
+
+    private func transitionToPreview() {
+        field = nil
+
+        DispatchQueue.main.async {
+            viewModel.send(.setTabViewTag(.preview))
+        }
     }
 
     private enum Field: Hashable {
