@@ -36,7 +36,7 @@ struct UIKitTextEditor: View {
 }
 
 private enum TextEditorMetrics {
-    static let font = UIFont.preferredFont(forTextStyle: .callout)
+    static let font = UIFont.preferredFont(forTextStyle: .body)
 }
 
 private struct UIKitTextEditorRepresentable: UIViewRepresentable {
