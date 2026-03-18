@@ -11,8 +11,8 @@ import UIKit
 struct UIKitTextEditor: View {
     @Binding var text: String
     @Binding var isFocused: Bool
+    @State private var minHeight = TextEditorMetrics.font.lineHeight
     private let placeholder: String
-    @State private var minHeight = CGFloat(36)
 
     init(
         text: Binding<String>,
@@ -33,6 +33,10 @@ struct UIKitTextEditor: View {
         )
         .frame(maxWidth: .infinity, minHeight: minHeight)
     }
+}
+
+fileprivate enum TextEditorMetrics {
+    static let font = UIFont.preferredFont(forTextStyle: .callout)
 }
 
 private struct UIKitTextEditorRepresentable: UIViewRepresentable {
@@ -60,7 +64,7 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
-        textView.font = UIFont.preferredFont(forTextStyle: .callout)
+        textView.font = TextEditorMetrics.font
         textView.backgroundColor = .clear
         textView.textColor = .label
         textView.tintColor = .tintColor
@@ -176,7 +180,7 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
             let nextHeight = ceil(textView.sizeThatFits(
                 CGSize(width: width, height: .greatestFiniteMagnitude)
             ).height)
-            let resolvedHeight = max(nextHeight, 36)
+            let resolvedHeight = max(nextHeight, TextEditorMetrics.font.lineHeight)
 
             if parent.minHeight != resolvedHeight {
                 DispatchQueue.main.async {
