@@ -135,7 +135,7 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
             if let focusBinding {
                 if focusBinding.wrappedValue {
                     if !uiView.isFirstResponder {
-                        context.coordinator.preserveAncestorScrollOffset(for: uiView)
+                        context.coordinator.startTrackingOffset(for: uiView)
                         uiView.becomeFirstResponder()
                     }
                 } else if uiView.isFirstResponder {
@@ -148,15 +148,17 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: UIKitTextEditorRepresentable
-        private weak var ancestorScrollView: UIScrollView?
-        private var preservedContentOffset: CGPoint?
+        private weak var scrollView: UIScrollView?
+        private var offsetObservation: NSKeyValueObservation?
+        private var trackedOffset: CGPoint?
+        private var isRestoringOffset = false
 
         init(_ parent: UIKitTextEditorRepresentable) {
             self.parent = parent
         }
 
         func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-            preserveAncestorScrollOffset(for: textView)
+            startTrackingOffset(for: textView)
             return true
         }
 
@@ -170,20 +172,16 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
                 focusBinding.wrappedValue = true
             }
 
-            restoreAncestorScrollOffsetIfNeeded()
+            restoreOffsetIfNeeded()
 
             DispatchQueue.main.async { [weak self] in
-                self?.restoreAncestorScrollOffsetIfNeeded()
+                self?.restoreOffsetIfNeeded()
                 self?.updateHeight(for: textView)
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                self?.restoreAncestorScrollOffsetIfNeeded()
-                self?.preservedContentOffset = nil
             }
         }
 
         func textViewDidChange(_ textView: UITextView) {
+            stopTrackingOffset()
             parent.text = textView.text
             updateHeight(for: textView)
         }
@@ -193,6 +191,7 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
                 focusBinding.wrappedValue = false
             }
 
+            stopTrackingOffset()
             applyPlaceholderIfNeeded(to: textView)
         }
 
@@ -210,17 +209,63 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
             textView.textColor == .placeholderText
         }
 
-        func preserveAncestorScrollOffset(for textView: UITextView) {
-            ancestorScrollView = textView.enclosingScrollView
-            preservedContentOffset = ancestorScrollView?.contentOffset
+        func startTrackingOffset(for textView: UITextView) {
+            stopObservingOffset()
+            scrollView = textView.enclosingScrollView
+            trackedOffset = scrollView?.contentOffset
+            observeOffsetIfNeeded()
         }
 
-        func restoreAncestorScrollOffsetIfNeeded() {
-            guard let ancestorScrollView, let preservedContentOffset else { return }
+        func restoreOffsetIfNeeded() {
+            guard let scrollView, let trackedOffset else { return }
 
-            if ancestorScrollView.contentOffset != preservedContentOffset {
-                ancestorScrollView.setContentOffset(preservedContentOffset, animated: false)
+            if scrollView.contentOffset != trackedOffset {
+                isRestoringOffset = true
+                scrollView.setContentOffset(trackedOffset, animated: false)
+                isRestoringOffset = false
             }
+        }
+
+        func observeOffsetIfNeeded() {
+            guard let scrollView else { return }
+
+            offsetObservation = scrollView.observe(
+                \.contentOffset,
+                options: [.new]
+            ) { [weak self] scrollView, _ in
+                self?.handleOffsetChange(in: scrollView)
+            }
+        }
+
+        func handleOffsetChange(in scrollView: UIScrollView) {
+            guard let trackedOffset else {
+                stopObservingOffset()
+                return
+            }
+
+            if scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating {
+                stopTrackingOffset()
+                return
+            }
+
+            if isRestoringOffset {
+                return
+            }
+
+            if scrollView.contentOffset != trackedOffset {
+                restoreOffsetIfNeeded()
+            }
+        }
+
+        func stopObservingOffset() {
+            offsetObservation?.invalidate()
+            offsetObservation = nil
+        }
+
+        func stopTrackingOffset() {
+            stopObservingOffset()
+            scrollView = nil
+            trackedOffset = nil
         }
 
         func updateHeight(for textView: UITextView) {
