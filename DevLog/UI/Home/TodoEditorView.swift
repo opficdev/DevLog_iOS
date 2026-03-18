@@ -15,7 +15,6 @@ struct TodoEditorView: View {
     @FocusState private var field: Field?
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
-    @State private var isContentFocused = false
 
     var body: some View {
         NavigationStack {
@@ -37,8 +36,6 @@ struct TodoEditorView: View {
             }
             .onTapGesture {
                 field = .content
-                // 나중에 제거
-                isContentFocused = true
             }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -65,11 +62,6 @@ struct TodoEditorView: View {
                 }
                 .disabled(!viewModel.isReadyToSubmit)
             }
-            .onChange(of: field) { _, value in
-                if value == .title {
-                    isContentFocused = false
-                }
-            }
         }
     }
 
@@ -93,10 +85,7 @@ struct TodoEditorView: View {
             HStack(spacing: 0) {
                 Button(action: {
                     viewModel.send(.setTabViewTag(.editor))
-                    field = nil
-                    DispatchQueue.main.async {
-                        isContentFocused = true
-                    }
+                    field = .content
                 }) {
                     Text("편집")
                         .frame(maxWidth: .infinity)
@@ -130,9 +119,9 @@ struct TodoEditorView: View {
                             get: { viewModel.state.content },
                             set: { viewModel.send(.setContent($0)) }
                         ),
-                        isFocused: $isContentFocused,
                         placeholder: "설명(선택)"
                     )
+                    .focused($field, equals: .content)
                 }
             } else {
                 if viewModel.state.content.isEmpty {
@@ -173,7 +162,6 @@ struct TodoEditorView: View {
 
     private func transitionToPreview() {
         field = nil
-        isContentFocused = false
 
         DispatchQueue.main.async {
             viewModel.send(.setTabViewTag(.preview))

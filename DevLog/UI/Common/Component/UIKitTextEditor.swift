@@ -10,17 +10,15 @@ import UIKit
 
 struct UIKitTextEditor: View {
     @Binding var text: String
+    @Environment(\.uiKitTextEditorFocusBinding) private var focusBinding
     @State private var minHeight = TextEditorMetrics.font.lineHeight
-    private let focusBinding: Binding<Bool>
     private let placeholder: String
 
     init(
         text: Binding<String>,
-        isFocused: Binding<Bool>,
         placeholder: String = ""
     ) {
         self._text = text
-        self.focusBinding = isFocused
         self.placeholder = placeholder
     }
 
@@ -33,22 +31,66 @@ struct UIKitTextEditor: View {
         )
         .frame(maxWidth: .infinity, minHeight: minHeight)
     }
+
+    // 각 메서드 내에 있는 `.focused()`의 정체
+    // 해당 .focused()는 SwiftUI의 모디파이어
+    // 이 뷰를 SwiftUI 포커스 시스템에 실제 포커스 타겟으로 등록해주는 역할을 함
+
+    func focused(_ condition: FocusState<Bool>.Binding) -> some View {
+        modifier(TextEditorFocusModifier(
+            focusBinding: Binding(condition)
+        ))
+        .focused(condition)
+    }
+
+    func focused<Value>(
+        _ binding: FocusState<Value>.Binding,
+        equals value: Value
+    ) -> some View where Value: Hashable & ExpressibleByNilLiteral {
+        modifier(TextEditorFocusModifier(
+            focusBinding: Binding(
+                binding,
+                equals: value
+            )
+        ))
+        .focused(binding, equals: value)
+    }
 }
 
 private enum TextEditorMetrics {
     static let font = UIFont.preferredFont(forTextStyle: .body)
 }
 
+private struct TextEditorFocusModifier: ViewModifier {
+    let focusBinding: Binding<Bool>
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.uiKitTextEditorFocusBinding, focusBinding)
+    }
+}
+
+private struct TextEditorFocusBindingKey: EnvironmentKey {
+    static let defaultValue: Binding<Bool>? = nil
+}
+
+private extension EnvironmentValues {
+    var uiKitTextEditorFocusBinding: Binding<Bool>? {
+        get { self[TextEditorFocusBindingKey.self] }
+        set { self[TextEditorFocusBindingKey.self] = newValue }
+    }
+}
+
 private struct UIKitTextEditorRepresentable: UIViewRepresentable {
     @Binding var text: String
     @Binding var minHeight: CGFloat
-    private let focusBinding: Binding<Bool>
+    private let focusBinding: Binding<Bool>?
     private let placeholder: String
 
     init(
         text: Binding<String>,
         minHeight: Binding<CGFloat>,
-        focusBinding: Binding<Bool>,
+        focusBinding: Binding<Bool>?,
         placeholder: String
     ) {
         self._text = text
@@ -90,13 +132,15 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
         context.coordinator.applyPlaceholderIfNeeded(to: uiView)
 
         DispatchQueue.main.async {
-            if focusBinding.wrappedValue {
-                if !uiView.isFirstResponder {
-                    context.coordinator.preserveAncestorScrollOffset(for: uiView)
-                    uiView.becomeFirstResponder()
+            if let focusBinding {
+                if focusBinding.wrappedValue {
+                    if !uiView.isFirstResponder {
+                        context.coordinator.preserveAncestorScrollOffset(for: uiView)
+                        uiView.becomeFirstResponder()
+                    }
+                } else if uiView.isFirstResponder {
+                    uiView.resignFirstResponder()
                 }
-            } else if uiView.isFirstResponder {
-                uiView.resignFirstResponder()
             }
             context.coordinator.updateHeight(for: uiView)
         }
@@ -122,8 +166,8 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
                 textView.textColor = .label
             }
 
-            if !parent.focusBinding.wrappedValue {
-                parent.focusBinding.wrappedValue = true
+            if let focusBinding = parent.focusBinding, !focusBinding.wrappedValue {
+                focusBinding.wrappedValue = true
             }
 
             restoreAncestorScrollOffsetIfNeeded()
@@ -145,8 +189,8 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
-            if parent.focusBinding.wrappedValue {
-                parent.focusBinding.wrappedValue = false
+            if let focusBinding = parent.focusBinding, focusBinding.wrappedValue {
+                focusBinding.wrappedValue = false
             }
 
             applyPlaceholderIfNeeded(to: textView)
@@ -196,6 +240,33 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
                 }
             }
         }
+    }
+}
+
+private extension Binding where Value == Bool {
+    init(_ binding: FocusState<Bool>.Binding) {
+        self.init(
+            get: { binding.wrappedValue },
+            set: { binding.wrappedValue = $0 }
+        )
+    }
+
+    init<FocusedValue>(
+        _ binding: FocusState<FocusedValue>.Binding,
+        equals value: FocusedValue
+    ) where FocusedValue: Hashable & ExpressibleByNilLiteral {
+        self.init(
+            get: {
+                binding.wrappedValue == value
+            },
+            set: { isFocused in
+                if isFocused {
+                    binding.wrappedValue = value
+                } else if binding.wrappedValue == value {
+                    binding.wrappedValue = nil
+                }
+            }
+        )
     }
 }
 
