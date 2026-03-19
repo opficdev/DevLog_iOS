@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        _ = AppDIContainer.shared.resolve(FCMTokenSyncHandler.self)
         
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self
@@ -78,6 +79,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     ) {
         if let fcmToken = fcmToken {
             logger.info("FCM token: \(fcmToken)")
+            NotificationCenter.default.post(
+                name: .didRefreshFCMToken,
+                object: nil,
+                userInfo: ["fcmToken": fcmToken]
+            )
         }
     }
 }

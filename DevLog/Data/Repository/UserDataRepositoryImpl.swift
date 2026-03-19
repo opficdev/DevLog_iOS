@@ -19,6 +19,10 @@ final class UserDataRepositoryImpl: UserDataRepository {
     }
 
     func upsertStatusMessage(_ message: String) async throws {
-        try await  self.userService.upsertStatusMessage(message)
+        try await userService.upsertStatusMessage(message)
+    }
+
+    func updateFCMToken(_ fcmToken: String) async throws {
+        try await userService.updateFCMToken(fcmToken)
     }
 }

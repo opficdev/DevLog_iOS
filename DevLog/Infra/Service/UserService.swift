@@ -145,7 +145,12 @@ final class UserService {
         }
     }
     
-    func updateFCMToken(_ userId: String, fcmToken: String) async throws {
+    func updateFCMToken(_ fcmToken: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            logger.info("Skipping FCM token update because no authenticated user exists")
+            return
+        }
+
         logger.info("Updating FCM token for user: \(userId)")
         
         do {

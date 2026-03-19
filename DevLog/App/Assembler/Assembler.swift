@@ -14,7 +14,8 @@ final class AppAssembler: Assembler {
         PersistenceAssembler(),
         InfraAssembler(),
         DataAssembler(),
-        DomainAssembler()
+        DomainAssembler(),
+        AppLayerAssembler()
     ]
 
     func assemble(_ container: any DIContainer) {
