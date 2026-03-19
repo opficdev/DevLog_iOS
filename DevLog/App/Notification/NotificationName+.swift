@@ -9,4 +9,5 @@ import Foundation
 
 extension Notification.Name {
     static let didRefreshFCMToken = Notification.Name("didRefreshFCMToken")
+    static let didRequestUserTimeZoneSync = Notification.Name("didRequestUserTimeZoneSync")
 }

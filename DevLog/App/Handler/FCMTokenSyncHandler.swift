@@ -9,22 +9,22 @@ import Combine
 import Foundation
 
 final class FCMTokenSyncHandler {
-    private let userDataRepository: UserDataRepository
+    private let repository: UserDataRepository
     private let logger = Logger(category: "FCMTokenSyncHandler")
     private var cancellables = Set<AnyCancellable>()
 
     init(
-        userDataRepository: UserDataRepository,
+        repository: UserDataRepository,
         notificationCenter: NotificationCenter = .default
     ) {
-        self.userDataRepository = userDataRepository
+        self.repository = repository
 
         notificationCenter.publisher(for: .didRefreshFCMToken)
             .compactMap { $0.userInfo?["fcmToken"] as? String }
             .sink { [weak self] fcmToken in
                 Task {
                     do {
-                        try await self?.userDataRepository.updateFCMToken(fcmToken)
+                        try await self?.repository.updateFCMToken(fcmToken)
                     } catch {
                         self?.logger.error("Failed to sync refreshed FCM token", error: error)
                     }

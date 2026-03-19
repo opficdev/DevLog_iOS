@@ -162,4 +162,25 @@ final class UserService {
             throw error
         }
     }
+
+    func updateUserTimeZone() async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            logger.info("Skipping timeZone update because no authenticated user exists")
+            return
+        }
+
+        logger.info("Updating timeZone for user: \(userId)")
+
+        do {
+            let settingsRef = store.document("users/\(userId)/userData/settings")
+            try await settingsRef.setData(
+                ["timeZone": TimeZone.autoupdatingCurrent.identifier],
+                merge: true
+            )
+            logger.info("Successfully updated timeZone")
+        } catch {
+            logger.error("Failed to update timeZone", error: error)
+            throw error
+        }
+    }
 }

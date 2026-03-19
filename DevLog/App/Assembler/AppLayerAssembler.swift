@@ -9,7 +9,12 @@ final class AppLayerAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(FCMTokenSyncHandler.self) {
             FCMTokenSyncHandler(
-                userDataRepository: container.resolve(UserDataRepository.self)
+                repository: container.resolve(UserDataRepository.self)
+            )
+        }
+        container.register(UserTimeZoneSyncHandler.self) {
+            UserTimeZoneSyncHandler(
+                repository: container.resolve(UserDataRepository.self)
             )
         }
     }

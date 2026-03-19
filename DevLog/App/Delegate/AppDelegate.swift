@@ -7,11 +7,11 @@
 
 import UIKit
 import Firebase
-import FirebaseAuth
 import GoogleSignIn
 
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     private let logger = Logger(category: "AppDelegate")
+    private let container = AppDIContainer.shared
 
     func application(
         _ app: UIApplication,
@@ -26,8 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
-        _ = AppDIContainer.shared.resolve(FCMTokenSyncHandler.self)
-        
+        _ = container.resolve(FCMTokenSyncHandler.self)
+        _ = container.resolve(UserTimeZoneSyncHandler.self)
+
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
@@ -42,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         }
 
         // 앱이 온그라운드로 되었을 때, 로그인 세션이 존재한다면 현재 유저의 timeZone 저장
-        updateUserTimeZone()
+        NotificationCenter.default.post(name: .didRequestUserTimeZoneSync, object: nil)
 
         // Firebase Messaging 설정
         Messaging.messaging().delegate = self
@@ -84,21 +85,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
                 object: nil,
                 userInfo: ["fcmToken": fcmToken]
             )
-        }
-    }
-}
-
-private extension AppDelegate {
-    func updateUserTimeZone() {
-        Task {
-            do {
-                guard let uid = Auth.auth().currentUser?.uid else { return }
-                let settingsRef = Firestore.firestore().document("users/\(uid)/userData/settings")
-
-                try await settingsRef.setData(["timeZone": TimeZone.autoupdatingCurrent.identifier], merge: true)
-            } catch {
-                logger.error("Failed to update timeZone", error: error)
-            }
         }
     }
 }

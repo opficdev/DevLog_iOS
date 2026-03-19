@@ -25,4 +25,8 @@ final class UserDataRepositoryImpl: UserDataRepository {
     func updateFCMToken(_ fcmToken: String) async throws {
         try await userService.updateFCMToken(fcmToken)
     }
+
+    func updateUserTimeZone() async throws {
+        try await userService.updateUserTimeZone()
+    }
 }
