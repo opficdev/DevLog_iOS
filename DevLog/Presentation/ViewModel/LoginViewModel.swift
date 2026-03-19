@@ -87,11 +87,7 @@ final class LoginViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     try await self.signInUseCase.execute(authProvider)
-                    send(.setLogined(true))
-                    sessionUseCase.execute(true)
                 } catch {
-                    send(.setLogined(false))
-                    sessionUseCase.execute(false)
                     if error.isSocialLoginCancelled { return }
                     send(.setAlert(true))
                 }
@@ -101,8 +97,6 @@ final class LoginViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     try await self.signOutUseCase.execute()
-                    send(.setLogined(false))
-                    sessionUseCase.execute(false)
                 } catch {
                     send(.setAlert(true))
                 }

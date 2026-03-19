@@ -9,34 +9,33 @@ import Combine
 import Foundation
 
 final class AuthSessionRepositoryImpl: AuthSessionRepository {
-    private let authService: AuthService
     private let userDefaultsStore: UserDefaultsStore
     private var cancellables = Set<AnyCancellable>()
+    private let signInSubject: CurrentValueSubject<Bool, Never>
 
     init(authService: AuthService, userDefaultsStore: UserDefaultsStore) {
-        self.authService = authService
         self.userDefaultsStore = userDefaultsStore
-        self.signIn = authService.uid != nil
+        self.signInSubject = .init(authService.uid != nil)
 
         authService.signedInPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] signIn in
-                self?.setSession(signIn)
+                self?.applySession(signIn)
             }
             .store(in: &cancellables)
     }
 
-    @Published private var signIn: Bool = false
-
     var signedInPublisher: AnyPublisher<Bool, Never> {
-        $signIn.eraseToAnyPublisher()
+        signInSubject.eraseToAnyPublisher()
     }
+}
 
-    func setSession(_ signedIn: Bool) {
-        if !signedIn {
+private extension AuthSessionRepositoryImpl {
+    func applySession(_ signedIn: Bool) {
+        if signInSubject.value && !signedIn {
             userDefaultsStore.removeAll()
         }
-        self.signIn = signedIn
+        signInSubject.send(signedIn)
     }
 }

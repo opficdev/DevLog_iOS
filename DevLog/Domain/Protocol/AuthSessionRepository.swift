@@ -9,5 +9,4 @@ import Combine
 
 protocol AuthSessionRepository {
     var signedInPublisher: AnyPublisher<Bool, Never> { get }
-    func setSession(_ signedIn: Bool)
 }

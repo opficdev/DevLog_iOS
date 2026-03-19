@@ -110,8 +110,6 @@ final class RootViewModel: Store {
         case .signOut:
             Task {
                 try? await signOutUseCase.execute()
-                send(.didLogined(false))
-                sessionUseCase.execute(false)
             }
         }
     }

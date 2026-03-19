@@ -17,8 +17,4 @@ final class AuthSessionUseCaseImpl: AuthSessionUseCase {
     init(_ repository: AuthSessionRepository) {
         self.repository = repository
     }
-
-    func execute(_ signIn: Bool) {
-        repository.setSession(signIn)
-    }
 }
