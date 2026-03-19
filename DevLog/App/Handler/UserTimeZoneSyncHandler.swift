@@ -6,7 +6,7 @@
 //
 
 import Combine
-import Foundation
+import UIKit
 
 final class UserTimeZoneSyncHandler {
     private let repository: UserDataRepository
@@ -20,6 +20,7 @@ final class UserTimeZoneSyncHandler {
         self.repository = repository
 
         notificationCenter.publisher(for: .didRequestUserTimeZoneSync)
+            .merge(with: notificationCenter.publisher(for: UIApplication.willEnterForegroundNotification))
             .sink { [weak self] _ in
                 Task {
                     do {
