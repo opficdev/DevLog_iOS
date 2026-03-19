@@ -13,9 +13,6 @@ protocol UserPreferencesRepository {
     func systemTheme() -> SystemTheme
     func setSystemTheme(_ theme: SystemTheme)
 
-    func isFirstLaunch() -> Bool
-    func setFirstLaunch(_ value: Bool)
-
     func recentSearchQueries() -> [String]
     func setRecentSearchQueries(_ queries: [String])
 

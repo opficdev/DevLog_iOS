@@ -44,16 +44,21 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
               let providerID = try await authService.getProviderID(),
               let provider = AuthProvider(rawValue: providerID)
         else {
-            throw AuthError.notAuthenticated
+            try await authService.clearCurrentSession()
+            return
         }
 
-        switch provider {
-        case .apple:
-            try await appleAuthService.signOut(uid)
-        case .github:
-            try await githubAuthService.signOut(uid)
-        case .google:
-            try await googleAuthService.signOut(uid)
+        do {
+            switch provider {
+            case .apple:
+                try await appleAuthService.signOut(uid)
+            case .github:
+                try await githubAuthService.signOut(uid)
+            case .google:
+                try await googleAuthService.signOut(uid)
+            }
+        } catch AuthError.notAuthenticated {
+            try await authService.clearCurrentSession()
         }
     }
 

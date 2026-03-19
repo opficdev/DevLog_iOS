@@ -5,14 +5,11 @@
 //  Created by 최윤진 on 11/14/25.
 //
 
-import Combine
 import Foundation
-import FirebaseAuth
 
 @Observable
 final class LoginViewModel: Store {
     struct State: Equatable {
-        var signIn: Bool?
         var isLoading = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -20,42 +17,23 @@ final class LoginViewModel: Store {
     }
 
     enum Action {
-        case signOutAuto
         case setAlert(Bool)
         case tapSignInButton(AuthProvider)
-        case tapSignOutButton
         case setLoading(Bool)
-        case setLogined(Bool)
     }
 
     enum SideEffect {
         case signIn(AuthProvider)
-        case signOut
     }
 
     private let signInUseCase: SignInUseCase
-    private let signOutUseCase: SignOutUseCase
-    private let sessionUseCase: AuthSessionUseCase
 
     private(set) var state = State()
-    private var cancellables = Set<AnyCancellable>()
 
     init(
-        signInUseCase: SignInUseCase,
-        signOutUseCase: SignOutUseCase,
-        sessionUseCase: AuthSessionUseCase
+        signInUseCase: SignInUseCase
     ) {
         self.signInUseCase = signInUseCase
-        self.signOutUseCase = signOutUseCase
-        self.sessionUseCase = sessionUseCase
-
-        self.sessionUseCase.signedInPublisher
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] signIn in
-                self?.send(.setLogined(signIn))
-            }
-            .store(in: &cancellables)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -67,12 +45,8 @@ final class LoginViewModel: Store {
             setAlert(&state, isPresented: isPresented)
         case .tapSignInButton(let authProvider):
             effects = [.signIn(authProvider)]
-        case .tapSignOutButton, .signOutAuto:
-            effects = [.signOut]
         case .setLoading(let value):
             state.isLoading = value
-        case .setLogined(let result):
-            state.signIn = result
         }
         
         if self.state != state { self.state = state }
@@ -87,23 +61,8 @@ final class LoginViewModel: Store {
                 do {
                     defer { send(.setLoading(false)) }
                     try await self.signInUseCase.execute(authProvider)
-                    send(.setLogined(true))
-                    sessionUseCase.execute(true)
                 } catch {
-                    send(.setLogined(false))
-                    sessionUseCase.execute(false)
                     if error.isSocialLoginCancelled { return }
-                    send(.setAlert(true))
-                }
-            }
-        case .signOut:
-            Task {
-                do {
-                    defer { send(.setLoading(false)) }
-                    try await self.signOutUseCase.execute()
-                    send(.setLogined(false))
-                    sessionUseCase.execute(false)
-                } catch {
                     send(.setAlert(true))
                 }
             }
