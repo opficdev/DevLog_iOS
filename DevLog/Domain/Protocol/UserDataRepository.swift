@@ -8,4 +8,6 @@
 protocol UserDataRepository {
     func fetch() async throws -> UserProfile
     func upsertStatusMessage(_ message: String) async throws
+    func updateFCMToken(_ fcmToken: String) async throws
+    func updateUserTimeZone() async throws
 }
