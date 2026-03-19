@@ -34,8 +34,7 @@ final class DataAssembler: Assembler {
 
         container.register(AuthSessionRepository.self) {
             AuthSessionRepositoryImpl(
-                authService: container.resolve(AuthService.self),
-                userDefaultsStore: container.resolve(UserDefaultsStore.self)
+                authService: container.resolve(AuthService.self)
             )
         }
 

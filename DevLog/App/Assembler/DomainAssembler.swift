@@ -139,14 +139,6 @@ private extension DomainAssembler {
             UpdateSystemThemeUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
 
-        container.register(FetchFirstLaunchUseCase.self) {
-            FetchFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
-        }
-
-        container.register(UpdateFirstLaunchUseCase.self) {
-            UpdateFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
-        }
-
         container.register(FetchRecentSearchQueriesUseCase.self) {
             FetchRecentSearchQueriesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }

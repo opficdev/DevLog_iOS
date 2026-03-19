@@ -11,7 +11,6 @@ import Combine
 final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
     private enum Key {
         static let theme = "theme"
-        static let firstLaunch = "isFirstLaunch"
         static let recentQueries = "Search.recentQueries"
         static let pushSortOrder = "PushNotification.sortOption"
         static let pushTimeFilter = "PushNotification.timeFilter"
@@ -48,17 +47,6 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
     func setSystemTheme(_ theme: SystemTheme) {
         store.setString(theme.rawValue, forKey: Key.theme)
         themeStore.send(theme)
-    }
-
-    func isFirstLaunch() -> Bool {
-        if store.string(forKey: Key.firstLaunch) == nil {
-            return true
-        }
-        return store.bool(forKey: Key.firstLaunch)
-    }
-
-    func setFirstLaunch(_ value: Bool) {
-        store.setBool(value, forKey: Key.firstLaunch)
     }
 
     func recentSearchQueries() -> [String] {

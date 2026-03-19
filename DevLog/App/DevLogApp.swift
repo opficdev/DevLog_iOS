@@ -20,11 +20,7 @@ struct DevLogApp: App {
         WindowGroup {
             RootView(viewModel: RootViewModel(
                 sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                signOutUseCase: container.resolve(SignOutUseCase.self),
-                fetchFirstLaunchUseCase: container.resolve(FetchFirstLaunchUseCase.self),
-                updateFirstLaunchUseCase: container.resolve(UpdateFirstLaunchUseCase.self),
-                observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
+                observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
             ))
             .autocorrectionDisabled()
         }

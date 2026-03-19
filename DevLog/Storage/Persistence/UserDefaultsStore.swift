@@ -37,13 +37,4 @@ final class UserDefaultsStore {
     func setBool(_ value: Bool, forKey key: String) {
         userDefaults.set(value, forKey: key)
     }
-
-    func removeAll() {
-        guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
-        let firstLaunch = userDefaults.object(forKey: "isFirstLaunch")
-        userDefaults.removePersistentDomain(forName: bundleIdentifier)
-        if let value = firstLaunch as? Bool {
-            userDefaults.set(value, forKey: "isFirstLaunch")
-        }
-    }
 }
