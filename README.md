@@ -92,7 +92,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방향 흐름을 차용한 구조  
 화면, 상태, 비즈니스 로직, 외부 의존성 분리를 위한 `MVVM + Clean Architecture` 기반 구성
 
-<img alt="architecture" src="https://github.com/user-attachments/assets/5aa15b55-9aff-40b5-9b3d-9d2e5bd7f94b" />
+<img alt="architecture" src="./docs/architecture.png" width="600" />
 
 
 ## 프로젝트 구조
