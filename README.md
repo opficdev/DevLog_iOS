@@ -5,16 +5,16 @@
 
 <table>
   <tr>
-    <td align="center">
+    <td align="center" width="25%">
       <img src="./docs/home.png">
     </td>
-    <td align="center">
+    <td align="center" width="25%">
       <img src="./docs/markdown.png">
     </td>
-    <td align="center">
+    <td align="center" width="25%">
       <img src="./docs/metadata.png">
     </td>
-    <td align="center">
+    <td align="center" width="25%">
       <img src="./docs/notification.png">
     </td>
   </tr>
