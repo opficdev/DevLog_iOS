@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UserNotifications
 
 @Observable
 final class RootViewModel: Store {
@@ -15,50 +16,35 @@ final class RootViewModel: Store {
         var alertTitle: String = ""
         var alertMessage: String = ""
         var isNetworkConnected: Bool = true
-        var isFirstLaunch: Bool
         var signIn: Bool?
         var theme: SystemTheme = .automatic
     }
     
     enum Action {
+        case onAppear
         case setAlert(Bool)
         case networkStatusChanged(Bool)
-        case setFirstLaunch(Bool)
         case setTheme(SystemTheme)
-        case signOutAuto
         case didLogined(Bool)
     }
 
     enum SideEffect {
-        case signOut
+        case clearApplicationBadgeCount
     }
 
     private(set) var state: State
     private let connectivityProvider = NWPathConnectivityProvider()
     private var cancellables = Set<AnyCancellable>()
     private let sessionUseCase: AuthSessionUseCase
-    private let signOutUseCase: SignOutUseCase
-    private let fetchFirstLaunchUseCase: FetchFirstLaunchUseCase
-    private let updateFirstLaunchUseCase: UpdateFirstLaunchUseCase
     private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
-    private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
     
     init(
         sessionUseCase: AuthSessionUseCase,
-        signOutUseCase: SignOutUseCase,
-        fetchFirstLaunchUseCase: FetchFirstLaunchUseCase,
-        updateFirstLaunchUseCase: UpdateFirstLaunchUseCase,
-        observeSystemThemeUseCase: ObserveSystemThemeUseCase,
-        updateSystemThemeUseCase: UpdateSystemThemeUseCase
+        observeSystemThemeUseCase: ObserveSystemThemeUseCase
     ) {
-        let isFirstLaunch = fetchFirstLaunchUseCase.execute()
         self.sessionUseCase = sessionUseCase
-        self.signOutUseCase = signOutUseCase
-        self.fetchFirstLaunchUseCase = fetchFirstLaunchUseCase
-        self.updateFirstLaunchUseCase = updateFirstLaunchUseCase
         self.observeSystemThemeUseCase = observeSystemThemeUseCase
-        self.updateSystemThemeUseCase = updateSystemThemeUseCase
-        self.state = State(isFirstLaunch: isFirstLaunch)
+        self.state = State()
         
         setupNetworkMonitoring()
         setupSessionMonitoring()
@@ -70,6 +56,8 @@ final class RootViewModel: Store {
         var effects: [SideEffect] = []
         
         switch action {
+        case .onAppear:
+            effects = [.clearApplicationBadgeCount]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .networkStatusChanged(let isConnected):
@@ -78,13 +66,8 @@ final class RootViewModel: Store {
             if wasConnected && !isConnected {
                 setAlert(&state, isPresented: true)
             }
-        case .setFirstLaunch(let value):
-            state.isFirstLaunch = value
-            updateFirstLaunchUseCase.execute(value)
         case .setTheme(let theme):
             state.theme = theme
-        case .signOutAuto:
-            effects = [.signOut]
         case .didLogined(let result):
             state.signIn = result
         }
@@ -95,12 +78,8 @@ final class RootViewModel: Store {
     
     func run(_ effect: SideEffect) {
         switch effect {
-        case .signOut:
-            Task {
-                try? await signOutUseCase.execute()
-                send(.didLogined(false))
-                sessionUseCase.execute(false)
-            }
+        case .clearApplicationBadgeCount:
+            UNUserNotificationCenter.current().setBadgeCount(0) { _ in }
         }
     }
 }

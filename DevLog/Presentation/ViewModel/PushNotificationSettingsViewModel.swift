@@ -50,6 +50,7 @@ final class PushNotificationSettingsViewModel: Store {
     private let calendar = Calendar.current
     private let fetchPushSettingsUseCase: FetchPushSettingsUseCase
     private let updatePushSettingsUseCase: UpdatePushSettingsUseCase
+    private let loadingState = LoadingState()
 
     init(
         fetchPushSettingsUseCase: FetchPushSettingsUseCase,
@@ -106,10 +107,10 @@ final class PushNotificationSettingsViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchPushNotificationSettings:
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.immediate) }
                     let settings = try await fetchPushSettingsUseCase.execute()
                     self.send(.setPushNotificationEnable(settings.isEnabled))
                     if let hour = settings.scheduledTime.hour,
@@ -122,10 +123,10 @@ final class PushNotificationSettingsViewModel: Store {
                 }
             }
         case .updatePushNotificationSettings:
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     let dateComponents = calendar.dateComponents(
                         [.hour, .minute],
                         from: state.sheetPushNotificationTime
@@ -152,5 +153,17 @@ extension PushNotificationSettingsViewModel {
         state.alertTitle = "오류"
         state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         state.showAlert = isPresented
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }

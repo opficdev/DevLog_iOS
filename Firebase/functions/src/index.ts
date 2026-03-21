@@ -38,6 +38,24 @@ import {
     removeStaleTodoReceipts
 } from "./todo/remove";
 
+import {
+    requestTodoDeletion,
+    undoTodoDeletion,
+    completeTodoDeletion
+} from "./todo/deletion";
+
+import {
+    requestPushNotificationDeletion,
+    undoPushNotificationDeletion,
+    completePushNotificationDeletion
+} from "./notification/deletion";
+
+import {
+    requestWebPageDeletion,
+    undoWebPageDeletion,
+    completeWebPageDeletion
+} from "./webPage/deletion";
+
 
 // .env 파일 로드
 dotenv.config({
@@ -77,5 +95,14 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoReceipts,
-    removeStaleTodoReceipts
+    removeStaleTodoReceipts,
+    requestTodoDeletion,
+    undoTodoDeletion,
+    completeTodoDeletion,
+    requestPushNotificationDeletion,
+    undoPushNotificationDeletion,
+    completePushNotificationDeletion,
+    requestWebPageDeletion,
+    undoWebPageDeletion,
+    completeWebPageDeletion
 };

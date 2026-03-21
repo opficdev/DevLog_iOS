@@ -54,6 +54,7 @@ struct Tag: View {
                         )
 
                 }
+                .buttonStyle(.plain)
             }
         }
         .background {

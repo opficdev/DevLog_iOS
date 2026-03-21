@@ -43,9 +43,9 @@ final class SettingViewModel: Store {
     private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
-    private let sessionUseCase: AuthSessionUseCase
     private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
     private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
+    private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
 
     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
@@ -55,13 +55,11 @@ final class SettingViewModel: Store {
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
         signOutUseCase: SignOutUseCase,
-        sessionUseCase: AuthSessionUseCase,
         observeSystemThemeUseCase: ObserveSystemThemeUseCase,
         updateSystemThemeUseCase: UpdateSystemThemeUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
-        self.sessionUseCase = sessionUseCase
         self.observeSystemThemeUseCase = observeSystemThemeUseCase
         self.updateSystemThemeUseCase = updateSystemThemeUseCase
         setupThemeMonitoring()
@@ -104,25 +102,23 @@ final class SettingViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .deleteAuth:
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
                     send(.setAlert(isPresented: false))
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await deleteAuthuseCase.execute()
-                    sessionUseCase.execute(false)
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
         case .signOut:
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
                     send(.setAlert(isPresented: false))
-                    send(.setLoading(true))
+                    defer { endLoading(.delayed) }
                     try await signOutUseCase.execute()
-                    sessionUseCase.execute(false)
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -203,6 +199,18 @@ private extension SettingViewModel {
             total += Int64(fileSize)
         }
         return total
+    }
+
+    private func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    private func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 
     private func clearCacheDirectory() throws {

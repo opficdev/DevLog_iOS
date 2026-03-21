@@ -57,6 +57,10 @@ final class WebPageRepositoryImpl: WebPageRepository {
         try await webPageService.deleteWebPage(urlString)
         await metadataService.removeCachedImage(for: urlString)
     }
+
+    func undoDelete(_ urlString: String) async throws {
+        try await webPageService.undoDeleteWebPage(urlString)
+    }
 }
 
 private extension WebPageRepositoryImpl {

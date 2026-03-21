@@ -51,9 +51,18 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
             .eraseToAnyPublisher()
     }
 
+    func observeUnreadPushCount() throws -> AnyPublisher<Int, Error> {
+        try service.observeUnreadPushCount()
+            .eraseToAnyPublisher()
+    }
+
     // 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         try await service.deleteNotification(notificationID)
+    }
+
+    func undoDeleteNotification(_ notificationID: String) async throws {
+        try await service.undoDeleteNotification(notificationID)
     }
 
     // 푸시 알림 읽음/안읽음 토글

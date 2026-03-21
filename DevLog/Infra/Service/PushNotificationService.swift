@@ -8,9 +8,16 @@
 import FirebaseAuth
 import Combine
 import FirebaseFirestore
+import FirebaseFunctions
 
 final class PushNotificationService {
+    private enum FunctionName: String {
+        case requestPushNotificationDeletion
+        case undoPushNotificationDeletion
+    }
+
     private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
     private let logger = Logger(category: "PushNotificationService")
 
     /// 푸시 알림 On/Off 설정
@@ -171,16 +178,51 @@ final class PushNotificationService {
             .eraseToAnyPublisher()
     }
 
+    func observeUnreadPushCount() throws -> AnyPublisher<Int, Error> {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let subject = PassthroughSubject<Int, Error>()
+        let listener = store.collection("users/\(uid)/notifications")
+            .whereField("isRead", isEqualTo: false)
+            .addSnapshotListener { snapshot, error in
+                if let error {
+                    subject.send(completion: .failure(error))
+                    return
+                }
+
+                guard let snapshot else { return }
+                let unreadPushCount = snapshot.documents.filter { document in
+                    !(document.data()[Key.deletingAt.rawValue] is Timestamp)
+                }.count
+                subject.send(unreadPushCount)
+            }
+
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
+    }
+
     /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         do {
-            guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-            let docRef = store.collection("users/\(uid)/notifications").document(notificationID)
-
-            try await docRef.delete()
+            let function = functions.httpsCallable(FunctionName.requestPushNotificationDeletion)
+            _ = try await function.call(["notificationId": notificationID])
         } catch {
-            logger.error("Failed to delete notification", error: error)
+            logger.error("Failed to request notification deletion", error: error)
+            throw error
+        }
+    }
+
+    func undoDeleteNotification(_ notificationID: String) async throws {
+        do {
+            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+
+            let function = functions.httpsCallable(FunctionName.undoPushNotificationDeletion)
+            _ = try await function.call(["notificationId": notificationID])
+        } catch {
+            logger.error("Failed to undo notification deletion", error: error)
             throw error
         }
     }
@@ -256,6 +298,9 @@ private extension PushNotificationService {
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
+        if data[Key.deletingAt.rawValue] is Timestamp {
+            return nil
+        }
         guard
             let title = data[Key.title.rawValue] as? String,
             let body = data[Key.body.rawValue] as? String,
@@ -284,5 +329,6 @@ private extension PushNotificationService {
         case isRead
         case todoId
         case todoKind
+        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 }

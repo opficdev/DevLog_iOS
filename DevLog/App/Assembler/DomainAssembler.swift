@@ -66,6 +66,10 @@ private extension DomainAssembler {
         container.register(DeleteTodoUseCase.self) {
             DeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }
+
+        container.register(UndoDeleteTodoUseCase.self) {
+            UndoDeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
     }
 
     func registerUserDataUseCases(_ container: DIContainer) {
@@ -91,8 +95,16 @@ private extension DomainAssembler {
             DeletePushNotificationUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
+        container.register(UndoDeletePushNotificationUseCase.self) {
+            UndoDeletePushNotificationUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
         container.register(FetchPushNotificationsUseCase.self) {
             FetchPushNotificationsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+        }
+
+        container.register(ObserveUnreadPushCountUseCase.self) {
+            ObserveUnreadPushCountUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
         container.register(TogglePushNotificationReadUseCase.self) {
@@ -112,6 +124,10 @@ private extension DomainAssembler {
         container.register(DeleteWebPageUseCase.self) {
             DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
+
+        container.register(UndoDeleteWebPageUseCase.self) {
+            UndoDeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
+        }
     }
 
     func registerUserPreferencesUseCases(_ container: DIContainer) {
@@ -121,14 +137,6 @@ private extension DomainAssembler {
 
         container.register(UpdateSystemThemeUseCase.self) {
             UpdateSystemThemeUseCaseImpl(container.resolve(UserPreferencesRepository.self))
-        }
-
-        container.register(FetchFirstLaunchUseCase.self) {
-            FetchFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
-        }
-
-        container.register(UpdateFirstLaunchUseCase.self) {
-            UpdateFirstLaunchUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
 
         container.register(FetchRecentSearchQueriesUseCase.self) {

@@ -13,6 +13,11 @@ import FirebaseFunctions
 import FirebaseMessaging
 
 final class GithubAuthenticationService: NSObject, AuthenticationService {
+    private enum FunctionName: String {
+        case requestGithubTokens
+        case revokeGithubAccessToken
+    }
+
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
@@ -208,7 +213,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     
     // Firebase Function 호출: Custom Token 발급
     func requestTokens(authorizationCode: String) async throws -> (String, String) {
-        let requestTokenFunction = functions.httpsCallable("requestGithubTokens")
+        let requestTokenFunction = functions.httpsCallable(FunctionName.requestGithubTokens)
         let result = try await requestTokenFunction.call(["code": authorizationCode])
         
         if let data = result.data as? [String: Any],
@@ -226,7 +231,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             param["accessToken"] = accessToken
         }
         
-        let revokeFunction = functions.httpsCallable("revokeGithubAccessToken")
+        let revokeFunction = functions.httpsCallable(FunctionName.revokeGithubAccessToken)
         
         _ = try await revokeFunction.call(param)
     }

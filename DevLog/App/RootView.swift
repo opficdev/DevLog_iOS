@@ -16,33 +16,19 @@ struct RootView: View {
         ZStack {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
             if let signIn = viewModel.state.signIn {
-                if signIn && !viewModel.state.isFirstLaunch {
-                    MainView()
+                if signIn {
+                    MainView(viewModel: MainViewModel(
+                        observeUnreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
+                    ))
                 } else {
                     LoginView(viewModel: LoginViewModel(
-                        signInUseCase: container.resolve(SignInUseCase.self),
-                        signOutUseCase: container.resolve(SignOutUseCase.self),
-                        sessionUseCase: container.resolve(AuthSessionUseCase.self))
+                        signInUseCase: container.resolve(SignInUseCase.self))
                     )
-                    .onAppear {
-                        if viewModel.state.isFirstLaunch {
-                            viewModel.send(.setFirstLaunch(false))
-                            viewModel.send(.signOutAuto)
-                        }
-                    }
-                }
-            } else {
-                Color.clear.onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-                        if viewModel.state.signIn == nil {
-                            viewModel.send(.setFirstLaunch(true))
-                            viewModel.send(.signOutAuto)
-                        }
-                    }
                 }
             }
         }
         .preferredColorScheme(viewModel.state.theme.colorScheme)
+        .onAppear { viewModel.send(.onAppear) }
         .alert(viewModel.state.alertTitle, isPresented: Binding(
             get: { viewModel.state.showAlert },
             set: { viewModel.send(.setAlert($0)) }
@@ -50,12 +36,6 @@ struct RootView: View {
             Button("확인", role: .cancel) { }
         } message: {
             Text(viewModel.state.alertMessage)
-        }
-        .onChange(of: viewModel.state.isFirstLaunch) { _, newValue in
-            if newValue {
-                viewModel.send(.setFirstLaunch(false))
-                viewModel.send(.signOutAuto)
-            }
         }
         .sheet(item: $selectedRoute) { route in
             switch route {

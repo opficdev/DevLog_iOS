@@ -15,10 +15,6 @@
 		DFABA3B02E23526500FEFBDB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3AF2E23526500FEFBDB /* FirebaseFirestore */; };
 		DFABA3B22E23526500FEFBDB /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B12E23526500FEFBDB /* FirebaseFunctions */; };
 		DFABA3B42E23526500FEFBDB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B32E23526500FEFBDB /* FirebaseMessaging */; };
-		DFD643A72EC787AB0073E133 /* firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A42EC787AB0073E133 /* firebase.json */; };
-		DFD643A92EC787AB0073E133 /* package.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A02EC787AB0073E133 /* package.json */; };
-		DFD643AC2EC787AB0073E133 /* tsconfig.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A22EC787AB0073E133 /* tsconfig.json */; };
-		DFD643AE2EC787AB0073E133 /* package-lock.json in Resources */ = {isa = PBXBuildFile; fileRef = DFD643A12EC787AB0073E133 /* package-lock.json */; };
 		DFD645402EC827A10073E133 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = DFD6453F2EC827A10073E133 /* .gitignore */; };
 		DFD74E2F2E423EA700613803 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFD74E2E2E423EA700613803 /* README.md */; };
 		DFF2DACE2EDC02AD00778738 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DFF2DACD2EDC02AD00778738 /* OrderedCollections */; };
@@ -26,17 +22,6 @@
 
 /* Begin PBXFileReference section */
 		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD643952EC787AB0073E133 /* apple.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = apple.ts; sourceTree = "<group>"; };
-		DFD643962EC787AB0073E133 /* github.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = github.ts; sourceTree = "<group>"; };
-		DFD643972EC787AB0073E133 /* google.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = google.ts; sourceTree = "<group>"; };
-		DFD643992EC787AB0073E133 /* notification.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = notification.ts; sourceTree = "<group>"; };
-		DFD6439A2EC787AB0073E133 /* schedule.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = schedule.ts; sourceTree = "<group>"; };
-		DFD6439C2EC787AB0073E133 /* delete.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = delete.ts; sourceTree = "<group>"; };
-		DFD6439E2EC787AB0073E133 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
-		DFD643A02EC787AB0073E133 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		DFD643A12EC787AB0073E133 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
-		DFD643A22EC787AB0073E133 /* tsconfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tsconfig.json; sourceTree = "<group>"; };
-		DFD643A42EC787AB0073E133 /* firebase.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = firebase.json; sourceTree = "<group>"; };
 		DFD6453F2EC827A10073E133 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		DFD74E2E2E423EA700613803 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,7 +76,6 @@
 				DFD74E2E2E423EA700613803 /* README.md */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
-				DFD643A52EC787AB0073E133 /* Firebase */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,64 +85,6 @@
 				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		DFD643982EC787AB0073E133 /* auth */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643952EC787AB0073E133 /* apple.ts */,
-				DFD643962EC787AB0073E133 /* github.ts */,
-				DFD643972EC787AB0073E133 /* google.ts */,
-			);
-			path = auth;
-			sourceTree = "<group>";
-		};
-		DFD6439B2EC787AB0073E133 /* fcm */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643992EC787AB0073E133 /* notification.ts */,
-				DFD6439A2EC787AB0073E133 /* schedule.ts */,
-			);
-			path = fcm;
-			sourceTree = "<group>";
-		};
-		DFD6439D2EC787AB0073E133 /* user */ = {
-			isa = PBXGroup;
-			children = (
-				DFD6439C2EC787AB0073E133 /* delete.ts */,
-			);
-			path = user;
-			sourceTree = "<group>";
-		};
-		DFD6439F2EC787AB0073E133 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643982EC787AB0073E133 /* auth */,
-				DFD6439B2EC787AB0073E133 /* fcm */,
-				DFD6439D2EC787AB0073E133 /* user */,
-				DFD6439E2EC787AB0073E133 /* index.ts */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		DFD643A32EC787AB0073E133 /* functions */ = {
-			isa = PBXGroup;
-			children = (
-				DFD6439F2EC787AB0073E133 /* src */,
-				DFD643A02EC787AB0073E133 /* package.json */,
-				DFD643A12EC787AB0073E133 /* package-lock.json */,
-				DFD643A22EC787AB0073E133 /* tsconfig.json */,
-			);
-			path = functions;
-			sourceTree = "<group>";
-		};
-		DFD643A52EC787AB0073E133 /* Firebase */ = {
-			isa = PBXGroup;
-			children = (
-				DFD643A32EC787AB0073E133 /* functions */,
-				DFD643A42EC787AB0073E133 /* firebase.json */,
-			);
-			path = Firebase;
 			sourceTree = "<group>";
 		};
 		DFE28EB62DCCF26300B28FE5 /* Frameworks */ = {
@@ -250,10 +176,6 @@
 			files = (
 				DFD645402EC827A10073E133 /* .gitignore in Resources */,
 				DFD74E2F2E423EA700613803 /* README.md in Resources */,
-				DFD643A72EC787AB0073E133 /* firebase.json in Resources */,
-				DFD643A92EC787AB0073E133 /* package.json in Resources */,
-				DFD643AC2EC787AB0073E133 /* tsconfig.json in Resources */,
-				DFD643AE2EC787AB0073E133 /* package-lock.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

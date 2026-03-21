@@ -97,9 +97,20 @@ export const sendPushNotification = onTaskDispatched({
             };
             await notificationDocRef.set(notificationData, { merge: true });
 
-            // 1. 사용자 FCM 토큰 가져오기
-            const tokenDoc = await admin.firestore().doc(`users/${userId}/userData/tokens`).get();
+            // 1. 사용자 FCM 토큰과 읽지 않은 알림 수 가져오기
+            const unreadCountPromise = admin.firestore()
+                .collection(`users/${userId}/notifications`)
+                .where("isRead", "==", false)
+                .count()
+                .get();
+            // 2. 사용자 FCM 토큰 가져오기
+            const tokenDocPromise = admin.firestore().doc(`users/${userId}/userData/tokens`).get();
+            const [tokenDoc, unreadCountSnapshot] = await Promise.all([
+                tokenDocPromise,
+                unreadCountPromise
+            ]);
             const fcmToken = tokenDoc.data()?.fcmToken;
+            const unreadNotificationCount = unreadCountSnapshot.data().count;
 
             if (!fcmToken) {
                 logger.warn(`사용자 ${userId}의 fcmToken이 없어 푸시 발송은 건너뜁니다. Firestore에는 기록했습니다.`);
@@ -113,7 +124,14 @@ export const sendPushNotification = onTaskDispatched({
                     todoId: todoId,
                     todoKind: todoKind
                 },
-                apns: { payload: { aps: { sound: "default" } } },
+                apns: {
+                    payload: {
+                        aps: {
+                            sound: "default",
+                            badge: unreadNotificationCount
+                        }
+                    }
+                },
                 token: fcmToken,
             };
             try {

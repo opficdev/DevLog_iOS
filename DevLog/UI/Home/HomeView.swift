@@ -30,6 +30,7 @@ struct HomeView: View {
                         fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+                        undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
                         kind: todoKind
                     ))
                     .environment(router)
@@ -55,12 +56,12 @@ struct HomeView: View {
             .toolbar { toolbar }
             .sheet(isPresented: Binding(
                 get: { viewModel.state.reorderTodo },
-                set: { viewModel.send(.setReorderTodo($0)) }
+                set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
             )) {
                 TodoManageView(
                     viewModel: TodoManageViewModel(viewModel.state.todoKindPreferences),
                     onDismiss: { array in
-                        viewModel.send(.setReorderTodo(false))
+                        viewModel.send(.setPresentation(.reorderTodo, false))
                         withAnimation {
                             viewModel.send(.orderTodoKindPreferences(array))
                         }
@@ -75,18 +76,18 @@ struct HomeView: View {
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showTodoEditor },
-                set: { viewModel.send(.setShowTodoEditor($0)) }
+                set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
             )) {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
                         viewModel: TodoEditorViewModel(kind: selectedKind),
-                        onSubmit: { viewModel.send(.upsertTodo($0)) }
+                        onSubmit: { viewModel.send(.addTodo($0)) }
                     )
                 }
             }
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel.state.showSearchView },
-                set: { viewModel.send(.setShowSearchView($0)) }
+                set: { viewModel.send(.setPresentation(.searchView, $0)) }
             )) {
                 SearchView(viewModel: SearchViewModel(
                     fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
@@ -112,8 +113,7 @@ struct HomeView: View {
                     set: { viewModel.send(.setToast(isPresented: $0)) }
                 ),
                 duration: 5,
-                action: { viewModel.send(.undoDeleteWebPage) },
-                onDismiss: { viewModel.send(.confirmDeleteWebPage) }
+                action: { viewModel.send(.undoDeleteWebPage) }
             ) {
                 Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
                     .font(.caption)
@@ -123,7 +123,7 @@ struct HomeView: View {
                 viewModel.send(.onAppear)
             }
             .overlay {
-                if viewModel.state.isWebPageInputLoading {
+                if viewModel.state.isAppending {
                     LoadingView()
                 }
             }
@@ -177,7 +177,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    viewModel.send(.setReorderTodo(true))
+                    viewModel.send(.setPresentation(.reorderTodo, true))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -190,16 +190,14 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if viewModel.state.recentTodos.isEmpty {
-                if viewModel.state.isRecentTodosLoading {
-                    LoadingView()
-                } else {
-                    HStack {
-                        Spacer()
-                        Text("최근 수정한 Todo가 없습니다.")
-                            .font(.callout)
-                        Spacer()
-                    }
+            if viewModel.state.isRecentTodosLoading {
+                LoadingView()
+            } else if viewModel.state.recentTodos.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("최근 수정한 Todo가 없습니다.")
+                        .font(.callout)
+                    Spacer()
                 }
             } else {
                 ForEach(viewModel.state.recentTodos, id: \.id) { todo in
@@ -222,16 +220,15 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            if viewModel.state.webPages.isEmpty {
-                if viewModel.state.isWebPageLoading {
-                    LoadingView()
-                } else {
-                    HStack {
-                        Spacer()
-                        Text("저장한 Web Page가 표시됩니다.")
-                            .font(.callout)
-                        Spacer()
-                    }
+            if viewModel.state.isWebPageLoading {
+                LoadingView()
+                    .id(UUID()) //  id 부여를 통해 렌더링 강제
+            } else if viewModel.state.webPages.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("저장한 Web Page가 표시됩니다.")
+                        .font(.callout)
+                    Spacer()
                 }
             } else {
                 ForEach(viewModel.state.webPages, id: \.id) { page in
@@ -254,7 +251,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowContentPicker(true))
+                viewModel.send(.setPresentation(.contentPicker, true))
             } label: {
                 Image(systemName: "plus")
             }
@@ -264,7 +261,7 @@ struct HomeView: View {
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowSearchView(true))
+                viewModel.send(.setPresentation(.searchView, true))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -330,7 +327,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        viewModel.send(.setShowContentPicker(false))
+                        viewModel.send(.setPresentation(.contentPicker, false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()

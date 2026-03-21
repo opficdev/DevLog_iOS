@@ -7,11 +7,9 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 
 final class UserService {
     private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
     private let logger = Logger(category: "UserService")
     
     // 유저를 Firestore에 저장 및 업데이트
@@ -147,7 +145,12 @@ final class UserService {
         }
     }
     
-    func updateFCMToken(_ userId: String, fcmToken: String) async throws {
+    func updateFCMToken(_ fcmToken: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            logger.info("Skipping FCM token update because no authenticated user exists")
+            return
+        }
+
         logger.info("Updating FCM token for user: \(userId)")
         
         do {
@@ -156,6 +159,27 @@ final class UserService {
             logger.info("Successfully updated FCM token")
         } catch {
             logger.error("Failed to update FCM token", error: error)
+            throw error
+        }
+    }
+
+    func updateUserTimeZone() async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            logger.info("Skipping timeZone update because no authenticated user exists")
+            return
+        }
+
+        logger.info("Updating timeZone for user: \(userId)")
+
+        do {
+            let settingsRef = store.document("users/\(userId)/userData/settings")
+            try await settingsRef.setData(
+                ["timeZone": TimeZone.autoupdatingCurrent.identifier],
+                merge: true
+            )
+            logger.info("Successfully updated timeZone")
+        } catch {
+            logger.error("Failed to update timeZone", error: error)
             throw error
         }
     }

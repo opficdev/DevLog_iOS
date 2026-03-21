@@ -11,9 +11,11 @@ protocol Assembler {
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [
+        PersistenceAssembler(),
         InfraAssembler(),
         DataAssembler(),
-        DomainAssembler()
+        DomainAssembler(),
+        AppLayerAssembler()
     ]
 
     func assemble(_ container: any DIContainer) {

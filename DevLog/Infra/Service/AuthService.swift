@@ -5,6 +5,7 @@
 //  Created by 최윤진 on 11/29/25.
 //
 
+import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
@@ -13,13 +14,32 @@ final class AuthService {
     private let store = Firestore.firestore()
     private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthService")
+    private let subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)
+    private var handler: AuthStateDidChangeListenerHandle?
 
     var uid: String? {
         Auth.auth().currentUser?.uid
     }
 
+    var signedInPublisher: AnyPublisher<Bool, Never> {
+        subject.eraseToAnyPublisher()
+    }
+
     var providerIDs: [String] {
         Auth.auth().currentUser?.providerData.map { $0.providerID } ?? []
+    }
+
+    init() {
+        handler = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            let signedIn = user != nil
+            self?.logger.info("Firebase auth state changed. signedIn: \(signedIn)")
+            self?.subject.send(signedIn)
+        }
+    }
+
+    deinit {
+        guard let handler else { return }
+        Auth.auth().removeStateDidChangeListener(handler)
     }
 
     func getProviderID() async throws -> String? {

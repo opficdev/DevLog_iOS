@@ -9,5 +9,4 @@ import Combine
 
 protocol AuthSessionUseCase {
     var signedInPublisher: AnyPublisher<Bool, Never> { get }
-    func execute(_ signIn: Bool)
 }
