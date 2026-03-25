@@ -408,34 +408,13 @@ private struct RecentTodoRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(todo.kind.color)
 
-                    TimelineView(.periodic(from: .now, by: 1.0)) { context in
-                        Text(timeAgoText(from: todo.updatedAt, now: context.date))
-                            .font(.caption2)
-                            .foregroundStyle(Color.gray)
-                    }
+                    RelativeTimeText(date: todo.updatedAt)
                 }
 
                 if !todo.tags.isEmpty {
                     TagList(todo.tags, lineLimit: 1)
                 }
             }
-        }
-    }
-
-    private func timeAgoText(from date: Date, now: Date) -> String {
-        let seconds = Int(now.timeIntervalSince(date))
-
-        if seconds < 60 {
-            return "\(max(0, seconds))초 전"
-        } else if seconds < 3600 {
-            let minutes = seconds / 60
-            return "\(minutes)분 전"
-        } else if seconds < 86400 {
-            let hours = seconds / 3600
-            return "\(hours)시간 전"
-        } else {
-            let days = seconds / 86400
-            return "\(days)일 전"
         }
     }
 }

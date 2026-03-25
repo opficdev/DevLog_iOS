@@ -39,6 +39,7 @@ struct TodoItemRow: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                 }
+                RelativeTimeText(date: item.updatedAt)
                 if !item.tags.isEmpty {
                     TagList(item.tags, lineLimit: 1)
                 }
@@ -48,6 +49,6 @@ struct TodoItemRow: View {
                 .font(.caption2.bold())
                 .foregroundStyle(.gray)
         }
-        .padding(.vertical, item.tags.isEmpty ? 20 : 4)
+        .padding(.vertical, 8)
     }
 }
