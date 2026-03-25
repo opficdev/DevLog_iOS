@@ -9,6 +9,7 @@ import Foundation
 
 struct RecentTodoItem: Identifiable, Hashable {
     let id: String
+    let number: Int?
     let title: String
     let isPinned: Bool
     let updatedAt: Date
@@ -17,6 +18,7 @@ struct RecentTodoItem: Identifiable, Hashable {
 
     init(from todo: Todo) {
         self.id = todo.id
+        self.number = todo.number
         self.title = todo.title
         self.isPinned = todo.isPinned
         self.updatedAt = todo.updatedAt

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TodoDetailView: View {
+    @Environment(\.diContainer) private var container: DIContainer
     @State var viewModel: TodoDetailViewModel
 
     var body: some View {
@@ -16,7 +17,10 @@ struct TodoDetailView: View {
             if let todo = viewModel.state.todo {
                 TodoDetailContentView(
                     title: todo.title,
-                    content: todo.content
+                    content: todo.content,
+                    referenceItems: viewModel.state.referenceItems,
+                    number: todo.number,
+                    onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                 )
             } else if viewModel.state.isLoading {
                 LoadingView()
@@ -30,13 +34,37 @@ struct TodoDetailView: View {
         )) {
             sheetContent
         }
+        .sheet(item: Binding(
+            get: { viewModel.state.selectedTodoId },
+            set: { viewModel.send(.setSelectedTodoId($0)) }
+        )) { item in
+            NavigationStack {
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoId: item.id,
+                    showEditButton: false
+                ))
+                .toolbar {
+                    ToolbarLeadingButton {
+                        viewModel.send(.setSelectedTodoId(nil))
+                    }
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .presentationDragIndicator(.visible)
+        }
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
             set: { viewModel.send(.setShowEditor($0)) }
         )) {
             if let todo = viewModel.state.todo {
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(todo: todo),
+                    viewModel: TodoEditorViewModel(
+                        todo: todo,
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                    ),
                     onSubmit: { viewModel.send(.upsertTodo($0)) }
                 )
             }

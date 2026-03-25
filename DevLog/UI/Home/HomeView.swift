@@ -36,7 +36,8 @@ struct HomeView: View {
                     .environment(router)
                 case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: todoId
                     ))
@@ -80,7 +81,10 @@ struct HomeView: View {
             )) {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
-                        viewModel: TodoEditorViewModel(kind: selectedKind),
+                        viewModel: TodoEditorViewModel(
+                            kind: selectedKind,
+                            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                        ),
                         onSubmit: { viewModel.send(.addTodo($0)) }
                     )
                 }
@@ -391,6 +395,12 @@ private struct RecentTodoRow: View {
                         .foregroundStyle(Color.primary)
                         .font(.headline)
                         .lineLimit(1)
+                    if let number = todo.number {
+                        Text("#\(number)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
                 }
 
                 HStack(spacing: 6) {

@@ -11,6 +11,7 @@ import SwiftUI
 
 struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
+    @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
     private let calendar = Calendar.current
@@ -47,6 +48,27 @@ struct TodoEditorView: View {
                 TodoEditorInfoSheetView(viewModel: viewModel) {
                     viewModel.send(.setShowInfo(false))
                 }
+            }
+            .sheet(item: Binding(
+                get: { viewModel.state.selectedTodoId },
+                set: { viewModel.send(.setSelectedTodoId($0)) }
+            )) { item in
+                NavigationStack {
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoId: item.id,
+                        showEditButton: false
+                    ))
+                    .toolbar {
+                        ToolbarLeadingButton {
+                            viewModel.send(.setSelectedTodoId(nil))
+                        }
+                    }
+                }
+                .background(Color(.secondarySystemBackground))
+                .presentationDragIndicator(.visible)
             }
             .toolbar {
                 ToolbarLeadingButton { dismiss() }
@@ -127,8 +149,11 @@ struct TodoEditorView: View {
                 if viewModel.state.content.isEmpty {
                     previewPlaceholder
                 } else {
-                    Markdown(viewModel.state.content)
-                        .markdownTheme(.basic)
+                    TodoMarkdownContentView(
+                        content: viewModel.state.content,
+                        referenceItems: viewModel.state.referenceItems,
+                        onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
+                    )
                 }
             }
         }
@@ -137,7 +162,7 @@ struct TodoEditorView: View {
     }
 
     private var markdownHint: some View {
-        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**")
+        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호")
             .font(.caption)
             .foregroundStyle(.secondary)
     }

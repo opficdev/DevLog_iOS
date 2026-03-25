@@ -155,20 +155,27 @@ final class TodoService {
     func upsertTodo(request: TodoRequest) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Upserting todo: \(request.id)")
+        logger.info("Upserting todo")
         
         do {
             let collection = store.collection("users/\(uid)/todoLists/")
             let docRef = collection.document(request.id)
             var data = try encoder.encode(request)
             data.removeValue(forKey: TodoFieldKey.id.rawValue)
+            if let number = request.number {
+                data[TodoFieldKey.number.rawValue] = number
+            }
             if request.completedAt == nil {
                 data[TodoFieldKey.completedAt.rawValue] = NSNull()
             }
             if request.dueDate == nil {
                 data[TodoFieldKey.dueDate.rawValue] = NSNull()
             }
-            try await docRef.setData(data, merge: true)
+            try await upsertTodoWithNumberOnCreate(
+                data,
+                for: docRef,
+                counterRef: store.collection("users/\(uid)/counters/").document("todo")
+            )
             
             logger.info("Successfully upserted todo")
         } catch {
@@ -180,7 +187,7 @@ final class TodoService {
     func deleteTodo(todoId: String) async throws {
         guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-        logger.info("Requesting todo deletion: \(todoId)")
+        logger.info("Requesting todo deletion")
         
         do {
             let function = functions.httpsCallable(FunctionName.requestTodoDeletion)
@@ -196,7 +203,7 @@ final class TodoService {
     func undoDeleteTodo(todoId: String) async throws {
         guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-        logger.info("Undoing todo deletion: \(todoId)")
+        logger.info("Undoing todo deletion")
 
         do {
             let function = functions.httpsCallable(FunctionName.undoTodoDeletion)
@@ -212,7 +219,7 @@ final class TodoService {
     func fetchTodo(todoId: String) async throws -> TodoResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Fetching todo: \(todoId) for user: \(uid)")
+        logger.info("Fetching todo")
 
         do {
             let docRef = store.collection("users/\(uid)/todoLists/").document(todoId)
@@ -228,9 +235,119 @@ final class TodoService {
             throw error
         }
     }
+
+    func fetchReferenceItems(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let uniqueNumbers = Array(Set(numbers)).sorted()
+        if uniqueNumbers.isEmpty { return [:] }
+
+        let collection = store.collection("users/\(uid)/todoLists/")
+        let snapshots = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group in
+            for chunk in uniqueNumbers.chunked(maxCount: 10) {
+                group.addTask {
+                    let snapshot = try await collection
+                        .whereField(TodoFieldKey.number.rawValue, in: chunk)
+                        .getDocuments()
+                    return snapshot.documents
+                }
+            }
+
+            var documents = [QueryDocumentSnapshot]()
+            for try await chunkDocuments in group {
+                documents.append(contentsOf: chunkDocuments)
+            }
+            return documents
+        }
+
+        return snapshots.reduce(into: [Int: TodoReferenceItem]()) { partialResult, document in
+            let data = document.data()
+            guard
+                !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
+                let response = makeResponse(from: document),
+                let kind = TodoKind(rawValue: response.kind)
+            else {
+                return
+            }
+
+            partialResult[response.number] = TodoReferenceItem(
+                id: response.id,
+                title: response.title,
+                kind: kind
+            )
+        }
+    }
 }
 
 private extension TodoService {
+    func upsertTodoWithNumberOnCreate(
+        _ data: [String: Any],
+        for todoRef: DocumentReference,
+        counterRef: DocumentReference
+    ) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            store.runTransaction({ transaction, errorPointer in
+                let todoSnapshot: DocumentSnapshot
+
+                do {
+                    todoSnapshot = try transaction.getDocument(todoRef)
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+
+                var todoData = data
+
+                if !todoSnapshot.exists {
+                    let counterSnapshot: DocumentSnapshot
+
+                    do {
+                        counterSnapshot = try transaction.getDocument(counterRef)
+                    } catch let error as NSError {
+                        errorPointer?.pointee = error
+                        return nil
+                    }
+
+                    let nextNumberValue = counterSnapshot.data()?[CounterFieldKey.nextNumber.rawValue]
+                    let nextNumber: Int
+
+                    if let storedNextNumber = nextNumberValue as? Int {
+                        nextNumber = storedNextNumber
+                    } else if counterSnapshot.exists {
+                        errorPointer?.pointee = NSError(
+                            domain: "TodoService",
+                            code: 1,
+                            userInfo: [NSLocalizedDescriptionKey: "Todo counter is invalid."]
+                        )
+                        return nil
+                    } else {
+                        nextNumber = 1
+                    }
+
+                    todoData[TodoFieldKey.number.rawValue] = nextNumber
+                    transaction.setData(
+                        [
+                            CounterFieldKey.nextNumber.rawValue: nextNumber + 1,
+                            CounterFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
+                        ],
+                        forDocument: counterRef,
+                        merge: true
+                    )
+                }
+
+                transaction.setData(todoData, forDocument: todoRef, merge: true)
+                return nil
+            }) { _, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: ())
+            }
+        }
+    }
+
     func makeQuery(uid: String, query: TodoQuery) -> Query {
         let collection = store.collection("users/\(uid)/todoLists/")
 
@@ -322,6 +439,7 @@ private extension TodoService {
             let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
             let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
             let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
+            let number = data[TodoFieldKey.number.rawValue] as? Int,
             let title = data[TodoFieldKey.title.rawValue] as? String,
             let content = data[TodoFieldKey.content.rawValue] as? String,
             let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
@@ -338,6 +456,7 @@ private extension TodoService {
             isPinned: isPinned,
             isCompleted: isCompleted,
             isChecked: isChecked,
+            number: number,
             title: title,
             content: content,
             createdAt: createdAtTimestamp.dateValue(),
@@ -354,6 +473,7 @@ private extension TodoService {
         case isPinned
         case isCompleted
         case isChecked
+        case number
         case title
         case content
         case createdAt
@@ -363,5 +483,10 @@ private extension TodoService {
         case tags
         case kind
         case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
+    }
+
+    enum CounterFieldKey: String {
+        case nextNumber
+        case updatedAt
     }
 }

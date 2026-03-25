@@ -11,7 +11,10 @@ import MarkdownUI
 struct TodoDetailContentView: View {
     let title: String
     let content: String
+    let referenceItems: [Int: TodoReferenceItem]
+    var number: Int?
     var activityLabel: String?
+    var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
         ZStack {
@@ -33,11 +36,23 @@ struct TodoDetailContentView: View {
                         }
                         .padding(.horizontal)
                     }
-                    Text(title)
-                        .font(.title3.bold())
-                        .padding(.horizontal)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(title)
+                        if let number {
+                            Text("#\(number)")
+                                .foregroundStyle(.gray)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                        Spacer()
+                    }
+                    .font(.title3.bold())
+                    .padding(.horizontal)
                     Divider()
-                    Markdown(content)
+                    TodoMarkdownContentView(
+                        content: content,
+                        referenceItems: referenceItems,
+                        onOpenTodoID: onOpenTodoID
+                    )
                         .padding(.horizontal)
                 }
             }

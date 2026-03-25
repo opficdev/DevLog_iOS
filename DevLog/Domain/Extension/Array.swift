@@ -28,3 +28,20 @@ extension Array: @retroactive RawRepresentable where Element: Codable {
         return result
     }
 }
+
+extension Array {
+    func chunked(maxCount: Int) -> [[Element]] {
+        guard 0 < maxCount else { return [] }
+
+        var chunks = [[Element]]()
+        var startIndex = 0
+
+        while startIndex < count {
+            let endIndex = Swift.min(startIndex + maxCount, count)
+            chunks.append(Array(self[startIndex..<endIndex]))
+            startIndex = endIndex
+        }
+
+        return chunks
+    }
+}

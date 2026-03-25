@@ -31,7 +31,8 @@ struct TodayView: View {
                 switch path {
                 case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: todoId
                     ))
@@ -296,6 +297,12 @@ private struct TodayTodoRow: View {
                     .font(.headline)
                     .foregroundStyle(Color(.label))
                     .lineLimit(1)
+                if let number = item.number {
+                    Text("#\(number)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.gray)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
                 Spacer()
             }
 

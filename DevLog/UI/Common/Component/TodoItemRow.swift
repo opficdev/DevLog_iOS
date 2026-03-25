@@ -32,6 +32,12 @@ struct TodoItemRow: View {
                         .font(.headline)
                         .foregroundStyle(Color(.label))
                         .lineLimit(1)
+                    if let number = item.number {
+                        Text("#\(number)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
                 }
                 if !item.tags.isEmpty {
                     TagList(item.tags, lineLimit: 1)

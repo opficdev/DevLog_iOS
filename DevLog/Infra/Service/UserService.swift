@@ -26,6 +26,7 @@ final class UserService {
             let infoRef = store.document("users/\(user.uid)/userData/info")
             let tokensRef = store.document("users/\(user.uid)/userData/tokens")
             let settingsRef = store.document("users/\(user.uid)/userData/settings")
+            let todoCounterRef = store.document("users/\(user.uid)/counters/todo")
 
             // 사용자 기본 정보
             var userField: [String: Any] = [
@@ -83,8 +84,20 @@ final class UserService {
 
             let settingsFieldSnapshot = settingsField
             async let settingsUpdate: Void = settingsRef.setData(settingsFieldSnapshot, merge: true)
+            async let todoCounterUpdate: Void? = {  //  옵셔널이 포함된 이유: 신규 사용자일 때만 할 작업
+                guard !userDocument.exists else { return nil }
 
-            _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate)
+                try await todoCounterRef.setData(
+                    [
+                        "nextNumber": 1,
+                        "updatedAt": FieldValue.serverTimestamp()
+                    ],
+                    merge: true
+                )
+                return nil
+            }()
+
+            _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate, todoCounterUpdate)
             
             logger.info("Successfully upserted user: \(user.uid)")
         } catch {

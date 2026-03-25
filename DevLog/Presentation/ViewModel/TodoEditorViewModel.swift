@@ -47,8 +47,10 @@ final class TodoEditorViewModel: Store {
         var isCompleted: Bool = false
         var completedAt: Date?
         var isPinned: Bool = false
+        var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
+        var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
         var tags: OrderedSet<String> = []
@@ -74,18 +76,24 @@ final class TodoEditorViewModel: Store {
         case setKind(TodoKind)
         case setPinned(Bool)
         case setShowInfo(Bool)
+        case setSelectedTodoId(TodoIdItem?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
+        case setReferenceItems([Int: TodoReferenceItem])
     }
 
-    enum SideEffect { }
+    enum SideEffect {
+        case resolveMarkdown(String)
+    }
 
     private(set) var state = State()
     private let calendar = Calendar.current
+    private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
+    private let number: Int?
     private let createdAt: Date?
     private let originalDraft: Draft?
 
@@ -107,20 +115,30 @@ final class TodoEditorViewModel: Store {
     }
 
     // 새로운 Todo 생성용 생성자
-    init(kind: TodoKind) {
+    init(
+        kind: TodoKind,
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
+    ) {
+        self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
+        self.number = nil
         self.createdAt = nil
         self.originalDraft = nil
         state.kind = kind
     }
 
     // 기존 Todo 편집용 생성자
-    init(todo: Todo) {
+    init(
+        todo: Todo,
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
+    ) {
+        self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
+        self.number = todo.number
         self.createdAt = todo.createdAt
         self.originalDraft = Draft(todo: todo)
         state.isCompleted = todo.isCompleted
@@ -135,6 +153,7 @@ final class TodoEditorViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
         case .addTag(let tag):
@@ -147,6 +166,9 @@ final class TodoEditorViewModel: Store {
              .setTagText(let stringValue),
              .setTitle(let stringValue):
             handleStringAction(action, stringValue: stringValue, state: &state)
+            if state.tabViewTag == .preview {
+                effects = [.resolveMarkdown(state.content)]
+            }
         case .setDueDate(let dueDate):
             if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()), let dueDate {
                 state.dueDate = max(dueDate, tomorrowDate)
@@ -164,12 +186,39 @@ final class TodoEditorViewModel: Store {
             state.isPinned = isPinned
         case .setShowInfo(let isPresented):
             state.showInfo = isPresented
+        case .setSelectedTodoId(let todoId):
+            state.selectedTodoId = todoId
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
+            if tag == .preview {
+                effects = [.resolveMarkdown(state.content)]
+            }
+        case .setReferenceItems(let items):
+            state.referenceItems = items
         }
 
         if self.state != state { self.state = state }
-        return []
+        return effects
+    }
+
+    func run(_ effect: SideEffect) {
+        switch effect {
+        case .resolveMarkdown(let content):
+            Task {
+                let numbers = content.todoReferenceNumbers
+                var referenceItems = [Int: TodoReferenceItem]()
+
+                if !numbers.isEmpty {
+                    do {
+                        referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
+                    } catch {
+                        referenceItems = [:]
+                    }
+                }
+
+                send(.setReferenceItems(referenceItems))
+            }
+        }
     }
 }
 
@@ -198,6 +247,7 @@ extension TodoEditorViewModel {
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
+            number: self.number,
             title: state.title,
             content: state.content,
             createdAt: self.createdAt ?? date,

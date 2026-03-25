@@ -49,7 +49,8 @@ struct TodoListView: View {
             switch path {
             case .detail(let todoId):
                 TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                     upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                     todoId: todoId
                 ))
@@ -81,7 +82,10 @@ struct TodoListView: View {
             set: { viewModel.send(.setShowEditor($0)) }
         )) {
             TodoEditorView(
-                viewModel: TodoEditorViewModel(kind: viewModel.state.kind),
+                viewModel: TodoEditorViewModel(
+                    kind: viewModel.state.kind,
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                ),
                 onSubmit: { viewModel.send(.upsertTodo($0)) }
             )
         }
