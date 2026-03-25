@@ -36,8 +36,11 @@ final class TodoService {
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
+            query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
+            query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
             "pageSize=\(query.pageSize)",
-            query.fetchAllPages ? "fetchAllPages=true" : nil
+            query.fetchAllPages ? "fetchAllPages=true" : nil,
+            cursor != nil ? "cursor=\(cursor!)" : nil
         ]
         logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
