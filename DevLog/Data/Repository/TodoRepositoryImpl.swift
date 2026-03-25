@@ -25,8 +25,8 @@ final class TodoRepositoryImpl: TodoRepository {
         return try response.toDomain()
     }
 
-    func fetchTodoIDs(_ numbers: [Int]) async throws -> [Int: String] {
-        try await todoService.fetchTodoIDs(numbers)
+    func fetchReferenceItems(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
+        try await todoService.fetchReferenceItems(numbers)
     }
     
     func upsertTodo(_ todo: Todo) async throws {

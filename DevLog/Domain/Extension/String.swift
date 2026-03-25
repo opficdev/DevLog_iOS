@@ -40,39 +40,4 @@ extension String {
 
         return numbers
     }
-
-    func replacingTodoReferenceLines(using todoIDsByNumber: [Int: String]) -> String {
-        split(separator: "\n", omittingEmptySubsequences: false)
-            .map { line in
-                let lineString = String(line)
-                guard
-                    let lineComponents = lineString.todoReferenceLineComponents,
-                    let todoID = todoIDsByNumber[lineComponents.number]
-                else {
-                    return lineString
-                }
-
-                return "\(lineComponents.leadingWhitespace)- refs [#\(lineComponents.number)](devlog://todo/\(todoID))"
-            }
-            .joined(separator: "\n")
-    }
-
-    private var todoReferenceLineComponents: (leadingWhitespace: String, number: Int)? {
-        guard let expression = try? NSRegularExpression(pattern: Self.todoReferencePattern) else {
-            return nil
-        }
-
-        let range = NSRange(startIndex..., in: self)
-        guard
-            let match = expression.firstMatch(in: self, options: [], range: range),
-            match.range == range,
-            let leadingWhitespaceRange = Range(match.range(at: 1), in: self),
-            let numberRange = Range(match.range(at: 2), in: self),
-            let number = Int(self[numberRange])
-        else {
-            return nil
-        }
-
-        return (String(self[leadingWhitespaceRange]), number)
-    }
 }
