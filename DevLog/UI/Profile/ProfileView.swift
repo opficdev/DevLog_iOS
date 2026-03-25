@@ -373,7 +373,8 @@ private struct ProfileActivityTodoDetailView: View {
     var body: some View {
         TodoDetailContentView(
             title: activity.todo.title,
-            renderedContent: activity.todo.content,
+            content: activity.todo.content,
+            referenceItems: [:],
             number: activity.todo.number,
             activityLabel: activity.activityLabel
         )

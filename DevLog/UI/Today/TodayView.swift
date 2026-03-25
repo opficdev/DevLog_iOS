@@ -31,8 +31,8 @@ struct TodayView: View {
                 switch path {
                 case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: todoId
                     ))

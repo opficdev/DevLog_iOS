@@ -10,7 +10,8 @@ import MarkdownUI
 
 struct TodoDetailContentView: View {
     let title: String
-    let renderedContent: String
+    let content: String
+    let referenceItems: [Int: TodoReferenceItem]
     var number: Int?
     var activityLabel: String?
     var onOpenTodoID: ((String) -> Void)?
@@ -47,22 +48,11 @@ struct TodoDetailContentView: View {
                     .font(.title3.bold())
                     .padding(.horizontal)
                     Divider()
-                    Markdown(renderedContent)
-                        .environment(\.openURL, OpenURLAction { url in
-                            guard
-                                url.scheme == "devlog",
-                                url.host == "todo"
-                            else {
-                                return .systemAction
-                            }
-
-                            let todoID = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-                            if !todoID.isEmpty {
-                                onOpenTodoID?(todoID)
-                            }
-
-                            return .handled
-                        })
+                    TodoMarkdownContentView(
+                        content: content,
+                        referenceItems: referenceItems,
+                        onOpenTodoID: onOpenTodoID
+                    )
                         .padding(.horizontal)
                 }
             }

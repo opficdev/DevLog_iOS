@@ -17,7 +17,8 @@ struct TodoDetailView: View {
             if let todo = viewModel.state.todo {
                 TodoDetailContentView(
                     title: todo.title,
-                    renderedContent: viewModel.state.renderedContent,
+                    content: todo.content,
+                    referenceItems: viewModel.state.referenceItems,
                     number: todo.number,
                     onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                 )
@@ -39,8 +40,8 @@ struct TodoDetailView: View {
         )) { item in
             NavigationStack {
                 TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                     upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                     todoId: item.id,
                     showEditButton: false
@@ -62,7 +63,7 @@ struct TodoDetailView: View {
                 TodoEditorView(
                     viewModel: TodoEditorViewModel(
                         todo: todo,
-                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self)
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
                     ),
                     onSubmit: { viewModel.send(.upsertTodo($0)) }
                 )

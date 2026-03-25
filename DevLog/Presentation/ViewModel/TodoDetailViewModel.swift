@@ -12,7 +12,7 @@ final class TodoDetailViewModel: Store {
     struct State: Equatable {
         var todo: Todo?
         var selectedTodoId: TodoIdItem?
-        var renderedContent: String = ""
+        var referenceItems: [Int: TodoReferenceItem] = [:]
         var isLoading: Bool  = false
         var showAlert: Bool  = false
         var showEditor: Bool  = false
@@ -28,7 +28,7 @@ final class TodoDetailViewModel: Store {
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
         case setTodo(Todo)
-        case setRenderedContent(String)
+        case setReferenceItems([Int: TodoReferenceItem])
         case setLoading(Bool)
         case upsertTodo(Todo)
     }
@@ -41,21 +41,21 @@ final class TodoDetailViewModel: Store {
 
     private(set) var state: State = .init()
     let showEditButton: Bool
-    private let fetchUseCase: FetchTodoByIdUseCase
-    private let fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+    private let fetchTodoUseCase: FetchTodoByIdUseCase
+    private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let upsertUseCase: UpsertTodoUseCase
     private let todoId: String
     private let loadingState = LoadingState()
 
     init(
-        fetchUseCase: FetchTodoByIdUseCase,
-        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase,
+        fetchTodoUseCase: FetchTodoByIdUseCase,
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         upsertUseCase: UpsertTodoUseCase,
         todoId: String,
         showEditButton: Bool = true
     ) {
-        self.fetchUseCase = fetchUseCase
-        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
+        self.fetchTodoUseCase = fetchTodoUseCase
+        self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.upsertUseCase = upsertUseCase
         self.todoId = todoId
         self.showEditButton = showEditButton
@@ -78,10 +78,10 @@ final class TodoDetailViewModel: Store {
             state.selectedTodoId = todoId
         case .setTodo(let todo):
             state.todo = todo
-            state.renderedContent = todo.content
+            state.referenceItems = [:]
             effects = [.resolveMarkdown(todo.content)]
-        case .setRenderedContent(let content):
-            state.renderedContent = content
+        case .setReferenceItems(let items):
+            state.referenceItems = items
         case .setLoading(let value):
             state.isLoading = value
         case .upsertTodo(let todo):
@@ -99,7 +99,7 @@ final class TodoDetailViewModel: Store {
             Task {
                 do {
                     defer { endLoading(.immediate) }
-                    let todo = try await fetchUseCase.execute(todoId)
+                    let todo = try await fetchTodoUseCase.execute(todoId)
                     send(.setTodo(todo))
                 } catch {
                     send(.setAlert(true))
@@ -107,19 +107,18 @@ final class TodoDetailViewModel: Store {
             }
         case .resolveMarkdown(let content):
             Task {
-                var renderedContent = content
                 let numbers = content.todoReferenceNumbers
+                var referenceItems = [Int: TodoReferenceItem]()
 
                 if !numbers.isEmpty {
                     do {
-                        let todoIDsByNumber = try await fetchTodoIDsByNumbersUseCase.execute(numbers)
-                        renderedContent = content.replacingTodoReferenceLines(using: todoIDsByNumber)
+                        referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
                     } catch {
-                        renderedContent = content
+                        referenceItems = [:]
                     }
                 }
 
-                send(.setRenderedContent(renderedContent))
+                send(.setReferenceItems(referenceItems))
             }
         case .upsertTodo(let todo):
             beginLoading(.delayed)

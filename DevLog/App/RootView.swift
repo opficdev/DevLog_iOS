@@ -42,8 +42,8 @@ struct RootView: View {
             case .todoDetail(let todoId):
                 NavigationStack {
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: todoId,
                         showEditButton: false

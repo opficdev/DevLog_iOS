@@ -50,7 +50,7 @@ final class TodoEditorViewModel: Store {
         var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
-        var renderedContent: String = ""
+        var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
         var tags: OrderedSet<String> = []
@@ -80,7 +80,7 @@ final class TodoEditorViewModel: Store {
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
-        case setRenderedContent(String)
+        case setReferenceItems([Int: TodoReferenceItem])
     }
 
     enum SideEffect {
@@ -89,7 +89,7 @@ final class TodoEditorViewModel: Store {
 
     private(set) var state = State()
     private let calendar = Calendar.current
-    private let fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+    private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
@@ -117,9 +117,9 @@ final class TodoEditorViewModel: Store {
     // 새로운 Todo 생성용 생성자
     init(
         kind: TodoKind,
-        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     ) {
-        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
+        self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
@@ -132,9 +132,9 @@ final class TodoEditorViewModel: Store {
     // 기존 Todo 편집용 생성자
     init(
         todo: Todo,
-        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     ) {
-        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
+        self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -146,7 +146,6 @@ final class TodoEditorViewModel: Store {
         state.isPinned = todo.isPinned
         state.title = todo.title
         state.content = todo.content
-        state.renderedContent = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
         state.kind = todo.kind
@@ -194,8 +193,8 @@ final class TodoEditorViewModel: Store {
             if tag == .preview {
                 effects = [.resolveMarkdown(state.content)]
             }
-        case .setRenderedContent(let content):
-            state.renderedContent = content
+        case .setReferenceItems(let items):
+            state.referenceItems = items
         }
 
         if self.state != state { self.state = state }
@@ -206,19 +205,18 @@ final class TodoEditorViewModel: Store {
         switch effect {
         case .resolveMarkdown(let content):
             Task {
-                var renderedContent = content
                 let numbers = content.todoReferenceNumbers
+                var referenceItems = [Int: TodoReferenceItem]()
 
                 if !numbers.isEmpty {
                     do {
-                        let todoIDsByNumber = try await fetchTodoIDsByNumbersUseCase.execute(numbers)
-                        renderedContent = content.replacingTodoReferenceLines(using: todoIDsByNumber)
+                        referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
                     } catch {
-                        renderedContent = content
+                        referenceItems = [:]
                     }
                 }
 
-                send(.setRenderedContent(renderedContent))
+                send(.setReferenceItems(referenceItems))
             }
         }
     }

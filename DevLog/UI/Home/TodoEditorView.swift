@@ -55,8 +55,8 @@ struct TodoEditorView: View {
             )) { item in
                 NavigationStack {
                     TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: item.id,
                         showEditButton: false
@@ -149,22 +149,11 @@ struct TodoEditorView: View {
                 if viewModel.state.content.isEmpty {
                     previewPlaceholder
                 } else {
-                    Markdown(viewModel.state.renderedContent)
-                        .environment(\.openURL, OpenURLAction { url in
-                            guard
-                                url.scheme == "devlog",
-                                url.host == "todo"
-                            else {
-                                return .systemAction
-                            }
-
-                            let todoID = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-                            if !todoID.isEmpty {
-                                viewModel.send(.setSelectedTodoId(TodoIdItem(id: todoID)))
-                            }
-
-                            return .handled
-                        })
+                    TodoMarkdownContentView(
+                        content: viewModel.state.content,
+                        referenceItems: viewModel.state.referenceItems,
+                        onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
+                    )
                 }
             }
         }
