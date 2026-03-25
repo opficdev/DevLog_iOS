@@ -47,6 +47,7 @@ final class TodoEditorViewModel: Store {
         var isCompleted: Bool = false
         var completedAt: Date?
         var isPinned: Bool = false
+        var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
         var renderedContent: String = ""
@@ -75,6 +76,7 @@ final class TodoEditorViewModel: Store {
         case setKind(TodoKind)
         case setPinned(Bool)
         case setShowInfo(Bool)
+        case setSelectedTodoId(TodoIdItem?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
@@ -185,6 +187,8 @@ final class TodoEditorViewModel: Store {
             state.isPinned = isPinned
         case .setShowInfo(let isPresented):
             state.showInfo = isPresented
+        case .setSelectedTodoId(let todoId):
+            state.selectedTodoId = todoId
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
             if tag == .preview {

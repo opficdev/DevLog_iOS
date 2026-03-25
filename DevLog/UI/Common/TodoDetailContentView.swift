@@ -13,6 +13,7 @@ struct TodoDetailContentView: View {
     let renderedContent: String
     var number: Int?
     var activityLabel: String?
+    var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
         ZStack {
@@ -47,6 +48,21 @@ struct TodoDetailContentView: View {
                     .padding(.horizontal)
                     Divider()
                     Markdown(renderedContent)
+                        .environment(\.openURL, OpenURLAction { url in
+                            guard
+                                url.scheme == "devlog",
+                                url.host == "todo"
+                            else {
+                                return .systemAction
+                            }
+
+                            let todoID = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                            if !todoID.isEmpty {
+                                onOpenTodoID?(todoID)
+                            }
+
+                            return .handled
+                        })
                         .padding(.horizontal)
                 }
             }

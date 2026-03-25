@@ -18,7 +18,8 @@ struct TodoDetailView: View {
                 TodoDetailContentView(
                     title: todo.title,
                     renderedContent: viewModel.state.renderedContent,
-                    number: todo.number
+                    number: todo.number,
+                    onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                 )
             } else if viewModel.state.isLoading {
                 LoadingView()
@@ -31,6 +32,27 @@ struct TodoDetailView: View {
             set: { viewModel.send(.setShowInfo($0)) }
         )) {
             sheetContent
+        }
+        .sheet(item: Binding(
+            get: { viewModel.state.selectedTodoId },
+            set: { viewModel.send(.setSelectedTodoId($0)) }
+        )) { item in
+            NavigationStack {
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoId: item.id,
+                    showEditButton: false
+                ))
+                .toolbar {
+                    ToolbarLeadingButton {
+                        viewModel.send(.setSelectedTodoId(nil))
+                    }
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },

@@ -11,6 +11,7 @@ import Foundation
 final class TodoDetailViewModel: Store {
     struct State: Equatable {
         var todo: Todo?
+        var selectedTodoId: TodoIdItem?
         var renderedContent: String = ""
         var isLoading: Bool  = false
         var showAlert: Bool  = false
@@ -25,6 +26,7 @@ final class TodoDetailViewModel: Store {
         case setAlert(Bool)
         case setShowEditor(Bool)
         case setShowInfo(Bool)
+        case setSelectedTodoId(TodoIdItem?)
         case setTodo(Todo)
         case setRenderedContent(String)
         case setLoading(Bool)
@@ -72,6 +74,8 @@ final class TodoDetailViewModel: Store {
             state.showEditor = isPresented
         case .setShowInfo(let presented):
             state.showInfo = presented
+        case .setSelectedTodoId(let todoId):
+            state.selectedTodoId = todoId
         case .setTodo(let todo):
             state.todo = todo
             state.renderedContent = todo.content

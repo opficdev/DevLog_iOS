@@ -11,6 +11,7 @@ import SwiftUI
 
 struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
+    @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
     @FocusState private var field: Field?
     private let calendar = Calendar.current
@@ -47,6 +48,27 @@ struct TodoEditorView: View {
                 TodoEditorInfoSheetView(viewModel: viewModel) {
                     viewModel.send(.setShowInfo(false))
                 }
+            }
+            .sheet(item: Binding(
+                get: { viewModel.state.selectedTodoId },
+                set: { viewModel.send(.setSelectedTodoId($0)) }
+            )) { item in
+                NavigationStack {
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoId: item.id,
+                        showEditButton: false
+                    ))
+                    .toolbar {
+                        ToolbarLeadingButton {
+                            viewModel.send(.setSelectedTodoId(nil))
+                        }
+                    }
+                }
+                .background(Color(.secondarySystemBackground))
+                .presentationDragIndicator(.visible)
             }
             .toolbar {
                 ToolbarLeadingButton { dismiss() }
@@ -128,6 +150,21 @@ struct TodoEditorView: View {
                     previewPlaceholder
                 } else {
                     Markdown(viewModel.state.renderedContent)
+                        .environment(\.openURL, OpenURLAction { url in
+                            guard
+                                url.scheme == "devlog",
+                                url.host == "todo"
+                            else {
+                                return .systemAction
+                            }
+
+                            let todoID = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                            if !todoID.isEmpty {
+                                viewModel.send(.setSelectedTodoId(TodoIdItem(id: todoID)))
+                            }
+
+                            return .handled
+                        })
                 }
             }
         }
