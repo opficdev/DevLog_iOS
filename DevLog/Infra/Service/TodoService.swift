@@ -165,7 +165,11 @@ final class TodoService {
             if request.dueDate == nil {
                 data[TodoFieldKey.dueDate.rawValue] = NSNull()
             }
-            try await docRef.setData(data, merge: true)
+            try await upsertTodoWithNumberOnCreate(
+                data,
+                for: docRef,
+                counterRef: store.collection("users/\(uid)/counters/").document("todo")
+            )
             
             logger.info("Successfully upserted todo")
         } catch {
@@ -228,6 +232,74 @@ final class TodoService {
 }
 
 private extension TodoService {
+    func upsertTodoWithNumberOnCreate(
+        _ data: [String: Any],
+        for todoRef: DocumentReference,
+        counterRef: DocumentReference
+    ) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            store.runTransaction({ transaction, errorPointer in
+                let todoSnapshot: DocumentSnapshot
+
+                do {
+                    todoSnapshot = try transaction.getDocument(todoRef)
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+
+                var todoData = data
+
+                if !todoSnapshot.exists {
+                    let counterSnapshot: DocumentSnapshot
+
+                    do {
+                        counterSnapshot = try transaction.getDocument(counterRef)
+                    } catch let error as NSError {
+                        errorPointer?.pointee = error
+                        return nil
+                    }
+
+                    let nextNumberValue = counterSnapshot.data()?[CounterFieldKey.nextNumber.rawValue]
+                    let nextNumber: Int
+
+                    if let storedNextNumber = nextNumberValue as? Int {
+                        nextNumber = storedNextNumber
+                    } else if counterSnapshot.exists {
+                        errorPointer?.pointee = NSError(
+                            domain: "TodoService",
+                            code: 1,
+                            userInfo: [NSLocalizedDescriptionKey: "Todo counter is invalid."]
+                        )
+                        return nil
+                    } else {
+                        nextNumber = 1
+                    }
+
+                    todoData[TodoFieldKey.number.rawValue] = nextNumber
+                    transaction.setData(
+                        [
+                            CounterFieldKey.nextNumber.rawValue: nextNumber + 1,
+                            CounterFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
+                        ],
+                        forDocument: counterRef,
+                        merge: true
+                    )
+                }
+
+                transaction.setData(todoData, forDocument: todoRef, merge: true)
+                return nil
+            }) { _, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: ())
+            }
+        }
+    }
+
     func makeQuery(uid: String, query: TodoQuery) -> Query {
         let collection = store.collection("users/\(uid)/todoLists/")
 
@@ -351,6 +423,7 @@ private extension TodoService {
         case isPinned
         case isCompleted
         case isChecked
+        case number
         case title
         case content
         case createdAt
@@ -360,5 +433,10 @@ private extension TodoService {
         case tags
         case kind
         case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
+    }
+
+    enum CounterFieldKey: String {
+        case nextNumber
+        case updatedAt
     }
 }
