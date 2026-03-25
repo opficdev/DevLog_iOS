@@ -21,13 +21,8 @@ struct TodoItemRow: View {
                 .resizable()
                 .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                 .foregroundStyle(item.isCompleted ? .green : .secondary)
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    if item.isPinned {
-                        Image(systemName: "star.fill")
-                            .font(.headline)
-                            .foregroundStyle(.orange)
-                    }
                     Text(item.title)
                         .font(.headline)
                         .foregroundStyle(Color(.label))
@@ -39,7 +34,15 @@ struct TodoItemRow: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                 }
-                RelativeTimeText(date: item.updatedAt)
+                HStack(spacing: 4) {
+                    if item.isPinned {
+                        Image(systemName: "star.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                    }
+                    RelativeTimeText(date: item.updatedAt)
+                }
+                .frame(height: UIFont.preferredFont(forTextStyle: .headline).lineHeight)
                 if !item.tags.isEmpty {
                     TagList(item.tags, lineLimit: 1)
                 }
