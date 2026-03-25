@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TodoItemRow: View {
+    @Environment(\.sceneWidth) private var sceneWidth
     private let item: TodoListItem
 
     init(_ item: TodoListItem) {
@@ -16,17 +17,16 @@ struct TodoItemRow: View {
 
     var body: some View {
         HStack {
+            Image(systemName: "checkmark.circle")
+                .resizable()
+                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .foregroundStyle(item.isCompleted ? .green : .secondary)
             VStack(alignment: .leading, spacing: 5) {
                 HStack {
                     if item.isPinned {
                         Image(systemName: "star.fill")
                             .font(.headline)
                             .foregroundStyle(.orange)
-                    }
-                    if item.isCompleted {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.headline)
-                            .foregroundStyle(.green)
                     }
                     Text(item.title)
                         .font(.headline)
@@ -49,6 +49,6 @@ struct TodoItemRow: View {
                 .font(.caption2.bold())
                 .foregroundStyle(.gray)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 12)
     }
 }
