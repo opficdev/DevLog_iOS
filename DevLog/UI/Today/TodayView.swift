@@ -296,6 +296,12 @@ private struct TodayTodoRow: View {
                     .font(.headline)
                     .foregroundStyle(Color(.label))
                     .lineLimit(1)
+                if let number = item.number {
+                    Text("#\(number)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.gray)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
                 Spacer()
             }
 

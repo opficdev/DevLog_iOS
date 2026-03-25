@@ -86,6 +86,7 @@ final class TodoEditorViewModel: Store {
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
+    private let number: Int?
     private let createdAt: Date?
     private let originalDraft: Draft?
 
@@ -111,6 +112,7 @@ final class TodoEditorViewModel: Store {
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
+        self.number = nil
         self.createdAt = nil
         self.originalDraft = nil
         state.kind = kind
@@ -121,6 +123,7 @@ final class TodoEditorViewModel: Store {
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
+        self.number = todo.number
         self.createdAt = todo.createdAt
         self.originalDraft = Draft(todo: todo)
         state.isCompleted = todo.isCompleted
@@ -198,6 +201,7 @@ extension TodoEditorViewModel {
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
+            number: self.number,
             title: state.title,
             content: state.content,
             createdAt: self.createdAt ?? date,

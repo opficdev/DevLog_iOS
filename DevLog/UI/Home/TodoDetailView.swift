@@ -16,7 +16,8 @@ struct TodoDetailView: View {
             if let todo = viewModel.state.todo {
                 TodoDetailContentView(
                     title: todo.title,
-                    content: todo.content
+                    content: todo.content,
+                    number: todo.number
                 )
             } else if viewModel.state.isLoading {
                 LoadingView()
