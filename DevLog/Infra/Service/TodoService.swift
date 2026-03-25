@@ -232,6 +232,43 @@ final class TodoService {
             throw error
         }
     }
+
+    func fetchTodoIDs(_ numbers: [Int]) async throws -> [Int: String] {
+        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+
+        let uniqueNumbers = Array(Set(numbers)).sorted()
+        if uniqueNumbers.isEmpty { return [:] }
+
+        let collection = store.collection("users/\(uid)/todoLists/")
+        let snapshots = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group in
+            for chunk in uniqueNumbers.chunked(maxCount: 10) {
+                group.addTask {
+                    let snapshot = try await collection
+                        .whereField(TodoFieldKey.number.rawValue, in: chunk)
+                        .getDocuments()
+                    return snapshot.documents
+                }
+            }
+
+            var documents = [QueryDocumentSnapshot]()
+            for try await chunkDocuments in group {
+                documents.append(contentsOf: chunkDocuments)
+            }
+            return documents
+        }
+
+        return snapshots.reduce(into: [Int: String]()) { partialResult, document in
+            let data = document.data()
+            guard
+                !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
+                let number = data[TodoFieldKey.number.rawValue] as? Int
+            else {
+                return
+            }
+
+            partialResult[number] = document.documentID
+        }
+    }
 }
 
 private extension TodoService {
