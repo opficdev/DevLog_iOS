@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TodoItemRow: View {
+    @Environment(\.sceneWidth) private var sceneWidth
     private let item: TodoListItem
 
     init(_ item: TodoListItem) {
@@ -16,18 +17,12 @@ struct TodoItemRow: View {
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 5) {
+            Image(systemName: "checkmark.circle")
+                .resizable()
+                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .foregroundStyle(item.isCompleted ? .green : .secondary)
+            VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    if item.isPinned {
-                        Image(systemName: "star.fill")
-                            .font(.headline)
-                            .foregroundStyle(.orange)
-                    }
-                    if item.isCompleted {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.headline)
-                            .foregroundStyle(.green)
-                    }
                     Text(item.title)
                         .font(.headline)
                         .foregroundStyle(Color(.label))
@@ -39,6 +34,15 @@ struct TodoItemRow: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                 }
+                HStack(spacing: 4) {
+                    if item.isPinned {
+                        Image(systemName: "star.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                    }
+                    RelativeTimeText(date: item.updatedAt)
+                }
+                .frame(height: UIFont.preferredFont(forTextStyle: .headline).lineHeight)
                 if !item.tags.isEmpty {
                     TagList(item.tags, lineLimit: 1)
                 }
@@ -48,6 +52,6 @@ struct TodoItemRow: View {
                 .font(.caption2.bold())
                 .foregroundStyle(.gray)
         }
-        .padding(.vertical, item.tags.isEmpty ? 20 : 4)
+        .padding(.vertical, 12)
     }
 }
