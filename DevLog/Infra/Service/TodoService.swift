@@ -36,11 +36,8 @@ final class TodoService {
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
-            query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
-            query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
             "pageSize=\(query.pageSize)",
-            query.fetchAllPages ? "fetchAllPages=true" : nil,
-            cursor != nil ? "cursor=\(cursor!)" : nil
+            query.fetchAllPages ? "fetchAllPages=true" : nil
         ]
         logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
@@ -155,7 +152,7 @@ final class TodoService {
     func upsertTodo(request: TodoRequest) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Upserting todo: \(request.id)")
+        logger.info("Upserting todo")
         
         do {
             let collection = store.collection("users/\(uid)/todoLists/")
@@ -180,7 +177,7 @@ final class TodoService {
     func deleteTodo(todoId: String) async throws {
         guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-        logger.info("Requesting todo deletion: \(todoId)")
+        logger.info("Requesting todo deletion")
         
         do {
             let function = functions.httpsCallable(FunctionName.requestTodoDeletion)
@@ -196,7 +193,7 @@ final class TodoService {
     func undoDeleteTodo(todoId: String) async throws {
         guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
 
-        logger.info("Undoing todo deletion: \(todoId)")
+        logger.info("Undoing todo deletion")
 
         do {
             let function = functions.httpsCallable(FunctionName.undoTodoDeletion)
@@ -212,7 +209,7 @@ final class TodoService {
     func fetchTodo(todoId: String) async throws -> TodoResponse {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
-        logger.info("Fetching todo: \(todoId) for user: \(uid)")
+        logger.info("Fetching todo")
 
         do {
             let docRef = store.collection("users/\(uid)/todoLists/").document(todoId)
