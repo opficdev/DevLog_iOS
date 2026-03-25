@@ -10,7 +10,7 @@ import MarkdownUI
 
 struct TodoDetailContentView: View {
     let title: String
-    let content: String
+    let renderedContent: String
     var number: Int?
     var activityLabel: String?
 
@@ -46,7 +46,7 @@ struct TodoDetailContentView: View {
                     .font(.title3.bold())
                     .padding(.horizontal)
                     Divider()
-                    Markdown(content)
+                    Markdown(renderedContent)
                         .padding(.horizontal)
                 }
             }

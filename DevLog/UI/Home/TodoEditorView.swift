@@ -127,8 +127,7 @@ struct TodoEditorView: View {
                 if viewModel.state.content.isEmpty {
                     previewPlaceholder
                 } else {
-                    Markdown(viewModel.state.content)
-                        .markdownTheme(.basic)
+                    Markdown(viewModel.state.renderedContent)
                 }
             }
         }

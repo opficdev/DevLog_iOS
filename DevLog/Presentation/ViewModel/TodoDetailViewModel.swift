@@ -11,6 +11,7 @@ import Foundation
 final class TodoDetailViewModel: Store {
     struct State: Equatable {
         var todo: Todo?
+        var renderedContent: String = ""
         var isLoading: Bool  = false
         var showAlert: Bool  = false
         var showEditor: Bool  = false
@@ -25,29 +26,34 @@ final class TodoDetailViewModel: Store {
         case setShowEditor(Bool)
         case setShowInfo(Bool)
         case setTodo(Todo)
+        case setRenderedContent(String)
         case setLoading(Bool)
         case upsertTodo(Todo)
     }
 
     enum SideEffect {
         case fetchTodo
+        case resolveMarkdown(String)
         case upsertTodo(Todo)
     }
 
     private(set) var state: State = .init()
     let showEditButton: Bool
     private let fetchUseCase: FetchTodoByIdUseCase
+    private let fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
     private let upsertUseCase: UpsertTodoUseCase
     private let todoId: String
     private let loadingState = LoadingState()
 
     init(
         fetchUseCase: FetchTodoByIdUseCase,
+        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase,
         upsertUseCase: UpsertTodoUseCase,
         todoId: String,
         showEditButton: Bool = true
     ) {
         self.fetchUseCase = fetchUseCase
+        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
         self.upsertUseCase = upsertUseCase
         self.todoId = todoId
         self.showEditButton = showEditButton
@@ -68,6 +74,10 @@ final class TodoDetailViewModel: Store {
             state.showInfo = presented
         case .setTodo(let todo):
             state.todo = todo
+            state.renderedContent = todo.content
+            effects = [.resolveMarkdown(todo.content)]
+        case .setRenderedContent(let content):
+            state.renderedContent = content
         case .setLoading(let value):
             state.isLoading = value
         case .upsertTodo(let todo):
@@ -90,6 +100,22 @@ final class TodoDetailViewModel: Store {
                 } catch {
                     send(.setAlert(true))
                 }
+            }
+        case .resolveMarkdown(let content):
+            Task {
+                var renderedContent = content
+                let numbers = content.todoReferenceNumbers
+
+                if !numbers.isEmpty {
+                    do {
+                        let todoIDsByNumber = try await fetchTodoIDsByNumbersUseCase.execute(numbers)
+                        renderedContent = content.replacingTodoReferenceLines(using: todoIDsByNumber)
+                    } catch {
+                        renderedContent = content
+                    }
+                }
+
+                send(.setRenderedContent(renderedContent))
             }
         case .upsertTodo(let todo):
             beginLoading(.delayed)

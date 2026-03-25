@@ -373,7 +373,8 @@ private struct ProfileActivityTodoDetailView: View {
     var body: some View {
         TodoDetailContentView(
             title: activity.todo.title,
-            content: activity.todo.content,
+            renderedContent: activity.todo.content,
+            number: activity.todo.number,
             activityLabel: activity.activityLabel
         )
         .sheet(isPresented: $showInfo) {

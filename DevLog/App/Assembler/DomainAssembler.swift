@@ -55,6 +55,10 @@ private extension DomainAssembler {
             FetchTodoByIdUseCaseImpl(container.resolve(TodoRepository.self))
         }
 
+        container.register(FetchTodoIDsByNumbersUseCase.self) {
+            FetchTodoIDsByNumbersUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+
         container.register(FetchTodosUseCase.self) {
             FetchTodosUseCaseImpl(container.resolve(TodoRepository.self))
         }

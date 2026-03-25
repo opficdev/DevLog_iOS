@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TodoDetailView: View {
+    @Environment(\.diContainer) private var container: DIContainer
     @State var viewModel: TodoDetailViewModel
 
     var body: some View {
@@ -16,7 +17,7 @@ struct TodoDetailView: View {
             if let todo = viewModel.state.todo {
                 TodoDetailContentView(
                     title: todo.title,
-                    content: todo.content,
+                    renderedContent: viewModel.state.renderedContent,
                     number: todo.number
                 )
             } else if viewModel.state.isLoading {
@@ -37,7 +38,10 @@ struct TodoDetailView: View {
         )) {
             if let todo = viewModel.state.todo {
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(todo: todo),
+                    viewModel: TodoEditorViewModel(
+                        todo: todo,
+                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self)
+                    ),
                     onSubmit: { viewModel.send(.upsertTodo($0)) }
                 )
             }

@@ -37,6 +37,7 @@ struct HomeView: View {
                 case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
                         fetchUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self),
                         upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: todoId
                     ))
@@ -80,7 +81,10 @@ struct HomeView: View {
             )) {
                 if let selectedKind = viewModel.state.selectedTodoKind {
                     TodoEditorView(
-                        viewModel: TodoEditorViewModel(kind: selectedKind),
+                        viewModel: TodoEditorViewModel(
+                            kind: selectedKind,
+                            fetchTodoIDsByNumbersUseCase: container.resolve(FetchTodoIDsByNumbersUseCase.self)
+                        ),
                         onSubmit: { viewModel.send(.addTodo($0)) }
                     )
                 }

@@ -49,6 +49,7 @@ final class TodoEditorViewModel: Store {
         var isPinned: Bool = false
         var title: String = ""
         var content: String = ""
+        var renderedContent: String = ""
         var dueDate: Date?
         var showInfo: Bool = false
         var tags: OrderedSet<String> = []
@@ -77,12 +78,16 @@ final class TodoEditorViewModel: Store {
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
+        case setRenderedContent(String)
     }
 
-    enum SideEffect { }
+    enum SideEffect {
+        case resolveMarkdown(String)
+    }
 
     private(set) var state = State()
     private let calendar = Calendar.current
+    private let fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
@@ -108,7 +113,11 @@ final class TodoEditorViewModel: Store {
     }
 
     // 새로운 Todo 생성용 생성자
-    init(kind: TodoKind) {
+    init(
+        kind: TodoKind,
+        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+    ) {
+        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
@@ -119,7 +128,11 @@ final class TodoEditorViewModel: Store {
     }
 
     // 기존 Todo 편집용 생성자
-    init(todo: Todo) {
+    init(
+        todo: Todo,
+        fetchTodoIDsByNumbersUseCase: FetchTodoIDsByNumbersUseCase
+    ) {
+        self.fetchTodoIDsByNumbersUseCase = fetchTodoIDsByNumbersUseCase
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -131,6 +144,7 @@ final class TodoEditorViewModel: Store {
         state.isPinned = todo.isPinned
         state.title = todo.title
         state.content = todo.content
+        state.renderedContent = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
         state.kind = todo.kind
@@ -138,6 +152,7 @@ final class TodoEditorViewModel: Store {
 
     func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
+        var effects: [SideEffect] = []
 
         switch action {
         case .addTag(let tag):
@@ -150,6 +165,9 @@ final class TodoEditorViewModel: Store {
              .setTagText(let stringValue),
              .setTitle(let stringValue):
             handleStringAction(action, stringValue: stringValue, state: &state)
+            if state.tabViewTag == .preview {
+                effects = [.resolveMarkdown(state.content)]
+            }
         case .setDueDate(let dueDate):
             if let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: Date()), let dueDate {
                 state.dueDate = max(dueDate, tomorrowDate)
@@ -169,10 +187,36 @@ final class TodoEditorViewModel: Store {
             state.showInfo = isPresented
         case .setTabViewTag(let tag):
             state.tabViewTag = tag
+            if tag == .preview {
+                effects = [.resolveMarkdown(state.content)]
+            }
+        case .setRenderedContent(let content):
+            state.renderedContent = content
         }
 
         if self.state != state { self.state = state }
-        return []
+        return effects
+    }
+
+    func run(_ effect: SideEffect) {
+        switch effect {
+        case .resolveMarkdown(let content):
+            Task {
+                var renderedContent = content
+                let numbers = content.todoReferenceNumbers
+
+                if !numbers.isEmpty {
+                    do {
+                        let todoIDsByNumber = try await fetchTodoIDsByNumbersUseCase.execute(numbers)
+                        renderedContent = content.replacingTodoReferenceLines(using: todoIDsByNumber)
+                    } catch {
+                        renderedContent = content
+                    }
+                }
+
+                send(.setRenderedContent(renderedContent))
+            }
+        }
     }
 }
 
