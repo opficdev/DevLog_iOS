@@ -162,7 +162,7 @@ struct TodoEditorView: View {
     }
 
     private var markdownHint: some View {
-        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**")
+        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호")
             .font(.caption)
             .foregroundStyle(.secondary)
     }
