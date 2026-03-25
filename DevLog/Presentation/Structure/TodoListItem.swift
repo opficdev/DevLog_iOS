@@ -9,6 +9,7 @@ import Foundation
 
 struct TodoListItem: Identifiable, Hashable {
     let id: String
+    let number: Int?
     let title: String
     let tags: [String]
     let isPinned: Bool
@@ -18,6 +19,7 @@ struct TodoListItem: Identifiable, Hashable {
 
     init(from todo: Todo) {
         self.id = todo.id
+        self.number = todo.number
         self.title = todo.title
         self.tags = todo.tags
         self.isPinned = todo.isPinned

@@ -159,6 +159,9 @@ final class TodoService {
             let docRef = collection.document(request.id)
             var data = try encoder.encode(request)
             data.removeValue(forKey: TodoFieldKey.id.rawValue)
+            if let number = request.number {
+                data[TodoFieldKey.number.rawValue] = number
+            }
             if request.completedAt == nil {
                 data[TodoFieldKey.completedAt.rawValue] = NSNull()
             }
@@ -391,6 +394,7 @@ private extension TodoService {
             let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
             let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
             let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
+            let number = data[TodoFieldKey.number.rawValue] as? Int,
             let title = data[TodoFieldKey.title.rawValue] as? String,
             let content = data[TodoFieldKey.content.rawValue] as? String,
             let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
@@ -407,6 +411,7 @@ private extension TodoService {
             isPinned: isPinned,
             isCompleted: isCompleted,
             isChecked: isChecked,
+            number: number,
             title: title,
             content: content,
             createdAt: createdAtTimestamp.dateValue(),
