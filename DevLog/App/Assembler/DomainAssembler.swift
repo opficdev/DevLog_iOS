@@ -8,6 +8,7 @@
 final class DomainAssembler: Assembler {
     func assemble(_ container: DIContainer) {
         registerAuthUseCases(container)
+        registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
         registerTodoUseCases(container)
         registerUserDataUseCases(container)
@@ -33,6 +34,14 @@ private extension DomainAssembler {
 
         container.register(AuthSessionUseCase.self) {
             AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
+        }
+    }
+
+    func registerConnectivityUseCases(_ container: DIContainer) {
+        container.register(ObserveNetworkConnectivityUseCase.self) {
+            ObserveNetworkConnectivityUseCaseImpl(
+                container.resolve(NetworkConnectivityRepository.self)
+            )
         }
     }
 

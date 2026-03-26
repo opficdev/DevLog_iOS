@@ -38,6 +38,12 @@ final class DataAssembler: Assembler {
             )
         }
 
+        container.register(NetworkConnectivityRepository.self) {
+            NetworkConnectivityRepositoryImpl(
+                connectivityProvider: container.resolve(NWPathConnectivityProvider.self)
+            )
+        }
+
         container.register(AuthDataRepository.self) {
             AuthDataRepositoryImpl(
                 authService: container.resolve(AuthService.self),

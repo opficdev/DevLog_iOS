@@ -33,16 +33,18 @@ final class RootViewModel: Store {
     }
 
     private(set) var state: State
-    private let connectivityProvider = NWPathConnectivityProvider()
     private var cancellables = Set<AnyCancellable>()
     private let sessionUseCase: AuthSessionUseCase
+    private let observeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
     
     init(
         sessionUseCase: AuthSessionUseCase,
+        observeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         observeSystemThemeUseCase: ObserveSystemThemeUseCase
     ) {
         self.sessionUseCase = sessionUseCase
+        self.observeNetworkConnectivityUseCase = observeNetworkConnectivityUseCase
         self.observeSystemThemeUseCase = observeSystemThemeUseCase
         self.state = State()
         
@@ -96,7 +98,7 @@ private extension RootViewModel {
     }
 
     func setupNetworkMonitoring() {
-        connectivityProvider.isConnectedPublisher
+        observeNetworkConnectivityUseCase.publisher
             .dropFirst()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
