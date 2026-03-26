@@ -43,7 +43,7 @@ final class SettingViewModel: Store {
     private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
-    private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
+    private let systemThemeUseCase: ObserveSystemThemeUseCase
     private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
     private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
@@ -55,12 +55,12 @@ final class SettingViewModel: Store {
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
         signOutUseCase: SignOutUseCase,
-        observeSystemThemeUseCase: ObserveSystemThemeUseCase,
+        systemThemeUseCase: ObserveSystemThemeUseCase,
         updateSystemThemeUseCase: UpdateSystemThemeUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
-        self.observeSystemThemeUseCase = observeSystemThemeUseCase
+        self.systemThemeUseCase = systemThemeUseCase
         self.updateSystemThemeUseCase = updateSystemThemeUseCase
         setupThemeMonitoring()
     }
@@ -155,7 +155,7 @@ private extension SettingViewModel {
     }
 
     func setupThemeMonitoring() {
-        observeSystemThemeUseCase.publisher
+        systemThemeUseCase.publisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in

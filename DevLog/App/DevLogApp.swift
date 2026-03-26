@@ -20,8 +20,8 @@ struct DevLogApp: App {
         WindowGroup {
             RootView(viewModel: RootViewModel(
                 sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                observeNetworkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
+                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
+                systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
             ))
             .autocorrectionDisabled()
         }

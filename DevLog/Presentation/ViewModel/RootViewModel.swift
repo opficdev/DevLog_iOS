@@ -35,17 +35,17 @@ final class RootViewModel: Store {
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
     private let sessionUseCase: AuthSessionUseCase
-    private let observeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase
-    private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
+    private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
+    private let systemThemeUseCase: ObserveSystemThemeUseCase
     
     init(
         sessionUseCase: AuthSessionUseCase,
-        observeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
-        observeSystemThemeUseCase: ObserveSystemThemeUseCase
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
+        systemThemeUseCase: ObserveSystemThemeUseCase
     ) {
         self.sessionUseCase = sessionUseCase
-        self.observeNetworkConnectivityUseCase = observeNetworkConnectivityUseCase
-        self.observeSystemThemeUseCase = observeSystemThemeUseCase
+        self.networkConnectivityUseCase = networkConnectivityUseCase
+        self.systemThemeUseCase = systemThemeUseCase
         self.state = State()
         
         setupNetworkMonitoring()
@@ -98,7 +98,7 @@ private extension RootViewModel {
     }
 
     func setupNetworkMonitoring() {
-        observeNetworkConnectivityUseCase.publisher
+        networkConnectivityUseCase.publisher
             .dropFirst()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -119,7 +119,7 @@ private extension RootViewModel {
     }
 
     func setupThemeMonitoring() {
-        observeSystemThemeUseCase.publisher
+        systemThemeUseCase.publisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in

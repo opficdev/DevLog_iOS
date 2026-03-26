@@ -98,7 +98,7 @@ struct ProfileView: View {
                     SettingView(viewModel: SettingViewModel(
                         deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
                         signOutUseCase: container.resolve(SignOutUseCase.self),
-                        observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                        systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                         updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
                     ))
                     .environment(router)

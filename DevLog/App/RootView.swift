@@ -18,7 +18,7 @@ struct RootView: View {
             if let signIn = viewModel.state.signIn {
                 if signIn {
                     MainView(viewModel: MainViewModel(
-                        observeUnreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
+                        unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
                     ))
                 } else {
                     LoginView(viewModel: LoginViewModel(

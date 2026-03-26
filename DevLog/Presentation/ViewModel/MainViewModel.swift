@@ -33,12 +33,12 @@ final class MainViewModel: Store {
     private let logger = Logger(category: "MainViewModel")
     private var cancellables = Set<AnyCancellable>()
     private var isObservingUnreadPushCount = false
-    private let observeUnreadPushCountUseCase: ObserveUnreadPushCountUseCase
+    private let unreadPushCountUseCase: ObserveUnreadPushCountUseCase
 
     init(
-        observeUnreadPushCountUseCase: ObserveUnreadPushCountUseCase
+        unreadPushCountUseCase: ObserveUnreadPushCountUseCase
     ) {
-        self.observeUnreadPushCountUseCase = observeUnreadPushCountUseCase
+        self.unreadPushCountUseCase = unreadPushCountUseCase
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -84,7 +84,7 @@ private extension MainViewModel {
 
     func observeUnreadPushCount() {
         do {
-            try observeUnreadPushCountUseCase.execute()
+            try unreadPushCountUseCase.execute()
                 .receive(on: DispatchQueue.main)
                 .sink(
                     receiveCompletion: { [weak self] completion in
