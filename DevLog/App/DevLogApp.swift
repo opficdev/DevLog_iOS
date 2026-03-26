@@ -19,7 +19,7 @@ struct DevLogApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(viewModel: RootViewModel(
-                sessionUseCase: container.resolve(AuthSessionUseCase.self),
+                sessionUseCase: container.resolve(ObserveAuthSessionUseCase.self),
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
             ))

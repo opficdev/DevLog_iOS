@@ -34,12 +34,12 @@ final class RootViewModel: Store {
 
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
-    private let sessionUseCase: AuthSessionUseCase
+    private let sessionUseCase: ObserveAuthSessionUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
     
     init(
-        sessionUseCase: AuthSessionUseCase,
+        sessionUseCase: ObserveAuthSessionUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase
     ) {

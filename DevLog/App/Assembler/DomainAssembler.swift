@@ -32,8 +32,8 @@ private extension DomainAssembler {
             DeleteAuthUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
 
-        container.register(AuthSessionUseCase.self) {
-            AuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
+        container.register(ObserveAuthSessionUseCase.self) {
+            ObserveAuthSessionUseCaseImpl(container.resolve(AuthSessionRepository.self))
         }
     }
 
