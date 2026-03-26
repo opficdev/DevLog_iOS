@@ -10,7 +10,7 @@ enum FirestorePath {
         case users
         case userData
         case counters
-        case todos
+        case todoLists
         case notifications
         case webPages
     }
@@ -40,7 +40,7 @@ enum FirestorePath {
     }
 
     static func todos(_ uid: String) -> String {
-        "\(user(uid))/\(Collection.todos.rawValue)"
+        "\(user(uid))/\(Collection.todoLists.rawValue)"
     }
 
     static func todo(_ uid: String, todoId: String) -> String {
