@@ -58,7 +58,7 @@ struct RootView: View {
                 .presentationDragIndicator(.visible)
             }
         }
-        .onReceive(PushNotificationRoute.shared.publisher) { route in
+        .onReceive(PushNotificationRoute.shared.observe()) { route in
             selectedRoute = route
             PushNotificationRoute.shared.clear()
         }
