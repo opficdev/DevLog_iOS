@@ -61,7 +61,7 @@ final class GoogleAuthenticationService: AuthenticationService {
 
     func signOut(_ uid: String) async throws {
         do {
-            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
             let doc = try await infoRef.getDocument()
 
             if doc.exists {

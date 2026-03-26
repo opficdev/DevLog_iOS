@@ -22,11 +22,11 @@ final class UserService {
         }
 
         do {
-            let userRef = store.document("users/\(user.uid)")
-            let infoRef = store.document("users/\(user.uid)/userData/info")
-            let tokensRef = store.document("users/\(user.uid)/userData/tokens")
-            let settingsRef = store.document("users/\(user.uid)/userData/settings")
-            let todoCounterRef = store.document("users/\(user.uid)/counters/todo")
+            let userRef = store.document(FirestorePath.user(user.uid))
+            let infoRef = store.document(FirestorePath.userData(user.uid, document: .info))
+            let tokensRef = store.document(FirestorePath.userData(user.uid, document: .tokens))
+            let settingsRef = store.document(FirestorePath.userData(user.uid, document: .settings))
+            let todoCounterRef = store.document(FirestorePath.counter(user.uid, document: .todo))
 
             // 사용자 기본 정보
             var userField: [String: Any] = [
@@ -115,7 +115,7 @@ final class UserService {
         }
 
         do {
-            let infoRef = store.document("users/\(uid)/userData/info")
+            let infoRef = store.document(FirestorePath.userData(uid, document: .info))
             let data = try await infoRef.getDocument().data()
 
             guard let provider = data?["currentProvider"] as? String,
@@ -149,7 +149,7 @@ final class UserService {
         }
 
         do {
-            let infoRef = store.document("users/\(uid)/userData/info")
+            let infoRef = store.document(FirestorePath.userData(uid, document: .info))
             try await infoRef.setData(["statusMsg": message], merge: true)
             logger.info("Successfully upserted status message")
         } catch {
@@ -167,7 +167,7 @@ final class UserService {
         logger.info("Updating FCM token for user: \(userId)")
         
         do {
-            let tokensRef = store.document("users/\(userId)/userData/tokens")
+            let tokensRef = store.document(FirestorePath.userData(userId, document: .tokens))
             try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
             logger.info("Successfully updated FCM token")
         } catch {
@@ -185,7 +185,7 @@ final class UserService {
         logger.info("Updating timeZone for user: \(userId)")
 
         do {
-            let settingsRef = store.document("users/\(userId)/userData/settings")
+            let settingsRef = store.document(FirestorePath.userData(userId, document: .settings))
             try await settingsRef.setData(
                 ["timeZone": TimeZone.autoupdatingCurrent.identifier],
                 merge: true

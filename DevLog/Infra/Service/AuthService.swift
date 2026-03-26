@@ -52,8 +52,7 @@ final class AuthService {
 
         do {
             let document = try await store
-                .collection("users/\(uid)/userData")
-                .document("info")
+                .document(FirestorePath.userData(uid, document: .info))
                 .getDocument()
 
             let providerID = document.data()?["currentProvider"] as? String
