@@ -84,7 +84,7 @@ private extension MainViewModel {
 
     func observeUnreadPushCount() {
         do {
-            try unreadPushCountUseCase.execute()
+            try unreadPushCountUseCase.observe()
                 .receive(on: DispatchQueue.main)
                 .sink(
                     receiveCompletion: { [weak self] completion in

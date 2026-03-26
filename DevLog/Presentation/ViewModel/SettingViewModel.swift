@@ -155,7 +155,7 @@ private extension SettingViewModel {
     }
 
     func setupThemeMonitoring() {
-        systemThemeUseCase.publisher
+        systemThemeUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in

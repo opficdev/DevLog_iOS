@@ -10,7 +10,7 @@ import Combine
 final class ObserveAuthSessionUseCaseImpl: ObserveAuthSessionUseCase {
     private let repository: AuthSessionRepository
 
-    var signedInPublisher: AnyPublisher<Bool, Never> {
+    func observe() -> AnyPublisher<Bool, Never> {
         repository.observeSignedIn()
     }
 

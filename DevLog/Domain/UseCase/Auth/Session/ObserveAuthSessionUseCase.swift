@@ -8,5 +8,5 @@
 import Combine
 
 protocol ObserveAuthSessionUseCase {
-    var signedInPublisher: AnyPublisher<Bool, Never> { get }
+    func observe() -> AnyPublisher<Bool, Never>
 }

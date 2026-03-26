@@ -14,7 +14,7 @@ final class ObserveNetworkConnectivityUseCaseImpl: ObserveNetworkConnectivityUse
         self.repository = repository
     }
 
-    var publisher: AnyPublisher<Bool, Never> {
+    func observe() -> AnyPublisher<Bool, Never> {
         repository.observeNetworkConnectivity()
     }
 }

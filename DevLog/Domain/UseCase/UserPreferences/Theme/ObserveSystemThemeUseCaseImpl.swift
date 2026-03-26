@@ -14,7 +14,7 @@ final class ObserveSystemThemeUseCaseImpl: ObserveSystemThemeUseCase {
         self.repository = repository
     }
 
-    var publisher: AnyPublisher<SystemTheme, Never> {
+    func observe() -> AnyPublisher<SystemTheme, Never> {
         repository.observeSystemTheme()
     }
 }

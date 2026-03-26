@@ -98,7 +98,7 @@ private extension RootViewModel {
     }
 
     func setupNetworkMonitoring() {
-        networkConnectivityUseCase.publisher
+        networkConnectivityUseCase.observe()
             .dropFirst()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -109,7 +109,7 @@ private extension RootViewModel {
     }
 
     func setupSessionMonitoring() {
-        sessionUseCase.signedInPublisher
+        sessionUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] signIn in
@@ -119,7 +119,7 @@ private extension RootViewModel {
     }
 
     func setupThemeMonitoring() {
-        systemThemeUseCase.publisher
+        systemThemeUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in

@@ -8,5 +8,5 @@
 import Combine
 
 protocol ObserveNetworkConnectivityUseCase {
-    var publisher: AnyPublisher<Bool, Never> { get }
+    func observe() -> AnyPublisher<Bool, Never>
 }

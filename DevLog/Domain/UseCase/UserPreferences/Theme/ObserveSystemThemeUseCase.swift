@@ -8,5 +8,5 @@
 import Combine
 
 protocol ObserveSystemThemeUseCase {
-    var publisher: AnyPublisher<SystemTheme, Never> { get }
+    func observe() -> AnyPublisher<SystemTheme, Never>
 }
