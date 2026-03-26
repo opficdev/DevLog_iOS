@@ -99,7 +99,6 @@ private extension RootViewModel {
 
     func setupNetworkMonitoring() {
         networkConnectivityUseCase.observe()
-            .dropFirst()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
