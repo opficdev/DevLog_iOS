@@ -48,9 +48,9 @@ final class RootViewModel: Store {
         self.systemThemeUseCase = systemThemeUseCase
         self.state = State()
         
-        setupNetworkMonitoring()
-        setupSessionMonitoring()
-        setupThemeMonitoring()
+        setupNetworkObserving()
+        setupSessionObserving()
+        setupThemeObserving()
     }
     
     func reduce(with action: Action) -> [SideEffect] {
@@ -97,7 +97,7 @@ private extension RootViewModel {
         state.showAlert = isPresented
     }
 
-    func setupNetworkMonitoring() {
+    func setupNetworkObserving() {
         networkConnectivityUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -107,7 +107,7 @@ private extension RootViewModel {
             .store(in: &cancellables)
     }
 
-    func setupSessionMonitoring() {
+    func setupSessionObserving() {
         sessionUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -117,7 +117,7 @@ private extension RootViewModel {
             .store(in: &cancellables)
     }
 
-    func setupThemeMonitoring() {
+    func setupThemeObserving() {
         systemThemeUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
