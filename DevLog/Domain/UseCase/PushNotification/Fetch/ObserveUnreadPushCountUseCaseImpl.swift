@@ -14,7 +14,7 @@ final class ObserveUnreadPushCountUseCaseImpl: ObserveUnreadPushCountUseCase {
         self.repository = repository
     }
 
-    func execute() throws -> AnyPublisher<Int, Error> {
+    func observe() throws -> AnyPublisher<Int, Error> {
         try repository.observeUnreadPushCount()
             .removeDuplicates()
             .eraseToAnyPublisher()

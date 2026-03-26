@@ -18,7 +18,7 @@ struct RootView: View {
             if let signIn = viewModel.state.signIn {
                 if signIn {
                     MainView(viewModel: MainViewModel(
-                        observeUnreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
+                        unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
                     ))
                 } else {
                     LoginView(viewModel: LoginViewModel(
@@ -58,7 +58,7 @@ struct RootView: View {
                 .presentationDragIndicator(.visible)
             }
         }
-        .onReceive(PushNotificationRoute.shared.publisher) { route in
+        .onReceive(PushNotificationRoute.shared.observe()) { route in
             selectedRoute = route
             PushNotificationRoute.shared.clear()
         }

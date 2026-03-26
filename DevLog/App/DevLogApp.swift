@@ -19,8 +19,9 @@ struct DevLogApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(viewModel: RootViewModel(
-                sessionUseCase: container.resolve(AuthSessionUseCase.self),
-                observeSystemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
+                sessionUseCase: container.resolve(ObserveAuthSessionUseCase.self),
+                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
+                systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
             ))
             .autocorrectionDisabled()
         }

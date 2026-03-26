@@ -52,5 +52,8 @@ final class InfraAssembler: Assembler {
             WebPageMetadataService()
         }
 
+        container.register(NWPathConnectivityProvider.self) {
+            NWPathConnectivityProvider()
+        }
     }
 }

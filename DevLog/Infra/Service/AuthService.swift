@@ -21,10 +21,6 @@ final class AuthService {
         Auth.auth().currentUser?.uid
     }
 
-    var signedInPublisher: AnyPublisher<Bool, Never> {
-        subject.eraseToAnyPublisher()
-    }
-
     var providerIDs: [String] {
         Auth.auth().currentUser?.providerData.map { $0.providerID } ?? []
     }
@@ -40,6 +36,10 @@ final class AuthService {
     deinit {
         guard let handler else { return }
         Auth.auth().removeStateDidChangeListener(handler)
+    }
+
+    func observeSignedIn() -> AnyPublisher<Bool, Never> {
+        subject.eraseToAnyPublisher()
     }
 
     func getProviderID() async throws -> String? {

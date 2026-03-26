@@ -22,7 +22,7 @@ enum AppRoute: Equatable, Identifiable {
 final class PushNotificationRoute {
     static let shared = PushNotificationRoute()
 
-    var publisher: AnyPublisher<AppRoute, Never> {
+    func observe() -> AnyPublisher<AppRoute, Never> {
         subject
             .compactMap { $0 }
             .eraseToAnyPublisher()

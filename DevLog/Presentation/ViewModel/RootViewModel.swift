@@ -33,22 +33,24 @@ final class RootViewModel: Store {
     }
 
     private(set) var state: State
-    private let connectivityProvider = NWPathConnectivityProvider()
     private var cancellables = Set<AnyCancellable>()
-    private let sessionUseCase: AuthSessionUseCase
-    private let observeSystemThemeUseCase: ObserveSystemThemeUseCase
+    private let sessionUseCase: ObserveAuthSessionUseCase
+    private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
+    private let systemThemeUseCase: ObserveSystemThemeUseCase
     
     init(
-        sessionUseCase: AuthSessionUseCase,
-        observeSystemThemeUseCase: ObserveSystemThemeUseCase
+        sessionUseCase: ObserveAuthSessionUseCase,
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
+        systemThemeUseCase: ObserveSystemThemeUseCase
     ) {
         self.sessionUseCase = sessionUseCase
-        self.observeSystemThemeUseCase = observeSystemThemeUseCase
+        self.networkConnectivityUseCase = networkConnectivityUseCase
+        self.systemThemeUseCase = systemThemeUseCase
         self.state = State()
         
-        setupNetworkMonitoring()
-        setupSessionMonitoring()
-        setupThemeMonitoring()
+        setupNetworkObserving()
+        setupSessionObserving()
+        setupThemeObserving()
     }
     
     func reduce(with action: Action) -> [SideEffect] {
@@ -95,9 +97,8 @@ private extension RootViewModel {
         state.showAlert = isPresented
     }
 
-    func setupNetworkMonitoring() {
-        connectivityProvider.isConnectedPublisher
-            .dropFirst()
+    func setupNetworkObserving() {
+        networkConnectivityUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
@@ -106,8 +107,8 @@ private extension RootViewModel {
             .store(in: &cancellables)
     }
 
-    func setupSessionMonitoring() {
-        sessionUseCase.signedInPublisher
+    func setupSessionObserving() {
+        sessionUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] signIn in
@@ -116,8 +117,8 @@ private extension RootViewModel {
             .store(in: &cancellables)
     }
 
-    func setupThemeMonitoring() {
-        observeSystemThemeUseCase.publisher
+    func setupThemeObserving() {
+        systemThemeUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in

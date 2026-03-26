@@ -10,7 +10,7 @@ import Combine
 final class ThemeStore {
     private let subject = CurrentValueSubject<SystemTheme, Never>(.automatic)
 
-    var themePublisher: AnyPublisher<SystemTheme, Never> {
+    func observeTheme() -> AnyPublisher<SystemTheme, Never> {
         subject.eraseToAnyPublisher()
     }
 

@@ -32,8 +32,8 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         themeStore.send(systemTheme())
     }
 
-    var systemThemePublisher: AnyPublisher<SystemTheme, Never> {
-        themeStore.themePublisher
+    func observeSystemTheme() -> AnyPublisher<SystemTheme, Never> {
+        themeStore.observeTheme()
     }
 
     func systemTheme() -> SystemTheme {
