@@ -15,6 +15,6 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
     }
 
     var signedInPublisher: AnyPublisher<Bool, Never> {
-        authService.signedInPublisher
+        authService.observeSignedIn()
     }
 }

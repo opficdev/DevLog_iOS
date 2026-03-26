@@ -15,6 +15,6 @@ final class NetworkConnectivityRepositoryImpl: NetworkConnectivityRepository {
     }
 
     var publisher: AnyPublisher<Bool, Never> {
-        connectivityProvider.isConnectedPublisher
+        connectivityProvider.observeNetworkConnectivity()
     }
 }

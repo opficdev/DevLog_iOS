@@ -12,14 +12,6 @@ final class NWPathConnectivityProvider {
     private let networkPathMonitor = NWPathMonitor()
     private let monitoringQueue = DispatchQueue(label: "NWPathConnectivityProviderQueue")
     private let isConnectedSubject = CurrentValueSubject<Bool, Never>(false)
-    
-    var isConnectedPublisher: AnyPublisher<Bool, Never> {
-        isConnectedSubject.eraseToAnyPublisher()
-    }
-    
-    var isConnected: Bool {
-        isConnectedSubject.value
-    }
 
     init() {
         let initialStatus = networkPathMonitor.currentPath.status == .satisfied
@@ -35,5 +27,9 @@ final class NWPathConnectivityProvider {
     deinit {
         networkPathMonitor.cancel()
         isConnectedSubject.send(completion: .finished)
+    }
+
+    func observeNetworkConnectivity() -> AnyPublisher<Bool, Never> {
+        isConnectedSubject.eraseToAnyPublisher()
     }
 }
