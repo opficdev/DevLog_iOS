@@ -30,7 +30,7 @@ final class PushNotificationService {
         }
 
         do {
-            let settingsRef = store.document("users/\(uid)/userData/settings")
+            let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
             let doc = try await settingsRef.getDocument()
 
             if let allowPush = doc.data()?["allowPushNotification"] as? Bool {
@@ -56,7 +56,7 @@ final class PushNotificationService {
         }
 
         do {
-            let settingsRef = store.document("users/\(uid)/userData/settings")
+            let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
             let doc = try await settingsRef.getDocument()
 
             guard let hour = doc.data()?["pushNotificationHour"] as? Int else {
@@ -84,7 +84,7 @@ final class PushNotificationService {
         }
 
         do {
-            let settingsRef = store.document("users/\(uid)/userData/settings")
+            let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
 
             var dict: [String: Any] = ["allowPushNotification": isEnabled]
 
@@ -182,7 +182,7 @@ final class PushNotificationService {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let subject = PassthroughSubject<Int, Error>()
-        let listener = store.collection("users/\(uid)/notifications")
+        let listener = store.collection(FirestorePath.notifications(uid))
             .whereField("isRead", isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 if let error {
@@ -237,7 +237,7 @@ final class PushNotificationService {
                 throw AuthError.notAuthenticated
             }
 
-            let collection = store.collection("users/\(uid)/notifications")
+            let collection = store.collection(FirestorePath.notifications(uid))
             let snapshot = try await collection.whereField("todoId", isEqualTo: todoId).getDocuments()
 
             guard let document = snapshot.documents.first else {
@@ -264,7 +264,7 @@ private extension PushNotificationService {
         uid: String,
         query: PushNotificationQuery
     ) -> Query {
-        var firestoreQuery: Query = store.collection("users/\(uid)/notifications")
+        var firestoreQuery: Query = store.collection(FirestorePath.notifications(uid))
 
         if let thresholdDate = query.timeFilter.thresholdDate {
             firestoreQuery = firestoreQuery.whereField(

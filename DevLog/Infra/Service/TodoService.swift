@@ -158,7 +158,7 @@ final class TodoService {
         logger.info("Upserting todo")
         
         do {
-            let collection = store.collection("users/\(uid)/todoLists/")
+            let collection = store.collection(FirestorePath.todos(uid))
             let docRef = collection.document(request.id)
             var data = try encoder.encode(request)
             data.removeValue(forKey: TodoFieldKey.id.rawValue)
@@ -174,7 +174,9 @@ final class TodoService {
             try await upsertTodoWithNumberOnCreate(
                 data,
                 for: docRef,
-                counterRef: store.collection("users/\(uid)/counters/").document("todo")
+                counterRef: store.document(
+                    FirestorePath.counter(uid, document: .todo)
+                )
             )
             
             logger.info("Successfully upserted todo")
@@ -222,7 +224,7 @@ final class TodoService {
         logger.info("Fetching todo")
 
         do {
-            let docRef = store.collection("users/\(uid)/todoLists/").document(todoId)
+            let docRef = store.document(FirestorePath.todo(uid, todoId: todoId))
             let snapshot = try await docRef.getDocument()
             guard snapshot.exists, let todo = makeResponse(from: snapshot) else {
                 throw FirestoreError.dataNotFound("Todo")
@@ -242,7 +244,7 @@ final class TodoService {
         let uniqueNumbers = Array(Set(numbers)).sorted()
         if uniqueNumbers.isEmpty { return [:] }
 
-        let collection = store.collection("users/\(uid)/todoLists/")
+        let collection = store.collection(FirestorePath.todos(uid))
         let snapshots = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group in
             for chunk in uniqueNumbers.chunked(maxCount: 10) {
                 group.addTask {
@@ -349,7 +351,7 @@ private extension TodoService {
     }
 
     func makeQuery(uid: String, query: TodoQuery) -> Query {
-        let collection = store.collection("users/\(uid)/todoLists/")
+        let collection = store.collection(FirestorePath.todos(uid))
 
         switch query.sortTarget {
         case .dueDate:

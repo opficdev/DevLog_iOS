@@ -66,7 +66,9 @@ final class AppleAuthenticationService: AuthenticationService {
 
             // 이미 가입된 사용자일 경우 Firestore에서 사용자 이름 가져오기
             if displayName == nil {
-                let doc = try await store.document("users/\(result.user.uid)/userData/info").getDocument()
+                let doc = try await store
+                    .document(FirestorePath.userData(result.user.uid, document: .info))
+                    .getDocument()
                 displayName = doc.data()?["appleName"] as? String
             }
 
@@ -97,7 +99,7 @@ final class AppleAuthenticationService: AuthenticationService {
 
     func signOut(_ uid: String) async throws {
         do {
-            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
             let doc = try await infoRef.getDocument()
 
             if doc.exists {
@@ -166,7 +168,7 @@ final class AppleAuthenticationService: AuthenticationService {
             logger.info("Starting Apple access token revocation for unlink. uid: \(uid)")
             try await revokeAppleAccessToken(token: accessToken)
 
-            let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
 
             logger.info("Starting Apple token document fetch for unlink. uid: \(uid)")
             let doc = try await tokensRef.getDocument()

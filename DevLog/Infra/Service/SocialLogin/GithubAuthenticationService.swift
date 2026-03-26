@@ -74,7 +74,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
 
     func signOut(_ uid: String) async throws {
         do {
-            let infoRef = store.document("users/\(uid)/userData/tokens")
+            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
             let doc = try await infoRef.getDocument()
 
             if doc.exists {
@@ -103,7 +103,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         logger.info("Linking GitHub account for user: \(uid)")
         
         do {
-            let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
             let authorizationCode = try await requestAuthorizationCode()
             let (accessToken, _) = try await requestTokens(authorizationCode: authorizationCode)
 
@@ -138,7 +138,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
             logger.info("Starting GitHub access token revocation for unlink. uid: \(uid)")
             try await revokeAccessToken()
 
-            let tokensRef = store.document("users/\(uid)/userData/tokens")
+            let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
 
             logger.info("Starting GitHub access token deletion from Firestore for unlink. uid: \(uid)")
             try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])

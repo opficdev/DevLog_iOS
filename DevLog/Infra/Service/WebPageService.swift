@@ -30,7 +30,7 @@ final class WebPageService {
         }
 
         do {
-            let collectionRef = store.collection("users/\(uid)/webPages")
+            let collectionRef = store.collection(FirestorePath.webPages(uid))
             let snapshot = try await collectionRef.getDocuments()
             let items: [WebPageResponse] = snapshot.documents.compactMap { makeResponse(from: $0) }
 
@@ -63,7 +63,7 @@ final class WebPageService {
 
         do {
             let documentID = documentID(for: request.url)
-            let docRef = store.document("users/\(uid)/webPages/\(documentID)")
+            let docRef = store.document(FirestorePath.webPage(uid, documentId: documentID))
             let data = try encoder.encode(request)
             try await docRef.setData(data, merge: true)
             logger.info("Successfully upserted web page")
