@@ -9,22 +9,22 @@ import Combine
 import UIKit
 
 final class UserTimeZoneSyncHandler {
-    private let repository: UserDataRepository
+    private let userService: UserService
     private let logger = Logger(category: "UserTimeZoneSyncHandler")
     private var cancellables = Set<AnyCancellable>()
 
     init(
-        repository: UserDataRepository,
+        userService: UserService,
         notificationCenter: NotificationCenter = .default
     ) {
-        self.repository = repository
+        self.userService = userService
 
         notificationCenter.publisher(for: .didRequestUserTimeZoneSync)
             .merge(with: notificationCenter.publisher(for: UIApplication.willEnterForegroundNotification))
             .sink { [weak self] _ in
                 Task {
                     do {
-                        try await self?.repository.updateUserTimeZone()
+                        try await self?.userService.updateUserTimeZone()
                     } catch {
                         self?.logger.error("Failed to sync user timeZone", error: error)
                     }
