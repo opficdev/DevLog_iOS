@@ -14,7 +14,7 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
         self.authService = authService
     }
 
-    var signedInPublisher: AnyPublisher<Bool, Never> {
+    func observeSignedIn() -> AnyPublisher<Bool, Never> {
         authService.observeSignedIn()
     }
 }

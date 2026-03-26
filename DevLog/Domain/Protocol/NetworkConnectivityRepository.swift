@@ -8,5 +8,5 @@
 import Combine
 
 protocol NetworkConnectivityRepository {
-    var publisher: AnyPublisher<Bool, Never> { get }
+    func observeNetworkConnectivity() -> AnyPublisher<Bool, Never>
 }

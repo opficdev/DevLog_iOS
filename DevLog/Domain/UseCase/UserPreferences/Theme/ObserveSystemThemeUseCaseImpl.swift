@@ -15,6 +15,6 @@ final class ObserveSystemThemeUseCaseImpl: ObserveSystemThemeUseCase {
     }
 
     var publisher: AnyPublisher<SystemTheme, Never> {
-        repository.systemThemePublisher
+        repository.observeSystemTheme()
     }
 }

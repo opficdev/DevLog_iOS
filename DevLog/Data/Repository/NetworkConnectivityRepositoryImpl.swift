@@ -14,7 +14,7 @@ final class NetworkConnectivityRepositoryImpl: NetworkConnectivityRepository {
         self.connectivityProvider = connectivityProvider
     }
 
-    var publisher: AnyPublisher<Bool, Never> {
+    func observeNetworkConnectivity() -> AnyPublisher<Bool, Never> {
         connectivityProvider.observeNetworkConnectivity()
     }
 }

@@ -11,7 +11,7 @@ final class ObserveAuthSessionUseCaseImpl: ObserveAuthSessionUseCase {
     private let repository: AuthSessionRepository
 
     var signedInPublisher: AnyPublisher<Bool, Never> {
-        repository.signedInPublisher
+        repository.observeSignedIn()
     }
 
     init(_ repository: AuthSessionRepository) {

@@ -8,5 +8,5 @@
 import Combine
 
 protocol AuthSessionRepository {
-    var signedInPublisher: AnyPublisher<Bool, Never> { get }
+    func observeSignedIn() -> AnyPublisher<Bool, Never>
 }

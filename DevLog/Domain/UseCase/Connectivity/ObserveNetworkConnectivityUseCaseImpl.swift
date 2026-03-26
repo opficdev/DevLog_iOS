@@ -15,6 +15,6 @@ final class ObserveNetworkConnectivityUseCaseImpl: ObserveNetworkConnectivityUse
     }
 
     var publisher: AnyPublisher<Bool, Never> {
-        repository.publisher
+        repository.observeNetworkConnectivity()
     }
 }
