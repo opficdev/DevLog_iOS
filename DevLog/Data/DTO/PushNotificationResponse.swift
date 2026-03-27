@@ -14,5 +14,5 @@ struct PushNotificationResponse {
     let receivedAt: Date
     let isRead: Bool
     let todoId: String
-    let todoKind: String
+    let todoCategory: String
 }

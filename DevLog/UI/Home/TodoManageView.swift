@@ -9,20 +9,20 @@ import SwiftUI
 
 struct TodoManageView: View {
     @State var viewModel: TodoManageViewModel
-    var onDismiss: (([TodoKindPreference]) -> Void)?
+    var onDismiss: (([TodoCategoryPreference]) -> Void)?
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.state.todoKindPreferences, id: \.id) { preference in
-                    let kind = preference.kind
+                ForEach(viewModel.state.todoCategoryPreferences, id: \.id) { preference in
+                    let category = preference.category
                     HStack(spacing: 0) {
                         CheckBox(isChecked: preference.isVisible, font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
-                                viewModel.send(.tapItem(kind))
+                                viewModel.send(.tapItem(category))
                             }
-                        Text(kind.localizedName)
+                        Text(category.localizedName)
                     }
                 }
                 .onMove { (source: IndexSet, destination: Int) in
@@ -39,7 +39,7 @@ struct TodoManageView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        onDismiss?(viewModel.state.todoKindPreferences)
+                        onDismiss?(viewModel.state.todoCategoryPreferences)
                     }) {
                         Text("완료")
                     }

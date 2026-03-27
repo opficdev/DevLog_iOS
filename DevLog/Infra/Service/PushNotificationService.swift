@@ -307,7 +307,7 @@ private extension PushNotificationService {
             let receivedAt = data[Key.receivedAt.rawValue] as? Timestamp,
             let isRead = data[Key.isRead.rawValue] as? Bool,
             let todoId = data[Key.todoId.rawValue] as? String,
-            let todoKind = data[Key.todoKind.rawValue] as? String else {
+            let todoCategory = data[Key.todoCategory.rawValue] as? String else {
             return nil
         }
 
@@ -318,7 +318,7 @@ private extension PushNotificationService {
             receivedAt: receivedAt.dateValue(),
             isRead: isRead,
             todoId: todoId,
-            todoKind: todoKind
+            todoCategory: todoCategory
         )
     }
 
@@ -328,7 +328,7 @@ private extension PushNotificationService {
         case receivedAt
         case isRead
         case todoId
-        case todoKind
+        case todoCategory
         case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 }

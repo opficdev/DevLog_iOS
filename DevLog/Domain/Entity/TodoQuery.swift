@@ -57,7 +57,7 @@ struct TodoQuery: Equatable {
         case withoutDueDate
     }
 
-    var kind: TodoKind?
+    var category: TodoCategory?
     var keyword: String?
     var isPinned: Bool?
     var completionFilter: CompletionFilter
@@ -70,7 +70,7 @@ struct TodoQuery: Equatable {
     var fetchAllPages: Bool
 
     init(
-        kind: TodoKind? = nil,
+        category: TodoCategory? = nil,
         keyword: String? = nil,
         isPinned: Bool? = nil,
         completionFilter: CompletionFilter = .all,
@@ -82,7 +82,7 @@ struct TodoQuery: Equatable {
         pageSize: Int = 20,
         fetchAllPages: Bool = false
     ) {
-        self.kind = kind
+        self.category = category
         self.keyword = keyword
         self.isPinned = isPinned
         self.completionFilter = completionFilter

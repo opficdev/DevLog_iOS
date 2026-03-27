@@ -18,7 +18,7 @@ final class TodoEditorViewModel: Store {
         let content: String
         let dueDate: Date?
         let tags: [String]
-        let kind: TodoKind
+        let category: TodoCategory
 
         init(todo: Todo) {
             self.isCompleted = todo.isCompleted
@@ -28,7 +28,7 @@ final class TodoEditorViewModel: Store {
             self.content = todo.content
             self.dueDate = todo.dueDate
             self.tags = todo.tags
-            self.kind = todo.kind
+            self.category = todo.category
         }
 
         init(state: State) {
@@ -39,7 +39,7 @@ final class TodoEditorViewModel: Store {
             self.content = state.content
             self.dueDate = state.dueDate
             self.tags = Array(state.tags)
-            self.kind = state.kind
+            self.category = state.category
         }
     }
 
@@ -57,7 +57,7 @@ final class TodoEditorViewModel: Store {
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
-        var kind: TodoKind = .etc
+        var category: TodoCategory = .etc
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -73,7 +73,7 @@ final class TodoEditorViewModel: Store {
         case setContent(String)
         case setCompleted(Bool)
         case setDueDate(Date?)
-        case setKind(TodoKind)
+        case setCategory(TodoCategory)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
@@ -99,7 +99,7 @@ final class TodoEditorViewModel: Store {
 
     var navigationTitle: String {
         if originalDraft == nil {
-            return "새 \(state.kind.localizedName) 추가"
+            return "새 \(state.category.localizedName) 추가"
         }
 
         return "편집"
@@ -116,7 +116,7 @@ final class TodoEditorViewModel: Store {
 
     // 새로운 Todo 생성용 생성자
     init(
-        kind: TodoKind,
+        category: TodoCategory,
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     ) {
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
@@ -126,7 +126,7 @@ final class TodoEditorViewModel: Store {
         self.number = nil
         self.createdAt = nil
         self.originalDraft = nil
-        state.kind = kind
+        state.category = category
     }
 
     // 기존 Todo 편집용 생성자
@@ -148,7 +148,7 @@ final class TodoEditorViewModel: Store {
         state.content = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
-        state.kind = todo.kind
+        state.category = todo.category
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -180,8 +180,8 @@ final class TodoEditorViewModel: Store {
                 state.completedAt = isCompleted ? Date() : nil
             }
             state.isCompleted = isCompleted
-        case .setKind(let todoKind):
-            state.kind = todoKind
+        case .setCategory(let todoCategory):
+            state.category = todoCategory
         case .setPinned(let isPinned):
             state.isPinned = isPinned
         case .setShowInfo(let isPresented):
@@ -255,7 +255,7 @@ extension TodoEditorViewModel {
             completedAt: state.completedAt,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
-            kind: state.kind
+            category: state.category
         )
     }
 }

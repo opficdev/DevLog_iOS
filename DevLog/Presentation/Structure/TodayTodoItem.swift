@@ -15,7 +15,7 @@ struct TodayTodoItem: Identifiable, Hashable {
     let isPinned: Bool
     let updatedAt: Date
     let dueDate: Date?
-    let kind: TodoKind
+    let category: TodoCategory
 
     init(from todo: Todo) {
         self.id = todo.id
@@ -25,6 +25,6 @@ struct TodayTodoItem: Identifiable, Hashable {
         self.isPinned = todo.isPinned
         self.updatedAt = todo.updatedAt
         self.dueDate = todo.dueDate
-        self.kind = todo.kind
+        self.category = todo.category
     }
 }

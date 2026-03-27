@@ -1,5 +1,5 @@
 //
-//  TodoKind.swift
+//  TodoCategory.swift
 //  DevLog
 //
 //  Created by opfic on 5/29/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum TodoKind: String, Identifiable, CaseIterable, Codable {
+enum TodoCategory: String, Identifiable, CaseIterable, Codable {
     case issue          // 이슈
     case feature        // 신규 기능
     case improvement    // 개선/리팩터링

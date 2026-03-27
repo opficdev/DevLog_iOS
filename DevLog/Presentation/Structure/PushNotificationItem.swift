@@ -14,7 +14,7 @@ struct PushNotificationItem: Identifiable, Hashable {
     let receivedAt: Date
     var isRead: Bool
     let todoId: String
-    let todoKind: TodoKind
+    let todoCategory: TodoCategory
 
     init(from notification: PushNotification) {
         self.id = notification.id
@@ -23,6 +23,6 @@ struct PushNotificationItem: Identifiable, Hashable {
         self.receivedAt = notification.receivedAt
         self.isRead = notification.isRead
         self.todoId = notification.todoId
-        self.todoKind = notification.todoKind
+        self.todoCategory = notification.todoCategory
     }
 }

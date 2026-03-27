@@ -290,8 +290,8 @@ private struct TodayTodoRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: item.kind.symbolName)
-                    .foregroundStyle(item.kind.color)
+                Image(systemName: item.category.symbolName)
+                    .foregroundStyle(item.category.color)
                     .frame(width: 18)
                 Text(item.title)
                     .font(.headline)
@@ -307,9 +307,9 @@ private struct TodayTodoRow: View {
             }
 
             HStack(spacing: 8) {
-                Text(item.kind.localizedName)
+                Text(item.category.localizedName)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(item.kind.color)
+                    .foregroundStyle(item.category.color)
 
                 if let dueDate {
                     Text(dueDate.text)

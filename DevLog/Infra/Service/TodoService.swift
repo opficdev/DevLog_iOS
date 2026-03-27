@@ -32,7 +32,7 @@ final class TodoService {
             "sortTarget=\(query.sortTarget.fieldName)",
             "sortOrder=\(query.sortOrder == .latest ? "latest" : "oldest")",
             query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
-            query.kind != nil ? "kind=\(query.kind!.rawValue)" : nil,
+            query.category != nil ? "category=\(query.category!.rawValue)" : nil,
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
@@ -46,8 +46,11 @@ final class TodoService {
 
         var firestoreQuery = makeQuery(uid: uid, query: query)
 
-        if let kind = query.kind {
-            firestoreQuery = firestoreQuery.whereField("kind", isEqualTo: kind.rawValue)
+        if let category = query.category {
+            firestoreQuery = firestoreQuery.whereField(
+                TodoFieldKey.category.rawValue,
+                isEqualTo: category.rawValue
+            )
         }
 
         if let isPinned = query.isPinned {
@@ -267,7 +270,7 @@ final class TodoService {
             guard
                 !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
                 let response = makeResponse(from: document),
-                let kind = TodoKind(rawValue: response.kind)
+                let category = TodoCategory(rawValue: response.category)
             else {
                 return
             }
@@ -275,7 +278,7 @@ final class TodoService {
             partialResult[response.number] = TodoReferenceItem(
                 id: response.id,
                 title: response.title,
-                kind: kind
+                category: category
             )
         }
     }
@@ -447,7 +450,7 @@ private extension TodoService {
             let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
             let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
             let tags = data[TodoFieldKey.tags.rawValue] as? [String],
-            let kind = data[TodoFieldKey.kind.rawValue] as? String else {
+            let category = data[TodoFieldKey.category.rawValue] as? String else {
             return nil
         }
 
@@ -466,7 +469,7 @@ private extension TodoService {
             completedAt: completedAt,
             dueDate: dueDate,
             tags: tags,
-            kind: kind
+            category: category
         )
     }
 
@@ -483,7 +486,7 @@ private extension TodoService {
         case completedAt
         case dueDate
         case tags
-        case kind
+        case category
         case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
     }
 
