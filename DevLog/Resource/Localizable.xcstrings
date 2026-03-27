@@ -155,8 +155,8 @@
         }
       }
     },
-    "task_kind_doc" : {
-      "comment" : "Task kind: Documentation",
+    "todo_category_doc" : {
+      "comment" : "Todo category: Documentation",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -166,8 +166,8 @@
         }
       }
     },
-    "task_kind_etc" : {
-      "comment" : "Task kind: Etc",
+    "todo_category_etc" : {
+      "comment" : "Todo category: Etc",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -177,8 +177,8 @@
         }
       }
     },
-    "task_kind_feature" : {
-      "comment" : "Task kind: Feature",
+    "todo_category_feature" : {
+      "comment" : "Todo category: Feature",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -188,8 +188,8 @@
         }
       }
     },
-    "task_kind_improvement" : {
-      "comment" : "Task kind: Improvement",
+    "todo_category_improvement" : {
+      "comment" : "Todo category: Improvement",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -199,8 +199,8 @@
         }
       }
     },
-    "task_kind_issue" : {
-      "comment" : "Task kind: Issue",
+    "todo_category_issue" : {
+      "comment" : "Todo category: Issue",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -210,8 +210,8 @@
         }
       }
     },
-    "task_kind_research" : {
-      "comment" : "Task kind: Research",
+    "todo_category_research" : {
+      "comment" : "Todo category: Research",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -221,8 +221,8 @@
         }
       }
     },
-    "task_kind_review" : {
-      "comment" : "Task kind: Review",
+    "todo_category_review" : {
+      "comment" : "Todo category: Review",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -232,8 +232,8 @@
         }
       }
     },
-    "task_kind_test" : {
-      "comment" : "Task kind: Test",
+    "todo_category_test" : {
+      "comment" : "Todo category: Test",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
