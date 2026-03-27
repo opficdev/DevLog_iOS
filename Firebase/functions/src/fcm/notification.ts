@@ -6,7 +6,7 @@ import { resolveTimeZone } from "./shared";
 type TaskPayload = {
     userId: string;
     todoId: string;
-    todoKind: string;
+    todoCategory: string;
     dueDateKey: string;
     title: string;
     body: string;
@@ -42,7 +42,7 @@ export const sendPushNotification = onTaskDispatched({
                 logger.warn("notificationTask 문서 형식이 올바르지 않습니다.", { taskId });
                 return;
             }
-            const { userId, todoId, todoKind, dueDateKey, title, body } = parsed;
+            const { userId, todoId, todoCategory, dueDateKey, title, body } = parsed;
 
             const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
             const todoDocRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
@@ -93,7 +93,7 @@ export const sendPushNotification = onTaskDispatched({
                 receivedAt: admin.firestore.FieldValue.serverTimestamp(),
                 isRead: false,
                 todoId: todoId,
-                todoKind: todoKind
+                todoCategory: todoCategory
             };
             await notificationDocRef.set(notificationData, { merge: true });
 
@@ -122,7 +122,7 @@ export const sendPushNotification = onTaskDispatched({
                 notification: { title, body },
                 data: {
                     todoId: todoId,
-                    todoKind: todoKind
+                    todoCategory: todoCategory
                 },
                 apns: {
                     payload: {
@@ -167,7 +167,7 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     const {
         userId,
         todoId,
-        todoKind,
+        todoCategory,
         dueDateKey,
         title,
         body
@@ -176,7 +176,7 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     if (
         typeof userId !== "string" ||
         typeof todoId !== "string" ||
-        typeof todoKind !== "string" ||
+        typeof todoCategory !== "string" ||
         typeof dueDateKey !== "string" ||
         typeof title !== "string" ||
         typeof body !== "string"
@@ -191,7 +191,7 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     return {
         userId,
         todoId,
-        todoKind,
+        todoCategory,
         dueDateKey,
         title,
         body

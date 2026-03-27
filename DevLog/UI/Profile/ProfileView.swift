@@ -330,8 +330,8 @@ struct ProfileView: View {
                         router.push(Path.activity(activity))
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: activity.todo.kind.symbolName)
-                                .foregroundStyle(activity.todo.kind.color)
+                            Image(systemName: activity.todo.category.symbolName)
+                                .foregroundStyle(activity.todo.category.color)
                                 .frame(width: 20)
                             Text(activity.todo.title)
                                 .font(.caption)

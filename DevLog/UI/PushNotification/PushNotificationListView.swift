@@ -246,12 +246,12 @@ struct PushNotificationListView: View {
     private func notificationRow(_ item: PushNotificationItem) -> some View {
         HStack {
             VStack {
-                let todoKind = item.todoKind
+                let todoCategory = item.todoCategory
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(todoKind.color)
+                    .fill(todoCategory.color)
                     .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                     .overlay {
-                        Image(systemName: todoKind.symbolName)
+                        Image(systemName: todoCategory.symbolName)
                             .foregroundStyle(Color.white)
                             .font(.title3)
                     }

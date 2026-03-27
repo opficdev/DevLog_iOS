@@ -20,8 +20,7 @@ struct TodoRequest: Encodable {
     let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
-    let kind: TodoKind
-
+    let category: TodoCategory
 }
 
 struct TodoResponse {
@@ -37,5 +36,5 @@ struct TodoResponse {
     let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
-    let kind: String
+    let category: String
 }

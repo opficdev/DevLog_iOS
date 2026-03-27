@@ -117,15 +117,15 @@ export const scheduleTodoReminder = onSchedule({
                     const todoTitle = typeof todoData.title === "string" && todoData.title.trim() ?
                         todoData.title :
                         "제목 없음";
-                    const todoKind = typeof todoData.kind === "string" && todoData.kind.trim() ?
-                        todoData.kind :
+                    const todoCategory = typeof todoData.category === "string" && todoData.category.trim() ?
+                        todoData.category :
                         "etc";
 
                     const notificationTaskRef = admin.firestore().collection("notificationTasks").doc();
                     const notificationTaskData = {
                         userId,
                         todoId: todoDoc.id,
-                        todoKind,
+                        todoCategory,
                         dueDateKey,
                         title: "DevLog",
                         body: `'${todoTitle}'의 마감일이 내일입니다.`,

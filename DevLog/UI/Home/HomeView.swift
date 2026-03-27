@@ -24,14 +24,14 @@ struct HomeView: View {
             .navigationTitle("홈")
             .navigationDestination(for: Path.self) { path in
                 switch path {
-                case .kind(let todoKind):
+                case .category(let todoCategory):
                     TodoListView(viewModel: TodoListViewModel(
                         fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                         fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-                        kind: todoKind
+                        category: todoCategory
                     ))
                     .environment(router)
                 case .detail(let todoId):
@@ -60,11 +60,11 @@ struct HomeView: View {
                 set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
             )) {
                 TodoManageView(
-                    viewModel: TodoManageViewModel(viewModel.state.todoKindPreferences),
+                    viewModel: TodoManageViewModel(viewModel.state.todoCategoryPreferences),
                     onDismiss: { array in
                         viewModel.send(.setPresentation(.reorderTodo, false))
                         withAnimation {
-                            viewModel.send(.orderTodoKindPreferences(array))
+                            viewModel.send(.orderTodoCategoryPreferences(array))
                         }
                     }
                 )
@@ -79,10 +79,10 @@ struct HomeView: View {
                 get: { viewModel.state.showTodoEditor },
                 set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
             )) {
-                if let selectedKind = viewModel.state.selectedTodoKind {
+                if let selectedCategory = viewModel.state.selectedTodoCategory {
                     TodoEditorView(
                         viewModel: TodoEditorViewModel(
-                            kind: selectedKind,
+                            category: selectedCategory,
                             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
                         ),
                         onSubmit: { viewModel.send(.addTodo($0)) }
@@ -162,14 +162,14 @@ struct HomeView: View {
 
     private var todoSection: some View {
         Section(content: {
-            let preferences = viewModel.state.todoKindPreferences
+            let preferences = viewModel.state.todoCategoryPreferences
             ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
-                let kind = preference.kind
-                NavigationLink(value: Path.kind(kind)) {
+                let category = preference.category
+                NavigationLink(value: Path.category(category)) {
                     labelImage(
-                        text: kind.localizedName,
-                        systemName: kind.symbolName,
-                        imageColor: kind.color
+                        text: category.localizedName,
+                        systemName: category.symbolName,
+                        imageColor: category.color
                     )
                 }
             }
@@ -289,18 +289,18 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
-                    let preferences = viewModel.state.todoKindPreferences.filter(\.isVisible)
+                    let preferences = viewModel.state.todoCategoryPreferences.filter(\.isVisible)
                     ForEach(preferences, id: \.id) { preference in
-                        let kind = preference.kind
+                        let category = preference.category
                         Button {
                             DispatchQueue.main.async {
-                                viewModel.send(.tapTodoKind(kind))
+                                viewModel.send(.tapTodoCategory(category))
                             }
                         } label: {
                             labelImage(
-                                text: kind.localizedName,
-                                systemName: kind.symbolName,
-                                imageColor: kind.color
+                                text: category.localizedName,
+                                systemName: category.symbolName,
+                                imageColor: category.color
                             )
                         }
                     }
@@ -363,7 +363,7 @@ struct HomeView: View {
     }
 
     private enum Path: Hashable {
-        case kind(TodoKind)
+        case category(TodoCategory)
         case detail(String)
         case web(WebPageItem)
     }
@@ -376,10 +376,10 @@ private struct RecentTodoRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(todo.kind.color)
+                .fill(todo.category.color)
                 .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                 .overlay {
-                    Image(systemName: todo.kind.symbolName)
+                    Image(systemName: todo.category.symbolName)
                         .foregroundStyle(Color.white)
                         .font(.title3)
                 }
@@ -404,9 +404,9 @@ private struct RecentTodoRow: View {
                 }
 
                 HStack(spacing: 6) {
-                    Text(todo.kind.localizedName)
+                    Text(todo.category.localizedName)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(todo.kind.color)
+                        .foregroundStyle(todo.category.color)
 
                     RelativeTimeText(date: todo.updatedAt)
                 }

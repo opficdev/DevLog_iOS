@@ -98,10 +98,10 @@ private struct TodoReferenceRow: View {
             } label: {
                 HStack(alignment: .center, spacing: 8) {
                     RoundedRectangle(cornerRadius: 5)
-                        .fill(item.kind.color)
+                        .fill(item.category.color)
                         .frame(width: 18, height: 18)
                         .overlay {
-                            Image(systemName: item.kind.symbolName)
+                            Image(systemName: item.category.symbolName)
                                 .font(.caption2.weight(.bold))
                                 .foregroundStyle(.white)
                         }

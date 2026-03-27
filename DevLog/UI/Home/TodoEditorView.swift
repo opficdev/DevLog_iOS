@@ -211,13 +211,13 @@ private struct TodoEditorInfoSheetView: View {
                     Picker(
                         "카테고리",
                         selection: Binding(
-                            get: { viewModel.state.kind },
-                            set: { viewModel.send(.setKind($0)) }
+                            get: { viewModel.state.category },
+                            set: { viewModel.send(.setCategory($0)) }
                         )
                     ) {
-                        ForEach(TodoKind.allCases) { todoKind in
-                            Text(todoKind.localizedName)
-                                .tag(todoKind)
+                        ForEach(TodoCategory.allCases) { category in
+                            Text(category.localizedName)
+                                .tag(category)
                         }
                     }
 

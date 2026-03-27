@@ -13,7 +13,7 @@ final class TodoListViewModel: Store {
         var todos: [TodoListItem] = []
         var searchText: String = ""
         var searchResults: [TodoListItem] = []
-        let kind: TodoKind
+        let category: TodoCategory
         var showEditor: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -92,7 +92,7 @@ final class TodoListViewModel: Store {
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
         undoDeleteTodoUseCase: UndoDeleteTodoUseCase,
-        kind: TodoKind
+        category: TodoCategory
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchTodoByIdUseCase = fetchTodoByIdUseCase
@@ -100,8 +100,8 @@ final class TodoListViewModel: Store {
         self.deleteTodoUseCase = deleteTodoUseCase
         self.undoDeleteTodoUseCase = undoDeleteTodoUseCase
         self.state = State(
-            kind: kind,
-            query: TodoQuery(kind: kind)
+            category: category,
+            query: TodoQuery(category: category)
         )
     }
 
@@ -173,7 +173,7 @@ final class TodoListViewModel: Store {
             Task {
                 do {
                     defer { endLoading(.immediate) }
-                    let query = TodoQuery(kind: state.kind, keyword: keyword)
+                    let query = TodoQuery(category: state.category, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
                     send(.fetchSearchResults(page.items.map { TodoListItem(from: $0) }))
                 } catch {
@@ -284,7 +284,7 @@ private extension TodoListViewModel {
             self.nextCursor = nil
             return [.fetch]
         case .resetFilters:
-            state.query = TodoQuery(kind: state.kind)
+            state.query = TodoQuery(category: state.category)
             self.nextCursor = nil
             return [.fetch]
         case .setIsSearching(let value):

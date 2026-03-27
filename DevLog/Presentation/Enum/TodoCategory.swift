@@ -1,5 +1,5 @@
 //
-//  TodoKind.swift
+//  TodoCategory.swift
 //  DevLog
 //
 //  Created by opfic on 5/29/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum TodoKind: String, Identifiable, CaseIterable, Codable {
+enum TodoCategory: String, Identifiable, CaseIterable, Codable {
     case issue          // 이슈
     case feature        // 신규 기능
     case improvement    // 개선/리팩터링
@@ -34,14 +34,14 @@ enum TodoKind: String, Identifiable, CaseIterable, Codable {
     
     var localizedName: String {
         switch self {
-        case .issue: return NSLocalizedString("task_kind_issue", comment: "Task kind: Issue")
-        case .feature: return NSLocalizedString("task_kind_feature", comment: "Task kind: Feature")
-        case .improvement: return NSLocalizedString("task_kind_improvement", comment: "Task kind: Improvement")
-        case .review: return NSLocalizedString("task_kind_review", comment: "Task kind: Review")
-        case .test: return NSLocalizedString("task_kind_test", comment: "Task kind: Test")
-        case .doc: return NSLocalizedString("task_kind_doc", comment: "Task kind: Documentation")
-        case .research: return NSLocalizedString("task_kind_research", comment: "Task kind: Research")
-        case .etc: return NSLocalizedString("task_kind_etc", comment: "Task kind: Etc")
+        case .issue: return NSLocalizedString("todo_category_issue", comment: "Todo category: Issue")
+        case .feature: return NSLocalizedString("todo_category_feature", comment: "Todo category: Feature")
+        case .improvement: return NSLocalizedString("todo_category_improvement", comment: "Todo category: Improvement")
+        case .review: return NSLocalizedString("todo_category_review", comment: "Todo category: Review")
+        case .test: return NSLocalizedString("todo_category_test", comment: "Todo category: Test")
+        case .doc: return NSLocalizedString("todo_category_doc", comment: "Todo category: Documentation")
+        case .research: return NSLocalizedString("todo_category_research", comment: "Todo category: Research")
+        case .etc: return NSLocalizedString("todo_category_etc", comment: "Todo category: Etc")
         }
     }
     

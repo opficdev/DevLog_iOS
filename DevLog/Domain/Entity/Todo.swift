@@ -20,5 +20,5 @@ struct Todo: Identifiable, Hashable {
     var completedAt: Date?  //  할 일 완료 날짜
     var dueDate: Date?      //  할 일의 마감 날짜 (선택 사항)
     var tags: [String]      //  할 일에 연결된 태그들
-    var kind: TodoKind      //  할 일의 종류
+    var category: TodoCategory  //  할 일의 종류
 }

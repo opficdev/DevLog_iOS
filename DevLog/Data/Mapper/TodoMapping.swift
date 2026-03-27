@@ -20,15 +20,15 @@ extension TodoRequest {
             completedAt: entity.completedAt,
             dueDate: entity.dueDate,
             tags: entity.tags,
-            kind: entity.kind
+            category: entity.category
         )
     }
 }
 
 extension TodoResponse {
     func toDomain() throws -> Todo {
-        guard let kind = TodoKind(rawValue: self.kind) else {
-            throw DataError.invalidData("TodoResponse.kind is invalid: \(self.kind)")
+        guard let category = TodoCategory(rawValue: self.category) else {
+            throw DataError.invalidData("TodoResponse.category is invalid: \(self.category)")
         }
 
         return Todo(
@@ -44,7 +44,7 @@ extension TodoResponse {
             completedAt: self.completedAt,
             dueDate: self.dueDate,
             tags: self.tags,
-            kind: kind
+            category: category
         )
     }
 }

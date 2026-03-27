@@ -10,14 +10,16 @@ import Foundation
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var todoKindPreferences = TodoKind.allCases.map { TodoKindPreference(kind: $0, isVisible: true) }
+        var todoCategoryPreferences = TodoCategory.allCases.map {
+            TodoCategoryPreference(category: $0, isVisible: true)
+        }
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
         var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
         var webPageURLInput: String = "https://"
-        var selectedTodoKind: TodoKind?
+        var selectedTodoCategory: TodoCategory?
         var reorderTodo: Bool = false
         var isRecentTodosLoading: Bool = false
         var isWebPageLoading: Bool = false
@@ -37,8 +39,8 @@ final class HomeViewModel: Store {
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(LoadingTarget, Bool)
-        case tapTodoKind(TodoKind)
-        case orderTodoKindPreferences([TodoKindPreference])
+        case tapTodoCategory(TodoCategory)
+        case orderTodoCategoryPreferences([TodoCategoryPreference])
         case addTodo(Todo)
         case updateRecentTodos([RecentTodoItem])
         case updateWebPageURLInput(String)
@@ -118,8 +120,8 @@ final class HomeViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoKind,
-                .orderTodoKindPreferences, .addTodo, .updateWebPageURLInput,
+        case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoCategory,
+                .orderTodoCategoryPreferences, .addTodo, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
@@ -256,12 +258,12 @@ private extension HomeViewModel {
             if !isPresented {
                 deletedWebPageURLString = nil
             }
-        case .tapTodoKind(let kind):
-            state.selectedTodoKind = kind
+        case .tapTodoCategory(let category):
+            state.selectedTodoCategory = category
             state.showContentPicker = false
             return [.showModalAfterDelay(.todoEditor)]
-        case .orderTodoKindPreferences(let preferences):
-            state.todoKindPreferences = preferences
+        case .orderTodoCategoryPreferences(let preferences):
+            state.todoCategoryPreferences = preferences
         case .addTodo(let todo):
             return [.addTodo(todo)]
         case .updateWebPageURLInput(let text):
@@ -328,7 +330,7 @@ private extension HomeViewModel {
             state.reorderTodo = isPresented
         case .todoEditor:
             state.showTodoEditor = isPresented
-            if !isPresented { state.selectedTodoKind = nil }
+            if !isPresented { state.selectedTodoCategory = nil }
         case .contentPicker:
             state.showContentPicker = isPresented
         case .searchView:

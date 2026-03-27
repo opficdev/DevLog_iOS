@@ -117,7 +117,7 @@ private struct TodoDetailInfoSheetView: View {
                     HStack {
                         Text("카테고리")
                         Spacer()
-                        Text(todo.kind.localizedName)
+                        Text(todo.category.localizedName)
                             .foregroundStyle(.secondary)
                     }
 
