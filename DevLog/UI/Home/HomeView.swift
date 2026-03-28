@@ -259,6 +259,7 @@ struct HomeView: View {
             } label: {
                 Image(systemName: "plus")
             }
+            .disabled(!viewModel.state.isNetworkConnected)
         }
         if #available(iOS 26.0, *) {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)

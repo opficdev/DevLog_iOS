@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @Observable
 final class HomeViewModel: Store {
@@ -15,6 +16,7 @@ final class HomeViewModel: Store {
         }
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
+        var isNetworkConnected: Bool = true
         var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
         var showSearchView: Bool = false
@@ -35,6 +37,7 @@ final class HomeViewModel: Store {
 
     enum Action {
         case onAppear
+        case networkStatusChanged(Bool)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setToast(isPresented: Bool, type: ToastType? = nil)
@@ -96,8 +99,10 @@ final class HomeViewModel: Store {
     private let undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
+    private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let loadingState = LoadingState()
     private var deletedWebPageURLString: String?
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         addWebPageUseCase: AddWebPageUseCase,
@@ -105,7 +110,8 @@ final class HomeViewModel: Store {
         undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
-        fetchWebPagesUseCase: FetchWebPagesUseCase
+        fetchWebPagesUseCase: FetchWebPagesUseCase,
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     ) {
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
@@ -113,6 +119,9 @@ final class HomeViewModel: Store {
         self.upsertTodoUseCase = upsertTodoUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
+        self.networkConnectivityUseCase = networkConnectivityUseCase
+
+        setupNetworkObserving()
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -120,6 +129,8 @@ final class HomeViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
+        case .networkStatusChanged(let isConnected):
+            state.isNetworkConnected = isConnected
         case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoCategory,
                 .orderTodoCategoryPreferences, .addTodo, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
@@ -431,5 +442,15 @@ private extension HomeViewModel {
         loadingState.end(target: target, mode: mode) { [weak self] target, isLoading in
             self?.send(.setLoading(target, isLoading))
         }
+    }
+
+    func setupNetworkObserving() {
+        networkConnectivityUseCase.observe()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isConnected in
+                self?.send(.networkStatusChanged(isConnected))
+            }
+            .store(in: &cancellables)
     }
 }

@@ -19,7 +19,8 @@ struct MainView: View {
                 undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
                 upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self)
+                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "house.fill")
