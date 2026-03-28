@@ -303,10 +303,10 @@ struct TodoListView: View {
                 GeometryReader { geometry in
                     Color.clear
                         .onAppear {
-                            headerHeight = geometry.size.height + 1
+                            headerHeight = geometry.size.height.rounded()
                         }
                         .onChange(of: geometry.size.height) { _, height in
-                            headerHeight = height + 1
+                            headerHeight = height.rounded()
                         }
                 }
             }
