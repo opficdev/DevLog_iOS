@@ -114,7 +114,6 @@ struct SettingView: View {
             switch path {
             case .theme:
                 ThemeView(
-                    isInteractionEnabled: connected,
                     theme: Binding(
                         get: { viewModel.state.theme },
                         set: { viewModel.send(.setTheme($0)) }
