@@ -98,6 +98,7 @@ struct ProfileView: View {
                     SettingView(viewModel: SettingViewModel(
                         deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
                         signOutUseCase: container.resolve(SignOutUseCase.self),
+                        networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                         systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                         updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
                     ))

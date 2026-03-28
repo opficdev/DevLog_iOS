@@ -33,6 +33,7 @@ struct SettingView: View {
                     Text("알림")
                         .foregroundStyle(Color.primary)
                 }
+                .disabled(!viewModel.state.isNetworkConnected)
 
                 let dirSize = viewModel.state.dirSize
                 Button {
@@ -85,11 +86,13 @@ struct SettingView: View {
                 } label: {
                     Text("계정 연동")
                 }
+                .disabled(!viewModel.state.isNetworkConnected)
                 Button(role: .destructive, action: {
                     viewModel.send(.setAlert(isPresented: true, type: .signOut))
                 }) {
                     Text("로그아웃")
                 }
+                .disabled(!viewModel.state.isNetworkConnected)
             }
             
             HStack {
@@ -100,6 +103,7 @@ struct SettingView: View {
                     Text("회원 탈퇴")
                         .font(.headline)
                 }
+                .disabled(!viewModel.state.isNetworkConnected)
                 Spacer()
             }
         }
