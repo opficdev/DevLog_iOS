@@ -13,6 +13,7 @@ struct SettingView: View {
     @Environment(NavigationRouter.self) var router
 
     var body: some View {
+        let connected = viewModel.state.isNetworkConnected
         Form {
             Section {
                 Button {
@@ -31,9 +32,9 @@ struct SettingView: View {
                     router.push(Path.pushNotification)
                 } label: {
                     Text("알림")
-                        .foregroundStyle(Color.primary)
+                        .foregroundStyle(connected ? Color.primary : Color.secondary)
                 }
-                .disabled(!viewModel.state.isNetworkConnected)
+                .disabled(!connected)
 
                 let dirSize = viewModel.state.dirSize
                 Button {
@@ -86,13 +87,13 @@ struct SettingView: View {
                 } label: {
                     Text("계정 연동")
                 }
-                .disabled(!viewModel.state.isNetworkConnected)
+                .disabled(!connected)
                 Button(role: .destructive, action: {
                     viewModel.send(.setAlert(isPresented: true, type: .signOut))
                 }) {
                     Text("로그아웃")
                 }
-                .disabled(!viewModel.state.isNetworkConnected)
+                .disabled(!connected)
             }
             
             HStack {
@@ -103,7 +104,7 @@ struct SettingView: View {
                     Text("회원 탈퇴")
                         .font(.headline)
                 }
-                .disabled(!viewModel.state.isNetworkConnected)
+                .disabled(!connected)
                 Spacer()
             }
         }
@@ -113,6 +114,7 @@ struct SettingView: View {
             switch path {
             case .theme:
                 ThemeView(
+                    isInteractionEnabled: connected,
                     theme: Binding(
                         get: { viewModel.state.theme },
                         set: { viewModel.send(.setTheme($0)) }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ThemeView: View {
+    let isInteractionEnabled: Bool
     @Binding var theme: SystemTheme
 
     var body: some View {
@@ -49,6 +50,7 @@ struct ThemeView: View {
                 }
             }
         }
+        .disabled(!isInteractionEnabled)
         .listStyle(.insetGrouped)
         .toolbar {
             ToolbarItem(placement: .principal) {
