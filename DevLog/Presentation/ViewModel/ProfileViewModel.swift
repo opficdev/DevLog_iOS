@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 @Observable
 final class ProfileViewModel: Store {
     struct State: Equatable {
         var name: String = ""
         var email: String = ""
+        var isNetworkConnected: Bool = true
         var statusMessage: String = ""
         var avatarURL: URL?
         var earliestQuarterStart: Date?
@@ -31,6 +33,7 @@ final class ProfileViewModel: Store {
 
     enum Action {
         case onAppear
+        case networkStatusChanged(Bool)
         case setAlert(Bool)
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
@@ -66,22 +69,27 @@ final class ProfileViewModel: Store {
     private let fetchUserDataUseCase: FetchUserDataUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
+    private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     private let calendar = Calendar.current
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase,
         updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
         self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
+        self.networkConnectivityUseCase = networkConnectivityUseCase
         self.fetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
         self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
+        setupNetworkObserving()
     }
 
     // swiftlint:disable cyclomatic_complexity
@@ -107,6 +115,8 @@ final class ProfileViewModel: Store {
             if let selectedQuarterStart = state.selectedQuarterStart {
                 effects.append(.fetchCompletionQuarter(selectedQuarterStart))
             }
+        case .networkStatusChanged(let isConnected):
+            state.isNetworkConnected = isConnected
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .tapResetStatusMessageButton:
@@ -169,6 +179,7 @@ final class ProfileViewModel: Store {
             }
             effects = [.updateHeatmapActivityTypes(state.selectedActivityTypes)]
         case .willUpdateStatusMessage:
+            if !state.isNetworkConnected { break }
             let message = self.state.statusMessage
             effects = [.updateStatusMessage(message)]
         case .updateStatusMessage(let message):
@@ -237,6 +248,16 @@ final class ProfileViewModel: Store {
 }
 
 extension ProfileViewModel {
+    private func setupNetworkObserving() {
+        networkConnectivityUseCase.observe()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isConnected in
+                self?.send(.networkStatusChanged(isConnected))
+            }
+            .store(in: &cancellables)
+    }
+
     var quarterTitle: String {
         guard let start = state.selectedQuarterStart else { return "" }
         let year = calendar.component(.year, from: start)

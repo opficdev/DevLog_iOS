@@ -54,6 +54,7 @@ struct MainView: View {
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
+                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                 fetchHeatmapActivityTypesUseCase: container.resolve(FetchProfileHeatmapActivityTypesUseCase.self),
                 updateHeatmapActivityTypesUseCase: container.resolve(UpdateProfileHeatmapActivityTypesUseCase.self)
             ))
