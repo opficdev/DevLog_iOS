@@ -22,7 +22,7 @@ final class TodayViewModel: Store {
         let items: [TodayTodoItem]
     }
 
-    struct SectionStore {
+    struct SectionCollection {
         var focused: [TodayTodoItem] = []
         var overdue: [TodayTodoItem] = []
         var dueSoon: [TodayTodoItem] = []
@@ -301,39 +301,39 @@ private extension TodayViewModel {
 
     func groupedSectionItems(
         from items: [TodayTodoItem]
-    ) -> SectionStore {
+    ) -> SectionCollection {
         let startOfToday = calendar.startOfDay(for: Date())
         guard let windowEnd = calendar.date(byAdding: .day, value: upcomingWindowDays, to: startOfToday) else {
-            return SectionStore(
+            return SectionCollection(
                 focused: items.filter(\.isPinned),
                 unscheduled: items.filter { !$0.isPinned && $0.dueDate == nil }
             )
         }
 
-        var store = SectionStore()
+        var collection = SectionCollection()
 
         for item in items {
             if item.isPinned {
-                store.focused.append(item)
+                collection.focused.append(item)
                 continue
             }
 
             guard let dueDate = item.dueDate else {
-                store.unscheduled.append(item)
+                collection.unscheduled.append(item)
                 continue
             }
 
             let dueDay = calendar.startOfDay(for: dueDate)
             if dueDay < startOfToday {
-                store.overdue.append(item)
+                collection.overdue.append(item)
             } else if dueDay <= windowEnd {
-                store.dueSoon.append(item)
+                collection.dueSoon.append(item)
             } else {
-                store.later.append(item)
+                collection.later.append(item)
             }
         }
 
-        return store
+        return collection
     }
 
     func isOverdue(_ item: TodayTodoItem) -> Bool {
