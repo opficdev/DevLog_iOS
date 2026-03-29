@@ -250,7 +250,6 @@ final class ProfileViewModel: Store {
 extension ProfileViewModel {
     private func setupNetworkObserving() {
         networkConnectivityUseCase.observe()
-            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
                 self?.send(.networkStatusChanged(isConnected))

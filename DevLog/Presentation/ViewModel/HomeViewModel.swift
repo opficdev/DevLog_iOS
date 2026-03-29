@@ -446,7 +446,6 @@ private extension HomeViewModel {
 
     func setupNetworkObserving() {
         networkConnectivityUseCase.observe()
-            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
                 self?.send(.networkStatusChanged(isConnected))

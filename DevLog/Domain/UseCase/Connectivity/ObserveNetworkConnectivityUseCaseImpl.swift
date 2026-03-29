@@ -16,5 +16,7 @@ final class ObserveNetworkConnectivityUseCaseImpl: ObserveNetworkConnectivityUse
 
     func observe() -> AnyPublisher<Bool, Never> {
         repository.observeNetworkConnectivity()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
