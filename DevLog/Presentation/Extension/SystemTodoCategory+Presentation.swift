@@ -1,24 +1,23 @@
 //
-//  TodoCategory.swift
+//  SystemTodoCategory+Presentation.swift
 //  DevLog
 //
-//  Created by opfic on 5/29/25.
+//  Created by opfic on 3/29/26.
 //
 
 import SwiftUI
 
-enum TodoCategory: String, Identifiable, CaseIterable, Codable {
-    case issue          // 이슈
-    case feature        // 신규 기능
-    case improvement    // 개선/리팩터링
-    case review         // 코드/문서 리뷰
-    case test           // 테스트/QA
-    case doc            // 문서화
-    case research       // 리서치/학습
-    case etc            // 기타
-
+extension SystemTodoCategory: Identifiable {
     var id: String { rawValue }
+}
 
+extension SystemTodoCategory: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
+    }
+}
+
+extension SystemTodoCategory {
     var symbolName: String {
         switch self {
         case .issue: return "exclamationmark.triangle"
@@ -31,7 +30,7 @@ enum TodoCategory: String, Identifiable, CaseIterable, Codable {
         case .etc: return "ellipsis"
         }
     }
-    
+
     var localizedName: String {
         switch self {
         case .issue: return NSLocalizedString("todo_category_issue", comment: "Todo category: Issue")
@@ -44,17 +43,17 @@ enum TodoCategory: String, Identifiable, CaseIterable, Codable {
         case .etc: return NSLocalizedString("todo_category_etc", comment: "Todo category: Etc")
         }
     }
-    
+
     var color: Color {
         switch self {
-        case .issue: return Color.red
-        case .feature: return Color.green
-        case .improvement: return Color.cyan
-        case .review: return Color.orange
-        case .test: return Color.purple
-        case .doc: return Color.yellow
-        case .research: return Color.teal
-        case .etc: return Color.gray
+        case .issue: return .red
+        case .feature: return .green
+        case .improvement: return .cyan
+        case .review: return .orange
+        case .test: return .purple
+        case .doc: return .yellow
+        case .research: return .teal
+        case .etc: return .gray
         }
     }
 }

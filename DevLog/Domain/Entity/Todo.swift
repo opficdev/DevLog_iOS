@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Todo: Identifiable, Hashable {
+struct Todo: Equatable {
     let id: String
     var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     var isCompleted: Bool   //  해당 할 일의 완료 여부

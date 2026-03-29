@@ -57,7 +57,7 @@ final class TodoEditorViewModel: Store {
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
-        var category: TodoCategory = .etc
+        var category: TodoCategory = .system(.etc)
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }

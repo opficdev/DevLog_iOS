@@ -32,7 +32,7 @@ final class TodoService {
             "sortTarget=\(query.sortTarget.fieldName)",
             "sortOrder=\(query.sortOrder == .latest ? "latest" : "oldest")",
             query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
-            query.category != nil ? "category=\(query.category!.rawValue)" : nil,
+            query.category != nil ? "category=\(query.category!.storageValue)" : nil,
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
@@ -49,7 +49,7 @@ final class TodoService {
         if let category = query.category {
             firestoreQuery = firestoreQuery.whereField(
                 TodoFieldKey.category.rawValue,
-                isEqualTo: category.rawValue
+                isEqualTo: category.storageValue
             )
         }
 
@@ -270,7 +270,7 @@ final class TodoService {
             guard
                 !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
                 let response = makeResponse(from: document),
-                let category = TodoCategory(rawValue: response.category)
+                let category = SystemTodoCategory(rawValue: response.category)
             else {
                 return
             }
@@ -278,7 +278,7 @@ final class TodoService {
             partialResult[response.number] = TodoReferenceItem(
                 id: response.id,
                 title: response.title,
-                category: category
+                category: .system(category)
             )
         }
     }

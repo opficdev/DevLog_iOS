@@ -215,9 +215,9 @@ private struct TodoEditorInfoSheetView: View {
                             set: { viewModel.send(.setCategory($0)) }
                         )
                     ) {
-                        ForEach(TodoCategory.allCases) { category in
+                        ForEach(SystemTodoCategory.allCases) { category in
                             Text(category.localizedName)
-                                .tag(category)
+                                .tag(TodoCategory.system(category))
                         }
                     }
 

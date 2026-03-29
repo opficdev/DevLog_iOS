@@ -11,8 +11,8 @@ import Combine
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var todoCategoryPreferences = TodoCategory.allCases.map {
-            TodoCategoryPreference(category: $0, isVisible: true)
+        var todoCategoryPreferences = SystemTodoCategory.allCases.map {
+            TodoCategoryPreference(category: .system($0), isVisible: true)
         }
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []

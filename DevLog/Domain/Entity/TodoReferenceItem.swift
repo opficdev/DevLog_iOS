@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoReferenceItem: Identifiable, Equatable {
+struct TodoReferenceItem: Equatable {
     let id: String
     let title: String
     let category: TodoCategory
