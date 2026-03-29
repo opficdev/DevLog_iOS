@@ -8,7 +8,6 @@
 import Foundation
 
 struct UserTodoCategory: Equatable {
-    let category: String
     var name: String
     var colorHex: String
 }

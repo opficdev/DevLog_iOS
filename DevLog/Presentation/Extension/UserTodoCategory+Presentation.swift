@@ -8,12 +8,11 @@
 import SwiftUI
 
 extension UserTodoCategory: Identifiable {
-    var id: String { category }
+    var id: String { name }
 }
 
 extension UserTodoCategory: Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(category)
         hasher.combine(name)
         hasher.combine(colorHex)
     }
@@ -24,5 +23,5 @@ extension UserTodoCategory {
 
     var localizedName: String { name }
 
-    var color: Color { .gray }
+    var color: Color { Color(hexString: colorHex) ?? .gray }
 }
