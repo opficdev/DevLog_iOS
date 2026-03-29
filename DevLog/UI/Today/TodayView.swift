@@ -157,7 +157,7 @@ struct TodayView: View {
                         }
                         .tint(.orange)
                     }
-                    .swipeActions(edge: .trailing) {
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {
                             viewModel.send(.completeTodo(item))
                         } label: {
