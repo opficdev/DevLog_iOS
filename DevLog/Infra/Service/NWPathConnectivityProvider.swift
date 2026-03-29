@@ -11,12 +11,9 @@ import Combine
 final class NWPathConnectivityProvider {
     private let networkPathMonitor = NWPathMonitor()
     private let monitoringQueue = DispatchQueue(label: "NWPathConnectivityProviderQueue")
-    private let isConnectedSubject = CurrentValueSubject<Bool, Never>(false)
+    private let isConnectedSubject = CurrentValueSubject<Bool?, Never>(nil)
 
     init() {
-        let initialStatus = networkPathMonitor.currentPath.status == .satisfied
-        isConnectedSubject.send(initialStatus)
-
         networkPathMonitor.pathUpdateHandler = { [weak self] path in
             let connected = (path.status == .satisfied)
             self?.isConnectedSubject.send(connected)
@@ -30,6 +27,8 @@ final class NWPathConnectivityProvider {
     }
 
     func observeNetworkConnectivity() -> AnyPublisher<Bool, Never> {
-        isConnectedSubject.eraseToAnyPublisher()
+        isConnectedSubject
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
 }
