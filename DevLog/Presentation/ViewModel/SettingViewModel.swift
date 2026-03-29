@@ -13,6 +13,7 @@ final class SettingViewModel: Store {
     struct State: Equatable {
         var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0
+        var isNetworkConnected = true
         var isLoading = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -21,6 +22,7 @@ final class SettingViewModel: Store {
     }
 
     enum Action {
+        case networkStatusChanged(Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setLoading(Bool)
         case setTheme(SystemTheme)
@@ -43,6 +45,7 @@ final class SettingViewModel: Store {
     private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
+    private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
     private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
     private let loadingState = LoadingState()
@@ -55,13 +58,16 @@ final class SettingViewModel: Store {
     init(
         deleteAuthUseCase: DeleteAuthUseCase,
         signOutUseCase: SignOutUseCase,
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
         updateSystemThemeUseCase: UpdateSystemThemeUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
+        self.networkConnectivityUseCase = networkConnectivityUseCase
         self.systemThemeUseCase = systemThemeUseCase
         self.updateSystemThemeUseCase = updateSystemThemeUseCase
+        setupNetworkObserving()
         setupThemeMonitoring()
     }
 
@@ -70,6 +76,8 @@ final class SettingViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
+        case .networkStatusChanged(let isConnected):
+            state.isNetworkConnected = isConnected
         case .setAlert(let isPresented, let type):
             setAlert(&state, isPresented: isPresented, type: type)
         case .setLoading(let value):
@@ -160,6 +168,16 @@ private extension SettingViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] theme in
                 self?.send(.setTheme(theme))
+            }
+            .store(in: &cancellables)
+    }
+
+    func setupNetworkObserving() {
+        networkConnectivityUseCase.observe()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isConnected in
+                self?.send(.networkStatusChanged(isConnected))
             }
             .store(in: &cancellables)
     }

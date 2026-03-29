@@ -305,7 +305,6 @@ struct TodoListView: View {
                         .onChange(of: geometry.size.height, initial: true) { _, height in
                             headerHeight = height.rounded()
                         }
-
                 }
             }
         }

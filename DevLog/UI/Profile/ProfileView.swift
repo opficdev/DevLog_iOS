@@ -37,6 +37,7 @@ struct ProfileView: View {
                                 .foregroundStyle(Color.gray)
                         }
                     }
+                    let connected = viewModel.state.isNetworkConnected
                     HStack {
                         HStack {
                             Image(systemName: "face.smiling")
@@ -44,11 +45,11 @@ struct ProfileView: View {
                                 get: { viewModel.state.statusMessage },
                                 set: { viewModel.send(.updateStatusMessage($0)) })
                             ) {
-                                HStack {
-                                    Text("상태 설정")
-                                }
+                                Text("상태 설정")
                             }
+                            .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
                             .focused($focused)
+                            .disabled(!connected)
 
                             if !viewModel.state.statusMessage.isEmpty && viewModel.state.showDoneButton {
                                 Button(action: {
@@ -63,7 +64,7 @@ struct ProfileView: View {
                         .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(UIColor.systemGray5))
+                                .fill(Color(.secondarySystemGroupedBackground))
                         )
                         if viewModel.state.showDoneButton {
                             Button(action: {
@@ -75,6 +76,7 @@ struct ProfileView: View {
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                     }
+                    .opacity(connected ? 1 : 0.7)
                     activityHeatmapSection
                 }
                 .padding(.horizontal, 16)
@@ -98,6 +100,7 @@ struct ProfileView: View {
                     SettingView(viewModel: SettingViewModel(
                         deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
                         signOutUseCase: container.resolve(SignOutUseCase.self),
+                        networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                         systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                         updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
                     ))
