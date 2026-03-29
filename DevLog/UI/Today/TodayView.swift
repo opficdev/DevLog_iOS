@@ -156,11 +156,12 @@ struct TodayView: View {
                             Image(systemName: item.isPinned ? "star.slash" : "star.fill")
                         }
                         .tint(.orange)
-
+                    }
+                    .swipeActions(edge: .trailing) {
                         Button {
                             viewModel.send(.completeTodo(item))
                         } label: {
-                            Image(systemName: "checkmark")
+                            Label("완료", systemImage: "checkmark")
                         }
                         .tint(.green)
                     }

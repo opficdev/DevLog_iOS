@@ -22,7 +22,7 @@ final class TodayViewModel: Store {
         let items: [TodayTodoItem]
     }
 
-    struct SectionBuckets {
+    struct SectionStore {
         var focused: [TodayTodoItem] = []
         var overdue: [TodayTodoItem] = []
         var dueSoon: [TodayTodoItem] = []
@@ -301,39 +301,39 @@ private extension TodayViewModel {
 
     func groupedSectionItems(
         from items: [TodayTodoItem]
-    ) -> SectionBuckets {
+    ) -> SectionStore {
         let startOfToday = calendar.startOfDay(for: Date())
         guard let windowEnd = calendar.date(byAdding: .day, value: upcomingWindowDays, to: startOfToday) else {
-            return SectionBuckets(
+            return SectionStore(
                 focused: items.filter(\.isPinned),
                 unscheduled: items.filter { !$0.isPinned && $0.dueDate == nil }
             )
         }
 
-        var buckets = SectionBuckets()
+        var store = SectionStore()
 
         for item in items {
             if item.isPinned {
-                buckets.focused.append(item)
+                store.focused.append(item)
                 continue
             }
 
             guard let dueDate = item.dueDate else {
-                buckets.unscheduled.append(item)
+                store.unscheduled.append(item)
                 continue
             }
 
             let dueDay = calendar.startOfDay(for: dueDate)
             if dueDay < startOfToday {
-                buckets.overdue.append(item)
+                store.overdue.append(item)
             } else if dueDay <= windowEnd {
-                buckets.dueSoon.append(item)
+                store.dueSoon.append(item)
             } else {
-                buckets.later.append(item)
+                store.later.append(item)
             }
         }
 
-        return buckets
+        return store
     }
 
     func isOverdue(_ item: TodayTodoItem) -> Bool {
