@@ -207,7 +207,6 @@ struct HomeView: View {
                 ForEach(viewModel.state.recentTodos, id: \.id) { todo in
                     NavigationLink(value: Path.detail(todo.id)) {
                         RecentTodoRow(todo: todo, sceneWidth: sceneWidth)
-                            .padding(.vertical, -4)
                     }
                 }
             }
