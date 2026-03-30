@@ -11,7 +11,7 @@ import Combine
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var preferences: [TodoCategoryPreference] = []
+        var preferences: [TodoCategoryPreferenceItem] = []
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
         var isNetworkConnected: Bool = true
@@ -42,8 +42,8 @@ final class HomeViewModel: Store {
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(LoadingTarget, Bool)
         case tapTodoCategory(TodoCategory)
-        case orderTodoCategoryPreferences([TodoCategoryPreference])
-        case setTodoCategoryPreferences([TodoCategoryPreference])
+        case orderTodoCategoryPreferences([TodoCategoryPreferenceItem])
+        case setTodoCategoryPreferences([TodoCategoryPreferenceItem])
         case addTodo(Todo)
         case updateRecentTodos([RecentTodoItem])
         case updateWebPageURLInput(String)
@@ -60,7 +60,7 @@ final class HomeViewModel: Store {
         case deleteWebPage(WebPageItem, Int)
         case undoDeleteWebPage(String)
         case fetchTodoCategoryPreferences
-        case updateTodoCategoryPreferences([TodoCategoryPreference])
+        case updateTodoCategoryPreferences([TodoCategoryPreferenceItem])
         case fetchRecentTodos
         case fetchWebPages
         case showModalAfterDelay(ModalType)
@@ -162,7 +162,7 @@ final class HomeViewModel: Store {
                 do {
                     defer { endLoading(for: .preferences, mode: .immediate) }
                     let preferences = try await fetchPreferencesUseCase.execute()
-                    send(.setTodoCategoryPreferences(preferences))
+                    send(.setTodoCategoryPreferences(preferences.map(TodoCategoryPreferenceItem.init(from:))))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -170,7 +170,7 @@ final class HomeViewModel: Store {
         case .updateTodoCategoryPreferences(let items):
             Task {
                 do {
-                    try await updatePreferencesUseCase.execute(items)
+                    try await updatePreferencesUseCase.execute(items.map(\.preference))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -441,17 +441,17 @@ private extension HomeViewModel {
 
     func syncRecentTodos(
         _ recentTodos: [RecentTodoItem],
-        preferences: [TodoCategoryPreference]
+        preferences: [TodoCategoryPreferenceItem]
     ) -> [RecentTodoItem] {
         recentTodos.map { recentTodo in
-            guard let category = preferences.first(where: {
+            guard let item = preferences.first(where: {
                 $0.category.storageValue == recentTodo.category.storageValue
-            })?.category else {
+            }) else {
                 return recentTodo
             }
 
             var recentTodo = recentTodo
-            recentTodo.category = category
+            recentTodo.category = item.category
             return recentTodo
         }
     }

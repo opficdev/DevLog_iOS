@@ -212,13 +212,21 @@ private struct TodoEditorInfoSheetView: View {
                     Picker(
                         "카테고리",
                         selection: Binding(
-                            get: { viewModel.state.category },
-                            set: { viewModel.send(.setCategory($0)) }
+                            get: { viewModel.state.category.id },
+                            set: { categoryID in
+                                guard let item = viewModel.state.categories.first(where: {
+                                    $0.id == categoryID
+                                }) else {
+                                    return
+                                }
+
+                                viewModel.send(.setCategory(item))
+                            }
                         )
                     ) {
-                        ForEach(viewModel.state.categories, id: \.id) { category in
-                            Text(category.localizedName)
-                                .tag(category)
+                        ForEach(viewModel.state.categories, id: \.id) { item in
+                            Text(item.localizedName)
+                                .tag(item.id)
                         }
                     }
 

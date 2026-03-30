@@ -39,7 +39,7 @@ final class TodoEditorViewModel: Store {
             self.content = state.content
             self.dueDate = state.dueDate
             self.tags = Array(state.tags)
-            self.category = state.category
+            self.category = state.category.category
         }
     }
 
@@ -50,15 +50,15 @@ final class TodoEditorViewModel: Store {
         var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
-        var referenceItems: [Int: TodoReference] = [:]
+        var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
-        var categories: [TodoCategory] = []
-        var category: TodoCategory = .system(.etc)
+        var categories: [TodoCategoryPreferenceItem] = []
+        var category = TodoCategoryPreferenceItem(from: .system(.etc))
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -75,15 +75,15 @@ final class TodoEditorViewModel: Store {
         case setContent(String)
         case setCompleted(Bool)
         case setDueDate(Date?)
-        case setCategory(TodoCategory)
+        case setCategory(TodoCategoryPreferenceItem)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
-        case setCategories([TodoCategory])
-        case setReferenceItems([Int: TodoReference])
+        case setCategories([TodoCategoryPreferenceItem])
+        case setReferenceItems([Int: TodoReferenceItem])
     }
 
     enum SideEffect {
@@ -133,8 +133,8 @@ final class TodoEditorViewModel: Store {
         self.number = nil
         self.createdAt = nil
         self.originalDraft = nil
-        state.category = category
-        state.categories = [category]
+        state.category = TodoCategoryPreferenceItem(from: category)
+        state.categories = [TodoCategoryPreferenceItem(from: category)]
     }
 
     // 기존 Todo 편집용 생성자
@@ -158,7 +158,7 @@ final class TodoEditorViewModel: Store {
         state.content = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
-        state.category = todo.category
+        state.category = TodoCategoryPreferenceItem(from: todo.category)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -192,8 +192,8 @@ final class TodoEditorViewModel: Store {
                 state.completedAt = isCompleted ? Date() : nil
             }
             state.isCompleted = isCompleted
-        case .setCategory(let todoCategory):
-            state.category = todoCategory
+        case .setCategory(let todoCategoryItem):
+            state.category = todoCategoryItem
         case .setPinned(let isPinned):
             state.isPinned = isPinned
         case .setShowInfo(let isPresented):
@@ -221,17 +221,18 @@ final class TodoEditorViewModel: Store {
             Task {
                 do {
                     let preferences = try await fetchPreferencesUseCase.execute()
-                    send(.setCategories(preferences.map(\.category)))
+                    send(.setCategories(preferences.map(TodoCategoryPreferenceItem.init(from:))))
                 } catch { }
             }
         case .resolveMarkdown(let content):
             Task {
                 let numbers = content.todoReferenceNumbers
-                var referenceItems = [Int: TodoReference]()
+                var referenceItems = [Int: TodoReferenceItem]()
 
                 if !numbers.isEmpty {
                     do {
                         referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
+                            .mapValues(TodoReferenceItem.init(from:))
                     } catch {
                         referenceItems = [:]
                     }
@@ -276,7 +277,7 @@ extension TodoEditorViewModel {
             completedAt: state.completedAt,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
-            category: state.category
+            category: state.category.category
         )
     }
 }

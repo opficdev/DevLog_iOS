@@ -10,8 +10,8 @@ import SwiftUI
 @Observable
 final class TodoManageViewModel: Store {
     struct State: Equatable {
-        var preferences: [TodoCategoryPreference]
-        var category: UserTodoCategory?
+        var preferences: [TodoCategoryPreferenceItem]
+        var category: TodoCategoryPreferenceItem?
         var showSheet: Bool = false
         var showAlert: Bool = false
     }
@@ -19,9 +19,9 @@ final class TodoManageViewModel: Store {
     enum Action {
         case tapAddUserCategory
         case moveItem(from: IndexSet, target: Int)
-        case tapItem(_ item: TodoCategory)
-        case tapEditUserCategory(TodoCategoryPreference)
-        case tapDeleteUserCategory(TodoCategoryPreference)
+        case tapItem(TodoCategoryPreferenceItem)
+        case tapEditUserCategory(TodoCategoryPreferenceItem)
+        case tapDeleteUserCategory(TodoCategoryPreferenceItem)
         case confirmDeleteUserCategory
         case setShowSheet(Bool)
         case setShowAlert(Bool)
@@ -36,17 +36,11 @@ final class TodoManageViewModel: Store {
     private(set) var state: State
 
     var isEditing: Bool {
-        guard let userTodoCategory = state.category else {
+        guard let categoryItem = state.category else {
             return false
         }
 
-        return state.preferences.contains { preference in
-            guard case .user(let currentCategory) = preference.category else {
-                return false
-            }
-
-            return currentCategory.id == userTodoCategory.id
-        }
+        return state.preferences.contains { $0.id == categoryItem.id }
     }
 
     var navigationTitle: String {
@@ -57,35 +51,54 @@ final class TodoManageViewModel: Store {
         isEditing ? "저장" : "추가"
     }
 
-    var placerholder: String {
-        state.category?.name ?? "이름"
+    var placeholder: String {
+        guard
+            let categoryItem = state.category,
+            case .user(let userTodoCategory) = categoryItem.category
+        else {
+            return "이름"
+        }
+
+        return userTodoCategory.name
     }
 
     var categoryNameCountText: String {
-        "\((state.category?.name ?? "").count)/\(20)"
+        guard
+            let item = state.category,
+            case .user(let category) = item.category
+        else {
+            return "0/20"
+        }
+
+        return "\(category.name.count)/20"
     }
 
     var canSubmitUserCategory: Bool {
-        guard let currentCategory = state.category else { return false }
-        let trimmedCategoryName = currentCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            let item = state.category,
+            case .user(let category) = item.category
+        else {
+            return false
+        }
+
+        let trimmedCategoryName = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedCategoryName.isEmpty {
             return false
         }
 
-        // 시스템 카테고리와 이름 중복 확인
         if SystemTodoCategory.allCases.contains(where: {
-            $0.localizedName.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame }
-        ) {
+            SystemTodoCategoryItem(from: $0).localizedName.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+        }) {
             return false
         }
 
-        // 다른 사용자 카테고리와 이름 중복 확인
-        if state.preferences.contains(where: { preference in
-            guard case .user(let userCategory) = preference.category,
-                  userCategory.id != currentCategory.id else {
+        if state.preferences.contains(where: { item in
+            guard case .user(let userTodoCategory) = item.category,
+                  userTodoCategory.id != category.id else {
                 return false
             }
-            return userCategory.name.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+
+            return userTodoCategory.name.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
         }) {
             return false
         }
@@ -93,7 +106,7 @@ final class TodoManageViewModel: Store {
         return true
     }
 
-    init(_ preferences: [TodoCategoryPreference]) {
+    init(_ preferences: [TodoCategoryPreferenceItem]) {
         self.state = State(preferences: preferences)
     }
 
@@ -102,44 +115,46 @@ final class TodoManageViewModel: Store {
 
         switch action {
         case .tapAddUserCategory:
-            state.category = UserTodoCategory(
-                id: UUID().uuidString.lowercased(),
-                name: "",
-                colorHex: Color.randomValue.hexValue ?? "#000000"
+            guard let randomHexValue = Color.randomValue.hexValue else {
+                break
+            }
+
+            state.category = TodoCategoryPreferenceItem(
+                from: .user(
+                    UserTodoCategory(
+                        id: UUID().uuidString.lowercased(),
+                        name: "",
+                        colorHex: randomHexValue
+                    )
+                )
             )
             state.showSheet = true
         case .moveItem(let from, let target):
             state.preferences.move(fromOffsets: from, toOffset: target)
         case .tapItem(let item):
-            if let index = state.preferences.firstIndex(where: { $0.category == item }) {
+            if let index = state.preferences.firstIndex(where: { $0.id == item.id }) {
                 state.preferences[index].isVisible.toggle()
             }
-        case .tapEditUserCategory(let preference):
-            guard case .user(let userTodoCategory) = preference.category else {
+        case .tapEditUserCategory(let item):
+            guard item.isUserCategory else {
                 break
             }
 
-            state.category = userTodoCategory
+            state.category = item
             state.showSheet = true
-        case .tapDeleteUserCategory(let preference):
-            guard case .user(let userTodoCategory) = preference.category else {
+        case .tapDeleteUserCategory(let item):
+            guard item.isUserCategory else {
                 break
             }
 
-            state.category = userTodoCategory
+            state.category = item
             state.showAlert = true
         case .confirmDeleteUserCategory:
-            guard let userTodoCategory = state.category else {
+            guard let categoryItem = state.category else {
                 break
             }
 
-            if let index = state.preferences.firstIndex(where: {
-                guard case .user(let currentCategory) = $0.category else {
-                    return false
-                }
-
-                return currentCategory.id == userTodoCategory.id
-            }) {
+            if let index = state.preferences.firstIndex(where: { $0.id == categoryItem.id }) {
                 state.preferences.remove(at: index)
             }
             state.showAlert = false
@@ -155,48 +170,53 @@ final class TodoManageViewModel: Store {
                 state.category = nil
             }
         case .setCategoryName(let name):
-            guard var category = state.category else { break }
+            guard var item = state.category,
+                  case .user(var category) = item.category else {
+                break
+            }
+
             category.name = String(name.prefix(20))
-            state.category = category
+            item.category = .user(category)
+            state.category = item
         case .setCategoryColor(let color):
-            guard var category = state.category else { break }
+            guard var item = state.category,
+                  case .user(var category) = item.category,
+                  let hexValue = color.hexValue else {
+                break
+            }
 
-            category.colorHex = color.hexValue ?? "#000000"
-            state.category = category
+            category.colorHex = hexValue
+            item.category = .user(category)
+            state.category = item
         case .setRandomCategoryColor:
-            guard var category = state.category else { break }
+            guard var item = state.category,
+                  case .user(var category) = item.category,
+                  let randomHexValue = Color.randomValue.hexValue else {
+                break
+            }
 
-            category.colorHex = Color.randomValue.hexValue ?? "#000000"
-            state.category = category
+            category.colorHex = randomHexValue
+            item.category = .user(category)
+            state.category = item
         case .saveUserCategory:
-            guard let category = state.category else { break }
+            guard var item = state.category,
+                  case .user(let category) = item.category else {
+                break
+            }
 
-            let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            let updatedCategory = UserTodoCategory(
-                id: category.id,
-                name: name,
-                colorHex: category.colorHex
+            item.category = .user(
+                UserTodoCategory(
+                    id: category.id,
+                    name: category.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                    colorHex: category.colorHex
+                )
             )
 
-            if let index = state.preferences.firstIndex(where: {
-                guard case .user(let currentCategory) = $0.category else {
-                    return false
-                }
-
-                return currentCategory.id == updatedCategory.id
-            }) {
-                let preference = state.preferences[index]
-                state.preferences[index] = TodoCategoryPreference(
-                    category: .user(updatedCategory),
-                    isVisible: preference.isVisible
-                )
+            if let index = state.preferences.firstIndex(where: { $0.id == item.id }) {
+                item.isVisible = state.preferences[index].isVisible
+                state.preferences[index] = item
             } else {
-                state.preferences.append(
-                    TodoCategoryPreference(
-                        category: .user(updatedCategory),
-                        isVisible: true
-                    )
-                )
+                state.preferences.append(item)
             }
 
             state.showSheet = false

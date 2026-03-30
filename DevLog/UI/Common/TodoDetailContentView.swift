@@ -11,7 +11,7 @@ import MarkdownUI
 struct TodoDetailContentView: View {
     let title: String
     let content: String
-    let referenceItems: [Int: TodoReference]
+    let referenceItems: [Int: TodoReferenceItem]
     var number: Int?
     var activityLabel: String?
     var onOpenTodoID: ((String) -> Void)?

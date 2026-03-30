@@ -1,25 +1,23 @@
 //
-//  SystemTodoCategory+Presentation.swift
+//  SystemTodoCategoryItem.swift
 //  DevLog
 //
-//  Created by opfic on 3/29/26.
+//  Created by opfic on 3/30/26.
 //
 
 import SwiftUI
 
-extension SystemTodoCategory: Identifiable {
-    var id: String { rawValue }
-}
+struct SystemTodoCategoryItem: Identifiable, Hashable {
+    let systemTodoCategory: SystemTodoCategory
 
-extension SystemTodoCategory: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
+    init(from systemTodoCategory: SystemTodoCategory) {
+        self.systemTodoCategory = systemTodoCategory
     }
-}
 
-extension SystemTodoCategory {
+    var id: String { systemTodoCategory.rawValue }
+
     var symbolName: String {
-        switch self {
+        switch systemTodoCategory {
         case .issue: return "exclamationmark.triangle"
         case .feature: return "sparkles"
         case .improvement: return "arrow.triangle.2.circlepath"
@@ -32,7 +30,7 @@ extension SystemTodoCategory {
     }
 
     var localizedName: String {
-        switch self {
+        switch systemTodoCategory {
         case .issue: return NSLocalizedString("todo_category_issue", comment: "Todo category: Issue")
         case .feature: return NSLocalizedString("todo_category_feature", comment: "Todo category: Feature")
         case .improvement: return NSLocalizedString("todo_category_improvement", comment: "Todo category: Improvement")
@@ -45,7 +43,7 @@ extension SystemTodoCategory {
     }
 
     var color: Color {
-        switch self {
+        switch systemTodoCategory {
         case .issue: return .red
         case .feature: return .green
         case .improvement: return .cyan

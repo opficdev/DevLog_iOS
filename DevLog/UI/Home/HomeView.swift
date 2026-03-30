@@ -24,14 +24,14 @@ struct HomeView: View {
             .navigationTitle("홈")
             .navigationDestination(for: Path.self) { path in
                 switch path {
-                case .category(let todoCategory):
+                case .category(let item):
                     TodoListView(viewModel: TodoListViewModel(
                         fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                         fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
                         undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-                        category: todoCategory
+                        category: item.todoCategory
                     ))
                     .environment(router)
                 case .detail(let todoId):
@@ -167,13 +167,12 @@ struct HomeView: View {
                 LoadingView()
             } else {
                 let preferences = viewModel.state.preferences
-                ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
-                    let category = preference.category
-                    NavigationLink(value: Path.category(category)) {
+                ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
+                    NavigationLink(value: Path.category(item)) {
                         labelImage(
-                            text: category.localizedName,
-                            systemName: category.symbolName,
-                            imageColor: category.color
+                            text: item.localizedName,
+                            systemName: item.symbolName,
+                            imageColor: item.color
                         )
                     }
                 }
@@ -298,17 +297,16 @@ struct HomeView: View {
                         LoadingView()
                     } else {
                         let preferences = viewModel.state.preferences.filter(\.isVisible)
-                        ForEach(preferences, id: \.id) { preference in
-                            let category = preference.category
+                        ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
-                                    viewModel.send(.tapTodoCategory(category))
+                                    viewModel.send(.tapTodoCategory(item.category))
                                 }
                             } label: {
                                 labelImage(
-                                    text: category.localizedName,
-                                    systemName: category.symbolName,
-                                    imageColor: category.color
+                                    text: item.localizedName,
+                                    systemName: item.symbolName,
+                                    imageColor: item.color
                                 )
                             }
                         }
@@ -372,7 +370,7 @@ struct HomeView: View {
     }
 
     private enum Path: Hashable {
-        case category(TodoCategory)
+        case category(TodoCategoryPreferenceItem)
         case detail(String)
         case web(WebPageItem)
     }
@@ -383,12 +381,13 @@ private struct RecentTodoRow: View {
     let sceneWidth: CGFloat
 
     var body: some View {
+        let todoCategoryItem = TodoCategoryPreferenceItem(from: todo.category)
         HStack(alignment: .top, spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(todo.category.color)
+                .fill(todoCategoryItem.color)
                 .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                 .overlay {
-                    Image(systemName: todo.category.symbolName)
+                    Image(systemName: todoCategoryItem.symbolName)
                         .foregroundStyle(Color.white)
                         .font(.title3)
                 }
@@ -413,9 +412,9 @@ private struct RecentTodoRow: View {
                 }
 
                 HStack(spacing: 6) {
-                    Text(todo.category.localizedName)
+                    Text(todoCategoryItem.localizedName)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(todo.category.color)
+                        .foregroundStyle(todoCategoryItem.color)
 
                     RelativeTimeText(date: todo.updatedAt)
                 }

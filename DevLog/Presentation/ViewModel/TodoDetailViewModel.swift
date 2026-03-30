@@ -12,7 +12,7 @@ final class TodoDetailViewModel: Store {
     struct State: Equatable {
         var todo: Todo?
         var selectedTodoId: TodoIdItem?
-        var referenceItems: [Int: TodoReference] = [:]
+        var referenceItems: [Int: TodoReferenceItem] = [:]
         var isLoading: Bool  = false
         var showAlert: Bool  = false
         var showEditor: Bool  = false
@@ -28,7 +28,7 @@ final class TodoDetailViewModel: Store {
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
         case setTodo(Todo)
-        case setReferenceItems([Int: TodoReference])
+        case setReferenceItems([Int: TodoReferenceItem])
         case setLoading(Bool)
         case upsertTodo(Todo)
     }
@@ -108,11 +108,12 @@ final class TodoDetailViewModel: Store {
         case .resolveMarkdown(let content):
             Task {
                 let numbers = content.todoReferenceNumbers
-                var referenceItems = [Int: TodoReference]()
+                var referenceItems = [Int: TodoReferenceItem]()
 
                 if !numbers.isEmpty {
                     do {
                         referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
+                            .mapValues(TodoReferenceItem.init(from:))
                     } catch {
                         referenceItems = [:]
                     }

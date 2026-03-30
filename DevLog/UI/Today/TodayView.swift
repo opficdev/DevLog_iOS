@@ -289,10 +289,11 @@ private struct TodayTodoRow: View {
     let item: TodayTodoItem
 
     var body: some View {
+        let todoCategoryItem = TodoCategoryPreferenceItem(from: item.category)
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: item.category.symbolName)
-                    .foregroundStyle(item.category.color)
+                Image(systemName: todoCategoryItem.symbolName)
+                    .foregroundStyle(todoCategoryItem.color)
                     .frame(width: 18)
                 Text(item.title)
                     .font(.headline)
@@ -308,9 +309,9 @@ private struct TodayTodoRow: View {
             }
 
             HStack(spacing: 8) {
-                Text(item.category.localizedName)
+                Text(todoCategoryItem.localizedName)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(item.category.color)
+                    .foregroundStyle(todoCategoryItem.color)
 
                 if let dueDate {
                     Text(dueDate.text)

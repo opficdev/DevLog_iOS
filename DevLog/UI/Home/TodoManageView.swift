@@ -9,26 +9,25 @@ import SwiftUI
 
 struct TodoManageView: View {
     @State var viewModel: TodoManageViewModel
-    @State private var tmpText: String = ""
-    var onDismiss: (([TodoCategoryPreference]) -> Void)?
+    @State private var tmpText = ""
+    var onDismiss: (([TodoCategoryPreferenceItem]) -> Void)?
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.state.preferences, id: \.id) { preference in
-                    let category = preference.category
+                ForEach(viewModel.state.preferences, id: \.id) { item in
                     HStack(spacing: 0) {
-                        CheckBox(isChecked: preference.isVisible, font: .title3)
+                        CheckBox(isChecked: item.isVisible, font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
-                                viewModel.send(.tapItem(category))
+                                viewModel.send(.tapItem(item))
                             }
-                        Text(category.localizedName)
+                        Text(item.localizedName)
                             .lineLimit(1)
                         Spacer()
-                        if case .user = category {
+                        if item.isUserCategory {
                             Button {
-                                viewModel.send(.tapEditUserCategory(preference))
+                                viewModel.send(.tapEditUserCategory(item))
                             } label: {
                                 Image(systemName: "slider.horizontal.3")
                             }
@@ -36,7 +35,7 @@ struct TodoManageView: View {
                             .padding(.trailing, 8)
 
                             Button(role: .destructive) {
-                                viewModel.send(.tapDeleteUserCategory(preference))
+                                viewModel.send(.tapDeleteUserCategory(item))
                             } label: {
                                 Image(systemName: "trash")
                             }
@@ -45,14 +44,12 @@ struct TodoManageView: View {
                         }
                     }
                 }
-                .onMove { (source: IndexSet, destination: Int) in
+                .onMove { source, destination in
                     viewModel.send(.moveItem(from: source, target: destination))
                 }
                 .listRowInsets(EdgeInsets())
             }
-            //  편집 모드 활성화
-            //  row 우측에 line.3.horizontal 추가됨
-            .environment(\.editMode, .constant(EditMode.active))
+            .environment(\.editMode, .constant(.active))
             .navigationTitle("TODO 편집")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
@@ -89,9 +86,9 @@ struct TodoManageView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                    Button {
                         onDismiss?(viewModel.state.preferences)
-                    }) {
+                    } label: {
                         Text("완료")
                     }
                 }
@@ -108,15 +105,15 @@ struct TodoManageView: View {
                         TextField(
                             "",
                             text: $tmpText,
-                            prompt: Text(viewModel.placerholder).foregroundStyle(.secondary)
+                            prompt: Text(viewModel.placeholder).foregroundStyle(.secondary)
                         )
                         .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
                         .onAppear {
-                            tmpText = viewModel.state.category?.name ?? ""
+                            tmpText = currentCategoryName
                         }
                         .onChange(of: tmpText) { _, value in
                             viewModel.send(.setCategoryName(value))
-                            tmpText = viewModel.state.category?.name ?? ""
+                            tmpText = currentCategoryName
                         }
 
                         Text(viewModel.categoryNameCountText)
@@ -125,14 +122,14 @@ struct TodoManageView: View {
                             .monospacedDigit()
                     }
                 }
-                
+
                 Section {
-                    let color = Color(hexString: viewModel.state.category?.colorHex ?? "") ?? .randomValue
+                    let color = Color(hexString: currentCategoryColorHex) ?? .randomValue
                     ColorPicker(selection: Binding(
                         get: { color },
                         set: { viewModel.send(.setCategoryColor($0)) }
                     ), supportsOpacity: false) {
-                        Text(viewModel.state.category?.colorHex ?? "#")
+                        Text(currentCategoryColorHex.isEmpty ? "#" : currentCategoryColorHex)
                             .overlay(alignment: .bottom) {
                                 Rectangle()
                                     .frame(height: 1)
@@ -154,7 +151,7 @@ struct TodoManageView: View {
                         viewModel.send(.setShowSheet(false))
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(viewModel.submitTitle) {
                         viewModel.send(.saveUserCategory)
@@ -163,5 +160,27 @@ struct TodoManageView: View {
                 }
             }
         }
+    }
+
+    private var currentCategoryName: String {
+        guard
+            let categoryItem = viewModel.state.category,
+            case .user(let userTodoCategory) = categoryItem.category
+        else {
+            return ""
+        }
+
+        return userTodoCategory.name
+    }
+
+    private var currentCategoryColorHex: String {
+        guard
+            let categoryItem = viewModel.state.category,
+            case .user(let userTodoCategory) = categoryItem.category
+        else {
+            return ""
+        }
+
+        return userTodoCategory.colorHex
     }
 }
