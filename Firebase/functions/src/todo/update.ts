@@ -46,32 +46,7 @@ async function updateNotifications(
     todoId: string,
     todoCategory: string
 ): Promise<void> {
-    let lastDocument:
-        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
-
-    while (true) {
-        let query = admin.firestore()
-            .collection(`users/${userId}/notifications`)
-            .where("todoId", "==", todoId)
-            .orderBy(admin.firestore.FieldPath.documentId())
-            .limit(BATCH_SIZE);
-
-        if (lastDocument) {
-            query = query.startAfter(lastDocument);
-        }
-
-        const snapshot = await query.get();
-        if (snapshot.empty) { return; }
-
-        const batch = admin.firestore().batch();
-        snapshot.docs.forEach((document) => {
-            batch.update(document.ref, { todoCategory });
-        });
-        await batch.commit();
-
-        if (snapshot.size < BATCH_SIZE) { return; }
-        lastDocument = snapshot.docs[snapshot.docs.length - 1];
-    }
+    await updateNotificationBatch(userId, todoId, todoCategory)
 }
 
 async function updateNotificationTasks(
@@ -79,31 +54,78 @@ async function updateNotificationTasks(
     todoId: string,
     todoCategory: string
 ): Promise<void> {
-    let lastDocument:
-        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+    await updateNotificationTaskBatch(userId, todoId, todoCategory)
+}
 
-    while (true) {
-        let query = admin.firestore()
-            .collection("notificationTasks")
-            .where("userId", "==", userId)
-            .where("todoId", "==", todoId)
-            .orderBy(admin.firestore.FieldPath.documentId())
-            .limit(BATCH_SIZE);
+async function updateNotificationBatch(
+    userId: string,
+    todoId: string,
+    todoCategory: string,
+    lastDocument?:
+        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+): Promise<void> {
+    let query = admin.firestore()
+        .collection(`users/${userId}/notifications`)
+        .where("todoId", "==", todoId)
+        .orderBy(admin.firestore.FieldPath.documentId())
+        .limit(BATCH_SIZE);
 
-        if (lastDocument) {
-            query = query.startAfter(lastDocument);
-        }
-
-        const snapshot = await query.get();
-        if (snapshot.empty) { return; }
-
-        const batch = admin.firestore().batch();
-        snapshot.docs.forEach((document) => {
-            batch.update(document.ref, { todoCategory });
-        });
-        await batch.commit();
-
-        if (snapshot.size < BATCH_SIZE) { return; }
-        lastDocument = snapshot.docs[snapshot.docs.length - 1];
+    if (lastDocument) {
+        query = query.startAfter(lastDocument);
     }
+
+    const snapshot = await query.get();
+    if (snapshot.empty) { return; }
+
+    const batch = admin.firestore().batch();
+    snapshot.docs.forEach((document) => {
+        batch.update(document.ref, { todoCategory });
+    });
+    await batch.commit();
+
+    if (snapshot.size < BATCH_SIZE) { return; }
+
+    await updateNotificationBatch(
+        userId,
+        todoId,
+        todoCategory,
+        snapshot.docs[snapshot.docs.length - 1]
+    );
+}
+
+async function updateNotificationTaskBatch(
+    userId: string,
+    todoId: string,
+    todoCategory: string,
+    lastDocument?:
+        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+): Promise<void> {
+    let query = admin.firestore()
+        .collection("notificationTasks")
+        .where("userId", "==", userId)
+        .where("todoId", "==", todoId)
+        .orderBy(admin.firestore.FieldPath.documentId())
+        .limit(BATCH_SIZE);
+
+    if (lastDocument) {
+        query = query.startAfter(lastDocument);
+    }
+
+    const snapshot = await query.get();
+    if (snapshot.empty) { return; }
+
+    const batch = admin.firestore().batch();
+    snapshot.docs.forEach((document) => {
+        batch.update(document.ref, { todoCategory });
+    });
+    await batch.commit();
+
+    if (snapshot.size < BATCH_SIZE) { return; }
+
+    await updateNotificationTaskBatch(
+        userId,
+        todoId,
+        todoCategory,
+        snapshot.docs[snapshot.docs.length - 1]
+    );
 }

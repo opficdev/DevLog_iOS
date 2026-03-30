@@ -12,6 +12,7 @@ final class TodoCategoryService {
     private enum Field: String {
         case items
         case kind
+        case id
         case systemCategory
         case name
         case colorHex
@@ -138,6 +139,7 @@ private extension TodoCategoryService {
             )
         case .user:
             guard
+                let id = items[Field.id.rawValue] as? String,
                 let name = items[Field.name.rawValue] as? String,
                 let colorHex = items[Field.colorHex.rawValue] as? String
             else {
@@ -147,6 +149,7 @@ private extension TodoCategoryService {
             return TodoCategoryPreference(
                 category: .user(
                     UserTodoCategory(
+                        id: id,
                         name: name,
                         colorHex: colorHex
                     )
@@ -167,6 +170,7 @@ private extension TodoCategoryService {
         case .user(let userTodoCategory):
             return [
                 Field.kind.rawValue: Kind.user.rawValue,
+                Field.id.rawValue: userTodoCategory.id,
                 Field.name.rawValue: userTodoCategory.name,
                 Field.colorHex.rawValue: userTodoCategory.colorHex,
                 Field.isVisible.rawValue: preference.isVisible

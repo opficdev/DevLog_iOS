@@ -95,6 +95,7 @@ final class TodoManageViewModel: Store {
                     TodoCategoryPreference(
                         category: .user(
                             UserTodoCategory(
+                                id: UUID().uuidString.lowercased(),
                                 name: trimmedCategoryName,
                                 colorHex: colorHex
                             )

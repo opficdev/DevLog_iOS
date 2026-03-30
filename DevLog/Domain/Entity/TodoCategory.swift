@@ -16,7 +16,7 @@ enum TodoCategory: Equatable {
         case .system(let category):
             return category.rawValue
         case .user(let category):
-            return category.name
+            return category.id
         }
     }
 }

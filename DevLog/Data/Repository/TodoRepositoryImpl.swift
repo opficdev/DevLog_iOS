@@ -82,23 +82,23 @@ private extension TodoRepositoryImpl {
         _ response: TodoResponse,
         userTodoCategories: [UserTodoCategory]
     ) throws -> TodoResponse {
-        let categoryName: String
+        let id: String
         switch response.category {
         case .raw(let value):
-            categoryName = value
+            id = value
         case .decoded:
             return response
         }
 
         let category: TodoCategory
-        if let systemTodoCategory = SystemTodoCategory(rawValue: categoryName) {
+        if let systemTodoCategory = SystemTodoCategory(rawValue: id) {
             category = .system(systemTodoCategory)
         } else if let userTodoCategory = userTodoCategories.first(where: {
-            $0.name == categoryName
+            $0.id == id
         }) {
             category = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("TodoResponse.category is invalid: \(categoryName)")
+            throw DataError.invalidData("TodoResponse.category is invalid: \(id)")
         }
 
         return TodoResponse(

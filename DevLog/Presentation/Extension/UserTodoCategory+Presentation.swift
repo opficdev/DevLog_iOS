@@ -7,13 +7,11 @@
 
 import SwiftUI
 
-extension UserTodoCategory: Identifiable {
-    var id: String { name }
-}
+extension UserTodoCategory: Identifiable { }
 
 extension UserTodoCategory: Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
+        hasher.combine(id)
         hasher.combine(colorHex)
     }
 }

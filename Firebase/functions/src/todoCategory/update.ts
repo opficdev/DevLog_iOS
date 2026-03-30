@@ -11,12 +11,12 @@ const ETC_CATEGORY = "etc";
 
 type CategoryItem = {
     kind?: unknown;
-    name?: unknown;
+    id?: unknown;
 };
 
 type TodoCategoryUpdateTaskData = {
     userId: string;
-    categoryName: string;
+    id: string;
     createdAt?: FirebaseFirestore.Timestamp | Date | null;
 };
 
@@ -33,20 +33,20 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
 
         const beforeItems = Array.isArray(beforeData.items) ? beforeData.items as CategoryItem[] : [];
         const afterItems = Array.isArray(afterData.items) ? afterData.items as CategoryItem[] : [];
-        const removedNames = getRemovedNames(beforeItems, afterItems);
+        const removedIDs = getRemovedIDs(beforeItems, afterItems);
 
-        if (removedNames.length === 0) { return; }
+        if (removedIDs.length === 0) { return; }
 
         try {
             const queue = getFunctions().taskQueue(
                 `locations/${LOCATION}/functions/completeMoveRemovedCategoryTodosToEtc`
             );
 
-            for (const categoryName of removedNames) {
+            for (const id of removedIDs) {
                 const taskRef = admin.firestore().collection("todoCategoryUpdateTasks").doc();
                 const taskData = {
                     userId,
-                    categoryName,
+                    id,
                     createdAt: admin.firestore.FieldValue.serverTimestamp()
                 };
 
@@ -59,7 +59,7 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
                     } catch (cleanupError) {
                         logger.warn("todoCategoryUpdateTasks 정리 실패", {
                             userId,
-                            categoryName,
+                            id,
                             taskId: taskRef.id,
                             error: normalizeError(cleanupError)
                         });
@@ -71,7 +71,7 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
         } catch (error) {
             logger.error("삭제된 사용자 카테고리 todo 정리 요청 실패", {
                 userId,
-                removedNames,
+                removedIDs,
                 error: normalizeError(error)
             });
             throw error;
@@ -97,20 +97,20 @@ export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
 
         const taskData = taskSnapshot.data() as TodoCategoryUpdateTaskData | undefined;
         const userId = typeof taskData?.userId === "string" ? taskData.userId : "";
-        const categoryName = typeof taskData?.categoryName === "string" ? taskData.categoryName : "";
+        const id = typeof taskData?.id === "string" ? taskData.id : "";
 
-        if (!userId || !categoryName) {
+        if (!userId || !id) {
             logger.warn("todoCategoryUpdateTasks 문서 형식이 올바르지 않습니다.", { taskId });
             return;
         }
 
         try {
-            await updateTodos(userId, categoryName);
+            await updateTodos(userId, id);
             await taskRef.delete();
         } catch (error) {
             logger.error("삭제된 사용자 카테고리 todo 정리 실패", {
                 userId,
-                categoryName,
+                id,
                 taskId,
                 error: normalizeError(error)
             });
@@ -119,56 +119,65 @@ export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
     }
 );
 
-function getRemovedNames(
+function getRemovedIDs(
     beforeItems: CategoryItem[],
     afterItems: CategoryItem[]
 ): string[] {
-    const beforeNames = new Set(
+    const beforeIDs = new Set(
         beforeItems.flatMap((item) => {
             if (item.kind !== "user") { return []; }
-            return typeof item.name === "string" ? [item.name] : [];
+            return typeof item.id === "string" ? [item.id] : [];
         })
     );
-    const afterNames = new Set(
+    const afterIDs = new Set(
         afterItems.flatMap((item) => {
             if (item.kind !== "user") { return []; }
-            return typeof item.name === "string" ? [item.name] : [];
+            return typeof item.id === "string" ? [item.id] : [];
         })
     );
 
-    return Array.from(beforeNames).filter((name) => !afterNames.has(name));
+    return Array.from(beforeIDs).filter((id) => !afterIDs.has(id));
 }
 
 async function updateTodos(
     userId: string,
-    categoryName: string
+    id: string
 ): Promise<void> {
-    let lastDocument:
-        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+    await updateTodoBatch(userId, id)
+}
 
-    while (true) {
-        let query = admin.firestore()
-            .collection(`users/${userId}/todoLists`)
-            .where("category", "==", categoryName)
-            .orderBy(admin.firestore.FieldPath.documentId())
-            .limit(BATCH_SIZE);
+async function updateTodoBatch(
+    userId: string,
+    id: string,
+    lastDocument?:
+        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+): Promise<void> {
+    let query = admin.firestore()
+        .collection(`users/${userId}/todoLists`)
+        .where("category", "==", id)
+        .orderBy(admin.firestore.FieldPath.documentId())
+        .limit(BATCH_SIZE);
 
-        if (lastDocument) {
-            query = query.startAfter(lastDocument);
-        }
-
-        const querySnapshot = await query.get();
-        if (querySnapshot.empty) { return; }
-
-        const batch = admin.firestore().batch();
-        querySnapshot.docs.forEach((document) => {
-            batch.update(document.ref, {
-                category: ETC_CATEGORY
-            });
-        });
-        await batch.commit();
-
-        if (querySnapshot.size < BATCH_SIZE) { return; }
-        lastDocument = querySnapshot.docs[querySnapshot.docs.length - 1];
+    if (lastDocument) {
+        query = query.startAfter(lastDocument);
     }
+
+    const snapshot = await query.get();
+    if (snapshot.empty) { return; }
+
+    const batch = admin.firestore().batch();
+    snapshot.docs.forEach((document) => {
+        batch.update(document.ref, {
+            category: ETC_CATEGORY
+        });
+    });
+    await batch.commit();
+
+    if (snapshot.size < BATCH_SIZE) { return; }
+
+    await updateTodoBatch(
+        userId,
+        id,
+        snapshot.docs[snapshot.docs.length - 1]
+    );
 }

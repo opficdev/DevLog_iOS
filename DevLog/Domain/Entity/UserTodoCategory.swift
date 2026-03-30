@@ -8,6 +8,7 @@
 import Foundation
 
 struct UserTodoCategory: Equatable {
+    var id: String
     var name: String
     var colorHex: String
 }

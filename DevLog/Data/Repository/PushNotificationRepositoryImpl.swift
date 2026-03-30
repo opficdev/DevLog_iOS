@@ -143,23 +143,23 @@ private extension PushNotificationRepositoryImpl {
         _ response: PushNotificationResponse,
         userTodoCategories: [UserTodoCategory]
     ) throws -> PushNotificationResponse {
-        let categoryName: String
+        let id: String
         switch response.todoCategory {
         case .raw(let rawValue):
-            categoryName = rawValue
+            id = rawValue
         case .decoded:
             return response
         }
 
         let todoCategory: TodoCategory
-        if let systemTodoCategory = SystemTodoCategory(rawValue: categoryName) {
+        if let systemTodoCategory = SystemTodoCategory(rawValue: id) {
             todoCategory = .system(systemTodoCategory)
         } else if let userTodoCategory = userTodoCategories.first(where: {
-            $0.name == categoryName
+            $0.id == id
         }) {
             todoCategory = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(categoryName)")
+            throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(id)")
         }
 
         return PushNotificationResponse(
