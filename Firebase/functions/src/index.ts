@@ -39,6 +39,10 @@ import {
 } from "./todo/cleanup";
 
 import {
+    syncTodoNotificationCategory
+} from "./todo/update";
+
+import {
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc
 } from "./todoCategory/update";
@@ -101,6 +105,7 @@ export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
     cleanupUnusedTodoNotificationRecords,
+    syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,
     requestTodoDeletion,
