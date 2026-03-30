@@ -53,13 +53,13 @@ final class TodoManageViewModel: Store {
 
     var placeholder: String {
         guard
-            let categoryItem = state.category,
-            case .user(let userTodoCategory) = categoryItem.category
+            let item = state.category,
+            case .user(let category) = item.category
         else {
             return "이름"
         }
 
-        return userTodoCategory.name
+        return category.name
     }
 
     var categoryNameCountText: String {
@@ -81,13 +81,13 @@ final class TodoManageViewModel: Store {
             return false
         }
 
-        let trimmedCategoryName = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedCategoryName.isEmpty {
+        let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty {
             return false
         }
 
         if SystemTodoCategory.allCases.contains(where: {
-            $0.rawValue.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+            $0.rawValue.caseInsensitiveCompare(name) == .orderedSame
         }) {
             return false
         }
@@ -98,7 +98,7 @@ final class TodoManageViewModel: Store {
                 return false
             }
 
-            return userTodoCategory.name.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+            return userTodoCategory.name.caseInsensitiveCompare(name) == .orderedSame
         }) {
             return false
         }
