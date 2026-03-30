@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WebPage: Equatable {
+struct WebPage: Hashable {
     let title: String?
     let url: URL
     let displayURL: URL

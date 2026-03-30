@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserTodoCategory: Equatable {
+struct UserTodoCategory: Hashable {
     var id: String
     var name: String
     var colorHex: String

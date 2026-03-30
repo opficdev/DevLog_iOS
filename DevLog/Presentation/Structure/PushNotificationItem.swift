@@ -25,8 +25,4 @@ struct PushNotificationItem: Identifiable, Hashable {
         self.todoId = notification.todoId
         self.todoCategory = notification.todoCategory
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }

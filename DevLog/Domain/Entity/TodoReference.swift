@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoReference {
+struct TodoReference: Hashable {
     let id: String
     let title: String
     let category: TodoCategory

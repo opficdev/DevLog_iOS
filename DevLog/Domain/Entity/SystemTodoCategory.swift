@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SystemTodoCategory: String, CaseIterable {
+enum SystemTodoCategory: String, CaseIterable, Hashable {
     case issue          // 이슈
     case feature        // 신규 기능
     case improvement    // 개선/리팩터링

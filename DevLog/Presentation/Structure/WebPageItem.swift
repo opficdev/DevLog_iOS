@@ -19,8 +19,4 @@ struct WebPageItem: Identifiable, Hashable {
     var url: URL { metadata.url }
     var displayURL: String { metadata.displayURL.absoluteString }
     var imageURL: URL? { metadata.imageURL }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(metadata.url)
-    }
 }

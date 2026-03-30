@@ -27,8 +27,4 @@ struct TodayTodoItem: Identifiable, Hashable {
         self.dueDate = todo.dueDate
         self.category = todo.category
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }

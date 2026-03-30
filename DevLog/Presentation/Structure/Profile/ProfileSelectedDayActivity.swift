@@ -20,10 +20,4 @@ struct ProfileSelectedDayActivity: Identifiable, Hashable {
         }
         return showsCreated ? "생성" : "완료"
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(todo.id)
-        hasher.combine(showsCreated)
-        hasher.combine(showsCompleted)
-    }
 }

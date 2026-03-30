@@ -25,8 +25,4 @@ struct RecentTodoItem: Identifiable, Hashable {
         self.tags = todo.tags
         self.category = todo.category
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
