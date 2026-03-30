@@ -12,8 +12,7 @@ struct TodoListView: View {
     @Environment(NavigationRouter.self) var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
-    @State private var headerOffset: CGFloat = 0
-    @State private var headerHeight: CGFloat = .pi
+    @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
 
     var body: some View {
@@ -298,20 +297,11 @@ struct TodoListView: View {
                 sortMenu
                 filterMenu
             }
-            // iOS 26.4부터 헤더의 높이가 달라져서 리스트에서 필터링된 Todo가 없으면 사라지는 현상 해결
-            .background {
-                GeometryReader { geometry in
-                    Color.clear
-                        .onChange(of: geometry.size.height, initial: true) { _, height in
-                            headerHeight = height.rounded()
-                        }
-                }
-            }
         }
         .scrollIndicators(.never)
         .scrollDisabled(!isScrollTrackingEnabled)
         .contentMargins(.leading, 16, for: .scrollContent)
-        .frame(height: headerHeight)
+        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight.rounded(.up) + 20)
         .onAppear {
             headerOffset = 0
             isScrollTrackingEnabled = false
