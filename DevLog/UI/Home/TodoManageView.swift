@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TodoManageView: View {
     @State var viewModel: TodoManageViewModel
+    @State private var tmpText: String = ""
     var onDismiss: (([TodoCategoryPreference]) -> Void)?
 
     var body: some View {
@@ -23,6 +24,7 @@ struct TodoManageView: View {
                                 viewModel.send(.tapItem(category))
                             }
                         Text(category.localizedName)
+                            .lineLimit(1)
                         Spacer()
                         if case .user = category {
                             Button {
@@ -102,22 +104,34 @@ struct TodoManageView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(
-                        "카테고리명",
-                        text: Binding(
-                            get: { viewModel.state.category?.name ?? "" },
-                            set: { viewModel.send(.setCategoryName($0)) }
+                    HStack(spacing: 8) {
+                        TextField(
+                            "",
+                            text: $tmpText,
+                            prompt: Text(viewModel.placerholder).foregroundStyle(.secondary)
                         )
-                    )
-                    .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
+                        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
+                        .onAppear {
+                            tmpText = viewModel.state.category?.name ?? ""
+                        }
+                        .onChange(of: tmpText) { _, value in
+                            viewModel.send(.setCategoryName(value))
+                            tmpText = viewModel.state.category?.name ?? ""
+                        }
+
+                        Text(viewModel.categoryNameCountText)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
                 }
                 
                 Section {
+                    let color = Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue
                     ColorPicker(selection: Binding(
-                        get: { Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue },
+                        get: { color },
                         set: { viewModel.send(.setCategoryColor($0)) }
                     ), supportsOpacity: false) {
-                        let color = Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue
                         Text(viewModel.state.category?.colorHex ?? "#")
                             .foregroundStyle(color)
                     }

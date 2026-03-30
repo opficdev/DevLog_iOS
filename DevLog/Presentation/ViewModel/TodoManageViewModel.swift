@@ -56,6 +56,14 @@ final class TodoManageViewModel: Store {
         isEditing ? "저장" : "추가"
     }
 
+    var placerholder: String {
+        state.category?.name ?? "이름"
+    }
+
+    var categoryNameCountText: String {
+        "\((state.category?.name ?? "").count)/\(20)"
+    }
+
     var canSubmitUserCategory: Bool {
         let trimmedCategoryName = state.category?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if trimmedCategoryName.isEmpty {
@@ -129,19 +137,22 @@ final class TodoManageViewModel: Store {
                 state.category = nil
             }
         case .setCategoryName(let name):
-            state.category?.name = name
+            guard var category = state.category else { break }
+            category.name = String(name.prefix(20))
+            state.category = category
         case .setCategoryColor(let color):
-            state.category?.colorHex = color.hexString ?? "#0A84FF"
-        case .saveUserCategory:
-            guard let userTodoCategory = state.category else {
-                break
-            }
+            guard var category = state.category else { break }
 
-            let trimmedCategoryName = userTodoCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            category.colorHex = color.hexString ?? "#0A84FF"
+            state.category = category
+        case .saveUserCategory:
+            guard let category = state.category else { break }
+
+            let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
             let updatedCategory = UserTodoCategory(
-                id: userTodoCategory.id,
-                name: trimmedCategoryName,
-                colorHex: userTodoCategory.colorHex
+                id: category.id,
+                name: name,
+                colorHex: category.colorHex
             )
 
             if let index = state.preferences.firstIndex(where: {
