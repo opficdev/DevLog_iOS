@@ -87,14 +87,13 @@ struct TodoManageView: View {
                 }
                 
                 Section {
-                    ColorPicker(
-                        "색상",
-                        selection: Binding(
-                            get: { viewModel.state.categoryColor },
-                            set: { viewModel.send(.setCategoryColor($0)) }
-                        ),
-                        supportsOpacity: false
-                    )
+                    ColorPicker(selection: Binding(
+                        get: { viewModel.state.categoryColor },
+                        set: { viewModel.send(.setCategoryColor($0)) }
+                    ), supportsOpacity: false) {
+                        Text(viewModel.state.categoryColor.hexString ?? "#")
+                            .foregroundStyle(viewModel.state.categoryColor)
+                    }
                     .pickerStyle(.palette)
                 }
             }
