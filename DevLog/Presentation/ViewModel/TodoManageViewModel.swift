@@ -66,14 +66,31 @@ final class TodoManageViewModel: Store {
     }
 
     var canSubmitUserCategory: Bool {
-        let trimmedCategoryName = state.category?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard let currentCategory = state.category else { return false }
+        let trimmedCategoryName = currentCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedCategoryName.isEmpty {
             return false
         }
 
-        return !SystemTodoCategory.allCases.contains {
-            $0.localizedName.localizedCaseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+        // 시스템 카테고리와 이름 중복 확인
+        if SystemTodoCategory.allCases.contains(where: {
+            $0.localizedName.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame }
+        ) {
+            return false
         }
+
+        // 다른 사용자 카테고리와 이름 중복 확인
+        if state.preferences.contains(where: { preference in
+            guard case .user(let userCategory) = preference.category,
+                  userCategory.id != currentCategory.id else {
+                return false
+            }
+            return userCategory.name.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+        }) {
+            return false
+        }
+
+        return true
     }
 
     init(_ preferences: [TodoCategoryPreference]) {
