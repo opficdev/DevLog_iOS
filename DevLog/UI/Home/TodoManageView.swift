@@ -25,6 +25,14 @@ struct TodoManageView: View {
                         Text(category.localizedName)
                         Spacer()
                         if case .user = category {
+                            Button {
+                                viewModel.send(.tapEditUserCategory(preference))
+                            } label: {
+                                Image(systemName: "slider.horizontal.3")
+                            }
+                            .buttonStyle(.borderless)
+                            .padding(.trailing, 8)
+
                             Button(role: .destructive) {
                                 viewModel.send(.tapDeleteUserCategory(preference))
                             } label: {
@@ -72,7 +80,7 @@ struct TodoManageView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        viewModel.send(.setShowSheet(true))
+                        viewModel.send(.tapAddUserCategory)
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -97,7 +105,7 @@ struct TodoManageView: View {
                     TextField(
                         "카테고리명",
                         text: Binding(
-                            get: { viewModel.state.categoryName },
+                            get: { viewModel.state.category?.name ?? "" },
                             set: { viewModel.send(.setCategoryName($0)) }
                         )
                     )
@@ -106,16 +114,17 @@ struct TodoManageView: View {
                 
                 Section {
                     ColorPicker(selection: Binding(
-                        get: { viewModel.state.categoryColor },
+                        get: { Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue },
                         set: { viewModel.send(.setCategoryColor($0)) }
                     ), supportsOpacity: false) {
-                        Text(viewModel.state.categoryColor.hexString ?? "#")
-                            .foregroundStyle(viewModel.state.categoryColor)
+                        let color = Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue
+                        Text(viewModel.state.category?.colorHex ?? "#")
+                            .foregroundStyle(color)
                     }
                     .pickerStyle(.palette)
                 }
             }
-            .navigationTitle("카테고리 추가")
+            .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -125,10 +134,10 @@ struct TodoManageView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("추가") {
-                        viewModel.send(.addUserCategory)
+                    Button(viewModel.submitTitle) {
+                        viewModel.send(.saveUserCategory)
                     }
-                    .disabled(!viewModel.canAddUserCategory)
+                    .disabled(!viewModel.canSubmitUserCategory)
                 }
             }
         }

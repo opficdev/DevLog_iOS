@@ -11,30 +11,53 @@ import SwiftUI
 final class TodoManageViewModel: Store {
     struct State: Equatable {
         var preferences: [TodoCategoryPreference]
+        var category: UserTodoCategory?
         var showSheet: Bool = false
         var showAlert: Bool = false
-        var deletingPreference: TodoCategoryPreference?
-        var categoryName: String = ""
-        var categoryColor: Color = .blue
     }
 
     enum Action {
+        case tapAddUserCategory
         case moveItem(from: IndexSet, target: Int)
         case tapItem(_ item: TodoCategory)
+        case tapEditUserCategory(TodoCategoryPreference)
         case tapDeleteUserCategory(TodoCategoryPreference)
         case confirmDeleteUserCategory
         case setShowSheet(Bool)
         case setShowAlert(Bool)
         case setCategoryName(String)
         case setCategoryColor(Color)
-        case addUserCategory
+        case saveUserCategory
     }
 
     enum SideEffect { }
 
     private(set) var state: State
-    var canAddUserCategory: Bool {
-        let trimmedCategoryName = state.categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    var isEditing: Bool {
+        guard let userTodoCategory = state.category else {
+            return false
+        }
+
+        return state.preferences.contains { preference in
+            guard case .user(let currentCategory) = preference.category else {
+                return false
+            }
+
+            return currentCategory.id == userTodoCategory.id
+        }
+    }
+
+    var navigationTitle: String {
+        isEditing ? "카테고리 수정" : "카테고리 추가"
+    }
+
+    var submitTitle: String {
+        isEditing ? "저장" : "추가"
+    }
+
+    var canSubmitUserCategory: Bool {
+        let trimmedCategoryName = state.category?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if trimmedCategoryName.isEmpty {
             return false
         }
@@ -52,61 +75,98 @@ final class TodoManageViewModel: Store {
         var state = self.state
 
         switch action {
+        case .tapAddUserCategory:
+            state.category = UserTodoCategory(
+                id: UUID().uuidString.lowercased(),
+                name: "",
+                colorHex: "#0A84FF"
+            )
+            state.showSheet = true
         case .moveItem(let from, let target):
             state.preferences.move(fromOffsets: from, toOffset: target)
         case .tapItem(let item):
             if let index = state.preferences.firstIndex(where: { $0.category == item }) {
                 state.preferences[index].isVisible.toggle()
             }
+        case .tapEditUserCategory(let preference):
+            guard case .user(let userTodoCategory) = preference.category else {
+                break
+            }
+
+            state.category = userTodoCategory
+            state.showSheet = true
         case .tapDeleteUserCategory(let preference):
-            state.deletingPreference = preference
+            guard case .user(let userTodoCategory) = preference.category else {
+                break
+            }
+
+            state.category = userTodoCategory
             state.showAlert = true
         case .confirmDeleteUserCategory:
-            guard let preference = state.deletingPreference else {
+            guard let userTodoCategory = state.category else {
                 break
             }
 
             if let index = state.preferences.firstIndex(where: {
-                $0 == preference
+                guard case .user(let currentCategory) = $0.category else {
+                    return false
+                }
+
+                return currentCategory.id == userTodoCategory.id
             }) {
                 state.preferences.remove(at: index)
             }
             state.showAlert = false
-            state.deletingPreference = nil
+            state.category = nil
         case .setShowSheet(let isPresented):
             state.showSheet = isPresented
             if !isPresented {
-                state.categoryName = ""
-                state.categoryColor = .blue
+                state.category = nil
             }
         case .setShowAlert(let isPresented):
             state.showAlert = isPresented
             if !isPresented {
-                state.deletingPreference = nil
+                state.category = nil
             }
         case .setCategoryName(let name):
-            state.categoryName = name
+            state.category?.name = name
         case .setCategoryColor(let color):
-            state.categoryColor = color
-        case .addUserCategory:
-            let trimmedCategoryName = state.categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-            if let colorHex = state.categoryColor.hexString {
+            state.category?.colorHex = color.hexString ?? "#0A84FF"
+        case .saveUserCategory:
+            guard let userTodoCategory = state.category else {
+                break
+            }
+
+            let trimmedCategoryName = userTodoCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let updatedCategory = UserTodoCategory(
+                id: userTodoCategory.id,
+                name: trimmedCategoryName,
+                colorHex: userTodoCategory.colorHex
+            )
+
+            if let index = state.preferences.firstIndex(where: {
+                guard case .user(let currentCategory) = $0.category else {
+                    return false
+                }
+
+                return currentCategory.id == updatedCategory.id
+            }) {
+                let preference = state.preferences[index]
+                state.preferences[index] = TodoCategoryPreference(
+                    category: .user(updatedCategory),
+                    isVisible: preference.isVisible
+                )
+            } else {
                 state.preferences.append(
                     TodoCategoryPreference(
-                        category: .user(
-                            UserTodoCategory(
-                                id: UUID().uuidString.lowercased(),
-                                name: trimmedCategoryName,
-                                colorHex: colorHex
-                            )
-                        ),
+                        category: .user(updatedCategory),
                         isVisible: true
                     )
                 )
             }
+
             state.showSheet = false
-            state.categoryName = ""
-            state.categoryColor = .blue
+            state.category = nil
         }
 
         if self.state != state { self.state = state }
