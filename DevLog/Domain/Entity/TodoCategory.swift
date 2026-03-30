@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TodoCategory: Equatable {
+enum TodoCategory: Hashable {
     case system(SystemTodoCategory)
     case user(UserTodoCategory)
 

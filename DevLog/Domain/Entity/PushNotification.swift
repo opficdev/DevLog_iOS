@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PushNotification {
+struct PushNotification: Hashable {
     let id: String
     let title: String
     let body: String

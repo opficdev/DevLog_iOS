@@ -53,13 +53,13 @@ final class TodoManageViewModel: Store {
 
     var placeholder: String {
         guard
-            let categoryItem = state.category,
-            case .user(let userTodoCategory) = categoryItem.category
+            let item = state.category,
+            case .user(let category) = item.category
         else {
             return "이름"
         }
 
-        return userTodoCategory.name
+        return category.name
     }
 
     var categoryNameCountText: String {
@@ -81,26 +81,34 @@ final class TodoManageViewModel: Store {
             return false
         }
 
-        let trimmedCategoryName = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedCategoryName.isEmpty {
+        let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty {
             return false
         }
 
         if SystemTodoCategory.allCases.contains(where: {
-            $0.rawValue.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+            $0.rawValue.caseInsensitiveCompare(name) == .orderedSame
         }) {
             return false
         }
 
         if state.preferences.contains(where: { item in
-            guard case .user(let userTodoCategory) = item.category,
-                  userTodoCategory.id != category.id else {
+            guard case .user(let userCategory) = item.category,
+                  userCategory.id != category.id else {
                 return false
             }
 
-            return userTodoCategory.name.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+            return userCategory.name.caseInsensitiveCompare(name) == .orderedSame
         }) {
             return false
+        }
+
+        if let item = state.preferences.first(where: { $0.id == item.id }),
+           case .user(let originalCategory) = item.category {
+            let originalName = originalCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if originalName == name && originalCategory.colorHex == category.colorHex {
+                return false
+            }
         }
 
         return true

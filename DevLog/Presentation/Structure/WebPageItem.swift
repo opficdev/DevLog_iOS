@@ -20,13 +20,3 @@ struct WebPageItem: Identifiable, Hashable {
     var displayURL: String { metadata.displayURL.absoluteString }
     var imageURL: URL? { metadata.imageURL }
 }
-
-extension WebPageItem {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(metadata.url)
-    }
-
-    static func == (lhs: WebPageItem, rhs: WebPageItem) -> Bool {
-        lhs.metadata.url == rhs.metadata.url
-    }
-}

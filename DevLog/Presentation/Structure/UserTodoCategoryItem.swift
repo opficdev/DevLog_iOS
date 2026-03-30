@@ -21,12 +21,4 @@ struct UserTodoCategoryItem: Identifiable, Hashable {
     var localizedName: String { userTodoCategory.name }
 
     var color: Color { Color(hexString: userTodoCategory.colorHex) ?? .gray }
-
-    static func == (lhs: UserTodoCategoryItem, rhs: UserTodoCategoryItem) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
