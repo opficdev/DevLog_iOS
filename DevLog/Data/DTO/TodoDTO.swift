@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum TodoCategoryResponse {
-    case raw(String)
-    case decoded(TodoCategory)
-}
-
 struct TodoRequest: Encodable {
     let id: String
     let isPinned: Bool

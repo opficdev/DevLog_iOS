@@ -7,8 +7,17 @@
 
 extension PushNotificationResponse {
     func toDomain() throws -> PushNotification {
-        guard let todoCategory = SystemTodoCategory(rawValue: self.todoCategory) else {
-            throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(self.todoCategory)")
+        let todoCategory: TodoCategory
+
+        switch self.todoCategory {
+        case .decoded(let category):
+            todoCategory = category
+        case .raw(let category):
+            guard let systemTodoCategory = SystemTodoCategory(rawValue: category) else {
+                throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(category)")
+            }
+
+            todoCategory = .system(systemTodoCategory)
         }
 
         return PushNotification(
@@ -18,7 +27,7 @@ extension PushNotificationResponse {
             receivedAt: self.receivedAt,
             isRead: self.isRead,
             todoId: self.todoId,
-            todoCategory: .system(todoCategory)
+            todoCategory: todoCategory
         )
     }
 }
