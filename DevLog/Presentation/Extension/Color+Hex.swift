@@ -8,6 +8,14 @@
 import SwiftUI
 
 extension Color {
+    static var randomValue: Color {
+        Color(
+            red: Double(Int.random(in: 0...255)) / 255,
+            green: Double(Int.random(in: 0...255)) / 255,
+            blue: Double(Int.random(in: 0...255)) / 255
+        )
+    }
+
     init?(hexString: String) {
         let trimmedHex = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
         let sanitizedHex = trimmedHex.hasPrefix("#") ? String(trimmedHex.dropFirst()) : trimmedHex
@@ -24,7 +32,7 @@ extension Color {
         self.init(red: red, green: green, blue: blue)
     }
 
-    var hexString: String? {
+    var hexValue: String? {
         let uiColor = UIColor(self)
         var red: CGFloat = 0
         var green: CGFloat = 0

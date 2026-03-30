@@ -27,6 +27,7 @@ final class TodoManageViewModel: Store {
         case setShowAlert(Bool)
         case setCategoryName(String)
         case setCategoryColor(Color)
+        case setRandomCategoryColor
         case saveUserCategory
     }
 
@@ -87,7 +88,7 @@ final class TodoManageViewModel: Store {
             state.category = UserTodoCategory(
                 id: UUID().uuidString.lowercased(),
                 name: "",
-                colorHex: "#0A84FF"
+                colorHex: Color.randomValue.hexValue ?? "#000000"
             )
             state.showSheet = true
         case .moveItem(let from, let target):
@@ -143,7 +144,12 @@ final class TodoManageViewModel: Store {
         case .setCategoryColor(let color):
             guard var category = state.category else { break }
 
-            category.colorHex = color.hexString ?? "#0A84FF"
+            category.colorHex = color.hexValue ?? "#000000"
+            state.category = category
+        case .setRandomCategoryColor:
+            guard var category = state.category else { break }
+
+            category.colorHex = Color.randomValue.hexValue ?? "#000000"
             state.category = category
         case .saveUserCategory:
             guard let category = state.category else { break }

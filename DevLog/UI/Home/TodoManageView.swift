@@ -127,13 +127,21 @@ struct TodoManageView: View {
                 }
                 
                 Section {
-                    let color = Color(hexString: viewModel.state.category?.colorHex ?? "#0A84FF") ?? .blue
+                    let color = Color(hexString: viewModel.state.category?.colorHex ?? "") ?? .randomValue
                     ColorPicker(selection: Binding(
                         get: { color },
                         set: { viewModel.send(.setCategoryColor($0)) }
                     ), supportsOpacity: false) {
                         Text(viewModel.state.category?.colorHex ?? "#")
+                            .overlay(alignment: .bottom) {
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .offset(y: 1)
+                            }
                             .foregroundStyle(color)
+                            .onTapGesture {
+                                viewModel.send(.setRandomCategoryColor)
+                            }
                     }
                     .pickerStyle(.palette)
                 }
