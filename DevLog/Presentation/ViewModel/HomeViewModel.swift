@@ -11,9 +11,7 @@ import Combine
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var preferences = SystemTodoCategory.allCases.map {
-            TodoCategoryPreference(category: .system($0), isVisible: true)
-        }
+        var preferences: [TodoCategoryPreference] = []
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
         var isNetworkConnected: Bool = true
@@ -23,6 +21,7 @@ final class HomeViewModel: Store {
         var webPageURLInput: String = "https://"
         var selectedTodoCategory: TodoCategory?
         var reorderTodo: Bool = false
+        var isPreferencesLoading: Bool = false
         var isRecentTodosLoading: Bool = false
         var isWebPageLoading: Bool = false
         var isAppending: Bool = false
@@ -90,6 +89,7 @@ final class HomeViewModel: Store {
     }
 
     enum LoadingTarget: Hashable {
+        case preferences
         case recentTodos
         case webPage
         case overlay
@@ -157,8 +157,10 @@ final class HomeViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodoCategoryPreferences:
+            beginLoading(for: .preferences, mode: .immediate)
             Task {
                 do {
+                    defer { endLoading(for: .preferences, mode: .immediate) }
                     let preferences = try await fetchPreferencesUseCase.execute()
                     send(.setTodoCategoryPreferences(preferences))
                 } catch {
@@ -424,6 +426,8 @@ private extension HomeViewModel {
         isLoading: Bool
     ) {
         switch loadingTarget {
+        case .preferences:
+            state.isPreferencesLoading = isLoading
         case .recentTodos:
             state.isRecentTodosLoading = isLoading
         case .webPage:

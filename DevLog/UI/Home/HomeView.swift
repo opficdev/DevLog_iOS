@@ -162,15 +162,19 @@ struct HomeView: View {
 
     private var todoSection: some View {
         Section(content: {
-            let preferences = viewModel.state.preferences
-            ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
-                let category = preference.category
-                NavigationLink(value: Path.category(category)) {
-                    labelImage(
-                        text: category.localizedName,
-                        systemName: category.symbolName,
-                        imageColor: category.color
-                    )
+            if viewModel.state.isPreferencesLoading {
+                LoadingView()
+            } else {
+                let preferences = viewModel.state.preferences
+                ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
+                    let category = preference.category
+                    NavigationLink(value: Path.category(category)) {
+                        labelImage(
+                            text: category.localizedName,
+                            systemName: category.symbolName,
+                            imageColor: category.color
+                        )
+                    }
                 }
             }
         }, header: {
@@ -289,19 +293,23 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
-                    let preferences = viewModel.state.preferences.filter(\.isVisible)
-                    ForEach(preferences, id: \.id) { preference in
-                        let category = preference.category
-                        Button {
-                            DispatchQueue.main.async {
-                                viewModel.send(.tapTodoCategory(category))
+                    if viewModel.state.isPreferencesLoading {
+                        LoadingView()
+                    } else {
+                        let preferences = viewModel.state.preferences.filter(\.isVisible)
+                        ForEach(preferences, id: \.id) { preference in
+                            let category = preference.category
+                            Button {
+                                DispatchQueue.main.async {
+                                    viewModel.send(.tapTodoCategory(category))
+                                }
+                            } label: {
+                                labelImage(
+                                    text: category.localizedName,
+                                    systemName: category.symbolName,
+                                    imageColor: category.color
+                                )
                             }
-                        } label: {
-                            labelImage(
-                                text: category.localizedName,
-                                systemName: category.symbolName,
-                                imageColor: category.color
-                            )
                         }
                     }
                 } header: {
