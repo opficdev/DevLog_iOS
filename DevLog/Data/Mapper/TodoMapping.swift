@@ -27,8 +27,16 @@ extension TodoRequest {
 
 extension TodoResponse {
     func toDomain() throws -> Todo {
-        guard let category = SystemTodoCategory(rawValue: self.category) else {
-            throw DataError.invalidData("TodoResponse.category is invalid: \(self.category)")
+        let todoCategory: TodoCategory
+
+        switch category {
+        case .decoded(let category):
+            todoCategory = category
+        case .raw(let category):
+            guard let systemTodoCategory = SystemTodoCategory(rawValue: category) else {
+                throw DataError.invalidData("TodoResponse.category is invalid: \(category)")
+            }
+            todoCategory = .system(systemTodoCategory)
         }
 
         return Todo(
@@ -44,7 +52,7 @@ extension TodoResponse {
             completedAt: self.completedAt,
             dueDate: self.dueDate,
             tags: self.tags,
-            category: .system(category)
+            category: todoCategory
         )
     }
 }

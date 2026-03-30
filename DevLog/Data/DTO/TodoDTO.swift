@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum TodoCategoryResponse {
+    case raw(String)
+    case decoded(TodoCategory)
+}
+
 struct TodoRequest: Encodable {
     let id: String
     let isPinned: Bool
@@ -36,5 +41,5 @@ struct TodoResponse {
     let completedAt: Date?
     let dueDate: Date?
     let tags: [String]
-    let category: String
+    let category: TodoCategoryResponse
 }

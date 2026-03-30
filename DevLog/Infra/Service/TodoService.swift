@@ -269,16 +269,26 @@ final class TodoService {
             let data = document.data()
             guard
                 !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
-                let response = makeResponse(from: document),
-                let category = SystemTodoCategory(rawValue: response.category)
+                let response = makeResponse(from: document)
             else {
                 return
+            }
+
+            let todoCategory: TodoCategory
+            switch response.category {
+            case .raw(let category):
+                guard let systemTodoCategory = SystemTodoCategory(rawValue: category) else {
+                    return
+                }
+                todoCategory = .system(systemTodoCategory)
+            case .decoded(let category):
+                todoCategory = category
             }
 
             partialResult[response.number] = TodoReferenceItem(
                 id: response.id,
                 title: response.title,
-                category: .system(category)
+                category: todoCategory
             )
         }
     }
@@ -469,7 +479,7 @@ private extension TodoService {
             completedAt: completedAt,
             dueDate: dueDate,
             tags: tags,
-            category: category
+            category: .raw(category)
         )
     }
 
