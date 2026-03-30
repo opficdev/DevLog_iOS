@@ -23,6 +23,16 @@ struct TodoManageView: View {
                                 viewModel.send(.tapItem(category))
                             }
                         Text(category.localizedName)
+                        Spacer()
+                        if case .user = category {
+                            Button(role: .destructive) {
+                                viewModel.send(.deleteUserCategory(preference))
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.borderless)
+                            .padding(.trailing)
+                        }
                     }
                 }
                 .onMove { (source: IndexSet, destination: Int) in

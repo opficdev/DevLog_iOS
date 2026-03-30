@@ -19,6 +19,7 @@ final class TodoManageViewModel: Store {
     enum Action {
         case moveItem(from: IndexSet, target: Int)
         case tapItem(_ item: TodoCategory)
+        case deleteUserCategory(TodoCategoryPreference)
         case setShowAddCategorySheet(Bool)
         case setCategoryName(String)
         case setCategoryColor(Color)
@@ -52,6 +53,10 @@ final class TodoManageViewModel: Store {
         case .tapItem(let item):
             if let index = state.todoCategoryPreferences.firstIndex(where: { $0.category == item }) {
                 state.todoCategoryPreferences[index].isVisible.toggle()
+            }
+        case .deleteUserCategory(let preference):
+            if let index = state.todoCategoryPreferences.firstIndex(where: { $0 == preference }) {
+                state.todoCategoryPreferences.remove(at: index)
             }
         case .setShowAddCategorySheet(let isPresented):
             state.showAddCategorySheet = isPresented
