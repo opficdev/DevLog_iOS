@@ -13,11 +13,9 @@ extension PushNotificationResponse {
         case .decoded(let category):
             todoCategory = category
         case .raw(let category):
-            guard let systemTodoCategory = SystemTodoCategory(rawValue: category) else {
-                throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(category)")
-            }
-
-            todoCategory = .system(systemTodoCategory)
+            throw DataError.invalidData(
+                "PushNotificationResponse.todoCategory must be resolved before toDomain(): \(category)"
+            )
         }
 
         return PushNotification(
