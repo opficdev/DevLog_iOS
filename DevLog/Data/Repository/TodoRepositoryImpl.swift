@@ -74,12 +74,8 @@ final class TodoRepositoryImpl: TodoRepository {
 
         return try responses.reduce(into: [Int: TodoReference]()) { partialResult, pair in
             let response = try resolve(pair.value, userTodoCategories: userTodoCategories)
-            let category: TodoCategory
-            switch response.category {
-            case .decoded(let decodedCategory):
-                category = decodedCategory
-            case .raw(let value):
-                throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(value)")
+            guard case let .decoded(category) = response.category else {
+                throw DataError.invalidData("TodoReferenceResponse.category must be resolved before use")
             }
 
             partialResult[pair.key] = TodoReference(
