@@ -93,14 +93,22 @@ final class TodoManageViewModel: Store {
         }
 
         if state.preferences.contains(where: { item in
-            guard case .user(let userTodoCategory) = item.category,
-                  userTodoCategory.id != category.id else {
+            guard case .user(let userCategory) = item.category,
+                  userCategory.id != category.id else {
                 return false
             }
 
-            return userTodoCategory.name.caseInsensitiveCompare(name) == .orderedSame
+            return userCategory.name.caseInsensitiveCompare(name) == .orderedSame
         }) {
             return false
+        }
+
+        if let item = state.preferences.first(where: { $0.id == item.id }),
+           case .user(let originalCategory) = item.category {
+            let originalName = originalCategory.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if originalName == name && originalCategory.colorHex == category.colorHex {
+                return false
+            }
         }
 
         return true
