@@ -70,6 +70,7 @@ struct TodoManageView: View {
                 }
             }
         }
+        .presentationDragIndicator(.visible)
     }
 
     private var categorySheet: some View {
