@@ -64,7 +64,7 @@ struct HomeView: View {
                     onDismiss: { array in
                         viewModel.send(.setPresentation(.reorderTodo, false))
                         withAnimation {
-                            viewModel.send(.orderTodoCategoryPreferences(array))
+                            viewModel.send(.orderTodoCategory(array))
                         }
                     }
                 )
@@ -370,7 +370,7 @@ struct HomeView: View {
     }
 
     private enum Path: Hashable {
-        case category(TodoCategoryPreferenceItem)
+        case category(TodoCategoryItem)
         case detail(String)
         case web(WebPageItem)
     }
@@ -381,13 +381,13 @@ private struct RecentTodoRow: View {
     let sceneWidth: CGFloat
 
     var body: some View {
-        let todoCategoryItem = TodoCategoryPreferenceItem(from: todo.category)
+        let category = TodoCategoryItem(from: todo.category)
         HStack(alignment: .top, spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(todoCategoryItem.color)
+                .fill(category.color)
                 .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
                 .overlay {
-                    Image(systemName: todoCategoryItem.symbolName)
+                    Image(systemName: category.symbolName)
                         .foregroundStyle(Color.white)
                         .font(.title3)
                 }
@@ -412,9 +412,9 @@ private struct RecentTodoRow: View {
                 }
 
                 HStack(spacing: 6) {
-                    Text(todoCategoryItem.localizedName)
+                    Text(category.localizedName)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(todoCategoryItem.color)
+                        .foregroundStyle(category.color)
 
                     RelativeTimeText(date: todo.updatedAt)
                 }

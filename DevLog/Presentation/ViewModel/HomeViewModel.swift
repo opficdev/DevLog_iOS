@@ -11,7 +11,7 @@ import Combine
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var preferences: [TodoCategoryPreferenceItem] = []
+        var preferences: [TodoCategoryItem] = []
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
         var isNetworkConnected: Bool = true
@@ -42,8 +42,8 @@ final class HomeViewModel: Store {
         case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(LoadingTarget, Bool)
         case tapTodoCategory(TodoCategory)
-        case orderTodoCategoryPreferences([TodoCategoryPreferenceItem])
-        case setTodoCategoryPreferences([TodoCategoryPreferenceItem])
+        case orderTodoCategory([TodoCategoryItem])
+        case setTodoCategory([TodoCategoryItem])
         case addTodo(Todo)
         case updateRecentTodos([RecentTodoItem])
         case updateWebPageURLInput(String)
@@ -60,7 +60,7 @@ final class HomeViewModel: Store {
         case deleteWebPage(WebPageItem, Int)
         case undoDeleteWebPage(String)
         case fetchTodoCategoryPreferences
-        case updateTodoCategoryPreferences([TodoCategoryPreferenceItem])
+        case updateTodoCategoryPreferences([TodoCategoryItem])
         case fetchRecentTodos
         case fetchWebPages
         case showModalAfterDelay(ModalType)
@@ -141,11 +141,11 @@ final class HomeViewModel: Store {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
         case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoCategory,
-                .orderTodoCategoryPreferences, .addTodo, .updateWebPageURLInput,
+                .orderTodoCategory, .addTodo, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .setTodoCategoryPreferences, .updateRecentTodos,
+        case .setLoading, .setTodoCategory, .updateRecentTodos,
                 .updateWebPages, .restoreWebPage:
             effects = reduceByRun(action, state: &state)
         }
@@ -162,7 +162,7 @@ final class HomeViewModel: Store {
                 do {
                     defer { endLoading(for: .preferences, mode: .immediate) }
                     let preferences = try await fetchPreferencesUseCase.execute()
-                    send(.setTodoCategoryPreferences(preferences.map(TodoCategoryPreferenceItem.init(from:))))
+                    send(.setTodoCategory(preferences.map(TodoCategoryItem.init(from:))))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -302,7 +302,7 @@ private extension HomeViewModel {
             state.selectedTodoCategory = category
             state.showContentPicker = false
             return [.showModalAfterDelay(.todoEditor)]
-        case .orderTodoCategoryPreferences(let preferences):
+        case .orderTodoCategory(let preferences):
             state.preferences = preferences
             state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
             return [.updateTodoCategoryPreferences(preferences)]
@@ -339,7 +339,7 @@ private extension HomeViewModel {
         switch action {
         case .setLoading(let loadingTarget, let isLoading):
             setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
-        case .setTodoCategoryPreferences(let preferences):
+        case .setTodoCategory(let preferences):
             state.preferences = preferences
             state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
         case .updateRecentTodos(let todos):
@@ -441,7 +441,7 @@ private extension HomeViewModel {
 
     func syncRecentTodos(
         _ recentTodos: [RecentTodoItem],
-        preferences: [TodoCategoryPreferenceItem]
+        preferences: [TodoCategoryItem]
     ) -> [RecentTodoItem] {
         recentTodos.map { recentTodo in
             guard let item = preferences.first(where: {

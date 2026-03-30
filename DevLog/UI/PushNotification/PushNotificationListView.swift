@@ -246,7 +246,7 @@ struct PushNotificationListView: View {
     private func notificationRow(_ item: PushNotificationItem) -> some View {
         HStack {
             VStack {
-                let todoCategoryItem = TodoCategoryPreferenceItem(from: item.todoCategory)
+                let todoCategoryItem = TodoCategoryItem(from: item.todoCategory)
                 RoundedRectangle(cornerRadius: 8)
                     .fill(todoCategoryItem.color)
                     .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)

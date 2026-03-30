@@ -332,7 +332,7 @@ struct ProfileView: View {
                     Button {
                         router.push(Path.activity(activity))
                     } label: {
-                        let todoCategoryItem = TodoCategoryPreferenceItem(from: activity.todo.category)
+                        let todoCategoryItem = TodoCategoryItem(from: activity.todo.category)
                         HStack(spacing: 8) {
                             Image(systemName: todoCategoryItem.symbolName)
                                 .foregroundStyle(todoCategoryItem.color)

@@ -10,7 +10,7 @@ import SwiftUI
 struct TodoManageView: View {
     @State var viewModel: TodoManageViewModel
     @State private var tmpText = ""
-    var onDismiss: (([TodoCategoryPreferenceItem]) -> Void)?
+    var onDismiss: (([TodoCategoryItem]) -> Void)?
 
     var body: some View {
         NavigationStack {

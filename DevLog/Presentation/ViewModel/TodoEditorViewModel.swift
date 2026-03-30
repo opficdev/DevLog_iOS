@@ -57,8 +57,8 @@ final class TodoEditorViewModel: Store {
         var tagText: String = ""
         var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
-        var categories: [TodoCategoryPreferenceItem] = []
-        var category = TodoCategoryPreferenceItem(from: .system(.etc))
+        var categories: [TodoCategoryItem] = []
+        var category = TodoCategoryItem(from: .system(.etc))
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
@@ -75,14 +75,14 @@ final class TodoEditorViewModel: Store {
         case setContent(String)
         case setCompleted(Bool)
         case setDueDate(Date?)
-        case setCategory(TodoCategoryPreferenceItem)
+        case setCategory(TodoCategoryItem)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
         case setTabViewTag(Tag)
         case setTagText(String)
         case setTitle(String)
-        case setCategories([TodoCategoryPreferenceItem])
+        case setCategories([TodoCategoryItem])
         case setReferenceItems([Int: TodoReferenceItem])
     }
 
@@ -133,8 +133,8 @@ final class TodoEditorViewModel: Store {
         self.number = nil
         self.createdAt = nil
         self.originalDraft = nil
-        state.category = TodoCategoryPreferenceItem(from: category)
-        state.categories = [TodoCategoryPreferenceItem(from: category)]
+        state.category = TodoCategoryItem(from: category)
+        state.categories = [TodoCategoryItem(from: category)]
     }
 
     // 기존 Todo 편집용 생성자
@@ -158,7 +158,7 @@ final class TodoEditorViewModel: Store {
         state.content = todo.content
         state.dueDate = todo.dueDate
         state.tags = OrderedSet(todo.tags)
-        state.category = TodoCategoryPreferenceItem(from: todo.category)
+        state.category = TodoCategoryItem(from: todo.category)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -221,7 +221,7 @@ final class TodoEditorViewModel: Store {
             Task {
                 do {
                     let preferences = try await fetchPreferencesUseCase.execute()
-                    send(.setCategories(preferences.map(TodoCategoryPreferenceItem.init(from:))))
+                    send(.setCategories(preferences.map(TodoCategoryItem.init(from:))))
                 } catch { }
             }
         case .resolveMarkdown(let content):

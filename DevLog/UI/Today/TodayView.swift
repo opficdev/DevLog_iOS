@@ -289,7 +289,7 @@ private struct TodayTodoRow: View {
     let item: TodayTodoItem
 
     var body: some View {
-        let todoCategoryItem = TodoCategoryPreferenceItem(from: item.category)
+        let todoCategoryItem = TodoCategoryItem(from: item.category)
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: todoCategoryItem.symbolName)

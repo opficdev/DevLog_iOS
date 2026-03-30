@@ -10,8 +10,8 @@ import SwiftUI
 @Observable
 final class TodoManageViewModel: Store {
     struct State: Equatable {
-        var preferences: [TodoCategoryPreferenceItem]
-        var category: TodoCategoryPreferenceItem?
+        var preferences: [TodoCategoryItem]
+        var category: TodoCategoryItem?
         var showSheet: Bool = false
         var showAlert: Bool = false
     }
@@ -19,9 +19,9 @@ final class TodoManageViewModel: Store {
     enum Action {
         case tapAddUserCategory
         case moveItem(from: IndexSet, target: Int)
-        case tapItem(TodoCategoryPreferenceItem)
-        case tapEditUserCategory(TodoCategoryPreferenceItem)
-        case tapDeleteUserCategory(TodoCategoryPreferenceItem)
+        case tapItem(TodoCategoryItem)
+        case tapEditUserCategory(TodoCategoryItem)
+        case tapDeleteUserCategory(TodoCategoryItem)
         case confirmDeleteUserCategory
         case setShowSheet(Bool)
         case setShowAlert(Bool)
@@ -106,7 +106,7 @@ final class TodoManageViewModel: Store {
         return true
     }
 
-    init(_ preferences: [TodoCategoryPreferenceItem]) {
+    init(_ preferences: [TodoCategoryItem]) {
         self.state = State(preferences: preferences)
     }
 
@@ -119,7 +119,7 @@ final class TodoManageViewModel: Store {
                 break
             }
 
-            state.category = TodoCategoryPreferenceItem(
+            state.category = TodoCategoryItem(
                 from: .user(
                     UserTodoCategory(
                         id: UUID().uuidString.lowercased(),

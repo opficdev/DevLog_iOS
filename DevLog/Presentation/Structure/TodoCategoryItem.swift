@@ -1,5 +1,5 @@
 //
-//  TodoCategoryPreferenceItem.swift
+//  TodoCategoryItem.swift
 //  DevLog
 //
 //  Created by opfic on 3/30/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TodoCategoryPreferenceItem: Identifiable, Hashable {
+struct TodoCategoryItem: Identifiable, Hashable {
     var category: TodoCategory
     var isVisible: Bool
 
@@ -70,7 +70,7 @@ struct TodoCategoryPreferenceItem: Identifiable, Hashable {
         }
     }
 
-    static func == (lhs: TodoCategoryPreferenceItem, rhs: TodoCategoryPreferenceItem) -> Bool {
+    static func == (lhs: TodoCategoryItem, rhs: TodoCategoryItem) -> Bool {
         lhs.category == rhs.category && lhs.isVisible == rhs.isVisible
     }
 
