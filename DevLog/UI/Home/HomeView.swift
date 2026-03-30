@@ -60,7 +60,7 @@ struct HomeView: View {
                 set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
             )) {
                 TodoManageView(
-                    viewModel: TodoManageViewModel(viewModel.state.todoCategoryPreferences),
+                    viewModel: TodoManageViewModel(viewModel.state.preferences),
                     onDismiss: { array in
                         viewModel.send(.setPresentation(.reorderTodo, false))
                         withAnimation {
@@ -162,7 +162,7 @@ struct HomeView: View {
 
     private var todoSection: some View {
         Section(content: {
-            let preferences = viewModel.state.todoCategoryPreferences
+            let preferences = viewModel.state.preferences
             ForEach(preferences.filter { $0.isVisible }, id: \.id) { preference in
                 let category = preference.category
                 NavigationLink(value: Path.category(category)) {
@@ -289,7 +289,7 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
-                    let preferences = viewModel.state.todoCategoryPreferences.filter(\.isVisible)
+                    let preferences = viewModel.state.preferences.filter(\.isVisible)
                     ForEach(preferences, id: \.id) { preference in
                         let category = preference.category
                         Button {

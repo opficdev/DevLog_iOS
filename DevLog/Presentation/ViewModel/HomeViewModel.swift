@@ -11,7 +11,7 @@ import Combine
 @Observable
 final class HomeViewModel: Store {
     struct State: Equatable {
-        var todoCategoryPreferences = SystemTodoCategory.allCases.map {
+        var preferences = SystemTodoCategory.allCases.map {
             TodoCategoryPreference(category: .system($0), isVisible: true)
         }
         var recentTodos: [RecentTodoItem] = []
@@ -301,7 +301,7 @@ private extension HomeViewModel {
             state.showContentPicker = false
             return [.showModalAfterDelay(.todoEditor)]
         case .orderTodoCategoryPreferences(let preferences):
-            state.todoCategoryPreferences = preferences
+            state.preferences = preferences
             return [.updateTodoCategoryPreferences(preferences)]
         case .addTodo(let todo):
             return [.addTodo(todo)]
@@ -336,8 +336,8 @@ private extension HomeViewModel {
         switch action {
         case .setLoading(let loadingTarget, let isLoading):
             setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
-        case .setTodoCategoryPreferences(let todoCategoryPreferenceArray):
-            state.todoCategoryPreferences = todoCategoryPreferenceArray
+        case .setTodoCategoryPreferences(let preferences):
+            state.preferences = preferences
         case .updateRecentTodos(let todos):
             state.recentTodos = todos
         case .updateWebPages(let pages):

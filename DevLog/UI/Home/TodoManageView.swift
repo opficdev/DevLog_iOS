@@ -14,7 +14,7 @@ struct TodoManageView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.state.todoCategoryPreferences, id: \.id) { preference in
+                ForEach(viewModel.state.preferences, id: \.id) { preference in
                     let category = preference.category
                     HStack(spacing: 0) {
                         CheckBox(isChecked: preference.isVisible, font: .title3)
@@ -26,7 +26,7 @@ struct TodoManageView: View {
                         Spacer()
                         if case .user = category {
                             Button(role: .destructive) {
-                                viewModel.send(.deleteUserCategory(preference))
+                                viewModel.send(.tapDeleteUserCategory(preference))
                             } label: {
                                 Image(systemName: "trash")
                             }
@@ -47,15 +47,32 @@ struct TodoManageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .sheet(isPresented: Binding(
-                get: { viewModel.state.showAddCategorySheet },
-                set: { viewModel.send(.setShowAddCategorySheet($0)) }
+                get: { viewModel.state.showSheet },
+                set: { viewModel.send(.setShowSheet($0)) }
             )) {
                 categorySheet
+            }
+            .alert(
+                "카테고리 삭제",
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setShowAlert($0)) }
+                )
+            ) {
+                Button("취소", role: .cancel) {
+                    viewModel.send(.setShowAlert(false))
+                }
+                Button("삭제", role: .destructive) {
+                    viewModel.send(.confirmDeleteUserCategory)
+                }
+            } message: {
+                Text("이 카테고리를 삭제하면 해당하던 TODO는 기타 카테고리로 처리됩니다.\n정말 삭제하시겠습니까?")
+                    .multilineTextAlignment(.leading)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        viewModel.send(.setShowAddCategorySheet(true))
+                        viewModel.send(.setShowSheet(true))
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -63,7 +80,7 @@ struct TodoManageView: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        onDismiss?(viewModel.state.todoCategoryPreferences)
+                        onDismiss?(viewModel.state.preferences)
                     }) {
                         Text("완료")
                     }
@@ -103,7 +120,7 @@ struct TodoManageView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("취소") {
-                        viewModel.send(.setShowAddCategorySheet(false))
+                        viewModel.send(.setShowSheet(false))
                     }
                 }
                 

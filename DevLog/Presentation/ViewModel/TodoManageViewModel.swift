@@ -10,8 +10,10 @@ import SwiftUI
 @Observable
 final class TodoManageViewModel: Store {
     struct State: Equatable {
-        var todoCategoryPreferences: [TodoCategoryPreference]
-        var showAddCategorySheet: Bool = false
+        var preferences: [TodoCategoryPreference]
+        var showSheet: Bool = false
+        var showAlert: Bool = false
+        var deletingPreference: TodoCategoryPreference?
         var categoryName: String = ""
         var categoryColor: Color = .blue
     }
@@ -19,8 +21,10 @@ final class TodoManageViewModel: Store {
     enum Action {
         case moveItem(from: IndexSet, target: Int)
         case tapItem(_ item: TodoCategory)
-        case deleteUserCategory(TodoCategoryPreference)
-        case setShowAddCategorySheet(Bool)
+        case tapDeleteUserCategory(TodoCategoryPreference)
+        case confirmDeleteUserCategory
+        case setShowSheet(Bool)
+        case setShowAlert(Bool)
         case setCategoryName(String)
         case setCategoryColor(Color)
         case addUserCategory
@@ -40,8 +44,8 @@ final class TodoManageViewModel: Store {
         }
     }
 
-    init(_ todoCategoryPreferences: [TodoCategoryPreference]) {
-        self.state = State(todoCategoryPreferences: todoCategoryPreferences)
+    init(_ preferences: [TodoCategoryPreference]) {
+        self.state = State(preferences: preferences)
     }
 
     func reduce(with action: Action) -> [SideEffect] {
@@ -49,20 +53,36 @@ final class TodoManageViewModel: Store {
 
         switch action {
         case .moveItem(let from, let target):
-            state.todoCategoryPreferences.move(fromOffsets: from, toOffset: target)
+            state.preferences.move(fromOffsets: from, toOffset: target)
         case .tapItem(let item):
-            if let index = state.todoCategoryPreferences.firstIndex(where: { $0.category == item }) {
-                state.todoCategoryPreferences[index].isVisible.toggle()
+            if let index = state.preferences.firstIndex(where: { $0.category == item }) {
+                state.preferences[index].isVisible.toggle()
             }
-        case .deleteUserCategory(let preference):
-            if let index = state.todoCategoryPreferences.firstIndex(where: { $0 == preference }) {
-                state.todoCategoryPreferences.remove(at: index)
+        case .tapDeleteUserCategory(let preference):
+            state.deletingPreference = preference
+            state.showAlert = true
+        case .confirmDeleteUserCategory:
+            guard let preference = state.deletingPreference else {
+                break
             }
-        case .setShowAddCategorySheet(let isPresented):
-            state.showAddCategorySheet = isPresented
+
+            if let index = state.preferences.firstIndex(where: {
+                $0 == preference
+            }) {
+                state.preferences.remove(at: index)
+            }
+            state.showAlert = false
+            state.deletingPreference = nil
+        case .setShowSheet(let isPresented):
+            state.showSheet = isPresented
             if !isPresented {
                 state.categoryName = ""
                 state.categoryColor = .blue
+            }
+        case .setShowAlert(let isPresented):
+            state.showAlert = isPresented
+            if !isPresented {
+                state.deletingPreference = nil
             }
         case .setCategoryName(let name):
             state.categoryName = name
@@ -71,7 +91,7 @@ final class TodoManageViewModel: Store {
         case .addUserCategory:
             let trimmedCategoryName = state.categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
             if let colorHex = state.categoryColor.hexString {
-                state.todoCategoryPreferences.append(
+                state.preferences.append(
                     TodoCategoryPreference(
                         category: .user(
                             UserTodoCategory(
@@ -83,7 +103,7 @@ final class TodoManageViewModel: Store {
                     )
                 )
             }
-            state.showAddCategorySheet = false
+            state.showSheet = false
             state.categoryName = ""
             state.categoryColor = .blue
         }
