@@ -14,7 +14,7 @@ struct RecentTodoItem: Identifiable, Hashable {
     let isPinned: Bool
     let updatedAt: Date
     let tags: [String]
-    let category: TodoCategory
+    var category: TodoCategory
 
     init(from todo: Todo) {
         self.id = todo.id

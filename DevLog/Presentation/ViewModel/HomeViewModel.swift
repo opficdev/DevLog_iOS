@@ -304,6 +304,7 @@ private extension HomeViewModel {
             return [.showModalAfterDelay(.todoEditor)]
         case .orderTodoCategoryPreferences(let preferences):
             state.preferences = preferences
+            state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
             return [.updateTodoCategoryPreferences(preferences)]
         case .addTodo(let todo):
             return [.addTodo(todo)]
@@ -340,6 +341,7 @@ private extension HomeViewModel {
             setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
         case .setTodoCategoryPreferences(let preferences):
             state.preferences = preferences
+            state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
         case .updateRecentTodos(let todos):
             state.recentTodos = todos
         case .updateWebPages(let pages):
@@ -434,6 +436,23 @@ private extension HomeViewModel {
             state.isWebPageLoading = isLoading
         case .overlay:
             state.isAppending = isLoading
+        }
+    }
+
+    func syncRecentTodos(
+        _ recentTodos: [RecentTodoItem],
+        preferences: [TodoCategoryPreference]
+    ) -> [RecentTodoItem] {
+        recentTodos.map { recentTodo in
+            guard let category = preferences.first(where: {
+                $0.category.storageValue == recentTodo.category.storageValue
+            })?.category else {
+                return recentTodo
+            }
+
+            var recentTodo = recentTodo
+            recentTodo.category = category
+            return recentTodo
         }
     }
 
