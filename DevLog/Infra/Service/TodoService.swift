@@ -241,7 +241,7 @@ final class TodoService {
         }
     }
 
-    func fetchReferenceItems(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
+    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReferenceResponse] {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let uniqueNumbers = Array(Set(numbers)).sorted()
@@ -265,7 +265,7 @@ final class TodoService {
             return documents
         }
 
-        return snapshots.reduce(into: [Int: TodoReferenceItem]()) { partialResult, document in
+        return snapshots.reduce(into: [Int: TodoReferenceResponse]()) { partialResult, document in
             let data = document.data()
             guard
                 !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
@@ -274,21 +274,11 @@ final class TodoService {
                 return
             }
 
-            let todoCategory: TodoCategory
-            switch response.category {
-            case .raw(let category):
-                guard let systemTodoCategory = SystemTodoCategory(rawValue: category) else {
-                    return
-                }
-                todoCategory = .system(systemTodoCategory)
-            case .decoded(let category):
-                todoCategory = category
-            }
-
-            partialResult[response.number] = TodoReferenceItem(
+            partialResult[response.number] = TodoReferenceResponse(
                 id: response.id,
+                number: response.number,
                 title: response.title,
-                category: todoCategory
+                category: response.category
             )
         }
     }

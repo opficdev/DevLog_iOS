@@ -15,7 +15,7 @@ private enum TodoMarkdownSection: Equatable {
 
 struct TodoMarkdownContentView: View {
     let content: String
-    let referenceItems: [Int: TodoReferenceItem]
+    let referenceItems: [Int: TodoReference]
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
@@ -86,7 +86,7 @@ struct TodoMarkdownContentView: View {
 }
 
 private struct TodoReferenceRow: View {
-    let item: TodoReferenceItem
+    let item: TodoReference
     let number: Int
     var onOpenTodoID: ((String) -> Void)?
 

@@ -59,8 +59,35 @@ final class TodoRepositoryImpl: TodoRepository {
         return try resolve(todoResponse, userTodoCategories: userTodoCategories).toDomain()
     }
 
-    func fetchReferenceItems(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
-        try await todoService.fetchReferenceItems(numbers)
+    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
+        async let responseTask = todoService.fetchReferences(numbers)
+        async let preferencesTask = todoCategoryService.fetchPreferences()
+
+        let (responses, preferences) = try await (responseTask, preferencesTask)
+        let userTodoCategories: [UserTodoCategory] = preferences.compactMap { preference in
+            guard case .user(let category) = preference.category else {
+                return nil
+            }
+
+            return category
+        }
+
+        return try responses.reduce(into: [Int: TodoReference]()) { partialResult, pair in
+            let response = try resolve(pair.value, userTodoCategories: userTodoCategories)
+            let category: TodoCategory
+            switch response.category {
+            case .decoded(let decodedCategory):
+                category = decodedCategory
+            case .raw(let value):
+                throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(value)")
+            }
+
+            partialResult[pair.key] = TodoReference(
+                id: response.id,
+                title: response.title,
+                category: category
+            )
+        }
     }
     
     func upsertTodo(_ todo: Todo) async throws {
@@ -114,6 +141,37 @@ private extension TodoRepositoryImpl {
             completedAt: response.completedAt,
             dueDate: response.dueDate,
             tags: response.tags,
+            category: .decoded(category)
+        )
+    }
+
+    func resolve(
+        _ response: TodoReferenceResponse,
+        userTodoCategories: [UserTodoCategory]
+    ) throws -> TodoReferenceResponse {
+        let categoryID: String
+        switch response.category {
+        case .raw(let value):
+            categoryID = value
+        case .decoded:
+            return response
+        }
+
+        let category: TodoCategory
+        if let systemTodoCategory = SystemTodoCategory(rawValue: categoryID) {
+            category = .system(systemTodoCategory)
+        } else if let userTodoCategory = userTodoCategories.first(where: {
+            $0.id == categoryID
+        }) {
+            category = .user(userTodoCategory)
+        } else {
+            throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(categoryID)")
+        }
+
+        return TodoReferenceResponse(
+            id: response.id,
+            number: response.number,
+            title: response.title,
             category: .decoded(category)
         )
     }

@@ -50,7 +50,7 @@ final class TodoEditorViewModel: Store {
         var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
-        var referenceItems: [Int: TodoReferenceItem] = [:]
+        var referenceItems: [Int: TodoReference] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
         var tags: OrderedSet<String> = []
@@ -83,7 +83,7 @@ final class TodoEditorViewModel: Store {
         case setTagText(String)
         case setTitle(String)
         case setCategories([TodoCategory])
-        case setReferenceItems([Int: TodoReferenceItem])
+        case setReferenceItems([Int: TodoReference])
     }
 
     enum SideEffect {
@@ -227,7 +227,7 @@ final class TodoEditorViewModel: Store {
         case .resolveMarkdown(let content):
             Task {
                 let numbers = content.todoReferenceNumbers
-                var referenceItems = [Int: TodoReferenceItem]()
+                var referenceItems = [Int: TodoReference]()
 
                 if !numbers.isEmpty {
                     do {
