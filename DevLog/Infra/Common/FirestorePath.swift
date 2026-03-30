@@ -19,6 +19,7 @@ enum FirestorePath {
         case info
         case tokens
         case settings
+        case categories
     }
 
     enum Counter: String {

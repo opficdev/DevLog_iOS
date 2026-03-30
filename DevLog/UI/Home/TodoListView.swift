@@ -41,7 +41,7 @@ struct TodoListView: View {
                         set: { viewModel.send(.setIsSearching($0)) }
                     ),
                     placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(viewModel.state.category.localizedName) 검색"
+                    prompt: "\(TodoCategoryItem(from: viewModel.state.category).localizedName) 검색"
                 )
             }
         }
@@ -76,7 +76,7 @@ struct TodoListView: View {
         ) {
             Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
         }
-        .navigationTitle(viewModel.state.category.localizedName)
+        .navigationTitle(TodoCategoryItem(from: viewModel.state.category).localizedName)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
             set: { viewModel.send(.setShowEditor($0)) }
@@ -84,6 +84,7 @@ struct TodoListView: View {
             TodoEditorView(
                 viewModel: TodoEditorViewModel(
                     category: viewModel.state.category,
+                    fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                     fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
                 ),
                 onSubmit: { viewModel.send(.upsertTodo($0)) }
@@ -221,7 +222,7 @@ struct TodoListView: View {
                     set: { viewModel.send(.setIsSearching($0)) }
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "\(viewModel.state.category.localizedName) 검색"
+                prompt: "\(TodoCategoryItem(from: viewModel.state.category).localizedName) 검색"
             )
     }
 
@@ -234,7 +235,7 @@ struct TodoListView: View {
             : Array(searchResults.prefix(limit))
 
         if viewModel.state.searchText.isEmpty {
-            Text("\(viewModel.state.category.localizedName)의 제목이나 내용을 검색해 보세요.")
+            Text("\(TodoCategoryItem(from: viewModel.state.category).localizedName)의 제목이나 내용을 검색해 보세요.")
                 .foregroundStyle(Color.gray)
                 .frame(maxWidth: .infinity)
         } else if viewModel.state.isLoading {

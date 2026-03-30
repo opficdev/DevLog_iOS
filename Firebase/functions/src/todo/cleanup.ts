@@ -28,7 +28,7 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
     }
 );
 
-export const removeCompletedTodoReceipts = onDocumentUpdated({
+export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },
@@ -54,7 +54,7 @@ export const removeCompletedTodoReceipts = onDocumentUpdated({
         try {
             await deleteByTodoId(userId, "notificationReceipts", todoId);
         } catch (error) {
-            logger.error("완료된 todo의 notificationReceipts 정리 실패", {
+            logger.error("완료된 todo의 notification record 정리 실패", {
                 userId,
                 todoId,
                 error
@@ -63,7 +63,7 @@ export const removeCompletedTodoReceipts = onDocumentUpdated({
     }
 );
 
-export const removeStaleTodoReceipts = onSchedule({
+export const cleanupUnusedTodoNotificationRecords = onSchedule({
         region: LOCATION,
         schedule: "0 * * * *",
         timeZone: "UTC"
@@ -99,7 +99,7 @@ export const removeStaleTodoReceipts = onSchedule({
                 lastExpiredCompletedTodo = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
-            logger.error("지난 마감일의 완료된 todo receipt 정리 실패", { error });
+            logger.error("지난 마감일의 완료된 todo notification record 정리 실패", { error });
         }
 
         try {
@@ -131,7 +131,7 @@ export const removeStaleTodoReceipts = onSchedule({
                 lastTodoWithoutDueDate = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
-            logger.error("마감일이 없는 todo receipt 정리 실패", { error });
+            logger.error("마감일이 없는 todo notification record 정리 실패", { error });
         }
     }
 );

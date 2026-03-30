@@ -1,26 +1,23 @@
 //
-//  TodoCategory.swift
+//  SystemTodoCategoryItem.swift
 //  DevLog
 //
-//  Created by opfic on 5/29/25.
+//  Created by opfic on 3/30/26.
 //
 
 import SwiftUI
 
-enum TodoCategory: String, Identifiable, CaseIterable, Codable {
-    case issue          // 이슈
-    case feature        // 신규 기능
-    case improvement    // 개선/리팩터링
-    case review         // 코드/문서 리뷰
-    case test           // 테스트/QA
-    case doc            // 문서화
-    case research       // 리서치/학습
-    case etc            // 기타
+struct SystemTodoCategoryItem: Identifiable, Hashable {
+    let systemTodoCategory: SystemTodoCategory
 
-    var id: String { rawValue }
+    init(from systemTodoCategory: SystemTodoCategory) {
+        self.systemTodoCategory = systemTodoCategory
+    }
+
+    var id: String { systemTodoCategory.rawValue }
 
     var symbolName: String {
-        switch self {
+        switch systemTodoCategory {
         case .issue: return "exclamationmark.triangle"
         case .feature: return "sparkles"
         case .improvement: return "arrow.triangle.2.circlepath"
@@ -31,9 +28,9 @@ enum TodoCategory: String, Identifiable, CaseIterable, Codable {
         case .etc: return "ellipsis"
         }
     }
-    
+
     var localizedName: String {
-        switch self {
+        switch systemTodoCategory {
         case .issue: return NSLocalizedString("todo_category_issue", comment: "Todo category: Issue")
         case .feature: return NSLocalizedString("todo_category_feature", comment: "Todo category: Feature")
         case .improvement: return NSLocalizedString("todo_category_improvement", comment: "Todo category: Improvement")
@@ -44,17 +41,17 @@ enum TodoCategory: String, Identifiable, CaseIterable, Codable {
         case .etc: return NSLocalizedString("todo_category_etc", comment: "Todo category: Etc")
         }
     }
-    
+
     var color: Color {
-        switch self {
-        case .issue: return Color.red
-        case .feature: return Color.green
-        case .improvement: return Color.cyan
-        case .review: return Color.orange
-        case .test: return Color.purple
-        case .doc: return Color.yellow
-        case .research: return Color.teal
-        case .etc: return Color.gray
+        switch systemTodoCategory {
+        case .issue: return .red
+        case .feature: return .green
+        case .improvement: return .cyan
+        case .review: return .orange
+        case .test: return .purple
+        case .doc: return .yellow
+        case .research: return .teal
+        case .etc: return .gray
         }
     }
 }

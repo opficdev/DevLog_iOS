@@ -113,6 +113,7 @@ final class TodoDetailViewModel: Store {
                 if !numbers.isEmpty {
                     do {
                         referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
+                            .mapValues(TodoReferenceItem.init(from:))
                     } catch {
                         referenceItems = [:]
                     }

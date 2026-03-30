@@ -14,7 +14,7 @@ struct RecentTodoItem: Identifiable, Hashable {
     let isPinned: Bool
     let updatedAt: Date
     let tags: [String]
-    let category: TodoCategory
+    var category: TodoCategory
 
     init(from todo: Todo) {
         self.id = todo.id
@@ -24,5 +24,13 @@ struct RecentTodoItem: Identifiable, Hashable {
         self.updatedAt = todo.updatedAt
         self.tags = todo.tags
         self.category = todo.category
+    }
+
+    static func == (lhs: RecentTodoItem, rhs: RecentTodoItem) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

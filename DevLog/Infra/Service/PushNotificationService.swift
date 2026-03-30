@@ -318,7 +318,7 @@ private extension PushNotificationService {
             receivedAt: receivedAt.dateValue(),
             isRead: isRead,
             todoId: todoId,
-            todoCategory: todoCategory
+            todoCategory: .raw(todoCategory)
         )
     }
 

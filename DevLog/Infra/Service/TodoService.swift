@@ -32,7 +32,7 @@ final class TodoService {
             "sortTarget=\(query.sortTarget.fieldName)",
             "sortOrder=\(query.sortOrder == .latest ? "latest" : "oldest")",
             query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
-            query.category != nil ? "category=\(query.category!.rawValue)" : nil,
+            query.category != nil ? "category=\(query.category!.storageValue)" : nil,
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
@@ -49,7 +49,7 @@ final class TodoService {
         if let category = query.category {
             firestoreQuery = firestoreQuery.whereField(
                 TodoFieldKey.category.rawValue,
-                isEqualTo: category.rawValue
+                isEqualTo: category.storageValue
             )
         }
 
@@ -241,7 +241,7 @@ final class TodoService {
         }
     }
 
-    func fetchReferenceItems(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
+    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReferenceResponse] {
         guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
 
         let uniqueNumbers = Array(Set(numbers)).sorted()
@@ -265,20 +265,20 @@ final class TodoService {
             return documents
         }
 
-        return snapshots.reduce(into: [Int: TodoReferenceItem]()) { partialResult, document in
+        return snapshots.reduce(into: [Int: TodoReferenceResponse]()) { partialResult, document in
             let data = document.data()
             guard
                 !(data[TodoFieldKey.deletingAt.rawValue] is Timestamp),
-                let response = makeResponse(from: document),
-                let category = TodoCategory(rawValue: response.category)
+                let response = makeResponse(from: document)
             else {
                 return
             }
 
-            partialResult[response.number] = TodoReferenceItem(
+            partialResult[response.number] = TodoReferenceResponse(
                 id: response.id,
+                number: response.number,
                 title: response.title,
-                category: category
+                category: response.category
             )
         }
     }
@@ -469,7 +469,7 @@ private extension TodoService {
             completedAt: completedAt,
             dueDate: dueDate,
             tags: tags,
-            category: category
+            category: .raw(category)
         )
     }
 

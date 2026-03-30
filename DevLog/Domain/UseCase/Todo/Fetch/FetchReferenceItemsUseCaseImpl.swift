@@ -12,7 +12,7 @@ final class FetchReferenceItemsUseCaseImpl: FetchReferenceItemsUseCase {
         self.repository = repository
     }
 
-    func execute(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem] {
-        try await repository.fetchReferenceItems(numbers)
+    func execute(_ numbers: [Int]) async throws -> [Int: TodoReference] {
+        try await repository.fetchReferences(numbers)
     }
 }

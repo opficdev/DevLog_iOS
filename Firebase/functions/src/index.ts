@@ -34,9 +34,18 @@ import {
 
 import {
     removeTodoNotificationDocuments,
-    removeCompletedTodoReceipts,
-    removeStaleTodoReceipts
-} from "./todo/remove";
+    removeCompletedTodoNotificationRecords,
+    cleanupUnusedTodoNotificationRecords
+} from "./todo/cleanup";
+
+import {
+    syncTodoNotificationCategory
+} from "./todo/update";
+
+import {
+    requestMoveRemovedCategoryTodosToEtc,
+    completeMoveRemovedCategoryTodosToEtc
+} from "./todoCategory/update";
 
 import {
     requestTodoDeletion,
@@ -94,8 +103,11 @@ export {
 
 export {
     removeTodoNotificationDocuments,
-    removeCompletedTodoReceipts,
-    removeStaleTodoReceipts,
+    removeCompletedTodoNotificationRecords,
+    cleanupUnusedTodoNotificationRecords,
+    syncTodoNotificationCategory,
+    requestMoveRemovedCategoryTodosToEtc,
+    completeMoveRemovedCategoryTodosToEtc,
     requestTodoDeletion,
     undoTodoDeletion,
     completeTodoDeletion,

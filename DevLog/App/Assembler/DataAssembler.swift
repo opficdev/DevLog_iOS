@@ -28,7 +28,14 @@ final class DataAssembler: Assembler {
 
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
-                todoService: container.resolve(TodoService.self)
+                todoService: container.resolve(TodoService.self),
+                todoCategoryService: container.resolve(TodoCategoryService.self)
+            )
+        }
+
+        container.register(TodoCategoryRepository.self) {
+            TodoCategoryRepositoryImpl(
+                todoCategoryService: container.resolve(TodoCategoryService.self)
             )
         }
 
@@ -67,7 +74,10 @@ final class DataAssembler: Assembler {
         }
 
         container.register(PushNotificationRepository.self) {
-            PushNotificationRepositoryImpl(pushNotificationService: container.resolve(PushNotificationService.self))
+            PushNotificationRepositoryImpl(
+                pushNotificationService: container.resolve(PushNotificationService.self),
+                todoCategoryService: container.resolve(TodoCategoryService.self)
+            )
         }
 
         container.register(WebPageRepository.self) {

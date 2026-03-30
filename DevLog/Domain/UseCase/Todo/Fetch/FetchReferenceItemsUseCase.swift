@@ -6,5 +6,5 @@
 //
 
 protocol FetchReferenceItemsUseCase {
-    func execute(_ numbers: [Int]) async throws -> [Int: TodoReferenceItem]
+    func execute(_ numbers: [Int]) async throws -> [Int: TodoReference]
 }

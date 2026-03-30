@@ -9,25 +9,30 @@ import Foundation
 import Combine
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
-    private let service: PushNotificationService
+    private let pushNotificationService: PushNotificationService
+    private let todoCategoryService: TodoCategoryService
 
-    init(pushNotificationService: PushNotificationService) {
-        self.service = pushNotificationService
+    init(
+        pushNotificationService: PushNotificationService,
+        todoCategoryService: TodoCategoryService
+    ) {
+        self.pushNotificationService = pushNotificationService
+        self.todoCategoryService = todoCategoryService
     }
 
     /// 푸시 알림 On/Off 설정
     func fetchPushNotificationEnabled() async throws -> Bool {
-        return try await service.fetchPushNotificationEnabled()
+        return try await pushNotificationService.fetchPushNotificationEnabled()
     }
 
     /// 푸시 알림 시간 설정
     func fetchPushNotificationTime() async throws -> DateComponents {
-        return try await service.fetchPushNotificationTime()
+        return try await pushNotificationService.fetchPushNotificationTime()
     }
 
     /// 푸시 알림 설정 업데이트
     func updatePushNotificationSettings(_ settings: PushNotificationSettings) async throws {
-        try await service.updatePushNotificationSettings(
+        try await pushNotificationService.updatePushNotificationSettings(
             isEnabled: settings.isEnabled, components: settings.scheduledTime
         )
     }
@@ -38,35 +43,125 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         cursor: PushNotificationCursor?
     ) async throws -> PushNotificationPage {
         let cursorDTO = cursor.map { PushNotificationCursorDTO.fromDomain($0) }
-        let response = try await service.requestNotifications(query, cursor: cursorDTO)
-        return try response.toDomain()
+        async let responseTask = pushNotificationService.requestNotifications(query, cursor: cursorDTO)
+        async let preferencesTask = todoCategoryService.fetchPreferences()
+
+        let (response, preferences) = try await (responseTask, preferencesTask)
+        return try resolvePage(from: response, with: preferences)
     }
 
     func observeNotifications(
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPage, Error> {
-        try service.observeNotifications(query, limit: limit)
-            .tryMap { try $0.toDomain() }
+        let subject = PassthroughSubject<PushNotificationPage, Error>()
+        var cancellable: AnyCancellable?
+
+        cancellable = try pushNotificationService.observeNotifications(query, limit: limit)
+            .sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        subject.send(completion: .finished)
+                    case .failure(let error):
+                        subject.send(completion: .failure(error))
+                    }
+                },
+                receiveValue: { [weak self] response in
+                    guard let self else { return }
+
+                    Task {
+                        do {
+                            let preferences = try await self.todoCategoryService.fetchPreferences()
+                            let page = try self.resolvePage(from: response, with: preferences)
+                            subject.send(page)
+                        } catch {
+                            subject.send(completion: .failure(error))
+                        }
+                    }
+                }
+            )
+
+        return subject
+            .handleEvents(receiveCancel: { cancellable?.cancel() })
             .eraseToAnyPublisher()
     }
 
     func observeUnreadPushCount() throws -> AnyPublisher<Int, Error> {
-        try service.observeUnreadPushCount()
+        try pushNotificationService.observeUnreadPushCount()
             .eraseToAnyPublisher()
     }
 
     // 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
-        try await service.deleteNotification(notificationID)
+        try await pushNotificationService.deleteNotification(notificationID)
     }
 
     func undoDeleteNotification(_ notificationID: String) async throws {
-        try await service.undoDeleteNotification(notificationID)
+        try await pushNotificationService.undoDeleteNotification(notificationID)
     }
 
     // 푸시 알림 읽음/안읽음 토글
     func toggleNotificationRead(_ todoId: String) async throws {
-        try await service.toggleNotificationRead(todoId)
+        try await pushNotificationService.toggleNotificationRead(todoId)
+    }
+}
+
+private extension PushNotificationRepositoryImpl {
+    func resolvePage(
+        from response: PushNotificationPageResponse,
+        with preferences: [TodoCategoryPreference]
+    ) throws -> PushNotificationPage {
+        let userTodoCategories: [UserTodoCategory] = preferences.compactMap { preference in
+            guard case .user(let userTodoCategory) = preference.category else {
+                return nil
+            }
+
+            return userTodoCategory
+        }
+
+        let responses = try response.items.map {
+            try resolve($0, userTodoCategories: userTodoCategories)
+        }
+
+        return try PushNotificationPageResponse(
+            items: responses,
+            nextCursor: response.nextCursor
+        ).toDomain()
+    }
+
+    // resolvePage() 메서드에서만 사용됨
+    private func resolve(
+        _ response: PushNotificationResponse,
+        userTodoCategories: [UserTodoCategory]
+    ) throws -> PushNotificationResponse {
+        let id: String
+        switch response.todoCategory {
+        case .raw(let rawValue):
+            id = rawValue
+        case .decoded:
+            return response
+        }
+
+        let todoCategory: TodoCategory
+        if let systemTodoCategory = SystemTodoCategory(rawValue: id) {
+            todoCategory = .system(systemTodoCategory)
+        } else if let userTodoCategory = userTodoCategories.first(where: {
+            $0.id == id
+        }) {
+            todoCategory = .user(userTodoCategory)
+        } else {
+            throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(id)")
+        }
+
+        return PushNotificationResponse(
+            id: response.id,
+            title: response.title,
+            body: response.body,
+            receivedAt: response.receivedAt,
+            isRead: response.isRead,
+            todoId: response.todoId,
+            todoCategory: .decoded(todoCategory)
+        )
     }
 }

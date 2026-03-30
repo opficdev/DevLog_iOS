@@ -20,15 +20,20 @@ extension TodoRequest {
             completedAt: entity.completedAt,
             dueDate: entity.dueDate,
             tags: entity.tags,
-            category: entity.category
+            category: entity.category.storageValue
         )
     }
 }
 
 extension TodoResponse {
     func toDomain() throws -> Todo {
-        guard let category = TodoCategory(rawValue: self.category) else {
-            throw DataError.invalidData("TodoResponse.category is invalid: \(self.category)")
+        let todoCategory: TodoCategory
+
+        switch category {
+        case .decoded(let category):
+            todoCategory = category
+        case .raw(let category):
+            throw DataError.invalidData("TodoResponse.category must be resolved before toDomain(): \(category)")
         }
 
         return Todo(
@@ -44,7 +49,7 @@ extension TodoResponse {
             completedAt: self.completedAt,
             dueDate: self.dueDate,
             tags: self.tags,
-            category: category
+            category: todoCategory
         )
     }
 }

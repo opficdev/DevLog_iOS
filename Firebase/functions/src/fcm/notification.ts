@@ -42,7 +42,7 @@ export const sendPushNotification = onTaskDispatched({
                 logger.warn("notificationTask 문서 형식이 올바르지 않습니다.", { taskId });
                 return;
             }
-            const { userId, todoId, todoCategory, dueDateKey, title, body } = parsed;
+            const { userId, todoId, dueDateKey, title, body } = parsed;
 
             const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
             const todoDocRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
@@ -56,6 +56,8 @@ export const sendPushNotification = onTaskDispatched({
 
             const todoData = todoDoc.data();
             if (!todoDoc.exists || !todoData || todoData.isCompleted === true) { return; }
+            const todoCategory = typeof todoData.category === "string" ? todoData.category.trim() : "";
+            if (!todoCategory) { return; }
 
             const timeZone = resolveTimeZone(settingsData);
 
