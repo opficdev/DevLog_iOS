@@ -87,7 +87,7 @@ final class TodoManageViewModel: Store {
         }
 
         if SystemTodoCategory.allCases.contains(where: {
-            SystemTodoCategoryItem(from: $0).localizedName.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
+            $0.rawValue.caseInsensitiveCompare(trimmedCategoryName) == .orderedSame
         }) {
             return false
         }
