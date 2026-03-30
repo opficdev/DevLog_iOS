@@ -44,6 +44,7 @@ final class HomeViewModel: Store {
         case setLoading(LoadingTarget, Bool)
         case tapTodoCategory(TodoCategory)
         case orderTodoCategoryPreferences([TodoCategoryPreference])
+        case setTodoCategoryPreferences([TodoCategoryPreference])
         case addTodo(Todo)
         case updateRecentTodos([RecentTodoItem])
         case updateWebPageURLInput(String)
@@ -59,6 +60,8 @@ final class HomeViewModel: Store {
         case addWebPage(String)
         case deleteWebPage(WebPageItem, Int)
         case undoDeleteWebPage(String)
+        case fetchTodoCategoryPreferences
+        case updateTodoCategoryPreferences([TodoCategoryPreference])
         case fetchRecentTodos
         case fetchWebPages
         case showModalAfterDelay(ModalType)
@@ -93,6 +96,8 @@ final class HomeViewModel: Store {
     }
 
     private(set) var state = State()
+    private let fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
+    private let updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
@@ -105,6 +110,8 @@ final class HomeViewModel: Store {
     private var cancellables = Set<AnyCancellable>()
 
     init(
+        fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
+        updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase,
         addWebPageUseCase: AddWebPageUseCase,
         deleteWebPageUseCase: DeleteWebPageUseCase,
         undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase,
@@ -113,6 +120,8 @@ final class HomeViewModel: Store {
         fetchWebPagesUseCase: FetchWebPagesUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     ) {
+        self.fetchPreferencesUseCase = fetchPreferencesUseCase
+        self.updatePreferencesUseCase = updatePreferencesUseCase
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
         self.undoDeleteWebPageUseCase = undoDeleteWebPageUseCase
@@ -136,7 +145,8 @@ final class HomeViewModel: Store {
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .updateRecentTodos, .updateWebPages, .restoreWebPage:
+        case .setLoading, .setTodoCategoryPreferences, .updateRecentTodos,
+                .updateWebPages, .restoreWebPage:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -146,6 +156,23 @@ final class HomeViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
+        case .fetchTodoCategoryPreferences:
+            Task {
+                do {
+                    let preferences = try await fetchPreferencesUseCase.execute()
+                    send(.setTodoCategoryPreferences(preferences))
+                } catch {
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
+        case .updateTodoCategoryPreferences(let items):
+            Task {
+                do {
+                    try await updatePreferencesUseCase.execute(items)
+                } catch {
+                    send(.setAlert(isPresented: true, type: .error))
+                }
+            }
         case .addTodo(let todo):
             beginLoading(for: .overlay, mode: .delayed)
             Task {
@@ -255,7 +282,7 @@ private extension HomeViewModel {
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .onAppear:
-            return [.fetchRecentTodos, .fetchWebPages]
+            return [.fetchTodoCategoryPreferences, .fetchRecentTodos, .fetchWebPages]
         case .setPresentation(let presentation, let isPresented):
             setPresentation(&state, presentation: presentation, isPresented: isPresented)
         case .setAlert(let presented, let type):
@@ -275,6 +302,7 @@ private extension HomeViewModel {
             return [.showModalAfterDelay(.todoEditor)]
         case .orderTodoCategoryPreferences(let preferences):
             state.todoCategoryPreferences = preferences
+            return [.updateTodoCategoryPreferences(preferences)]
         case .addTodo(let todo):
             return [.addTodo(todo)]
         case .updateWebPageURLInput(let text):
@@ -308,6 +336,8 @@ private extension HomeViewModel {
         switch action {
         case .setLoading(let loadingTarget, let isLoading):
             setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
+        case .setTodoCategoryPreferences(let todoCategoryPreferenceArray):
+            state.todoCategoryPreferences = todoCategoryPreferenceArray
         case .updateRecentTodos(let todos):
             state.recentTodos = todos
         case .updateWebPages(let pages):

@@ -14,6 +14,8 @@ struct MainView: View {
     var body: some View {
         TabView {
             HomeView(viewModel: HomeViewModel(
+                fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+                updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
                 addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
                 deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
                 undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),

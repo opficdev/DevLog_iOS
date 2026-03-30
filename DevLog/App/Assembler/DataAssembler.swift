@@ -32,6 +32,12 @@ final class DataAssembler: Assembler {
             )
         }
 
+        container.register(TodoCategoryRepository.self) {
+            TodoCategoryRepositoryImpl(
+                todoCategoryService: container.resolve(TodoCategoryService.self)
+            )
+        }
+
         container.register(AuthSessionRepository.self) {
             AuthSessionRepositoryImpl(
                 authService: container.resolve(AuthService.self)
