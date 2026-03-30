@@ -63,6 +63,7 @@ struct TodoDetailView: View {
                 TodoEditorView(
                     viewModel: TodoEditorViewModel(
                         todo: todo,
+                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
                     ),
                     onSubmit: { viewModel.send(.upsertTodo($0)) }

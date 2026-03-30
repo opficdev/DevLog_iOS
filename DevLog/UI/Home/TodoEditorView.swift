@@ -38,6 +38,7 @@ struct TodoEditorView: View {
             .onTapGesture {
                 field = .content
             }
+            .onAppear { viewModel.send(.onAppear) }
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
@@ -215,9 +216,9 @@ private struct TodoEditorInfoSheetView: View {
                             set: { viewModel.send(.setCategory($0)) }
                         )
                     ) {
-                        ForEach(SystemTodoCategory.allCases) { category in
+                        ForEach(viewModel.state.categories, id: \.id) { category in
                             Text(category.localizedName)
-                                .tag(TodoCategory.system(category))
+                                .tag(category)
                         }
                     }
 
