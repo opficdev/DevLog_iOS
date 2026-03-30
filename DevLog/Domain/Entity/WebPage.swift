@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WebPage {
+struct WebPage: Equatable {
     let title: String?
     let url: URL
     let displayURL: URL

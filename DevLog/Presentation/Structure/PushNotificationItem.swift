@@ -26,10 +26,6 @@ struct PushNotificationItem: Identifiable, Hashable {
         self.todoCategory = notification.todoCategory
     }
 
-    static func == (lhs: PushNotificationItem, rhs: PushNotificationItem) -> Bool {
-        lhs.id == rhs.id
-    }
-
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

@@ -28,10 +28,6 @@ struct TodayTodoItem: Identifiable, Hashable {
         self.category = todo.category
     }
 
-    static func == (lhs: TodayTodoItem, rhs: TodayTodoItem) -> Bool {
-        lhs.id == rhs.id
-    }
-
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
