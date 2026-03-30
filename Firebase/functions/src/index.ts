@@ -39,6 +39,11 @@ import {
 } from "./todo/remove";
 
 import {
+    requestMoveRemovedCategoryTodosToEtc,
+    completeMoveRemovedCategoryTodosToEtc
+} from "./todoCategory/update";
+
+import {
     requestTodoDeletion,
     undoTodoDeletion,
     completeTodoDeletion
@@ -96,6 +101,8 @@ export {
     removeTodoNotificationDocuments,
     removeCompletedTodoReceipts,
     removeStaleTodoReceipts,
+    requestMoveRemovedCategoryTodosToEtc,
+    completeMoveRemovedCategoryTodosToEtc,
     requestTodoDeletion,
     undoTodoDeletion,
     completeTodoDeletion,
