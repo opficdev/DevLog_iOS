@@ -5,7 +5,7 @@ import axios from "axios";
 // GitHub OAuth 인증 및 커스텀 토큰 발급 함수
 export const requestGithubTokens = onCall({
     cors: true,
-    maxInstances: 10,
+    maxInstances: 3,
     region: "asia-northeast3",
 }, async (request) => {
     try {
@@ -103,7 +103,7 @@ export const requestGithubTokens = onCall({
 
 export const revokeGithubAccessToken = onCall({
         cors: true,
-        maxInstances: 10,
+        maxInstances: 3,
         region: "asia-northeast3",
     }, async (request) => {
         try {

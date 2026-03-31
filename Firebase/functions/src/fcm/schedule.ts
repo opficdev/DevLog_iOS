@@ -25,6 +25,7 @@ type ErrorLike = {
 };
 
 export const scheduleTodoReminder = onSchedule({
+        maxInstances: 2,
         region: LOCATION,
         schedule: "*/5 * * * *",
         timeZone: "UTC"
