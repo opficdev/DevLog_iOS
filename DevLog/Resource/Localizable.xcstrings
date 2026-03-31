@@ -22,37 +22,6 @@
     "%lld주" : {
 
     },
-    "https://" : {
-
-    },
-    "lime_green" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "라임 그린"
-          }
-        }
-      }
-    },
-    "Markdown 미리보기" : {
-
-    },
-    "Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호" : {
-
-    },
-    "night_sky" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "밤하늘"
-          }
-        }
-      }
-    },
     "common_cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -100,6 +69,37 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "https://" : {
+
+    },
+    "lime_green" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라임 그린"
+          }
+        }
+      }
+    },
+    "Markdown 미리보기" : {
+
+    },
+    "Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호" : {
+
+    },
+    "night_sky" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "밤하늘"
           }
         }
       }
@@ -538,9 +538,6 @@
     "추가" : {
 
     },
-    "취소" : {
-
-    },
     "카테고리" : {
 
     },
@@ -596,9 +593,6 @@
           }
         }
       }
-    },
-    "확인" : {
-
     },
     "활동" : {
 
