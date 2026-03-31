@@ -17,7 +17,8 @@ final class TodayViewModel: Store {
     }
 
     struct SectionContent: Identifiable, Equatable {
-        var id: String { title }
+        var id: SummaryScope { scope }
+        let scope: SummaryScope
         let title: String
         let items: [TodayTodoItem]
     }
@@ -87,35 +88,60 @@ final class TodayViewModel: Store {
     }
 
     var sections: [SectionContent] {
-        let groupedItems = groupedSectionItems(from: displayedTodos)
-        let allSections: [SectionContent] = [
-            SectionContent(title: String(localized: "today_section_focused"), items: groupedItems.focused),
-            SectionContent(title: String(localized: "today_section_overdue"), items: groupedItems.overdue),
-            SectionContent(
+        let items = groupedSectionItems(from: displayedTodos)
+
+        switch state.selectedSummaryScope {
+        case .all:
+            return
+                makeSection(
+                    scope: .focused,
+                    title: String(localized: "today_section_focused"),
+                    items: items.focused
+                )
+                + makeSection(
+                    scope: .overdue,
+                    title: String(localized: "today_section_overdue"),
+                    items: items.overdue
+                )
+                + makeSection(
+                    scope: .dueSoon,
+                    title: String.localizedStringWithFormat(
+                        String(localized: "today_section_due_soon_format"),
+                        Int64(upcomingWindowDays)
+                    ),
+                    items: items.dueSoon
+                )
+                + makeSection(
+                    scope: .all,
+                    title: String(localized: "today_section_later"),
+                    items: items.later
+                )
+                + makeSection(
+                    scope: .all,
+                    title: String(localized: "today_section_unscheduled"),
+                    items: items.unscheduled
+                )
+        case .focused:
+            return makeSection(
+                scope: .focused,
+                title: String(localized: "today_section_focused"),
+                items: items.focused
+            )
+        case .overdue:
+            return makeSection(
+                scope: .overdue,
+                title: String(localized: "today_section_overdue"),
+                items: items.overdue
+            )
+        case .dueSoon:
+            return makeSection(
+                scope: .dueSoon,
                 title: String.localizedStringWithFormat(
                     String(localized: "today_section_due_soon_format"),
                     Int64(upcomingWindowDays)
                 ),
-                items: groupedItems.dueSoon
-            ),
-            SectionContent(title: String(localized: "today_section_later"), items: groupedItems.later),
-            SectionContent(title: String(localized: "today_section_unscheduled"), items: groupedItems.unscheduled)
-        ]
-
-        switch state.selectedSummaryScope {
-        case .all:
-            return allSections.filter { !$0.items.isEmpty }
-        case .focused:
-            return allSections.filter { $0.title == String(localized: "today_section_focused") && !$0.items.isEmpty }
-        case .overdue:
-            return allSections.filter { $0.title == String(localized: "today_section_overdue") && !$0.items.isEmpty }
-        case .dueSoon:
-            return allSections.filter {
-                $0.title == String.localizedStringWithFormat(
-                    String(localized: "today_section_due_soon_format"),
-                    Int64(upcomingWindowDays)
-                ) && !$0.items.isEmpty
-            }
+                items: items.dueSoon
+            )
         }
     }
 
@@ -221,6 +247,15 @@ final class TodayViewModel: Store {
 }
 
 private extension TodayViewModel {
+    func makeSection(
+        scope: SummaryScope,
+        title: String,
+        items: [TodayTodoItem]
+    ) -> [SectionContent] {
+        guard !items.isEmpty else { return [] }
+        return [SectionContent(scope: scope, title: title, items: items)]
+    }
+
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .refresh:
