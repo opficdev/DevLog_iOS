@@ -1640,6 +1640,23 @@
         }
       }
     },
+    "relative_time_updated_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %1$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 업데이트"
+          }
+        }
+      }
+    },
     "root_network_disconnected_message" : {
       "extractionState" : "manual",
       "localizations" : {

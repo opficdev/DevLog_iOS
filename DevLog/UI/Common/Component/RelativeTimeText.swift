@@ -14,7 +14,12 @@ struct RelativeTimeText: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
-            Text(relativeTimeText(from: date, now: context.date) + String(localized: "relative_time_updated_suffix"))
+            Text(
+                String.localizedStringWithFormat(
+                    String(localized: "relative_time_updated_format"),
+                    relativeTimeText(from: date, now: context.date)
+                )
+            )
                 .font(bodyFont)
                 .foregroundStyle(bodyColor)
         }
