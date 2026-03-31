@@ -54,7 +54,7 @@ function getAppleConfiguration() {
 
 export const requestAppleCustomToken = onCall({
     cors: true,
-    maxInstances: 2,
+    maxInstances: 3,
     region: "asia-northeast3",
 }, async (request) => {
     try {
@@ -142,7 +142,7 @@ export const requestAppleCustomToken = onCall({
 
 export const requestAppleRefreshToken = onCall({
     cors: true,
-    maxInstances: 2,
+    maxInstances: 3,
     region: "asia-northeast3",
   }, async (request) => {
     if (!request.auth) {
@@ -186,7 +186,7 @@ export const requestAppleRefreshToken = onCall({
   
 export const refreshAppleAccessToken = onCall({
     cors: true,
-    maxInstances: 2,
+    maxInstances: 3,
     region: "asia-northeast3",
 }, async (request) => {
   // 인증 확인
@@ -267,7 +267,7 @@ export const refreshAppleAccessToken = onCall({
   
 export const revokeAppleAccessToken = onCall({
     cors: true,
-    maxInstances: 2,
+    maxInstances: 3,
     region: "asia-northeast3",
 }, async (request) => {
       // 인증 확인

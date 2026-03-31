@@ -18,7 +18,7 @@ type FirestoreErrorLike = {
 
 // Cloud Tasks에 의해 트리거되는 함수
 export const sendPushNotification = onTaskDispatched({
-        maxInstances: 1,
+        maxInstances: 2,
         region: "asia-northeast3",
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
         rateLimits: { maxDispatchesPerSecond: 200 },

@@ -17,7 +17,7 @@ type WebPageDeletionTaskData = {
 
 export const requestWebPageDeletion = onCall({
         cors: true,
-        maxInstances: 2,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -101,7 +101,7 @@ export const requestWebPageDeletion = onCall({
 
 export const undoWebPageDeletion = onCall({
         cors: true,
-        maxInstances: 2,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {

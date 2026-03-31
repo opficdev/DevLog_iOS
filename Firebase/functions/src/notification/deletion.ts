@@ -16,7 +16,7 @@ type NotificationDeletionTaskData = {
 
 export const requestPushNotificationDeletion = onCall({
         cors: true,
-        maxInstances: 2,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -94,7 +94,7 @@ export const requestPushNotificationDeletion = onCall({
 
 export const undoPushNotificationDeletion = onCall({
         cors: true,
-        maxInstances: 2,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
