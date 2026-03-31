@@ -156,7 +156,14 @@
       }
     },
     "TODO" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TODO"
+          }
+        }
+      }
     },
     "TODO 편집" : {
 
@@ -252,8 +259,26 @@
     "Todos" : {
 
     },
+    "URL" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL"
+          }
+        }
+      }
+    },
     "Web Page" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Web Page"
+          }
+        }
+      }
     },
     "Web Pages" : {
 
@@ -349,7 +374,14 @@
 
     },
     "알림" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        }
+      }
     },
     "없음" : {
 
@@ -364,7 +396,14 @@
 
     },
     "오늘" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
     },
     "옵션" : {
 
@@ -482,7 +521,14 @@
 
     },
     "프로필" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        }
+      }
     },
     "필터 옵션" : {
 
@@ -491,7 +537,14 @@
 
     },
     "홈" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        }
+      }
     },
     "확인" : {
 
