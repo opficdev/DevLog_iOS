@@ -19,7 +19,7 @@ struct ProfileTrendChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("주간 추세")
+                Text(String(localized: "profile_weekly_trend"))
                     .font(.subheadline)
                     .bold()
 
@@ -58,7 +58,12 @@ struct ProfileTrendChartView: View {
                             .foregroundStyle(.quaternary)
                         AxisValueLabel {
                             if let weekIndex = value.as(Int.self) {
-                                Text("\(weekIndex)주")
+                                Text(
+                                    String.localizedStringWithFormat(
+                                        String(localized: "profile_week_format"),
+                                        Int64(weekIndex)
+                                    )
+                                )
                                     .font(.caption2)
                                     .fixedSize()
                             }
@@ -86,7 +91,7 @@ struct ProfileTrendChartView: View {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.title3)
                         .foregroundStyle(.secondary)
-                    Text("이 분기에는 선택한 활동이 없어요")
+                    Text(String(localized: "profile_quarter_empty"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -161,15 +166,15 @@ struct ProfileTrendChartView: View {
     private var createdSeries: some ChartContent {
         ForEach(trendPoints) { point in
             LineMark(
-                x: .value("주차", point.weekIndex),
+                x: .value(String(localized: "profile_week_axis"), point.weekIndex),
                 y: .value(ProfileActivityType.created.title, point.createdCount),
-                series: .value("활동", ProfileActivityType.created.title)
+                series: .value(String(localized: "profile_activity_axis"), ProfileActivityType.created.title)
             )
             .foregroundStyle(createdColor)
             .lineStyle(StrokeStyle(lineWidth: 2.5))
 
             PointMark(
-                x: .value("주차", point.weekIndex),
+                x: .value(String(localized: "profile_week_axis"), point.weekIndex),
                 y: .value(ProfileActivityType.created.title, point.createdCount)
             )
             .foregroundStyle(createdColor)
@@ -180,15 +185,15 @@ struct ProfileTrendChartView: View {
     private var completedSeries: some ChartContent {
         ForEach(trendPoints) { point in
             LineMark(
-                x: .value("주차", point.weekIndex),
+                x: .value(String(localized: "profile_week_axis"), point.weekIndex),
                 y: .value(ProfileActivityType.completed.title, point.completedCount),
-                series: .value("활동", ProfileActivityType.completed.title)
+                series: .value(String(localized: "profile_activity_axis"), ProfileActivityType.completed.title)
             )
             .foregroundStyle(completedColor)
             .lineStyle(StrokeStyle(lineWidth: 2.5))
 
             PointMark(
-                x: .value("주차", point.weekIndex),
+                x: .value(String(localized: "profile_week_axis"), point.weekIndex),
                 y: .value(ProfileActivityType.completed.title, point.completedCount)
             )
             .foregroundStyle(completedColor)

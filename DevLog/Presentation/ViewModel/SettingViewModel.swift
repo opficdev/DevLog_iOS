@@ -143,17 +143,17 @@ private extension SettingViewModel {
     ) {
         switch type {
         case .signOut:
-            state.alertTitle = "로그아웃"
-            state.alertMessage = "로그아웃 하시겠습니까?"
+            state.alertTitle = String(localized: "settings_alert_sign_out_title")
+            state.alertMessage = String(localized: "settings_alert_sign_out_message")
         case .deleteAuth:
-            state.alertTitle = "정말 탈퇴하시겠습니까?"
-            state.alertMessage = "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
+            state.alertTitle = String(localized: "settings_alert_delete_account_title")
+            state.alertMessage = String(localized: "settings_alert_delete_account_message")
         case .error:
-            state.alertTitle = "오류"
-            state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            state.alertTitle = String(localized: "common_error_title")
+            state.alertMessage = String(localized: "common_error_message")
         case .removeCache:
-            state.alertTitle = "임시 데이터 삭제"
-            state.alertMessage = "임시 데이터를 삭제하고 정리합니다.\n계속하시겠습니까?"
+            state.alertTitle = String(localized: "settings_alert_clear_temp_title")
+            state.alertMessage = String(localized: "settings_alert_clear_temp_message")
         case .none:
             state.alertTitle = ""
             state.alertMessage = ""

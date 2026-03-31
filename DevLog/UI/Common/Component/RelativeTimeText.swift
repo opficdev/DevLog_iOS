@@ -14,7 +14,12 @@ struct RelativeTimeText: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
-            Text(relativeTimeText(from: date, now: context.date) + " 업데이트")
+            Text(
+                String.localizedStringWithFormat(
+                    String(localized: "relative_time_updated_format"),
+                    relativeTimeText(from: date, now: context.date)
+                )
+            )
                 .font(bodyFont)
                 .foregroundStyle(bodyColor)
         }
@@ -24,16 +29,28 @@ struct RelativeTimeText: View {
         let seconds = Int(now.timeIntervalSince(date))
 
         if seconds < 60 {
-            return "\(max(0, seconds))초 전"
+            return String.localizedStringWithFormat(
+                String(localized: "relative_time_seconds_ago_format"),
+                Int64(max(0, seconds))
+            )
         } else if seconds < 3600 {
             let minutes = seconds / 60
-            return "\(minutes)분 전"
+            return String.localizedStringWithFormat(
+                String(localized: "relative_time_minutes_ago_format"),
+                Int64(minutes)
+            )
         } else if seconds < 86400 {
             let hours = seconds / 3600
-            return "\(hours)시간 전"
+            return String.localizedStringWithFormat(
+                String(localized: "relative_time_hours_ago_format"),
+                Int64(hours)
+            )
         } else {
             let days = seconds / 86400
-            return "\(days)일 전"
+            return String.localizedStringWithFormat(
+                String(localized: "relative_time_days_ago_format"),
+                Int64(days)
+            )
         }
     }
 }

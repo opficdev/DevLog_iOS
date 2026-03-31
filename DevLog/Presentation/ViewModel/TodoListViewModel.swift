@@ -397,8 +397,8 @@ private extension TodoListViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
     }
 
@@ -406,7 +406,7 @@ private extension TodoListViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.toastMessage = "실행 취소"
+        state.toastMessage = String(localized: "common_undo")
         state.showToast = isPresented
     }
 
@@ -444,11 +444,11 @@ extension TodoQuery.SortTarget {
     var title: String {
         switch self {
         case .createdAt:
-            return "생성"
+            return String(localized: "todo_sort_created")
         case .updatedAt:
-            return "수정"
+            return String(localized: "todo_sort_updated")
         case .dueDate:
-            return "마감"
+            return String(localized: "todo_sort_due_date")
         }
     }
 }
@@ -457,9 +457,9 @@ extension TodoQuery.SortOrder {
     var title: String {
         switch self {
         case .latest:
-            return "최신순"
+            return String(localized: "todo_sort_latest")
         case .oldest:
-            return "예전순"
+            return String(localized: "todo_sort_oldest")
         }
     }
 }
@@ -468,11 +468,11 @@ extension TodoQuery.CompletionFilter {
     var title: String {
         switch self {
         case .all:
-            return "완료 + 미완료"
+            return String(localized: "todo_completion_all")
         case .incomplete:
-            return "미완료"
+            return String(localized: "todo_completion_incomplete")
         case .completed:
-            return "완료"
+            return String(localized: "todo_completion_completed")
         }
     }
 }

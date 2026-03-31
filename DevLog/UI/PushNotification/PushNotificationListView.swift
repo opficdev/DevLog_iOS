@@ -36,14 +36,14 @@ struct PushNotificationListView: View {
                 }
             }
             .refreshable { viewModel.send(.fetchNotifications) }
-            .navigationTitle("받은 푸시 알람")
+            .navigationTitle(String(localized: "push_notifications_title"))
             .alert(
                 "",
                 isPresented: Binding(
                     get: { viewModel.state.showAlert },
                     set: { viewModel.send(.setAlert(isPresented: $0)) }
             )) {
-                Button("확인", role: .cancel) { }
+                Button(String(localized: "common_close"), role: .cancel) { }
             } message: {
                 Text(viewModel.state.alertMessage)
             }
@@ -94,7 +94,7 @@ struct PushNotificationListView: View {
                 if viewModel.state.notifications.isEmpty {
                     HStack {
                         Spacer()
-                        Text("받은 알림이 없습니다.")
+                        Text(String(localized: "push_notifications_empty"))
                             .foregroundStyle(Color.gray)
                         Spacer()
                     }
@@ -170,11 +170,16 @@ struct PushNotificationListView: View {
         HStack(spacing: 8) {
             if 0 < viewModel.appliedFilterCount {
                 Menu {
-                    Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
+                    Text(
+                        String.localizedStringWithFormat(
+                            String(localized: "push_filters_applied_format"),
+                            Int64(viewModel.appliedFilterCount)
+                        )
+                    )
                     Button(role: .destructive) {
                         viewModel.send(.resetFilters)
                     } label: {
-                        Text("모든 필터 지우기")
+                        Text(String(localized: "push_clear_all_filters"))
                     }
                 } label: {
                     HStack(spacing: 6) {
@@ -189,7 +194,12 @@ struct PushNotificationListView: View {
                 viewModel.send(.toggleSortOption)
             } label: {
                 let condition = viewModel.state.query.sortOrder == .oldest
-                Text("정렬: \(viewModel.state.query.sortOrder.title)")
+                Text(
+                    String.localizedStringWithFormat(
+                        String(localized: "push_sort_format"),
+                        viewModel.state.query.sortOrder.title
+                    )
+                )
                     .foregroundStyle(condition ? .white : Color(.label))
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
@@ -203,12 +213,12 @@ struct PushNotificationListView: View {
                         Text(option.title).tag(option)
                     }
                 } label: {
-                    Text("기간")
+                    Text(String(localized: "push_period"))
                 }
             } label: {
                 let condition = viewModel.state.query.timeFilter == .none
                 HStack {
-                    Text("기간")
+                    Text(String(localized: "push_period"))
                     Image(systemName: "chevron.down")
                 }
                 .foregroundStyle(condition ? Color(.label) : .white)
@@ -219,7 +229,7 @@ struct PushNotificationListView: View {
                 viewModel.send(.toggleUnreadOnly)
             } label: {
                 let condition = viewModel.state.query.unreadOnly
-                Text("읽지 않음")
+                Text(String(localized: "push_unread"))
                     .foregroundStyle(condition ? .white : Color(.label))
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
@@ -306,16 +316,28 @@ struct PushNotificationListView: View {
         let seconds = Int(now.timeIntervalSince(date))
 
         if seconds < 60 {
-            return "\(max(0, seconds))초 전"
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_seconds_ago_format"),
+                Int64(max(0, seconds))
+            )
         } else if seconds < 3600 {
             let minutes = seconds / 60
-            return "\(minutes)분 전"
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_minutes_ago_format"),
+                Int64(minutes)
+            )
         } else if seconds < 86400 {
             let hours = seconds / 3600
-            return "\(hours)시간 전"
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_hours_ago_format"),
+                Int64(hours)
+            )
         } else {
             let days = seconds / 86400
-            return "\(days)일 전"
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_days_ago_format"),
+                Int64(days)
+            )
         }
     }
 }

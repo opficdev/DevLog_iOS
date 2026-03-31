@@ -26,7 +26,7 @@ struct MainView: View {
             ))
             .tabItem {
                 Image(systemName: "house.fill")
-                Text("홈")
+                Text(String(localized: "nav_home"))
             }
             TodayView(viewModel: TodayViewModel(
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
@@ -37,7 +37,7 @@ struct MainView: View {
             ))
             .tabItem {
                 Image(systemName: "sun.max.fill")
-                Text("오늘")
+                Text(String(localized: "nav_today"))
             }
             PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
@@ -49,7 +49,7 @@ struct MainView: View {
             ))
             .tabItem {
                 Image(systemName: "bell.fill")
-                Text("알림")
+                Text(String(localized: "nav_notifications"))
             }
             .badge(viewModel.state.unreadPushCount)
             ProfileView(viewModel: ProfileViewModel(
@@ -62,7 +62,7 @@ struct MainView: View {
             ))
             .tabItem {
                 Image(systemName: "person.crop.circle.fill")
-                Text("프로필")
+                Text(String(localized: "nav_profile"))
             }
         }
         .onAppear {
@@ -75,7 +75,7 @@ struct MainView: View {
                 set: { viewModel.send(.setAlert($0)) }
             )
         ) {
-            Button("확인", role: .cancel) { }
+            Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
             Text(viewModel.state.alertMessage)
         }

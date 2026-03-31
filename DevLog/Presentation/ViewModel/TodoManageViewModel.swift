@@ -44,11 +44,15 @@ final class TodoManageViewModel: Store {
     }
 
     var navigationTitle: String {
-        isEditing ? "카테고리 수정" : "카테고리 추가"
+        isEditing
+            ? String(localized: "todo_manage_edit_category_title")
+            : String(localized: "todo_manage_add_category_title")
     }
 
     var submitTitle: String {
-        isEditing ? "저장" : "추가"
+        isEditing
+            ? String(localized: "todo_manage_save")
+            : String(localized: "todo_add")
     }
 
     var placeholder: String {
@@ -56,7 +60,7 @@ final class TodoManageViewModel: Store {
             let item = state.category,
             case .user(let category) = item.category
         else {
-            return "이름"
+            return String(localized: "todo_manage_name_placeholder")
         }
 
         return category.name

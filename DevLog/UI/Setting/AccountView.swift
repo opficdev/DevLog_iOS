@@ -13,14 +13,14 @@ struct AccountView: View {
 
     var body: some View {
         List {
-            Section("현재 계정") {
+            Section(String(localized: "account_current_section")) {
                 HStack {
                     if let provider = viewModel.state.currentProvider {
                         providerContent(provider)
                     }
                 }
             }
-            Section("소셜 계정") {
+            Section(String(localized: "account_social_section")) {
                 let providers = AuthProvider.allCases.filter { $0 != viewModel.state.currentProvider }
                 ForEach(providers, id: \.self) { provider in
                     let isConnected = viewModel.state.connectedProviders.contains(provider)
@@ -34,7 +34,9 @@ struct AccountView: View {
                                 viewModel.send(.linkWithProvider(provider))
                             }
                         } label: {
-                            Text(isConnected ? "연결 해제" : "연결")
+                            Text(isConnected
+                                 ? String(localized: "account_disconnect")
+                                 : String(localized: "account_connect"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 12)
@@ -49,7 +51,7 @@ struct AccountView: View {
         }
         .scrollDisabled(true)
         .listStyle(.insetGrouped)
-        .navigationTitle("계정 연동")
+        .navigationTitle(String(localized: "account_title"))
         .onAppear {
             viewModel.send(.onAppear)
         }
@@ -57,7 +59,7 @@ struct AccountView: View {
             get: { viewModel.state.showAlert },
             set: { viewModel.send(.setAlert(isPresented: $0)) }
         )) {
-            Button("확인", role: .cancel) { }
+            Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
             Text(viewModel.state.alertMessage)
         }

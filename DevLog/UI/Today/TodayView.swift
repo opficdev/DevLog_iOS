@@ -25,7 +25,7 @@ struct TodayView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("오늘")
+            .navigationTitle(String(localized: "today_title"))
             .toolbar { toolbarContent }
             .navigationDestination(for: Path.self) { path in
                 switch path {
@@ -48,7 +48,7 @@ struct TodayView: View {
                     set: { viewModel.send(.setAlert($0)) }
                 )
             ) {
-                Button("확인", role: .cancel) { }
+                Button(String(localized: "common_close"), role: .cancel) { }
             } message: {
                 Text(viewModel.state.alertMessage)
             }
@@ -64,17 +64,17 @@ struct TodayView: View {
         Section {
             ScrollView(.horizontal) {
                 HStack(spacing: 12) {
-                    ForEach(TodayViewModel.SummaryScope.allCases, id: \.self) { scope in
+                    ForEach(TodayViewModel.SectionScope.allCases, id: \.self) { scope in
                         Button {
                             withAnimation(.easeInOut) {
-                                viewModel.send(.setSummaryScope(scope))
+                                viewModel.send(.setSectionScope(scope))
                             }
                         } label: {
                             SummaryCard(
                                 title: scope.title,
                                 value: viewModel.summaryValue(for: scope),
                                 accentColor: scope.accentColor,
-                                isSelected: viewModel.state.selectedSummaryScope == scope
+                                isSelected: viewModel.state.selectedSectionScope == scope
                             )
                         }
                         .buttonStyle(.plain)
@@ -92,7 +92,7 @@ struct TodayView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Picker(
-                    "보기 범위",
+                    String(localized: "today_due_visibility_label"),
                     selection: Binding(
                         get: { viewModel.state.displayOptions.dueDateVisibility },
                         set: { viewModel.send(.setDueDateVisibility($0)) }
@@ -104,7 +104,7 @@ struct TodayView: View {
                 }
 
                 Toggle(
-                    "중요 표시만",
+                    String(localized: "today_pinned_only"),
                     isOn: Binding(
                         get: { viewModel.state.displayOptions.focusVisibility == .focusedOnly },
                         set: {
@@ -115,7 +115,7 @@ struct TodayView: View {
                 .tint(.orange)
 
                 if viewModel.state.displayOptions.focusVisibility == .focusedOnly {
-                    Text("중요 표시한 Todo만 표시됩니다.")
+                    Text(String(localized: "today_pinned_only_description"))
                         .font(.caption)
                 }
             } label: {
@@ -161,7 +161,7 @@ struct TodayView: View {
                         Button {
                             viewModel.send(.completeTodo(item))
                         } label: {
-                            Label("완료", systemImage: "checkmark")
+                            Label(String(localized: "today_complete_action"), systemImage: "checkmark")
                         }
                         .tint(.green)
                     }
@@ -174,32 +174,32 @@ struct TodayView: View {
     }
 
     private var emptyStateContent: EmptyStateContent {
-        switch viewModel.state.selectedSummaryScope {
+        switch viewModel.state.selectedSectionScope {
         case .all:
             if viewModel.state.todos.isEmpty {
                 return EmptyStateContent(
-                    title: "남아 있는 Todo가 없습니다.",
-                    message: "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+                    title: String(localized: "today_empty_all_title"),
+                    message: String(localized: "today_empty_all_message")
                 )
             }
             return EmptyStateContent(
-                title: "선택한 보기 옵션에 맞는 Todo가 없습니다.",
-                message: "툴바에서 보기 범위를 조정하거나 전체 보기로 돌아가세요."
+                title: String(localized: "today_empty_filtered_title"),
+                message: String(localized: "today_empty_filtered_message")
             )
         case .focused:
             return EmptyStateContent(
-                title: "집중할 일이 없습니다.",
-                message: "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+                title: String(localized: "today_empty_focused_title"),
+                message: String(localized: "today_empty_focused_message")
             )
         case .overdue:
             return EmptyStateContent(
-                title: "지난 마감 Todo가 없습니다.",
-                message: "지금은 기한이 지난 Todo가 없습니다."
+                title: String(localized: "today_empty_overdue_title"),
+                message: String(localized: "today_empty_overdue_message")
             )
         case .dueSoon:
             return EmptyStateContent(
-                title: "7일 내 일정이 없습니다.",
-                message: "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+                title: String(localized: "today_empty_due_soon_title"),
+                message: String(localized: "today_empty_due_soon_message")
             )
         }
     }
@@ -218,26 +218,26 @@ private extension TodayDisplayOptions.DueDateVisibility {
     var title: String {
         switch self {
         case .all:
-            return "전체"
+            return String(localized: "today_due_visibility_all")
         case .withDueDateOnly:
-            return "기한 있는 Todo만"
+            return String(localized: "today_due_visibility_with_due")
         case .withoutDueDateOnly:
-            return "기한 없는 Todo만"
+            return String(localized: "today_due_visibility_without_due")
         }
     }
 }
 
-private extension TodayViewModel.SummaryScope {
+private extension TodayViewModel.SectionScope {
     var title: String {
         switch self {
         case .all:
-            return "남은 일"
+            return String(localized: "today_summary_all")
         case .focused:
-            return "집중"
+            return String(localized: "today_summary_focused")
         case .overdue:
-            return "지연"
+            return String(localized: "today_summary_overdue")
         case .dueSoon:
-            return "7일 내"
+            return String(localized: "today_summary_due_soon")
         }
     }
 
@@ -339,7 +339,7 @@ private struct TodayTodoRow: View {
 
         if dueDay < today {
             return DueDateBadge(
-                text: "기한 지남",
+                text: String(localized: "today_due_overdue"),
                 textColor: .red,
                 backgroundColor: Color.red.opacity(0.12)
             )

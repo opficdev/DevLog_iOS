@@ -77,8 +77,8 @@ private extension MainViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "알림 배지를 불러오는 중 문제가 발생했습니다."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "main_alert_badge_error_message")
         state.showAlert = isPresented
     }
 

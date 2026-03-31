@@ -16,8 +16,10 @@ struct ProfileSelectedDayActivity: Identifiable, Hashable {
 
     var activityLabel: String {
         if showsCreated && showsCompleted {
-            return "생성/완료"
+            return String(localized: "profile_activity_created_completed")
         }
-        return showsCreated ? "생성" : "완료"
+        return showsCreated
+            ? String(localized: "profile_activity_created")
+            : String(localized: "profile_activity_completed")
     }
 }

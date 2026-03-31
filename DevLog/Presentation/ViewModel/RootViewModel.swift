@@ -92,8 +92,8 @@ private extension RootViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "네트워크 연결 끊김"
-        state.alertMessage = "인터넷 연결을 확인해주세요."
+        state.alertTitle = String(localized: "root_network_disconnected_title")
+        state.alertMessage = String(localized: "root_network_disconnected_message")
         state.showAlert = isPresented
     }
 

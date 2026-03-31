@@ -15,7 +15,7 @@ struct WebPageItem: Identifiable, Hashable {
     }
 
     var id: URL { metadata.url }
-    var title: String { metadata.title ?? "웹페이지를 찾을 수 없습니다" }
+    var title: String { metadata.title ?? String(localized: "web_page_missing_title") }
     var url: URL { metadata.url }
     var displayURL: String { metadata.displayURL.absoluteString }
     var imageURL: URL? { metadata.imageURL }

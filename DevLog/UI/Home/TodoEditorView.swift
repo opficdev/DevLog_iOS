@@ -95,7 +95,7 @@ struct TodoEditorView: View {
                 get: { viewModel.state.title },
                 set: { viewModel.send(.setTitle($0)) }
             ),
-            prompt: Text("제목(필수)").foregroundColor(Color.secondary),
+            prompt: Text(String(localized: "todo_editor_title_required")).foregroundColor(Color.secondary),
         )
         .font(.title2)
         .frame(height: 30)
@@ -110,7 +110,7 @@ struct TodoEditorView: View {
                     viewModel.send(.setTabViewTag(.editor))
                     field = .content
                 }) {
-                    Text("편집")
+                    Text(String(localized: "todo_edit"))
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(
                             viewModel.state.tabViewTag == .editor ? Color.primary : Color.secondary
@@ -120,7 +120,7 @@ struct TodoEditorView: View {
                 Button(action: {
                     transitionToPreview()
                 }) {
-                    Text("미리보기")
+                    Text(String(localized: "todo_preview"))
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(
                             viewModel.state.tabViewTag == .preview ? Color.primary : Color.gray
@@ -142,7 +142,7 @@ struct TodoEditorView: View {
                             get: { viewModel.state.content },
                             set: { viewModel.send(.setContent($0)) }
                         ),
-                        placeholder: "설명(선택)"
+                        placeholder: String(localized: "todo_editor_description_optional")
                     )
                     .focused($field, equals: .content)
                 }
@@ -163,16 +163,16 @@ struct TodoEditorView: View {
     }
 
     private var markdownHint: some View {
-        Text("Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호")
+        Text(String(localized: "todo_editor_markdown_hint"))
             .font(.caption)
             .foregroundStyle(.secondary)
     }
 
     private var previewPlaceholder: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Markdown 미리보기")
+            Text(String(localized: "todo_editor_markdown_preview_title"))
                 .font(.subheadline.weight(.semibold))
-            Text("편집 탭에서 Markdown으로 작성하면 여기에서 서식이 적용되어 보여요.")
+            Text(String(localized: "todo_editor_markdown_preview_message"))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -208,9 +208,9 @@ private struct TodoEditorInfoSheetView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("옵션") {
+                Section(String(localized: "todo_options_section")) {
                     Picker(
-                        "카테고리",
+                        String(localized: "todo_category"),
                         selection: Binding(
                             get: { viewModel.state.category.id },
                             set: { categoryID in
@@ -231,7 +231,7 @@ private struct TodoEditorInfoSheetView: View {
                     }
 
                     Toggle(
-                        "완료",
+                        String(localized: "todo_completed"),
                         isOn: Binding(
                             get: { viewModel.state.isCompleted },
                             set: { viewModel.send(.setCompleted($0)) }
@@ -240,7 +240,7 @@ private struct TodoEditorInfoSheetView: View {
                     .tint(.blue)
 
                     Toggle(
-                        "중요 표시",
+                        String(localized: "todo_pinned"),
                         isOn: Binding(
                             get: { viewModel.state.isPinned },
                             set: { viewModel.send(.setPinned($0)) }
@@ -251,10 +251,10 @@ private struct TodoEditorInfoSheetView: View {
                     dueDateControl
                 }
 
-                Section("태그") {
+                Section(String(localized: "todo_tags")) {
                     HStack(spacing: 12) {
                         TextField(
-                            "추가",
+                            String(localized: "todo_add"),
                             text: Binding(
                                 get: { viewModel.state.tagText },
                                 set: { viewModel.send(.setTagText($0)) }
@@ -280,7 +280,7 @@ private struct TodoEditorInfoSheetView: View {
                     }
 
                     if viewModel.state.tags.isEmpty {
-                        Text("태그 없음")
+                        Text(String(localized: "todo_no_tags"))
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 4)
                     } else {
@@ -292,7 +292,7 @@ private struct TodoEditorInfoSheetView: View {
                     }
                 }
             }
-            .navigationTitle("세부 정보")
+            .navigationTitle(String(localized: "todo_details"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarLeadingButton {
@@ -308,7 +308,7 @@ private struct TodoEditorInfoSheetView: View {
             set: { viewModel.send(.setDueDate($0)) }
         )) {
             HStack {
-                Text("마감일")
+                Text(String(localized: "todo_due_date"))
                     .foregroundStyle(.primary)
                 Spacer()
                 if let dueDate = viewModel.state.dueDate {
@@ -317,7 +317,7 @@ private struct TodoEditorInfoSheetView: View {
                     }
                     .padding(.vertical, -4)
                 } else {
-                    Text("없음")
+                    Text(String(localized: "todo_none"))
                         .foregroundStyle(.secondary)
                 }
             }

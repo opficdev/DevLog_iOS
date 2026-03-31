@@ -20,7 +20,7 @@ struct ToolbarLeadingButton: ToolbarContent {
                 Button {
                     action?()
                 } label: {
-                    Text("취소")
+                    Text(String(localized: "common_cancel"))
                 }
             }
         }
@@ -52,7 +52,7 @@ struct ToolbarTrailingButton: ToolbarContent {
                 Button {
                     action?()
                 } label: {
-                    Text("확인")
+                    Text(String(localized: "common_confirm"))
                         .bold()
                 }
                 .disabled(isDisabled)

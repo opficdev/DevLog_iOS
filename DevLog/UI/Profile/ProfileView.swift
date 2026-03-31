@@ -45,7 +45,7 @@ struct ProfileView: View {
                                 get: { viewModel.state.statusMessage },
                                 set: { viewModel.send(.updateStatusMessage($0)) })
                             ) {
-                                Text("상태 설정")
+                                Text(String(localized: "profile_status_placeholder"))
                             }
                             .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
                             .focused($focused)
@@ -71,7 +71,7 @@ struct ProfileView: View {
                                 focused = false
                                 viewModel.send(.willUpdateStatusMessage)
                             }) {
-                                Text("완료")
+                                Text(String(localized: "profile_done"))
                             }
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
@@ -122,7 +122,7 @@ struct ProfileView: View {
                 get: { viewModel.state.showAlert },
                 set: { viewModel.send(.setAlert($0)) }
             )) {
-                Button("확인", role: .cancel) { }
+                Button(String(localized: "common_close"), role: .cancel) { }
             } message: {
                 Text(viewModel.state.alertMessage)
             }
@@ -138,7 +138,7 @@ struct ProfileView: View {
     private var activityHeatmapSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("분기별 활동")
+                Text(String(localized: "profile_quarterly_activity"))
                     .font(.headline)
                 Spacer()
                 quarterResetButton
@@ -251,7 +251,7 @@ struct ProfileView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 HStack {
-                    Text("연도")
+                    Text(String(localized: "profile_year"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -260,7 +260,13 @@ struct ProfileView: View {
                         set: { viewModel.send(.setQuarterPickerYear($0)) }
                     )) {
                         ForEach(viewModel.availableQuarterYears, id: \.self) { year in
-                            Text(year.formatted(.number.grouping(.never)) + "년").tag(year)
+                            Text(
+                                String.localizedStringWithFormat(
+                                    String(localized: "profile_year_option_format"),
+                                    Int64(year)
+                                )
+                            )
+                            .tag(year)
                         }
                     }
                     .pickerStyle(.menu)
@@ -276,7 +282,7 @@ struct ProfileView: View {
                 Spacer(minLength: 0)
             }
             .padding(20)
-            .navigationTitle("분기 선택")
+            .navigationTitle(String(localized: "profile_select_quarter"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarTrailingButton {
@@ -322,7 +328,7 @@ struct ProfileView: View {
                 .bold()
 
             if activities.isEmpty {
-                Text("활동 없음")
+                Text(String(localized: "profile_activity_none"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)

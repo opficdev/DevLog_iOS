@@ -9,15 +9,26 @@ import Foundation
 
 @Observable
 final class TodayViewModel: Store {
-    enum SummaryScope: Hashable, CaseIterable {
+    // TodayView 상단에서 사용자가 선택하는 요약 탭 범위.
+    enum SectionScope: Hashable, CaseIterable {
         case all
         case focused
         case overdue
         case dueSoon
     }
 
+    // 요약 탭 아래 실제 리스트에 렌더링되는 섹션 분류.
+    enum SectionCategory: Hashable {
+        case later
+        case unscheduled
+        case focused
+        case overdue
+        case dueSoon
+    }
+
     struct SectionContent: Identifiable, Equatable {
-        var id: String { title }
+        var id: SectionCategory { category }
+        let category: SectionCategory
         let title: String
         let items: [TodayTodoItem]
     }
@@ -36,14 +47,14 @@ final class TodayViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
-        var selectedSummaryScope: SummaryScope = .all
+        var selectedSectionScope: SectionScope = .all
         var displayOptions: TodayDisplayOptions = .default
     }
 
     enum Action {
         case refresh
         case setAlert(Bool)
-        case setSummaryScope(SummaryScope)
+        case setSectionScope(SectionScope)
         case setDueDateVisibility(TodayDisplayOptions.DueDateVisibility)
         case setFocusVisibility(TodayDisplayOptions.FocusVisibility)
         case resetDisplayOptions
@@ -87,28 +98,64 @@ final class TodayViewModel: Store {
     }
 
     var sections: [SectionContent] {
-        let groupedItems = groupedSectionItems(from: displayedTodos)
-        let allSections: [SectionContent] = [
-            SectionContent(title: "집중할 일", items: groupedItems.focused),
-            SectionContent(title: "지난 마감", items: groupedItems.overdue),
-            SectionContent(title: "\(upcomingWindowDays)일 내 일정", items: groupedItems.dueSoon),
-            SectionContent(title: "나중 일정", items: groupedItems.later),
-            SectionContent(title: "일정 미정", items: groupedItems.unscheduled)
-        ]
+        let items = groupedSectionItems(from: displayedTodos)
 
-        switch state.selectedSummaryScope {
+        switch state.selectedSectionScope {
         case .all:
-            return allSections.filter { !$0.items.isEmpty }
+            return
+                makeSection(
+                    category: .focused,
+                    title: String(localized: "today_section_focused"),
+                    items: items.focused
+                )
+                + makeSection(
+                    category: .overdue,
+                    title: String(localized: "today_section_overdue"),
+                    items: items.overdue
+                )
+                + makeSection(
+                    category: .dueSoon,
+                    title: String.localizedStringWithFormat(
+                        String(localized: "today_section_due_soon_format"),
+                        Int64(upcomingWindowDays)
+                    ),
+                    items: items.dueSoon
+                )
+                + makeSection(
+                    category: .later,
+                    title: String(localized: "today_section_later"),
+                    items: items.later
+                )
+                + makeSection(
+                    category: .unscheduled,
+                    title: String(localized: "today_section_unscheduled"),
+                    items: items.unscheduled
+                )
         case .focused:
-            return allSections.filter { $0.title == "집중할 일" && !$0.items.isEmpty }
+            return makeSection(
+                category: .focused,
+                title: String(localized: "today_section_focused"),
+                items: items.focused
+            )
         case .overdue:
-            return allSections.filter { $0.title == "지난 마감" && !$0.items.isEmpty }
+            return makeSection(
+                category: .overdue,
+                title: String(localized: "today_section_overdue"),
+                items: items.overdue
+            )
         case .dueSoon:
-            return allSections.filter { $0.title == "\(upcomingWindowDays)일 내 일정" && !$0.items.isEmpty }
+            return makeSection(
+                category: .dueSoon,
+                title: String.localizedStringWithFormat(
+                    String(localized: "today_section_due_soon_format"),
+                    Int64(upcomingWindowDays)
+                ),
+                items: items.dueSoon
+            )
         }
     }
 
-    func summaryValue(for scope: SummaryScope) -> Int {
+    func summaryValue(for scope: SectionScope) -> Int {
         switch scope {
         case .all:
             return displayedTodos.count
@@ -126,7 +173,7 @@ final class TodayViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .setSummaryScope, .setDueDateVisibility, .setFocusVisibility,
+        case .refresh, .setAlert, .setSectionScope, .setDueDateVisibility, .setFocusVisibility,
                 .resetDisplayOptions, .completeTodo, .togglePinned:
             effects = reduceByUser(action, state: &state)
         case .onAppear:
@@ -210,17 +257,26 @@ final class TodayViewModel: Store {
 }
 
 private extension TodayViewModel {
+    func makeSection(
+        category: SectionCategory,
+        title: String,
+        items: [TodayTodoItem]
+    ) -> [SectionContent] {
+        guard !items.isEmpty else { return [] }
+        return [SectionContent(category: category, title: title, items: items)]
+    }
+
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .refresh:
             return [.fetchTodos]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
-        case .setSummaryScope(let scope):
-            if state.selectedSummaryScope == scope, scope != .all {
-                state.selectedSummaryScope = .all
+        case .setSectionScope(let scope):
+            if state.selectedSectionScope == scope, scope != .all {
+                state.selectedSectionScope = .all
             } else {
-                state.selectedSummaryScope = scope
+                state.selectedSectionScope = scope
             }
         case .setDueDateVisibility(let visibility):
             state.displayOptions.dueDateVisibility = visibility
@@ -275,8 +331,8 @@ private extension TodayViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
     }
 

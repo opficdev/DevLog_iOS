@@ -160,17 +160,17 @@ private extension AccountViewModel {
     func setAlert(_ state: inout State, isPresented: Bool, type: AlertType?) {
         switch type {
         case .linkEmailNotFound:
-            state.alertTitle = "이메일 확인 불가"
-            state.alertMessage = "선택한 계정의 이메일 정보를 확인할 수 없어 연결할 수 없어요. 계정 설정을 확인한 뒤 다시 시도해주세요."
+            state.alertTitle = String(localized: "account_alert_email_unavailable_title")
+            state.alertMessage = String(localized: "account_alert_email_unavailable_message")
         case .linkEmailMismatch:
-            state.alertTitle = "연결할 수 없음"
-            state.alertMessage = "현재 로그인한 계정과 선택한 계정의 이메일이 달라 연결할 수 없어요. 같은 이메일의 계정으로 다시 시도해주세요."
+            state.alertTitle = String(localized: "account_alert_cannot_link_title")
+            state.alertMessage = String(localized: "account_alert_cannot_link_message")
         case .linkCredentialAlreadyInUse:
-            state.alertTitle = "이미 연결된 계정"
-            state.alertMessage = "선택한 계정은 이미 다른 계정에 연결되어 있어요. 해당 계정으로 로그인한 뒤 이용해주세요."
+            state.alertTitle = String(localized: "account_alert_already_linked_title")
+            state.alertMessage = String(localized: "account_alert_already_linked_message")
         case .error:
-            state.alertTitle = "오류"
-            state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            state.alertTitle = String(localized: "common_error_title")
+            state.alertMessage = String(localized: "common_error_message")
         case .none:
             state.alertTitle = ""
             state.alertMessage = ""
@@ -182,9 +182,9 @@ private extension AccountViewModel {
     func setToast(_ state: inout State, isPresented: Bool, type: ToastType?) {
         switch type {
         case .linkSuccess:
-            state.toastMessage = "계정이 성공적으로 연결되었습니다."
+            state.toastMessage = String(localized: "account_toast_link_success")
         case .unlinkSuccess:
-            state.toastMessage = "계정 연결이 성공적으로 해제되었습니다."
+            state.toastMessage = String(localized: "account_toast_unlink_success")
         case .none:
             state.toastMessage = ""
         }
