@@ -89,22 +89,33 @@ final class TodayViewModel: Store {
     var sections: [SectionContent] {
         let groupedItems = groupedSectionItems(from: displayedTodos)
         let allSections: [SectionContent] = [
-            SectionContent(title: "집중할 일", items: groupedItems.focused),
-            SectionContent(title: "지난 마감", items: groupedItems.overdue),
-            SectionContent(title: "\(upcomingWindowDays)일 내 일정", items: groupedItems.dueSoon),
-            SectionContent(title: "나중 일정", items: groupedItems.later),
-            SectionContent(title: "일정 미정", items: groupedItems.unscheduled)
+            SectionContent(title: String(localized: "today_section_focused"), items: groupedItems.focused),
+            SectionContent(title: String(localized: "today_section_overdue"), items: groupedItems.overdue),
+            SectionContent(
+                title: String.localizedStringWithFormat(
+                    String(localized: "today_section_due_soon_format"),
+                    Int64(upcomingWindowDays)
+                ),
+                items: groupedItems.dueSoon
+            ),
+            SectionContent(title: String(localized: "today_section_later"), items: groupedItems.later),
+            SectionContent(title: String(localized: "today_section_unscheduled"), items: groupedItems.unscheduled)
         ]
 
         switch state.selectedSummaryScope {
         case .all:
             return allSections.filter { !$0.items.isEmpty }
         case .focused:
-            return allSections.filter { $0.title == "집중할 일" && !$0.items.isEmpty }
+            return allSections.filter { $0.title == String(localized: "today_section_focused") && !$0.items.isEmpty }
         case .overdue:
-            return allSections.filter { $0.title == "지난 마감" && !$0.items.isEmpty }
+            return allSections.filter { $0.title == String(localized: "today_section_overdue") && !$0.items.isEmpty }
         case .dueSoon:
-            return allSections.filter { $0.title == "\(upcomingWindowDays)일 내 일정" && !$0.items.isEmpty }
+            return allSections.filter {
+                $0.title == String.localizedStringWithFormat(
+                    String(localized: "today_section_due_soon_format"),
+                    Int64(upcomingWindowDays)
+                ) && !$0.items.isEmpty
+            }
         }
     }
 
@@ -275,8 +286,8 @@ private extension TodayViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
     }
 

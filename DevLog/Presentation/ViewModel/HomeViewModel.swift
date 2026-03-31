@@ -390,15 +390,15 @@ private extension HomeViewModel {
     ) {
         switch type {
         case .webPageInput:
-            state.alertTitle = "URL 추가"
-            state.alertMessage = "웹페이지 URL을 입력해주세요."
+            state.alertTitle = String(localized: "home_webpage_input_title")
+            state.alertMessage = String(localized: "home_webpage_input_message")
             state.webPageURLInput = "https://"
         case .invalidURL:
-            state.alertTitle = "URL 확인"
-            state.alertMessage = "올바른 URL을 입력해주세요."
+            state.alertTitle = String(localized: "home_invalid_url_title")
+            state.alertMessage = String(localized: "home_invalid_url_message")
         case .error:
-            state.alertTitle = "오류"
-            state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            state.alertTitle = String(localized: "common_error_title")
+            state.alertMessage = String(localized: "common_error_message")
         case .none:
             state.alertTitle = ""
             state.alertMessage = ""
@@ -414,7 +414,7 @@ private extension HomeViewModel {
     ) {
         switch type {
         case .deleteWebPage:
-            state.toastMessage = "실행 취소"
+            state.toastMessage = String(localized: "common_undo")
         case .none:
             state.toastMessage = ""
         }

@@ -20,7 +20,7 @@ struct SettingView: View {
                     router.push(Path.theme)
                 } label: {
                     HStack {
-                        Text("테마")
+                        Text(String(localized: "settings_theme"))
                             .foregroundStyle(Color.primary)
                         Spacer()
                         Text(viewModel.state.theme.localizedName)
@@ -31,7 +31,7 @@ struct SettingView: View {
                 Button {
                     router.push(Path.pushNotification)
                 } label: {
-                    Text("알림")
+                    Text(String(localized: "settings_notifications"))
                         .foregroundStyle(connected ? Color.primary : Color.secondary)
                 }
                 .disabled(!connected)
@@ -41,7 +41,7 @@ struct SettingView: View {
                     viewModel.send(.tapRemoveCacheButton)
                 } label: {
                     HStack {
-                        Text("임시 데이터 삭제")
+                        Text(String(localized: "settings_clear_temp_data"))
                             .foregroundStyle(dirSize == 0 ? Color.secondary : .primary)
                         Spacer()
                         Text(formatFileSize(bytes: dirSize))
@@ -54,7 +54,7 @@ struct SettingView: View {
             Section {
                 if let appVersion = viewModel.appVersion {
                     HStack {
-                        Text("버전 정보")
+                        Text(String(localized: "settings_version"))
                         Spacer()
                         Text(appVersion)
                     }
@@ -62,7 +62,7 @@ struct SettingView: View {
                 if let policyString = viewModel.policyURL,
                    let url = URL(string: policyString) {
                     Link(destination: url) {
-                        Text("개인정보 처리방침")
+                        Text(String(localized: "settings_privacy_policy"))
                             .foregroundColor(Color.blue)
                     }
                 }
@@ -73,8 +73,8 @@ struct SettingView: View {
                     }
                 }) {
                     VStack(alignment: .leading) {
-                        Text("베타 테스트 참여")
-                        Text("신규 기능을 빠르게 만나볼 수 있습니다")
+                        Text(String(localized: "settings_join_beta"))
+                        Text(String(localized: "settings_join_beta_subtitle"))
                             .foregroundStyle(Color.gray)
                             .font(.caption)
                     }
@@ -85,13 +85,13 @@ struct SettingView: View {
                 Button {
                     router.push(Path.account)
                 } label: {
-                    Text("계정 연동")
+                    Text(String(localized: "settings_account"))
                 }
                 .disabled(!connected)
                 Button(role: .destructive, action: {
                     viewModel.send(.setAlert(isPresented: true, type: .signOut))
                 }) {
-                    Text("로그아웃")
+                    Text(String(localized: "settings_sign_out"))
                 }
                 .disabled(!connected)
             }
@@ -101,14 +101,14 @@ struct SettingView: View {
                 Button(role: .destructive, action: {
                     viewModel.send(.setAlert(isPresented: true, type: .deleteAuth))
                 }) {
-                    Text("회원 탈퇴")
+                    Text(String(localized: "settings_delete_account"))
                         .font(.headline)
                 }
                 .disabled(!connected)
                 Spacer()
             }
         }
-        .navigationTitle("설정")
+        .navigationTitle(String(localized: "settings_title"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Path.self) { path in
             switch path {
@@ -174,7 +174,7 @@ struct SettingView: View {
             Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
-            Button("탈퇴", role: .destructive) {
+            Button(String(localized: "settings_delete_account_action"), role: .destructive) {
                 viewModel.send(.tapDeleteAuthButton)
             }
         case .removeCache:

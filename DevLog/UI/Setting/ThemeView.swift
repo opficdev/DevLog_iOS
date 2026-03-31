@@ -52,7 +52,7 @@ struct ThemeView: View {
         .listStyle(.insetGrouped)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("테마")
+                Text(String(localized: "theme_title"))
                     .bold()
             }
         }

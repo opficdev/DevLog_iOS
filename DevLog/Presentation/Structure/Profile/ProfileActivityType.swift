@@ -13,8 +13,8 @@ enum ProfileActivityType: String, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .created: return "생성"
-        case .completed: return "완료"
+        case .created: return String(localized: "profile_activity_created")
+        case .completed: return String(localized: "profile_activity_completed")
         }
     }
 }

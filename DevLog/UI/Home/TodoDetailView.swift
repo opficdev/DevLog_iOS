@@ -90,7 +90,7 @@ struct TodoDetailView: View {
                 Button {
                     viewModel.send(.setShowEditor(true))
                 } label: {
-                    Text("수정")
+                    Text(String(localized: "todo_edit"))
                 }
             }
         }
@@ -114,28 +114,28 @@ private struct TodoDetailInfoSheetView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("옵션") {
+                Section(String(localized: "todo_options_section")) {
                     HStack {
-                        Text("카테고리")
+                        Text(String(localized: "todo_category"))
                         Spacer()
                         Text(TodoCategoryItem(from: todo.category).localizedName)
                             .foregroundStyle(.secondary)
                     }
 
                     statusRow(
-                        title: "완료",
+                        title: String(localized: "todo_completed"),
                         systemImage: todo.isCompleted ? "checkmark.circle.fill" : "circle",
                         color: todo.isCompleted ? .green : .secondary
                     )
 
                     statusRow(
-                        title: "중요 표시",
+                        title: String(localized: "todo_pinned"),
                         systemImage: todo.isPinned ? "star.fill" : "star",
                         color: todo.isPinned ? .orange : .secondary
                     )
 
                     HStack {
-                        Text("마감일")
+                        Text(String(localized: "todo_due_date"))
 
                         Spacer()
 
@@ -143,15 +143,15 @@ private struct TodoDetailInfoSheetView: View {
                             Tag(dueDateText(for: dueDate), isEditing: false)
                                 .padding(.vertical, -4)
                         } else {
-                            Text("없음")
+                            Text(String(localized: "todo_none"))
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
 
-                Section("태그") {
+                Section(String(localized: "todo_tags")) {
                     if todo.tags.isEmpty {
-                        Text("태그 없음")
+                        Text(String(localized: "todo_no_tags"))
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 4)
                     } else {
@@ -159,7 +159,7 @@ private struct TodoDetailInfoSheetView: View {
                     }
                 }
             }
-            .navigationTitle("세부 정보")
+            .navigationTitle(String(localized: "todo_details"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarLeadingButton {

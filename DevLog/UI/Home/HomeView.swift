@@ -21,7 +21,7 @@ struct HomeView: View {
                 webPageSection
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("홈")
+            .navigationTitle(String(localized: "home_title"))
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .category(let item):
@@ -148,7 +148,7 @@ struct HomeView: View {
             )
             .textInputAutocapitalization(.never)
             .keyboardType(.URL)
-            Button("추가") {
+            Button(String(localized: "home_add")) {
                 viewModel.send(.addWebPage)
             }
             Button(String(localized: "common_cancel"), role: .cancel) {
@@ -203,7 +203,7 @@ struct HomeView: View {
             } else if viewModel.state.recentTodos.isEmpty {
                 HStack {
                     Spacer()
-                    Text("최근 수정한 Todo가 없습니다.")
+                    Text(String(localized: "home_recent_empty"))
                         .font(.callout)
                     Spacer()
                 }
@@ -216,7 +216,7 @@ struct HomeView: View {
             }
         } header: {
             HStack {
-                Text("최근 수정")
+                Text(String(localized: "home_recent_title"))
                     .foregroundStyle(Color.primary)
                     .font(.title2.bold())
                 Spacer()
@@ -233,7 +233,7 @@ struct HomeView: View {
             } else if viewModel.state.webPages.isEmpty {
                 HStack {
                     Spacer()
-                    Text("저장한 Web Page가 표시됩니다.")
+                    Text(String(localized: "home_web_empty"))
                         .font(.callout)
                     Spacer()
                 }
@@ -284,7 +284,7 @@ struct HomeView: View {
             Button(role: .destructive) {
                 viewModel.send(.deleteWebPage(item))
             } label: {
-                Label("삭제", systemImage: "trash")
+                Label(String(localized: "common_delete"), systemImage: "trash")
             }
         }
     }
@@ -333,7 +333,7 @@ struct HomeView: View {
                         .foregroundStyle(Color(.label))
                 }
             }
-            .navigationTitle("컨텐츠")
+            .navigationTitle(String(localized: "home_content_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

@@ -22,7 +22,7 @@ struct ProfileHeatmapView: View {
         )
 
         VStack(alignment: .leading, spacing: 10) {
-            Text("활동 히트맵")
+            Text(String(localized: "profile_activity_heatmap"))
                 .font(.subheadline)
                 .bold()
             HStack(alignment: .top, spacing: 0) {
@@ -47,9 +47,9 @@ struct ProfileHeatmapView: View {
     @ViewBuilder
     private func weekdayLabel(layout: ProfileHeatmapLayout) -> some View {
         let labels: [Int: String] = [
-            2: "월",
-            4: "수",
-            6: "금"
+            2: String(localized: "profile_weekday_mon"),
+            4: String(localized: "profile_weekday_wed"),
+            6: String(localized: "profile_weekday_fri")
         ]
         let orderedWeekdays = Array(1...7)
 

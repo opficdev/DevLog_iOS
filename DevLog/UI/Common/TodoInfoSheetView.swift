@@ -19,7 +19,7 @@ struct TodoInfoSheetView: View {
             ScrollView {
                 LazyVStack(spacing: 32) {
                     VStack(alignment: .leading) {
-                        Text("생성일")
+                        Text(String(localized: "todo_info_created_at"))
                             .font(.subheadline)
                             .foregroundStyle(.white)
                         HStack(spacing: 8) {
@@ -37,7 +37,7 @@ struct TodoInfoSheetView: View {
                         Divider()
                     }
                     VStack(alignment: .leading) {
-                        Text("마감일")
+                        Text(String(localized: "todo_info_due_date"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         HStack(spacing: 8) {
@@ -46,7 +46,7 @@ struct TodoInfoSheetView: View {
                             Text(
                                 dueDate?
                                     .formatted(date: .abbreviated, time: .omitted)
-                                ?? "마감일 없음"
+                                ?? String(localized: "todo_info_no_due_date")
                             )
                             .foregroundStyle(dueDate == nil ? .secondary : .primary)
                             Spacer()
@@ -60,7 +60,7 @@ struct TodoInfoSheetView: View {
                         Divider()
                     }
                     VStack(alignment: .leading) {
-                        Text("완료일")
+                        Text(String(localized: "todo_info_completed_at"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         HStack(spacing: 8) {
@@ -69,7 +69,7 @@ struct TodoInfoSheetView: View {
                             Text(
                                 completedAt?
                                     .formatted(date: .abbreviated, time: .omitted)
-                                ?? "완료하지 않음"
+                                ?? String(localized: "todo_info_not_completed")
                             )
                             .foregroundStyle(.white)
                             Spacer()
@@ -83,7 +83,7 @@ struct TodoInfoSheetView: View {
                         Divider()
                     }
                     VStack(alignment: .leading) {
-                        Text("태그")
+                        Text(String(localized: "todo_tags"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Divider()

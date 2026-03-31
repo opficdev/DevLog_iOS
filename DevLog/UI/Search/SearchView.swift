@@ -90,7 +90,7 @@ struct SearchView: View {
                 set: { viewModel.send(.setSearching($0)) }
             ),
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "검색"
+            prompt: Text(String(localized: "search_prompt"))
         )
         .onSubmit(of: .search) {
             viewModel.send(.addRecentQuery(viewModel.state.searchQuery))
@@ -100,7 +100,7 @@ struct SearchView: View {
     private var searchInstruction: some View {
         VStack {
             Spacer()
-            Text("검색어를 입력해 저장한 앱 컨텐츠를 찾아보세요.")
+            Text(String(localized: "search_instruction"))
                 .foregroundStyle(Color.gray)
             Spacer()
         }
@@ -110,7 +110,7 @@ struct SearchView: View {
     private var emptySearchResult: some View {
         VStack {
             Spacer()
-            Text("검색 결과가 없습니다.")
+            Text(String(localized: "search_empty"))
                 .foregroundStyle(Color.gray)
             Spacer()
         }
@@ -147,7 +147,7 @@ struct SearchView: View {
             }
             .padding(.top, -12)
             if !viewModel.state.showAllTodos && limit < viewModel.state.todos.count {
-                Button("더보기") {
+                Button(String(localized: "search_show_more")) {
                     viewModel.send(.setShowAllTodos(true))
                 }
                 .font(.subheadline)
@@ -177,7 +177,7 @@ struct SearchView: View {
             }
             .padding(.top, -12)
             if !viewModel.state.showAllWebPages && limit < viewModel.state.webPages.count {
-                Button("더보기") {
+                Button(String(localized: "search_show_more")) {
                     viewModel.send(.setShowAllWebPages(true))
                 }
                 .font(.subheadline)
@@ -212,11 +212,11 @@ struct SearchView: View {
     private var recentQueries: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("최근 검색")
+                Text(String(localized: "search_recent"))
                     .font(.headline)
                     .foregroundStyle(Color(.label))
                 Spacer()
-                Button("전체 삭제") {
+                Button(String(localized: "search_clear_all")) {
                     viewModel.send(.clearRecentQueries)
                 }
                 .font(.subheadline)

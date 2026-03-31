@@ -301,8 +301,8 @@ private extension PushNotificationListViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
     }
 
@@ -310,7 +310,7 @@ private extension PushNotificationListViewModel {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.toastMessage = "실행 취소"
+        state.toastMessage = String(localized: "common_undo")
         state.showToast = isPresented
     }
 
@@ -357,8 +357,8 @@ private extension PushNotificationListViewModel {
 extension PushNotificationQuery.SortOrder {
     var title: String {
         switch self {
-        case .latest: return "최신순"
-        case .oldest: return "예전순"
+        case .latest: return String(localized: "push_sort_latest")
+        case .oldest: return String(localized: "push_sort_oldest")
         }
     }
 }
@@ -375,11 +375,17 @@ extension PushNotificationQuery.TimeFilter {
     var title: String {
         switch self {
         case .none:
-            return "전체"
+            return String(localized: "push_timefilter_all")
         case .hours(let value):
-            return "최근 \(value)시간"
+            return String.localizedStringWithFormat(
+                String(localized: "push_timefilter_hours_format"),
+                Int64(value)
+            )
         case .days(let value):
-            return "최근 \(value)일"
+            return String.localizedStringWithFormat(
+                String(localized: "push_timefilter_days_format"),
+                Int64(value)
+            )
         }
     }
 

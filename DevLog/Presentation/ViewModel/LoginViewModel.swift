@@ -75,8 +75,8 @@ private extension LoginViewModel {
         _ state: inout State,
         isPresented: Bool,
     ) {
-        state.alertTitle = "오류"
-        state.alertMessage = "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
     }
 }

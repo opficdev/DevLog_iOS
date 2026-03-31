@@ -18,11 +18,11 @@ struct PushNotificationSettingsView: View {
                             get: { viewModel.state.pushNotificationEnable },
                             set: { viewModel.send(.setPushNotificationEnable($0)) }
                         )) {
-                            Text("푸시 알람 활성화")
+                            Text(String(localized: "push_settings_enable"))
                         }
                         .tint(.blue)
             }, footer: {
-                Text("설정에서의 푸시 알람 설정과 별개입니다.")
+                Text(String(localized: "push_settings_footer"))
             })
             Section {
                 ForEach([9, 15, 18, 21], id: \.self) { hour in
@@ -43,7 +43,7 @@ struct PushNotificationSettingsView: View {
                     }
                 }
                 HStack {
-                    Text("사용자 설정")
+                    Text(String(localized: "push_settings_custom"))
                     Spacer()
                     Text(formattedTimeString(viewModel.state.viewPushNotificationTime))
                         .foregroundStyle(.secondary)
@@ -61,7 +61,7 @@ struct PushNotificationSettingsView: View {
             .opacity(viewModel.state.pushNotificationEnable ? 1.0 : 0.2)
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("알람")
+        .navigationTitle(String(localized: "push_settings_title"))
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()
@@ -118,6 +118,6 @@ struct PushNotificationSettingsView: View {
 
         let hourText = date.formatted(formatStyle)
         let minuteText = date.formatted(.dateTime.minute(.twoDigits))
-        return "\(hourText) \(minuteText)분"
+        return "\(hourText) \(minuteText)\(String(localized: "push_settings_minute_suffix"))"
     }
 }

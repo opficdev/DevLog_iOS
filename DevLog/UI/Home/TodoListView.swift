@@ -41,7 +41,12 @@ struct TodoListView: View {
                         set: { viewModel.send(.setIsSearching($0)) }
                     ),
                     placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "\(TodoCategoryItem(from: viewModel.state.category).localizedName) 검색"
+                    prompt: Text(
+                        String.localizedStringWithFormat(
+                            String(localized: "todo_list_search_prompt_format"),
+                            TodoCategoryItem(from: viewModel.state.category).localizedName
+                        )
+                    )
                 )
             }
         }
@@ -122,7 +127,7 @@ struct TodoListView: View {
                     if viewModel.state.todos.isEmpty, !viewModel.state.isLoading {
                         HStack {
                             Spacer()
-                            Text("작성된 내용이 없습니다.")
+                            Text(String(localized: "todo_list_empty"))
                                 .foregroundStyle(Color.gray)
                             Spacer()
                         }
@@ -222,7 +227,12 @@ struct TodoListView: View {
                     set: { viewModel.send(.setIsSearching($0)) }
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "\(TodoCategoryItem(from: viewModel.state.category).localizedName) 검색"
+                prompt: Text(
+                    String.localizedStringWithFormat(
+                        String(localized: "todo_list_search_prompt_format"),
+                        TodoCategoryItem(from: viewModel.state.category).localizedName
+                    )
+                )
             )
     }
 
@@ -235,14 +245,19 @@ struct TodoListView: View {
             : Array(searchResults.prefix(limit))
 
         if viewModel.state.searchText.isEmpty {
-            Text("\(TodoCategoryItem(from: viewModel.state.category).localizedName)의 제목이나 내용을 검색해 보세요.")
+            Text(
+                String.localizedStringWithFormat(
+                    String(localized: "todo_list_search_instruction_format"),
+                    TodoCategoryItem(from: viewModel.state.category).localizedName
+                )
+            )
                 .foregroundStyle(Color.gray)
                 .frame(maxWidth: .infinity)
         } else if viewModel.state.isLoading {
             LoadingView()
         } else if searchResults.isEmpty {
             Spacer()
-            Text("검색 결과가 없습니다.")
+            Text(String(localized: "todo_list_search_empty"))
                 .foregroundStyle(Color.gray)
                 .frame(maxWidth: .infinity)
             Spacer()
@@ -262,7 +277,7 @@ struct TodoListView: View {
                     .padding(.horizontal, 16)
 
                     if !viewModel.state.showAllSearchResults, limit < searchResults.count {
-                        Button("더보기") {
+                        Button(String(localized: "todo_list_show_more")) {
                             viewModel.send(.setShowAllSearchResults(true))
                         }
                         .font(.subheadline)
@@ -280,11 +295,16 @@ struct TodoListView: View {
             HStack(spacing: 8) {
                 if 0 < viewModel.appliedFilterCount {
                     Menu {
-                        Text("\(viewModel.appliedFilterCount)개 필터가 적용됨")
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "todo_list_filters_applied_format"),
+                                Int64(viewModel.appliedFilterCount)
+                            )
+                        )
                         Button(role: .destructive) {
                             viewModel.send(.resetFilters)
                         } label: {
-                            Text("모든 필터 지우기")
+                            Text(String(localized: "todo_list_clear_filters"))
                         }
                     } label: {
                         HStack(spacing: 6) {
@@ -322,7 +342,7 @@ struct TodoListView: View {
                     Text(option.title).tag(option)
                 }
             } label: {
-                Text("정렬 기준")
+                Text(String(localized: "todo_list_sort_by"))
             }
             Picker(selection: Binding(
                 get: { viewModel.state.query.sortOrder },
@@ -332,12 +352,18 @@ struct TodoListView: View {
                     Text(option.title).tag(option)
                 }
             } label: {
-                Text("정렬 순서")
+                Text(String(localized: "todo_list_sort_order"))
             }
         } label: {
             let condition = viewModel.state.query.sortTarget == .createdAt && viewModel.state.query.sortOrder == .latest
             HStack {
-                Text("정렬: \(viewModel.state.query.sortTarget.title) / \(viewModel.state.query.sortOrder.title)")
+                Text(
+                    String.localizedStringWithFormat(
+                        String(localized: "todo_list_sort_format"),
+                        viewModel.state.query.sortTarget.title,
+                        viewModel.state.query.sortOrder.title
+                    )
+                )
                 Image(systemName: "chevron.down")
             }
             .foregroundStyle(condition ? Color(.label) : .white)
@@ -351,7 +377,7 @@ struct TodoListView: View {
                 get: { viewModel.state.query.isPinned == true },
                 set: { _ in viewModel.send(.togglePinnedOnly) }
             )) {
-                Text("중요 표시")
+                Text(String(localized: "todo_pinned"))
             }
 
             Picker(selection: Binding(
@@ -362,12 +388,12 @@ struct TodoListView: View {
                     Text(option.title).tag(option)
                 }
             } label: {
-                Text("완료 상태")
+                Text(String(localized: "todo_list_completion_status"))
             }
         } label: {
             let condition = viewModel.state.query.isPinned == true || viewModel.state.query.completionFilter != .all
             HStack {
-                Text("필터 옵션")
+                Text(String(localized: "todo_list_filter_options"))
                 Image(systemName: "chevron.down")
             }
             .foregroundStyle(condition ? .white : Color(.label))

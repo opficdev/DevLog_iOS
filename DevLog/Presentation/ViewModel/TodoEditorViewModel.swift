@@ -104,10 +104,13 @@ final class TodoEditorViewModel: Store {
 
     var navigationTitle: String {
         if originalDraft == nil {
-            return "새 \(state.category.localizedName) 추가"
+            return String.localizedStringWithFormat(
+                String(localized: "todo_editor_new_format"),
+                state.category.localizedName
+            )
         }
 
-        return "편집"
+        return String(localized: "todo_edit")
     }
 
     var hasChanges: Bool {

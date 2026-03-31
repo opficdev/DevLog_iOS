@@ -50,7 +50,7 @@ struct TodoManageView: View {
                 .listRowInsets(EdgeInsets())
             }
             .environment(\.editMode, .constant(.active))
-            .navigationTitle("TODO 편집")
+            .navigationTitle(String(localized: "todo_manage_title"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .sheet(isPresented: Binding(
@@ -60,7 +60,7 @@ struct TodoManageView: View {
                 categorySheet
             }
             .alert(
-                "카테고리 삭제",
+                String(localized: "todo_manage_delete_category_title"),
                 isPresented: Binding(
                     get: { viewModel.state.showAlert },
                     set: { viewModel.send(.setShowAlert($0)) }
@@ -69,11 +69,11 @@ struct TodoManageView: View {
                 Button(String(localized: "common_cancel"), role: .cancel) {
                     viewModel.send(.setShowAlert(false))
                 }
-                Button("삭제", role: .destructive) {
+                Button(String(localized: "common_delete"), role: .destructive) {
                     viewModel.send(.confirmDeleteUserCategory)
                 }
             } message: {
-                Text("이 카테고리를 삭제하면 해당하던 TODO는 기타 카테고리로 처리됩니다.\n정말 삭제하시겠습니까?")
+                Text(String(localized: "todo_manage_delete_category_message"))
                     .multilineTextAlignment(.leading)
             }
             .toolbar {
@@ -89,7 +89,7 @@ struct TodoManageView: View {
                     Button {
                         onDismiss?(viewModel.state.preferences)
                     } label: {
-                        Text("완료")
+                        Text(String(localized: "profile_done"))
                     }
                 }
             }
