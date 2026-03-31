@@ -66,7 +66,7 @@ struct TodoManageView: View {
                     set: { viewModel.send(.setShowAlert($0)) }
                 )
             ) {
-                Button("취소", role: .cancel) {
+                Button(String(localized: "common_cancel"), role: .cancel) {
                     viewModel.send(.setShowAlert(false))
                 }
                 Button("삭제", role: .destructive) {
@@ -147,7 +147,7 @@ struct TodoManageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
+                    Button(String(localized: "common_close")) {
                         viewModel.send(.setShowSheet(false))
                     }
                 }

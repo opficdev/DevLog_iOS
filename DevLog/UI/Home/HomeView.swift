@@ -151,7 +151,7 @@ struct HomeView: View {
             Button("추가") {
                 viewModel.send(.addWebPage)
             }
-            Button("취소", role: .cancel) {
+            Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
         case .invalidURL, .error, .none:

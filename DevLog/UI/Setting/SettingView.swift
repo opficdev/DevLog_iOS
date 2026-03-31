@@ -164,21 +164,21 @@ struct SettingView: View {
     private var alertButtons: some View {
         switch viewModel.state.alertType {
         case .signOut:
-            Button("취소", role: .cancel) {
+            Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("확인", role: .destructive) {
                 viewModel.send(.tapSignOutButton)
             }
         case .deleteAuth:
-            Button("취소", role: .cancel) {
+            Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("탈퇴", role: .destructive) {
                 viewModel.send(.tapDeleteAuthButton)
             }
         case .removeCache:
-            Button("취소", role: .cancel) {
+            Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
             Button("확인", role: .destructive) {
