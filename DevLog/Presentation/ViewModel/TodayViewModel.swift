@@ -9,16 +9,26 @@ import Foundation
 
 @Observable
 final class TodayViewModel: Store {
-    enum SummaryScope: Hashable, CaseIterable {
+    // TodayView 상단에서 사용자가 선택하는 요약 탭 범위.
+    enum SectionScope: Hashable, CaseIterable {
         case all
         case focused
         case overdue
         case dueSoon
     }
 
+    // 요약 탭 아래 실제 리스트에 렌더링되는 섹션 분류.
+    enum SectionCategory: Hashable {
+        case later
+        case unscheduled
+        case focused
+        case overdue
+        case dueSoon
+    }
+
     struct SectionContent: Identifiable, Equatable {
-        var id: SummaryScope { scope }
-        let scope: SummaryScope
+        var id: SectionCategory { category }
+        let category: SectionCategory
         let title: String
         let items: [TodayTodoItem]
     }
@@ -37,14 +47,14 @@ final class TodayViewModel: Store {
         var showAlert: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
-        var selectedSummaryScope: SummaryScope = .all
+        var selectedSectionScope: SectionScope = .all
         var displayOptions: TodayDisplayOptions = .default
     }
 
     enum Action {
         case refresh
         case setAlert(Bool)
-        case setSummaryScope(SummaryScope)
+        case setSectionScope(SectionScope)
         case setDueDateVisibility(TodayDisplayOptions.DueDateVisibility)
         case setFocusVisibility(TodayDisplayOptions.FocusVisibility)
         case resetDisplayOptions
@@ -90,21 +100,21 @@ final class TodayViewModel: Store {
     var sections: [SectionContent] {
         let items = groupedSectionItems(from: displayedTodos)
 
-        switch state.selectedSummaryScope {
+        switch state.selectedSectionScope {
         case .all:
             return
                 makeSection(
-                    scope: .focused,
+                    category: .focused,
                     title: String(localized: "today_section_focused"),
                     items: items.focused
                 )
                 + makeSection(
-                    scope: .overdue,
+                    category: .overdue,
                     title: String(localized: "today_section_overdue"),
                     items: items.overdue
                 )
                 + makeSection(
-                    scope: .dueSoon,
+                    category: .dueSoon,
                     title: String.localizedStringWithFormat(
                         String(localized: "today_section_due_soon_format"),
                         Int64(upcomingWindowDays)
@@ -112,30 +122,30 @@ final class TodayViewModel: Store {
                     items: items.dueSoon
                 )
                 + makeSection(
-                    scope: .all,
+                    category: .later,
                     title: String(localized: "today_section_later"),
                     items: items.later
                 )
                 + makeSection(
-                    scope: .all,
+                    category: .unscheduled,
                     title: String(localized: "today_section_unscheduled"),
                     items: items.unscheduled
                 )
         case .focused:
             return makeSection(
-                scope: .focused,
+                category: .focused,
                 title: String(localized: "today_section_focused"),
                 items: items.focused
             )
         case .overdue:
             return makeSection(
-                scope: .overdue,
+                category: .overdue,
                 title: String(localized: "today_section_overdue"),
                 items: items.overdue
             )
         case .dueSoon:
             return makeSection(
-                scope: .dueSoon,
+                category: .dueSoon,
                 title: String.localizedStringWithFormat(
                     String(localized: "today_section_due_soon_format"),
                     Int64(upcomingWindowDays)
@@ -145,7 +155,7 @@ final class TodayViewModel: Store {
         }
     }
 
-    func summaryValue(for scope: SummaryScope) -> Int {
+    func summaryValue(for scope: SectionScope) -> Int {
         switch scope {
         case .all:
             return displayedTodos.count
@@ -163,7 +173,7 @@ final class TodayViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .refresh, .setAlert, .setSummaryScope, .setDueDateVisibility, .setFocusVisibility,
+        case .refresh, .setAlert, .setSectionScope, .setDueDateVisibility, .setFocusVisibility,
                 .resetDisplayOptions, .completeTodo, .togglePinned:
             effects = reduceByUser(action, state: &state)
         case .onAppear:
@@ -248,12 +258,12 @@ final class TodayViewModel: Store {
 
 private extension TodayViewModel {
     func makeSection(
-        scope: SummaryScope,
+        category: SectionCategory,
         title: String,
         items: [TodayTodoItem]
     ) -> [SectionContent] {
         guard !items.isEmpty else { return [] }
-        return [SectionContent(scope: scope, title: title, items: items)]
+        return [SectionContent(category: category, title: title, items: items)]
     }
 
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
@@ -262,11 +272,11 @@ private extension TodayViewModel {
             return [.fetchTodos]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
-        case .setSummaryScope(let scope):
-            if state.selectedSummaryScope == scope, scope != .all {
-                state.selectedSummaryScope = .all
+        case .setSectionScope(let scope):
+            if state.selectedSectionScope == scope, scope != .all {
+                state.selectedSectionScope = .all
             } else {
-                state.selectedSummaryScope = scope
+                state.selectedSectionScope = scope
             }
         case .setDueDateVisibility(let visibility):
             state.displayOptions.dueDateVisibility = visibility

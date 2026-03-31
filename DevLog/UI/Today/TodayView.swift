@@ -64,17 +64,17 @@ struct TodayView: View {
         Section {
             ScrollView(.horizontal) {
                 HStack(spacing: 12) {
-                    ForEach(TodayViewModel.SummaryScope.allCases, id: \.self) { scope in
+                    ForEach(TodayViewModel.SectionScope.allCases, id: \.self) { scope in
                         Button {
                             withAnimation(.easeInOut) {
-                                viewModel.send(.setSummaryScope(scope))
+                                viewModel.send(.setSectionScope(scope))
                             }
                         } label: {
                             SummaryCard(
                                 title: scope.title,
                                 value: viewModel.summaryValue(for: scope),
                                 accentColor: scope.accentColor,
-                                isSelected: viewModel.state.selectedSummaryScope == scope
+                                isSelected: viewModel.state.selectedSectionScope == scope
                             )
                         }
                         .buttonStyle(.plain)
@@ -174,7 +174,7 @@ struct TodayView: View {
     }
 
     private var emptyStateContent: EmptyStateContent {
-        switch viewModel.state.selectedSummaryScope {
+        switch viewModel.state.selectedSectionScope {
         case .all:
             if viewModel.state.todos.isEmpty {
                 return EmptyStateContent(
@@ -227,7 +227,7 @@ private extension TodayDisplayOptions.DueDateVisibility {
     }
 }
 
-private extension TodayViewModel.SummaryScope {
+private extension TodayViewModel.SectionScope {
     var title: String {
         switch self {
         case .all:
