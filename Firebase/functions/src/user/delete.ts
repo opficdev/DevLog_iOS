@@ -3,6 +3,9 @@ import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
 export const cleanupDeletedUserFirestoreData = functions
+    .runWith({
+        maxInstances: 1
+    })
     .region("asia-northeast3")
     .auth
     .user()

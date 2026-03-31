@@ -17,7 +17,7 @@ type TodoDeletionTaskData = {
 
 export const requestTodoDeletion = onCall({
         cors: true,
-        maxInstances: 3,
+        maxInstances: 2,
         region: LOCATION,
     },
     async (request) => {
@@ -105,7 +105,7 @@ export const requestTodoDeletion = onCall({
 
 export const undoTodoDeletion = onCall({
         cors: true,
-        maxInstances: 3,
+        maxInstances: 2,
         region: LOCATION,
     },
     async (request) => {
@@ -163,7 +163,7 @@ export const undoTodoDeletion = onCall({
 );
 
 export const completeTodoDeletion = onTaskDispatched({
-        maxInstances: 2,
+        maxInstances: 1,
         region: LOCATION,
         retryConfig: {maxAttempts: 3, minBackoffSeconds: 5},
         rateLimits: {maxDispatchesPerSecond: 200},

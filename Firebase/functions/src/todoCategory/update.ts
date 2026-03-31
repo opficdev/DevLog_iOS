@@ -21,7 +21,7 @@ type TodoCategoryUpdateTaskData = {
 };
 
 export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
-        maxInstances: 2,
+        maxInstances: 1,
         document: "users/{userId}/userData/categories",
         region: LOCATION
     },
@@ -81,7 +81,7 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
 );
 
 export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
-        maxInstances: 2,
+        maxInstances: 1,
         region: LOCATION,
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
         rateLimits: { maxDispatchesPerSecond: 20 },
