@@ -5,24 +5,28 @@
 
 <table>
   <tr>
-    <td align="center" width="25%">
+    <td align="center" width="20%">
       <img src="./docs/home.png">
     </td>
-    <td align="center" width="25%">
+    <td align="center" width="20%">
       <img src="./docs/markdown.png">
     </td>
-    <td align="center" width="25%">
-      <img src="./docs/metadata.png">
+    <td align="center" width="20%">
+      <img src="./docs/today.png">
     </td>
-    <td align="center" width="25%">
+    <td align="center" width="20%">
       <img src="./docs/notification.png">
+    </td>
+    <td align="center" width="20%">
+      <img src="./docs/hitmap.png">
     </td>
   </tr>
   <tr>
-    <td align="center">Home</td>
-    <td align="center">Markdown</td>
-    <td align="center">Todo 상세</td>
+    <td align="center">홈</td>
+    <td align="center">마크다운 작성</td>
+    <td align="center">오늘 기준의 Todo 확인</td>
     <td align="center">푸시 알림</td>
+    <td align="center">히트맵</td>
   </tr>
 </table>
 
