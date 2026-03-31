@@ -16,7 +16,7 @@ type NotificationDeletionTaskData = {
 
 export const requestPushNotificationDeletion = onCall({
         cors: true,
-        maxInstances: 10,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -94,7 +94,7 @@ export const requestPushNotificationDeletion = onCall({
 
 export const undoPushNotificationDeletion = onCall({
         cors: true,
-        maxInstances: 10,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -147,6 +147,7 @@ export const undoPushNotificationDeletion = onCall({
 );
 
 export const completePushNotificationDeletion = onTaskDispatched({
+        maxInstances: 1,
         region: LOCATION,
         retryConfig: {maxAttempts: 3, minBackoffSeconds: 5},
         rateLimits: {maxDispatchesPerSecond: 200},

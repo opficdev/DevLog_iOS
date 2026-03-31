@@ -17,7 +17,7 @@ type WebPageDeletionTaskData = {
 
 export const requestWebPageDeletion = onCall({
         cors: true,
-        maxInstances: 10,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -101,7 +101,7 @@ export const requestWebPageDeletion = onCall({
 
 export const undoWebPageDeletion = onCall({
         cors: true,
-        maxInstances: 10,
+        maxInstances: 3,
         region: LOCATION,
     },
     async (request) => {
@@ -163,6 +163,7 @@ export const undoWebPageDeletion = onCall({
 );
 
 export const completeWebPageDeletion = onTaskDispatched({
+        maxInstances: 1,
         region: LOCATION,
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
         rateLimits: { maxDispatchesPerSecond: 200 },

@@ -7,6 +7,7 @@ const LOCATION = "asia-northeast3";
 const BATCH_SIZE = 200;
 
 export const syncTodoNotificationCategory = onDocumentUpdated({
+        maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },

@@ -8,6 +8,7 @@ const DELETE_BATCH_SIZE = 200;
 const QUERY_BATCH_SIZE = 100;
 
 export const removeTodoNotificationDocuments = onDocumentDeleted({
+        maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },
@@ -29,6 +30,7 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
 );
 
 export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
+        maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
         region: LOCATION
     },
@@ -64,6 +66,7 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
 );
 
 export const cleanupUnusedTodoNotificationRecords = onSchedule({
+        maxInstances: 1,
         region: LOCATION,
         schedule: "0 * * * *",
         timeZone: "UTC"
