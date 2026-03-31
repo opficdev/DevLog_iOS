@@ -17,7 +17,7 @@
     <td align="center" width="20%">
       <img src="./docs/notification.png">
     </td>
-    <td align="center" width="20">
+    <td align="center" width="20%">
       <img src="./docs/hitmap.png">
     </td>
   </tr>
