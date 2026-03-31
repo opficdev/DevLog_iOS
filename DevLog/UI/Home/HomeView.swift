@@ -155,7 +155,7 @@ struct HomeView: View {
                 viewModel.send(.setAlert(isPresented: false))
             }
         case .invalidURL, .error, .none:
-            Button("확인", role: .cancel) {
+            Button(String(localized: "common_close"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
         }

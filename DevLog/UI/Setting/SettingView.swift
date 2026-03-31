@@ -167,7 +167,7 @@ struct SettingView: View {
             Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
-            Button("확인", role: .destructive) {
+            Button(String(localized: "common_confirm"), role: .destructive) {
                 viewModel.send(.tapSignOutButton)
             }
         case .deleteAuth:
@@ -181,11 +181,11 @@ struct SettingView: View {
             Button(String(localized: "common_cancel"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
-            Button("확인", role: .destructive) {
+            Button(String(localized: "common_confirm"), role: .destructive) {
                 viewModel.send(.confirmRemoveCache)
             }
         case .error, .none:
-            Button("확인", role: .cancel) {
+            Button(String(localized: "common_close"), role: .cancel) {
                 viewModel.send(.setAlert(isPresented: false))
             }
         }

@@ -33,7 +33,7 @@ struct RootView: View {
             get: { viewModel.state.showAlert },
             set: { viewModel.send(.setAlert($0)) }
         )) {
-            Button("확인", role: .cancel) { }
+            Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
             Text(viewModel.state.alertMessage)
         }
