@@ -1307,23 +1307,6 @@
         }
       }
     },
-    "push_settings_minute_suffix" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " min"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "분"
-          }
-        }
-      }
-    },
     "push_settings_title" : {
       "extractionState" : "manual",
       "localizations" : {

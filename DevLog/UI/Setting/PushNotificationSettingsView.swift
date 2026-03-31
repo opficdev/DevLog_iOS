@@ -109,15 +109,6 @@ struct PushNotificationSettingsView: View {
     }
 
     private func formattedTimeString(_ date: Date) -> String {
-        let minuteValue = Calendar.current.component(.minute, from: date)
-        let formatStyle: Date.FormatStyle = .dateTime.hour(.twoDigits(amPM: .wide))
-
-        if minuteValue == 0 {
-            return "\(date.formatted(formatStyle))"
-        }
-
-        let hourText = date.formatted(formatStyle)
-        let minuteText = date.formatted(.dateTime.minute(.twoDigits))
-        return "\(hourText) \(minuteText)\(String(localized: "push_settings_minute_suffix"))"
+        date.formatted(.dateTime.hour().minute())
     }
 }
