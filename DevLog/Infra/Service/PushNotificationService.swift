@@ -128,7 +128,8 @@ final class PushNotificationService {
             let items = snapshot.documents.compactMap { makeResponse(from: $0) }
 
             let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-                guard let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
+                guard let receivedAt = document.data()[PushNotificationFieldKey.receivedAt.rawValue] as? Timestamp
+                else {
                     return nil
                 }
 
@@ -184,6 +185,7 @@ final class PushNotificationService {
         let subject = PassthroughSubject<Int, Error>()
         let listener = store.collection(FirestorePath.notifications(uid))
             .whereField("isRead", isEqualTo: false)
+            .whereField(PushNotificationFieldKey.isDeleted.rawValue, isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 if let error {
                     subject.send(completion: .failure(error))
@@ -192,7 +194,7 @@ final class PushNotificationService {
 
                 guard let snapshot else { return }
                 let unreadPushCount = snapshot.documents.filter { document in
-                    !(document.data()[Key.deletingAt.rawValue] is Timestamp)
+                    !(document.data()[PushNotificationFieldKey.deletingAt.rawValue] is Timestamp)
                 }.count
                 subject.send(unreadPushCount)
             }
@@ -238,7 +240,10 @@ final class PushNotificationService {
             }
 
             let collection = store.collection(FirestorePath.notifications(uid))
-            let snapshot = try await collection.whereField("todoId", isEqualTo: todoId).getDocuments()
+            let snapshot = try await collection
+                .whereField("todoId", isEqualTo: todoId)
+                .whereField(PushNotificationFieldKey.isDeleted.rawValue, isEqualTo: false)
+                .getDocuments()
 
             guard let document = snapshot.documents.first else {
                 logger.error("Notification not found for todoId: \(todoId)")
@@ -265,6 +270,7 @@ private extension PushNotificationService {
         query: PushNotificationQuery
     ) -> Query {
         var firestoreQuery: Query = store.collection(FirestorePath.notifications(uid))
+            .whereField(PushNotificationFieldKey.isDeleted.rawValue, isEqualTo: false)
 
         if let thresholdDate = query.timeFilter.thresholdDate {
             firestoreQuery = firestoreQuery.whereField(
@@ -286,7 +292,7 @@ private extension PushNotificationService {
     func makeNextCursor(from document: QueryDocumentSnapshot?) -> PushNotificationCursorDTO? {
         guard
             let document,
-            let receivedAt = document.data()[Key.receivedAt.rawValue] as? Timestamp else {
+            let receivedAt = document.data()[PushNotificationFieldKey.receivedAt.rawValue] as? Timestamp else {
             return nil
         }
 
@@ -298,16 +304,17 @@ private extension PushNotificationService {
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
-        if data[Key.deletingAt.rawValue] is Timestamp {
+        if data[PushNotificationFieldKey.deletingAt.rawValue] is Timestamp ||
+            (data[PushNotificationFieldKey.isDeleted.rawValue] as? Bool) == true {
             return nil
         }
         guard
-            let title = data[Key.title.rawValue] as? String,
-            let body = data[Key.body.rawValue] as? String,
-            let receivedAt = data[Key.receivedAt.rawValue] as? Timestamp,
-            let isRead = data[Key.isRead.rawValue] as? Bool,
-            let todoId = data[Key.todoId.rawValue] as? String,
-            let todoCategory = data[Key.todoCategory.rawValue] as? String else {
+            let title = data[PushNotificationFieldKey.title.rawValue] as? String,
+            let body = data[PushNotificationFieldKey.body.rawValue] as? String,
+            let receivedAt = data[PushNotificationFieldKey.receivedAt.rawValue] as? Timestamp,
+            let isRead = data[PushNotificationFieldKey.isRead.rawValue] as? Bool,
+            let todoId = data[PushNotificationFieldKey.todoId.rawValue] as? String,
+            let todoCategory = data[PushNotificationFieldKey.todoCategory.rawValue] as? String else {
             return nil
         }
 
@@ -322,13 +329,14 @@ private extension PushNotificationService {
         )
     }
 
-    enum Key: String {
+    enum PushNotificationFieldKey: String {
         case title
         case body
         case receivedAt
         case isRead
         case todoId
         case todoCategory
-        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
+        case deletingAt // 삭제 요청으로 앱의 로컬 데이터에서 deletion이 된 상태
+        case isDeleted  // 삭제 요청으로 서버에서 soft deletion이 된 상태
     }
 }

@@ -12,6 +12,7 @@ struct TodoRequest: Encodable {
     let isPinned: Bool
     let isCompleted: Bool
     let isChecked: Bool
+    let isDeleted: Bool
     let number: Int?
     let title: String
     let content: String

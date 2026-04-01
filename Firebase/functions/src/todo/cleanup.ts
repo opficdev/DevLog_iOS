@@ -2,6 +2,7 @@ import { onDocumentDeleted, onDocumentUpdated } from "firebase-functions/v2/fire
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { toDate } from "../common/date";
 import { normalizeError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
@@ -47,13 +48,7 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
         if (!beforeData || !afterData) { return; }
         if (beforeData.isCompleted === true || afterData.isCompleted !== true) { return; }
 
-        const dueDateValue = afterData.dueDate;
-        let dueDate: Date | null = null;
-        if (dueDateValue instanceof admin.firestore.Timestamp) {
-            dueDate = dueDateValue.toDate();
-        } else if (dueDateValue instanceof Date) {
-            dueDate = dueDateValue;
-        }
+        const dueDate = toDate(afterData.dueDate);
         
         if (!dueDate ||  Date.now() <= dueDate.getTime()) { return; }
 
@@ -63,6 +58,49 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
             logger.error("완료된 todo의 notification record 정리 실패", {
                 userId,
                 todoId,
+                error: normalizeError(error)
+            });
+        }
+    }
+);
+
+// soft delete Todo 문서의 실제 삭제
+export const cleanupSoftDeletedTodos = onSchedule({
+        maxInstances: 1,
+        region: LOCATION,
+        schedule: "0 0 * * *",
+        timeZone: "UTC"
+    },
+    async () => {
+        try {
+            let lastDocument:
+                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
+            while (true) {
+                let query = admin.firestore()
+                    .collectionGroup("todoLists")
+                    .where("isDeleted", "==", true)
+                    .orderBy(admin.firestore.FieldPath.documentId())
+                    .limit(QUERY_BATCH_SIZE);
+
+                if (lastDocument) {
+                    query = query.startAfter(lastDocument);
+                }
+
+                const snapshot = await query.get();
+                if (snapshot.empty) { return; }
+
+                const batch = admin.firestore().batch();
+                snapshot.docs.forEach((document) => {
+                    batch.delete(document.ref);
+                });
+                await batch.commit();
+
+                if (snapshot.size < QUERY_BATCH_SIZE) { return; }
+                lastDocument = snapshot.docs[snapshot.docs.length - 1];
+            }
+        } catch (error) {
+            logger.error("soft delete Todo cleanup 실패", {
                 error: normalizeError(error)
             });
         }

@@ -78,6 +78,7 @@ export const sendPushNotification = onTaskDispatched({
                 body,
                 receivedAt: admin.firestore.FieldValue.serverTimestamp(),
                 isRead: false,
+                isDeleted: false,
                 todoId: todoId,
                 todoCategory: todoCategory
             };
