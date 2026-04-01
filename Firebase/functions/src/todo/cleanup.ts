@@ -77,10 +77,7 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
     },
     async () => {
         try {
-            let lastExpiredCompletedTodo:
-                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
-
-            while (true) {
+            await cleanupDispatchesByTodoQuery((lastDocument) => {
                 let query = admin.firestore()
                     .collectionGroup("todoLists")
                     .where("isCompleted", "==", true)
@@ -88,60 +85,61 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                     .orderBy("dueDate")
                     .limit(QUERY_BATCH_SIZE);
 
-                if (lastExpiredCompletedTodo) {
-                    query = query.startAfter(lastExpiredCompletedTodo);
+                if (lastDocument) {
+                    query = query.startAfter(lastDocument);
                 }
 
-                const snapshot = await query.get();
-                if (snapshot.empty) { break; }
-
-                for (const todoDoc of snapshot.docs) {
-                    const userId = todoDoc.ref.parent.parent?.id;
-                    if (!userId) { continue; }
-
-                    await deleteByTodoId(userId, "notificationDispatches", todoDoc.id);
-                }
-
-                if (snapshot.size < QUERY_BATCH_SIZE) { break; }
-                lastExpiredCompletedTodo = snapshot.docs[snapshot.docs.length - 1];
-            }
+                return query;
+            });
         } catch (error) {
             logger.error("지난 마감일의 완료된 todo notification record 정리 실패", { error });
         }
 
         try {
-            let lastTodoWithoutDueDate:
-                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
-
-            while (true) {
+            await cleanupDispatchesByTodoQuery((lastDocument) => {
                 let query = admin.firestore()
                     .collectionGroup("todoLists")
                     .where("dueDate", "==", null)
                     .orderBy(admin.firestore.FieldPath.documentId())
                     .limit(QUERY_BATCH_SIZE);
 
-                if (lastTodoWithoutDueDate) {
-                    query = query.startAfter(lastTodoWithoutDueDate);
+                if (lastDocument) {
+                    query = query.startAfter(lastDocument);
                 }
 
-                const snapshot = await query.get();
-                if (snapshot.empty) { break; }
-
-                for (const todoDoc of snapshot.docs) {
-                    const userId = todoDoc.ref.parent.parent?.id;
-                    if (!userId) { continue; }
-
-                    await deleteByTodoId(userId, "notificationDispatches", todoDoc.id);
-                }
-
-                if (snapshot.size < QUERY_BATCH_SIZE) { break; }
-                lastTodoWithoutDueDate = snapshot.docs[snapshot.docs.length - 1];
-            }
+                return query;
+            });
         } catch (error) {
             logger.error("마감일이 없는 todo notification record 정리 실패", { error });
         }
     }
 );
+
+// Todo 조회 쿼리를 순회하며 연결된 알림 발송 기록을 정리
+async function cleanupDispatchesByTodoQuery(
+    makeQuery: (
+        lastDocument?:
+            FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+    ) => FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
+): Promise<void> {
+    let lastDocument:
+        FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
+    while (true) {
+        const snapshot = await makeQuery(lastDocument).get();
+        if (snapshot.empty) { return; }
+
+        for (const todoDoc of snapshot.docs) {
+            const userId = todoDoc.ref.parent.parent?.id;
+            if (!userId) { continue; }
+
+            await deleteByTodoId(userId, "notificationDispatches", todoDoc.id);
+        }
+
+        if (snapshot.size < QUERY_BATCH_SIZE) { return; }
+        lastDocument = snapshot.docs[snapshot.docs.length - 1];
+    }
+}
 
 // 특정 Todo 연결 문서의 배치 단위 전체 삭제
 async function deleteByTodoId(
