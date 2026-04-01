@@ -2,6 +2,7 @@ import { onDocumentDeleted, onDocumentUpdated } from "firebase-functions/v2/fire
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { normalizeError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
@@ -25,7 +26,7 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
             logger.error("todo 삭제 후 notification 문서 정리 실패", {
                 userId,
                 todoId,
-                error
+                error: normalizeError(error)
             });
         }
     }
@@ -62,7 +63,7 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
             logger.error("완료된 todo의 notification record 정리 실패", {
                 userId,
                 todoId,
-                error
+                error: normalizeError(error)
             });
         }
     }
@@ -92,7 +93,9 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                 return query;
             });
         } catch (error) {
-            logger.error("지난 마감일의 완료된 todo notification record 정리 실패", { error });
+            logger.error("지난 마감일의 완료된 todo notification record 정리 실패", {
+                error: normalizeError(error)
+            });
         }
 
         try {
@@ -110,7 +113,9 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                 return query;
             });
         } catch (error) {
-            logger.error("마감일이 없는 todo notification record 정리 실패", { error });
+            logger.error("마감일이 없는 todo notification record 정리 실패", {
+                error: normalizeError(error)
+            });
         }
     }
 );

@@ -2,6 +2,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { normalizeError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
@@ -16,13 +17,6 @@ type ZonedDateParts = {
     day: number;
     hour: number;
     minute: number;
-};
-
-type ErrorLike = {
-    code?: unknown;
-    details?: unknown;
-    message?: unknown;
-    stack?: unknown;
 };
 
 // 사용자별 설정 시간에 맞춘 내일 마감 Todo 알림 작업 큐 적재
@@ -42,7 +36,7 @@ export const scheduleTodoReminder = onSchedule({
             } catch (error) {
                 logger.error("users 조회 실패", {
                     at: "collection(users).get()",
-                    ...serializeError(error)
+                    ...normalizeError(error)
                 });
                 return;
             }
@@ -58,7 +52,7 @@ export const scheduleTodoReminder = onSchedule({
                     logger.error("settings 조회 실패", {
                         userId,
                         at: "users/{uid}/userData/settings",
-                        ...serializeError(error)
+                        ...normalizeError(error)
                     });
                     continue;
                 }
@@ -112,7 +106,7 @@ export const scheduleTodoReminder = onSchedule({
                         startUTC: startUTC.toISOString(),
                         endUTC: endUTC.toISOString(),
                         dueDateKey,
-                        ...serializeError(error)
+                        ...normalizeError(error)
                     });
                     continue;
                 }
@@ -138,28 +132,17 @@ export const scheduleTodoReminder = onSchedule({
                             userId,
                             todoId: todoDoc.id,
                             dueDateKey,
-                            ...serializeError(error)
+                            ...normalizeError(error)
                         });
                     }
                 }
             }
 
         } catch (error) {
-            logger.error("알림 스케줄 배치 실행 중 오류 발생", serializeError(error));
+            logger.error("알림 스케줄 배치 실행 중 오류 발생", normalizeError(error));
         }
     }
 );
-
-// 로깅용 에러 정보의 평탄한 객체 정리
-function serializeError(error: unknown): Record<string, unknown> {
-    const err = error as ErrorLike;
-    return {
-        code: err?.code ?? null,
-        details: err?.details ?? null,
-        message: err?.message ?? String(error),
-        stack: err?.stack ?? null
-    };
-}
 
 // 지정한 타임존 기준 연월일시분 값 추출
 function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
