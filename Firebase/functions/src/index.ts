@@ -61,6 +61,10 @@ import {
 } from "./notification/deletion";
 
 import {
+    cleanupSoftDeletedNotifications
+} from "./notification/cleanup";
+
+import {
     requestWebPageDeletion,
     undoWebPageDeletion,
     completeWebPageDeletion
@@ -120,6 +124,7 @@ export {
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
     completePushNotificationDeletion,
+    cleanupSoftDeletedNotifications,
     requestWebPageDeletion,
     undoWebPageDeletion,
     completeWebPageDeletion,
