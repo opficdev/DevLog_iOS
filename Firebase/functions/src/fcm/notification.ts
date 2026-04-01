@@ -15,7 +15,7 @@ type FirestoreErrorLike = {
     code?: unknown;
 };
 
-// Cloud Tasks에 의해 트리거되는 함수
+// 큐에 적재된 알림 payload 검증 및 실제 푸시 발송 수행
 export const sendPushNotification = onTaskDispatched({
         maxInstances: 2,
         region: "asia-northeast3",
@@ -140,6 +140,7 @@ export const sendPushNotification = onTaskDispatched({
     }
 );
 
+// 큐 payload의 발송 필수 필드 충족 여부 검증
 function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): TaskPayload | null {
     const {
         userId,
@@ -172,11 +173,13 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     };
 }
 
+// Firestore create 충돌의 기존 문서 존재 여부 판별
 function isAlreadyExistsError(error: unknown): boolean {
     const code = (error as FirestoreErrorLike)?.code;
     return code === 6 || code === "6" || code === "already-exists";
 }
 
+// 타임존 기준 Date의 yyyy-MM-dd 형태 키 문자열 변환
 function formatDateKey(date: Date, timeZone: string): string {
     const parts = new Intl.DateTimeFormat("en-US", {
         timeZone,

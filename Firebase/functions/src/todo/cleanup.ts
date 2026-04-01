@@ -7,6 +7,7 @@ const LOCATION = "asia-northeast3";
 const DELETE_BATCH_SIZE = 200;
 const QUERY_BATCH_SIZE = 100;
 
+// Todo 삭제 시 연결된 알림 문서와 발송 기록 문서의 동시 제거
 export const removeTodoNotificationDocuments = onDocumentDeleted({
         maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
@@ -29,6 +30,7 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
     }
 );
 
+// 지난 마감일 Todo 완료 시 재발송 방지 기록 정리
 export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
         maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
@@ -65,6 +67,7 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
     }
 );
 
+// 사용되지 않는 알림 발송 기록의 주기적 정리
 export const cleanupUnusedTodoNotificationRecords = onSchedule({
         maxInstances: 1,
         region: LOCATION,
@@ -139,6 +142,7 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
     }
 );
 
+// 특정 Todo 연결 문서의 배치 단위 전체 삭제
 async function deleteByTodoId(
     userId: string,
     collectionName: "notificationDispatches" | "notifications",

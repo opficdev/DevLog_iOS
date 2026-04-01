@@ -24,6 +24,7 @@ type ErrorLike = {
     stack?: unknown;
 };
 
+// 사용자별 설정 시간에 맞춘 내일 마감 Todo 알림 작업 큐 적재
 export const scheduleTodoReminder = onSchedule({
         maxInstances: 1,
         region: LOCATION,
@@ -151,6 +152,7 @@ export const scheduleTodoReminder = onSchedule({
     }
 );
 
+// 로깅용 에러 정보의 평탄한 객체 정리
 function serializeError(error: unknown): Record<string, unknown> {
     const err = error as ErrorLike;
     return {
@@ -161,6 +163,7 @@ function serializeError(error: unknown): Record<string, unknown> {
     };
 }
 
+// 지정한 타임존 기준 연월일시분 값 추출
 function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
     const parts = new Intl.DateTimeFormat("en-US", {
         timeZone,
@@ -186,6 +189,7 @@ function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
     };
 }
 
+// GMT 오프셋 문자열의 분 단위 오프셋 값 변환
 function parseShortOffsetToMinutes(shortOffset: string): number {
     if (shortOffset === "GMT" || shortOffset === "UTC") return 0;
     const match = shortOffset.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
@@ -197,6 +201,7 @@ function parseShortOffsetToMinutes(shortOffset: string): number {
     return sign * (hour * 60 + minute);
 }
 
+// 특정 UTC 시점의 타임존 오프셋 분 단위 계산
 function getOffsetMinutesAt(utcDate: Date, timeZone: string): number {
     const parts = new Intl.DateTimeFormat("en-US", {
         timeZone,
@@ -207,6 +212,7 @@ function getOffsetMinutesAt(utcDate: Date, timeZone: string): number {
     return parseShortOffsetToMinutes(offset);
 }
 
+// 타임존 기준 로컬 날짜 시간의 UTC Date 변환
 function zonedDateTimeToUTC(
     year: number,
     month: number,
@@ -227,6 +233,7 @@ function zonedDateTimeToUTC(
     return new Date(utcMs);
 }
 
+// 주어진 로컬 날짜에 대한 일 수 가산 결과 반환
 function addDays(year: number, month: number, day: number, value: number): {
     year: number;
     month: number;

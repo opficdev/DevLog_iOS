@@ -6,6 +6,7 @@ import { normalizeError } from "../common/error";
 const LOCATION = "asia-northeast3";
 const BATCH_SIZE = 200;
 
+// Todo 카테고리 변경 시 기존 알림 문서 카테고리 동기화
 export const syncTodoNotificationCategory = onDocumentUpdated({
         maxInstances: 1,
         document: "users/{userId}/todoLists/{todoId}",
@@ -39,6 +40,7 @@ export const syncTodoNotificationCategory = onDocumentUpdated({
     }
 );
 
+// 변경된 카테고리 값의 해당 Todo 알림 문서 반영
 async function updateNotifications(
     userId: string,
     todoId: string,
@@ -47,6 +49,7 @@ async function updateNotifications(
     await updateNotificationBatch(userId, todoId, todoCategory)
 }
 
+// 알림 문서의 배치 단위 순회 및 카테고리 값 갱신
 async function updateNotificationBatch(
     userId: string,
     todoId: string,
