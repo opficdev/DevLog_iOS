@@ -1,6 +1,7 @@
 import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
 type TaskPayload = {
@@ -32,8 +33,9 @@ export const sendPushNotification = onTaskDispatched({
         try {
             const { userId, todoId, dueDateKey, title, body } = parsed;
 
-            const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
-            const todoDocRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+            const settingsDocRef = admin.firestore()
+                .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.settings));
+            const todoDocRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
             const [settingsDoc, todoDoc] = await Promise.all([
                 settingsDocRef.get(),
                 todoDocRef.get()
@@ -59,10 +61,8 @@ export const sendPushNotification = onTaskDispatched({
             if (formatDateKey(currentDueDate, timeZone) !== dueDateKey) { return; }
 
             const id = `${todoId}_${dueDateKey}`;
-            const dispatchDocRef = admin.firestore().doc(
-                `users/${userId}/notificationDispatches/${id}`
-            );
-            const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${id}`);
+            const dispatchDocRef = admin.firestore().doc(FirestorePath.notificationDispatch(userId, id));
+            const notificationDocRef = admin.firestore().doc(FirestorePath.notification(userId, id));
 
             try {
                 await dispatchDocRef.create({
@@ -88,12 +88,14 @@ export const sendPushNotification = onTaskDispatched({
 
             // 1. 사용자 FCM 토큰과 읽지 않은 알림 수 가져오기
             const unreadCountPromise = admin.firestore()
-                .collection(`users/${userId}/notifications`)
+                .collection(FirestorePath.notifications(userId))
                 .where("isRead", "==", false)
                 .count()
                 .get();
             // 2. 사용자 FCM 토큰 가져오기
-            const tokenDocPromise = admin.firestore().doc(`users/${userId}/userData/tokens`).get();
+            const tokenDocPromise = admin.firestore()
+                .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.tokens))
+                .get();
             const [tokenDoc, unreadCountSnapshot] = await Promise.all([
                 tokenDocPromise,
                 unreadCountPromise

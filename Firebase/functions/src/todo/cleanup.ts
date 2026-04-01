@@ -2,6 +2,7 @@ import { onDocumentDeleted, onDocumentUpdated } from "firebase-functions/v2/fire
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const DELETE_BATCH_SIZE = 200;
@@ -149,8 +150,11 @@ async function deleteByTodoId(
     todoId: string
 ): Promise<void> {
     while (true) {
+        const collectionPath = collectionName === "notificationDispatches" ?
+            FirestorePath.notificationDispatches(userId) :
+            FirestorePath.notifications(userId);
         const snapshot = await admin.firestore()
-            .collection(`users/${userId}/${collectionName}`)
+            .collection(collectionPath)
             .where("todoId", "==", todoId)
             .limit(DELETE_BATCH_SIZE)
             .get();

@@ -4,6 +4,7 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const DELETE_DELAY_SECONDS = 5;
@@ -33,7 +34,7 @@ export const requestPushNotificationDeletion = onCall({
             throw new HttpsError("invalid-argument", "notificationId가 필요합니다.");
         }
 
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
         const notificationSnapshot = await notificationRef.get();
 
         if (!notificationSnapshot.exists) {
@@ -116,7 +117,7 @@ export const undoPushNotificationDeletion = onCall({
             .where("userId", "==", userId)
             .where("notificationId", "==", notificationId)
             .get();
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
 
         try {
             const notificationSnapshot = await notificationRef.get();
@@ -171,7 +172,7 @@ export const completePushNotificationDeletion = onTaskDispatched({
             return;
         }
 
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
 
         try {
             const notificationSnapshot = await notificationRef.get();

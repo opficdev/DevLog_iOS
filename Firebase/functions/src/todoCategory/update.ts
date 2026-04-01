@@ -4,6 +4,7 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const BATCH_SIZE = 200;
@@ -155,7 +156,7 @@ async function updateTodoBatch(
         FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
 ): Promise<void> {
     let query = admin.firestore()
-        .collection(`users/${userId}/todoLists`)
+        .collection(FirestorePath.todos(userId))
         .where("category", "==", id)
         .orderBy(admin.firestore.FieldPath.documentId())
         .limit(BATCH_SIZE);

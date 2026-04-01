@@ -4,6 +4,7 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const DELETE_DELAY_SECONDS = 5;
@@ -35,7 +36,7 @@ export const requestWebPageDeletion = onCall({
         }
 
         const webPageSnapshot = await admin.firestore()
-            .collection(`users/${userId}/webPages`)
+            .collection(FirestorePath.webPages(userId))
             .where("url", "==", urlString)
             .limit(1)
             .get();
@@ -124,7 +125,7 @@ export const undoWebPageDeletion = onCall({
             .where("urlString", "==", urlString)
             .get();
         const webPageSnapshot = await admin.firestore()
-            .collection(`users/${userId}/webPages`)
+            .collection(FirestorePath.webPages(userId))
             .where("url", "==", urlString)
             .limit(1)
             .get();

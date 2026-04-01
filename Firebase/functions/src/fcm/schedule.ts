@@ -2,6 +2,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
 const LOCATION = "asia-northeast3";
@@ -50,7 +51,9 @@ export const scheduleTodoReminder = onSchedule({
                 const userId = userDoc.id;
                 let settingsDoc: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>;
                 try {
-                    settingsDoc = await admin.firestore().doc(`users/${userId}/userData/settings`).get();
+                    settingsDoc = await admin.firestore()
+                        .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.settings))
+                        .get();
                 } catch (error) {
                     logger.error("settings 조회 실패", {
                         userId,
@@ -98,7 +101,7 @@ export const scheduleTodoReminder = onSchedule({
                 let todosSnapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>;
                 try {
                     todosSnapshot = await admin.firestore()
-                        .collection(`users/${userId}/todoLists`)
+                        .collection(FirestorePath.todos(userId))
                         .where("dueDate", ">=", admin.firestore.Timestamp.fromDate(startUTC))
                         .where("dueDate", "<", admin.firestore.Timestamp.fromDate(endUTC))
                         .get();

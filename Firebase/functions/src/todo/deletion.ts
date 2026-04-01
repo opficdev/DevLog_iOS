@@ -3,6 +3,7 @@ import {onTaskDispatched} from "firebase-functions/v2/tasks";
 import {getFunctions} from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { FirestorePath } from "../common/firestorePath";
 import {normalizeError} from "../common/error";
 
 const LOCATION = "asia-northeast3";
@@ -32,7 +33,7 @@ export const requestTodoDeletion = onCall({
             throw new HttpsError("invalid-argument", "todoId가 필요합니다.");
         }
 
-        const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+        const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
         const todoSnapshot = await todoRef.get();
 
         if (!todoSnapshot.exists) {
@@ -127,7 +128,7 @@ export const undoTodoDeletion = onCall({
             .get();
 
         try {
-            const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+            const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
             const todoSnapshot = await todoRef.get();
 
             if (todoSnapshot.exists) {
@@ -187,7 +188,7 @@ export const completeTodoDeletion = onTaskDispatched({
             return;
         }
 
-        const todoRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+        const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
 
         try {
             const todoSnapshot = await todoRef.get();
@@ -219,7 +220,7 @@ async function updateNotificationsDeletingAt(
 ): Promise<void> {
     while (true) {
         const snapshot = await admin.firestore()
-            .collection(`users/${userId}/notifications`)
+            .collection(FirestorePath.notifications(userId))
             .where("todoId", "==", todoId)
             .limit(QUERY_BATCH_SIZE)
             .get();
