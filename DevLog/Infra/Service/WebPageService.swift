@@ -31,6 +31,7 @@ final class WebPageService {
 
         do {
             let collectionRef = store.collection(FirestorePath.webPages(uid))
+                .whereField(WebPageFieldKey.isDeleted.rawValue, isEqualTo: false)
             let snapshot = try await collectionRef.getDocuments()
             let items: [WebPageResponse] = snapshot.documents.compactMap { makeResponse(from: $0) }
 
@@ -128,6 +129,7 @@ private extension WebPageService {
             return nil
         }
         guard
+            (data[WebPageFieldKey.isDeleted.rawValue] as? Bool) != true,
             let title = data[WebPageFieldKey.title.rawValue] as? String,
             let url = data[WebPageFieldKey.url.rawValue] as? String,
             let displayURL = data[WebPageFieldKey.displayURL.rawValue] as? String,
@@ -149,6 +151,7 @@ private extension WebPageService {
         case url
         case displayURL
         case imageURL
-        case deletingAt // 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태
+        case deletingAt // 삭제 요청으로 앱의 로컬 데이터에서 deletion이 된 상태
+        case isDeleted  // 삭제 요청으로 서버에서 soft deletion이 된 상태
     }
 }

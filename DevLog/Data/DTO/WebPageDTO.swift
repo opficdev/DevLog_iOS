@@ -12,6 +12,7 @@ struct WebPageRequest: Encodable {
     let url: String
     let displayURL: String
     let imageURL: String
+    let isDeleted: Bool
 }
 
 struct WebPageResponse {

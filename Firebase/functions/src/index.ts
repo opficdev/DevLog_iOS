@@ -65,6 +65,10 @@ import {
     completeWebPageDeletion
 } from "./webPage/deletion";
 
+import {
+    cleanupSoftDeletedWebPages
+} from "./webPage/cleanup";
+
 
 // .env 파일 로드
 dotenv.config({
@@ -116,5 +120,6 @@ export {
     completePushNotificationDeletion,
     requestWebPageDeletion,
     undoWebPageDeletion,
-    completeWebPageDeletion
+    completeWebPageDeletion,
+    cleanupSoftDeletedWebPages
 };
