@@ -1,6 +1,7 @@
 import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { formatDateKey, toDate } from "../common/date";
 import { normalizeError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
@@ -52,12 +53,7 @@ export const sendPushNotification = onTaskDispatched({
 
             const timeZone = resolveTimeZone(settingsData);
 
-            const dueDateValue = todoData.dueDate;
-            const currentDueDate = dueDateValue instanceof admin.firestore.Timestamp ?
-                dueDateValue.toDate() :
-                dueDateValue instanceof Date ?
-                    dueDateValue :
-                    null;
+            const currentDueDate = toDate(todoData.dueDate);
             if (!currentDueDate) { return; }
             if (formatDateKey(currentDueDate, timeZone) !== dueDateKey) { return; }
 
@@ -179,29 +175,4 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
 function isAlreadyExistsError(error: unknown): boolean {
     const code = (error as FirestoreErrorLike)?.code;
     return code === 6 || code === "6" || code === "already-exists";
-}
-
-// 타임존 기준 Date의 yyyy-MM-dd 형태 키 문자열 변환
-function formatDateKey(date: Date, timeZone: string): string {
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    }).formatToParts(date);
-
-    const partMap = new Map(parts.map(p => [p.type, p.value]));
-    const year = partMap.get("year");
-    const month = partMap.get("month");
-    const day = partMap.get("day");
-
-    if (!year || !month || !day) {
-        logger.warn("formatDateKey 파트 추출 실패", {
-            date: date.toISOString(),
-            timeZone,
-            parts
-        });
-    }
-
-    return `${year ?? "1970"}-${month ?? "01"}-${day ?? "01"}`;
 }
