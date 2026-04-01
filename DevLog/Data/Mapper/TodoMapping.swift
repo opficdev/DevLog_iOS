@@ -12,6 +12,7 @@ extension TodoRequest {
             isPinned: entity.isPinned,
             isCompleted: entity.isCompleted,
             isChecked: entity.isChecked,
+            isDeleted: false,
             number: entity.number,
             title: entity.title,
             content: entity.content,

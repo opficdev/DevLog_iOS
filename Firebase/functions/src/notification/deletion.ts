@@ -4,14 +4,14 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const DELETE_DELAY_SECONDS = 5;
 
-type NotificationDeletionTaskData = {
+type NotificationDeletionPayload = {
     userId: string;
     notificationId: string;
-    createdAt?: FirebaseFirestore.Timestamp | Date | null;
 };
 
 export const requestPushNotificationDeletion = onCall({
@@ -33,48 +33,30 @@ export const requestPushNotificationDeletion = onCall({
             throw new HttpsError("invalid-argument", "notificationId가 필요합니다.");
         }
 
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
         const notificationSnapshot = await notificationRef.get();
 
-        if (!notificationSnapshot.exists) {
+        if (!notificationSnapshot.exists || notificationSnapshot.data()?.isDeleted === true) {
             throw new HttpsError("not-found", "Notification을 찾을 수 없습니다.");
         }
 
-        const taskRef = admin.firestore().collection("notificationDeletionTasks").doc();
-        const taskData = {
-            userId,
-            notificationId,
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
-        };
-
         try {
-            await taskRef.set(taskData);
             await notificationRef.set({
                 // deletingAt: 삭제 요청은 되었지만, 5초 유예 후 최종 삭제되기 전 상태를 의미한다.
-                deletingAt: admin.firestore.FieldValue.serverTimestamp()
+                deletingAt: admin.firestore.FieldValue.serverTimestamp(),
+                isDeleted: false
             }, {merge: true});
 
             const queue = getFunctions().taskQueue(
                 `locations/${LOCATION}/functions/completePushNotificationDeletion`
             );
             await queue.enqueue(
-                {taskId: taskRef.id},
+                { userId, notificationId },
                 {scheduleDelaySeconds: DELETE_DELAY_SECONDS}
             );
         } catch (error) {
-            try {
-                await taskRef.delete();
-            } catch (cleanupError) {
-                logger.warn("notificationDeletionTasks 정리 실패", {
-                    userId,
-                    notificationId,
-                    taskId: taskRef.id,
-                    error: normalizeError(cleanupError)
-                });
-            }
-
             const currentNotificationSnapshot = await notificationRef.get();
-            if (currentNotificationSnapshot.exists) {
+            if (currentNotificationSnapshot.exists && currentNotificationSnapshot.data()?.isDeleted !== true) {
                 await notificationRef.update({
                     deletingAt: admin.firestore.FieldValue.delete()
                 });
@@ -110,28 +92,15 @@ export const undoPushNotificationDeletion = onCall({
         if (!notificationId) {
             throw new HttpsError("invalid-argument", "notificationId가 필요합니다.");
         }
-
-        const taskSnapshot = await admin.firestore()
-            .collection("notificationDeletionTasks")
-            .where("userId", "==", userId)
-            .where("notificationId", "==", notificationId)
-            .get();
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
 
         try {
             const notificationSnapshot = await notificationRef.get();
-            if (notificationSnapshot.exists) {
+            if (notificationSnapshot.exists && notificationSnapshot.data()?.isDeleted !== true) {
                 await notificationRef.update({
-                    deletingAt: admin.firestore.FieldValue.delete()
+                    deletingAt: admin.firestore.FieldValue.delete(),
+                    isDeleted: false
                 });
-            }
-
-            if (!taskSnapshot.empty) {
-                const batch = admin.firestore().batch();
-                taskSnapshot.docs.forEach((document) => {
-                    batch.delete(document.ref);
-                });
-                await batch.commit();
             }
         } catch (error) {
             logger.error("푸시 알림 삭제 취소 실패", {
@@ -153,45 +122,54 @@ export const completePushNotificationDeletion = onTaskDispatched({
         rateLimits: {maxDispatchesPerSecond: 200},
     },
     async (request) => {
-        const taskId = typeof request.data?.taskId === "string" ? request.data.taskId.trim() : "";
-        if (!taskId) {
+        const payload = parseDeletionPayload(request.data);
+        if (!payload) {
             logger.warn("유효하지 않은 푸시 알림 삭제 payload", request.data);
             return;
         }
 
-        const taskRef = admin.firestore().collection("notificationDeletionTasks").doc(taskId);
-        const taskSnapshot = await taskRef.get();
-        if (!taskSnapshot.exists) { return; }
+        const { userId, notificationId } = payload;
 
-        const taskData = taskSnapshot.data() as NotificationDeletionTaskData | undefined;
-        const userId = typeof taskData?.userId === "string" ? taskData.userId : "";
-        const notificationId = typeof taskData?.notificationId === "string" ? taskData.notificationId : "";
-        if (!userId || !notificationId) {
-            logger.warn("notificationDeletionTasks 문서 형식이 올바르지 않습니다.", {taskId});
-            return;
-        }
-
-        const notificationRef = admin.firestore().doc(`users/${userId}/notifications/${notificationId}`);
+        const notificationRef = admin.firestore().doc(FirestorePath.notification(userId, notificationId));
 
         try {
             const notificationSnapshot = await notificationRef.get();
             const deletingAt = notificationSnapshot.data()?.deletingAt;
+            const isDeleted = notificationSnapshot.data()?.isDeleted === true;
 
-            if (!notificationSnapshot.exists || !deletingAt) {
-                await taskRef.delete();
+            if (!notificationSnapshot.exists || !deletingAt || isDeleted) {
                 return;
             }
 
-            await notificationRef.delete();
-            await taskRef.delete();
+            await notificationRef.set({
+                deletingAt: admin.firestore.FieldValue.delete(),
+                isDeleted: true
+            }, { merge: true });
         } catch (error) {
             logger.error("푸시 알림 최종 삭제 실패", {
                 userId,
                 notificationId,
-                taskId,
                 error: normalizeError(error)
             });
             throw error;
         }
     }
 );
+
+function parseDeletionPayload(data: unknown): NotificationDeletionPayload | null {
+    const userId = typeof (data as NotificationDeletionPayload | undefined)?.userId === "string" ?
+        (data as NotificationDeletionPayload).userId.trim() :
+        "";
+    const notificationId = typeof (data as NotificationDeletionPayload | undefined)?.notificationId === "string" ?
+        (data as NotificationDeletionPayload).notificationId.trim() :
+        "";
+
+    if (!userId || !notificationId) {
+        return null;
+    }
+
+    return {
+        userId,
+        notificationId
+    };
+}

@@ -2,6 +2,9 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { addDays, getZonedParts, zonedDateTimeToUTC } from "../common/date";
+import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
 const LOCATION = "asia-northeast3";
@@ -9,21 +12,7 @@ const DEFAULT_HOUR = 9;
 const DEFAULT_MINUTE = 0;
 const MINUTE_INTERVAL = 5;
 
-type ZonedDateParts = {
-    year: number;
-    month: number;
-    day: number;
-    hour: number;
-    minute: number;
-};
-
-type ErrorLike = {
-    code?: unknown;
-    details?: unknown;
-    message?: unknown;
-    stack?: unknown;
-};
-
+// 사용자별 설정 시간에 맞춘 내일 마감 Todo 알림 작업 큐 적재
 export const scheduleTodoReminder = onSchedule({
         maxInstances: 1,
         region: LOCATION,
@@ -40,7 +29,7 @@ export const scheduleTodoReminder = onSchedule({
             } catch (error) {
                 logger.error("users 조회 실패", {
                     at: "collection(users).get()",
-                    ...serializeError(error)
+                    ...normalizeError(error)
                 });
                 return;
             }
@@ -49,12 +38,14 @@ export const scheduleTodoReminder = onSchedule({
                 const userId = userDoc.id;
                 let settingsDoc: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>;
                 try {
-                    settingsDoc = await admin.firestore().doc(`users/${userId}/userData/settings`).get();
+                    settingsDoc = await admin.firestore()
+                        .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.settings))
+                        .get();
                 } catch (error) {
                     logger.error("settings 조회 실패", {
                         userId,
                         at: "users/{uid}/userData/settings",
-                        ...serializeError(error)
+                        ...normalizeError(error)
                     });
                     continue;
                 }
@@ -97,7 +88,7 @@ export const scheduleTodoReminder = onSchedule({
                 let todosSnapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>;
                 try {
                     todosSnapshot = await admin.firestore()
-                        .collection(`users/${userId}/todoLists`)
+                        .collection(FirestorePath.todos(userId))
                         .where("dueDate", ">=", admin.firestore.Timestamp.fromDate(startUTC))
                         .where("dueDate", "<", admin.firestore.Timestamp.fromDate(endUTC))
                         .get();
@@ -108,7 +99,7 @@ export const scheduleTodoReminder = onSchedule({
                         startUTC: startUTC.toISOString(),
                         endUTC: endUTC.toISOString(),
                         dueDateKey,
-                        ...serializeError(error)
+                        ...normalizeError(error)
                     });
                     continue;
                 }
@@ -118,138 +109,30 @@ export const scheduleTodoReminder = onSchedule({
                     const todoTitle = typeof todoData.title === "string" && todoData.title.trim() ?
                         todoData.title :
                         "제목 없음";
-                    const todoCategory = typeof todoData.category === "string" && todoData.category.trim() ?
-                        todoData.category :
-                        "etc";
 
-                    const notificationTaskRef = admin.firestore().collection("notificationTasks").doc();
-                    const notificationTaskData = {
+                    const notificationPayload = {
                         userId,
                         todoId: todoDoc.id,
-                        todoCategory,
                         dueDateKey,
                         title: "DevLog",
-                        body: `'${todoTitle}'의 마감일이 내일입니다.`,
-                        createdAt: admin.firestore.FieldValue.serverTimestamp()
+                        body: `'${todoTitle}'의 마감일이 내일입니다.`
                     };
 
                     try {
-                        await notificationTaskRef.set(notificationTaskData);
-                        await queue.enqueue({ taskId: notificationTaskRef.id });
+                        await queue.enqueue(notificationPayload);
                     } catch (error) {
-                        try {
-                            await notificationTaskRef.delete();
-                        } catch (cleanupError) {
-                            logger.warn("notificationTasks 정리 실패", {
-                                userId,
-                                todoId: todoDoc.id,
-                                taskId: notificationTaskRef.id,
-                                ...serializeError(cleanupError)
-                            });
-                        }
                         logger.error("Cloud Tasks enqueue 실패", {
                             userId,
                             todoId: todoDoc.id,
                             dueDateKey,
-                            taskId: notificationTaskRef.id,
-                            ...serializeError(error)
+                            ...normalizeError(error)
                         });
                     }
                 }
             }
 
         } catch (error) {
-            logger.error("알림 스케줄 배치 실행 중 오류 발생", serializeError(error));
+            logger.error("알림 스케줄 배치 실행 중 오류 발생", normalizeError(error));
         }
     }
 );
-
-function serializeError(error: unknown): Record<string, unknown> {
-    const err = error as ErrorLike;
-    return {
-        code: err?.code ?? null,
-        details: err?.details ?? null,
-        message: err?.message ?? String(error),
-        stack: err?.stack ?? null
-    };
-}
-
-function getZonedParts(date: Date, timeZone: string): ZonedDateParts {
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-    }).formatToParts(date);
-
-    const byType = (type: string): number => {
-        const found = parts.find((part) => part.type === type)?.value;
-        return Number(found);
-    };
-
-    return {
-        year: byType("year"),
-        month: byType("month"),
-        day: byType("day"),
-        hour: byType("hour"),
-        minute: byType("minute")
-    };
-}
-
-function parseShortOffsetToMinutes(shortOffset: string): number {
-    if (shortOffset === "GMT" || shortOffset === "UTC") return 0;
-    const match = shortOffset.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
-    if (!match) return 0;
-
-    const sign = match[1] === "-" ? -1 : 1;
-    const hour = Number(match[2]);
-    const minute = Number(match[3] ?? "0");
-    return sign * (hour * 60 + minute);
-}
-
-function getOffsetMinutesAt(utcDate: Date, timeZone: string): number {
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone,
-        timeZoneName: "shortOffset"
-    }).formatToParts(utcDate);
-
-    const offset = parts.find((part) => part.type === "timeZoneName")?.value ?? "GMT";
-    return parseShortOffsetToMinutes(offset);
-}
-
-function zonedDateTimeToUTC(
-    year: number,
-    month: number,
-    day: number,
-    hour: number,
-    minute: number,
-    timeZone: string
-): Date {
-    const localAsUTC = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
-    let utcMs = localAsUTC;
-
-    // DST 경계 시 오프셋이 바뀔 수 있어 2회 보정
-    for (let i = 0; i < 2; i += 1) {
-        const offsetMinutes = getOffsetMinutesAt(new Date(utcMs), timeZone);
-        utcMs = localAsUTC - offsetMinutes * 60 * 1000;
-    }
-
-    return new Date(utcMs);
-}
-
-function addDays(year: number, month: number, day: number, value: number): {
-    year: number;
-    month: number;
-    day: number;
-} {
-    const utcDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-    utcDate.setUTCDate(utcDate.getUTCDate() + value);
-    return {
-        year: utcDate.getUTCFullYear(),
-        month: utcDate.getUTCMonth() + 1,
-        day: utcDate.getUTCDate()
-    };
-}

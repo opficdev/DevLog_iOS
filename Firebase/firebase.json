@@ -15,6 +15,9 @@
       ]
     }
   ],
+  "firestore": {
+    "indexes": "firestore.index.json"
+  },
   "emulators": {
     "functions": {
       "port": 5001

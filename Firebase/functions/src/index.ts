@@ -35,6 +35,7 @@ import {
 import {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
+    cleanupSoftDeletedTodos,
     cleanupUnusedTodoNotificationRecords
 } from "./todo/cleanup";
 
@@ -60,10 +61,18 @@ import {
 } from "./notification/deletion";
 
 import {
+    cleanupSoftDeletedNotifications
+} from "./notification/cleanup";
+
+import {
     requestWebPageDeletion,
     undoWebPageDeletion,
     completeWebPageDeletion
 } from "./webPage/deletion";
+
+import {
+    cleanupSoftDeletedWebPages
+} from "./webPage/cleanup";
 
 
 // .env 파일 로드
@@ -104,6 +113,7 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
+    cleanupSoftDeletedTodos,
     cleanupUnusedTodoNotificationRecords,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
@@ -114,7 +124,9 @@ export {
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
     completePushNotificationDeletion,
+    cleanupSoftDeletedNotifications,
     requestWebPageDeletion,
     undoWebPageDeletion,
-    completeWebPageDeletion
+    completeWebPageDeletion,
+    cleanupSoftDeletedWebPages
 };

@@ -4,6 +4,7 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
 const BATCH_SIZE = 200;
@@ -17,7 +18,6 @@ type CategoryItem = {
 type TodoCategoryUpdateTaskData = {
     userId: string;
     id: string;
-    createdAt?: FirebaseFirestore.Timestamp | Date | null;
 };
 
 export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
@@ -44,28 +44,14 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
             );
 
             for (const id of removedIDs) {
-                const taskRef = admin.firestore().collection("todoCategoryUpdateTasks").doc();
                 const taskData = {
                     userId,
-                    id,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    id
                 };
 
                 try {
-                    await taskRef.set(taskData);
-                    await queue.enqueue({ taskId: taskRef.id });
+                    await queue.enqueue(taskData);
                 } catch (error) {
-                    try {
-                        await taskRef.delete();
-                    } catch (cleanupError) {
-                        logger.warn("todoCategoryUpdateTasks 정리 실패", {
-                            userId,
-                            id,
-                            taskId: taskRef.id,
-                            error: normalizeError(cleanupError)
-                        });
-                    }
-
                     throw error;
                 }
             }
@@ -87,39 +73,44 @@ export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
         rateLimits: { maxDispatchesPerSecond: 20 },
     },
     async (request) => {
-        const taskId = typeof request.data?.taskId === "string" ? request.data.taskId.trim() : "";
-        if (!taskId) {
+        const taskData = parseTaskPayload(request.data);
+        if (!taskData) {
             logger.warn("유효하지 않은 카테고리 정리 payload", request.data);
             return;
         }
-
-        const taskRef = admin.firestore().collection("todoCategoryUpdateTasks").doc(taskId);
-        const taskSnapshot = await taskRef.get();
-        if (!taskSnapshot.exists) { return; }
-
-        const taskData = taskSnapshot.data() as TodoCategoryUpdateTaskData | undefined;
-        const userId = typeof taskData?.userId === "string" ? taskData.userId : "";
-        const id = typeof taskData?.id === "string" ? taskData.id : "";
-
-        if (!userId || !id) {
-            logger.warn("todoCategoryUpdateTasks 문서 형식이 올바르지 않습니다.", { taskId });
-            return;
-        }
+        const { userId, id } = taskData;
 
         try {
             await updateTodos(userId, id);
-            await taskRef.delete();
         } catch (error) {
             logger.error("삭제된 사용자 카테고리 todo 정리 실패", {
                 userId,
                 id,
-                taskId,
+                payload: request.data,
                 error: normalizeError(error)
             });
             throw error;
         }
     }
 );
+
+function parseTaskPayload(data: unknown): TodoCategoryUpdateTaskData | null {
+    const userId = typeof (data as TodoCategoryUpdateTaskData | undefined)?.userId === "string" ?
+        (data as TodoCategoryUpdateTaskData).userId.trim() :
+        "";
+    const id = typeof (data as TodoCategoryUpdateTaskData | undefined)?.id === "string" ?
+        (data as TodoCategoryUpdateTaskData).id.trim() :
+        "";
+
+    if (!userId || !id) {
+        return null;
+    }
+
+    return {
+        userId,
+        id
+    };
+}
 
 function getRemovedIDs(
     beforeItems: CategoryItem[],
@@ -155,7 +146,7 @@ async function updateTodoBatch(
         FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
 ): Promise<void> {
     let query = admin.firestore()
-        .collection(`users/${userId}/todoLists`)
+        .collection(FirestorePath.todos(userId))
         .where("category", "==", id)
         .orderBy(admin.firestore.FieldPath.documentId())
         .limit(BATCH_SIZE);

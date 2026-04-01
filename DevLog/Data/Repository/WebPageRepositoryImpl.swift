@@ -48,7 +48,8 @@ final class WebPageRepositoryImpl: WebPageRepository {
             title: metadata.title,
             url: urlString,
             displayURL: metadata.displayURL,
-            imageURL: metadata.imageURL
+            imageURL: metadata.imageURL,
+            isDeleted: false
         )
         try await webPageService.upsertWebPage(request)
     }
@@ -101,7 +102,8 @@ private extension WebPageRepositoryImpl {
             title: metadata.title,
             url: response.url,
             displayURL: metadata.displayURL,
-            imageURL: metadata.imageURL
+            imageURL: metadata.imageURL,
+            isDeleted: false
         )
         try await webPageService.upsertWebPage(request)
 

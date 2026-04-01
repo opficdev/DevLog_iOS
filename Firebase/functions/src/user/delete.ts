@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { FirestorePath } from "../common/firestorePath";
 
 export const cleanupDeletedUserFirestoreData = functions
     .runWith({
@@ -13,7 +14,7 @@ export const cleanupDeletedUserFirestoreData = functions
         const uid = user.uid;
 
         try {
-            const userDocRef = admin.firestore().doc(`users/${uid}`);
+            const userDocRef = admin.firestore().doc(FirestorePath.user(uid));
             await admin.firestore().recursiveDelete(userDocRef);
             logger.info("Deleted Firestore user data after Auth user deletion", { uid });
         } catch (error) {

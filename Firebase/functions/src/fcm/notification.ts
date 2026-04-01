@@ -1,12 +1,14 @@
 import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import { formatDateKey, toDate } from "../common/date";
+import { normalizeError } from "../common/error";
+import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
 type TaskPayload = {
     userId: string;
     todoId: string;
-    todoCategory: string;
     dueDateKey: string;
     title: string;
     body: string;
@@ -16,7 +18,7 @@ type FirestoreErrorLike = {
     code?: unknown;
 };
 
-// Cloud Tasks에 의해 트리거되는 함수
+// 큐에 적재된 알림 payload 검증 및 실제 푸시 발송 수행
 export const sendPushNotification = onTaskDispatched({
         maxInstances: 2,
         region: "asia-northeast3",
@@ -24,29 +26,18 @@ export const sendPushNotification = onTaskDispatched({
         rateLimits: { maxDispatchesPerSecond: 200 },
     },
     async (req) => {
-        const taskId = req.data?.taskId;
-        if (!isValidTaskId(taskId)) {
+        const parsed = parseTaskPayload(req.data);
+        if (!parsed) {
             logger.warn("유효하지 않은 푸시 알림 payload", req.data);
             return;
         }
 
-        const taskDocRef = admin.firestore().collection("notificationTasks").doc(taskId);
         try {
-            const taskDoc = await taskDocRef.get();
-            if (!taskDoc.exists) {
-                logger.warn("notificationTask 문서를 찾을 수 없습니다.", { taskId });
-                return;
-            }
-
-            const parsed = parseTaskPayload(taskDoc.data());
-            if (!parsed) {
-                logger.warn("notificationTask 문서 형식이 올바르지 않습니다.", { taskId });
-                return;
-            }
             const { userId, todoId, dueDateKey, title, body } = parsed;
 
-            const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
-            const todoDocRef = admin.firestore().doc(`users/${userId}/todoLists/${todoId}`);
+            const settingsDocRef = admin.firestore()
+                .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.settings));
+            const todoDocRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
             const [settingsDoc, todoDoc] = await Promise.all([
                 settingsDocRef.get(),
                 todoDocRef.get()
@@ -62,26 +53,18 @@ export const sendPushNotification = onTaskDispatched({
 
             const timeZone = resolveTimeZone(settingsData);
 
-            const dueDateValue = todoData.dueDate;
-            const currentDueDate = dueDateValue instanceof admin.firestore.Timestamp ?
-                dueDateValue.toDate() :
-                dueDateValue instanceof Date ?
-                    dueDateValue :
-                    null;
+            const currentDueDate = toDate(todoData.dueDate);
             if (!currentDueDate) { return; }
             if (formatDateKey(currentDueDate, timeZone) !== dueDateKey) { return; }
 
             const id = `${todoId}_${dueDateKey}`;
-            const receiptDocRef = admin.firestore().doc(
-                `users/${userId}/notificationReceipts/${id}`
-            );
-            const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${id}`);
+            const dispatchDocRef = admin.firestore().doc(FirestorePath.notificationDispatch(userId, id));
+            const notificationDocRef = admin.firestore().doc(FirestorePath.notification(userId, id));
 
             try {
-                await receiptDocRef.create({
+                await dispatchDocRef.create({
                     todoId,
-                    dueDateKey,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    dueDateKey
                 });
             } catch (error) {
                 if (isAlreadyExistsError(error)) {
@@ -95,6 +78,7 @@ export const sendPushNotification = onTaskDispatched({
                 body,
                 receivedAt: admin.firestore.FieldValue.serverTimestamp(),
                 isRead: false,
+                isDeleted: false,
                 todoId: todoId,
                 todoCategory: todoCategory
             };
@@ -102,12 +86,14 @@ export const sendPushNotification = onTaskDispatched({
 
             // 1. 사용자 FCM 토큰과 읽지 않은 알림 수 가져오기
             const unreadCountPromise = admin.firestore()
-                .collection(`users/${userId}/notifications`)
+                .collection(FirestorePath.notifications(userId))
                 .where("isRead", "==", false)
                 .count()
                 .get();
             // 2. 사용자 FCM 토큰 가져오기
-            const tokenDocPromise = admin.firestore().doc(`users/${userId}/userData/tokens`).get();
+            const tokenDocPromise = admin.firestore()
+                .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.tokens))
+                .get();
             const [tokenDoc, unreadCountSnapshot] = await Promise.all([
                 tokenDocPromise,
                 unreadCountPromise
@@ -146,31 +132,18 @@ export const sendPushNotification = onTaskDispatched({
 
         } catch (error) {
             logger.error("알림 발송 중 오류 발생", {
-                taskId,
-                error
+                payload: req.data,
+                error: normalizeError(error)
             });
-        } finally {
-            try {
-                await taskDocRef.delete();
-            } catch (cleanupError) {
-                logger.warn("notificationTask 정리 실패", {
-                    taskId,
-                    cleanupError
-                });
-            }
         }
     }
 );
 
-function isValidTaskId(value: unknown): value is string {
-    return typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
-}
-
+// 큐 payload의 발송 필수 필드 충족 여부 검증
 function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): TaskPayload | null {
     const {
         userId,
         todoId,
-        todoCategory,
         dueDateKey,
         title,
         body
@@ -179,7 +152,6 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     if (
         typeof userId !== "string" ||
         typeof todoId !== "string" ||
-        typeof todoCategory !== "string" ||
         typeof dueDateKey !== "string" ||
         typeof title !== "string" ||
         typeof body !== "string"
@@ -194,38 +166,14 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     return {
         userId,
         todoId,
-        todoCategory,
         dueDateKey,
         title,
         body
     };
 }
 
+// Firestore create 충돌의 기존 문서 존재 여부 판별
 function isAlreadyExistsError(error: unknown): boolean {
     const code = (error as FirestoreErrorLike)?.code;
     return code === 6 || code === "6" || code === "already-exists";
-}
-
-function formatDateKey(date: Date, timeZone: string): string {
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    }).formatToParts(date);
-
-    const partMap = new Map(parts.map(p => [p.type, p.value]));
-    const year = partMap.get("year");
-    const month = partMap.get("month");
-    const day = partMap.get("day");
-
-    if (!year || !month || !day) {
-        logger.warn("formatDateKey 파트 추출 실패", {
-            date: date.toISOString(),
-            timeZone,
-            parts
-        });
-    }
-
-    return `${year ?? "1970"}-${month ?? "01"}-${day ?? "01"}`;
 }
