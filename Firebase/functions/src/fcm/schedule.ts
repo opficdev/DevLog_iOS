@@ -120,7 +120,7 @@ export const scheduleTodoReminder = onSchedule({
                         todoData.title :
                         "제목 없음";
 
-                    const notificationTaskData = {
+                    const notificationPayload = {
                         userId,
                         todoId: todoDoc.id,
                         dueDateKey,
@@ -129,7 +129,7 @@ export const scheduleTodoReminder = onSchedule({
                     };
 
                     try {
-                        await queue.enqueue(notificationTaskData);
+                        await queue.enqueue(notificationPayload);
                     } catch (error) {
                         logger.error("Cloud Tasks enqueue 실패", {
                             userId,

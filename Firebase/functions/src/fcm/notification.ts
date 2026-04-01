@@ -59,13 +59,13 @@ export const sendPushNotification = onTaskDispatched({
             if (formatDateKey(currentDueDate, timeZone) !== dueDateKey) { return; }
 
             const id = `${todoId}_${dueDateKey}`;
-            const receiptDocRef = admin.firestore().doc(
+            const dispatchDocRef = admin.firestore().doc(
                 `users/${userId}/notificationDispatches/${id}`
             );
             const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${id}`);
 
             try {
-                await receiptDocRef.create({
+                await dispatchDocRef.create({
                     todoId,
                     dueDateKey
                 });
