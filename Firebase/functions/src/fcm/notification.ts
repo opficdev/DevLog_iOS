@@ -6,7 +6,6 @@ import { resolveTimeZone } from "./shared";
 type TaskPayload = {
     userId: string;
     todoId: string;
-    todoCategory: string;
     dueDateKey: string;
     title: string;
     body: string;
@@ -24,25 +23,13 @@ export const sendPushNotification = onTaskDispatched({
         rateLimits: { maxDispatchesPerSecond: 200 },
     },
     async (req) => {
-        const taskId = req.data?.taskId;
-        if (!isValidTaskId(taskId)) {
+        const parsed = parseTaskPayload(req.data);
+        if (!parsed) {
             logger.warn("유효하지 않은 푸시 알림 payload", req.data);
             return;
         }
 
-        const taskDocRef = admin.firestore().collection("notificationTasks").doc(taskId);
         try {
-            const taskDoc = await taskDocRef.get();
-            if (!taskDoc.exists) {
-                logger.warn("notificationTask 문서를 찾을 수 없습니다.", { taskId });
-                return;
-            }
-
-            const parsed = parseTaskPayload(taskDoc.data());
-            if (!parsed) {
-                logger.warn("notificationTask 문서 형식이 올바르지 않습니다.", { taskId });
-                return;
-            }
             const { userId, todoId, dueDateKey, title, body } = parsed;
 
             const settingsDocRef = admin.firestore().doc(`users/${userId}/userData/settings`);
@@ -146,31 +133,17 @@ export const sendPushNotification = onTaskDispatched({
 
         } catch (error) {
             logger.error("알림 발송 중 오류 발생", {
-                taskId,
+                payload: req.data,
                 error
             });
-        } finally {
-            try {
-                await taskDocRef.delete();
-            } catch (cleanupError) {
-                logger.warn("notificationTask 정리 실패", {
-                    taskId,
-                    cleanupError
-                });
-            }
         }
     }
 );
-
-function isValidTaskId(value: unknown): value is string {
-    return typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
-}
 
 function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): TaskPayload | null {
     const {
         userId,
         todoId,
-        todoCategory,
         dueDateKey,
         title,
         body
@@ -179,7 +152,6 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     if (
         typeof userId !== "string" ||
         typeof todoId !== "string" ||
-        typeof todoCategory !== "string" ||
         typeof dueDateKey !== "string" ||
         typeof title !== "string" ||
         typeof body !== "string"
@@ -194,7 +166,6 @@ function parseTaskPayload(data: FirebaseFirestore.DocumentData | undefined): Tas
     return {
         userId,
         todoId,
-        todoCategory,
         dueDateKey,
         title,
         body

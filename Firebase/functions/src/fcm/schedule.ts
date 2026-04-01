@@ -122,7 +122,6 @@ export const scheduleTodoReminder = onSchedule({
                         todoData.category :
                         "etc";
 
-                    const notificationTaskRef = admin.firestore().collection("notificationTasks").doc();
                     const notificationTaskData = {
                         userId,
                         todoId: todoDoc.id,
@@ -134,24 +133,12 @@ export const scheduleTodoReminder = onSchedule({
                     };
 
                     try {
-                        await notificationTaskRef.set(notificationTaskData);
-                        await queue.enqueue({ taskId: notificationTaskRef.id });
+                        await queue.enqueue(notificationTaskData);
                     } catch (error) {
-                        try {
-                            await notificationTaskRef.delete();
-                        } catch (cleanupError) {
-                            logger.warn("notificationTasks 정리 실패", {
-                                userId,
-                                todoId: todoDoc.id,
-                                taskId: notificationTaskRef.id,
-                                ...serializeError(cleanupError)
-                            });
-                        }
                         logger.error("Cloud Tasks enqueue 실패", {
                             userId,
                             todoId: todoDoc.id,
                             dueDateKey,
-                            taskId: notificationTaskRef.id,
                             ...serializeError(error)
                         });
                     }
