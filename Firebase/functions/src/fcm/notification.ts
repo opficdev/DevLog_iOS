@@ -67,8 +67,7 @@ export const sendPushNotification = onTaskDispatched({
             try {
                 await receiptDocRef.create({
                     todoId,
-                    dueDateKey,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    dueDateKey
                 });
             } catch (error) {
                 if (isAlreadyExistsError(error)) {
