@@ -60,7 +60,7 @@ export const sendPushNotification = onTaskDispatched({
 
             const id = `${todoId}_${dueDateKey}`;
             const receiptDocRef = admin.firestore().doc(
-                `users/${userId}/notificationReceipts/${id}`
+                `users/${userId}/notificationDispatches/${id}`
             );
             const notificationDocRef = admin.firestore().doc(`users/${userId}/notifications/${id}`);
 

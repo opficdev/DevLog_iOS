@@ -17,7 +17,7 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
         const todoId = event.params.todoId;
 
         try {
-            await deleteByTodoId(userId, "notificationReceipts", todoId);
+            await deleteByTodoId(userId, "notificationDispatches", todoId);
             await deleteByTodoId(userId, "notifications", todoId);
         } catch (error) {
             logger.error("todo 삭제 후 notification 문서 정리 실패", {
@@ -54,7 +54,7 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
         if (!dueDate ||  Date.now() <= dueDate.getTime()) { return; }
 
         try {
-            await deleteByTodoId(userId, "notificationReceipts", todoId);
+            await deleteByTodoId(userId, "notificationDispatches", todoId);
         } catch (error) {
             logger.error("완료된 todo의 notification record 정리 실패", {
                 userId,
@@ -95,7 +95,7 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                     const userId = todoDoc.ref.parent.parent?.id;
                     if (!userId) { continue; }
 
-                    await deleteByTodoId(userId, "notificationReceipts", todoDoc.id);
+                    await deleteByTodoId(userId, "notificationDispatches", todoDoc.id);
                 }
 
                 if (snapshot.size < QUERY_BATCH_SIZE) { break; }
@@ -127,7 +127,7 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                     const userId = todoDoc.ref.parent.parent?.id;
                     if (!userId) { continue; }
 
-                    await deleteByTodoId(userId, "notificationReceipts", todoDoc.id);
+                    await deleteByTodoId(userId, "notificationDispatches", todoDoc.id);
                 }
 
                 if (snapshot.size < QUERY_BATCH_SIZE) { break; }
@@ -141,7 +141,7 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
 
 async function deleteByTodoId(
     userId: string,
-    collectionName: "notificationReceipts" | "notifications",
+    collectionName: "notificationDispatches" | "notifications",
     todoId: string
 ): Promise<void> {
     while (true) {
