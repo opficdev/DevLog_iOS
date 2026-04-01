@@ -403,15 +403,15 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "dueDate",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "isCompleted",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "isDeleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dueDate",
           "order": "ASCENDING"
         },
         {
