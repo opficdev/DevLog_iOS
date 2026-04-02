@@ -14,12 +14,20 @@ export const cleanupSoftDeletedWebPages = onSchedule({
     },
     async () => {
         try {
+            let lastDocument:
+                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
             while (true) {
-                const snapshot = await admin.firestore()
+                let query = admin.firestore()
                     .collectionGroup("webPages")
                     .where("isDeleted", "==", true)
+                    .orderBy(admin.firestore.FieldPath.documentId())
                     .limit(CLEANUP_BATCH_SIZE)
-                    .get();
+                if (lastDocument) {
+                    query = query.startAfter(lastDocument);
+                }
+
+                const snapshot = await query.get();
 
                 if (snapshot.empty) { return; }
 
@@ -30,11 +38,13 @@ export const cleanupSoftDeletedWebPages = onSchedule({
                 await batch.commit();
 
                 if (snapshot.size < CLEANUP_BATCH_SIZE) { return; }
+                lastDocument = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
             logger.error("soft delete WebPage cleanup 실패", toError(error), {
                 collectionGroup: "webPages",
                 filter: "isDeleted == true",
+                orderBy: "documentId",
                 cleanupBatchSize: CLEANUP_BATCH_SIZE
             });
         }

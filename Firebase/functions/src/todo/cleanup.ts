@@ -15,12 +15,20 @@ export const cleanupSoftDeletedTodos = onSchedule({
     },
     async () => {
         try {
+            let lastDocument:
+                FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
+
             while (true) {
-                const snapshot = await admin.firestore()
+                let query = admin.firestore()
                     .collectionGroup("todoLists")
                     .where("isDeleted", "==", true)
+                    .orderBy(admin.firestore.FieldPath.documentId())
                     .limit(QUERY_BATCH_SIZE)
-                    .get();
+                if (lastDocument) {
+                    query = query.startAfter(lastDocument);
+                }
+
+                const snapshot = await query.get();
                 if (snapshot.empty) { return; }
 
                 const batch = admin.firestore().batch();
@@ -30,6 +38,7 @@ export const cleanupSoftDeletedTodos = onSchedule({
                 await batch.commit();
 
                 if (snapshot.size < QUERY_BATCH_SIZE) { return; }
+                lastDocument = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
             logger.error(
@@ -38,6 +47,7 @@ export const cleanupSoftDeletedTodos = onSchedule({
                 {
                     collectionGroup: "todoLists",
                     filter: "isDeleted == true",
+                    orderBy: "documentId",
                     queryBatchSize: QUERY_BATCH_SIZE
                 }
             );
