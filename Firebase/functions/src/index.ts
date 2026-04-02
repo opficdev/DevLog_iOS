@@ -33,10 +33,7 @@ import {
 } from "./fcm/schedule";
 
 import {
-    removeTodoNotificationDocuments,
-    removeCompletedTodoNotificationRecords,
-    cleanupSoftDeletedTodos,
-    cleanupUnusedTodoNotificationRecords
+    cleanupSoftDeletedTodos
 } from "./todo/cleanup";
 
 import {
@@ -61,6 +58,9 @@ import {
 } from "./notification/deletion";
 
 import {
+    removeTodoNotificationDocuments,
+    removeCompletedTodoNotificationRecords,
+    cleanupUnusedTodoNotificationRecords,
     cleanupSoftDeletedNotifications
 } from "./notification/cleanup";
 
