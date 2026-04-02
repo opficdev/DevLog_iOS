@@ -3,7 +3,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { toDate } from "../common/date";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
@@ -24,11 +24,15 @@ export const removeTodoNotificationDocuments = onDocumentDeleted({
             await deleteByTodoId(userId, "notificationDispatches", todoId);
             await deleteByTodoId(userId, "notifications", todoId);
         } catch (error) {
-            logger.error("todo 삭제 후 notification 문서 정리 실패", {
-                userId,
-                todoId,
-                error: normalizeError(error)
-            });
+            logger.error(
+                "todo 삭제 후 notification 문서 정리 실패",
+                toError(error),
+                {
+                    userId,
+                    todoId,
+                    collections: ["notificationDispatches", "notifications"]
+                }
+            );
         }
     }
 );
@@ -55,11 +59,15 @@ export const removeCompletedTodoNotificationRecords = onDocumentUpdated({
         try {
             await deleteByTodoId(userId, "notificationDispatches", todoId);
         } catch (error) {
-            logger.error("완료된 todo의 notification record 정리 실패", {
-                userId,
-                todoId,
-                error: normalizeError(error)
-            });
+            logger.error(
+                "완료된 todo의 notification record 정리 실패",
+                toError(error),
+                {
+                    userId,
+                    todoId,
+                    collection: "notificationDispatches"
+                }
+            );
         }
     }
 );
@@ -100,9 +108,16 @@ export const cleanupSoftDeletedTodos = onSchedule({
                 lastDocument = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
-            logger.error("soft delete Todo cleanup 실패", {
-                error: normalizeError(error)
-            });
+            logger.error(
+                "soft delete Todo cleanup 실패",
+                toError(error),
+                {
+                    collectionGroup: "todoLists",
+                    filter: "isDeleted == true",
+                    orderBy: "__name__",
+                    queryBatchSize: QUERY_BATCH_SIZE
+                }
+            );
         }
     }
 );
@@ -131,9 +146,16 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                 return query;
             });
         } catch (error) {
-            logger.error("지난 마감일의 완료된 todo notification record 정리 실패", {
-                error: normalizeError(error)
-            });
+            logger.error(
+                "지난 마감일의 완료된 todo notification record 정리 실패",
+                toError(error),
+                {
+                    collectionGroup: "todoLists",
+                    filter: "isCompleted == true && dueDate < now",
+                    orderBy: "dueDate",
+                    queryBatchSize: QUERY_BATCH_SIZE
+                }
+            );
         }
 
         try {
@@ -151,9 +173,16 @@ export const cleanupUnusedTodoNotificationRecords = onSchedule({
                 return query;
             });
         } catch (error) {
-            logger.error("마감일이 없는 todo notification record 정리 실패", {
-                error: normalizeError(error)
-            });
+            logger.error(
+                "마감일이 없는 todo notification record 정리 실패",
+                toError(error),
+                {
+                    collectionGroup: "todoLists",
+                    filter: "dueDate == null",
+                    orderBy: "__name__",
+                    queryBatchSize: QUERY_BATCH_SIZE
+                }
+            );
         }
     }
 );

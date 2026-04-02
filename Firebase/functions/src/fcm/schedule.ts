@@ -3,7 +3,7 @@ import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { addDays, getZonedParts, zonedDateTimeToUTC } from "../common/date";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
@@ -27,9 +27,8 @@ export const scheduleTodoReminder = onSchedule({
             try {
                 usersSnapshot = await admin.firestore().collection("users").get();
             } catch (error) {
-                logger.error("users 조회 실패", {
-                    at: "collection(users).get()",
-                    ...normalizeError(error)
+                logger.error("users 조회 실패", toError(error), {
+                    at: "collection(users).get()"
                 });
                 return;
             }
@@ -42,10 +41,9 @@ export const scheduleTodoReminder = onSchedule({
                         .doc(FirestorePath.userData(userId, FirestorePath.UserDataDocument.settings))
                         .get();
                 } catch (error) {
-                    logger.error("settings 조회 실패", {
+                    logger.error("settings 조회 실패", toError(error), {
                         userId,
-                        at: "users/{uid}/userData/settings",
-                        ...normalizeError(error)
+                        at: "users/{uid}/userData/settings"
                     });
                     continue;
                 }
@@ -93,13 +91,12 @@ export const scheduleTodoReminder = onSchedule({
                         .where("dueDate", "<", admin.firestore.Timestamp.fromDate(endUTC))
                         .get();
                 } catch (error) {
-                    logger.error("todoLists 조회 실패", {
+                    logger.error("todoLists 조회 실패", toError(error), {
                         userId,
                         at: "todoLists.where(dueDate>=start).where(dueDate<end)",
                         startUTC: startUTC.toISOString(),
                         endUTC: endUTC.toISOString(),
-                        dueDateKey,
-                        ...normalizeError(error)
+                        dueDateKey
                     });
                     continue;
                 }
@@ -121,18 +118,17 @@ export const scheduleTodoReminder = onSchedule({
                     try {
                         await queue.enqueue(notificationPayload);
                     } catch (error) {
-                        logger.error("Cloud Tasks enqueue 실패", {
+                        logger.error("Cloud Tasks enqueue 실패", toError(error), {
                             userId,
                             todoId: todoDoc.id,
-                            dueDateKey,
-                            ...normalizeError(error)
+                            dueDateKey
                         });
                     }
                 }
             }
 
         } catch (error) {
-            logger.error("알림 스케줄 배치 실행 중 오류 발생", normalizeError(error));
+            logger.error("알림 스케줄 배치 실행 중 오류 발생", toError(error));
         }
     }
 );
