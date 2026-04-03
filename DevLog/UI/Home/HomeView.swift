@@ -403,12 +403,10 @@ private struct RecentTodoRow: View {
                         .foregroundStyle(Color.primary)
                         .font(.headline)
                         .lineLimit(1)
-                    if let number = todo.number {
-                        Text("#\(number)")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: true, vertical: false)
-                    }
+                    Text("#\(todo.number)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.gray)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
 
                 HStack(spacing: 6) {

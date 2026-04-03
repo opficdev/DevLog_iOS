@@ -94,6 +94,7 @@ private extension DailyActivityService {
             let occurredAtTimestamp = data[FieldKey.occurredAt.rawValue] as? Timestamp,
             let todoId = data[FieldKey.todoId.rawValue] as? String,
             let todoTitle = data[FieldKey.todoTitle.rawValue] as? String,
+            let todoNumber = data[FieldKey.todoNumber.rawValue] as? Int,
             let todoCategoryID = data[FieldKey.todoCategory.rawValue] as? String
         else {
             return nil
@@ -106,7 +107,7 @@ private extension DailyActivityService {
             occurredAt: occurredAtTimestamp.dateValue(),
             todoId: todoId,
             todoTitle: todoTitle,
-            todoNumber: data[FieldKey.todoNumber.rawValue] as? Int,
+            todoNumber: todoNumber,
             todoCategoryID: todoCategoryID
         )
     }

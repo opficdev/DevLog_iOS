@@ -13,7 +13,6 @@ struct TodoRequest: Encodable {
     let isCompleted: Bool
     let isChecked: Bool
     let isDeleted: Bool
-    let number: Int?
     let title: String
     let content: String
     let createdAt: Date

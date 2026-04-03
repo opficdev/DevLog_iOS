@@ -165,9 +165,6 @@ final class TodoService {
             let docRef = collection.document(request.id)
             var data = try encoder.encode(request)
             data.removeValue(forKey: TodoFieldKey.id.rawValue)
-            if let number = request.number {
-                data[TodoFieldKey.number.rawValue] = number
-            }
             if request.completedAt == nil {
                 data[TodoFieldKey.completedAt.rawValue] = NSNull()
             }

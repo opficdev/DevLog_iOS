@@ -12,7 +12,7 @@ struct TodoDetailContentView: View {
     let title: String
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
-    var number: Int?
+    var number: Int
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
@@ -22,11 +22,9 @@ struct TodoDetailContentView: View {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(title)
-                        if let number {
-                            Text("#\(number)")
-                                .foregroundStyle(.gray)
-                                .fixedSize(horizontal: true, vertical: false)
-                        }
+                        Text("#\(number)")
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: true, vertical: false)
                         Spacer()
                     }
                     .font(.title3.bold())
