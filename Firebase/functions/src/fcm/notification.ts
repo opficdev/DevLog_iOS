@@ -20,10 +20,10 @@ type FirestoreErrorLike = {
 
 // 큐에 적재된 알림 payload 검증 및 실제 푸시 발송 수행
 export const sendPushNotification = onTaskDispatched({
-        maxInstances: 2,
+        maxInstances: 10,
         region: "asia-northeast3",
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
-        rateLimits: { maxDispatchesPerSecond: 200 },
+        rateLimits: { maxDispatchesPerSecond: 10 },
     },
     async (req) => {
         const parsed = parseTaskPayload(req.data);

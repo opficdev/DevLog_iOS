@@ -66,10 +66,10 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
 );
 
 export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
-        maxInstances: 1,
+        maxInstances: 2,
         region: LOCATION,
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
-        rateLimits: { maxDispatchesPerSecond: 20 },
+        rateLimits: { maxDispatchesPerSecond: 2 },
     },
     async (request) => {
         const taskData = parseTaskPayload(request.data);

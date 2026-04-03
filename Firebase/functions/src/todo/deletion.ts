@@ -140,10 +140,10 @@ export const undoTodoDeletion = onCall({
 );
 
 export const completeTodoDeletion = onTaskDispatched({
-        maxInstances: 1,
+        maxInstances: 5,
         region: LOCATION,
-        retryConfig: {maxAttempts: 3, minBackoffSeconds: 5},
-        rateLimits: {maxDispatchesPerSecond: 200},
+        retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
+        rateLimits: { maxDispatchesPerSecond: 5 },
     },
     async (request) => {
         const payload = parseDeletionPayload(request.data);
