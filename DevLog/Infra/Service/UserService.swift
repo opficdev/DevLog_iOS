@@ -159,15 +159,15 @@ final class UserService {
     }
     
     func updateFCMToken(_ fcmToken: String) async throws {
-        guard let userId = Auth.auth().currentUser?.uid else {
+        guard let uid = Auth.auth().currentUser?.uid else {
             logger.info("Skipping FCM token update because no authenticated user exists")
             return
         }
 
-        logger.info("Updating FCM token for user: \(userId)")
-        
+        logger.info("Updating FCM token for user: \(uid)")
+
         do {
-            let tokensRef = store.document(FirestorePath.userData(userId, document: .tokens))
+            let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
             try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
             logger.info("Successfully updated FCM token")
         } catch {
@@ -177,15 +177,15 @@ final class UserService {
     }
 
     func updateUserTimeZone() async throws {
-        guard let userId = Auth.auth().currentUser?.uid else {
+        guard let uid = Auth.auth().currentUser?.uid else {
             logger.info("Skipping timeZone update because no authenticated user exists")
             return
         }
 
-        logger.info("Updating timeZone for user: \(userId)")
+        logger.info("Updating timeZone for user: \(uid)")
 
         do {
-            let settingsRef = store.document(FirestorePath.userData(userId, document: .settings))
+            let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
             try await settingsRef.setData(
                 ["timeZone": TimeZone.autoupdatingCurrent.identifier],
                 merge: true
