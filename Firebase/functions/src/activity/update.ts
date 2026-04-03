@@ -220,6 +220,9 @@ function increaseDailyCount(
         admin.firestore().doc(FirestorePath.activityDaily(userId, dayKey)),
         {
             dayKey,
+            createdCount: 0,
+            completedCount: 0,
+            deletedCount: 0,
             [field]: admin.firestore.FieldValue.increment(value)
         },
         { merge: true }

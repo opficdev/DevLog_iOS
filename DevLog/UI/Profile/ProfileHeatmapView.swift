@@ -10,10 +10,10 @@ import SwiftUI
 struct ProfileHeatmapView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.sceneWidth) private var sceneWidth
-    let quarter: ProfileCompletionQuarter
+    let quarter: ProfileActivityQuarter
     let selectedActivityKinds: Set<ActivityKind>
-    let selectedDay: ProfileCompletionDay?
-    let onSelectDay: (ProfileCompletionDay) -> Void
+    let selectedDay: ProfileActivityDay?
+    let onSelectDay: (ProfileActivityDay) -> Void
 
     var body: some View {
         let layout = ProfileHeatmapLayout(
@@ -27,7 +27,7 @@ struct ProfileHeatmapView: View {
                 ForEach(quarter.months) { month in
                     MonthCompactHeatmapView(
                         month: month,
-                        maxCount: quarter.maxCount,
+                        maxCount: maxCount,
                         layout: layout,
                         selectedActivityKinds: selectedActivityKinds,
                         selectedDay: selectedDay,
@@ -103,6 +103,29 @@ struct ProfileHeatmapView: View {
                 - (horizontalPadding * 2)
         )
     }
+
+    private var maxCount: Int {
+        quarter.months
+            .flatMap(\.weeks)
+            .flatMap { $0 }
+            .filter(\.isVisible)
+            .map(dayCount(for:))
+            .max() ?? 0
+    }
+
+    private func dayCount(for day: ProfileActivityDay) -> Int {
+        var value = 0
+        if selectedActivityKinds.contains(.created) {
+            value += day.createdCount
+        }
+        if selectedActivityKinds.contains(.completed) {
+            value += day.completedCount
+        }
+        if selectedActivityKinds.contains(.deleted) {
+            value += day.deletedCount
+        }
+        return value
+    }
 }
 
 private struct ProfileHeatmapLayout {
@@ -137,12 +160,12 @@ private struct ProfileHeatmapLayout {
 
 private struct MonthCompactHeatmapView: View {
     @Environment(\.colorScheme) private var colorScheme
-    let month: ProfileCompletionMonth
+    let month: ProfileActivityMonth
     let maxCount: Int
     let layout: ProfileHeatmapLayout
     let selectedActivityKinds: Set<ActivityKind>
-    let selectedDay: ProfileCompletionDay?
-    let onSelectDay: (ProfileCompletionDay) -> Void
+    let selectedDay: ProfileActivityDay?
+    let onSelectDay: (ProfileActivityDay) -> Void
     private let orderedWeekdays = Array(1...7)
 
     var body: some View {
@@ -184,23 +207,23 @@ private struct MonthCompactHeatmapView: View {
         }
     }
 
-    private func isSelected(_ day: ProfileCompletionDay?) -> Bool {
+    private func isSelected(_ day: ProfileActivityDay?) -> Bool {
         guard let day, let selectedDay, day.isVisible else { return false }
         return Calendar.current.isDate(day.date, inSameDayAs: selectedDay.date)
     }
 
-    private func selectionInnerBorderColor(for day: ProfileCompletionDay?) -> Color {
+    private func selectionInnerBorderColor(for day: ProfileActivityDay?) -> Color {
         isSelected(day) ? .white : .clear
     }
 
-    private func selectionOuterBorderColor(for day: ProfileCompletionDay?) -> Color {
+    private func selectionOuterBorderColor(for day: ProfileActivityDay?) -> Color {
         if isSelected(day) && colorScheme == .light {
             return Color.gray
         }
         return .clear
     }
 
-    private func fillColor(for day: ProfileCompletionDay?, with maxCount: Int) -> Color {
+    private func fillColor(for day: ProfileActivityDay?, with maxCount: Int) -> Color {
         guard let day, day.isVisible else { return .clear }
         let count = dayCount(for: day)
         if count == 0 {
@@ -209,13 +232,16 @@ private struct MonthCompactHeatmapView: View {
         return Color.blue.opacity(opacity(for: count, max: maxCount))
     }
 
-    private func dayCount(for day: ProfileCompletionDay) -> Int {
+    private func dayCount(for day: ProfileActivityDay) -> Int {
         var value = 0
         if selectedActivityKinds.contains(.created) {
             value += day.createdCount
         }
         if selectedActivityKinds.contains(.completed) {
             value += day.completedCount
+        }
+        if selectedActivityKinds.contains(.deleted) {
+            value += day.deletedCount
         }
         return value
     }

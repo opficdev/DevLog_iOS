@@ -54,7 +54,9 @@ struct MainView: View {
             .badge(viewModel.state.unreadPushCount)
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+                fetchDailyActivitiesUseCase: container.resolve(FetchDailyActivitiesUseCase.self),
+                fetchDailyActivityEventsUseCase: container.resolve(FetchDailyActivityEventsUseCase.self),
+                fetchTodoCategoryPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                 fetchHeatmapActivityTypesUseCase: container.resolve(FetchProfileHeatmapActivityTypesUseCase.self),

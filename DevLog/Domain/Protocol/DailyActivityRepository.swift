@@ -10,6 +10,5 @@ protocol DailyActivityRepository {
         from startDayKey: String,
         to endDayKey: String
     ) async throws -> [DailyActivity]
-
     func fetchActivityEvents(dayKey: String) async throws -> [DailyActivityEvent]
 }

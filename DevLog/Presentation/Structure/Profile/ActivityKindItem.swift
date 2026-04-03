@@ -15,7 +15,7 @@ struct ActivityKindItem: Identifiable, Hashable {
     }
 
     static var selectableItems: [ActivityKindItem] {[
-        .init(from: .created), .init(from: .completed) ]
+        .init(from: .created), .init(from: .completed), .init(from: .deleted) ]
     }
 
     var id: String { activityKind.rawValue }

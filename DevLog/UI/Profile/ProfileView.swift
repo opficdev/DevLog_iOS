@@ -105,8 +105,14 @@ struct ProfileView: View {
                         updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
                     ))
                     .environment(router)
-                case .activity(let activity):
-                    ProfileActivityTodoDetailView(activity: activity)
+                case .activity(let todoId):
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoId: todoId,
+                        showEditButton: false
+                    ))
                 }
             }
             .onAppear {
@@ -147,24 +153,21 @@ struct ProfileView: View {
 
             quarterNavigator
 
-            if let quarter = viewModel.state.completionQuarter {
+            if let quarter = viewModel.state.activityQuarter {
                 ProfileHeatmapView(
                     quarter: quarter,
                     selectedActivityKinds: viewModel.state.selectedActivityKinds,
                     selectedDay: viewModel.state.selectedDay,
-                    onSelectDay: { day in
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.send(.selectDay(day))
-                        }
-                    }
+                    onSelectDay: { viewModel.send(.selectDay($0)) }
                 )
                 if let selectedDay = viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
-                        .transition(.opacity)
+                        .overlay {
+                            if viewModel.state.isLoading {
+                                LoadingView()
+                            }
+                        }
                 }
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 140)
             }
         }
         .padding(12)
@@ -328,10 +331,10 @@ struct ProfileView: View {
     }
 
     @ViewBuilder
-    private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
+    private func selectedDayDetailSection(for day: ProfileActivityDay) -> some View {
         let activities = viewModel.selectedDayActivities
 
-        LazyVStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
                 .font(.subheadline)
                 .bold()
@@ -345,34 +348,45 @@ struct ProfileView: View {
             } else {
                 ForEach(activities) { activity in
                     Button {
-                        router.push(Path.activity(activity))
+                        if !activity.isDeleted {
+                            router.push(Path.activity(activity.todoId))
+                        }
                     } label: {
-                        let item = TodoCategoryItem(from: activity.todo.category)
+                        let item = TodoCategoryItem(from: activity.category)
+                        let rowColor = activity.isDeleted ? Color.secondary : .primary
                         HStack(spacing: 8) {
                             Image(systemName: item.symbolName)
                                 .foregroundStyle(item.color)
                                 .frame(width: 20)
-                            Text(activity.todo.title)
+                            Text(activity.title)
                                 .font(.caption)
                                 .lineLimit(1)
-                            let activityKindItem = ActivityKindItem(from: activity.kind)
-                            Text(activityKindItem.title)
-                                .font(.caption2)
-                                .foregroundStyle(activityKindItem.badgeColor)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(
-                                    Capsule()
-                                        .fill(activityKindItem.badgeColor.opacity(0.14))
-                                )
+                                .foregroundStyle(rowColor)
+                            Text("#\(activity.number)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            ForEach(activity.activityKindItems) { activityKindItem in
+                                Text(activityKindItem.title)
+                                    .font(.caption2)
+                                    .foregroundStyle(activityKindItem.badgeColor)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(
+                                        Capsule()
+                                            .fill(activityKindItem.badgeColor.opacity(0.14))
+                                    )
+                            }
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
+                            if !activity.isDeleted {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
                         .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
+                    .disabled(activity.isDeleted)
                     .padding(.vertical, 2)
                 }
             }
@@ -382,43 +396,6 @@ struct ProfileView: View {
 
     private enum Path: Hashable {
         case settings
-        case activity(ProfileSelectedDayActivity)
-    }
-}
-
-private struct ProfileActivityTodoDetailView: View {
-    let activity: ProfileSelectedDayActivity
-    @State private var showInfo: Bool = false
-
-    var body: some View {
-        TodoDetailContentView(
-            title: activity.todo.title,
-            content: activity.todo.content,
-            referenceItems: [:],
-            number: activity.todo.number
-        )
-        .sheet(isPresented: $showInfo) {
-            infoSheetContent
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showInfo = true
-                } label: {
-                    Image(systemName: "info.circle")
-                }
-            }
-        }
-    }
-
-    private var infoSheetContent: some View {
-        TodoInfoSheetView(
-            createdAt: activity.todo.createdAt,
-            completedAt: activity.todo.completedAt,
-            dueDate: activity.todo.dueDate,
-            tags: activity.todo.tags
-        ) {
-            showInfo = false
-        }
+        case activity(String)
     }
 }
