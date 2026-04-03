@@ -696,7 +696,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts"
+            "value" : "Notifications"
           }
         },
         "ko" : {
