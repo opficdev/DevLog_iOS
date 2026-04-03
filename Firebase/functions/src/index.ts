@@ -41,6 +41,10 @@ import {
 } from "./todo/update";
 
 import {
+    syncTodoActivity
+} from "./activity/update";
+
+import {
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc
 } from "./todoCategory/update";
@@ -115,6 +119,7 @@ export {
     removeCompletedTodoNotificationRecords,
     cleanupSoftDeletedTodos,
     cleanupNotificationDispatches,
+    syncTodoActivity,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,
