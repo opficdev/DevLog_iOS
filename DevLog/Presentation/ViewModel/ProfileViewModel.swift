@@ -22,7 +22,7 @@ final class ProfileViewModel: Store {
         var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
         var completionQuarter: ProfileCompletionQuarter?
         var dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
-        var selectedActivityKinds: Set<ProfileActivityKind> = [.created, .completed]
+        var selectedActivityKinds: Set<ActivityKind> = [.created, .completed]
         var selectedDay: ProfileCompletionDay?
         var selectedActivityForSheet: ProfileSelectedDayActivity?
         var showDoneButton: Bool = false
@@ -50,7 +50,7 @@ final class ProfileViewModel: Store {
         case selectQuarter(Date)
         case moveToCurrentQuarter
         case moveQuarter(Int)
-        case toggleActivityKind(ProfileActivityKind)
+        case toggleActivityKind(ActivityKind)
         case selectDay(ProfileCompletionDay?)
         case setSelectedActivityForSheet(ProfileSelectedDayActivity?)
         case updateStatusMessage(String)
@@ -62,7 +62,7 @@ final class ProfileViewModel: Store {
         case fetchEarliestQuarterStart
         case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
-        case updateHeatmapActivityKinds(Set<ProfileActivityKind>)
+        case updateHeatmapActivityKinds(Set<ActivityKind>)
     }
 
     private(set) var state = State()
@@ -239,9 +239,14 @@ final class ProfileViewModel: Store {
                 }
             }
         case .updateHeatmapActivityKinds(let activityKinds):
-            let rawValues = ProfileActivityKind.selectableKinds
-                .filter { activityKinds.contains($0) }
+            let rawValues = ActivityKindItem.selectableItems
                 .map(\.rawValue)
+                .filter { rawValue in
+                    guard let activityKind = ActivityKind(rawValue: rawValue) else {
+                        return false
+                    }
+                    return activityKinds.contains(activityKind)
+                }
             updateHeatmapActivityTypesUseCase.execute(rawValues)
         }
     }
@@ -411,11 +416,13 @@ private extension ProfileViewModel {
         return earliestQuarterStart <= quarterStart && quarterStart <= currentQuarterStart
     }
 
-    func normalizeActivityKinds(_ rawValues: [String]) -> Set<ProfileActivityKind> {
-        Set(
+    func normalizeActivityKinds(_ rawValues: [String]) -> Set<ActivityKind> {
+        let selectableActivityKindRawValues = Set(ActivityKindItem.selectableItems.map(\.rawValue))
+
+        return Set(
             rawValues
-                .compactMap(ProfileActivityKind.init(rawValue:))
-                .filter(ProfileActivityKind.selectableKinds.contains)
+                .compactMap(ActivityKind.init(rawValue:))
+                .filter { selectableActivityKindRawValues.contains($0.rawValue) }
         )
     }
 

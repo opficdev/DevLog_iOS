@@ -1,23 +1,29 @@
 //
-//  ProfileActivityKind.swift
+//  ActivityKindItem.swift
 //  DevLog
 //
-//  Created by 최윤진 on 4/3/26.
+//  Created by opfic on 4/4/26.
 //
 
 import SwiftUI
 
-enum ProfileActivityKind: String, CaseIterable, Hashable {
-    case created
-    case completed
-    case deleted
+struct ActivityKindItem: Identifiable, Hashable {
+    private let activityKind: ActivityKind
 
-    static var selectableKinds: [ProfileActivityKind] {
-        [.created, .completed]
+    init(from activityKind: ActivityKind) {
+        self.activityKind = activityKind
     }
 
+    static var selectableItems: [ActivityKindItem] {[
+        .init(from: .created), .init(from: .completed) ]
+    }
+
+    var id: String { activityKind.rawValue }
+
+    var rawValue: String { activityKind.rawValue }
+
     var title: String {
-        switch self {
+        switch activityKind {
         case .created:
             return String(localized: "profile_activity_created")
         case .completed:
@@ -28,7 +34,7 @@ enum ProfileActivityKind: String, CaseIterable, Hashable {
     }
 
     var badgeColor: Color {
-        switch self {
+        switch activityKind {
         case .created:
             return .orange
         case .completed:

@@ -11,6 +11,7 @@ final class DomainAssembler: Assembler {
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
         registerTodoUseCases(container)
+        registerActivityUseCases(container)
         registerTodoCategoryUseCases(container)
         registerUserDataUseCases(container)
         registerPushNotificationUseCases(container)
@@ -83,6 +84,16 @@ private extension DomainAssembler {
 
         container.register(UndoDeleteTodoUseCase.self) {
             UndoDeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+    }
+
+    func registerActivityUseCases(_ container: DIContainer) {
+        container.register(FetchDailyActivitiesUseCase.self) {
+            FetchDailyActivitiesUseCaseImpl(container.resolve(DailyActivityRepository.self))
+        }
+
+        container.register(FetchDailyActivityEventsUseCase.self) {
+            FetchDailyActivityEventsUseCaseImpl(container.resolve(DailyActivityRepository.self))
         }
     }
 

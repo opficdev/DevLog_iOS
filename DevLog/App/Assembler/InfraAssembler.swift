@@ -36,6 +36,10 @@ final class InfraAssembler: Assembler {
             TodoService()
         }
 
+        container.register(DailyActivityService.self) {
+            DailyActivityService()
+        }
+
         container.register(TodoCategoryService.self) {
             TodoCategoryService()
         }

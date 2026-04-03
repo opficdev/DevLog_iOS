@@ -10,5 +10,5 @@ import Foundation
 struct ProfileSelectedDayActivity: Identifiable, Hashable {
     var id: String { todo.id }
     let todo: Todo
-    let kind: ProfileActivityKind
+    let kind: ActivityKind
 }

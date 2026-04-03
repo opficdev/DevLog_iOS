@@ -190,19 +190,32 @@ struct ProfileView: View {
 
     private var activityTypeSelector: some View {
         Menu {
-            ForEach(ProfileActivityKind.selectableKinds, id: \.self) { activityKind in
+            ForEach(ActivityKindItem.selectableItems) { activityKindItem in
                 Toggle(
-                    activityKind.title,
+                    activityKindItem.title,
                     isOn: Binding(
-                        get: { viewModel.state.selectedActivityKinds.contains(activityKind) },
+                        get: {
+                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+                                return false
+                            }
+                            return viewModel.state.selectedActivityKinds.contains(activityKind)
+                        },
                         set: { _ in
+                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+                                return
+                            }
                             viewModel.send(.toggleActivityKind(activityKind))
                         }
                     )
                 )
                 .disabled(
-                    viewModel.state.selectedActivityKinds.count == 1
-                        && viewModel.state.selectedActivityKinds.contains(activityKind)
+                    {
+                        guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+                            return false
+                        }
+                        return viewModel.state.selectedActivityKinds.count == 1
+                            && viewModel.state.selectedActivityKinds.contains(activityKind)
+                    }()
                 )
             }
         } label: {
@@ -342,14 +355,15 @@ struct ProfileView: View {
                             Text(activity.todo.title)
                                 .font(.caption)
                                 .lineLimit(1)
-                            Text(activity.kind.title)
+                            let activityKindItem = ActivityKindItem(from: activity.kind)
+                            Text(activityKindItem.title)
                                 .font(.caption2)
-                                .foregroundStyle(activity.kind.badgeColor)
+                                .foregroundStyle(activityKindItem.badgeColor)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(
                                     Capsule()
-                                        .fill(activity.kind.badgeColor.opacity(0.14))
+                                        .fill(activityKindItem.badgeColor.opacity(0.14))
                                 )
                             Spacer()
                             Image(systemName: "chevron.right")
