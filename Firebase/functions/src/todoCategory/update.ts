@@ -3,7 +3,7 @@ import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
@@ -56,10 +56,9 @@ export const requestMoveRemovedCategoryTodosToEtc = onDocumentUpdated({
                 }
             }
         } catch (error) {
-            logger.error("삭제된 사용자 카테고리 todo 정리 요청 실패", {
+            logger.error("삭제된 사용자 카테고리 todo 정리 요청 실패", toError(error), {
                 userId,
-                removedIDs,
-                error: normalizeError(error)
+                removedIDs
             });
             throw error;
         }
@@ -83,11 +82,10 @@ export const completeMoveRemovedCategoryTodosToEtc = onTaskDispatched({
         try {
             await updateTodos(userId, id);
         } catch (error) {
-            logger.error("삭제된 사용자 카테고리 todo 정리 실패", {
+            logger.error("삭제된 사용자 카테고리 todo 정리 실패", toError(error), {
                 userId,
                 id,
-                payload: request.data,
-                error: normalizeError(error)
+                payload: request.data
             });
             throw error;
         }

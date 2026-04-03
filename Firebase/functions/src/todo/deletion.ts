@@ -4,7 +4,7 @@ import {getFunctions} from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { FirestorePath } from "../common/firestorePath";
-import {normalizeError} from "../common/error";
+import {toError} from "../common/error";
 
 const LOCATION = "asia-northeast3";
 const DELETE_DELAY_SECONDS = 5;
@@ -80,10 +80,9 @@ export const requestTodoDeletion = onCall({
                 }
             );
 
-            logger.error("todo 삭제 요청 실패", {
+            logger.error("todo 삭제 요청 실패", toError(error), {
                 userId,
-                todoId,
-                error: normalizeError(error)
+                todoId
             });
             throw new HttpsError("internal", "Todo 삭제 요청에 실패했습니다.");
         }
@@ -129,10 +128,9 @@ export const undoTodoDeletion = onCall({
                 }
             );
         } catch (error) {
-            logger.error("todo 삭제 취소 실패", {
+            logger.error("todo 삭제 취소 실패", toError(error), {
                 userId,
-                todoId,
-                error: normalizeError(error)
+                todoId
             });
             throw new HttpsError("internal", "Todo 삭제 취소에 실패했습니다.");
         }
@@ -181,10 +179,9 @@ export const completeTodoDeletion = onTaskDispatched({
                 }
             );
         } catch (error) {
-            logger.error("todo 최종 soft delete 실패", {
+            logger.error("todo 최종 soft delete 실패", toError(error), {
                 userId,
-                todoId,
-                error: normalizeError(error)
+                todoId
             });
             throw error;
         }

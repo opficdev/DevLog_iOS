@@ -2,7 +2,7 @@ import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { formatDateKey, toDate } from "../common/date";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 import { resolveTimeZone } from "./shared";
 
@@ -131,9 +131,8 @@ export const sendPushNotification = onTaskDispatched({
             }
 
         } catch (error) {
-            logger.error("알림 발송 중 오류 발생", {
-                payload: req.data,
-                error: normalizeError(error)
+            logger.error("알림 발송 중 오류 발생", toError(error), {
+                payload: req.data
             });
         }
     }

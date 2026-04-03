@@ -3,7 +3,7 @@ import { onTaskDispatched } from "firebase-functions/v2/tasks";
 import { getFunctions } from "firebase-admin/functions";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
@@ -62,10 +62,9 @@ export const requestPushNotificationDeletion = onCall({
                 });
             }
 
-            logger.error("푸시 알림 삭제 요청 실패", {
+            logger.error("푸시 알림 삭제 요청 실패", toError(error), {
                 userId,
-                notificationId,
-                error: normalizeError(error)
+                notificationId
             });
             throw new HttpsError("internal", "푸시 알림 삭제 요청에 실패했습니다.");
         }
@@ -103,10 +102,9 @@ export const undoPushNotificationDeletion = onCall({
                 });
             }
         } catch (error) {
-            logger.error("푸시 알림 삭제 취소 실패", {
+            logger.error("푸시 알림 삭제 취소 실패", toError(error), {
                 userId,
-                notificationId,
-                error: normalizeError(error)
+                notificationId
             });
             throw new HttpsError("internal", "푸시 알림 삭제 취소에 실패했습니다.");
         }
@@ -146,10 +144,9 @@ export const completePushNotificationDeletion = onTaskDispatched({
                 isDeleted: true
             }, { merge: true });
         } catch (error) {
-            logger.error("푸시 알림 최종 삭제 실패", {
+            logger.error("푸시 알림 최종 삭제 실패", toError(error), {
                 userId,
-                notificationId,
-                error: normalizeError(error)
+                notificationId
             });
             throw error;
         }

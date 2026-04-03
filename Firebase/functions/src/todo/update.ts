@@ -1,7 +1,7 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { normalizeError } from "../common/error";
+import { toError } from "../common/error";
 import { FirestorePath } from "../common/firestorePath";
 
 const LOCATION = "asia-northeast3";
@@ -29,12 +29,11 @@ export const syncTodoNotificationCategory = onDocumentUpdated({
         try {
             await updateNotifications(userId, todoId, afterCategory);
         } catch (error) {
-            logger.error("todo 카테고리 변경 후 알림 데이터 동기화 실패", {
+            logger.error("todo 카테고리 변경 후 알림 데이터 동기화 실패", toError(error), {
                 userId,
                 todoId,
                 beforeCategory,
-                afterCategory,
-                error: normalizeError(error)
+                afterCategory
             });
             throw error;
         }
