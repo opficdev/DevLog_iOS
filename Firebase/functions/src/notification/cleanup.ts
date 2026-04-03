@@ -126,7 +126,7 @@ export const cleanupSoftDeletedNotifications = onSchedule({
 export const cleanupNotificationDispatches = onSchedule({
         maxInstances: 1,
         region: LOCATION,
-        schedule: "0 * * * *",
+        schedule: "0 0 * * *",
         timeZone: "UTC"
     },
     async () => {
