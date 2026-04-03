@@ -190,7 +190,7 @@ struct ProfileView: View {
 
     private var activityTypeSelector: some View {
         Menu {
-            ForEach(ProfileActivityKind.heatmapSelectableKinds, id: \.self) { activityKind in
+            ForEach(ProfileActivityKind.selectableKinds, id: \.self) { activityKind in
                 Toggle(
                     activityKind.title,
                     isOn: Binding(
@@ -342,15 +342,14 @@ struct ProfileView: View {
                             Text(activity.todo.title)
                                 .font(.caption)
                                 .lineLimit(1)
-                            let badge = activity.activityBadge
-                            Text(badge.title)
+                            Text(activity.kind.title)
                                 .font(.caption2)
-                                .foregroundStyle(badge.foregroundColor)
+                                .foregroundStyle(activity.kind.badgeColor)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(
                                     Capsule()
-                                        .fill(badge.foregroundColor.opacity(0.14))
+                                        .fill(activity.kind.badgeColor.opacity(0.14))
                                 )
                             Spacer()
                             Image(systemName: "chevron.right")

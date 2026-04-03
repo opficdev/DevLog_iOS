@@ -239,7 +239,7 @@ final class ProfileViewModel: Store {
                 }
             }
         case .updateHeatmapActivityKinds(let activityKinds):
-            let rawValues = ProfileActivityKind.heatmapSelectableKinds
+            let rawValues = ProfileActivityKind.selectableKinds
                 .filter { activityKinds.contains($0) }
                 .map(\.rawValue)
             updateHeatmapActivityTypesUseCase.execute(rawValues)
@@ -415,7 +415,7 @@ private extension ProfileViewModel {
         Set(
             rawValues
                 .compactMap(ProfileActivityKind.init(rawValue:))
-                .filter(ProfileActivityKind.heatmapSelectableKinds.contains)
+                .filter(ProfileActivityKind.selectableKinds.contains)
         )
     }
 
