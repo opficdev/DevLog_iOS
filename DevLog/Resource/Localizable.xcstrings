@@ -911,6 +911,40 @@
         }
       }
     },
+    "profile_quarter_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Q%1$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld분기"
+          }
+        }
+      }
+    },
+    "profile_year_quarter_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Q%2$@ %1$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@년 %2$@분기"
+          }
+        }
+      }
+    },
     "profile_quarterly_activity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1060,23 +1094,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "연도"
-          }
-        }
-      }
-    },
-    "profile_year_option_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld년"
           }
         }
       }
@@ -1386,9 +1403,6 @@
           }
         }
       }
-    },
-    "Q%lld" : {
-
     },
     "relative_time_days_ago_format" : {
       "extractionState" : "manual",
