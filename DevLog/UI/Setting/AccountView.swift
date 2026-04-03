@@ -51,7 +51,7 @@ struct AccountView: View {
         }
         .scrollDisabled(true)
         .listStyle(.insetGrouped)
-        .navigationTitle(String(localized: "account_title"))
+        .navigationTitle(String(localized: "nav_account"))
         .onAppear {
             viewModel.send(.onAppear)
         }

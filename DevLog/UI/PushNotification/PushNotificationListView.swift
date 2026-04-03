@@ -36,7 +36,7 @@ struct PushNotificationListView: View {
                 }
             }
             .refreshable { viewModel.send(.fetchNotifications) }
-            .navigationTitle(String(localized: "push_notifications_title"))
+            .navigationTitle(String(localized: "nav_push_notifications"))
             .alert(
                 "",
                 isPresented: Binding(

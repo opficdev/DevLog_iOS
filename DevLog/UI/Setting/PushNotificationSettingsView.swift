@@ -61,7 +61,7 @@ struct PushNotificationSettingsView: View {
             .opacity(viewModel.state.pushNotificationEnable ? 1.0 : 0.2)
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(String(localized: "push_settings_title"))
+        .navigationTitle(String(localized: "nav_push_settings"))
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()

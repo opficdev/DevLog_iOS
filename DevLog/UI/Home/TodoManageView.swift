@@ -50,7 +50,7 @@ struct TodoManageView: View {
                 .listRowInsets(EdgeInsets())
             }
             .environment(\.editMode, .constant(.active))
-            .navigationTitle(String(localized: "todo_manage_title"))
+            .navigationTitle(String(localized: "nav_todo_manage"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .sheet(isPresented: Binding(

@@ -194,7 +194,7 @@
         }
       }
     },
-    "account_title" : {
+    "nav_account" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -381,7 +381,7 @@
         }
       }
     },
-    "home_content_title" : {
+    "nav_home_content" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -462,23 +462,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최근 수정"
-          }
-        }
-      }
-    },
-    "home_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "홈"
           }
         }
       }
@@ -1156,7 +1139,7 @@
         }
       }
     },
-    "push_notifications_title" : {
+    "nav_push_notifications" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -1241,7 +1224,7 @@
         }
       }
     },
-    "push_settings_title" : {
+    "nav_push_settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -1982,7 +1965,7 @@
         }
       }
     },
-    "settings_title" : {
+    "nav_settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2101,7 +2084,7 @@
         }
       }
     },
-    "theme_title" : {
+    "nav_theme" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2573,23 +2556,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지연"
-          }
-        }
-      }
-    },
-    "today_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오늘"
           }
         }
       }
@@ -3403,7 +3369,7 @@
         }
       }
     },
-    "todo_manage_title" : {
+    "nav_todo_manage" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {

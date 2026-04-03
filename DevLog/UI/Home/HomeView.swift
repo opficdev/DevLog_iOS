@@ -21,7 +21,7 @@ struct HomeView: View {
                 webPageSection
             }
             .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "home_title"))
+            .navigationTitle(String(localized: "nav_home"))
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .category(let item):
@@ -333,7 +333,7 @@ struct HomeView: View {
                         .foregroundStyle(Color(.label))
                 }
             }
-            .navigationTitle(String(localized: "home_content_title"))
+            .navigationTitle(String(localized: "nav_home_content"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
