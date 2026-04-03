@@ -92,7 +92,7 @@ private extension DailyActivityService {
             let dayKey = data[FieldKey.dayKey.rawValue] as? String,
             let kind = data[FieldKey.kind.rawValue] as? String,
             let occurredAtTimestamp = data[FieldKey.occurredAt.rawValue] as? Timestamp,
-            let todoID = data[FieldKey.todoId.rawValue] as? String,
+            let todoId = data[FieldKey.todoId.rawValue] as? String,
             let todoTitle = data[FieldKey.todoTitle.rawValue] as? String,
             let todoCategoryID = data[FieldKey.todoCategory.rawValue] as? String
         else {
@@ -104,7 +104,7 @@ private extension DailyActivityService {
             dayKey: dayKey,
             kind: kind,
             occurredAt: occurredAtTimestamp.dateValue(),
-            todoID: todoID,
+            todoId: todoId,
             todoTitle: todoTitle,
             todoNumber: data[FieldKey.todoNumber.rawValue] as? Int,
             todoCategoryID: todoCategoryID

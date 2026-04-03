@@ -19,7 +19,7 @@ struct DailyActivityEventResponse {
     let dayKey: String
     let kind: String
     let occurredAt: Date
-    let todoID: String
+    let todoId: String
     let todoTitle: String
     let todoNumber: Int?
     let todoCategoryID: String

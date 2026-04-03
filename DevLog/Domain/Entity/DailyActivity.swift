@@ -25,7 +25,7 @@ struct DailyActivityEvent: Hashable {
     let dayKey: String
     let kind: ActivityKind
     let occurredAt: Date
-    let todoID: String
+    let todoId: String
     let todoTitle: String
     let todoNumber: Int?
     let todoCategoryID: String

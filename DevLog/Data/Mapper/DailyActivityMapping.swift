@@ -27,7 +27,7 @@ extension DailyActivityEventResponse {
             dayKey: dayKey,
             kind: activityKind,
             occurredAt: occurredAt,
-            todoID: todoID,
+            todoId: todoId,
             todoTitle: todoTitle,
             todoNumber: todoNumber,
             todoCategoryID: todoCategoryID
