@@ -24,7 +24,7 @@
   <tr>
     <td align="center">홈</td>
     <td align="center">마크다운 작성</td>
-    <td align="center">오늘 기준의 Todo 확인</td>
+    <td align="center">오늘 기준 Todo 확인</td>
     <td align="center">푸시 알림</td>
     <td align="center">히트맵</td>
   </tr>
