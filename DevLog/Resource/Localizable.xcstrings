@@ -979,23 +979,6 @@
         }
       }
     },
-    "profile_week_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week %1$lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld주"
-          }
-        }
-      }
-    },
     "profile_weekday_fri" : {
       "extractionState" : "manual",
       "localizations" : {

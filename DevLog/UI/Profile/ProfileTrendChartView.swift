@@ -54,12 +54,7 @@ struct ProfileTrendChartView: View {
                     AxisMarks(values: axisWeekIndices) { value in
                         AxisValueLabel {
                             if let weekIndex = value.as(Int.self) {
-                                Text(
-                                    String.localizedStringWithFormat(
-                                        String(localized: "profile_week_format"),
-                                        Int64(weekIndex)
-                                    )
-                                )
+                                Text("\(weekIndex)")
                                     .font(.caption2)
                                     .fixedSize()
                             }
@@ -88,6 +83,10 @@ struct ProfileTrendChartView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .frame(height: chartHeight)
+
+                Text(String(localized: "profile_week_axis"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             } else {
                 VStack(spacing: 6) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
