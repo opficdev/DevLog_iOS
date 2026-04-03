@@ -108,7 +108,7 @@ struct SettingView: View {
                 Spacer()
             }
         }
-        .navigationTitle(String(localized: "settings_title"))
+        .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Path.self) { path in
             switch path {

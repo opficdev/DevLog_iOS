@@ -260,13 +260,8 @@ struct ProfileView: View {
                         set: { viewModel.send(.setQuarterPickerYear($0)) }
                     )) {
                         ForEach(viewModel.availableQuarterYears, id: \.self) { year in
-                            Text(
-                                String.localizedStringWithFormat(
-                                    String(localized: "profile_year_option_format"),
-                                    Int64(year)
-                                )
-                            )
-                            .tag(year)
+                            Text(verbatim: String(year))
+                                .tag(year)
                         }
                     }
                     .pickerStyle(.menu)
@@ -304,7 +299,12 @@ struct ProfileView: View {
             guard let quarterStart else { return }
             viewModel.send(.selectQuarter(quarterStart))
         } label: {
-            Text("Q\(quarter)")
+            Text(
+                String.localizedStringWithFormat(
+                    String(localized: "profile_quarter_format"),
+                    Int64(quarter)
+                )
+            )
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)

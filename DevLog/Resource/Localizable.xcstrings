@@ -2,71 +2,37 @@
   "sourceLanguage" : "ko",
   "strings" : {
     "" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "#%lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "#%1$lld"
+            "value" : "#%lld"
           }
         }
-      }
-    },
-    "%@ 검색" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search %1$@"
-          }
-        }
-      }
-    },
-    "%@의 제목이나 내용을 검색해 보세요." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search titles or content in %1$@."
-          }
-        }
-      }
+      },
+      "shouldTranslate" : false
     },
     "%lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld"
+            "value" : "%lld"
           }
         }
-      }
-    },
-    "%lld개 필터가 적용됨" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld filters applied"
-          }
-        }
-      }
-    },
-    "%lld주" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week %1$lld"
-          }
-        }
-      }
+      },
+      "shouldTranslate" : false
     },
     "account_alert_already_linked_message" : {
       "extractionState" : "manual",
@@ -238,23 +204,6 @@
         }
       }
     },
-    "account_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "계정 연동"
-          }
-        }
-      }
-    },
     "account_toast_link_success" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -267,7 +216,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "계정이 성공적으로 연결되었습니다."
+            "value" : "계정이 성공적으로 연결됐어요."
           }
         }
       }
@@ -284,7 +233,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "계정 연결이 성공적으로 해제되었습니다."
+            "value" : "계정 연결이 성공적으로 해제됐어요."
           }
         }
       }
@@ -425,23 +374,6 @@
         }
       }
     },
-    "home_content_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "컨텐츠"
-          }
-        }
-      }
-    },
     "home_invalid_url_message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -488,7 +420,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최근 수정한 Todo가 없습니다."
+            "value" : "최근 수정한 Todo가 없어요."
           }
         }
       }
@@ -510,36 +442,19 @@
         }
       }
     },
-    "home_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "홈"
-          }
-        }
-      }
-    },
     "home_web_empty" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Saved web pages appear here."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "저장한 Web Page가 표시됩니다."
+            "value" : "저장한 웹 페이지가 표시돼요."
           }
         }
       }
@@ -584,23 +499,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "https://"
-          }
-        }
-      }
-    },
-    "lime_green" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lime Green"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "라임 그린"
           }
         }
       }
@@ -668,7 +566,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "로그인하면 사용 약관 및 개인 정보 취급 방침에 동의하게 됩니다."
+            "value" : "로그인하면 사용 약관 및 개인 정보 취급 방침에 동의하게 돼요."
           }
         }
       }
@@ -685,29 +583,24 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "알림 배지를 불러오는 중 문제가 발생했습니다."
+            "value" : "알림 배지를 불러오는 중 문제가 발생했어요."
           }
         }
       }
     },
-    "Markdown 미리보기" : {
-      "extractionState" : "stale",
+    "nav_account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Markdown Preview"
+            "value" : "Account"
           }
-        }
-      }
-    },
-    "Markdown 지원 · 예: # 제목, - 목록, **굵게**, - refs #번호" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
+        },
+        "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Markdown supported, e.g. # Heading, - List, **Bold**, - refs #123"
+            "value" : "계정 연동"
           }
         }
       }
@@ -725,6 +618,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈"
+          }
+        }
+      }
+    },
+    "nav_home_content" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컨텐츠"
           }
         }
       }
@@ -763,6 +673,74 @@
         }
       }
     },
+    "nav_push_notifications" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받은 푸시 알람"
+          }
+        }
+      }
+    },
+    "nav_push_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알람"
+          }
+        }
+      }
+    },
+    "nav_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        }
+      }
+    },
+    "nav_theme" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마"
+          }
+        }
+      }
+    },
     "nav_today" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -775,75 +753,24 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘"
+            "value" : "투데이"
           }
         }
       }
     },
-    "night_sky" : {
+    "nav_todo_manage" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Night Sky"
+            "value" : "Edit TODO"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "밤하늘"
-          }
-        }
-      }
-    },
-    "orange" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Orange"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오렌지"
-          }
-        }
-      }
-    },
-    "pink" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pink"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "핑크"
-          }
-        }
-      }
-    },
-    "primary" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Default"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기본"
+            "value" : "TODO 편집"
           }
         }
       }
@@ -984,6 +911,40 @@
         }
       }
     },
+    "profile_quarter_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Q%1$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld분기"
+          }
+        }
+      }
+    },
+    "profile_year_quarter_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Q%2$@ %1$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@년 %2$@분기"
+          }
+        }
+      }
+    },
     "profile_quarterly_activity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1048,23 +1009,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "주차"
-          }
-        }
-      }
-    },
-    "profile_week_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week %1$lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld주"
           }
         }
       }
@@ -1154,23 +1098,6 @@
         }
       }
     },
-    "profile_year_option_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld년"
-          }
-        }
-      }
-    },
     "push_clear_all_filters" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1217,24 +1144,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "받은 알림이 없습니다."
-          }
-        }
-      }
-    },
-    "push_notifications_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notifications"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "받은 푸시 알람"
+            "value" : "받은 알림이 없어요."
           }
         }
       }
@@ -1302,24 +1212,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "설정에서의 푸시 알람 설정과 별개입니다."
-          }
-        }
-      }
-    },
-    "push_settings_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alerts"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "알람"
+            "value" : "설정에서의 푸시 알람 설정과는 별개예요."
           }
         }
       }
@@ -1511,33 +1404,6 @@
         }
       }
     },
-    "Q%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Q%1$lld"
-          }
-        }
-      }
-    },
-    "rainbow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rainbow"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "무지개"
-          }
-        }
-      }
-    },
     "relative_time_days_ago_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1606,23 +1472,6 @@
         }
       }
     },
-    "relative_time_updated_suffix" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " updated"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " 업데이트"
-          }
-        }
-      }
-    },
     "relative_time_updated_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1652,7 +1501,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "인터넷 연결을 확인해주세요."
+            "value" : "네트워크 연결을 확인해주세요."
           }
         }
       }
@@ -1703,7 +1552,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "검색 결과가 없습니다."
+            "value" : "검색 결과가 없어요."
           }
         }
       }
@@ -1839,7 +1688,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
+            "value" : "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없어요."
           }
         }
       }
@@ -1975,7 +1824,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "신규 기능을 빠르게 만나볼 수 있습니다"
+            "value" : "신규 기능을 빠르게 만나볼 수 있어요"
           }
         }
       }
@@ -2048,23 +1897,6 @@
         }
       }
     },
-    "settings_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정"
-          }
-        }
-      }
-    },
     "settings_version" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2078,40 +1910,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "버전 정보"
-          }
-        }
-      }
-    },
-    "sky" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sky"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하늘"
-          }
-        }
-      }
-    },
-    "sun" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sun"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "태양"
           }
         }
       }
@@ -2163,23 +1961,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "라이트 모드"
-          }
-        }
-      }
-    },
-    "theme_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theme"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "테마"
           }
         }
       }
@@ -2298,7 +2079,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+            "value" : "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있어요."
           }
         }
       }
@@ -2315,7 +2096,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "남아 있는 Todo가 없습니다."
+            "value" : "남아 있는 Todo가 없어요."
           }
         }
       }
@@ -2332,7 +2113,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+            "value" : "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있어요."
           }
         }
       }
@@ -2349,7 +2130,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "7일 내 일정이 없습니다."
+            "value" : "7일 내 일정이 없어요."
           }
         }
       }
@@ -2383,7 +2164,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "선택한 보기 옵션에 맞는 Todo가 없습니다."
+            "value" : "선택한 보기 옵션에 맞는 Todo가 없어요."
           }
         }
       }
@@ -2400,7 +2181,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+            "value" : "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있어요."
           }
         }
       }
@@ -2417,7 +2198,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "집중할 일이 없습니다."
+            "value" : "집중할 일이 없어요."
           }
         }
       }
@@ -2434,7 +2215,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지금은 기한이 지난 Todo가 없습니다."
+            "value" : "지금은 기한이 지난 Todo가 없어요."
           }
         }
       }
@@ -2451,7 +2232,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지난 마감 Todo가 없습니다."
+            "value" : "지난 마감 Todo가 없어요."
           }
         }
       }
@@ -2485,7 +2266,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "중요 표시한 Todo만 표시됩니다."
+            "value" : "중요 표시한 Todo만 표시돼요."
           }
         }
       }
@@ -2643,57 +2424,12 @@
         }
       }
     },
-    "today_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오늘"
-          }
-        }
-      }
-    },
-    "web_page_missing_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to find this web page"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹페이지를 찾을 수 없습니다"
-          }
-        }
-      }
-    },
     "TODO" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "TODO"
-          }
-        }
-      }
-    },
-    "TODO 편집" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit TODO"
           }
         }
       }
@@ -2891,13 +2627,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Completed + Incomplete"
+            "value" : "all"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "완료 + 미완료"
+            "value" : "전체"
           }
         }
       }
@@ -3220,7 +2956,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "작성된 내용이 없습니다."
+            "value" : "작성된 내용이 없어요."
           }
         }
       }
@@ -3271,7 +3007,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "검색 결과가 없습니다."
+            "value" : "검색 결과가 없어요."
           }
         }
       }
@@ -3480,23 +3216,6 @@
         }
       }
     },
-    "todo_manage_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit TODO"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TODO 편집"
-          }
-        }
-      }
-    },
     "todo_no_tags" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3694,17 +3413,6 @@
         }
       }
     },
-    "URL" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URL"
-          }
-        }
-      }
-    },
     "Web Page" : {
       "localizations" : {
         "en" : {
@@ -3725,877 +3433,19 @@
         }
       }
     },
-    "개인정보 처리방침" : {
-      "extractionState" : "stale",
+    "web_page_missing_title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Privacy Policy"
-          }
-        }
-      }
-    },
-    "검색" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search"
-          }
-        }
-      }
-    },
-    "검색 결과가 없습니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No results found."
-          }
-        }
-      }
-    },
-    "검색어를 입력해 저장한 앱 컨텐츠를 찾아보세요." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter a search term to find your saved content."
-          }
-        }
-      }
-    },
-    "계정 연동" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account"
-          }
-        }
-      }
-    },
-    "기간" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Period"
-          }
-        }
-      }
-    },
-    "더보기" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        }
-      }
-    },
-    "로그아웃" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign Out"
-          }
-        }
-      }
-    },
-    "로그인하면 사용 약관 및 개인 정보 취급 방침에 동의하게 됩니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "By signing in, you agree to the Terms of Service and Privacy Policy."
-          }
-        }
-      }
-    },
-    "마감일" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Due Date"
-          }
-        }
-      }
-    },
-    "모든 필터 지우기" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear All Filters"
-          }
-        }
-      }
-    },
-    "미리보기" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preview"
-          }
-        }
-      }
-    },
-    "받은 알림이 없습니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No notifications received."
-          }
-        }
-      }
-    },
-    "받은 푸시 알람" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notifications"
-          }
-        }
-      }
-    },
-    "버전 정보" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version"
-          }
-        }
-      }
-    },
-    "베타 테스트 참여" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Join Beta Testing"
-          }
-        }
-      }
-    },
-    "보기 범위" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Range"
-          }
-        }
-      }
-    },
-    "분기 선택" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select Quarter"
-          }
-        }
-      }
-    },
-    "분기별 활동" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quarterly Activity"
-          }
-        }
-      }
-    },
-    "사용자 설정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "User Settings"
-          }
-        }
-      }
-    },
-    "삭제" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete"
-          }
-        }
-      }
-    },
-    "상태 설정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set Status"
-          }
-        }
-      }
-    },
-    "생성일" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Created At"
-          }
-        }
-      }
-    },
-    "설정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings"
-          }
-        }
-      }
-    },
-    "설정에서의 푸시 알람 설정과 별개입니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Separate from your Settings app notification preference."
-          }
-        }
-      }
-    },
-    "세부 정보" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Details"
-          }
-        }
-      }
-    },
-    "소셜 계정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Social Accounts"
-          }
-        }
-      }
-    },
-    "수정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit"
-          }
-        }
-      }
-    },
-    "신규 기능을 빠르게 만나볼 수 있습니다" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get early access to new features."
-          }
-        }
-      }
-    },
-    "알람" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alerts"
-          }
-        }
-      }
-    },
-    "알림" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notifications"
-          }
-        }
-      }
-    },
-    "없음" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "None"
-          }
-        }
-      }
-    },
-    "연결" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connect"
-          }
-        }
-      }
-    },
-    "연결 해제" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnect"
-          }
-        }
-      }
-    },
-    "연도" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Year"
-          }
-        }
-      }
-    },
-    "오늘" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        }
-      }
-    },
-    "옵션" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Options"
-          }
-        }
-      }
-    },
-    "완료" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
-          }
-        }
-      }
-    },
-    "완료 상태" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completion Status"
-          }
-        }
-      }
-    },
-    "완료일" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completed At"
-          }
-        }
-      }
-    },
-    "이 분기에는 선택한 활동이 없어요" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No selected activity this quarter."
-          }
-        }
-      }
-    },
-    "이 카테고리를 삭제하면 해당하던 TODO는 기타 카테고리로 처리됩니다.\n정말 삭제하시겠습니까?" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deleting this category will move its TODOs to Other.\nAre you sure you want to delete it?"
-          }
-        }
-      }
-    },
-    "읽지 않음" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unread"
-          }
-        }
-      }
-    },
-    "임시 데이터 삭제" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear Temporary Data"
-          }
-        }
-      }
-    },
-    "작성된 내용이 없습니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No content has been written."
-          }
-        }
-      }
-    },
-    "저장한 Web Page가 표시됩니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved web pages appear here."
-          }
-        }
-      }
-    },
-    "전체 삭제" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear All"
-          }
-        }
-      }
-    },
-    "정렬 기준" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort By"
-          }
-        }
-      }
-    },
-    "정렬 순서" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort Order"
-          }
-        }
-      }
-    },
-    "정렬: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort: %1$@"
-          }
-        }
-      }
-    },
-    "정렬: %@ / %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort: %1$@ / %2$@"
+            "value" : "Unable to find this web page"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "정렬: %1$@ / %2$@"
-          }
-        }
-      }
-    },
-    "제목(필수)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
             "state" : "translated",
-            "value" : "Title (Required)"
-          }
-        }
-      }
-    },
-    "주간 추세" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weekly Trend"
-          }
-        }
-      }
-    },
-    "주차" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week"
-          }
-        }
-      }
-    },
-    "중요 표시" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pinned"
-          }
-        }
-      }
-    },
-    "중요 표시만" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pinned Only"
-          }
-        }
-      }
-    },
-    "중요 표시한 Todo만 표시됩니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Only pinned todos are shown."
-          }
-        }
-      }
-    },
-    "최근 검색" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recent Searches"
-          }
-        }
-      }
-    },
-    "최근 수정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recently Updated"
-          }
-        }
-      }
-    },
-    "최근 수정한 Todo가 없습니다." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No recently updated todos."
-          }
-        }
-      }
-    },
-    "추가" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add"
-          }
-        }
-      }
-    },
-    "카테고리" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Category"
-          }
-        }
-      }
-    },
-    "카테고리 삭제" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Category"
-          }
-        }
-      }
-    },
-    "컨텐츠" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content"
-          }
-        }
-      }
-    },
-    "탈퇴" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete"
-          }
-        }
-      }
-    },
-    "태그" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tags"
-          }
-        }
-      }
-    },
-    "태그 없음" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Tags"
-          }
-        }
-      }
-    },
-    "테마" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theme"
-          }
-        }
-      }
-    },
-    "편집" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit"
-          }
-        }
-      }
-    },
-    "편집 탭에서 Markdown으로 작성하면 여기에서 서식이 적용되어 보여요." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Write in Markdown on the Edit tab to preview formatted text here."
-          }
-        }
-      }
-    },
-    "푸시 알람 활성화" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enable Push Notifications"
-          }
-        }
-      }
-    },
-    "프로필" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile"
-          }
-        }
-      }
-    },
-    "필터 옵션" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filter Options"
-          }
-        }
-      }
-    },
-    "현재 계정" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Current Account"
-          }
-        }
-      }
-    },
-    "홈" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home"
-          }
-        }
-      }
-    },
-    "활동" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activity"
-          }
-        }
-      }
-    },
-    "활동 없음" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Activity"
-          }
-        }
-      }
-    },
-    "활동 히트맵" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activity Heatmap"
-          }
-        }
-      }
-    },
-    "회원 탈퇴" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Account"
+            "value" : "웹페이지를 찾을 수 없어요"
           }
         }
       }

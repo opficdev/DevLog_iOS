@@ -25,7 +25,7 @@ struct TodayView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "today_title"))
+            .navigationTitle(String(localized: "nav_today"))
             .toolbar { toolbarContent }
             .navigationDestination(for: Path.self) { path in
                 switch path {

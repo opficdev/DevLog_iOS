@@ -262,7 +262,11 @@ extension ProfileViewModel {
         let year = calendar.component(.year, from: start)
         let month = calendar.component(.month, from: start)
         let quarter = ((month - 1) / 3) + 1
-        return "\(year) Q\(quarter)"
+        return String.localizedStringWithFormat(
+            String(localized: "profile_year_quarter_format"),
+            String(year),
+            String(quarter)
+        )
     }
 
     var selectedDayActivities: [ProfileSelectedDayActivity] {

@@ -52,21 +52,18 @@ struct ProfileTrendChartView: View {
                 )
                 .chartXAxis {
                     AxisMarks(values: axisWeekIndices) { value in
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(.quaternary)
-                        AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(.quaternary)
                         AxisValueLabel {
                             if let weekIndex = value.as(Int.self) {
-                                Text(
-                                    String.localizedStringWithFormat(
-                                        String(localized: "profile_week_format"),
-                                        Int64(weekIndex)
-                                    )
-                                )
+                                Text("\(weekIndex)")
                                     .font(.caption2)
                                     .fixedSize()
                             }
+                        }
+                        if let weekIndex = value.as(Int.self), weekIndex != xDomain.upperBound {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(.quaternary)
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(.quaternary)
                         }
                     }
                 }
@@ -86,6 +83,10 @@ struct ProfileTrendChartView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .frame(height: chartHeight)
+
+                Text(String(localized: "profile_week_axis"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             } else {
                 VStack(spacing: 6) {
                     Image(systemName: "chart.line.uptrend.xyaxis")

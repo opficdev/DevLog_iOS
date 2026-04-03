@@ -52,30 +52,49 @@ struct ProfileHeatmapView: View {
             6: String(localized: "profile_weekday_fri")
         ]
         let orderedWeekdays = Array(1...7)
+        let labelFontSize = smallestWeekdayLabelFontSize(
+            labels: Array(labels.values),
+            layout: layout
+        )
 
         VStack(alignment: .leading, spacing: layout.cellSpacing) {
             ForEach(orderedWeekdays, id: \.self) { weekday in
-                Group {
-                    if let label = labels[weekday] {
-                        Text(label)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .frame(
-                                width: layout.cellSize,
-                                height: layout.cellSize,
-                                alignment: .leading
-                            )
-                    } else {
-                        Color.clear
-                            .frame(
-                                width: layout.cellSize,
-                                height: layout.cellSize
-                            )
-                    }
+                if let label = labels[weekday] {
+                    Text(label)
+                        .font(.system(size: labelFontSize))
+                        .allowsTightening(true)
+                        .foregroundStyle(.secondary)
+                        .frame(
+                            width: layout.cellSize,
+                            height: layout.cellSize,
+                            alignment: .leading
+                        )
+                } else {
+                    Color.clear
+                        .frame(
+                            width: layout.cellSize,
+                            height: layout.cellSize
+                        )
                 }
             }
         }
         .padding(.top, layout.weekdayTopPadding)
+    }
+
+    private func smallestWeekdayLabelFontSize(labels: [String], layout: ProfileHeatmapLayout) -> CGFloat {
+        let captionFont = UIFont.preferredFont(forTextStyle: .caption2)
+        let availableWidth = max(layout.cellSize, 1)
+
+        let fittedSizes = labels.map { label in
+            let textWidth = max(
+                (label as NSString).size(withAttributes: [.font: captionFont]).width,
+                1
+            )
+            let widthRatio = availableWidth / textWidth
+            return captionFont.pointSize * min(widthRatio, 1)
+        }
+
+        return max((fittedSizes.min() ?? captionFont.pointSize).rounded(.down), 1)
     }
 
     private var availableWidth: CGFloat {
