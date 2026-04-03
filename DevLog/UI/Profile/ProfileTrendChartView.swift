@@ -52,10 +52,6 @@ struct ProfileTrendChartView: View {
                 )
                 .chartXAxis {
                     AxisMarks(values: axisWeekIndices) { value in
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(.quaternary)
-                        AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(.quaternary)
                         AxisValueLabel {
                             if let weekIndex = value.as(Int.self) {
                                 Text(
@@ -67,6 +63,12 @@ struct ProfileTrendChartView: View {
                                     .font(.caption2)
                                     .fixedSize()
                             }
+                        }
+                        if let weekIndex = value.as(Int.self), weekIndex != xDomain.upperBound {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(.quaternary)
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(.quaternary)
                         }
                     }
                 }
