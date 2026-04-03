@@ -69,9 +69,6 @@ struct ProfileHeatmapView: View {
                             height: layout.cellSize,
                             alignment: .leading
                         )
-                        .onAppear {
-                            print(labelFontSize)
-                        }
                 } else {
                     Color.clear
                         .frame(
