@@ -60,7 +60,7 @@ import {
 import {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
-    cleanupUnusedTodoNotificationRecords,
+    cleanupNotificationDispatches,
     cleanupSoftDeletedNotifications
 } from "./notification/cleanup";
 
@@ -114,7 +114,7 @@ export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
     cleanupSoftDeletedTodos,
-    cleanupUnusedTodoNotificationRecords,
+    cleanupNotificationDispatches,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,

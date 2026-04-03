@@ -122,8 +122,8 @@ export const cleanupSoftDeletedNotifications = onSchedule({
     }
 );
 
-// 사용되지 않는 알림 발송 기록의 주기적 정리
-export const cleanupUnusedTodoNotificationRecords = onSchedule({
+// 더 이상 필요하지 않은 알림 발송 기록 정리
+export const cleanupNotificationDispatches = onSchedule({
         maxInstances: 1,
         region: LOCATION,
         schedule: "0 * * * *",
