@@ -194,23 +194,6 @@
         }
       }
     },
-    "nav_account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "계정 연동"
-          }
-        }
-      }
-    },
     "account_toast_link_success" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -377,23 +360,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "추가"
-          }
-        }
-      }
-    },
-    "nav_home_content" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "컨텐츠"
           }
         }
       }
@@ -629,6 +595,23 @@
         }
       }
     },
+    "nav_account" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 연동"
+          }
+        }
+      }
+    },
     "nav_home" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -642,6 +625,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈"
+          }
+        }
+      }
+    },
+    "nav_home_content" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컨텐츠"
           }
         }
       }
@@ -680,6 +680,74 @@
         }
       }
     },
+    "nav_push_notifications" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받은 푸시 알람"
+          }
+        }
+      }
+    },
+    "nav_push_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알람"
+          }
+        }
+      }
+    },
+    "nav_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        }
+      }
+    },
+    "nav_theme" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마"
+          }
+        }
+      }
+    },
     "nav_today" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -692,7 +760,24 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘"
+            "value" : "투데이"
+          }
+        }
+      }
+    },
+    "nav_todo_manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit TODO"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TODO 편집"
           }
         }
       }
@@ -1139,23 +1224,6 @@
         }
       }
     },
-    "nav_push_notifications" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notifications"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "받은 푸시 알람"
-          }
-        }
-      }
-    },
     "push_period" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1220,23 +1288,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "설정에서의 푸시 알람 설정과 별개입니다."
-          }
-        }
-      }
-    },
-    "nav_push_settings" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alerts"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "알람"
           }
         }
       }
@@ -1523,23 +1574,6 @@
         }
       }
     },
-    "relative_time_updated_suffix" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " updated"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " 업데이트"
-          }
-        }
-      }
-    },
     "relative_time_updated_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1553,6 +1587,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ 업데이트"
+          }
+        }
+      }
+    },
+    "relative_time_updated_suffix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " updated"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " 업데이트"
           }
         }
       }
@@ -1965,23 +2016,6 @@
         }
       }
     },
-    "nav_settings" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정"
-          }
-        }
-      }
-    },
     "settings_version" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2080,23 +2114,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "라이트 모드"
-          }
-        }
-      }
-    },
-    "nav_theme" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theme"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "테마"
           }
         }
       }
@@ -2556,23 +2573,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지연"
-          }
-        }
-      }
-    },
-    "web_page_missing_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to find this web page"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹페이지를 찾을 수 없습니다"
           }
         }
       }
@@ -3369,23 +3369,6 @@
         }
       }
     },
-    "nav_todo_manage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit TODO"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TODO 편집"
-          }
-        }
-      }
-    },
     "todo_no_tags" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3610,6 +3593,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Web Pages"
+          }
+        }
+      }
+    },
+    "web_page_missing_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to find this web page"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "웹페이지를 찾을 수 없습니다"
           }
         }
       }
