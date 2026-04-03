@@ -148,10 +148,6 @@ struct ProfileView: View {
             quarterNavigator
 
             if let quarter = viewModel.state.completionQuarter {
-                ProfileTrendChartView(
-                    trendPoints: viewModel.state.completionQuarter?.weeklyTrendPoints ?? [],
-                    selectedActivityTypes: viewModel.state.selectedActivityTypes
-                )
                 ProfileHeatmapView(
                     quarter: quarter,
                     selectedActivityTypes: viewModel.state.selectedActivityTypes,

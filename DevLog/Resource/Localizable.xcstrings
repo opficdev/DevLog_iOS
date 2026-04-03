@@ -775,23 +775,6 @@
         }
       }
     },
-    "profile_activity_axis" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activity"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "활동"
-          }
-        }
-      }
-    },
     "profile_activity_completed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -894,23 +877,6 @@
         }
       }
     },
-    "profile_quarter_empty" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "There is no selected activity in this quarter."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 분기에는 선택한 활동이 없어요"
-          }
-        }
-      }
-    },
     "profile_quarter_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -996,23 +962,6 @@
         }
       }
     },
-    "profile_week_axis" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "주차"
-          }
-        }
-      }
-    },
     "profile_weekday_fri" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1060,23 +1009,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "수"
-          }
-        }
-      }
-    },
-    "profile_weekly_trend" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weekly Trend"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "주간 추세"
           }
         }
       }
