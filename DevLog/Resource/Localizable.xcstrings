@@ -5,24 +5,10 @@
 
     },
     "#%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "#%1$lld"
-          }
-        }
-      }
+
     },
     "%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld"
-          }
-        }
-      }
+
     },
     "account_alert_already_linked_message" : {
       "extractionState" : "manual",
@@ -493,23 +479,6 @@
         }
       }
     },
-    "lime_green" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lime Green"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "라임 그린"
-          }
-        }
-      }
-    },
     "login_apple_sign_in" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -778,74 +747,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TODO 편집"
-          }
-        }
-      }
-    },
-    "night_sky" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Night Sky"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "밤하늘"
-          }
-        }
-      }
-    },
-    "orange" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Orange"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오렌지"
-          }
-        }
-      }
-    },
-    "pink" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pink"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "핑크"
-          }
-        }
-      }
-    },
-    "primary" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Default"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기본"
           }
         }
       }
@@ -1480,31 +1381,7 @@
       }
     },
     "Q%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Q%1$lld"
-          }
-        }
-      }
-    },
-    "rainbow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rainbow"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "무지개"
-          }
-        }
-      }
+
     },
     "relative_time_days_ago_format" : {
       "extractionState" : "manual",
@@ -1587,23 +1464,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ 업데이트"
-          }
-        }
-      }
-    },
-    "relative_time_updated_suffix" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " updated"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " 업데이트"
           }
         }
       }
@@ -2029,40 +1889,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "버전 정보"
-          }
-        }
-      }
-    },
-    "sky" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sky"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하늘"
-          }
-        }
-      }
-    },
-    "sun" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sun"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "태양"
           }
         }
       }
@@ -3562,17 +3388,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Todos"
-          }
-        }
-      }
-    },
-    "URL" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URL"
           }
         }
       }
