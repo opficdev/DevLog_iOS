@@ -301,7 +301,7 @@ extension ProfileViewModel {
         let activities = state.dayActivitiesByDate[dayStart] ?? []
 
         return activities.filter { activity in
-            !Set(activity.activityKinds).isDisjoint(with: state.selectedActivityKinds)
+            state.selectedActivityKinds.isSubset(of: Set(activity.activityKinds))
         }
     }
 
