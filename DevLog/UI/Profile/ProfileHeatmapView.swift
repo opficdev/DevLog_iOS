@@ -185,7 +185,7 @@ private struct MonthCompactHeatmapView: View {
     }
 
     private func isSelected(_ day: ProfileCompletionDay?) -> Bool {
-        guard let day, let selectedDay else { return false }
+        guard let day, let selectedDay, day.isVisible else { return false }
         return Calendar.current.isDate(day.date, inSameDayAs: selectedDay.date)
     }
 
