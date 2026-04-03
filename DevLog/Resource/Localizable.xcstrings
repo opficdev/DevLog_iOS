@@ -2,13 +2,37 @@
   "sourceLanguage" : "ko",
   "strings" : {
     "" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "#%lld" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "#%lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "%lld" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "account_alert_already_linked_message" : {
       "extractionState" : "manual",
@@ -1480,7 +1504,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "인터넷 연결을 확인해주세요."
+            "value" : "네트워크 연결을 확인해주세요."
           }
         }
       }
