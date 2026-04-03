@@ -118,11 +118,14 @@ final class UserService {
         do {
             let infoRef = store.document(FirestorePath.userData(uid, document: .info))
             let data = try await infoRef.getDocument().data()
+            let createdAt = (data?["createdAt"] as? Timestamp)?.dateValue()
+                ?? Auth.auth().currentUser?.metadata.creationDate
 
             guard let provider = data?["currentProvider"] as? String,
                   let name = data?[provider == "apple.com" ? "appleName" : "name"] as? String,
                   let email = data?["email"] as? String,
-                  let statusMessage = data?["statusMsg"] as? String
+                  let statusMessage = data?["statusMsg"] as? String,
+                  let createdAt
             else {
                 logger.error("User profile data not found")
                 throw FirestoreError.dataNotFound("User Profile")
@@ -133,7 +136,8 @@ final class UserService {
                 name: name,
                 email: email,
                 statusMessage: statusMessage,
-                avatarURL: Auth.auth().currentUser?.photoURL
+                avatarURL: Auth.auth().currentUser?.photoURL,
+                createdAt: createdAt
             )
         } catch {
             logger.error("Failed to fetch user profile", error: error)

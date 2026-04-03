@@ -103,10 +103,6 @@ final class ProfileViewModel: Store {
                 state.selectedQuarterStart = quarterStart
             }
             effects = [.fetchUserData]
-            if state.earliestQuarterStart == nil {
-                state.earliestQuarterStart = state.selectedQuarterStart
-                effects.append(.fetchEarliestQuarterStart)
-            }
             let rawValues = fetchHeatmapActivityTypesUseCase.execute()
             let settings = normalizeActivityKinds(rawValues)
             if !settings.isEmpty {
@@ -126,6 +122,10 @@ final class ProfileViewModel: Store {
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
+            if state.earliestQuarterStart == nil {
+                state.earliestQuarterStart = quarterStart(for: profile.createdAt)
+                    ?? calendar.startOfDay(for: profile.createdAt)
+            }
         case .setEarliestQuarterStart(let quarterStart):
             state.earliestQuarterStart = quarterStart
         case .setQuarterPickerPresented(let isPresented):
