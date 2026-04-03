@@ -11,7 +11,7 @@ struct ProfileHeatmapView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.sceneWidth) private var sceneWidth
     let quarter: ProfileCompletionQuarter
-    let selectedActivityTypes: Set<ProfileActivityType>
+    let selectedActivityKinds: Set<ProfileActivityKind>
     let selectedDay: ProfileCompletionDay?
     let onSelectDay: (ProfileCompletionDay) -> Void
 
@@ -21,27 +21,22 @@ struct ProfileHeatmapView: View {
             weekCounts: quarter.months.map(\.weeks.count)
         )
 
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "profile_activity_heatmap"))
-                .font(.subheadline)
-                .bold()
-            HStack(alignment: .top, spacing: 0) {
-                weekdayLabel(layout: layout)
-                HStack(alignment: .top, spacing: layout.monthSpacing) {
-                    ForEach(quarter.months) { month in
-                        MonthCompactHeatmapView(
-                            month: month,
-                            maxCount: quarter.maxCount,
-                            layout: layout,
-                            selectedActivityTypes: selectedActivityTypes,
-                            selectedDay: selectedDay,
-                            onSelectDay: onSelectDay
-                        )
-                    }
+        HStack(alignment: .top, spacing: 0) {
+            weekdayLabel(layout: layout)
+            HStack(alignment: .top, spacing: layout.monthSpacing) {
+                ForEach(quarter.months) { month in
+                    MonthCompactHeatmapView(
+                        month: month,
+                        maxCount: quarter.maxCount,
+                        layout: layout,
+                        selectedActivityKinds: selectedActivityKinds,
+                        selectedDay: selectedDay,
+                        onSelectDay: onSelectDay
+                    )
                 }
             }
-            .padding(.vertical, 2)
         }
+        .padding(.vertical, 2)
     }
 
     @ViewBuilder
@@ -145,7 +140,7 @@ private struct MonthCompactHeatmapView: View {
     let month: ProfileCompletionMonth
     let maxCount: Int
     let layout: ProfileHeatmapLayout
-    let selectedActivityTypes: Set<ProfileActivityType>
+    let selectedActivityKinds: Set<ProfileActivityKind>
     let selectedDay: ProfileCompletionDay?
     let onSelectDay: (ProfileCompletionDay) -> Void
     private let orderedWeekdays = Array(1...7)
@@ -216,10 +211,10 @@ private struct MonthCompactHeatmapView: View {
 
     private func dayCount(for day: ProfileCompletionDay) -> Int {
         var value = 0
-        if selectedActivityTypes.contains(.created) {
+        if selectedActivityKinds.contains(.created) {
             value += day.createdCount
         }
-        if selectedActivityTypes.contains(.completed) {
+        if selectedActivityKinds.contains(.completed) {
             value += day.completedCount
         }
         return value

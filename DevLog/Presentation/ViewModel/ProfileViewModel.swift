@@ -22,7 +22,7 @@ final class ProfileViewModel: Store {
         var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
         var completionQuarter: ProfileCompletionQuarter?
         var dayActivitiesByDate: [Date: [ProfileSelectedDayActivity]] = [:]
-        var selectedActivityTypes: Set<ProfileActivityType> = [.created, .completed]
+        var selectedActivityKinds: Set<ProfileActivityKind> = [.created, .completed]
         var selectedDay: ProfileCompletionDay?
         var selectedActivityForSheet: ProfileSelectedDayActivity?
         var showDoneButton: Bool = false
@@ -50,7 +50,7 @@ final class ProfileViewModel: Store {
         case selectQuarter(Date)
         case moveToCurrentQuarter
         case moveQuarter(Int)
-        case toggleActivityType(ProfileActivityType)
+        case toggleActivityKind(ProfileActivityKind)
         case selectDay(ProfileCompletionDay?)
         case setSelectedActivityForSheet(ProfileSelectedDayActivity?)
         case updateStatusMessage(String)
@@ -62,7 +62,7 @@ final class ProfileViewModel: Store {
         case fetchEarliestQuarterStart
         case fetchCompletionQuarter(Date)
         case updateStatusMessage(String)
-        case updateHeatmapActivityTypes(Set<ProfileActivityType>)
+        case updateHeatmapActivityKinds(Set<ProfileActivityKind>)
     }
 
     private(set) var state = State()
@@ -108,9 +108,9 @@ final class ProfileViewModel: Store {
                 effects.append(.fetchEarliestQuarterStart)
             }
             let rawValues = fetchHeatmapActivityTypesUseCase.execute()
-            let settings = normalizeActivityTypes(rawValues)
+            let settings = normalizeActivityKinds(rawValues)
             if !settings.isEmpty {
-                state.selectedActivityTypes = settings
+                state.selectedActivityKinds = settings
             }
             if let selectedQuarterStart = state.selectedQuarterStart {
                 effects.append(.fetchCompletionQuarter(selectedQuarterStart))
@@ -167,17 +167,17 @@ final class ProfileViewModel: Store {
             ) else { break }
             guard canSelectQuarter(nextQuarterStart) else { break }
             updateSelectedQuarter(to: nextQuarterStart, state: &state, effects: &effects)
-        case .toggleActivityType(let activityType):
-            if state.selectedActivityTypes.contains(activityType), state.selectedActivityTypes.count == 1 {
+        case .toggleActivityKind(let activityKind):
+            if state.selectedActivityKinds.contains(activityKind), state.selectedActivityKinds.count == 1 {
                 break
             }
 
-            if state.selectedActivityTypes.contains(activityType) {
-                state.selectedActivityTypes.remove(activityType)
+            if state.selectedActivityKinds.contains(activityKind) {
+                state.selectedActivityKinds.remove(activityKind)
             } else {
-                state.selectedActivityTypes.insert(activityType)
+                state.selectedActivityKinds.insert(activityKind)
             }
-            effects = [.updateHeatmapActivityTypes(state.selectedActivityTypes)]
+            effects = [.updateHeatmapActivityKinds(state.selectedActivityKinds)]
         case .willUpdateStatusMessage:
             if !state.isNetworkConnected { break }
             let message = self.state.statusMessage
@@ -238,9 +238,9 @@ final class ProfileViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .updateHeatmapActivityTypes(let activityTypes):
-            let rawValues = ProfileActivityType.allCases
-                .filter { activityTypes.contains($0) }
+        case .updateHeatmapActivityKinds(let activityKinds):
+            let rawValues = ProfileActivityKind.heatmapSelectableKinds
+                .filter { activityKinds.contains($0) }
                 .map(\.rawValue)
             updateHeatmapActivityTypesUseCase.execute(rawValues)
         }
@@ -275,8 +275,14 @@ extension ProfileViewModel {
         let activities = state.dayActivitiesByDate[dayStart] ?? []
 
         return activities.filter { activity in
-            (state.selectedActivityTypes.contains(.created) && activity.showsCreated)
-            || (state.selectedActivityTypes.contains(.completed) && activity.showsCompleted)
+            switch activity.kind {
+            case .created:
+                return state.selectedActivityKinds.contains(.created)
+            case .completed:
+                return state.selectedActivityKinds.contains(.completed)
+            case .deleted:
+                return false
+            }
         }
     }
 
@@ -343,8 +349,7 @@ private extension ProfileViewModel {
             activitiesByDate[createdDay, default: []].append(
                 ProfileSelectedDayActivity(
                     todo: todo,
-                    showsCreated: true,
-                    showsCompleted: completedDay == createdDay
+                    kind: completedDay == createdDay ? .completed : .created
                 )
             )
 
@@ -352,8 +357,7 @@ private extension ProfileViewModel {
                 activitiesByDate[completedDay, default: []].append(
                     ProfileSelectedDayActivity(
                         todo: todo,
-                        showsCreated: false,
-                        showsCompleted: true
+                        kind: .completed
                     )
                 )
             }
@@ -407,8 +411,12 @@ private extension ProfileViewModel {
         return earliestQuarterStart <= quarterStart && quarterStart <= currentQuarterStart
     }
 
-    func normalizeActivityTypes(_ rawValues: [String]) -> Set<ProfileActivityType> {
-        Set(rawValues.compactMap(ProfileActivityType.init(rawValue:)))
+    func normalizeActivityKinds(_ rawValues: [String]) -> Set<ProfileActivityKind> {
+        Set(
+            rawValues
+                .compactMap(ProfileActivityKind.init(rawValue:))
+                .filter(ProfileActivityKind.heatmapSelectableKinds.contains)
+        )
     }
 
     func makeCompletionMonths(from todos: [Todo], quarterStart: Date) -> [ProfileCompletionMonth] {

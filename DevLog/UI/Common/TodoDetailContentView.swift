@@ -13,7 +13,6 @@ struct TodoDetailContentView: View {
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
     var number: Int?
-    var activityLabel: String?
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
@@ -21,21 +20,6 @@ struct TodoDetailContentView: View {
             Color(.secondarySystemBackground).ignoresSafeArea()
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
-                    if let activityLabel {
-                        HStack {
-                            Text(activityLabel)
-                                .font(.caption.bold())
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color(.systemGray4))
-                                )
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                    }
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(title)
                         if let number {

@@ -150,7 +150,7 @@ struct ProfileView: View {
             if let quarter = viewModel.state.completionQuarter {
                 ProfileHeatmapView(
                     quarter: quarter,
-                    selectedActivityTypes: viewModel.state.selectedActivityTypes,
+                    selectedActivityKinds: viewModel.state.selectedActivityKinds,
                     selectedDay: viewModel.state.selectedDay,
                     onSelectDay: { day in
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -190,19 +190,19 @@ struct ProfileView: View {
 
     private var activityTypeSelector: some View {
         Menu {
-            ForEach(ProfileActivityType.allCases, id: \.self) { activityType in
+            ForEach(ProfileActivityKind.heatmapSelectableKinds, id: \.self) { activityKind in
                 Toggle(
-                    activityType.title,
+                    activityKind.title,
                     isOn: Binding(
-                        get: { viewModel.state.selectedActivityTypes.contains(activityType) },
+                        get: { viewModel.state.selectedActivityKinds.contains(activityKind) },
                         set: { _ in
-                            viewModel.send(.toggleActivityType(activityType))
+                            viewModel.send(.toggleActivityKind(activityKind))
                         }
                     )
                 )
                 .disabled(
-                    viewModel.state.selectedActivityTypes.count == 1
-                        && viewModel.state.selectedActivityTypes.contains(activityType)
+                    viewModel.state.selectedActivityKinds.count == 1
+                        && viewModel.state.selectedActivityKinds.contains(activityKind)
                 )
             }
         } label: {
@@ -318,7 +318,7 @@ struct ProfileView: View {
     private func selectedDayDetailSection(for day: ProfileCompletionDay) -> some View {
         let activities = viewModel.selectedDayActivities
 
-        VStack(alignment: .leading, spacing: 12) {
+        LazyVStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
                 .font(.subheadline)
                 .bold()
@@ -334,22 +334,23 @@ struct ProfileView: View {
                     Button {
                         router.push(Path.activity(activity))
                     } label: {
-                        let todoCategoryItem = TodoCategoryItem(from: activity.todo.category)
+                        let item = TodoCategoryItem(from: activity.todo.category)
                         HStack(spacing: 8) {
-                            Image(systemName: todoCategoryItem.symbolName)
-                                .foregroundStyle(todoCategoryItem.color)
+                            Image(systemName: item.symbolName)
+                                .foregroundStyle(item.color)
                                 .frame(width: 20)
                             Text(activity.todo.title)
                                 .font(.caption)
                                 .lineLimit(1)
-                            Text(activity.activityLabel)
+                            let badge = activity.activityBadge
+                            Text(badge.title)
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(badge.foregroundColor)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(
                                     Capsule()
-                                        .fill(Color(.systemGray4))
+                                        .fill(badge.foregroundColor.opacity(0.14))
                                 )
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -381,8 +382,7 @@ private struct ProfileActivityTodoDetailView: View {
             title: activity.todo.title,
             content: activity.todo.content,
             referenceItems: [:],
-            number: activity.todo.number,
-            activityLabel: activity.activityLabel
+            number: activity.todo.number
         )
         .sheet(isPresented: $showInfo) {
             infoSheetContent
