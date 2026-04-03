@@ -34,7 +34,7 @@
 
 iOS 17 이상 환경에서 TestFlight 베타 테스트 가능
 
-<a href="https://testflight.apple.com/join/H9hAUU8v">
+<a href="https://testflight.apple.com/join/b8mpr4UN">
   <img src="https://img.shields.io/badge/TestFlight-0D96F6?style=flat&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCc%2BPGcgZmlsbD0nI2ZmZicgdHJhbnNmb3JtPSd0cmFuc2xhdGUoMTIgMTIpJz48ZWxsaXBzZSBjeD0nMCcgY3k9Jy02JyByeD0nMy4yJyByeT0nNS40Jy8%2BPGVsbGlwc2UgY3g9JzAnIGN5PSctNicgcng9JzMuMicgcnk9JzUuNCcgdHJhbnNmb3JtPSdyb3RhdGUoMTIwKScvPjxlbGxpcHNlIGN4PScwJyBjeT0nLTYnIHJ4PSczLjInIHJ5PSc1LjQnIHRyYW5zZm9ybT0ncm90YXRlKDI0MCknLz48Y2lyY2xlIHI9JzInLz48L2c%2BPC9zdmc%2B" />
 </a>
 
