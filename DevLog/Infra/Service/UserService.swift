@@ -51,6 +51,7 @@ final class UserService {
             let userDocument = try await userRef.getDocument()
             if !userDocument.exists {
                 userField["statusMsg"] = ""
+                userField["createdAt"] = FieldValue.serverTimestamp()
             }
 
             var settingField = ["fcmToken": response.fcmToken]
