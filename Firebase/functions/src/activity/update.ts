@@ -32,6 +32,7 @@ type ActivityEventPayload = {
     todoTitle: string;
     todoNumber: number | null;
     todoCategory: string;
+    isDeleted: boolean;
 };
 
 // Todo 변경을 activity 집계 문서와 activityEvents 문서로 동기화
@@ -278,6 +279,7 @@ function makeActivityEventPayload(
         occurredAt: admin.firestore.Timestamp.fromDate(safeOccurredAt),
         todoTitle: snapshot.title,
         todoNumber: snapshot.number,
-        todoCategory: snapshot.category
+        todoCategory: snapshot.category,
+        isDeleted: snapshot.isDeleted
     };
 }

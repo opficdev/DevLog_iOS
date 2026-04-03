@@ -14,10 +14,7 @@ struct ProfileSelectedDayActivity: Identifiable, Hashable, Comparable {
     let number: Int
     let category: TodoCategory
     let activityKinds: [ActivityKind]
-
-    var isDeleted: Bool {
-        activityKinds.contains(.deleted)
-    }
+    let isDeleted: Bool
 
     var activityKindItems: [ActivityKindItem] {
         let orderedKinds: [ActivityKind] = [.created, .completed, .deleted]

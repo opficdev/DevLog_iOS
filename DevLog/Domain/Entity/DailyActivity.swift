@@ -29,4 +29,5 @@ struct DailyActivityEvent: Hashable {
     let todoTitle: String
     let todoNumber: Int
     let todoCategoryID: String
+    let isDeleted: Bool
 }

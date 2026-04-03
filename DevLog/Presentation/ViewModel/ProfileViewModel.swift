@@ -512,7 +512,8 @@ private extension ProfileViewModel {
                 title: firstEvent.todoTitle,
                 number: firstEvent.todoNumber,
                 category: resolveCategory(id: firstEvent.todoCategoryID, preferences: preferences),
-                activityKinds: activityKinds
+                activityKinds: activityKinds,
+                isDeleted: events.contains { $0.isDeleted }
             )
         }
         .sorted()

@@ -20,6 +20,7 @@ final class DailyActivityService {
         case todoTitle
         case todoNumber
         case todoCategory
+        case isDeleted
     }
 
     private let store = Firestore.firestore()
@@ -108,7 +109,8 @@ private extension DailyActivityService {
             todoId: todoId,
             todoTitle: todoTitle,
             todoNumber: todoNumber,
-            todoCategoryID: todoCategoryID
+            todoCategoryID: todoCategoryID,
+            isDeleted: data[FieldKey.isDeleted.rawValue] as? Bool ?? false
         )
     }
 }

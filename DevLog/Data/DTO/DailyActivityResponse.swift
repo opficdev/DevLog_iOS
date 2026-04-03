@@ -23,4 +23,5 @@ struct DailyActivityEventResponse {
     let todoTitle: String
     let todoNumber: Int
     let todoCategoryID: String
+    let isDeleted: Bool
 }

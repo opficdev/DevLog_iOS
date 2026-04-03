@@ -30,7 +30,8 @@ extension DailyActivityEventResponse {
             todoId: todoId,
             todoTitle: todoTitle,
             todoNumber: todoNumber,
-            todoCategoryID: todoCategoryID
+            todoCategoryID: todoCategoryID,
+            isDeleted: isDeleted
         )
     }
 }
