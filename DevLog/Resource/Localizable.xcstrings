@@ -216,7 +216,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "계정이 성공적으로 연결되었습니다."
+            "value" : "계정이 성공적으로 연결됐어요."
           }
         }
       }
@@ -233,7 +233,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "계정 연결이 성공적으로 해제되었습니다."
+            "value" : "계정 연결이 성공적으로 해제됐어요."
           }
         }
       }
@@ -420,7 +420,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최근 수정한 Todo가 없습니다."
+            "value" : "최근 수정한 Todo가 없어요."
           }
         }
       }
@@ -447,14 +447,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Saved web pages appear here."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "저장한 Web Page가 표시됩니다."
+            "value" : "저장한 웹 페이지가 표시돼요."
           }
         }
       }
@@ -566,7 +566,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "로그인하면 사용 약관 및 개인 정보 취급 방침에 동의하게 됩니다."
+            "value" : "로그인하면 사용 약관 및 개인 정보 취급 방침에 동의하게 돼요."
           }
         }
       }
@@ -583,7 +583,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "알림 배지를 불러오는 중 문제가 발생했습니다."
+            "value" : "알림 배지를 불러오는 중 문제가 발생했어요."
           }
         }
       }
@@ -1144,7 +1144,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "받은 알림이 없습니다."
+            "value" : "받은 알림이 없어요."
           }
         }
       }
@@ -1212,7 +1212,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "설정에서의 푸시 알람 설정과 별개입니다."
+            "value" : "설정에서의 푸시 알람 설정과는 별개예요."
           }
         }
       }
@@ -1555,7 +1555,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "검색 결과가 없습니다."
+            "value" : "검색 결과가 없어요."
           }
         }
       }
@@ -1691,7 +1691,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없습니다."
+            "value" : "회원 탈퇴가 진행되면 모든 데이터가 지워지고 복구할 수 없어요."
           }
         }
       }
@@ -1827,7 +1827,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "신규 기능을 빠르게 만나볼 수 있습니다"
+            "value" : "신규 기능을 빠르게 만나볼 수 있어요"
           }
         }
       }
@@ -2082,7 +2082,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있습니다."
+            "value" : "완료되지 않은 일이 생기면 이곳에서 우선순위대로 볼 수 있어요."
           }
         }
       }
@@ -2099,7 +2099,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "남아 있는 Todo가 없습니다."
+            "value" : "남아 있는 Todo가 없어요."
           }
         }
       }
@@ -2116,7 +2116,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있습니다."
+            "value" : "곧 마감되는 Todo가 생기면 이곳에서 먼저 볼 수 있어요."
           }
         }
       }
@@ -2133,7 +2133,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "7일 내 일정이 없습니다."
+            "value" : "7일 내 일정이 없어요."
           }
         }
       }
@@ -2167,7 +2167,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "선택한 보기 옵션에 맞는 Todo가 없습니다."
+            "value" : "선택한 보기 옵션에 맞는 Todo가 없어요."
           }
         }
       }
@@ -2184,7 +2184,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있습니다."
+            "value" : "중요 표시한 Todo가 생기면 이곳에서 바로 볼 수 있어요."
           }
         }
       }
@@ -2201,7 +2201,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "집중할 일이 없습니다."
+            "value" : "집중할 일이 없어요."
           }
         }
       }
@@ -2218,7 +2218,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지금은 기한이 지난 Todo가 없습니다."
+            "value" : "지금은 기한이 지난 Todo가 없어요."
           }
         }
       }
@@ -2235,7 +2235,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지난 마감 Todo가 없습니다."
+            "value" : "지난 마감 Todo가 없어요."
           }
         }
       }
@@ -2269,7 +2269,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "중요 표시한 Todo만 표시됩니다."
+            "value" : "중요 표시한 Todo만 표시돼요."
           }
         }
       }
@@ -2959,7 +2959,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "작성된 내용이 없습니다."
+            "value" : "작성된 내용이 없어요."
           }
         }
       }
@@ -3010,7 +3010,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "검색 결과가 없습니다."
+            "value" : "검색 결과가 없어요."
           }
         }
       }
@@ -3448,7 +3448,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "웹페이지를 찾을 수 없습니다"
+            "value" : "웹페이지를 찾을 수 없어요"
           }
         }
       }
