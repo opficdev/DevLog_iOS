@@ -33,7 +33,7 @@ final class ProfileViewModel: Store {
     }
 
     enum Action {
-        case onAppear
+        case onAppear, refresh
         case networkStatusChanged(Bool)
         case setLoading(Bool)
         case setAlert(Bool)
@@ -106,7 +106,7 @@ final class ProfileViewModel: Store {
         var state = self.state
         var effects: [SideEffect] = []
         switch action {
-        case .onAppear:
+        case .onAppear, .refresh:
             if state.selectedQuarterStart == nil {
                 guard let quarterStart = quarterStart(for: Date()) else { break }
                 state.selectedQuarterStart = quarterStart
@@ -301,7 +301,7 @@ extension ProfileViewModel {
         let activities = state.dayActivitiesByDate[dayStart] ?? []
 
         return activities.filter { activity in
-            state.selectedActivityKinds.isSubset(of: Set(activity.activityKinds))
+            !Set(activity.activityKinds).isDisjoint(with: state.selectedActivityKinds)
         }
     }
 

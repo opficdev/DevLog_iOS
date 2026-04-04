@@ -81,6 +81,7 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .refreshable { viewModel.send(.refresh) }
             .frame(maxWidth: .infinity)
             .background(Color(.systemGroupedBackground))
             .toolbar {
@@ -115,9 +116,7 @@ struct ProfileView: View {
                     ))
                 }
             }
-            .onAppear {
-                viewModel.send(.onAppear)
-            }
+            .onAppear { viewModel.send(.onAppear) }
             .onChange(of: focused) { _, newValue in
                 withAnimation {
                     viewModel.send(.updateStatusTextFieldFocus(newValue))
