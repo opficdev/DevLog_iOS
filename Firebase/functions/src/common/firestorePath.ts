@@ -3,8 +3,6 @@ export namespace FirestorePath {
         users = "users",
         userData = "userData",
         todoLists = "todoLists",
-        activity = "activity",
-        activityEvents = "activityEvents",
         notifications = "notifications",
         notificationDispatches = "notificationDispatches",
         webPages = "webPages"
@@ -33,22 +31,6 @@ export namespace FirestorePath {
 
     export function todo(userId: string, todoId: string): string {
         return `${todos(userId)}/${todoId}`;
-    }
-
-    export function activity(userId: string): string {
-        return `${user(userId)}/${Collection.activity}`;
-    }
-
-    export function activityDaily(userId: string, dayKey: string): string {
-        return `${activity(userId)}/${dayKey}`;
-    }
-
-    export function activityEvents(userId: string): string {
-        return `${user(userId)}/${Collection.activityEvents}`;
-    }
-
-    export function activityEvent(userId: string, eventId: string): string {
-        return `${activityEvents(userId)}/${eventId}`;
     }
 
     export function notifications(userId: string): string {

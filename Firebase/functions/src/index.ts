@@ -33,16 +33,8 @@ import {
 } from "./fcm/schedule";
 
 import {
-    cleanupSoftDeletedTodos
-} from "./todo/cleanup";
-
-import {
     syncTodoNotificationCategory
 } from "./todo/update";
-
-import {
-    syncTodoActivity
-} from "./activity/update";
 
 import {
     requestMoveRemovedCategoryTodosToEtc,
@@ -117,9 +109,7 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
-    cleanupSoftDeletedTodos,
     cleanupNotificationDispatches,
-    syncTodoActivity,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,

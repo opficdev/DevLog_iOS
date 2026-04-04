@@ -35,15 +35,15 @@ export const requestTodoDeletion = onCall({
         const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
         const todoSnapshot = await todoRef.get();
 
-        if (!todoSnapshot.exists || todoSnapshot.data()?.isDeleted === true) {
+        if (!todoSnapshot.exists || todoSnapshot.data()?.deletedAt) {
             throw new HttpsError("not-found", "Todo를 찾을 수 없습니다.");
         }
 
         try {
             await todoRef.set({
-                // deletingAt: 삭제 요청은 되었지만, 5초 유예 후 최종 soft delete 되기 전 상태를 의미한다.
-                deletingAt: admin.firestore.FieldValue.serverTimestamp(),
-                isDeleted: false
+                isDeleting: true,
+                deletedAt: admin.firestore.FieldValue.delete(),
+                isDeleted: admin.firestore.FieldValue.delete()
             }, {merge: true});
 
             await updateNotificationsDeletionState(
@@ -65,9 +65,11 @@ export const requestTodoDeletion = onCall({
         } catch (error) {
             const currentTodoSnapshot = await todoRef.get();
 
-            if (currentTodoSnapshot.exists && currentTodoSnapshot.data()?.isDeleted !== true) {
+            if (currentTodoSnapshot.exists && !currentTodoSnapshot.data()?.deletedAt) {
                 await todoRef.update({
-                    deletingAt: admin.firestore.FieldValue.delete()
+                    isDeleting: false,
+                    deletedAt: admin.firestore.FieldValue.delete(),
+                    isDeleted: admin.firestore.FieldValue.delete()
                 });
             }
 
@@ -112,10 +114,11 @@ export const undoTodoDeletion = onCall({
             const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
             const todoSnapshot = await todoRef.get();
 
-            if (todoSnapshot.exists && todoSnapshot.data()?.isDeleted !== true) {
+            if (todoSnapshot.exists && !todoSnapshot.data()?.deletedAt) {
                 await todoRef.update({
-                    deletingAt: admin.firestore.FieldValue.delete(),
-                    isDeleted: false
+                    isDeleting: false,
+                    deletedAt: admin.firestore.FieldValue.delete(),
+                    isDeleted: admin.firestore.FieldValue.delete()
                 });
             }
 
@@ -152,21 +155,22 @@ export const completeTodoDeletion = onTaskDispatched({
             return;
         }
 
-        const { userId, todoId } = payload;
-        const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
+            const { userId, todoId } = payload;
+            const todoRef = admin.firestore().doc(FirestorePath.todo(userId, todoId));
 
         try {
             const todoSnapshot = await todoRef.get();
-            const deletingAt = todoSnapshot.data()?.deletingAt;
-            const isDeleted = todoSnapshot.data()?.isDeleted === true;
+            const isDeleting = todoSnapshot.data()?.isDeleting === true;
+            const isDeleted = !!todoSnapshot.data()?.deletedAt;
 
-            if (!todoSnapshot.exists || !deletingAt || isDeleted) {
+            if (!todoSnapshot.exists || !isDeleting || isDeleted) {
                 return;
             }
 
             await todoRef.set({
-                deletingAt: admin.firestore.FieldValue.delete(),
-                isDeleted: true,
+                isDeleting: false,
+                deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+                isDeleted: admin.firestore.FieldValue.delete(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             }, {merge: true});
 
