@@ -129,7 +129,6 @@ private extension TodoRepositoryImpl {
             isPinned: response.isPinned,
             isCompleted: response.isCompleted,
             isChecked: response.isChecked,
-            isDeleting: response.isDeleting,
             number: response.number,
             title: response.title,
             content: response.content,

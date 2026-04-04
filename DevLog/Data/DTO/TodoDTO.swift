@@ -12,7 +12,6 @@ struct TodoRequest: Encodable {
     let isPinned: Bool
     let isCompleted: Bool
     let isChecked: Bool
-    let isDeleting: Bool
     let title: String
     let content: String
     let createdAt: Date
@@ -29,7 +28,6 @@ struct TodoResponse {
     let isPinned: Bool
     let isCompleted: Bool
     let isChecked: Bool
-    let isDeleting: Bool
     let number: Int
     let title: String
     let content: String

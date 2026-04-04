@@ -230,7 +230,6 @@ final class TodoService {
         do {
             let snapshot = try await store.collection(FirestorePath.todos(uid))
                 .whereField(FieldPath.documentID(), isEqualTo: todoId)
-                .whereField(TodoFieldKey.isDeleting.rawValue, isEqualTo: false)
                 .whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
                 .limit(to: 1)
                 .getDocuments()
@@ -258,7 +257,6 @@ final class TodoService {
                 group.addTask {
                     let snapshot = try await collection
                         .whereField(TodoFieldKey.number.rawValue, in: chunk)
-                        .whereField(TodoFieldKey.isDeleting.rawValue, isEqualTo: false)
                         .whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
                         .getDocuments()
                     return snapshot.documents
@@ -275,7 +273,6 @@ final class TodoService {
         return snapshots.reduce(into: [Int: TodoReferenceResponse]()) { partialResult, document in
             let data = document.data()
             guard
-                (data[TodoFieldKey.isDeleting.rawValue] as? Bool) == false,
                 data[TodoFieldKey.deletedAt.rawValue] is NSNull,
                 let response = makeResponse(from: document)
             else {
@@ -363,7 +360,6 @@ private extension TodoService {
 
     func makeQuery(uid: String, query: TodoQuery) -> Query {
         var collection: Query = store.collection(FirestorePath.todos(uid))
-            .whereField(TodoFieldKey.isDeleting.rawValue, isEqualTo: false)
 
         if !query.includesDeleted {
             collection = collection.whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
@@ -439,9 +435,6 @@ private extension TodoService {
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
-        if (snapshot.data()[TodoFieldKey.isDeleting.rawValue] as? Bool) != false {
-            return nil
-        }
         return makeResponse(documentID: snapshot.documentID, data: snapshot.data())
     }
 
@@ -453,14 +446,10 @@ private extension TodoService {
     }
 
     func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
-        if (data[TodoFieldKey.isDeleting.rawValue] as? Bool) != false {
-            return nil
-        }
         guard
             let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
             let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
             let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
-            let isDeleting = data[TodoFieldKey.isDeleting.rawValue] as? Bool,
             let number = data[TodoFieldKey.number.rawValue] as? Int,
             let title = data[TodoFieldKey.title.rawValue] as? String,
             let content = data[TodoFieldKey.content.rawValue] as? String,
@@ -479,7 +468,6 @@ private extension TodoService {
             isPinned: isPinned,
             isCompleted: isCompleted,
             isChecked: isChecked,
-            isDeleting: isDeleting,
             number: number,
             title: title,
             content: content,
@@ -508,7 +496,6 @@ private extension TodoService {
         case dueDate
         case tags
         case category
-        case isDeleting // 삭제 유예 중인 상태
     }
 
     enum CounterFieldKey: String {

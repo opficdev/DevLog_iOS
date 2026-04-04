@@ -98,7 +98,6 @@ final class TodoEditorViewModel: Store {
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
-    private let isDeleting: Bool
     private let number: Int?
     private let createdAt: Date?
     private let deletedAt: Date?
@@ -135,7 +134,6 @@ final class TodoEditorViewModel: Store {
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
-        self.isDeleting = false
         self.number = nil
         self.createdAt = nil
         self.deletedAt = nil
@@ -155,7 +153,6 @@ final class TodoEditorViewModel: Store {
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
-        self.isDeleting = todo.isDeleting
         self.number = todo.number
         self.createdAt = todo.createdAt
         self.deletedAt = todo.deletedAt
@@ -278,7 +275,6 @@ extension TodoEditorViewModel {
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
-            isDeleting: self.isDeleting,
             number: self.number,
             title: state.title,
             content: state.content,

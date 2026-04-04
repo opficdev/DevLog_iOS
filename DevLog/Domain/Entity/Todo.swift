@@ -12,7 +12,6 @@ struct Todo: Hashable {
     var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     var isCompleted: Bool   //  해당 할 일의 완료 여부
     var isChecked: Bool     //  해당 할 일의 체크 여부
-    var isDeleting: Bool    //  삭제 유예 중인지 여부
     var number: Int?        //  사용자에게 노출되는 Todo 번호
     var title: String       //  할 일의 제목
     var content: String //  할 일의 설명

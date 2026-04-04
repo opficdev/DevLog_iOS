@@ -43,8 +43,7 @@ import {
 
 import {
     requestTodoDeletion,
-    undoTodoDeletion,
-    completeTodoDeletion
+    undoTodoDeletion
 } from "./todo/deletion";
 
 import {
@@ -115,7 +114,6 @@ export {
     completeMoveRemovedCategoryTodosToEtc,
     requestTodoDeletion,
     undoTodoDeletion,
-    completeTodoDeletion,
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
     completePushNotificationDeletion,
