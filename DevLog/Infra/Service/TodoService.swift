@@ -36,8 +36,9 @@ final class TodoService {
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
             query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
-            query.createdAtFrom != nil ? "createdAtFrom=\(query.createdAtFrom!)" : nil,
-            query.createdAtTo != nil ? "createdAtTo=\(query.createdAtTo!)" : nil,
+            query.sortDateFrom != nil ? "sortDateFrom=\(query.sortDateFrom!)" : nil,
+            query.sortDateTo != nil ? "sortDateTo=\(query.sortDateTo!)" : nil,
+            query.includesDeleted ? "includesDeleted=true" : nil,
             "pageSize=\(query.pageSize)",
             query.fetchAllPages ? "fetchAllPages=true" : nil,
             cursor != nil ? "cursor=\(cursor!)" : nil
@@ -73,17 +74,17 @@ final class TodoService {
             firestoreQuery = firestoreQuery.whereField("dueDate", isEqualTo: NSNull())
         }
 
-        if let createdAtFrom = query.createdAtFrom {
+        if let sortDateFrom = query.sortDateFrom {
             firestoreQuery = firestoreQuery.whereField(
-                "createdAt",
-                isGreaterThanOrEqualTo: Timestamp(date: createdAtFrom)
+                query.sortTarget.fieldName,
+                isGreaterThanOrEqualTo: Timestamp(date: sortDateFrom)
             )
         }
 
-        if let createdAtTo = query.createdAtTo {
+        if let sortDateTo = query.sortDateTo {
             firestoreQuery = firestoreQuery.whereField(
-                "createdAt",
-                isLessThan: Timestamp(date: createdAtTo)
+                query.sortTarget.fieldName,
+                isLessThan: Timestamp(date: sortDateTo)
             )
         }
 
@@ -361,9 +362,12 @@ private extension TodoService {
     }
 
     func makeQuery(uid: String, query: TodoQuery) -> Query {
-        let collection = store.collection(FirestorePath.todos(uid))
+        var collection: Query = store.collection(FirestorePath.todos(uid))
             .whereField(TodoFieldKey.isDeleting.rawValue, isEqualTo: false)
-            .whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
+
+        if !query.includesDeleted {
+            collection = collection.whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
+        }
 
         switch query.sortTarget {
         case .dueDate:
@@ -371,7 +375,7 @@ private extension TodoService {
                 .order(by: query.sortTarget.fieldName, descending: query.sortOrder.isDescending)
                 .order(by: "updatedAt", descending: true)
                 .order(by: FieldPath.documentID())
-        case .createdAt, .updatedAt:
+        case .createdAt, .completedAt, .deletedAt, .updatedAt:
             return collection
                 .order(by: query.sortTarget.fieldName, descending: query.sortOrder.isDescending)
                 .order(by: FieldPath.documentID())
@@ -392,7 +396,7 @@ private extension TodoService {
                 Timestamp(date: sortDate),
                 cursor.documentID
             ]
-        case .createdAt, .updatedAt:
+        case .createdAt, .completedAt, .deletedAt, .updatedAt:
             return [
                 primaryValue,
                 cursor.documentID
@@ -423,7 +427,7 @@ private extension TodoService {
                 return nil
             }
             secondarySortDate = updatedAt.dateValue()
-        case .createdAt, .updatedAt:
+        case .createdAt, .completedAt, .deletedAt, .updatedAt:
             secondarySortDate = nil
         }
 
@@ -435,8 +439,7 @@ private extension TodoService {
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
-        if (snapshot.data()[TodoFieldKey.isDeleting.rawValue] as? Bool) != false ||
-            !(snapshot.data()[TodoFieldKey.deletedAt.rawValue] is NSNull) {
+        if (snapshot.data()[TodoFieldKey.isDeleting.rawValue] as? Bool) != false {
             return nil
         }
         return makeResponse(documentID: snapshot.documentID, data: snapshot.data())
@@ -450,8 +453,7 @@ private extension TodoService {
     }
 
     func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
-        if (data[TodoFieldKey.isDeleting.rawValue] as? Bool) != false ||
-            !(data[TodoFieldKey.deletedAt.rawValue] is NSNull) {
+        if (data[TodoFieldKey.isDeleting.rawValue] as? Bool) != false {
             return nil
         }
         guard

@@ -1,5 +1,5 @@
 //
-//  ProfileSelectedDayActivity.swift
+//  ProfileActivityItem.swift
 //  DevLog
 //
 //  Created by opfic on 3/2/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProfileSelectedDayActivity: Identifiable, Hashable, Comparable {
+struct ProfileActivityItem: Identifiable, Hashable, Comparable {
     var id: String { todoId }
     let todoId: String
     let title: String
@@ -26,7 +26,17 @@ struct ProfileSelectedDayActivity: Identifiable, Hashable, Comparable {
         }
     }
 
-    static func < (lhs: ProfileSelectedDayActivity, rhs: ProfileSelectedDayActivity) -> Bool {
+    init?(todo: Todo, activityKinds: [ActivityKind]) {
+        guard let number = todo.number else { return nil }
+        self.todoId = todo.id
+        self.title = todo.title
+        self.number = number
+        self.category = todo.category
+        self.activityKinds = activityKinds
+        self.isDeleted = todo.deletedAt != nil
+    }
+
+    static func < (lhs: ProfileActivityItem, rhs: ProfileActivityItem) -> Bool {
         lhs.number < rhs.number
     }
 }

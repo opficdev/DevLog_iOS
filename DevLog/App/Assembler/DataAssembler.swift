@@ -33,12 +33,6 @@ final class DataAssembler: Assembler {
             )
         }
 
-        container.register(DailyActivityRepository.self) {
-            DailyActivityRepositoryImpl(
-                dailyActivityService: container.resolve(DailyActivityService.self)
-            )
-        }
-
         container.register(TodoCategoryRepository.self) {
             TodoCategoryRepositoryImpl(
                 todoCategoryService: container.resolve(TodoCategoryService.self)

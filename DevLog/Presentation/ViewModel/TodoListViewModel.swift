@@ -453,6 +453,10 @@ extension TodoQuery.SortTarget {
         switch self {
         case .createdAt:
             return String(localized: "todo_sort_created")
+        case .completedAt:
+            return String(localized: "profile_activity_completed")
+        case .deletedAt:
+            return String(localized: "profile_activity_deleted")
         case .updatedAt:
             return String(localized: "todo_sort_updated")
         case .dueDate:

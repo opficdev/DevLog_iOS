@@ -10,6 +10,8 @@ import Foundation
 struct TodoQuery: Equatable {
     enum SortTarget: Equatable, Hashable {
         case createdAt
+        case completedAt
+        case deletedAt
         case updatedAt
         case dueDate
 
@@ -17,6 +19,10 @@ struct TodoQuery: Equatable {
             switch self {
             case .createdAt:
                 return "createdAt"
+            case .completedAt:
+                return "completedAt"
+            case .deletedAt:
+                return "deletedAt"
             case .updatedAt:
                 return "updatedAt"
             case .dueDate:
@@ -62,8 +68,9 @@ struct TodoQuery: Equatable {
     var isPinned: Bool?
     var completionFilter: CompletionFilter
     var dueDateFilter: DueDateFilter
-    var createdAtFrom: Date?
-    var createdAtTo: Date?
+    var sortDateFrom: Date?
+    var sortDateTo: Date?
+    var includesDeleted: Bool
     var sortTarget: SortTarget
     var sortOrder: SortOrder
     var pageSize: Int
@@ -75,8 +82,9 @@ struct TodoQuery: Equatable {
         isPinned: Bool? = nil,
         completionFilter: CompletionFilter = .all,
         dueDateFilter: DueDateFilter = .all,
-        createdAtFrom: Date? = nil,
-        createdAtTo: Date? = nil,
+        sortDateFrom: Date? = nil,
+        sortDateTo: Date? = nil,
+        includesDeleted: Bool = false,
         sortTarget: SortTarget = .createdAt,
         sortOrder: SortOrder = .latest,
         pageSize: Int = 20,
@@ -87,8 +95,9 @@ struct TodoQuery: Equatable {
         self.isPinned = isPinned
         self.completionFilter = completionFilter
         self.dueDateFilter = dueDateFilter
-        self.createdAtFrom = createdAtFrom
-        self.createdAtTo = createdAtTo
+        self.sortDateFrom = sortDateFrom
+        self.sortDateTo = sortDateTo
+        self.includesDeleted = includesDeleted
         self.sortTarget = sortTarget
         self.sortOrder = sortOrder
         self.pageSize = pageSize
