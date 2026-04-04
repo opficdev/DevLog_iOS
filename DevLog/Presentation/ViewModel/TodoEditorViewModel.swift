@@ -98,8 +98,10 @@ final class TodoEditorViewModel: Store {
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
+    private let isDeleting: Bool
     private let number: Int?
     private let createdAt: Date?
+    private let deletedAt: Date?
     private let originalDraft: Draft?
 
     var navigationTitle: String {
@@ -133,8 +135,10 @@ final class TodoEditorViewModel: Store {
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
+        self.isDeleting = false
         self.number = nil
         self.createdAt = nil
+        self.deletedAt = nil
         self.originalDraft = nil
         state.category = TodoCategoryItem(from: category)
         state.categories = [TodoCategoryItem(from: category)]
@@ -151,8 +155,10 @@ final class TodoEditorViewModel: Store {
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
+        self.isDeleting = todo.isDeleting
         self.number = todo.number
         self.createdAt = todo.createdAt
+        self.deletedAt = todo.deletedAt
         self.originalDraft = Draft(todo: todo)
         state.isCompleted = todo.isCompleted
         state.completedAt = todo.completedAt
@@ -272,12 +278,14 @@ extension TodoEditorViewModel {
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
+            isDeleting: self.isDeleting,
             number: self.number,
             title: state.title,
             content: state.content,
             createdAt: self.createdAt ?? date,
             updatedAt: date,
             completedAt: state.completedAt,
+            deletedAt: self.deletedAt,
             dueDate: state.dueDate,
             tags: state.tags.map { $0 },
             category: state.category.category
