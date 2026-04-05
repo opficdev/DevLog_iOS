@@ -24,7 +24,6 @@ export const compactSoftDeletedTodos = onSchedule({
             while (true) {
                 let query = admin.firestore()
                     .collectionGroup("todoLists")
-                    .where("compactedAt", "==", null)
                     .where("deletedAt", "<=", admin.firestore.Timestamp.fromDate(cutoff))
                     .orderBy("deletedAt")
                     .orderBy(admin.firestore.FieldPath.documentId())
@@ -38,6 +37,9 @@ export const compactSoftDeletedTodos = onSchedule({
 
                 const batch = admin.firestore().batch();
                 snapshot.docs.forEach((document) => {
+                    if (document.data()?.compactedAt) {
+                        return;
+                    }
                     batch.update(document.ref, {
                         compactedAt: admin.firestore.FieldValue.serverTimestamp(),
                         content: admin.firestore.FieldValue.delete(),
@@ -61,7 +63,7 @@ export const compactSoftDeletedTodos = onSchedule({
                 toError(error),
                 {
                     collectionGroup: "todoLists",
-                    filter: `compactedAt == null && deletedAt <= now - ${TOMBSTONE_GRACE_PERIOD_HOURS}h`,
+                    filter: `deletedAt <= now - ${TOMBSTONE_GRACE_PERIOD_HOURS}h`,
                     orderBy: ["deletedAt", "documentId"],
                     cleanupBatchSize: CLEANUP_BATCH_SIZE
                 }
