@@ -33,6 +33,10 @@ import {
 } from "./fcm/schedule";
 
 import {
+    compactSoftDeletedTodos
+} from "./todo/cleanup";
+
+import {
     syncTodoNotificationCategory
 } from "./todo/update";
 
@@ -109,6 +113,7 @@ export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
     cleanupNotificationDispatches,
+    compactSoftDeletedTodos,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,
