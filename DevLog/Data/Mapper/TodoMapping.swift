@@ -12,13 +12,12 @@ extension TodoRequest {
             isPinned: entity.isPinned,
             isCompleted: entity.isCompleted,
             isChecked: entity.isChecked,
-            isDeleted: false,
-            number: entity.number,
             title: entity.title,
             content: entity.content,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
             completedAt: entity.completedAt,
+            deletedAt: entity.deletedAt,
             dueDate: entity.dueDate,
             tags: entity.tags,
             category: entity.category.storageValue
@@ -48,6 +47,7 @@ extension TodoResponse {
             createdAt: self.createdAt,
             updatedAt: self.updatedAt,
             completedAt: self.completedAt,
+            deletedAt: self.deletedAt,
             dueDate: self.dueDate,
             tags: self.tags,
             category: todoCategory

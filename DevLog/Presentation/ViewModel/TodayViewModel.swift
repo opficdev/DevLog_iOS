@@ -215,8 +215,8 @@ final class TodayViewModel: Store {
                         ),
                         cursor: nil
                     )
-                    let todosWithDueDate = try await todosWithDueDatePage.items.map { TodayTodoItem(from: $0) }
-                    let todosWithoutDueDate = try await todosWithoutDueDatePage.items.map { TodayTodoItem(from: $0) }
+                    let todosWithDueDate = try await todosWithDueDatePage.items.compactMap { TodayTodoItem(from: $0) }
+                    let todosWithoutDueDate = try await todosWithoutDueDatePage.items.compactMap { TodayTodoItem(from: $0) }
                     send(.fetchTodos(todosWithDueDate + todosWithoutDueDate))
                 } catch {
                     send(.setAlert(true))
@@ -247,7 +247,11 @@ final class TodayViewModel: Store {
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
-                    send(.updateTodo(TodayTodoItem(from: todo)))
+                    guard let todayTodoItem = TodayTodoItem(from: todo) else {
+                        send(.setAlert(true))
+                        return
+                    }
+                    send(.updateTodo(todayTodoItem))
                 } catch {
                     send(.setAlert(true))
                 }

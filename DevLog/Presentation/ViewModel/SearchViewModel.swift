@@ -138,7 +138,7 @@ final class SearchViewModel: Store {
                     defer { send(.setLoading(false)) }
                     async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
                     async let webPages = fetchWebPagesUseCase.execute(query)
-                    let todoItems = try await todos.items.map { TodoListItem(from: $0) }
+                    let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
                     let webPageItems = try await webPages.map { WebPageItem(from: $0) }
                     send(.fetchTodos(todoItems))
                     send(.fetchWebPage(webPageItems))

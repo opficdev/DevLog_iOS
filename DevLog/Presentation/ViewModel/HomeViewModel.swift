@@ -185,7 +185,7 @@ final class HomeViewModel: Store {
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
                         .prefix(5)
-                        .map { RecentTodoItem(from: $0) }
+                        .compactMap { RecentTodoItem(from: $0) }
                     send(.updateRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
@@ -200,7 +200,7 @@ final class HomeViewModel: Store {
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
                         .prefix(5)
-                        .map { RecentTodoItem(from: $0) }
+                        .compactMap { RecentTodoItem(from: $0) }
                     send(.updateRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))

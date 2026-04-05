@@ -12,13 +12,12 @@ struct TodoRequest: Encodable {
     let isPinned: Bool
     let isCompleted: Bool
     let isChecked: Bool
-    let isDeleted: Bool
-    let number: Int?
     let title: String
     let content: String
     let createdAt: Date
     let updatedAt: Date
     let completedAt: Date?
+    let deletedAt: Date?
     let dueDate: Date?
     let tags: [String]
     let category: String
@@ -35,6 +34,7 @@ struct TodoResponse {
     let createdAt: Date
     let updatedAt: Date
     let completedAt: Date?
+    let deletedAt: Date?
     let dueDate: Date?
     let tags: [String]
     let category: TodoCategoryResponse

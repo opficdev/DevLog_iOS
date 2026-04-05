@@ -11,7 +11,8 @@ extension UserProfileResponse {
             name: self.name,
             email: self.email,
             statusMessage: self.statusMessage,
-            avatarURL: self.avatarURL
+            avatarURL: self.avatarURL,
+            createdAt: self.createdAt
         )
     }
 }

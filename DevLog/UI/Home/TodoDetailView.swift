@@ -14,12 +14,12 @@ struct TodoDetailView: View {
     var body: some View {
         ZStack {
             Color(.secondarySystemBackground).ignoresSafeArea()
-            if let todo = viewModel.state.todo {
+            if let todo = viewModel.state.todo, let number = todo.number {
                 TodoDetailContentView(
                     title: todo.title,
                     content: todo.content,
                     referenceItems: viewModel.state.referenceItems,
-                    number: todo.number,
+                    number: number,
                     onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                 )
             } else if viewModel.state.isLoading {

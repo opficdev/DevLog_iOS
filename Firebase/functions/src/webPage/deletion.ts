@@ -129,10 +129,10 @@ export const undoWebPageDeletion = onCall({
 );
 
 export const completeWebPageDeletion = onTaskDispatched({
-        maxInstances: 1,
+        maxInstances: 5,
         region: LOCATION,
         retryConfig: { maxAttempts: 3, minBackoffSeconds: 5 },
-        rateLimits: { maxDispatchesPerSecond: 200 },
+        rateLimits: { maxDispatchesPerSecond: 5 },
     },
     async (request) => {
         const payload = parseDeletionPayload(request.data);

@@ -33,7 +33,7 @@ import {
 } from "./fcm/schedule";
 
 import {
-    cleanupSoftDeletedTodos
+    compactSoftDeletedTodos
 } from "./todo/cleanup";
 
 import {
@@ -47,8 +47,7 @@ import {
 
 import {
     requestTodoDeletion,
-    undoTodoDeletion,
-    completeTodoDeletion
+    undoTodoDeletion
 } from "./todo/deletion";
 
 import {
@@ -113,14 +112,13 @@ export {
 export {
     removeTodoNotificationDocuments,
     removeCompletedTodoNotificationRecords,
-    cleanupSoftDeletedTodos,
     cleanupNotificationDispatches,
+    compactSoftDeletedTodos,
     syncTodoNotificationCategory,
     requestMoveRemovedCategoryTodosToEtc,
     completeMoveRemovedCategoryTodosToEtc,
     requestTodoDeletion,
     undoTodoDeletion,
-    completeTodoDeletion,
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
     completePushNotificationDeletion,

@@ -148,7 +148,7 @@ final class TodoListViewModel: Store {
                     defer { endLoading(.immediate) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nil)
                     send(.resetPagination)
-                    send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
+                    send(.appendTodos(page.items.compactMap { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
                 } catch {
@@ -161,7 +161,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { endLoading(.immediate) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nextCursor)
-                    send(.appendTodos(page.items.map { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
+                    send(.appendTodos(page.items.compactMap { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
                     send(.setHasMore(hasMore))
                 } catch {
@@ -175,7 +175,7 @@ final class TodoListViewModel: Store {
                     defer { endLoading(.immediate) }
                     let query = TodoQuery(category: state.category, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
-                    send(.fetchSearchResults(page.items.map { TodoListItem(from: $0) }))
+                    send(.fetchSearchResults(page.items.compactMap { TodoListItem(from: $0) }))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -202,7 +202,11 @@ final class TodoListViewModel: Store {
                     todo.completedAt = todo.isCompleted ? now : nil
                     todo.updatedAt = now
                     try await upsertTodoUseCase.execute(todo)
-                    send(.didToggleCompleted(TodoListItem(from: todo)))
+                    guard let todoListItem = TodoListItem(from: todo) else {
+                        send(.setAlert(true))
+                        return
+                    }
+                    send(.didToggleCompleted(todoListItem))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -216,7 +220,11 @@ final class TodoListViewModel: Store {
                     todo.isPinned.toggle()
                     todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
-                    send(.didTogglePinned(TodoListItem(from: todo)))
+                    guard let todoListItem = TodoListItem(from: todo) else {
+                        send(.setAlert(true))
+                        return
+                    }
+                    send(.didTogglePinned(todoListItem))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -445,6 +453,10 @@ extension TodoQuery.SortTarget {
         switch self {
         case .createdAt:
             return String(localized: "todo_sort_created")
+        case .completedAt:
+            return String(localized: "profile_activity_completed")
+        case .deletedAt:
+            return String(localized: "profile_activity_deleted")
         case .updatedAt:
             return String(localized: "todo_sort_updated")
         case .dueDate:

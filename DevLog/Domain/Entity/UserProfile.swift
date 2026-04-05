@@ -12,4 +12,5 @@ struct UserProfile {
     let email: String
     let statusMessage: String
     let avatarURL: URL?
+    let createdAt: Date
 }

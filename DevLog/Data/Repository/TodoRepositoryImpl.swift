@@ -135,6 +135,7 @@ private extension TodoRepositoryImpl {
             createdAt: response.createdAt,
             updatedAt: response.updatedAt,
             completedAt: response.completedAt,
+            deletedAt: response.deletedAt,
             dueDate: response.dueDate,
             tags: response.tags,
             category: .decoded(category)

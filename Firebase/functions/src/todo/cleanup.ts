@@ -4,16 +4,19 @@ import * as logger from "firebase-functions/logger";
 import { toError } from "../common/error";
 
 const LOCATION = "asia-northeast3";
-const QUERY_BATCH_SIZE = 100;
+const CLEANUP_BATCH_SIZE = 200;
+const TOMBSTONE_GRACE_PERIOD_HOURS = 24;
 
-// soft delete Todo 문서의 실제 삭제
-export const cleanupSoftDeletedTodos = onSchedule({
+// 삭제 후 유예 기간이 지난 todo를 표시용 최소 필드만 남는 축약 문서 형태로 압축
+export const compactSoftDeletedTodos = onSchedule({
         maxInstances: 1,
         region: LOCATION,
-        schedule: "0 0 * * *",
-        timeZone: "UTC"
+        schedule: "0 9 * * *",
+        timeZone: "Asia/Seoul"
     },
     async () => {
+        const cutoff = new Date(Date.now() - (TOMBSTONE_GRACE_PERIOD_HOURS * 60 * 60 * 1000));
+
         try {
             let lastDocument:
                 FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined;
@@ -21,9 +24,10 @@ export const cleanupSoftDeletedTodos = onSchedule({
             while (true) {
                 let query = admin.firestore()
                     .collectionGroup("todoLists")
-                    .where("isDeleted", "==", true)
+                    .where("deletedAt", "<=", admin.firestore.Timestamp.fromDate(cutoff))
+                    .orderBy("deletedAt")
                     .orderBy(admin.firestore.FieldPath.documentId())
-                    .limit(QUERY_BATCH_SIZE)
+                    .limit(CLEANUP_BATCH_SIZE);
                 if (lastDocument) {
                     query = query.startAfter(lastDocument);
                 }
@@ -33,22 +37,35 @@ export const cleanupSoftDeletedTodos = onSchedule({
 
                 const batch = admin.firestore().batch();
                 snapshot.docs.forEach((document) => {
-                    batch.delete(document.ref);
+                    if (document.data()?.compactedAt) {
+                        return;
+                    }
+                    batch.update(document.ref, {
+                        compactedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        content: admin.firestore.FieldValue.delete(),
+                        dueDate: admin.firestore.FieldValue.delete(),
+                        isChecked: admin.firestore.FieldValue.delete(),
+                        isCompleted: admin.firestore.FieldValue.delete(),
+                        isDeleting: admin.firestore.FieldValue.delete(),
+                        isPinned: admin.firestore.FieldValue.delete(),
+                        isDeleted: admin.firestore.FieldValue.delete(),
+                        tags: admin.firestore.FieldValue.delete()
+                    });
                 });
                 await batch.commit();
 
-                if (snapshot.size < QUERY_BATCH_SIZE) { return; }
+                if (snapshot.size < CLEANUP_BATCH_SIZE) { return; }
                 lastDocument = snapshot.docs[snapshot.docs.length - 1];
             }
         } catch (error) {
             logger.error(
-                "soft delete Todo cleanup 실패",
+                "soft deleted todo 축약 문서 압축 실패",
                 toError(error),
                 {
                     collectionGroup: "todoLists",
-                    filter: "isDeleted == true",
-                    orderBy: "documentId",
-                    queryBatchSize: QUERY_BATCH_SIZE
+                    filter: `deletedAt <= now - ${TOMBSTONE_GRACE_PERIOD_HOURS}h`,
+                    orderBy: ["deletedAt", "documentId"],
+                    cleanupBatchSize: CLEANUP_BATCH_SIZE
                 }
             );
         }
