@@ -596,25 +596,6 @@ private extension ProfileViewModel {
         return orderedActivityKinds.filter { activityKinds.contains($0) }
     }
 
-    func dayKey(from date: Date) -> String {
-        date.formatted(
-            Date.ISO8601FormatStyle(timeZone: calendar.timeZone)
-                .year()
-                .month()
-                .day()
-        )
-    }
-
-    func date(from dayKey: String) -> Date? {
-        try? Date(
-            dayKey,
-            strategy: Date.ISO8601FormatStyle(timeZone: calendar.timeZone)
-                .year()
-                .month()
-                .day()
-        )
-    }
-
     func beginLoading(mode: LoadingState.Mode) {
         loadingState.begin(mode: mode) { [weak self] isLoading in
             self?.send(.setLoading(isLoading))
