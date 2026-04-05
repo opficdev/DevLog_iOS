@@ -447,15 +447,10 @@ private extension TodoService {
 
     func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
         guard
-            let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool,
-            let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool,
-            let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool,
             let number = data[TodoFieldKey.number.rawValue] as? Int,
             let title = data[TodoFieldKey.title.rawValue] as? String,
-            let content = data[TodoFieldKey.content.rawValue] as? String,
             let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
             let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
-            let tags = data[TodoFieldKey.tags.rawValue] as? [String],
             let category = data[TodoFieldKey.category.rawValue] as? String else {
             return nil
         }
@@ -463,6 +458,13 @@ private extension TodoService {
         let completedAt = (data[TodoFieldKey.completedAt.rawValue] as? Timestamp)?.dateValue()
         let deletedAt = (data[TodoFieldKey.deletedAt.rawValue] as? Timestamp)?.dateValue()
         let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
+
+        let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool ?? false
+        let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool ?? (completedAt != nil)
+        let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool ?? false
+        let content = data[TodoFieldKey.content.rawValue] as? String ?? ""
+        let tags = data[TodoFieldKey.tags.rawValue] as? [String] ?? []
+
         return TodoResponse(
             id: documentID,
             isPinned: isPinned,
