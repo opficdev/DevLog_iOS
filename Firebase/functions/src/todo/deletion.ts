@@ -51,7 +51,7 @@ export const requestTodoDeletion = onCall({
 
             if (currentTodoSnapshot.exists && !currentTodoSnapshot.data()?.deletedAt) {
                 await todoRef.update({
-                    deletedAt: admin.firestore.FieldValue.delete(),
+                    deletedAt: null,
                     isDeleting: admin.firestore.FieldValue.delete(),
                     isDeleted: admin.firestore.FieldValue.delete()
                 });
@@ -100,7 +100,7 @@ export const undoTodoDeletion = onCall({
 
             if (todoSnapshot.exists && !!todoSnapshot.data()?.deletedAt) {
                 await todoRef.update({
-                    deletedAt: admin.firestore.FieldValue.delete(),
+                    deletedAt: null,
                     isDeleting: admin.firestore.FieldValue.delete(),
                     isDeleted: admin.firestore.FieldValue.delete()
                 });
