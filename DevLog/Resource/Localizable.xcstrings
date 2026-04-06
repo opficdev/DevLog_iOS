@@ -1495,13 +1495,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search"
+            "value" : "Search (e.g. #123)"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "검색"
+            "value" : "검색 (예: #123)"
           }
         }
       }
@@ -2950,13 +2950,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search %1$@"
+            "value" : "Search %1$@ (e.g. #123)"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ 검색"
+            "value" : "%1$@ 검색 (예: #123)"
           }
         }
       }
