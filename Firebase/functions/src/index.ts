@@ -52,8 +52,7 @@ import {
 
 import {
     requestPushNotificationDeletion,
-    undoPushNotificationDeletion,
-    completePushNotificationDeletion
+    undoPushNotificationDeletion
 } from "./notification/deletion";
 
 import {
@@ -65,8 +64,7 @@ import {
 
 import {
     requestWebPageDeletion,
-    undoWebPageDeletion,
-    completeWebPageDeletion
+    undoWebPageDeletion
 } from "./webPage/deletion";
 
 import {
@@ -121,10 +119,8 @@ export {
     undoTodoDeletion,
     requestPushNotificationDeletion,
     undoPushNotificationDeletion,
-    completePushNotificationDeletion,
     cleanupSoftDeletedNotifications,
     requestWebPageDeletion,
     undoWebPageDeletion,
-    completeWebPageDeletion,
     cleanupSoftDeletedWebPages
 };
