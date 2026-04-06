@@ -13,6 +13,7 @@ struct PushNotificationListView: View {
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
+    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
 
@@ -27,14 +28,7 @@ struct PushNotificationListView: View {
             }
             .safeAreaInset(edge: .top) { safeAreaHeader }
             .background(Color(.secondarySystemBackground))
-            .onAppear {
-                viewModel.send(.fetchNotifications)
-                headerOffset = 0
-                isScrollTrackingEnabled = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    isScrollTrackingEnabled = true
-                }
-            }
+            .onAppear { viewModel.send(.fetchNotifications) }
             .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle(String(localized: "nav_push_notifications"))
             .alert(
@@ -135,7 +129,6 @@ struct PushNotificationListView: View {
     private var safeAreaHeader: some View {
         VStack(spacing: 4) {
             headerView
-                .clipped()
             if #unavailable(iOS 26) {
                 Divider()
                     .padding(.horizontal, -16)
@@ -162,6 +155,14 @@ struct PushNotificationListView: View {
                 headerContent
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(height: headerHeight)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
             }
         }
     }
@@ -191,7 +192,9 @@ struct PushNotificationListView: View {
             }
 
             Button {
-                viewModel.send(.toggleSortOption)
+                DispatchQueue.main.async {
+                    viewModel.send(.toggleSortOption)
+                }
             } label: {
                 let condition = viewModel.state.query.sortOrder == .oldest
                 Text(
@@ -200,8 +203,8 @@ struct PushNotificationListView: View {
                         viewModel.state.query.sortOrder.title
                     )
                 )
-                    .foregroundStyle(condition ? .white : Color(.label))
-                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                .foregroundStyle(condition ? .white : Color(.label))
+                .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
 
             Menu {
@@ -226,7 +229,9 @@ struct PushNotificationListView: View {
             }
 
             Button {
-                viewModel.send(.toggleUnreadOnly)
+                DispatchQueue.main.async {
+                    viewModel.send(.toggleUnreadOnly)
+                }
             } label: {
                 let condition = viewModel.state.query.unreadOnly
                 Text(String(localized: "push_unread"))
@@ -234,7 +239,6 @@ struct PushNotificationListView: View {
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
         }
-        .frame(height: 36)
     }
 
     private var filterBadge: some View {

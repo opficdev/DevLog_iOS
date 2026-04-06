@@ -12,6 +12,7 @@ struct TodoListView: View {
     @Environment(NavigationRouter.self) var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
+    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
 
@@ -322,7 +323,7 @@ struct TodoListView: View {
         .scrollIndicators(.never)
         .scrollDisabled(!isScrollTrackingEnabled)
         .contentMargins(.leading, 16, for: .scrollContent)
-        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight.rounded(.up) + 20)
+        .frame(height: headerHeight)
         .onAppear {
             headerOffset = 0
             isScrollTrackingEnabled = false
