@@ -61,9 +61,7 @@ struct SearchView: View {
     @ViewBuilder
     private var searchableContent: some View {
         Group {
-            if viewModel.state.isLoading {
-                LoadingView()
-            } else if viewModel.state.searchQuery.isEmpty {
+            if viewModel.state.searchQuery.isEmpty {
                 if viewModel.state.recentQueries.isEmpty {
                     searchInstruction
                 } else {
@@ -71,6 +69,8 @@ struct SearchView: View {
                         recentQueries
                     }
                 }
+            } else if viewModel.state.isLoading {
+                LoadingView()
             } else if viewModel.state.webPages.isEmpty && viewModel.state.todos.isEmpty {
                 emptySearchResult
             } else {

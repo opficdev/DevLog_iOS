@@ -107,6 +107,7 @@ final class SearchViewModel: Store {
                 cancelDebounce()
                 state.webPages = []
                 state.todos = []
+                state.isLoading = false
             } else {
                 state.isLoading = true
                 scheduleDebouncedQuery(query)
