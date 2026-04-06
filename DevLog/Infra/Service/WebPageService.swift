@@ -125,9 +125,6 @@ final class WebPageService {
 private extension WebPageService {
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
         let data = snapshot.data()
-        if data[WebPageFieldKey.deletingAt.rawValue] is Timestamp {
-            return nil
-        }
         guard
             (data[WebPageFieldKey.isDeleted.rawValue] as? Bool) != true,
             let title = data[WebPageFieldKey.title.rawValue] as? String,
@@ -151,7 +148,6 @@ private extension WebPageService {
         case url
         case displayURL
         case imageURL
-        case deletingAt // 삭제 요청으로 앱의 로컬 데이터에서 deletion이 된 상태
         case isDeleted  // 삭제 요청으로 서버에서 soft deletion이 된 상태
     }
 }

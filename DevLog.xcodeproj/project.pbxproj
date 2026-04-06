@@ -20,7 +20,18 @@
 		DFF2DACE2EDC02AD00778738 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DFF2DACD2EDC02AD00778738 /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DF34164B2E45F67C00F9312B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DFD48AF82DC4D6E2005905C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DFD48AFF2DC4D6E2005905C5;
+			remoteInfo = DevLog;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLog_Unit.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD6453F2EC827A10073E133 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		DFD74E2E2E423EA700613803 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -38,6 +49,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		DF34164A2E45F67C00F9312B /* DevLog_Unit */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DevLog_Unit;
+			sourceTree = "<group>";
+		};
 		DF8AB7982E938B0B00E50BBF /* DevLog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -49,6 +65,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		DF3416472E45F67C00F9312B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DFD48AFD2DC4D6E2005905C5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -73,6 +96,7 @@
 			children = (
 				DFD6453F2EC827A10073E133 /* .gitignore */,
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
+				DF34164A2E45F67C00F9312B /* DevLog_Unit */,
 				DFD74E2E2E423EA700613803 /* README.md */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
@@ -82,6 +106,7 @@
 		DFD48B012DC4D6E2005905C5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */,
 				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
 			);
 			name = Products;
@@ -97,6 +122,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		DF3416442E45F67C00F9312B /* DevLog_Unit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */;
+			buildPhases = (
+				DF3416462E45F67C00F9312B /* Sources */,
+				DF3416472E45F67C00F9312B /* Frameworks */,
+				DF3416482E45F67C00F9312B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DF34164C2E45F67C00F9312B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DF34164A2E45F67C00F9312B /* DevLog_Unit */,
+			);
+			name = DevLog_Unit;
+			packageProductDependencies = (
+			);
+			productName = DevLog_Unit;
+			productReference = DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DFD48AFF2DC4D6E2005905C5 /* DevLog */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DFD48B112DC4D6E4005905C5 /* Build configuration list for PBXNativeTarget "DevLog" */;
@@ -139,6 +187,10 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					DF3416442E45F67C00F9312B = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = DFD48AFF2DC4D6E2005905C5;
+					};
 					DFD48AFF2DC4D6E2005905C5 = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -165,12 +217,20 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				DF3416442E45F67C00F9312B /* DevLog_Unit */,
 				DFD48AFF2DC4D6E2005905C5 /* DevLog */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		DF3416482E45F67C00F9312B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DFD48AFE2DC4D6E2005905C5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -183,6 +243,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		DF3416462E45F67C00F9312B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DFD48AFC2DC4D6E2005905C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -193,6 +260,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		DF34164C2E45F67C00F9312B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
+			targetProxy = DF34164B2E45F67C00F9312B /* PBXContainerItemProxy */;
+		};
 		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
@@ -200,6 +272,56 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		DF34164D2E45F67C00F9312B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4CPC6N38WA;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog_Unit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog";
+				TEST_TARGET_NAME = DevLog;
+			};
+			name = Debug;
+		};
+		DF34164E2E45F67C00F9312B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4CPC6N38WA;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog_Unit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog";
+				TEST_TARGET_NAME = DevLog;
+			};
+			name = Release;
+		};
 		DFD48B122DC4D6E4005905C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* DevLog */;
@@ -426,6 +548,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF34164D2E45F67C00F9312B /* Debug */,
+				DF34164E2E45F67C00F9312B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DFD48AFB2DC4D6E2005905C5 /* Build configuration list for PBXProject "DevLog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -193,9 +193,7 @@ final class PushNotificationService {
                 }
 
                 guard let snapshot else { return }
-                let unreadPushCount = snapshot.documents.filter { document in
-                    !(document.data()[PushNotificationFieldKey.deletingAt.rawValue] is Timestamp)
-                }.count
+                let unreadPushCount = snapshot.documents.count
                 subject.send(unreadPushCount)
             }
 
@@ -304,8 +302,7 @@ private extension PushNotificationService {
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
         let data = snapshot.data()
-        if data[PushNotificationFieldKey.deletingAt.rawValue] is Timestamp ||
-            (data[PushNotificationFieldKey.isDeleted.rawValue] as? Bool) == true {
+        if (data[PushNotificationFieldKey.isDeleted.rawValue] as? Bool) == true {
             return nil
         }
         guard
@@ -336,7 +333,6 @@ private extension PushNotificationService {
         case isRead
         case todoId
         case todoCategory
-        case deletingAt // 삭제 요청으로 앱의 로컬 데이터에서 deletion이 된 상태
         case isDeleted  // 삭제 요청으로 서버에서 soft deletion이 된 상태
     }
 }
