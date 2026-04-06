@@ -27,14 +27,7 @@ struct PushNotificationListView: View {
             }
             .safeAreaInset(edge: .top) { safeAreaHeader }
             .background(Color(.secondarySystemBackground))
-            .onAppear {
-                viewModel.send(.fetchNotifications)
-                headerOffset = 0
-                isScrollTrackingEnabled = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    isScrollTrackingEnabled = true
-                }
-            }
+            .onAppear { viewModel.send(.fetchNotifications) }
             .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle(String(localized: "nav_push_notifications"))
             .alert(
@@ -135,7 +128,6 @@ struct PushNotificationListView: View {
     private var safeAreaHeader: some View {
         VStack(spacing: 4) {
             headerView
-                .clipped()
             if #unavailable(iOS 26) {
                 Divider()
                     .padding(.horizontal, -16)
@@ -162,6 +154,14 @@ struct PushNotificationListView: View {
                 headerContent
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight.rounded(.up) + 20)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
             }
         }
     }
@@ -234,7 +234,6 @@ struct PushNotificationListView: View {
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
         }
-        .frame(height: 36)
     }
 
     private var filterBadge: some View {
