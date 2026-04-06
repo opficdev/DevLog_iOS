@@ -107,6 +107,7 @@ final class SearchViewModel: Store {
                 cancelDebounce()
                 state.webPages = []
                 state.todos = []
+                state.isLoading = false
             } else {
                 state.isLoading = true
                 scheduleDebouncedQuery(query)
@@ -136,12 +137,16 @@ final class SearchViewModel: Store {
                 do {
                     send(.setLoading(true))
                     defer { send(.setLoading(false)) }
+                    let searchesTodoOnly = searchesTodoOnly(query)
                     async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
-                    async let webPages = fetchWebPagesUseCase.execute(query)
+                    async let webPageItems = fetchWebPageItems(
+                        query: query,
+                        searchesTodoOnly: searchesTodoOnly
+                    )
                     let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
-                    let webPageItems = try await webPages.map { WebPageItem(from: $0) }
+                    let resolvedWebPageItems = try await webPageItems
                     send(.fetchTodos(todoItems))
-                    send(.fetchWebPage(webPageItems))
+                    send(.fetchWebPage(resolvedWebPageItems))
                 } catch {
                     send(.setAlert(true))
                 }
@@ -175,6 +180,22 @@ private extension SearchViewModel {
     func cancelDebounce() {
         searchDebounceTask?.cancel()
         searchDebounceTask = nil
+    }
+
+    func searchesTodoOnly(_ query: String) -> Bool {
+        query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
+    }
+
+    func fetchWebPageItems(
+        query: String,
+        searchesTodoOnly: Bool
+    ) async throws -> [WebPageItem] {
+        if searchesTodoOnly {
+            return []
+        }
+
+        let webPages = try await fetchWebPagesUseCase.execute(query)
+        return webPages.map { WebPageItem(from: $0) }
     }
 
     func saveRecentQueries(_ queries: OrderedSet<String>) {
