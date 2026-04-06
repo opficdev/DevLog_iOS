@@ -191,7 +191,9 @@ struct PushNotificationListView: View {
             }
 
             Button {
-                viewModel.send(.toggleSortOption)
+                DispatchQueue.main.async {
+                    viewModel.send(.toggleSortOption)
+                }
             } label: {
                 let condition = viewModel.state.query.sortOrder == .oldest
                 Text(
@@ -200,8 +202,8 @@ struct PushNotificationListView: View {
                         viewModel.state.query.sortOrder.title
                     )
                 )
-                    .foregroundStyle(condition ? .white : Color(.label))
-                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                .foregroundStyle(condition ? .white : Color(.label))
+                .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
 
             Menu {
@@ -226,7 +228,9 @@ struct PushNotificationListView: View {
             }
 
             Button {
-                viewModel.send(.toggleUnreadOnly)
+                DispatchQueue.main.async {
+                    viewModel.send(.toggleUnreadOnly)
+                }
             } label: {
                 let condition = viewModel.state.query.unreadOnly
                 Text(String(localized: "push_unread"))
