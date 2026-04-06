@@ -344,7 +344,7 @@ private extension LocalFirebaseRESTSupport {
     }
 
     func timestampValue(_ value: Date) -> [String: Any] {
-        ["timestampValue": ISO8601DateFormatter().string(from: value)]
+        ["timestampValue": value.formatted(.iso8601)]
     }
 
     func boolValue(
