@@ -10,8 +10,8 @@ import Foundation
 
 @Suite(.serialized)
 struct DeletePushNotificationIntegrationTests {
-    @Test("푸시 알림 삭제를 되돌리면 목록에 다시 보인다")
-    func 푸시_알림_삭제를_되돌리면_목록에_다시_보인다() async throws {
+    @Test("푸시 알림 삭제를 되돌리면 목록에 보인다")
+    func 푸시_알림_삭제를_되돌리면_목록에_보인다() async throws {
         let authSession = try await LocalFirebaseRESTSupport.shared.anonymousSignIn()
         let notificationId = try await LocalFirebaseRESTSupport.shared.seedPushNotification(
             userId: authSession.userId
@@ -40,6 +40,8 @@ struct DeletePushNotificationIntegrationTests {
             )
             return visibleNotificationIds.contains(notificationId)
         }
+
+        try await Task.sleep(for: .seconds(6))
 
         let visibleNotificationIds = try await LocalFirebaseRESTSupport.shared.fetchPushNotificationIDs(
             userId: authSession.userId

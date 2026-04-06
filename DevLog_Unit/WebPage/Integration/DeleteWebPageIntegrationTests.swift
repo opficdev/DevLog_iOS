@@ -10,8 +10,8 @@ import Foundation
 
 @Suite(.serialized)
 struct DeleteWebPageIntegrationTests {
-    @Test("웹페이지 삭제를 되돌리면 목록에 다시 보인다")
-    func 웹페이지_삭제를_되돌리면_목록에_다시_보인다() async throws {
+    @Test("웹페이지 삭제를 되돌리면 목록에 보인다")
+    func 웹페이지_삭제를_되돌리면_목록에_보인다() async throws {
         let authSession = try await LocalFirebaseRESTSupport.shared.anonymousSignIn()
         let seededWebPage = try await LocalFirebaseRESTSupport.shared.seedWebPage(
             userId: authSession.userId
@@ -40,6 +40,8 @@ struct DeleteWebPageIntegrationTests {
             )
             return visibleWebPageURLs.contains(seededWebPage.urlString)
         }
+
+        try await Task.sleep(for: .seconds(6))
 
         let visibleWebPageURLs = try await LocalFirebaseRESTSupport.shared.fetchWebPageURLs(
             userId: authSession.userId
