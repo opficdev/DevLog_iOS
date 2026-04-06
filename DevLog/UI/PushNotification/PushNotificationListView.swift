@@ -13,6 +13,7 @@ struct PushNotificationListView: View {
     @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
+    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
 
@@ -156,7 +157,7 @@ struct PushNotificationListView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight.rounded(.up) + 20)
+        .frame(height: headerHeight)
         .onAppear {
             headerOffset = 0
             isScrollTrackingEnabled = false
