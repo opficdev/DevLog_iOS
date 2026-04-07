@@ -139,7 +139,9 @@ final class SearchViewModel: Store {
                 do {
                     defer {
                         self.searchTasks[.request] = nil
-                        self.endLoading(.immediate)
+                        if !Task.isCancelled {
+                            self.endLoading(.immediate)
+                        }
                     }
                     let searchesTodoOnly = searchesTodoOnly(query)
                     async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)

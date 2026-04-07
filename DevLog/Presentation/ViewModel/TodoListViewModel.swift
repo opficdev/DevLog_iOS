@@ -180,7 +180,9 @@ final class TodoListViewModel: Store {
                 do {
                     defer {
                         self.searchTasks[.request] = nil
-                        self.endLoading(.immediate)
+                        if !Task.isCancelled {
+                            self.endLoading(.immediate)
+                        }
                     }
                     let query = TodoQuery(category: state.category, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
