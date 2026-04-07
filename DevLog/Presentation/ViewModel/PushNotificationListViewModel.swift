@@ -118,10 +118,10 @@ final class PushNotificationListViewModel: Store {
             if cursor == nil {
                 stopObservingNotifications()
             }
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     let existingCount = cursor == nil ? 0 : self.state.notifications.count
 
                     let page = try await fetchUseCase.execute(query, cursor: cursor)
@@ -160,7 +160,7 @@ final class PushNotificationListViewModel: Store {
             beginLoading(.delayed)
             Task {
                 // endLoading(.delayed)를 defer로 두지 않는 이유
-                // send(.fetchNotifications)가 같은 턴에서 beginLoading(.immediate)를 먼저 올린 뒤
+                // send(.fetchNotifications)가 같은 턴에서 beginLoading(.delayed)를 먼저 올린 뒤
                 // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteUseCase.execute(notificationId)

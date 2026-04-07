@@ -107,10 +107,10 @@ final class PushNotificationSettingsViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchPushNotificationSettings:
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     let settings = try await fetchPushSettingsUseCase.execute()
                     self.send(.setPushNotificationEnable(settings.isEnabled))
                     if let hour = settings.scheduledTime.hour,

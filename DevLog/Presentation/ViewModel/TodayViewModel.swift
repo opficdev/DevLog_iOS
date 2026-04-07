@@ -189,10 +189,10 @@ final class TodayViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodos:
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     async let todosWithDueDatePage = fetchTodosUseCase.execute(
                         TodoQuery(
                             completionFilter: .incomplete,

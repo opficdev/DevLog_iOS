@@ -95,10 +95,10 @@ final class TodoDetailViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodo:
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     let todo = try await fetchTodoUseCase.execute(todoId)
                     send(.setTodo(todo))
                 } catch {
