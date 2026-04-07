@@ -52,7 +52,7 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
-        case setSearchQuery(String)
+        case triggerSearch(String)
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
@@ -74,9 +74,12 @@ final class TodoListViewModel: Store {
         case togglePinned(TodoListItem)
     }
 
+    private enum SearchTaskKind: Hashable {
+        case debounce
+        case request
+    }
+
     private(set) var state: State
-    private let searchDebounceDelay: Double = 0.4
-    private var searchDebounceTask: Task<Void, Never>?
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -85,6 +88,8 @@ final class TodoListViewModel: Store {
     private let loadingState = LoadingState()
     private var undoDeleteTodoId: String?
     private var nextCursor: TodoCursor?
+    private var searchTasks: [SearchTaskKind: Task<Void, Never>] = [:]
+    private let searchDebounceDelay: Double = 0.4
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -129,7 +134,7 @@ final class TodoListViewModel: Store {
         case .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .setSearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
+        case .triggerSearch, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
                 .restoreTodo, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
@@ -142,10 +147,10 @@ final class TodoListViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetch:
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nil)
                     send(.resetPagination)
                     send(.appendTodos(page.items.compactMap { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
@@ -156,10 +161,10 @@ final class TodoListViewModel: Store {
                 }
             }
         case .loadNextPage:
-            beginLoading(.immediate)
+            beginLoading(.delayed)
             Task {
                 do {
-                    defer { endLoading(.immediate) }
+                    defer { endLoading(.delayed) }
                     let page = try await fetchTodosUseCase.execute(state.query, cursor: nextCursor)
                     send(.appendTodos(page.items.compactMap { TodoListItem(from: $0) }, nextCursor: page.nextCursor))
                     let hasMore = page.items.count == state.query.pageSize && page.nextCursor != nil
@@ -169,17 +174,26 @@ final class TodoListViewModel: Store {
                 }
             }
         case .search(let keyword):
-            beginLoading(.immediate)
-            Task {
+            searchTasks[.request]?.cancel()
+            let requestTask = Task { [weak self] in
+                guard let self else { return }
                 do {
-                    defer { endLoading(.immediate) }
+                    defer {
+                        self.searchTasks[.request] = nil
+                        if !Task.isCancelled {
+                            self.endLoading(.immediate)
+                        }
+                    }
                     let query = TodoQuery(category: state.category, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
+                    if Task.isCancelled { return }
                     send(.fetchSearchResults(page.items.compactMap { TodoListItem(from: $0) }))
                 } catch {
+                    if error is CancellationError { return }
                     send(.setAlert(true))
                 }
             }
+            searchTasks[.request] = requestTask
         case .upsert(let item):
             beginLoading(.delayed)
             Task {
@@ -242,7 +256,7 @@ final class TodoListViewModel: Store {
             beginLoading(.delayed)
             Task {
                 // endLoading(.delayed)를 defer로 두지 않는 이유
-                // send(.refresh)가 같은 턴에서 beginLoading(.immediate)를 먼저 올린 뒤
+                // send(.refresh)가 같은 턴에서 beginLoading(.delayed)를 먼저 올린 뒤
                 // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteTodoUseCase.execute(todoId)
@@ -298,7 +312,7 @@ private extension TodoListViewModel {
         case .setIsSearching(let value):
             state.isSearching = value
             if !value {
-                cancelDebounce()
+                cancelSearch()
                 state.searchText = ""
                 state.searchResults = []
                 state.showAllSearchResults = false
@@ -332,12 +346,12 @@ private extension TodoListViewModel {
             state.showAllSearchResults = false
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
-                cancelDebounce()
+                cancelSearch()
                 state.searchResults = []
-                state.isLoading = false
             } else {
-                state.isLoading = true
-                scheduleDebouncedQuery(text)
+                cancelSearch()
+                beginLoading(.immediate)
+                scheduleDebouncedSearch(trimmed)
             }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
@@ -352,13 +366,8 @@ private extension TodoListViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .setSearchQuery(let query):
-            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmed.isEmpty {
-                state.searchResults = []
-            } else {
-                return [.search(trimmed)]
-            }
+        case .triggerSearch(let query):
+            return [.search(query)]
         case .fetchSearchResults(let items):
             state.searchResults = items
         case .didToggleCompleted(let todo):
@@ -418,21 +427,24 @@ private extension TodoListViewModel {
         state.showToast = isPresented
     }
 
-    func scheduleDebouncedQuery(_ query: String) {
-        searchDebounceTask?.cancel()
-        searchDebounceTask = Task { [weak self] in
+    func scheduleDebouncedSearch(_ query: String) {
+        searchTasks[.debounce]?.cancel()
+        let debounceTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(for: .seconds(searchDebounceDelay))
             if Task.isCancelled { return }
             await MainActor.run {
-                self.send(.setSearchQuery(query))
+                self.searchTasks[.debounce] = nil
+                self.send(.triggerSearch(query))
             }
         }
+        searchTasks[.debounce] = debounceTask
     }
 
-    func cancelDebounce() {
-        searchDebounceTask?.cancel()
-        searchDebounceTask = nil
+    func cancelSearch() {
+        searchTasks.values.forEach { $0.cancel() }
+        searchTasks = [:]
+        endLoading(.immediate)
     }
 
     private func beginLoading(_ mode: LoadingState.Mode) {

@@ -201,10 +201,10 @@ final class ProfileViewModel: Store {
                 }
             }
         case .fetchActivityQuarter(let quarterStart):
-            beginLoading(mode: .immediate)
+            beginLoading(mode: .delayed)
             Task {
                 do {
-                    defer { endLoading(mode: .immediate) }
+                    defer { endLoading(mode: .delayed) }
                     let quarterActivityData = try await fetchQuarterActivityData(from: quarterStart)
                     send(
                         .setActivityQuarter(

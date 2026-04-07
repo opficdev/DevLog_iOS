@@ -157,10 +157,10 @@ final class HomeViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodoCategoryPreferences:
-            beginLoading(for: .preferences, mode: .immediate)
+            beginLoading(for: .preferences, mode: .delayed)
             Task {
                 do {
-                    defer { endLoading(for: .preferences, mode: .immediate) }
+                    defer { endLoading(for: .preferences, mode: .delayed) }
                     let preferences = try await fetchPreferencesUseCase.execute()
                     send(.setTodoCategory(preferences.map(TodoCategoryItem.init(from:))))
                 } catch {
@@ -192,10 +192,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .fetchRecentTodos:
-            beginLoading(for: .recentTodos, mode: .immediate)
+            beginLoading(for: .recentTodos, mode: .delayed)
             Task {
                 do {
-                    defer { endLoading(for: .recentTodos, mode: .immediate) }
+                    defer { endLoading(for: .recentTodos, mode: .delayed) }
                     let page = try await fetchRecentTodos()
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
@@ -254,10 +254,10 @@ final class HomeViewModel: Store {
                 }
             }
         case .fetchWebPages:
-            beginLoading(for: .webPage, mode: .immediate)
+            beginLoading(for: .webPage, mode: .delayed)
             Task {
                 do {
-                    defer { endLoading(for: .webPage, mode: .immediate) }
+                    defer { endLoading(for: .webPage, mode: .delayed) }
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {

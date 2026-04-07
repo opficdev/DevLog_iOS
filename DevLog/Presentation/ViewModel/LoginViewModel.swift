@@ -27,6 +27,7 @@ final class LoginViewModel: Store {
     }
 
     private let signInUseCase: SignInUseCase
+    private let loadingState = LoadingState()
 
     private(set) var state = State()
 
@@ -54,12 +55,12 @@ final class LoginViewModel: Store {
     }
 
     func run(_ effect: SideEffect) {
-        send(.setLoading(true))
         switch effect {
         case .signIn(let authProvider):
+            beginLoading(.immediate)
             Task {
                 do {
-                    defer { send(.setLoading(false)) }
+                    defer { endLoading(.immediate) }
                     try await self.signInUseCase.execute(authProvider)
                 } catch {
                     if error.isSocialLoginCancelled { return }
@@ -78,5 +79,17 @@ private extension LoginViewModel {
         state.alertTitle = String(localized: "common_error_title")
         state.alertMessage = String(localized: "common_error_message")
         state.showAlert = isPresented
+    }
+
+    func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 }

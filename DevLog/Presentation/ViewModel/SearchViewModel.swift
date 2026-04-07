@@ -43,16 +43,22 @@ final class SearchViewModel: Store {
         case fetch(String)
     }
 
+    private enum SearchTaskKind: Hashable {
+        case debounce
+        case request
+    }
+
     private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase
     private let updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
+    private let loadingState = LoadingState()
     let contentsLimit: Int = 5
 
     private let maxRecentQueries = 20
     private let searchDebounceDelay: Double = 0.4
-    private var searchDebounceTask: Task<Void, Never>?
+    private var searchTasks: [SearchTaskKind: Task<Void, Never>] = [:]
 
     init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
@@ -104,22 +110,16 @@ final class SearchViewModel: Store {
             state.showAllWebPages = false
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
-                cancelDebounce()
+                cancelSearch()
                 state.webPages = []
                 state.todos = []
-                state.isLoading = false
             } else {
-                state.isLoading = true
-                scheduleDebouncedQuery(query)
+                cancelSearch()
+                beginLoading(.immediate)
+                scheduleDebouncedFetch(trimmed)
             }
         case .applySearchQuery(let query):
-            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmed.isEmpty {
-                state.webPages = []
-                state.todos = []
-            } else {
-                effects = [.fetch(trimmed)]
-            }
+            effects = [.fetch(query)]
         case .setShowAllTodos(let shouldShowAll):
             state.showAllTodos = shouldShowAll
         case .setShowAllWebPages(let shouldShowAll):
@@ -133,10 +133,16 @@ final class SearchViewModel: Store {
     func run(_ effect: SideEffect) {
         switch effect {
         case .fetch(let query):
-            Task {
+            searchTasks[.request]?.cancel()
+            let requestTask = Task { [weak self] in
+                guard let self else { return }
                 do {
-                    send(.setLoading(true))
-                    defer { send(.setLoading(false)) }
+                    defer {
+                        self.searchTasks[.request] = nil
+                        if !Task.isCancelled {
+                            self.endLoading(.immediate)
+                        }
+                    }
                     let searchesTodoOnly = searchesTodoOnly(query)
                     async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
                     async let webPageItems = fetchWebPageItems(
@@ -145,12 +151,15 @@ final class SearchViewModel: Store {
                     )
                     let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
                     let resolvedWebPageItems = try await webPageItems
+                    if Task.isCancelled { return }
                     send(.fetchTodos(todoItems))
                     send(.fetchWebPage(resolvedWebPageItems))
                 } catch {
+                    if error is CancellationError { return }
                     send(.setAlert(true))
                 }
             }
+            searchTasks[.request] = requestTask
         }
     }
 }
@@ -165,21 +174,36 @@ private extension SearchViewModel {
         state.showAlert = isPresented
     }
 
-    func scheduleDebouncedQuery(_ query: String) {
-        searchDebounceTask?.cancel()
-        searchDebounceTask = Task { [weak self] in
+    func scheduleDebouncedFetch(_ query: String) {
+        searchTasks[.debounce]?.cancel()
+        let debounceTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(for: .seconds(searchDebounceDelay))
             if Task.isCancelled { return }
             await MainActor.run {
+                self.searchTasks[.debounce] = nil
                 self.send(.applySearchQuery(query))
             }
         }
+        searchTasks[.debounce] = debounceTask
     }
 
-    func cancelDebounce() {
-        searchDebounceTask?.cancel()
-        searchDebounceTask = nil
+    func cancelSearch() {
+        searchTasks.values.forEach { $0.cancel() }
+        searchTasks = [:]
+        endLoading(.immediate)
+    }
+
+    func beginLoading(_ mode: LoadingState.Mode) {
+        loadingState.begin(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
+    }
+
+    func endLoading(_ mode: LoadingState.Mode) {
+        loadingState.end(mode: mode) { [weak self] isLoading in
+            self?.send(.setLoading(isLoading))
+        }
     }
 
     func searchesTodoOnly(_ query: String) -> Bool {
