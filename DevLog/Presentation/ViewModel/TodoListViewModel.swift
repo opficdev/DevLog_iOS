@@ -52,7 +52,7 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
-        case triggerSearch(String)
+        case applySearchQuery(String)
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
@@ -136,7 +136,7 @@ final class TodoListViewModel: Store {
         case .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .triggerSearch, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
+        case .applySearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
                 .restoreTodo, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
@@ -371,7 +371,7 @@ private extension TodoListViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .triggerSearch(let query):
+        case .applySearchQuery(let query):
             return [.search(query)]
         case .fetchSearchResults(let items):
             state.searchResults = items
@@ -440,7 +440,7 @@ private extension TodoListViewModel {
             if Task.isCancelled { return }
             await MainActor.run {
                 self.searchTasks[.debounce] = nil
-                self.send(.triggerSearch(query))
+                self.send(.applySearchQuery(query))
             }
         }
         searchTasks[.debounce] = debounceTask
