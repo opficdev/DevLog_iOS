@@ -25,7 +25,7 @@ final class LoadingState {
     private var visibleDelayedTargets = Set<AnyHashable>()
     private var visibleTargets = Set<AnyHashable>()
 
-    init(delay: Duration = .milliseconds(500)) {
+    init(delay: Duration = .seconds(0.3)) {
         self.delay = delay
     }
 
