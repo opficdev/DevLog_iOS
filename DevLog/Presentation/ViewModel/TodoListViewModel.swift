@@ -372,7 +372,13 @@ private extension TodoListViewModel {
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .applySearchQuery(let query):
-            return [.search(query)]
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.searchResults = []
+                return [.cancelSearch]
+            } else {
+                return [.search(trimmed)]
+            }
         case .fetchSearchResults(let items):
             state.searchResults = items
         case .didToggleCompleted(let todo):

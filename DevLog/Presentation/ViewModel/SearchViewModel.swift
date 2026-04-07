@@ -122,7 +122,14 @@ final class SearchViewModel: Store {
                 effects = [.cancelSearch, .debounceFetch(trimmed)]
             }
         case .applySearchQuery(let query):
-            effects = [.fetch(query)]
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.webPages = []
+                state.todos = []
+                effects = [.cancelSearch]
+            } else {
+                effects = [.fetch(trimmed)]
+            }
         case .setShowAllTodos(let shouldShowAll):
             state.showAllTodos = shouldShowAll
         case .setShowAllWebPages(let shouldShowAll):
