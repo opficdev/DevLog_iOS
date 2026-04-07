@@ -52,7 +52,7 @@ final class TodoListViewModel: Store {
         case upsertTodo(Todo)
 
         // Run
-        case triggerSearch(String)
+        case applySearchQuery(String)
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
@@ -64,6 +64,8 @@ final class TodoListViewModel: Store {
     }
 
     enum SideEffect {
+        case cancelSearch
+        case debounceSearch(String)
         case fetch
         case loadNextPage
         case search(String)
@@ -134,7 +136,7 @@ final class TodoListViewModel: Store {
         case .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
             effects = reduceByView(action, state: &state)
 
-        case .triggerSearch, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
+        case .applySearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
                 .restoreTodo, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
@@ -146,6 +148,11 @@ final class TodoListViewModel: Store {
     // swiftlint:disable function_body_length
     func run(_ effect: SideEffect) {
         switch effect {
+        case .cancelSearch:
+            cancelSearch()
+        case .debounceSearch(let keyword):
+            beginLoading(.immediate)
+            scheduleDebouncedSearch(keyword)
         case .fetch:
             beginLoading(.delayed)
             Task {
@@ -312,10 +319,10 @@ private extension TodoListViewModel {
         case .setIsSearching(let value):
             state.isSearching = value
             if !value {
-                cancelSearch()
                 state.searchText = ""
                 state.searchResults = []
                 state.showAllSearchResults = false
+                return [.cancelSearch]
             }
         case .setShowAllSearchResults(let value):
             state.showAllSearchResults = value
@@ -346,12 +353,10 @@ private extension TodoListViewModel {
             state.showAllSearchResults = false
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
-                cancelSearch()
                 state.searchResults = []
+                return [.cancelSearch]
             } else {
-                cancelSearch()
-                beginLoading(.immediate)
-                scheduleDebouncedSearch(trimmed)
+                return [.cancelSearch, .debounceSearch(trimmed)]
             }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
@@ -366,8 +371,14 @@ private extension TodoListViewModel {
 
     func reduceByRun(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .triggerSearch(let query):
-            return [.search(query)]
+        case .applySearchQuery(let query):
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                state.searchResults = []
+                return [.cancelSearch]
+            } else {
+                return [.search(trimmed)]
+            }
         case .fetchSearchResults(let items):
             state.searchResults = items
         case .didToggleCompleted(let todo):
@@ -435,7 +446,7 @@ private extension TodoListViewModel {
             if Task.isCancelled { return }
             await MainActor.run {
                 self.searchTasks[.debounce] = nil
-                self.send(.triggerSearch(query))
+                self.send(.applySearchQuery(query))
             }
         }
         searchTasks[.debounce] = debounceTask
