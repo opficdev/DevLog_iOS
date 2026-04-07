@@ -40,6 +40,8 @@ final class SearchViewModel: Store {
     }
 
     enum SideEffect {
+        case cancelSearch
+        case debounceFetch(String)
         case fetch(String)
     }
 
@@ -103,6 +105,9 @@ final class SearchViewModel: Store {
             state.isLoading = isLoading
         case .setSearching(let isSearching):
             state.isSearching = isSearching
+            if !isSearching {
+                effects = [.cancelSearch]
+            }
         case .setSearchQuery(let query):
             guard state.searchQuery != query else { return [] }
             state.searchQuery = query
@@ -110,13 +115,11 @@ final class SearchViewModel: Store {
             state.showAllWebPages = false
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
-                cancelSearch()
                 state.webPages = []
                 state.todos = []
+                effects = [.cancelSearch]
             } else {
-                cancelSearch()
-                beginLoading(.immediate)
-                scheduleDebouncedFetch(trimmed)
+                effects = [.cancelSearch, .debounceFetch(trimmed)]
             }
         case .applySearchQuery(let query):
             effects = [.fetch(query)]
@@ -132,6 +135,11 @@ final class SearchViewModel: Store {
 
     func run(_ effect: SideEffect) {
         switch effect {
+        case .cancelSearch:
+            cancelSearch()
+        case .debounceFetch(let query):
+            beginLoading(.immediate)
+            scheduleDebouncedFetch(query)
         case .fetch(let query):
             searchTasks[.request]?.cancel()
             let requestTask = Task { [weak self] in

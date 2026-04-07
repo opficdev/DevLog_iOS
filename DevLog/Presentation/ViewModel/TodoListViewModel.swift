@@ -64,6 +64,8 @@ final class TodoListViewModel: Store {
     }
 
     enum SideEffect {
+        case cancelSearch
+        case debounceSearch(String)
         case fetch
         case loadNextPage
         case search(String)
@@ -146,6 +148,11 @@ final class TodoListViewModel: Store {
     // swiftlint:disable function_body_length
     func run(_ effect: SideEffect) {
         switch effect {
+        case .cancelSearch:
+            cancelSearch()
+        case .debounceSearch(let keyword):
+            beginLoading(.immediate)
+            scheduleDebouncedSearch(keyword)
         case .fetch:
             beginLoading(.delayed)
             Task {
@@ -312,10 +319,10 @@ private extension TodoListViewModel {
         case .setIsSearching(let value):
             state.isSearching = value
             if !value {
-                cancelSearch()
                 state.searchText = ""
                 state.searchResults = []
                 state.showAllSearchResults = false
+                return [.cancelSearch]
             }
         case .setShowAllSearchResults(let value):
             state.showAllSearchResults = value
@@ -346,12 +353,10 @@ private extension TodoListViewModel {
             state.showAllSearchResults = false
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty {
-                cancelSearch()
                 state.searchResults = []
+                return [.cancelSearch]
             } else {
-                cancelSearch()
-                beginLoading(.immediate)
-                scheduleDebouncedSearch(trimmed)
+                return [.cancelSearch, .debounceSearch(trimmed)]
             }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
