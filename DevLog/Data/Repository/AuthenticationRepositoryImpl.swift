@@ -27,16 +27,29 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func signIn(_ provider: AuthProvider) async throws {
-        let response: AuthDataResponse
-        switch provider {
-        case .apple:
-            response = try await appleAuthService.signIn()
-        case .github:
-            response = try await githubAuthService.signIn()
-        case .google:
-            response = try await googleAuthService.signIn()
+        authService.beginSignIn()
+
+        do {
+            let response: AuthDataResponse
+            switch provider {
+            case .apple:
+                response = try await appleAuthService.signIn()
+            case .github:
+                response = try await githubAuthService.signIn()
+            case .google:
+                response = try await googleAuthService.signIn()
+            }
+
+            try await userService.upsertUser(response)
+            authService.completeSignIn()
+        } catch {
+            if authService.uid != nil {
+                try? await authService.clearCurrentSession()
+            }
+
+            authService.cancelSignIn()
+            throw error
         }
-        try await userService.upsertUser(response)
     }
 
     func signOut() async throws {
