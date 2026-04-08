@@ -16,6 +16,7 @@ final class AuthService {
     private let logger = Logger(category: "AuthService")
     private let subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)
     private var handler: AuthStateDidChangeListenerHandle?
+    private var isCompletingSignIn = false
 
     var uid: String? {
         Auth.auth().currentUser?.uid
@@ -27,9 +28,16 @@ final class AuthService {
 
     init() {
         handler = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            guard let self else { return }
             let signedIn = user != nil
-            self?.logger.info("Firebase auth state changed. signedIn: \(signedIn)")
-            self?.subject.send(signedIn)
+            self.logger.info("Firebase auth state changed. signedIn: \(signedIn)")
+
+            if signedIn && self.isCompletingSignIn {
+                self.logger.info("Delaying signed-in publication until user bootstrap finishes")
+                return
+            }
+
+            self.subject.send(signedIn)
         }
     }
 
@@ -40,6 +48,24 @@ final class AuthService {
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
         subject.eraseToAnyPublisher()
+    }
+
+    func beginSignIn() {
+        logger.info("Beginning sign-in bootstrap")
+        isCompletingSignIn = true
+        subject.send(false)
+    }
+
+    func completeSignIn() {
+        logger.info("Completing sign-in bootstrap")
+        isCompletingSignIn = false
+        subject.send(Auth.auth().currentUser != nil)
+    }
+
+    func cancelSignIn() {
+        logger.info("Cancelling sign-in bootstrap")
+        isCompletingSignIn = false
+        subject.send(Auth.auth().currentUser != nil)
     }
 
     func getProviderID() async throws -> String? {
