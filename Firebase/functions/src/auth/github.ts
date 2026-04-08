@@ -26,6 +26,8 @@ interface GitHubEmail {
     verified: boolean;
 }
 
+const GITHUB_EMAIL_UNAVAILABLE_REASON = "email_not_found";
+
 // GitHub OAuth 인증 및 커스텀 토큰 발급 함수
 export const requestGithubTokens = onCall({
     cors: true,
@@ -75,7 +77,11 @@ export const requestGithubTokens = onCall({
     const email = await resolveGitHubEmail(accessToken, userData.email);
 
     if (!userData.id || !email) {
-        throw new HttpsError('internal', 'GitHub 사용자 데이터를 가져오지 못했습니다.');
+        throw new HttpsError(
+            'internal',
+            'GitHub 사용자 데이터를 가져오지 못했습니다.',
+            { reason: GITHUB_EMAIL_UNAVAILABLE_REASON }
+        );
     }
 
     // 3. Firebase에서 GitHub 제공자로 사용자를 찾거나 생성
@@ -106,6 +112,9 @@ export const requestGithubTokens = onCall({
     };
     } catch (error) {
         console.error('GitHub 커스텀 토큰 생성 오류:', error);
+        if (error instanceof HttpsError) {
+            throw error;
+        }
         throw new HttpsError('internal', error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
     }
 });
