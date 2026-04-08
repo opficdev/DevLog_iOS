@@ -7,18 +7,6 @@ on:
     branches:
       - main
 
-env:
-  RUBY_VERSION: "3.2"
-  XCODE_VERSION: latest
-  APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
-  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-  ASC_KEY_PATH: fastlane/AuthKey.p8
-  SPACESHIP_CONNECT_API_IN_HOUSE: "false"
-  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-
 permissions:
   contents: write
 
@@ -33,49 +21,6 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Install private config files
-        uses: ./.github/actions/install-private-config
-        with:
-          git_url: ${{ env.MATCH_GIT_URL }}
-          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ${{ env.RUBY_VERSION }}
-
-      - name: Select Xcode
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ "$XCODE_VERSION" = "latest" ]; then
-            XCODE_APP="$(find /Applications -maxdepth 1 -name 'Xcode*.app' -type d | sort -V | tail -n 1)"
-          else
-            XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
-            if [ ! -d "$XCODE_APP" ]; then
-              XCODE_APP="/Applications/Xcode-${XCODE_VERSION}.app"
-            fi
-          fi
-
-          if [ ! -d "${XCODE_APP:-}" ]; then
-            echo "Requested Xcode not found for version: $XCODE_VERSION" >&2
-            exit 1
-          fi
-
-          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
-          xcodebuild -version
-
-      - name: Write App Store Connect API key
-        env:
-          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
-        run: |
-          printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
-
-      - name: Release to App Store Connect
-        run: bundle exec fastlane release
 
       - name: Read release version
         id: release_version
