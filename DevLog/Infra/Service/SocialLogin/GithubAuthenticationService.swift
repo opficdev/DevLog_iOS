@@ -152,7 +152,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     @MainActor
-    func requestAuthorizationCode() async throws -> String {
+    private func requestAuthorizationCode() async throws -> String {
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GITHUB_CLIENT_ID") as? String,
               let redirectURL = Bundle.main.object(forInfoDictionaryKey: "APP_REDIRECT_URL") as? String,
               let urlComponents = URLComponents(string: redirectURL),
@@ -212,7 +212,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
     
     // Firebase Function 호출: Custom Token 발급
-    func requestTokens(authorizationCode: String) async throws -> (String, String) {
+    private func requestTokens(authorizationCode: String) async throws -> (String, String) {
         let requestTokenFunction = functions.httpsCallable(FunctionName.requestGithubTokens)
 
         do {
@@ -229,7 +229,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         }
     }
     
-    func revokeAccessToken(accessToken: String? = nil) async throws {
+    private func revokeAccessToken(accessToken: String? = nil) async throws {
         var param: [String: Any] = [:]
         
         if let accessToken = accessToken {
@@ -242,7 +242,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     // GitHub API로 사용자 프로필 정보 가져오기
-    func requestUserProfile(accessToken: String) async throws -> GitHubUser {
+    private func requestUserProfile(accessToken: String) async throws -> GitHubUser {
         guard let url = URL(string: "https://api.github.com/user") else {
             throw URLError(.badURL)
         }
@@ -275,7 +275,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         )
     }
 
-    func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
+    private func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
         guard let url = URL(string: "https://api.github.com/user/emails") else {
             throw URLError(.badURL)
         }
@@ -302,7 +302,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         return gitHubEmails.first(where: { $0.verified })?.email
     }
 
-    func mapRequestTokensError(_ error: Error) -> Error {
+    private func mapRequestTokensError(_ error: Error) -> Error {
         let nsError = error as NSError
         guard nsError.domain == FunctionsErrorDomain,
               let details = nsError.userInfo[FunctionsErrorDetailsKey] as? [String: Any],
@@ -315,11 +315,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 }
 
-extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return provider.keyWindow() ?? ASPresentationAnchor()
-    }
-
+private extension GithubAuthenticationService {
     struct GitHubUser: Codable {
         let login: String
         let name: String?
@@ -339,5 +335,10 @@ extension GithubAuthenticationService: ASWebAuthenticationPresentationContextPro
         let primary: Bool
         let verified: Bool
     }
+}
 
+extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return provider.keyWindow() ?? ASPresentationAnchor()
+    }
 }
