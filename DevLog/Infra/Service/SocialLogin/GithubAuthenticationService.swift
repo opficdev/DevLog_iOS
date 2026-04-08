@@ -243,7 +243,11 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
 
     // GitHub API로 사용자 프로필 정보 가져오기
     func requestUserProfile(accessToken: String) async throws -> GitHubUser {
-        var request = URLRequest(url: URL(string: "https://api.github.com/user")!)
+        guard let url = URL(string: "https://api.github.com/user") else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
@@ -272,7 +276,11 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
-        var request = URLRequest(url: URL(string: "https://api.github.com/user/emails")!)
+        guard let url = URL(string: "https://api.github.com/user/emails") else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
