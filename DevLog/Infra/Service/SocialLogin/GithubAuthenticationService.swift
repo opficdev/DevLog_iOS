@@ -223,7 +223,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
                let customToken = data["customToken"] as? String {
                 return (accessToken, customToken)
             }
-            throw URLError(.badServerResponse)
+            throw TokenError.invalidResponse
         } catch {
             throw mapRequestTokensError(error)
         }

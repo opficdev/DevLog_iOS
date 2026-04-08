@@ -38,6 +38,10 @@ enum EmailFetchError: Error, Equatable {
     }
 }
 
+enum TokenError: Error {
+    case invalidResponse
+}
+
 enum SocialLoginError: Error {
     case invalidOAuthState
     case failedToStartWebAuthenticationSession
