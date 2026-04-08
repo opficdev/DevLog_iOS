@@ -125,7 +125,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Email Unavailable"
+            "value" : "Unable to Verify Email"
           }
         },
         "ko" : {
