@@ -2,6 +2,32 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import axios from "axios";
 
+// GitHub OAuth 응답 타입 정의
+interface GitHubOAuthResponse {
+    access_token: string;
+    token_type: string;
+    scope: string;
+    error?: string;
+}
+
+// GitHub 사용자 정보 응답 타입 정의
+interface GitHubUser {
+    id: number;
+    login: string;
+    name?: string;
+    email?: string;
+    avatar_url?: string;
+}
+
+// GitHub 이메일 목록 응답 타입 정의
+interface GitHubEmail {
+    email: string;
+    primary: boolean;
+    verified: boolean;
+}
+
+const GITHUB_EMAIL_UNAVAILABLE_REASON = "email_not_found";
+
 // GitHub OAuth 인증 및 커스텀 토큰 발급 함수
 export const requestGithubTokens = onCall({
     cors: true,
@@ -23,14 +49,6 @@ export const requestGithubTokens = onCall({
             throw new HttpsError('internal', 'GitHub 환경 설정이 누락되었습니다.');
         }
 
-        // GitHub OAuth 응답 타입 정의
-        interface GitHubOAuthResponse {
-          access_token: string;
-          token_type: string;
-          scope: string;
-          error?: string;
-        }
-
     // 1. GitHub OAuth 토큰 획득
         const tokenResponse = await axios.post<GitHubOAuthResponse>
         ('https://github.com/login/oauth/access_token', {
@@ -48,15 +66,6 @@ export const requestGithubTokens = onCall({
 
     const accessToken = tokenData.access_token;
 
-    // GitHub 사용자 정보 응답 타입 정의
-    interface GitHubUser {
-        id: number;
-        login: string;
-        name?: string;
-        email?: string;
-        avatar_url?: string;
-    }
-
     // 2. GitHub 사용자 정보 가져오기
     const userResponse = await axios.get<GitHubUser>('https://api.github.com/user', {
         headers: {
@@ -65,22 +74,28 @@ export const requestGithubTokens = onCall({
     });
 
     const userData = userResponse.data;
-    if (!userData.id || !userData.email) {
-        throw new HttpsError('internal', 'GitHub 사용자 데이터를 가져오지 못했습니다.');
+    const email = await resolveGitHubEmail(accessToken, userData.email);
+
+    if (!userData.id || !email) {
+        throw new HttpsError(
+            'internal',
+            'GitHub 사용자 데이터를 가져오지 못했습니다.',
+            { reason: GITHUB_EMAIL_UNAVAILABLE_REASON }
+        );
     }
 
     // 3. Firebase에서 GitHub 제공자로 사용자를 찾거나 생성
     let uid;
 
     try {
-        const userRecord = await admin.auth().getUserByEmail(userData.email);
+        const userRecord = await admin.auth().getUserByEmail(email);
         uid = userRecord.uid; // 기존 UID 사용
-        console.log(`이메일(${userData.email})로 기존 사용자를 찾았습니다.`);
+        console.log(`이메일(${email})로 기존 사용자를 찾았습니다.`);
     } catch (error) {
       // 사용자가 없으면 Firebase에 새 사용자 생성
         const userRecord = await admin.auth().createUser({
             displayName: userData.name || userData.login,
-            email: userData.email,
+            email,
             photoURL: userData.avatar_url,
         });
           uid = userRecord.uid; // 새로 생성된 UID 사용
@@ -97,9 +112,37 @@ export const requestGithubTokens = onCall({
     };
     } catch (error) {
         console.error('GitHub 커스텀 토큰 생성 오류:', error);
+        if (error instanceof HttpsError) {
+            throw error;
+        }
         throw new HttpsError('internal', error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
     }
 });
+
+async function resolveGitHubEmail(
+    accessToken: string,
+    profileEmail?: string
+): Promise<string | undefined> {
+    if (profileEmail) {
+        return profileEmail;
+    }
+
+    const emailResponse = await axios.get<GitHubEmail[]>('https://api.github.com/user/emails', {
+        headers: {
+            'Authorization': `token ${accessToken}`
+        }
+    });
+
+    const primaryVerifiedEmail = emailResponse.data.find((item) =>
+        item.primary && item.verified
+    )?.email
+
+    if (primaryVerifiedEmail) {
+        return primaryVerifiedEmail;
+    }
+
+    return emailResponse.data.find((item) => item.verified)?.email;
+}
 
 export const revokeGithubAccessToken = onCall({
         cors: true,

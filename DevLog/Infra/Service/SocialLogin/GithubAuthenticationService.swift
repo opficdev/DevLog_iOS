@@ -152,7 +152,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     @MainActor
-    func requestAuthorizationCode() async throws -> String {
+    private func requestAuthorizationCode() async throws -> String {
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GITHUB_CLIENT_ID") as? String,
               let redirectURL = Bundle.main.object(forInfoDictionaryKey: "APP_REDIRECT_URL") as? String,
               let urlComponents = URLComponents(string: redirectURL),
@@ -212,19 +212,24 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
     
     // Firebase Function 호출: Custom Token 발급
-    func requestTokens(authorizationCode: String) async throws -> (String, String) {
+    private func requestTokens(authorizationCode: String) async throws -> (String, String) {
         let requestTokenFunction = functions.httpsCallable(FunctionName.requestGithubTokens)
-        let result = try await requestTokenFunction.call(["code": authorizationCode])
-        
-        if let data = result.data as? [String: Any],
-           let accessToken = data["accessToken"] as? String,
-           let customToken = data["customToken"] as? String {
-            return (accessToken, customToken)
+
+        do {
+            let result = try await requestTokenFunction.call(["code": authorizationCode])
+            
+            if let data = result.data as? [String: Any],
+               let accessToken = data["accessToken"] as? String,
+               let customToken = data["customToken"] as? String {
+                return (accessToken, customToken)
+            }
+            throw TokenError.invalidResponse
+        } catch {
+            throw mapRequestTokensError(error)
         }
-        throw URLError(.badServerResponse)
     }
     
-    func revokeAccessToken(accessToken: String? = nil) async throws {
+    private func revokeAccessToken(accessToken: String? = nil) async throws {
         var param: [String: Any] = [:]
         
         if let accessToken = accessToken {
@@ -237,8 +242,12 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     // GitHub API로 사용자 프로필 정보 가져오기
-    func requestUserProfile(accessToken: String) async throws -> GitHubUser {
-        var request = URLRequest(url: URL(string: "https://api.github.com/user")!)
+    private func requestUserProfile(accessToken: String) async throws -> GitHubUser {
+        guard let url = URL(string: "https://api.github.com/user") else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
@@ -251,15 +260,62 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         }
         
         let decoder = JSONDecoder()
-        return try decoder.decode(GitHubUser.self, from: data)
+        let gitHubUser = try decoder.decode(GitHubUser.self, from: data)
+
+        if gitHubUser.email != nil {
+            return gitHubUser
+        }
+
+        let email = try await requestPrimaryVerifiedEmail(accessToken: accessToken)
+        return GitHubUser(
+            login: gitHubUser.login,
+            name: gitHubUser.name,
+            avatarURL: gitHubUser.avatarURL,
+            email: email
+        )
+    }
+
+    private func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
+        guard let url = URL(string: "https://api.github.com/user/emails") else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+
+        let decoder = JSONDecoder()
+        let gitHubEmails = try decoder.decode([GitHubEmail].self, from: data)
+
+        if let primaryVerifiedEmail = gitHubEmails.first(where: { $0.primary && $0.verified }) {
+            return primaryVerifiedEmail.email
+        }
+
+        return gitHubEmails.first(where: { $0.verified })?.email
+    }
+
+    private func mapRequestTokensError(_ error: Error) -> Error {
+        let nsError = error as NSError
+        guard nsError.domain == FunctionsErrorDomain,
+              let details = nsError.userInfo[FunctionsErrorDetailsKey] as? [String: Any],
+              let reason = details["reason"] as? String,
+              reason == EmailFetchError.emailNotFound.code else {
+            return error
+        }
+
+        return EmailFetchError.emailNotFound
     }
 }
 
-extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return provider.keyWindow() ?? ASPresentationAnchor()
-    }
-
+private extension GithubAuthenticationService {
     struct GitHubUser: Codable {
         let login: String
         let name: String?
@@ -274,4 +330,15 @@ extension GithubAuthenticationService: ASWebAuthenticationPresentationContextPro
         }
     }
 
+    struct GitHubEmail: Codable {
+        let email: String
+        let primary: Bool
+        let verified: Bool
+    }
+}
+
+extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return provider.keyWindow() ?? ASPresentationAnchor()
+    }
 }

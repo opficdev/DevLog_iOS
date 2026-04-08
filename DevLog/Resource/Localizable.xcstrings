@@ -125,7 +125,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Email Unavailable"
+            "value" : "Unable to Verify Email"
           }
         },
         "ko" : {
@@ -533,6 +533,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "깃헙 계정으로 로그인"
+          }
+        }
+      }
+    },
+    "login_alert_email_unavailable_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected GitHub account's email could not be verified, so sign in could not be completed. Check the GitHub account settings and try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 GitHub 계정의 이메일 정보를 확인할 수 없어 로그인할 수 없어요. GitHub 계정 설정을 확인한 뒤 다시 시도해주세요."
+          }
+        }
+      }
+    },
+    "login_alert_email_unavailable_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Verify Email"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일 확인 불가"
           }
         }
       }
