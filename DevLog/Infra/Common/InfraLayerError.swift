@@ -27,6 +27,15 @@ enum UIError: Error {
 enum EmailFetchError: Error, Equatable {
     case emailNotFound
     case emailMismatch
+
+    var code: String {
+        switch self {
+        case .emailMismatch:
+            "email_mismatch"
+        case .emailNotFound:
+            "email_not_found"
+        }
+    }
 }
 
 enum SocialLoginError: Error {

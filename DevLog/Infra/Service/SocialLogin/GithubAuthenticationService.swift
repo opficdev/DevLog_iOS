@@ -214,14 +214,19 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     // Firebase Function 호출: Custom Token 발급
     func requestTokens(authorizationCode: String) async throws -> (String, String) {
         let requestTokenFunction = functions.httpsCallable(FunctionName.requestGithubTokens)
-        let result = try await requestTokenFunction.call(["code": authorizationCode])
-        
-        if let data = result.data as? [String: Any],
-           let accessToken = data["accessToken"] as? String,
-           let customToken = data["customToken"] as? String {
-            return (accessToken, customToken)
+
+        do {
+            let result = try await requestTokenFunction.call(["code": authorizationCode])
+            
+            if let data = result.data as? [String: Any],
+               let accessToken = data["accessToken"] as? String,
+               let customToken = data["customToken"] as? String {
+                return (accessToken, customToken)
+            }
+            throw URLError(.badServerResponse)
+        } catch {
+            throw mapRequestTokensError(error)
         }
-        throw URLError(.badServerResponse)
     }
     
     func revokeAccessToken(accessToken: String? = nil) async throws {
@@ -287,6 +292,18 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         }
 
         return gitHubEmails.first(where: { $0.verified })?.email
+    }
+
+    func mapRequestTokensError(_ error: Error) -> Error {
+        let nsError = error as NSError
+        guard nsError.domain == FunctionsErrorDomain,
+              let details = nsError.userInfo[FunctionsErrorDetailsKey] as? [String: Any],
+              let reason = details["reason"] as? String,
+              reason == EmailFetchError.emailNotFound.code else {
+            return error
+        }
+
+        return EmailFetchError.emailNotFound
     }
 }
 
