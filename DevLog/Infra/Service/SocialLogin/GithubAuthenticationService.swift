@@ -251,7 +251,42 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
         }
         
         let decoder = JSONDecoder()
-        return try decoder.decode(GitHubUser.self, from: data)
+        let gitHubUser = try decoder.decode(GitHubUser.self, from: data)
+
+        if gitHubUser.email != nil {
+            return gitHubUser
+        }
+
+        let email = try await requestPrimaryVerifiedEmail(accessToken: accessToken)
+        return GitHubUser(
+            login: gitHubUser.login,
+            name: gitHubUser.name,
+            avatarURL: gitHubUser.avatarURL,
+            email: email
+        )
+    }
+
+    func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
+        var request = URLRequest(url: URL(string: "https://api.github.com/user/emails")!)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+
+        let decoder = JSONDecoder()
+        let gitHubEmails = try decoder.decode([GitHubEmail].self, from: data)
+
+        if let primaryVerifiedEmail = gitHubEmails.first(where: { $0.primary && $0.verified }) {
+            return primaryVerifiedEmail.email
+        }
+
+        return gitHubEmails.first(where: { $0.verified })?.email
     }
 }
 
@@ -272,6 +307,12 @@ extension GithubAuthenticationService: ASWebAuthenticationPresentationContextPro
             case avatarURL = "avatar_url"
             case email
         }
+    }
+
+    struct GitHubEmail: Codable {
+        let email: String
+        let primary: Bool
+        let verified: Bool
     }
 
 }
