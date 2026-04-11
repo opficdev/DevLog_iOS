@@ -1,0 +1,11 @@
+//
+//  TodoCategoryRepository.swift
+//  DevLog
+//
+//  Created by opfic on 3/30/26.
+//
+
+protocol TodoCategoryRepository {
+    func fetchPreferences() async throws -> [TodoCategoryPreference]
+    func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws
+}

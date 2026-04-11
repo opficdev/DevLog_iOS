@@ -1,0 +1,44 @@
+name: iOS Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'develop'
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout merge commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Read release version
+        id: release_version
+        run: |
+          version=$(ruby -e 'project = File.read("DevLog.xcodeproj/project.pbxproj"); match = project.match(/MARKETING_VERSION = ([^;]+);/); abort("MARKETING_VERSION not found") if match.nil?; puts match[1]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.release_version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Release already exists for ${{ steps.release_version.outputs.tag }}"
+            exit 0
+          fi
+
+          gh release create "${{ steps.release_version.outputs.tag }}" \
+            --target "${{ github.event.pull_request.merge_commit_sha }}" \
+            --title "${{ steps.release_version.outputs.tag }}" \
+            --generate-notes

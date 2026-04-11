@@ -1,0 +1,38 @@
+# MACOS
+.DS_Store
+
+# Auth
+*.p8
+*.p12
+*.env
+
+# Xcode
+Config.xcconfig
+xcuserdata/
+*.xcuserstate
+GoogleService-Info.plist
+UserInterfaceState.xcuserstate
+Breakpoints_v2.xcbkptlist
+**/build/
+**/xcuserdata/
+ContentView.swift
+
+# NPM
+node_modules/
+*.log
+lib/
+
+# Gem
+.bundle/
+vendor/bundle/
+
+# Fastlane
+.fastlane/
+fastlane/README.md
+fastlane/report.xml
+fastlane/test_output/
+fastlane/logs/
+
+# Build Artifacts
+*.ipa
+*.dSYM.zip

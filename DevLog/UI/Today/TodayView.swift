@@ -1,0 +1,359 @@
+//
+//  TodayView.swift
+//  DevLog
+//
+//  Created by opfic on 3/6/26.
+//
+
+import SwiftUI
+
+struct TodayView: View {
+    @Environment(\.diContainer) private var container: any DIContainer
+    @State private var router = NavigationRouter()
+    @State var viewModel: TodayViewModel
+
+    var body: some View {
+        NavigationStack(path: $router.path) {
+            List {
+                summarySection
+                if viewModel.sections.isEmpty, !viewModel.state.isLoading {
+                    emptySection
+                } else {
+                    ForEach(viewModel.sections) { section in
+                        todoSection(section.title, items: section.items)
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle(String(localized: "nav_today"))
+            .toolbar { toolbarContent }
+            .navigationDestination(for: Path.self) { path in
+                switch path {
+                case .detail(let todoId):
+                    TodoDetailView(viewModel: TodoDetailViewModel(
+                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                        todoId: todoId
+                    ))
+                }
+            }
+            .background(NavigationBarConfigurator())
+            .refreshable { viewModel.send(.refresh) }
+            .onAppear { viewModel.send(.onAppear) }
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
+            ) {
+                Button(String(localized: "common_close"), role: .cancel) { }
+            } message: {
+                Text(viewModel.state.alertMessage)
+            }
+            .overlay {
+                if viewModel.state.isLoading {
+                    LoadingView()
+                }
+            }
+        }
+    }
+
+    private var summarySection: some View {
+        Section {
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(TodayViewModel.SectionScope.allCases, id: \.self) { scope in
+                        Button {
+                            withAnimation(.easeInOut) {
+                                viewModel.send(.setSectionScope(scope))
+                            }
+                        } label: {
+                            SummaryCard(
+                                title: scope.title,
+                                value: viewModel.summaryValue(for: scope),
+                                accentColor: scope.accentColor,
+                                isSelected: viewModel.state.selectedSectionScope == scope
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .scrollIndicators(.never)
+            .contentMargins(.horizontal, 16)
+        }
+        .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker(
+                    String(localized: "today_due_visibility_label"),
+                    selection: Binding(
+                        get: { viewModel.state.displayOptions.dueDateVisibility },
+                        set: { viewModel.send(.setDueDateVisibility($0)) }
+                    )
+                ) {
+                    ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+
+                Toggle(
+                    String(localized: "today_pinned_only"),
+                    isOn: Binding(
+                        get: { viewModel.state.displayOptions.focusVisibility == .focusedOnly },
+                        set: {
+                            viewModel.send(.setFocusVisibility($0 ? .focusedOnly : .all))
+                        }
+                    )
+                )
+                .tint(.orange)
+
+                if viewModel.state.displayOptions.focusVisibility == .focusedOnly {
+                    Text(String(localized: "today_pinned_only_description"))
+                        .font(.caption)
+                }
+            } label: {
+                let options = viewModel.state.displayOptions
+                Image(systemName: "line.3.horizontal.decrease.circle\(options == .default ? "" : ".fill")")
+            }
+        }
+    }
+
+    private var emptySection: some View {
+        Section {
+            VStack(spacing: 8) {
+                Text(emptyStateContent.title)
+                    .foregroundStyle(.primary)
+                Text(emptyStateContent.message)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 28)
+        }
+    }
+
+    @ViewBuilder
+    private func todoSection(_ title: String, items: [TodayTodoItem]) -> some View {
+        if !items.isEmpty {
+            Section {
+                ForEach(items) { item in
+                    NavigationLink(value: Path.detail(item.id)) {
+                        TodayTodoRow(item: item)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button {
+                            viewModel.send(.togglePinned(item))
+                        } label: {
+                            Image(systemName: item.isPinned ? "star.slash" : "star.fill")
+                        }
+                        .tint(.orange)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {
+                            viewModel.send(.completeTodo(item))
+                        } label: {
+                            Label(String(localized: "today_complete_action"), systemImage: "checkmark")
+                        }
+                        .tint(.green)
+                    }
+                }
+            } header: {
+                Text(title)
+                    .listRowInsets(EdgeInsets())
+            }
+        }
+    }
+
+    private var emptyStateContent: EmptyStateContent {
+        switch viewModel.state.selectedSectionScope {
+        case .all:
+            if viewModel.state.todos.isEmpty {
+                return EmptyStateContent(
+                    title: String(localized: "today_empty_all_title"),
+                    message: String(localized: "today_empty_all_message")
+                )
+            }
+            return EmptyStateContent(
+                title: String(localized: "today_empty_filtered_title"),
+                message: String(localized: "today_empty_filtered_message")
+            )
+        case .focused:
+            return EmptyStateContent(
+                title: String(localized: "today_empty_focused_title"),
+                message: String(localized: "today_empty_focused_message")
+            )
+        case .overdue:
+            return EmptyStateContent(
+                title: String(localized: "today_empty_overdue_title"),
+                message: String(localized: "today_empty_overdue_message")
+            )
+        case .dueSoon:
+            return EmptyStateContent(
+                title: String(localized: "today_empty_due_soon_title"),
+                message: String(localized: "today_empty_due_soon_message")
+            )
+        }
+    }
+
+    private struct EmptyStateContent {
+        let title: String
+        let message: String
+    }
+
+    private enum Path: Hashable {
+        case detail(String)
+    }
+}
+
+private extension TodayDisplayOptions.DueDateVisibility {
+    var title: String {
+        switch self {
+        case .all:
+            return String(localized: "today_due_visibility_all")
+        case .withDueDateOnly:
+            return String(localized: "today_due_visibility_with_due")
+        case .withoutDueDateOnly:
+            return String(localized: "today_due_visibility_without_due")
+        }
+    }
+}
+
+private extension TodayViewModel.SectionScope {
+    var title: String {
+        switch self {
+        case .all:
+            return String(localized: "today_summary_all")
+        case .focused:
+            return String(localized: "today_summary_focused")
+        case .overdue:
+            return String(localized: "today_summary_overdue")
+        case .dueSoon:
+            return String(localized: "today_summary_due_soon")
+        }
+    }
+
+    var accentColor: Color {
+        switch self {
+        case .all:
+            return .blue
+        case .focused:
+            return .orange
+        case .overdue:
+            return .red
+        case .dueSoon:
+            return .green
+        }
+    }
+}
+
+private struct SummaryCard: View {
+    let title: String
+    let value: Int
+    let accentColor: Color
+    let isSelected: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(isSelected ? accentColor : .secondary)
+            Text("\(value)")
+                .font(.title2.bold())
+                .foregroundStyle(Color(.label))
+        }
+        .frame(width: 96, alignment: .leading)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(isSelected ? accentColor.opacity(0.2) : accentColor.opacity(0.12))
+                .strokeBorder(
+                    isSelected ? accentColor.opacity(0.55) : accentColor.opacity(0.18),
+                    lineWidth: isSelected ? 1.5 : 1
+                )
+        )
+        .scaleEffect(isSelected ? 1 : 0.98)
+    }
+}
+
+private struct TodayTodoRow: View {
+    private let calendar = Calendar.current
+    let item: TodayTodoItem
+
+    var body: some View {
+        let todoCategoryItem = TodoCategoryItem(from: item.category)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: todoCategoryItem.symbolName)
+                    .foregroundStyle(todoCategoryItem.color)
+                    .frame(width: 18)
+                Text(item.title)
+                    .font(.headline)
+                    .foregroundStyle(Color(.label))
+                    .lineLimit(1)
+                Text("#\(item.number)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.gray)
+                    .fixedSize(horizontal: true, vertical: false)
+                Spacer()
+            }
+
+            HStack(spacing: 8) {
+                Text(todoCategoryItem.localizedName)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(todoCategoryItem.color)
+
+                if let dueDate {
+                    Text(dueDate.text)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(dueDate.textColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(dueDate.backgroundColor)
+                        )
+                }
+            }
+
+            if !item.tags.isEmpty {
+                TagList(item.tags, lineLimit: 1)
+            }
+        }
+    }
+
+    private var dueDate: DueDateBadge? {
+        guard let date = item.dueDate else { return nil }
+        let today = calendar.startOfDay(for: Date())
+        let dueDay = calendar.startOfDay(for: date)
+
+        if dueDay < today {
+            return DueDateBadge(
+                text: String(localized: "today_due_overdue"),
+                textColor: .red,
+                backgroundColor: Color.red.opacity(0.12)
+            )
+        }
+
+        let formatted = date.formatted(date: .abbreviated, time: .omitted)
+        return DueDateBadge(
+            text: formatted,
+            textColor: .blue,
+            backgroundColor: Color.blue.opacity(0.12)
+        )
+    }
+
+    private struct DueDateBadge {
+        let text: String
+        let textColor: Color
+        let backgroundColor: Color
+    }
+}
