@@ -48,6 +48,8 @@ final class SettingViewModel: Store {
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
     private let updateSystemThemeUseCase: UpdateSystemThemeUseCase
+    private let fetchWebPageImageDirSizeUseCase: FetchWebPageImageDirSizeUseCase
+    private let clearWebPageImageDirectoryUseCase: ClearWebPageImageDirectoryUseCase
     private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
 
@@ -60,13 +62,17 @@ final class SettingViewModel: Store {
         signOutUseCase: SignOutUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
-        updateSystemThemeUseCase: UpdateSystemThemeUseCase
+        updateSystemThemeUseCase: UpdateSystemThemeUseCase,
+        fetchWebPageImageDirSizeUseCase: FetchWebPageImageDirSizeUseCase,
+        clearWebPageImageDirectoryUseCase: ClearWebPageImageDirectoryUseCase
     ) {
         self.deleteAuthuseCase = deleteAuthUseCase
         self.signOutUseCase = signOutUseCase
         self.networkConnectivityUseCase = networkConnectivityUseCase
         self.systemThemeUseCase = systemThemeUseCase
         self.updateSystemThemeUseCase = updateSystemThemeUseCase
+        self.fetchWebPageImageDirSizeUseCase = fetchWebPageImageDirSizeUseCase
+        self.clearWebPageImageDirectoryUseCase = clearWebPageImageDirectoryUseCase
         setupNetworkObserving()
         setupThemeMonitoring()
     }
@@ -86,7 +92,7 @@ final class SettingViewModel: Store {
             state.theme = value
             updateSystemThemeUseCase.execute(value)
         case .updateDirSize:
-            state.dirSize = dirSizeInBytes()
+            state.dirSize = fetchWebPageImageDirSizeUseCase.execute()
         case .tapDeleteAuthButton:
             effects = [.deleteAuth]
         case .tapSignOutButton:
@@ -96,8 +102,8 @@ final class SettingViewModel: Store {
         case .confirmRemoveCache:
             do {
                 setAlert(&state, isPresented: false)
-                try clearCacheDirectory()
-                state.dirSize = dirSizeInBytes()
+                try clearWebPageImageDirectoryUseCase.execute()
+                state.dirSize = fetchWebPageImageDirSizeUseCase.execute()
             } catch {
                 setAlert(&state, isPresented: true, type: .error)
             }
@@ -181,44 +187,6 @@ private extension SettingViewModel {
             .store(in: &cancellables)
     }
 
-    func dirSizeInBytes() -> Int64 {
-        do {
-            let directory = try FileManager.default.url(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: false
-            )
-            let imageDir = directory.appendingPathComponent("webPageImages", isDirectory: true)
-            guard FileManager.default.fileExists(atPath: imageDir.path) else { return 0 }
-            return directorySize(at: imageDir)
-        } catch {
-            return 0
-        }
-    }
-
-    private func directorySize(at url: URL) -> Int64 {
-        guard FileManager.default.fileExists(atPath: url.path) else { return 0 }
-        guard let enumerator = FileManager.default.enumerator(
-            at: url,
-            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
-            options: [.skipsHiddenFiles]
-        ) else {
-            return 0
-        }
-
-        var total: Int64 = 0
-        for case let fileURL as URL in enumerator {
-            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
-                  resourceValues.isRegularFile == true,
-                  let fileSize = resourceValues.fileSize else {
-                continue
-            }
-            total += Int64(fileSize)
-        }
-        return total
-    }
-
     private func beginLoading(_ mode: LoadingState.Mode) {
         loadingState.begin(mode: mode) { [weak self] isLoading in
             self?.send(.setLoading(isLoading))
@@ -231,22 +199,4 @@ private extension SettingViewModel {
         }
     }
 
-    private func clearCacheDirectory() throws {
-        let directory = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-        )
-        let imageDir = directory.appendingPathComponent("webPageImages", isDirectory: true)
-        guard FileManager.default.fileExists(atPath: imageDir.path) else { return }
-        let contents = try FileManager.default.contentsOfDirectory(
-            at: imageDir,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        for url in contents {
-            try FileManager.default.removeItem(at: url)
-        }
-    }
 }
