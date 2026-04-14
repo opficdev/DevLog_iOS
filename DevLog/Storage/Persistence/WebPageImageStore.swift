@@ -61,10 +61,6 @@ final class WebPageImageStore {
         }
     }
 
-    func observeDirSize() -> AnyPublisher<Int64, Never> {
-        subject.eraseToAnyPublisher()
-    }
-
     func clearDirectory() throws {
         let imageDirectoryURL = try self.imageDirectoryURL(create: false)
         guard fileManager.fileExists(atPath: imageDirectoryURL.path) else { return }
