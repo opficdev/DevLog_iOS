@@ -6,5 +6,5 @@
 //
 
 protocol FetchWebPageImageDirSizeUseCase {
-    func execute() -> Int64
+    func execute() async -> Int64
 }

@@ -6,6 +6,6 @@
 //
 
 protocol WebPageImageRepository {
-    func fetchDirSizeInBytes() -> Int64
-    func clearDirectory() throws
+    func fetchDirSizeInBytes() async -> Int64
+    func clearDirectory() async throws
 }

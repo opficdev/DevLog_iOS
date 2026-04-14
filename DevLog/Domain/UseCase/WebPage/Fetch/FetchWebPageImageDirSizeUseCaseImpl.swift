@@ -12,7 +12,7 @@ final class FetchWebPageImageDirSizeUseCaseImpl: FetchWebPageImageDirSizeUseCase
         self.repository = repository
     }
 
-    func execute() -> Int64 {
-        repository.fetchDirSizeInBytes()
+    func execute() async -> Int64 {
+        await repository.fetchDirSizeInBytes()
     }
 }

@@ -12,7 +12,7 @@ final class ClearWebPageImageDirectoryUseCaseImpl: ClearWebPageImageDirectoryUse
         self.repository = repository
     }
 
-    func execute() throws {
-        try repository.clearDirectory()
+    func execute() async throws {
+        try await repository.clearDirectory()
     }
 }

@@ -6,5 +6,5 @@
 //
 
 protocol ClearWebPageImageDirectoryUseCase {
-    func execute() throws
+    func execute() async throws
 }
