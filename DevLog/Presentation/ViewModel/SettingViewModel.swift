@@ -183,14 +183,15 @@ private extension SettingViewModel {
 
     func dirSizeInBytes() -> Int64 {
         do {
-            let cachesDir = try FileManager.default.url(
-                for: .cachesDirectory,
+            let directory = try FileManager.default.url(
+                for: .applicationSupportDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: false
             )
-            guard FileManager.default.fileExists(atPath: cachesDir.path) else { return 0 }
-            return directorySize(at: cachesDir)
+            let imageDir = directory.appendingPathComponent("webPageImages", isDirectory: true)
+            guard FileManager.default.fileExists(atPath: imageDir.path) else { return 0 }
+            return directorySize(at: imageDir)
         } catch {
             return 0
         }
@@ -231,15 +232,16 @@ private extension SettingViewModel {
     }
 
     private func clearCacheDirectory() throws {
-        let cachesDir = try FileManager.default.url(
-            for: .cachesDirectory,
+        let directory = try FileManager.default.url(
+            for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: false
         )
-        guard FileManager.default.fileExists(atPath: cachesDir.path) else { return }
+        let imageDir = directory.appendingPathComponent("webPageImages", isDirectory: true)
+        guard FileManager.default.fileExists(atPath: imageDir.path) else { return }
         let contents = try FileManager.default.contentsOfDirectory(
-            at: cachesDir,
+            at: imageDir,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )

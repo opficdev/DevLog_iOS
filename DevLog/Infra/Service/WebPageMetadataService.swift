@@ -104,7 +104,6 @@ final class WebPageMetadataService {
 
     private static func cacheFileURL(for url: URL) throws -> URL {
         let imageDir = try imageDirectoryURL()
-
         let fileName = url.absoluteString
             .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
 
@@ -114,13 +113,13 @@ final class WebPageMetadataService {
     }
 
     private static func imageDirectoryURL() throws -> URL {
-        let cachesDir = try FileManager.default.url(
-            for: .cachesDirectory,
+        let directory = try FileManager.default.url(
+            for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: true
         )
-        let imageDir = cachesDir.appendingPathComponent("webPageImages", isDirectory: true)
+        let imageDir = directory.appendingPathComponent("webPageImages", isDirectory: true)
         if !FileManager.default.fileExists(atPath: imageDir.path) {
             try FileManager.default.createDirectory(at: imageDir, withIntermediateDirectories: true)
         }
