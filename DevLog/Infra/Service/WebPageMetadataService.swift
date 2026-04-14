@@ -71,10 +71,11 @@ final class WebPageMetadataService {
 
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
         guard let imageProvider else { return nil }
-        let imageStore = self.imageStore
 
         return try await withCheckedThrowingContinuation { continuation in
-            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
+            //  `[imageStore]`은 배열이 아니고 캡쳐 리스트
+            //  명시적으로 imageStore을 캡쳐하겠다고 작성한 것
+            imageProvider.loadObject(ofClass: UIImage.self) { [imageStore] image, error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
