@@ -77,7 +77,7 @@
 		DFD3A9842F8E89DF001DA7CD /* Exceptions for "DevLogWidget" folder in "DevLogWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resource/Info.plist,
 			);
 			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
 		};
@@ -433,12 +433,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = DevLogWidget/Resource/DevLogWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CPC6N38WA;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DevLogWidget/Info.plist;
+				INFOPLIST_FILE = DevLogWidget/Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
@@ -465,12 +466,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = DevLogWidget/Resource/DevLogWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CPC6N38WA;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DevLogWidget/Info.plist;
+				INFOPLIST_FILE = DevLogWidget/Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
