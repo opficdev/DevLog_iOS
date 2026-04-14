@@ -53,7 +53,9 @@ final class InfraAssembler: Assembler {
         }
 
         container.register(WebPageMetadataService.self) {
-            WebPageMetadataService()
+            WebPageMetadataService(
+                store: container.resolve(WebPageImageStore.self)
+            )
         }
 
         container.register(NWPathConnectivityProvider.self) {
