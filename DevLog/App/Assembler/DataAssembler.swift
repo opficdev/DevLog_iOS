@@ -87,6 +87,12 @@ final class DataAssembler: Assembler {
             )
         }
 
+        container.register(WebPageImageRepository.self) {
+            WebPageImageRepositoryImpl(
+                store: container.resolve(WebPageImageStore.self)
+            )
+        }
+
         container.register(UserPreferencesRepository.self) {
             UserPreferencesRepositoryImpl(
                 store: container.resolve(UserDefaultsStore.self),

@@ -14,5 +14,9 @@ final class PersistenceAssembler: Assembler {
         container.register(ThemeStore.self) {
             ThemeStore()
         }
+
+        container.register(WebPageImageStore.self) {
+            WebPageImageStore()
+        }
     }
 }

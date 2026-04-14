@@ -103,7 +103,9 @@ struct ProfileView: View {
                         signOutUseCase: container.resolve(SignOutUseCase.self),
                         networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                         systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                        updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self)
+                        updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self),
+                        fetchWebPageImageDirSizeUseCase: container.resolve(FetchWebPageImageDirSizeUseCase.self),
+                        clearWebPageImageDirectoryUseCase: container.resolve(ClearWebPageImageDirectoryUseCase.self)
                     ))
                     .environment(router)
                 case .activity(let todoId):
