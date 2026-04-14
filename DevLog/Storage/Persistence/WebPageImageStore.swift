@@ -5,17 +5,14 @@
 //  Created by opfic on 4/14/26.
 //
 
-import Combine
 import CryptoKit
 import Foundation
 
-final class WebPageImageStore {
+actor WebPageImageStore {
     private let fileManager: FileManager
-    private let subject = CurrentValueSubject<Int64, Never>(0)
 
     init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
-        subject.send(dirSizeInBytes())
     }
 
     func cachedImageURL(for url: URL) throws -> URL {
@@ -30,7 +27,6 @@ final class WebPageImageStore {
     func saveImage(_ data: Data, for url: URL) throws -> URL {
         let fileURL = try cachedImageURL(for: url)
         try data.write(to: fileURL, options: [.atomic])
-        subject.send(dirSizeInBytes())
         return fileURL
     }
 
@@ -72,14 +68,12 @@ final class WebPageImageStore {
         for contentURL in contentURLs {
             try fileManager.removeItem(at: contentURL)
         }
-        subject.send(dirSizeInBytes())
     }
 
     func removeImage(for url: URL) throws -> Bool {
         let fileURL = try cachedImageURL(for: url)
         guard fileManager.fileExists(atPath: fileURL.path) else { return false }
         try fileManager.removeItem(at: fileURL)
-        subject.send(dirSizeInBytes())
         return true
     }
 }

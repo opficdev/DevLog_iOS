@@ -74,7 +74,7 @@ private extension WebPageRepositoryImpl {
 
         let expectedImageURL: URL
         do {
-            expectedImageURL = try metadataService.cachedImageURL(for: response.url)
+            expectedImageURL = try await metadataService.cachedImageURL(for: response.url)
         } catch {
             return true
         }

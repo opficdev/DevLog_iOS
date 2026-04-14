@@ -13,16 +13,10 @@ final class WebPageImageRepositoryImpl: WebPageImageRepository {
     }
 
     func fetchDirSizeInBytes() async -> Int64 {
-        let store = self.store
-        return await Task.detached(priority: .utility) {
-            store.dirSizeInBytes()
-        }.value
+        await store.dirSizeInBytes()
     }
 
     func clearDirectory() async throws {
-        let store = self.store
-        try await Task.detached(priority: .utility) {
-            try store.clearDirectory()
-        }.value
+        try await store.clearDirectory()
     }
 }

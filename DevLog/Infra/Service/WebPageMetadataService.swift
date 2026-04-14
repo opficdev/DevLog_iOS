@@ -51,7 +51,7 @@ final class WebPageMetadataService {
         }
 
         do {
-            let removed = try imageStore.removeImage(for: url)
+            let removed = try await imageStore.removeImage(for: url)
 
             if removed {
                 logger.info("Removed cached image for URL: \(urlString)")
@@ -61,12 +61,12 @@ final class WebPageMetadataService {
         }
     }
 
-    func cachedImageURL(for urlString: String) throws -> URL {
+    func cachedImageURL(for urlString: String) async throws -> URL {
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
 
-        return try imageStore.cachedImageURL(for: url)
+        return try await imageStore.cachedImageURL(for: url)
     }
 
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
@@ -86,11 +86,13 @@ final class WebPageMetadataService {
                     return
                 }
 
-                do {
-                    let fileURL = try imageStore.saveImage(data, for: url)
-                    continuation.resume(returning: fileURL)
-                } catch {
-                    continuation.resume(throwing: error)
+                Task {
+                    do {
+                        let fileURL = try await imageStore.saveImage(data, for: url)
+                        continuation.resume(returning: fileURL)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
         }
