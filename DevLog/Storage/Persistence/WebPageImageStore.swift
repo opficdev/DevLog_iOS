@@ -105,6 +105,12 @@ private extension WebPageImageStore {
         if create && !fileManager.fileExists(atPath: imageDirectory.path) {
             try fileManager.createDirectory(at: imageDirectory, withIntermediateDirectories: true)
         }
+        if create {
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            var imageDirectory = imageDirectory
+            try imageDirectory.setResourceValues(resourceValues)
+        }
 
         return imageDirectory
     }
