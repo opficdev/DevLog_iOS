@@ -22,6 +22,7 @@ final class AppleAuthenticationService: AuthenticationService {
     }
 
     private var appleSignInDelegate: AppleSignInDelegate?
+    private var appleSignInContinuation: CheckedContinuation<ASAuthorization, Error>?
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let messaging = Messaging.messaging()
@@ -191,6 +192,10 @@ final class AppleAuthenticationService: AuthenticationService {
     // Apple 인증 메서드
     @MainActor
     func authenticateWithAppleAsync() async throws -> AppleAuthResponse {
+        guard appleSignInDelegate == nil, appleSignInContinuation == nil else {
+            throw SocialLoginError.authenticationAlreadyInProgress
+        }
+
         // 자체 nonce 생성 및 해시화
         let nonce = UUID().uuidString
         let hashedNonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
@@ -203,7 +208,11 @@ final class AppleAuthenticationService: AuthenticationService {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
         let authorization = try await withCheckedThrowingContinuation { continuation in
-            self.appleSignInDelegate = AppleSignInDelegate(continuation: continuation)
+            let delegate = AppleSignInDelegate { [weak self] result in
+                self?.completeAppleSignIn(with: result)
+            }
+            self.appleSignInDelegate = delegate
+            self.appleSignInContinuation = continuation
             controller.delegate = self.appleSignInDelegate
             controller.presentationContextProvider = self.appleSignInDelegate
             controller.performRequests()
@@ -223,6 +232,21 @@ final class AppleAuthenticationService: AuthenticationService {
                 authorizationCode: authorizationCode,
                 idTokenString: idTokenString
         )
+    }
+
+    @MainActor
+    private func completeAppleSignIn(with result: Result<ASAuthorization, Error>) {
+        guard let continuation = appleSignInContinuation else { return }
+
+        appleSignInContinuation = nil
+        appleSignInDelegate = nil
+
+        switch result {
+        case .success(let authorization):
+            continuation.resume(returning: authorization)
+        case .failure(let error):
+            continuation.resume(throwing: error)
+        }
     }
     
     // Apple CustomToken 발급 메서드

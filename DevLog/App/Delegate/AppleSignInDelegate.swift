@@ -8,24 +8,25 @@
 import Foundation
 import AuthenticationServices
 
-class AppleSignInDelegate: NSObject,
-                           ASAuthorizationControllerDelegate,
-                           ASAuthorizationControllerPresentationContextProviding {
-    var continuation: CheckedContinuation<ASAuthorization, Error>
-    
-    init(continuation: CheckedContinuation<ASAuthorization, Error>) {
-        self.continuation = continuation
+@MainActor
+final class AppleSignInDelegate: NSObject,
+                                 ASAuthorizationControllerDelegate,
+                                 ASAuthorizationControllerPresentationContextProviding {
+    private let finish: @MainActor (Result<ASAuthorization, Error>) -> Void
+
+    init(finish: @escaping @MainActor (Result<ASAuthorization, Error>) -> Void) {
+        self.finish = finish
     }
-    
+
     func authorizationController(
         controller: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
-        continuation.resume(returning: authorization)
+        finish(.success(authorization))
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        continuation.resume(throwing: error)
+        finish(.failure(error))
     }
     
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {

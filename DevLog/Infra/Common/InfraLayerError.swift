@@ -45,6 +45,7 @@ enum TokenError: Error {
 enum SocialLoginError: Error {
     case invalidOAuthState
     case failedToStartWebAuthenticationSession
+    case authenticationAlreadyInProgress
 }
 
 extension Error {
