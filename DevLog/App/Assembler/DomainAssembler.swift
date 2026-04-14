@@ -153,6 +153,10 @@ private extension DomainAssembler {
             AddWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
 
+        container.register(ClearWebPageImageDirectoryUseCase.self) {
+            ClearWebPageImageDirectoryUseCaseImpl(container.resolve(WebPageImageRepository.self))
+        }
+
         container.register(DeleteWebPageUseCase.self) {
             DeleteWebPageUseCaseImpl(container.resolve(WebPageRepository.self))
         }
