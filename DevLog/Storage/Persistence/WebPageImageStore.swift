@@ -6,6 +6,7 @@
 //
 
 import Combine
+import CryptoKit
 import Foundation
 
 final class WebPageImageStore {
@@ -19,8 +20,7 @@ final class WebPageImageStore {
 
     func cachedImageURL(for url: URL) throws -> URL {
         let imageDirectoryURL = try self.imageDirectoryURL(create: true)
-        let fileName = url.absoluteString
-            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? UUID().uuidString
+        let fileName = hashedFileName(for: url)
 
         return imageDirectoryURL
             .appendingPathComponent(fileName)
@@ -89,6 +89,11 @@ final class WebPageImageStore {
 }
 
 private extension WebPageImageStore {
+    func hashedFileName(for url: URL) -> String {
+        let hashValue = SHA256.hash(data: Data(url.absoluteString.utf8))
+        return hashValue.map { String(format: "%02x", $0) }.joined()
+    }
+
     func imageDirectoryURL(create: Bool) throws -> URL {
         let directory = try fileManager.url(
             for: .applicationSupportDirectory,
