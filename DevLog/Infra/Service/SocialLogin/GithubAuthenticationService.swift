@@ -31,6 +31,12 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     private let providerID = AuthProviderID.gitHub
     private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GithubAuthService")
+    private let gitHubApiClient = NXAPIClient(
+        configuration: NXClientConfiguration(
+            baseURL: GitHubAPI.baseURL,
+            headers: ["Accept": GitHubAPI.acceptHeader]
+        )
+    )
 
     func signIn() async throws -> AuthDataResponse {
         logger.info("Starting GitHub sign in")
@@ -249,13 +255,6 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
 
     // GitHub API로 사용자 프로필 정보 가져오기
     private func requestUserProfile(accessToken: String) async throws -> GitHubUser {
-        let gitHubApiClient = NXAPIClient(
-            configuration: NXClientConfiguration(
-                baseURL: GitHubAPI.baseURL,
-                headers: ["Accept": GitHubAPI.acceptHeader]
-            )
-        )
-
         let gitHubUser = try await gitHubApiClient
             .get("/user", as: GitHubUser.self)
             .header("Authorization", "Bearer \(accessToken)")
@@ -276,13 +275,6 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     private func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
-        let gitHubApiClient = NXAPIClient(
-            configuration: NXClientConfiguration(
-                baseURL: GitHubAPI.baseURL,
-                headers: ["Accept": GitHubAPI.acceptHeader]
-            )
-        )
-
         let gitHubEmails = try await gitHubApiClient
             .get("/user/emails", as: [GitHubEmail].self)
             .header("Authorization", "Bearer \(accessToken)")
