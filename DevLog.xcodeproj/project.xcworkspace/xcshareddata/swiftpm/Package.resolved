@@ -1,5 +1,5 @@
 {
-  "originHash" : "e440a72cfb4192fa35c539dad59247f988a89b2436e7dfc795518078100559a4",
+  "originHash" : "6e83e8a97f59e7d95bbfcd1dc82daad8306c7a0f7df1e8bb7966a26baf0e4a2b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -161,6 +161,15 @@
       "state" : {
         "revision" : "2849f5323265386e200484b0d0f896e73c3411b9",
         "version" : "6.0.1"
+      }
+    },
+    {
+      "identity" : "nexa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/opficdev/Nexa",
+      "state" : {
+        "revision" : "a2f3ca9862eb24ffc28bdeb6d67293b4e8ddf3a5",
+        "version" : "1.1.0"
       }
     },
     {

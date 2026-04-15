@@ -11,11 +11,17 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
+import Nexa
 
 final class GithubAuthenticationService: NSObject, AuthenticationService {
     private enum FunctionName: String {
         case requestGithubTokens
         case revokeGithubAccessToken
+    }
+
+    private enum GitHubAPI {
+        static let baseURL = URL(string: "https://api.github.com")!
+        static let acceptHeader = "application/vnd.github.v3+json"
     }
 
     private let store = Firestore.firestore()
@@ -243,24 +249,18 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
 
     // GitHub API로 사용자 프로필 정보 가져오기
     private func requestUserProfile(accessToken: String) async throws -> GitHubUser {
-        guard let url = URL(string: "https://api.github.com/user") else {
-            throw URLError(.badURL)
-        }
+        let gitHubApiClient = NXAPIClient(
+            configuration: NXClientConfiguration(
+                baseURL: GitHubAPI.baseURL,
+                headers: ["Accept": GitHubAPI.acceptHeader]
+            )
+        )
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        let decoder = JSONDecoder()
-        let gitHubUser = try decoder.decode(GitHubUser.self, from: data)
+        let gitHubUser = try await gitHubApiClient
+            .get("/user", as: GitHubUser.self)
+            .header("Authorization", "Bearer \(accessToken)")
+            .validate(.statusCodes([200]))
+            .send()
 
         if gitHubUser.email != nil {
             return gitHubUser
@@ -276,24 +276,18 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 
     private func requestPrimaryVerifiedEmail(accessToken: String) async throws -> String? {
-        guard let url = URL(string: "https://api.github.com/user/emails") else {
-            throw URLError(.badURL)
-        }
+        let gitHubApiClient = NXAPIClient(
+            configuration: NXClientConfiguration(
+                baseURL: GitHubAPI.baseURL,
+                headers: ["Accept": GitHubAPI.acceptHeader]
+            )
+        )
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-
-        let decoder = JSONDecoder()
-        let gitHubEmails = try decoder.decode([GitHubEmail].self, from: data)
+        let gitHubEmails = try await gitHubApiClient
+            .get("/user/emails", as: [GitHubEmail].self)
+            .header("Authorization", "Bearer \(accessToken)")
+            .validate(.statusCodes([200]))
+            .send()
 
         if let primaryVerifiedEmail = gitHubEmails.first(where: { $0.primary && $0.verified }) {
             return primaryVerifiedEmail.email
