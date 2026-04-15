@@ -15,6 +15,7 @@
 		DFABA3B02E23526500FEFBDB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3AF2E23526500FEFBDB /* FirebaseFirestore */; };
 		DFABA3B22E23526500FEFBDB /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B12E23526500FEFBDB /* FirebaseFunctions */; };
 		DFABA3B42E23526500FEFBDB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B32E23526500FEFBDB /* FirebaseMessaging */; };
+		DFD3B68D2F8F1FB8001DA7CD /* Nexa in Frameworks */ = {isa = PBXBuildFile; productRef = DFD3B68C2F8F1FB8001DA7CD /* Nexa */; };
 		DFD645402EC827A10073E133 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = DFD6453F2EC827A10073E133 /* .gitignore */; };
 		DFD74E2F2E423EA700613803 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFD74E2E2E423EA700613803 /* README.md */; };
 		DFF2DACE2EDC02AD00778738 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = DFF2DACD2EDC02AD00778738 /* OrderedCollections */; };
@@ -76,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFD3B68D2F8F1FB8001DA7CD /* Nexa in Frameworks */,
 				DFABA3B42E23526500FEFBDB /* FirebaseMessaging in Frameworks */,
 				DFABA3A92E2351EE00FEFBDB /* GoogleSignInSwift in Frameworks */,
 				DFABA3B22E23526500FEFBDB /* FirebaseFunctions in Frameworks */,
@@ -172,6 +174,7 @@
 				DFABA3B12E23526500FEFBDB /* FirebaseFunctions */,
 				DFABA3B32E23526500FEFBDB /* FirebaseMessaging */,
 				DFF2DACD2EDC02AD00778738 /* OrderedCollections */,
+				DFD3B68C2F8F1FB8001DA7CD /* Nexa */,
 			);
 			productName = SwiftUI_DevLog;
 			productReference = DFD48B002DC4D6E2005905C5 /* DevLog.app */;
@@ -211,6 +214,7 @@
 				DFABA3AA2E23526500FEFBDB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 				DFF2DACC2EDC02AD00778738 /* XCRemoteSwiftPackageReference "swift-collections" */,
+				DFD3B68B2F8F1FB8001DA7CD /* XCRemoteSwiftPackageReference "Nexa" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DFD48B012DC4D6E2005905C5 /* Products */;
@@ -610,6 +614,14 @@
 				minimumVersion = 11.15.0;
 			};
 		};
+		DFD3B68B2F8F1FB8001DA7CD /* XCRemoteSwiftPackageReference "Nexa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/opficdev/Nexa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 		DFF2DACC2EDC02AD00778738 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
@@ -665,6 +677,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DFABA3AA2E23526500FEFBDB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		DFD3B68C2F8F1FB8001DA7CD /* Nexa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFD3B68B2F8F1FB8001DA7CD /* XCRemoteSwiftPackageReference "Nexa" */;
+			productName = Nexa;
 		};
 		DFF2DACD2EDC02AD00778738 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
