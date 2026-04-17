@@ -82,6 +82,7 @@ final class TodayViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
     private let loadingState = LoadingState()
+    private let widgetCoordinator = TodayWidgetSyncCoordinator()
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -183,6 +184,7 @@ final class TodayViewModel: Store {
         }
 
         if self.state != state { self.state = state }
+        widgetSyncIfNeeded(for: action)
         return effects
     }
 
@@ -421,5 +423,22 @@ private extension TodayViewModel {
         }
         let dueDay = calendar.startOfDay(for: dueDate)
         return startOfToday <= dueDay && dueDay <= windowEnd
+    }
+
+    func widgetSyncIfNeeded(for action: Action) {
+        switch action {
+        case .setDueDateVisibility,
+                .setFocusVisibility,
+                .resetDisplayOptions,
+                .fetchTodos,
+                .updateTodo,
+                .removeTodo:
+            widgetCoordinator.sync(
+                todos: state.todos,
+                displayOptions: state.displayOptions
+            )
+        default:
+            break
+        }
     }
 }
