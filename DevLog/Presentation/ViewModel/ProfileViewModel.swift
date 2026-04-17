@@ -61,6 +61,7 @@ final class ProfileViewModel: Store {
         case fetchActivityQuarter(Date)
         case updateStatusMessage(String)
         case updateHeatmapActivityKinds(Set<ActivityKind>)
+        case syncHeatmapWidget
     }
 
     private(set) var state = State()
@@ -70,8 +71,10 @@ final class ProfileViewModel: Store {
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+    private let widgetCoordinator: HeatmapWidgetSyncCoordinator
     private let calendar = Calendar.current
     private let loadingState = LoadingState()
+    private var syncHeatmapWidgetTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -88,6 +91,9 @@ final class ProfileViewModel: Store {
         self.networkConnectivityUseCase = networkConnectivityUseCase
         self.fetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
         self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
+        self.widgetCoordinator = HeatmapWidgetSyncCoordinator(
+            fetchTodosUseCase: fetchTodosUseCase
+        )
         setupNetworkObserving()
     }
 
@@ -101,7 +107,7 @@ final class ProfileViewModel: Store {
                 guard let quarterStart = quarterStart(for: Date()) else { break }
                 state.selectedQuarterStart = quarterStart
             }
-            effects = [.fetchUserData]
+            effects = [.fetchUserData, .syncHeatmapWidget]
             let rawValues = fetchHeatmapActivityTypesUseCase.execute()
             let settings = normalizeActivityKinds(rawValues)
             if !settings.isEmpty {
@@ -174,7 +180,7 @@ final class ProfileViewModel: Store {
             } else {
                 state.selectedActivityKinds.insert(activityKind)
             }
-            effects = [.updateHeatmapActivityKinds(state.selectedActivityKinds)]
+            effects = [.updateHeatmapActivityKinds(state.selectedActivityKinds), .syncHeatmapWidget]
         case .willUpdateStatusMessage:
             if !state.isNetworkConnected { break }
             let message = self.state.statusMessage
@@ -235,6 +241,13 @@ final class ProfileViewModel: Store {
                     return activityKinds.contains(activityKind)
                 }
             updateHeatmapActivityTypesUseCase.execute(rawValues)
+        case .syncHeatmapWidget:
+            syncHeatmapWidgetTask?.cancel()
+            syncHeatmapWidgetTask = Task { [selectedActivityKinds = state.selectedActivityKinds] in
+                await widgetCoordinator.sync(
+                    selectedActivityKinds: selectedActivityKinds
+                )
+            }
         }
     }
 }
