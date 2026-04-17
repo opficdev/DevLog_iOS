@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APPSTORE_URL</key>
+	<string>$(APPSTORE_URL)</string>
+	<key>APP_REDIRECT_URL</key>
+	<string>$(APP_REDIRECT_URL)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -14,18 +18,14 @@
 			</array>
 		</dict>
 	</array>
-	<key>GIDClientID</key>
-	<string>$(CLIENT_ID)</string>
-	<key>PRIVACY_POLICY_URL</key>
-	<string>$(PRIVACY_POLICY_URL)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>GIDClientID</key>
+	<string>$(CLIENT_ID)</string>
 	<key>GITHUB_CLIENT_ID</key>
 	<string>$(GITHUB_CLIENT_ID)</string>
-	<key>APPSTORE_URL</key>
-	<string>$(APPSTORE_URL)</string>
-	<key>APP_REDIRECT_URL</key>
-	<string>$(APP_REDIRECT_URL)</string>
+	<key>PRIVACY_POLICY_URL</key>
+	<string>$(PRIVACY_POLICY_URL)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
