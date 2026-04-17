@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>DevLogWidgetExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
 		<key>DevLog_Unit.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -23,6 +28,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>DF3416442E45F67C00F9312B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DFD3A96F2F8E89DD001DA7CD</key>
 		<dict>
 			<key>primary</key>
 			<true/>

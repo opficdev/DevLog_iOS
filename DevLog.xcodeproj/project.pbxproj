@@ -15,6 +15,9 @@
 		DFABA3B02E23526500FEFBDB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3AF2E23526500FEFBDB /* FirebaseFirestore */; };
 		DFABA3B22E23526500FEFBDB /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B12E23526500FEFBDB /* FirebaseFunctions */; };
 		DFABA3B42E23526500FEFBDB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DFABA3B32E23526500FEFBDB /* FirebaseMessaging */; };
+		DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */; };
+		DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */; };
+		DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DFD3B68D2F8F1FB8001DA7CD /* Nexa in Frameworks */ = {isa = PBXBuildFile; productRef = DFD3B68C2F8F1FB8001DA7CD /* Nexa */; };
 		DFD645402EC827A10073E133 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = DFD6453F2EC827A10073E133 /* .gitignore */; };
 		DFD74E2F2E423EA700613803 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFD74E2E2E423EA700613803 /* README.md */; };
@@ -29,10 +32,34 @@
 			remoteGlobalIDString = DFD48AFF2DC4D6E2005905C5;
 			remoteInfo = DevLog;
 		};
+		DFD3A97D2F8E89DF001DA7CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DFD48AF82DC4D6E2005905C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DFD3A96F2F8E89DD001DA7CD;
+			remoteInfo = DevLogWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLog_Unit.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD6453F2EC827A10073E133 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		DFD74E2E2E423EA700613803 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -46,6 +73,13 @@
 				Resource/Info.plist,
 			);
 			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
+		};
+		DFD3A9842F8E89DF001DA7CD /* Exceptions for "DevLogWidget" folder in "DevLogWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -63,6 +97,14 @@
 			path = DevLog;
 			sourceTree = "<group>";
 		};
+		DFD3A9752F8E89DD001DA7CD /* DevLogWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DFD3A9842F8E89DF001DA7CD /* Exceptions for "DevLogWidget" folder in "DevLogWidgetExtension" target */,
+			);
+			path = DevLogWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +112,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DFD3A96D2F8E89DD001DA7CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */,
+				DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +151,7 @@
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
 				DF34164A2E45F67C00F9312B /* DevLog_Unit */,
 				DFD74E2E2E423EA700613803 /* README.md */,
+				DFD3A9752F8E89DD001DA7CD /* DevLogWidget */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
 			);
@@ -110,6 +162,7 @@
 			children = (
 				DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */,
 				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
+				DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,6 +170,8 @@
 		DFE28EB62DCCF26300B28FE5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */,
+				DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -147,6 +202,28 @@
 			productReference = DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DFD3A9832F8E89DF001DA7CD /* Build configuration list for PBXNativeTarget "DevLogWidgetExtension" */;
+			buildPhases = (
+				DFD3A96C2F8E89DD001DA7CD /* Sources */,
+				DFD3A96D2F8E89DD001DA7CD /* Frameworks */,
+				DFD3A96E2F8E89DD001DA7CD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DFD3A9752F8E89DD001DA7CD /* DevLogWidget */,
+			);
+			name = DevLogWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = DevLogWidgetExtension;
+			productReference = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		DFD48AFF2DC4D6E2005905C5 /* DevLog */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DFD48B112DC4D6E4005905C5 /* Build configuration list for PBXNativeTarget "DevLog" */;
@@ -154,11 +231,13 @@
 				DFD48AFC2DC4D6E2005905C5 /* Sources */,
 				DFD48AFD2DC4D6E2005905C5 /* Frameworks */,
 				DFD48AFE2DC4D6E2005905C5 /* Resources */,
+				DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */,
+				DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
@@ -187,12 +266,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					DF3416442E45F67C00F9312B = {
 						CreatedOnToolsVersion = 16.3;
 						TestTargetID = DFD48AFF2DC4D6E2005905C5;
+					};
+					DFD3A96F2F8E89DD001DA7CD = {
+						CreatedOnToolsVersion = 26.4;
 					};
 					DFD48AFF2DC4D6E2005905C5 = {
 						CreatedOnToolsVersion = 16.3;
@@ -223,12 +305,20 @@
 			targets = (
 				DF3416442E45F67C00F9312B /* DevLog_Unit */,
 				DFD48AFF2DC4D6E2005905C5 /* DevLog */,
+				DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DF3416482E45F67C00F9312B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DFD3A96E2F8E89DD001DA7CD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -254,6 +344,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DFD3A96C2F8E89DD001DA7CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DFD48AFC2DC4D6E2005905C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -272,6 +369,11 @@
 		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
+		};
+		DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
+			targetProxy = DFD3A97D2F8E89DF001DA7CD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -323,6 +425,70 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog";
 				TEST_TARGET_NAME = DevLog;
+			};
+			name = Release;
+		};
+		DFD3A9812F8E89DF001DA7CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4CPC6N38WA;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DevLogWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog.DevLogWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DFD3A9822F8E89DF001DA7CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4CPC6N38WA;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DevLogWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog.DevLogWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -557,6 +723,15 @@
 			buildConfigurations = (
 				DF34164D2E45F67C00F9312B /* Debug */,
 				DF34164E2E45F67C00F9312B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DFD3A9832F8E89DF001DA7CD /* Build configuration list for PBXNativeTarget "DevLogWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DFD3A9812F8E89DF001DA7CD /* Debug */,
+				DFD3A9822F8E89DF001DA7CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
