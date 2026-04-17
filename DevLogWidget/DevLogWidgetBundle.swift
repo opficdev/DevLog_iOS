@@ -11,6 +11,7 @@ import SwiftUI
 @main
 struct DevLogWidgetBundle: WidgetBundle {
     var body: some Widget {
-        DevLogWidget()
+        TodayTodoWidget()
+        ProfileHeatmapWidget()
     }
 }
