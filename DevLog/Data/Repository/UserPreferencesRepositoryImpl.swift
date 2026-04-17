@@ -15,7 +15,7 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         static let pushSortOrder = "PushNotification.sortOption"
         static let pushTimeFilter = "PushNotification.timeFilter"
         static let pushUnreadOnly = "PushNotification.showUnreadOnly"
-        static let profileHeatmapActivityTypes = "Profile.heatmap.activityTypes"
+        static let heatmapActivityTypes = "Profile.heatmap.activityTypes"
         static let todayDueDateVisibility = "Today.dueDateVisibility"
         static let todayFocusVisibility = "Today.focusVisibility"
     }
@@ -84,12 +84,12 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         store.setBool(value, forKey: Key.pushUnreadOnly)
     }
 
-    func profileHeatmapActivityTypes() -> [String] {
-        store.stringArray(forKey: Key.profileHeatmapActivityTypes)
+    func heatmapActivityTypes() -> [String] {
+        store.stringArray(forKey: Key.heatmapActivityTypes)
     }
 
-    func setProfileHeatmapActivityTypes(_ activityTypes: [String]) {
-        store.setStringArray(activityTypes, forKey: Key.profileHeatmapActivityTypes)
+    func setHeatmapActivityTypes(_ activityTypes: [String]) {
+        store.setStringArray(activityTypes, forKey: Key.heatmapActivityTypes)
     }
 
     func todayDisplayOptions() -> TodayDisplayOptions {
