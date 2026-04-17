@@ -219,10 +219,8 @@ final class HomeViewModel: Store {
                 }
             }
         case .deleteWebPage(let page, let index):
-            beginLoading(for: .webPage, mode: .delayed)
             Task {
                 do {
-                    defer { endLoading(for: .webPage, mode: .delayed) }
                     try await deleteWebPageUseCase.execute(page.url.absoluteString)
                 } catch {
                     send(.restoreWebPage(page, index))
