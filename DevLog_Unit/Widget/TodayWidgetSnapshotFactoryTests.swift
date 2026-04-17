@@ -25,7 +25,7 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.totalCount == 5)
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 1)
-        #expect(snapshot.dueSoonCount == 1)
+        #expect(snapshot.dueSoonCount == 2)
         #expect(snapshot.sections.map(\.category) == ["focused", "overdue", "dueSoon", "later", "unscheduled"])
         #expect(snapshot.sections[0].items.map(\.title) == ["고정된 할 일"])
         #expect(snapshot.sections[1].items.map(\.title) == ["지난 일정"])
@@ -52,7 +52,7 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.totalCount == 1)
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 0)
-        #expect(snapshot.dueSoonCount == 0)
+        #expect(snapshot.dueSoonCount == 1)
         #expect(snapshot.sections.map(\.category) == ["focused"])
         #expect(snapshot.sections[0].items.map(\.title) == ["고정된 할 일"])
     }
