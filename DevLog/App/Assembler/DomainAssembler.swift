@@ -191,12 +191,12 @@ private extension DomainAssembler {
             UpdatePushNotificationQueryUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
 
-        container.register(FetchProfileHeatmapActivityTypesUseCase.self) {
-            FetchProfileHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        container.register(FetchHeatmapActivityTypesUseCase.self) {
+            FetchHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
 
-        container.register(UpdateProfileHeatmapActivityTypesUseCase.self) {
-            UpdateProfileHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
+        container.register(UpdateHeatmapActivityTypesUseCase.self) {
+            UpdateHeatmapActivityTypesUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }
 
         container.register(FetchTodayDisplayOptionsUseCase.self) {
