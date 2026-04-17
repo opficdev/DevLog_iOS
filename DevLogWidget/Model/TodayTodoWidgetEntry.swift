@@ -9,4 +9,5 @@ import WidgetKit
 
 struct TodayTodoWidgetEntry: TimelineEntry {
     let date: Date
+    let snapshot: TodayWidgetSnapshot?
 }

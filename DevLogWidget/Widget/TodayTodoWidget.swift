@@ -17,8 +17,8 @@ struct TodayTodoWidget: Widget {
             kind: kind,
             intent: TodayTodoWidgetConfigurationIntent.self,
             provider: TodayTodoWidgetProvider()
-        ) { _ in
-            TodayTodoWidgetEntryView()
+        ) { entry in
+            TodayTodoWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Today Todo")

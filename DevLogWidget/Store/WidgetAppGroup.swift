@@ -10,7 +10,3 @@ import Foundation
 enum WidgetAppGroup {
     static let identifier = "group.opfic.DevLog"
 }
-
-enum WidgetSharedUserDefaults {
-    static let shared = UserDefaults(suiteName: WidgetAppGroup.identifier)
-}
