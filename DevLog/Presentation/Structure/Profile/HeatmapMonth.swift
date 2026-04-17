@@ -1,5 +1,5 @@
 //
-//  ProfileActivityMonth.swift
+//  HeatmapMonth.swift
 //  DevLog
 //
 //  Created by opfic on 3/2/26.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct ProfileActivityMonth: Identifiable, Hashable {
+struct HeatmapMonth: Identifiable, Hashable {
     var id: Date { monthStart }
     let monthStart: Date
-    let weeks: [[ProfileActivityDay]]
+    let weeks: [[HeatmapDay]]
 }

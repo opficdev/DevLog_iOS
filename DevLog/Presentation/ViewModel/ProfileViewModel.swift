@@ -21,10 +21,10 @@ final class ProfileViewModel: Store {
         var selectedQuarterStart: Date?
         var showQuarterPicker: Bool = false
         var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
-        var activityQuarter: ProfileActivityQuarter?
-        var dayActivitiesByDate: [Date: [ProfileActivityItem]] = [:]
+        var activityQuarter: HeatmapQuarter?
+        var dayActivitiesByDate: [Date: [HeatmapActivityItem]] = [:]
         var selectedActivityKinds: Set<ActivityKind> = [.created, .completed, .deleted]
-        var selectedDay: ProfileActivityDay?
+        var selectedDay: HeatmapDay?
         var showDoneButton: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -41,8 +41,8 @@ final class ProfileViewModel: Store {
         case fetchUserData(UserProfile)
         case setActivityQuarter(
             quarterStart: Date,
-            quarter: ProfileActivityQuarter,
-            dayActivitiesByDate: [Date: [ProfileActivityItem]]
+            quarter: HeatmapQuarter,
+            dayActivitiesByDate: [Date: [HeatmapActivityItem]]
         )
         case setQuarterPickerPresented(Bool)
         case setQuarterPickerYear(Int)
@@ -51,7 +51,7 @@ final class ProfileViewModel: Store {
         case moveToCurrentQuarter
         case moveQuarter(Int)
         case toggleActivityKind(ActivityKind)
-        case selectDay(ProfileActivityDay?)
+        case selectDay(HeatmapDay?)
         case updateStatusMessage(String)
         case updateStatusTextFieldFocus(Bool)
     }
@@ -69,8 +69,8 @@ final class ProfileViewModel: Store {
     private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
-    private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
-    private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+    private let fetchHeatmapActivityTypesUseCase: FetchHeatmapActivityTypesUseCase
+    private let updateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase
     private let widgetCoordinator: HeatmapWidgetSyncCoordinator
     private let calendar = Calendar.current
     private let loadingState = LoadingState()
@@ -82,8 +82,8 @@ final class ProfileViewModel: Store {
         fetchTodosUseCase: FetchTodosUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
-        fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase,
-        updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+        fetchHeatmapActivityTypesUseCase: FetchHeatmapActivityTypesUseCase,
+        updateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
@@ -252,7 +252,7 @@ final class ProfileViewModel: Store {
     }
 }
 
-private struct ProfileActivityCounts {
+private struct HeatmapActivityCounts {
     var createdCount = 0
     var completedCount = 0
     var deletedCount = 0
@@ -269,7 +269,7 @@ private struct ProfileActivityCounts {
     }
 }
 
-private struct ProfileActivityEntry {
+private struct HeatmapActivityEntry {
     var todo: Todo
     var activityKinds: Set<ActivityKind>
 }
@@ -296,7 +296,7 @@ extension ProfileViewModel {
         )
     }
 
-    var selectedDayActivities: [ProfileActivityItem] {
+    var selectedDayActivities: [HeatmapActivityItem] {
         guard let selectedDay = state.selectedDay else { return [] }
         let dayStart = calendar.startOfDay(for: selectedDay.date)
         let activities = state.dayActivitiesByDate[dayStart] ?? []
@@ -369,9 +369,9 @@ private extension ProfileViewModel {
 
     func fetchQuarterActivityData(
         from quarterStart: Date
-    ) async throws -> (quarter: ProfileActivityQuarter, dayActivitiesByDate: [Date: [ProfileActivityItem]]) {
+    ) async throws -> (quarter: HeatmapQuarter, dayActivitiesByDate: [Date: [HeatmapActivityItem]]) {
         guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
-            return (ProfileActivityQuarter(quarterStart: quarterStart, months: []), [:])
+            return (HeatmapQuarter(quarterStart: quarterStart, months: []), [:])
         }
 
         async let createdTodoPage = fetchTodosUseCase.execute(
@@ -438,9 +438,9 @@ private extension ProfileViewModel {
     }
 
     func makeActivityMonths(
-        dailyCountsByDate: [Date: ProfileActivityCounts],
+        dailyCountsByDate: [Date: HeatmapActivityCounts],
         quarterStart: Date
-    ) -> [ProfileActivityMonth] {
+    ) -> [HeatmapMonth] {
         let monthStarts = (0..<3).compactMap {
             calendar.date(byAdding: .month, value: $0, to: quarterStart)
         }
@@ -456,27 +456,27 @@ private extension ProfileViewModel {
 
     func makeActivityMonth(
         monthStart: Date,
-        dailyCountsByDate: [Date: ProfileActivityCounts],
+        dailyCountsByDate: [Date: HeatmapActivityCounts],
         calendar: Calendar
-    ) -> ProfileActivityMonth {
+    ) -> HeatmapMonth {
         guard let monthInterval = calendar.dateInterval(of: .month, for: monthStart),
               let monthLastDay = calendar.date(byAdding: .day, value: -1, to: monthInterval.end),
               let firstWeekInterval = calendar.dateInterval(of: .weekOfYear, for: monthInterval.start),
               let lastWeekInterval = calendar.dateInterval(of: .weekOfYear, for: monthLastDay) else {
-            return ProfileActivityMonth(monthStart: monthStart, weeks: [])
+            return HeatmapMonth(monthStart: monthStart, weeks: [])
         }
 
-        var days: [ProfileActivityDay] = []
+        var days: [HeatmapDay] = []
         var cursor = firstWeekInterval.start
         while cursor < lastWeekInterval.end {
             let normalizedDate = calendar.startOfDay(for: cursor)
             let isInMonth = calendar.isDate(normalizedDate, equalTo: monthStart, toGranularity: .month)
-            let dailyCounts = dailyCountsByDate[normalizedDate] ?? ProfileActivityCounts()
+            let dailyCounts = dailyCountsByDate[normalizedDate] ?? HeatmapActivityCounts()
             let createdCount = isInMonth ? dailyCounts.createdCount : 0
             let completedCount = isInMonth ? dailyCounts.completedCount : 0
             let deletedCount = isInMonth ? dailyCounts.deletedCount : 0
             days.append(
-                ProfileActivityDay(
+                HeatmapDay(
                     date: normalizedDate,
                     createdCount: createdCount,
                     completedCount: completedCount,
@@ -488,7 +488,7 @@ private extension ProfileViewModel {
             cursor = nextDay
         }
 
-        var weeks: [[ProfileActivityDay]] = []
+        var weeks: [[HeatmapDay]] = []
         var index = 0
         while index < days.count {
             let endIndex = min(index + 7, days.count)
@@ -496,7 +496,7 @@ private extension ProfileViewModel {
             index += 7
         }
 
-        return ProfileActivityMonth(monthStart: monthStart, weeks: weeks)
+        return HeatmapMonth(monthStart: monthStart, weeks: weeks)
     }
 
     func quarterStart(for date: Date) -> Date? {
@@ -532,12 +532,12 @@ private extension ProfileViewModel {
         completedTodos: [Todo],
         deletedTodos: [Todo],
         quarterStart: Date
-    ) -> (quarter: ProfileActivityQuarter, dayActivitiesByDate: [Date: [ProfileActivityItem]]) {
-        var dailyCountsByDate: [Date: ProfileActivityCounts] = [:]
-        var activityEntriesByDate: [Date: [String: ProfileActivityEntry]] = [:]
+    ) -> (quarter: HeatmapQuarter, dayActivitiesByDate: [Date: [HeatmapActivityItem]]) {
+        var dailyCountsByDate: [Date: HeatmapActivityCounts] = [:]
+        var activityEntriesByDate: [Date: [String: HeatmapActivityEntry]] = [:]
 
         for todo in createdTodos {
-            appendProfileActivity(
+            appendHeatmapActivity(
                 todo: todo,
                 kind: .created,
                 occurredAt: todo.createdAt,
@@ -548,7 +548,7 @@ private extension ProfileViewModel {
 
         for todo in completedTodos {
             guard let completedAt = todo.completedAt else { continue }
-            appendProfileActivity(
+            appendHeatmapActivity(
                 todo: todo,
                 kind: .completed,
                 occurredAt: completedAt,
@@ -559,7 +559,7 @@ private extension ProfileViewModel {
 
         for todo in deletedTodos {
             guard let deletedAt = todo.deletedAt else { continue }
-            appendProfileActivity(
+            appendHeatmapActivity(
                 todo: todo,
                 kind: .deleted,
                 occurredAt: deletedAt,
@@ -568,13 +568,13 @@ private extension ProfileViewModel {
             )
         }
 
-        let quarter = ProfileActivityQuarter(
+        let quarter = HeatmapQuarter(
             quarterStart: quarterStart,
             months: makeActivityMonths(dailyCountsByDate: dailyCountsByDate, quarterStart: quarterStart)
         )
         let dayActivitiesByDate = activityEntriesByDate.mapValues { activityEntries in
             activityEntries.values.compactMap { activityEntry in
-                ProfileActivityItem(
+                HeatmapActivityItem(
                     todo: activityEntry.todo,
                     activityKinds: orderedActivityKinds(from: activityEntry.activityKinds)
                 )
@@ -584,23 +584,23 @@ private extension ProfileViewModel {
         return (quarter, dayActivitiesByDate)
     }
 
-    func appendProfileActivity(
+    func appendHeatmapActivity(
         todo: Todo,
         kind: ActivityKind,
         occurredAt: Date,
-        dailyCountsByDate: inout [Date: ProfileActivityCounts],
-        activityEntriesByDate: inout [Date: [String: ProfileActivityEntry]]
+        dailyCountsByDate: inout [Date: HeatmapActivityCounts],
+        activityEntriesByDate: inout [Date: [String: HeatmapActivityEntry]]
     ) {
         let dayStart = calendar.startOfDay(for: occurredAt)
-        var profileActivityCounts = dailyCountsByDate[dayStart] ?? ProfileActivityCounts()
-        profileActivityCounts.increment(kind)
-        dailyCountsByDate[dayStart] = profileActivityCounts
+        var heatmapActivityCounts = dailyCountsByDate[dayStart] ?? HeatmapActivityCounts()
+        heatmapActivityCounts.increment(kind)
+        dailyCountsByDate[dayStart] = heatmapActivityCounts
 
         var activityEntries = activityEntriesByDate[dayStart] ?? [:]
-        var profileActivityEntry = activityEntries[todo.id] ?? ProfileActivityEntry(todo: todo, activityKinds: [])
-        profileActivityEntry.todo = todo
-        profileActivityEntry.activityKinds.insert(kind)
-        activityEntries[todo.id] = profileActivityEntry
+        var heatmapActivityEntry = activityEntries[todo.id] ?? HeatmapActivityEntry(todo: todo, activityKinds: [])
+        heatmapActivityEntry.todo = todo
+        heatmapActivityEntry.activityKinds.insert(kind)
+        activityEntries[todo.id] = heatmapActivityEntry
         activityEntriesByDate[dayStart] = activityEntries
     }
 

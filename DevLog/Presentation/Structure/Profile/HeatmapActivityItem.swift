@@ -1,5 +1,5 @@
 //
-//  ProfileActivityItem.swift
+//  HeatmapActivityItem.swift
 //  DevLog
 //
 //  Created by opfic on 3/2/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProfileActivityItem: Identifiable, Hashable, Comparable {
+struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
     var id: String { todoId }
     let todoId: String
     let title: String
@@ -36,7 +36,7 @@ struct ProfileActivityItem: Identifiable, Hashable, Comparable {
         self.isDeleted = todo.deletedAt != nil
     }
 
-    static func < (lhs: ProfileActivityItem, rhs: ProfileActivityItem) -> Bool {
+    static func < (lhs: HeatmapActivityItem, rhs: HeatmapActivityItem) -> Bool {
         lhs.number < rhs.number
     }
 }

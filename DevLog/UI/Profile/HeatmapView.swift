@@ -1,5 +1,5 @@
 //
-//  ProfileHeatmapView.swift
+//  HeatmapView.swift
 //  DevLog
 //
 //  Created by 최윤진 on 3/2/26.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct ProfileHeatmapView: View {
+struct HeatmapView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.sceneWidth) private var sceneWidth
-    let quarter: ProfileActivityQuarter
+    let quarter: HeatmapQuarter
     let selectedActivityKinds: Set<ActivityKind>
-    let selectedDay: ProfileActivityDay?
-    let onSelectDay: (ProfileActivityDay) -> Void
+    let selectedDay: HeatmapDay?
+    let onSelectDay: (HeatmapDay) -> Void
 
     var body: some View {
-        let layout = ProfileHeatmapLayout(
+        let layout = HeatmapLayout(
             availableWidth: availableWidth,
             weekCounts: quarter.months.map(\.weeks.count)
         )
@@ -40,7 +40,7 @@ struct ProfileHeatmapView: View {
     }
 
     @ViewBuilder
-    private func weekdayLabel(layout: ProfileHeatmapLayout) -> some View {
+    private func weekdayLabel(layout: HeatmapLayout) -> some View {
         let labels: [Int: String] = [
             2: String(localized: "profile_weekday_mon"),
             4: String(localized: "profile_weekday_wed"),
@@ -76,7 +76,7 @@ struct ProfileHeatmapView: View {
         .padding(.top, layout.weekdayTopPadding)
     }
 
-    private func smallestWeekdayLabelFontSize(labels: [String], layout: ProfileHeatmapLayout) -> CGFloat {
+    private func smallestWeekdayLabelFontSize(labels: [String], layout: HeatmapLayout) -> CGFloat {
         let captionFont = UIFont.preferredFont(forTextStyle: .caption2)
         let availableWidth = max(layout.cellSize, 1)
 
@@ -113,7 +113,7 @@ struct ProfileHeatmapView: View {
             .max() ?? 0
     }
 
-    private func dayCount(for day: ProfileActivityDay) -> Int {
+    private func dayCount(for day: HeatmapDay) -> Int {
         var value = 0
         if selectedActivityKinds.contains(.created) {
             value += day.createdCount
@@ -128,7 +128,7 @@ struct ProfileHeatmapView: View {
     }
 }
 
-private struct ProfileHeatmapLayout {
+private struct HeatmapLayout {
     let cellSize: CGFloat
     let cellSpacing: CGFloat = 4
     let monthSpacing: CGFloat = 12
@@ -160,12 +160,12 @@ private struct ProfileHeatmapLayout {
 
 private struct MonthCompactHeatmapView: View {
     @Environment(\.colorScheme) private var colorScheme
-    let month: ProfileActivityMonth
+    let month: HeatmapMonth
     let maxCount: Int
-    let layout: ProfileHeatmapLayout
+    let layout: HeatmapLayout
     let selectedActivityKinds: Set<ActivityKind>
-    let selectedDay: ProfileActivityDay?
-    let onSelectDay: (ProfileActivityDay) -> Void
+    let selectedDay: HeatmapDay?
+    let onSelectDay: (HeatmapDay) -> Void
     private let orderedWeekdays = Array(1...7)
 
     var body: some View {
@@ -207,23 +207,23 @@ private struct MonthCompactHeatmapView: View {
         }
     }
 
-    private func isSelected(_ day: ProfileActivityDay?) -> Bool {
+    private func isSelected(_ day: HeatmapDay?) -> Bool {
         guard let day, let selectedDay, day.isVisible else { return false }
         return Calendar.current.isDate(day.date, inSameDayAs: selectedDay.date)
     }
 
-    private func selectionInnerBorderColor(for day: ProfileActivityDay?) -> Color {
+    private func selectionInnerBorderColor(for day: HeatmapDay?) -> Color {
         isSelected(day) ? .white : .clear
     }
 
-    private func selectionOuterBorderColor(for day: ProfileActivityDay?) -> Color {
+    private func selectionOuterBorderColor(for day: HeatmapDay?) -> Color {
         if isSelected(day) && colorScheme == .light {
             return Color.gray
         }
         return .clear
     }
 
-    private func fillColor(for day: ProfileActivityDay?, with maxCount: Int) -> Color {
+    private func fillColor(for day: HeatmapDay?, with maxCount: Int) -> Color {
         guard let day, day.isVisible else { return .clear }
         let count = dayCount(for: day)
         if count == 0 {
@@ -232,7 +232,7 @@ private struct MonthCompactHeatmapView: View {
         return Color.blue.opacity(opacity(for: count, max: maxCount))
     }
 
-    private func dayCount(for day: ProfileActivityDay) -> Int {
+    private func dayCount(for day: HeatmapDay) -> Int {
         var value = 0
         if selectedActivityKinds.contains(.created) {
             value += day.createdCount

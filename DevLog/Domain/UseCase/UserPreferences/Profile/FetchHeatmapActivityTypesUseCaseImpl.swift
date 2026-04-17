@@ -1,11 +1,11 @@
 //
-//  FetchProfileHeatmapActivityTypesUseCaseImpl.swift
+//  FetchHeatmapActivityTypesUseCaseImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 3/2/26.
 //
 
-final class FetchProfileHeatmapActivityTypesUseCaseImpl: FetchProfileHeatmapActivityTypesUseCase {
+final class FetchHeatmapActivityTypesUseCaseImpl: FetchHeatmapActivityTypesUseCase {
     private let repository: UserPreferencesRepository
 
     init(_ repository: UserPreferencesRepository) {
@@ -13,6 +13,6 @@ final class FetchProfileHeatmapActivityTypesUseCaseImpl: FetchProfileHeatmapActi
     }
 
     func execute() -> [String] {
-        repository.profileHeatmapActivityTypes()
+        repository.heatmapActivityTypes()
     }
 }
