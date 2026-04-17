@@ -70,6 +70,7 @@ final class ProfileViewModel: Store {
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let fetchHeatmapActivityTypesUseCase: FetchProfileHeatmapActivityTypesUseCase
     private let updateHeatmapActivityTypesUseCase: UpdateProfileHeatmapActivityTypesUseCase
+    private let widgetCoordinator: HeatmapWidgetSyncCoordinator
     private let calendar = Calendar.current
     private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
@@ -88,6 +89,9 @@ final class ProfileViewModel: Store {
         self.networkConnectivityUseCase = networkConnectivityUseCase
         self.fetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
         self.updateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
+        self.widgetCoordinator = HeatmapWidgetSyncCoordinator(
+            fetchTodosUseCase: fetchTodosUseCase
+        )
         setupNetworkObserving()
     }
 
@@ -185,6 +189,7 @@ final class ProfileViewModel: Store {
             state.showDoneButton = focused
         }
         if self.state != state { self.state = state }
+        coordinateHeatmapWidgetSyncIfNeeded(for: action)
         return effects
     }
     // swiftlint:enable cyclomatic_complexity
@@ -328,6 +333,19 @@ extension ProfileViewModel {
 
     func isQuarterSelectedForPicker(_ quarter: Int) -> Bool {
         quarterStartForPicker(quarter: quarter) == state.selectedQuarterStart
+    }
+
+    func coordinateHeatmapWidgetSyncIfNeeded(for action: Action) {
+        switch action {
+        case .onAppear, .refresh, .toggleActivityKind:
+            Task {
+                await widgetCoordinator.sync(
+                    selectedActivityKinds: state.selectedActivityKinds
+                )
+            }
+        default:
+            break
+        }
     }
 }
 
