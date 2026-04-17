@@ -57,8 +57,8 @@ struct MainView: View {
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                fetchHeatmapActivityTypesUseCase: container.resolve(FetchProfileHeatmapActivityTypesUseCase.self),
-                updateHeatmapActivityTypesUseCase: container.resolve(UpdateProfileHeatmapActivityTypesUseCase.self)
+                fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
+                updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
             ))
             .tabItem {
                 Image(systemName: "person.crop.circle.fill")

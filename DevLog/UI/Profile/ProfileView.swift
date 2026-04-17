@@ -155,7 +155,7 @@ struct ProfileView: View {
             quarterNavigator
 
             if let quarter = viewModel.state.activityQuarter {
-                ProfileHeatmapView(
+                HeatmapView(
                     quarter: quarter,
                     selectedActivityKinds: viewModel.state.selectedActivityKinds,
                     selectedDay: viewModel.state.selectedDay,
@@ -332,7 +332,7 @@ struct ProfileView: View {
     }
 
     @ViewBuilder
-    private func selectedDayDetailSection(for day: ProfileActivityDay) -> some View {
+    private func selectedDayDetailSection(for day: HeatmapDay) -> some View {
         let activities = viewModel.selectedDayActivities
 
         VStack(alignment: .leading, spacing: 12) {
