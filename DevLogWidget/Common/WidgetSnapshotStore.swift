@@ -10,7 +10,7 @@ import Foundation
 final class WidgetSnapshotStore {
     private enum Key {
         static let todaySnapshot = "Widget.today.snapshot"
-        static let heatmapSnapshot = "Widget.profileHeatmap.snapshot"
+        static let heatmapSnapshot = "Widget.heatmap.snapshot"
     }
 
     private let store: WidgetSharedDefaultsStore

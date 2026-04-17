@@ -1,5 +1,5 @@
 //
-//  ProfileHeatmapWidgetSnapshot.swift
+//  HeatmapWidgetSnapshot.swift
 //  DevLog
 //
 //  Created by opfic on 4/17/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProfileHeatmapWidgetSnapshot: Codable, Equatable {
+struct HeatmapWidgetSnapshot: Codable, Equatable {
     let generatedAt: Date
     let monthStart: Date
     let selectedActivityKindRawValues: [String]

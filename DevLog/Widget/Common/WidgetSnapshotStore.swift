@@ -10,7 +10,7 @@ import Foundation
 final class WidgetSnapshotStore {
     private enum Key {
         static let todaySnapshot = "Widget.today.snapshot"
-        static let profileHeatmapSnapshot = "Widget.profileHeatmap.snapshot"
+        static let heatmapSnapshot = "Widget.heatmap.snapshot"
     }
 
     private let store: WidgetSharedDefaultsStore
@@ -31,13 +31,13 @@ final class WidgetSnapshotStore {
         return try decoder.decode(TodayWidgetSnapshot.self, from: data)
     }
 
-    func saveProfileHeatmapSnapshot(_ snapshot: ProfileHeatmapWidgetSnapshot) throws {
+    func saveHeatmapSnapshot(_ snapshot: HeatmapWidgetSnapshot) throws {
         let data = try encoder.encode(snapshot)
-        store.setData(data, forKey: Key.profileHeatmapSnapshot)
+        store.setData(data, forKey: Key.heatmapSnapshot)
     }
 
-    func loadProfileHeatmapSnapshot() throws -> ProfileHeatmapWidgetSnapshot? {
-        guard let data = store.data(forKey: Key.profileHeatmapSnapshot) else { return nil }
-        return try decoder.decode(ProfileHeatmapWidgetSnapshot.self, from: data)
+    func loadHeatmapSnapshot() throws -> HeatmapWidgetSnapshot? {
+        guard let data = store.data(forKey: Key.heatmapSnapshot) else { return nil }
+        return try decoder.decode(HeatmapWidgetSnapshot.self, from: data)
     }
 }
