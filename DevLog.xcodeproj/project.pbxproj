@@ -105,6 +105,11 @@
 			path = DevLogWidget;
 			sourceTree = "<group>";
 		};
+		FB02A8C62F900000001DA7CD /* WidgetShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WidgetShared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,11 +152,12 @@
 		DFD48AF72DC4D6E2005905C5 = {
 			isa = PBXGroup;
 			children = (
+				DFD74E2E2E423EA700613803 /* README.md */,
 				DFD6453F2EC827A10073E133 /* .gitignore */,
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
 				DF34164A2E45F67C00F9312B /* DevLog_Unit */,
-				DFD74E2E2E423EA700613803 /* README.md */,
 				DFD3A9752F8E89DD001DA7CD /* DevLogWidget */,
+				FB02A8C62F900000001DA7CD /* WidgetShared */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
 			);
@@ -216,6 +222,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DFD3A9752F8E89DD001DA7CD /* DevLogWidget */,
+				FB02A8C62F900000001DA7CD /* WidgetShared */,
 			);
 			name = DevLogWidgetExtension;
 			packageProductDependencies = (
@@ -241,6 +248,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DF8AB7982E938B0B00E50BBF /* DevLog */,
+				FB02A8C62F900000001DA7CD /* WidgetShared */,
 			);
 			name = DevLog;
 			packageProductDependencies = (
