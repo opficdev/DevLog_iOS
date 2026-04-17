@@ -13,6 +13,7 @@ final class HeatmapWidgetSyncCoordinator {
     private let factory: HeatmapWidgetSnapshotFactory
     private let store: WidgetSnapshotStore
     private let calendar: Calendar
+    private let logger = Logger(category: "HeatmapWidgetSyncCoordinator")
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -81,8 +82,13 @@ final class HeatmapWidgetSyncCoordinator {
 
             try store.saveHeatmapSnapshot(snapshot)
             WidgetCenter.shared.reloadTimelines(ofKind: "HeatmapWidget")
+        } catch is CancellationError {
+            logger.debug("Heatmap widget sync cancelled.")
         } catch {
-            return
+            logger.error(
+                "Failed to sync heatmap widget snapshot.",
+                error: error
+            )
         }
     }
 }
