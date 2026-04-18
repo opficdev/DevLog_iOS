@@ -83,9 +83,11 @@ struct PushNotificationListView: View {
     }
 
     private var notificationList: some View {
-        List {
+        let visibleNotifications = viewModel.state.notifications.filter { !$0.isHidden }
+
+        return List {
             Group {
-                if viewModel.state.notifications.isEmpty {
+                if visibleNotifications.isEmpty {
                     HStack {
                         Spacer()
                         Text(String(localized: "push_notifications_empty"))
@@ -94,8 +96,10 @@ struct PushNotificationListView: View {
                     }
                     .listRowSeparator(.hidden)
                 } else {
-                    let notifications = viewModel.state.notifications
-                    ForEach(Array(zip(notifications.indices, notifications)), id: \.1.id) { idx, notification in
+                    ForEach(
+                        Array(zip(visibleNotifications.indices, visibleNotifications)),
+                        id: \.1.id
+                    ) { notificationIndex, notification in
                         Button {
                             viewModel.send(.tapNotification(notification))
                         } label: {
@@ -104,15 +108,15 @@ struct PushNotificationListView: View {
                         }
                         .buttonStyle(.plain)
                         .onAppear {
-                            let lastID = viewModel.state.notifications.last?.id
-                            if notification.id == lastID, viewModel.state.hasMore {
+                            let lastId = visibleNotifications.last?.id
+                            if notification.id == lastId, viewModel.state.hasMore {
                                 viewModel.send(.loadNextPage)
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .overlay(alignment: .top) {
                             if #available(iOS 26.0, *) {
-                                if idx == 0 {
+                                if notificationIndex == 0 {
                                     Divider()
                                         .padding(.horizontal, -16)
                                 }

@@ -9,6 +9,7 @@ import Foundation
 
 struct PushNotificationItem: Identifiable, Hashable {
     let id: String
+    var isHidden = false
     let title: String
     let body: String
     let receivedAt: Date

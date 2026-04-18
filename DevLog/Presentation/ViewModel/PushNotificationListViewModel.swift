@@ -37,7 +37,7 @@ final class PushNotificationListViewModel: Store {
         case resetPagination
         case setHasMore(Bool)
         case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
-        case restoreNotification(PushNotificationItem, Int)
+        case setNotificationHidden(String, Bool)
         case toggleSortOption
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
@@ -48,7 +48,7 @@ final class PushNotificationListViewModel: Store {
 
     enum SideEffect {
         case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
-        case delete(PushNotificationItem, Int)
+        case delete(PushNotificationItem)
         case undoDelete(String)
         case toggleRead(String)
     }
@@ -104,7 +104,7 @@ final class PushNotificationListViewModel: Store {
             effects = reduceByView(action, state: &state)
 
         case .setLoading, .appendNotifications, .resetPagination, .setHasMore,
-                .syncNotifications, .restoreNotification:
+                .syncNotifications, .setNotificationHidden:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -145,31 +145,23 @@ final class PushNotificationListViewModel: Store {
                 }
 
             }
-        case .delete(let item, let index):
-            beginLoading(.delayed)
+        case .delete(let item):
             Task {
                 do {
-                    defer { endLoading(.delayed) }
                     try await deleteUseCase.execute(item.id)
                 } catch {
-                    send(.restoreNotification(item, index))
+                    send(.setNotificationHidden(item.id, false))
                     send(.setAlert(isPresented: true))
                 }
             }
         case .undoDelete(let notificationId):
-            beginLoading(.delayed)
             Task {
-                // endLoading(.delayed)를 defer로 두지 않는 이유
-                // send(.fetchNotifications)가 같은 턴에서 beginLoading(.delayed)를 먼저 올린 뒤
-                // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteUseCase.execute(notificationId)
                 } catch {
+                    send(.setNotificationHidden(notificationId, true))
                     send(.setAlert(isPresented: true))
                 }
-
-                send(.fetchNotifications)
-                endLoading(.delayed)
             }
         case .toggleRead(let todoId):
             beginLoading(.delayed)
@@ -190,11 +182,11 @@ private extension PushNotificationListViewModel {
     func reduceByUser(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
         case .deleteNotification(let item):
-            if let index = state.notifications.firstIndex(where: { $0.id == item.id }) {
+            if state.notifications.contains(where: { $0.id == item.id }) {
                 undoDeleteNotificationId = item.id
-                state.notifications.remove(at: index)
+                setNotificationHidden(&state, notificationId: item.id, isHidden: true)
                 setToast(&state, isPresented: true)
-                return [.delete(item, index)]
+                return [.delete(item)]
             }
             return []
         case .toggleRead(let item):
@@ -204,6 +196,7 @@ private extension PushNotificationListViewModel {
             }
         case .undoDelete:
             guard let undoDeleteNotificationId else { return [] }
+            setNotificationHidden(&state, notificationId: undoDeleteNotificationId, isHidden: false)
             self.undoDeleteNotificationId = nil
             return [.undoDelete(undoDeleteNotificationId)]
         case .setAlert(let isPresented):
@@ -251,7 +244,10 @@ private extension PushNotificationListViewModel {
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
             if !isPresented {
-                undoDeleteNotificationId = nil
+                if let undoDeleteNotificationId {
+                    removeHiddenNotification(&state, notificationId: undoDeleteNotificationId)
+                }
+                self.undoDeleteNotificationId = nil
             }
         case .setSelectedTodoId(let todoId):
             state.selectedTodoId = todoId
@@ -271,24 +267,20 @@ private extension PushNotificationListViewModel {
             state.notifications = []
             state.nextCursor = nil
         case .appendNotifications(let notifications, let nextCursor):
-            state.notifications.append(contentsOf: notifications)
+            state.notifications.append(contentsOf: mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            ))
             state.nextCursor = nextCursor
         case .syncNotifications(let notifications, let nextCursor, let hasMore):
-            state.notifications = notifications
+            state.notifications = mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            )
             state.nextCursor = nextCursor
             state.hasMore = hasMore
-        case .restoreNotification(let notification, let index):
-            if state.notifications.contains(where: { $0.id == notification.id }) { break }
-
-            if index <= state.notifications.count {
-                state.notifications.insert(notification, at: index)
-            } else {
-                state.notifications.append(notification)
-            }
-
-            if undoDeleteNotificationId == notification.id {
-                undoDeleteNotificationId = nil
-            }
+        case .setNotificationHidden(let notificationId, let isHidden):
+            setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
         default:
             break
         }
@@ -312,6 +304,42 @@ private extension PushNotificationListViewModel {
     ) {
         state.toastMessage = String(localized: "common_undo")
         state.showToast = isPresented
+    }
+
+    func setNotificationHidden(
+        _ state: inout State,
+        notificationId: String,
+        isHidden: Bool
+    ) {
+        if let notificationIndex = state.notifications.firstIndex(where: {
+            $0.id == notificationId
+        }) {
+            state.notifications[notificationIndex].isHidden = isHidden
+        }
+    }
+
+    func removeHiddenNotification(
+        _ state: inout State,
+        notificationId: String
+    ) {
+        state.notifications.removeAll { $0.id == notificationId && $0.isHidden }
+    }
+
+    func mergedHiddenNotifications(
+        currentNotifications: [PushNotificationItem],
+        incomingNotifications: [PushNotificationItem]
+    ) -> [PushNotificationItem] {
+        incomingNotifications.map { incomingNotification in
+            guard let currentNotification = currentNotifications.first(where: {
+                $0.id == incomingNotification.id
+            }), currentNotification.isHidden else {
+                return incomingNotification
+            }
+
+            var hiddenNotification = incomingNotification
+            hiddenNotification.isHidden = true
+            return hiddenNotification
+        }
     }
 
     func startObservingNotifications(
