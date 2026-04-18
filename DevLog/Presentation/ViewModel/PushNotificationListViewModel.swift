@@ -320,10 +320,13 @@ private extension PushNotificationListViewModel {
         currentNotifications: [PushNotificationItem],
         incomingNotifications: [PushNotificationItem]
     ) -> [PushNotificationItem] {
-        incomingNotifications.map { incomingNotification in
-            guard let currentNotification = currentNotifications.first(where: {
-                $0.id == incomingNotification.id
-            }), currentNotification.isHidden else {
+        let hiddenNotificationIds = Set(currentNotifications
+            .filter(\.isHidden)
+            .map(\.id)
+        )
+
+        return incomingNotifications.map { incomingNotification in
+            guard hiddenNotificationIds.contains(incomingNotification.id) else {
                 return incomingNotification
             }
 
