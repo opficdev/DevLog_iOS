@@ -282,12 +282,7 @@ private extension HomeViewModel {
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
             if !isPresented {
-                if let deletedWebPageURLString,
-                   let index = state.webPages.firstIndex(where: {
-                       $0.url.absoluteString == deletedWebPageURLString && $0.isHidden
-                   }) {
-                    state.webPages.remove(at: index)
-                }
+                state.webPages.removeAll { $0.isHidden }
                 deletedWebPageURLString = nil
             }
         case .tapTodoCategory(let category):
