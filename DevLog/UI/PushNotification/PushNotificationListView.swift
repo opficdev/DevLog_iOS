@@ -84,7 +84,6 @@ struct PushNotificationListView: View {
 
     private var notificationList: some View {
         let visibleNotifications = viewModel.state.notifications.filter { !$0.isHidden }
-
         return List {
             Group {
                 if visibleNotifications.isEmpty {
@@ -99,7 +98,7 @@ struct PushNotificationListView: View {
                     ForEach(
                         Array(zip(visibleNotifications.indices, visibleNotifications)),
                         id: \.1.id
-                    ) { notificationIndex, notification in
+                    ) { index, notification in
                         Button {
                             viewModel.send(.tapNotification(notification))
                         } label: {
@@ -116,7 +115,7 @@ struct PushNotificationListView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .overlay(alignment: .top) {
                             if #available(iOS 26.0, *) {
-                                if notificationIndex == 0 {
+                                if index == 0 {
                                     Divider()
                                         .padding(.horizontal, -16)
                                 }
