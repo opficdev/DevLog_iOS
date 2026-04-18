@@ -231,6 +231,19 @@ struct HomeView: View {
             if viewModel.state.isWebPageLoading {
                 LoadingView()
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
+            } else if viewModel.state.needsWebPageRefresh {
+                Button {
+                    viewModel.send(.refreshWebPages)
+                } label: {
+                    HStack {
+                        Spacer()
+                        Text(String(localized: "home_web_refresh_required"))
+                            .font(.callout)
+                            .multilineTextAlignment(.center)
+                        Spacer()
+                    }
+                }
+                .buttonStyle(.plain)
             } else if webPages.isEmpty {
                 HStack {
                     Spacer()
