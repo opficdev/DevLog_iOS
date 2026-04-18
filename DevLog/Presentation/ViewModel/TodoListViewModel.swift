@@ -88,7 +88,7 @@ final class TodoListViewModel: Store {
     private let deleteTodoUseCase: DeleteTodoUseCase
     private let undoDeleteTodoUseCase: UndoDeleteTodoUseCase
     private let loadingState = LoadingState()
-    private var undoDeleteTodoId: String?
+    private var undoTodoId: String?
     private var nextCursor: TodoCursor?
     private var searchTasks: [SearchTaskKind: Task<Void, Never>] = [:]
     private let searchDebounceDelay: Double = 0.4
@@ -285,7 +285,7 @@ private extension TodoListViewModel {
             state.showEditor = value
         case .swipeTodo(let todo):
             if state.todos.contains(where: { $0.id == todo.id }) {
-                undoDeleteTodoId = todo.id
+                self.undoTodoId = todo.id
                 setTodoHidden(&state, todoId: todo.id, isHidden: true)
                 setToast(&state, isPresented: true)
                 return [.delete(todo)]
@@ -325,10 +325,10 @@ private extension TodoListViewModel {
         case .tapTogglePinned(let todo):
             return [.togglePinned(todo)]
         case .undoDelete:
-            guard let undoDeleteTodoId else { return [] }
-            setTodoHidden(&state, todoId: undoDeleteTodoId, isHidden: false)
-            self.undoDeleteTodoId = nil
-            return [.undoDelete(undoDeleteTodoId)]
+            guard let undoTodoId else { return [] }
+            setTodoHidden(&state, todoId: undoTodoId, isHidden: false)
+            self.undoTodoId = nil
+            return [.undoDelete(undoTodoId)]
         default:
             break
         }
@@ -356,10 +356,10 @@ private extension TodoListViewModel {
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
             if !isPresented {
-                if let undoDeleteTodoId {
-                    removeHiddenTodo(&state, todoId: undoDeleteTodoId)
+                if let undoTodoId {
+                    removeHiddenTodo(&state, todoId: undoTodoId)
                 }
-                self.undoDeleteTodoId = nil
+                self.undoTodoId = nil
             }
         case .upsertTodo(let todo):
             return [.upsert(todo)]

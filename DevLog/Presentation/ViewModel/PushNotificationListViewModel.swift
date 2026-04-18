@@ -61,7 +61,7 @@ final class PushNotificationListViewModel: Store {
     private let fetchQueryUseCase: FetchPushNotificationQueryUseCase
     private let updateQueryUseCase: UpdatePushNotificationQueryUseCase
     private let loadingState = LoadingState()
-    private var undoDeleteNotificationId: String?
+    private var undoNotificationId: String?
     private var cancellable: AnyCancellable?
 
     init(
@@ -183,7 +183,7 @@ private extension PushNotificationListViewModel {
         switch action {
         case .deleteNotification(let item):
             if state.notifications.contains(where: { $0.id == item.id }) {
-                undoDeleteNotificationId = item.id
+                self.undoNotificationId = item.id
                 setNotificationHidden(&state, notificationId: item.id, isHidden: true)
                 setToast(&state, isPresented: true)
                 return [.delete(item)]
@@ -195,10 +195,10 @@ private extension PushNotificationListViewModel {
                 return [.toggleRead(item.todoId)]
             }
         case .undoDelete:
-            guard let undoDeleteNotificationId else { return [] }
-            setNotificationHidden(&state, notificationId: undoDeleteNotificationId, isHidden: false)
-            self.undoDeleteNotificationId = nil
-            return [.undoDelete(undoDeleteNotificationId)]
+            guard let undoNotificationId else { return [] }
+            setNotificationHidden(&state, notificationId: undoNotificationId, isHidden: false)
+            self.undoNotificationId = nil
+            return [.undoDelete(undoNotificationId)]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .toggleSortOption:
@@ -244,10 +244,10 @@ private extension PushNotificationListViewModel {
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
             if !isPresented {
-                if let undoDeleteNotificationId {
-                    removeHiddenNotification(&state, notificationId: undoDeleteNotificationId)
+                if let undoNotificationId {
+                    removeHiddenNotification(&state, notificationId: undoNotificationId)
                 }
-                self.undoDeleteNotificationId = nil
+                self.undoNotificationId = nil
             }
         case .setSelectedTodoId(let todoId):
             state.selectedTodoId = todoId
