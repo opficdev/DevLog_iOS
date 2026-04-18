@@ -227,10 +227,24 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
+            let webPages = viewModel.state.webPages.filter { !$0.isHidden }
             if viewModel.state.isWebPageLoading {
                 LoadingView()
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
-            } else if viewModel.state.webPages.isEmpty {
+            } else if viewModel.state.needsWebPageRefresh {
+                Button {
+                    viewModel.send(.refreshWebPages)
+                } label: {
+                    HStack {
+                        Spacer()
+                        Text(String(localized: "home_web_refresh_required"))
+                            .font(.callout)
+                            .multilineTextAlignment(.center)
+                        Spacer()
+                    }
+                }
+                .buttonStyle(.plain)
+            } else if webPages.isEmpty {
                 HStack {
                     Spacer()
                     Text(String(localized: "home_web_empty"))
@@ -238,7 +252,7 @@ struct HomeView: View {
                     Spacer()
                 }
             } else {
-                ForEach(viewModel.state.webPages, id: \.id) { page in
+                ForEach(webPages, id: \.id) { page in
                     webResultRow(page)
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))

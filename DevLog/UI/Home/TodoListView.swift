@@ -122,10 +122,12 @@ struct TodoListView: View {
     }
 
     private var todoListContent: some View {
-        ZStack {
+        let visibleTodos = viewModel.state.todos.filter { !$0.isHidden }
+
+        return ZStack {
             List {
                 Group {
-                    if viewModel.state.todos.isEmpty, !viewModel.state.isLoading {
+                    if visibleTodos.isEmpty, !viewModel.state.isLoading {
                         HStack {
                             Spacer()
                             Text(String(localized: "todo_list_empty"))
@@ -134,8 +136,7 @@ struct TodoListView: View {
                         }
                         .listRowSeparator(.hidden)
                     } else {
-                        let todos = viewModel.state.todos
-                        ForEach(Array(zip(todos.indices, todos)), id: \.1.id) { idx, todo in
+                        ForEach(Array(zip(visibleTodos.indices, visibleTodos)), id: \.1.id) { idx, todo in
                             Button {
                                 router.push(Path.detail(todo.id))
                             } label: {
@@ -152,7 +153,7 @@ struct TodoListView: View {
                                 }
                             }
                             .onAppear {
-                                let lastID = viewModel.state.todos.last?.id
+                                let lastID = visibleTodos.last?.id
                                 if todo.id == lastID, viewModel.state.hasMore {
                                     viewModel.send(.loadNextPage)
                                 }
@@ -207,7 +208,7 @@ struct TodoListView: View {
                 .offset(y: headerOffset)
             }
             .refreshable { viewModel.send(.refresh) }
-            .scrollDisabled(viewModel.state.todos.isEmpty || viewModel.state.isLoading)
+            .scrollDisabled(visibleTodos.isEmpty || viewModel.state.isLoading)
 
             if viewModel.state.isLoading {
                 LoadingView()
@@ -239,7 +240,7 @@ struct TodoListView: View {
 
     @ViewBuilder
     private var searchResultsContent: some View {
-        let searchResults = viewModel.state.searchResults
+        let searchResults = viewModel.state.searchResults.filter { !$0.isHidden }
         let limit = viewModel.searchResultsLimit
         let displayedTodos = viewModel.state.showAllSearchResults
             ? searchResults

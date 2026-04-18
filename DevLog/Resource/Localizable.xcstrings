@@ -459,6 +459,23 @@
         }
       }
     },
+    "home_web_refresh_required" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't update web pages. Tap to refresh."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "웹페이지를 불러오지 못했어요. 탭해서 새로고침해주세요."
+          }
+        }
+      }
+    },
     "home_webpage_input_message" : {
       "extractionState" : "manual",
       "localizations" : {

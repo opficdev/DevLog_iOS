@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WebPageItem: Identifiable, Hashable {
     private let metadata: WebPage
+    var isHidden = false
 
     init(from metadata: WebPage) {
         self.metadata = metadata

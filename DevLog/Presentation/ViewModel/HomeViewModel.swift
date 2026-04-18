@@ -14,6 +14,7 @@ final class HomeViewModel: Store {
         var preferences: [TodoCategoryItem] = []
         var recentTodos: [RecentTodoItem] = []
         var webPages: [WebPageItem] = []
+        var needsWebPageRefresh = false
         var isNetworkConnected: Bool = true
         var showContentPicker: Bool = false
         var showTodoEditor: Bool = false
@@ -40,7 +41,10 @@ final class HomeViewModel: Store {
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setToast(isPresented: Bool, type: ToastType? = nil)
+        case refreshWebPages
         case setLoading(LoadingTarget, Bool)
+        case setWebPageHidden(URL, Bool)
+        case handleWebPageDeleteFailure(URL)
         case tapTodoCategory(TodoCategory)
         case orderTodoCategory([TodoCategoryItem])
         case setTodoCategory([TodoCategoryItem])
@@ -51,13 +55,12 @@ final class HomeViewModel: Store {
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage
         case updateWebPages([WebPageItem])
-        case restoreWebPage(WebPageItem, Int)
     }
 
     enum SideEffect {
         case addTodo(Todo)
         case addWebPage(String)
-        case deleteWebPage(WebPageItem, Int)
+        case deleteWebPage(WebPageItem)
         case undoDeleteWebPage(String)
         case fetchTodoCategoryPreferences
         case updateTodoCategoryPreferences([TodoCategoryItem])
@@ -140,13 +143,13 @@ final class HomeViewModel: Store {
         switch action {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
-        case .onAppear, .setPresentation, .setAlert, .setToast, .tapTodoCategory,
-                .orderTodoCategory, .addTodo, .updateWebPageURLInput,
+        case .onAppear, .setPresentation, .setAlert, .setToast, .refreshWebPages,
+                .tapTodoCategory, .orderTodoCategory, .addTodo, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
-        case .setLoading, .setTodoCategory, .updateRecentTodos,
-                .updateWebPages, .restoreWebPage:
+        case .setLoading, .setWebPageHidden, .handleWebPageDeleteFailure, .setTodoCategory,
+                .updateRecentTodos, .updateWebPages:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -218,38 +221,24 @@ final class HomeViewModel: Store {
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
-        case .deleteWebPage(let page, let index):
-            beginLoading(for: .webPage, mode: .delayed)
+        case .deleteWebPage(let page):
             Task {
                 do {
-                    defer { endLoading(for: .webPage, mode: .delayed) }
                     try await deleteWebPageUseCase.execute(page.url.absoluteString)
                 } catch {
-                    send(.restoreWebPage(page, index))
+                    send(.handleWebPageDeleteFailure(page.id))
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
         case .undoDeleteWebPage(let urlString):
-            beginLoading(for: .webPage, mode: .delayed)
             Task {
-                defer { endLoading(for: .webPage, mode: .delayed) }
-
-                var shouldPresentError = false
-
                 do {
                     try await undoDeleteWebPageUseCase.execute(urlString)
+                    try await addWebPageUseCase.execute(urlString)
                 } catch {
-                    shouldPresentError = true
-                }
-
-                do {
-                    let pages = try await fetchWebPagesUseCase.execute("")
-                    send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
-                } catch {
-                    shouldPresentError = true
-                }
-
-                if shouldPresentError {
+                    if let webPageURL = URL(string: urlString) {
+                        send(.setWebPageHidden(webPageURL, true))
+                    }
                     send(.setAlert(isPresented: true, type: .error))
                 }
             }
@@ -285,6 +274,8 @@ private extension HomeViewModel {
         switch action {
         case .onAppear:
             return [.fetchTodoCategoryPreferences, .fetchRecentTodos, .fetchWebPages]
+        case .refreshWebPages:
+            return [.fetchWebPages]
         case .setPresentation(let presentation, let isPresented):
             setPresentation(&state, presentation: presentation, isPresented: isPresented)
         case .setAlert(let presented, let type):
@@ -296,6 +287,7 @@ private extension HomeViewModel {
         case .setToast(let isPresented, let type):
             setToast(&state, isPresented: isPresented, for: type)
             if !isPresented {
+                state.webPages.removeAll { $0.isHidden }
                 deletedWebPageURLString = nil
             }
         case .tapTodoCategory(let category):
@@ -320,12 +312,17 @@ private extension HomeViewModel {
         case .deleteWebPage(let page):
             if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
                 deletedWebPageURLString = page.url.absoluteString
-                state.webPages.remove(at: index)
+                state.webPages[index].isHidden = true
                 setToast(&state, isPresented: true, for: .deleteWebPage)
-                return [.deleteWebPage(page, index)]
+                return [.deleteWebPage(page)]
             }
         case .undoDeleteWebPage:
             guard let deletedWebPageURLString else { return [] }
+            if let index = state.webPages.firstIndex(where: {
+                $0.url.absoluteString == deletedWebPageURLString
+            }) {
+                state.webPages[index].isHidden = false
+            }
             self.deletedWebPageURLString = nil
             return [.undoDeleteWebPage(deletedWebPageURLString)]
         default:
@@ -339,6 +336,16 @@ private extension HomeViewModel {
         switch action {
         case .setLoading(let loadingTarget, let isLoading):
             setLoading(&state, loadingTarget: loadingTarget, isLoading: isLoading)
+        case .setWebPageHidden(let webPageURL, let isHidden):
+            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+                state.webPages[index].isHidden = isHidden
+            }
+        case .handleWebPageDeleteFailure(let webPageURL):
+            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+                state.webPages[index].isHidden = false
+            } else {
+                state.needsWebPageRefresh = true
+            }
         case .setTodoCategory(let preferences):
             state.preferences = preferences
             state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
@@ -346,16 +353,7 @@ private extension HomeViewModel {
             state.recentTodos = todos
         case .updateWebPages(let pages):
             state.webPages = pages
-        case .restoreWebPage(let page, let index):
-            if state.webPages.contains(where: { $0.id == page.id }) { break }
-            if index <= state.webPages.count {
-                state.webPages.insert(page, at: index)
-            } else {
-                state.webPages.append(page)
-            }
-            if deletedWebPageURLString == page.url.absoluteString {
-                deletedWebPageURLString = nil
-            }
+            state.needsWebPageRefresh = false
         default:
             break
         }

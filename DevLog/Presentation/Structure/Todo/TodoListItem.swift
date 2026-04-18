@@ -9,6 +9,7 @@ import Foundation
 
 struct TodoListItem: Identifiable, Hashable {
     let id: String
+    var isHidden = false
     let number: Int
     let title: String
     let tags: [String]
