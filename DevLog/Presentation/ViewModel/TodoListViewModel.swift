@@ -56,7 +56,7 @@ final class TodoListViewModel: Store {
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
         case didTogglePinned(TodoListItem)
-        case restoreTodo(TodoListItem, Int)
+        case setTodoHidden(String, Bool)
         case setLoading(Bool)
         case appendTodos([TodoListItem], nextCursor: TodoCursor?)
         case resetPagination
@@ -70,7 +70,7 @@ final class TodoListViewModel: Store {
         case loadNextPage
         case search(String)
         case upsert(Todo)
-        case delete(TodoListItem, Int)
+        case delete(TodoListItem)
         case undoDelete(String)
         case toggleCompleted(TodoListItem)
         case togglePinned(TodoListItem)
@@ -137,7 +137,7 @@ final class TodoListViewModel: Store {
             effects = reduceByView(action, state: &state)
 
         case .applySearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
-                .restoreTodo, .setLoading, .appendTodos, .resetPagination, .setHasMore:
+                .setTodoHidden, .setLoading, .appendTodos, .resetPagination, .setHasMore:
             effects = reduceByRun(action, state: &state)
         }
 
@@ -250,29 +250,23 @@ final class TodoListViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .delete(let item, let index):
+        case .delete(let item):
             Task {
                 do {
                     try await deleteTodoUseCase.execute(item.id)
                 } catch {
-                    send(.restoreTodo(item, index))
+                    send(.setTodoHidden(item.id, false))
                     send(.setAlert(true))
                 }
             }
         case .undoDelete(let todoId):
-            beginLoading(.delayed)
             Task {
-                // endLoading(.delayed)를 defer로 두지 않는 이유
-                // send(.refresh)가 같은 턴에서 beginLoading(.delayed)를 먼저 올린 뒤
-                // delayed 로딩을 내려야 같은 isLoading이 끊기지 않기 때문
                 do {
                     try await undoDeleteTodoUseCase.execute(todoId)
                 } catch {
+                    send(.setTodoHidden(todoId, true))
                     send(.setAlert(true))
                 }
-
-                send(.refresh)
-                endLoading(.delayed)
             }
         }
     }
@@ -290,11 +284,11 @@ private extension TodoListViewModel {
         case .setShowEditor(let value):
             state.showEditor = value
         case .swipeTodo(let todo):
-            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
+            if state.todos.contains(where: { $0.id == todo.id }) {
                 undoDeleteTodoId = todo.id
-                state.todos.remove(at: index)
+                setTodoHidden(&state, todoId: todo.id, isHidden: true)
                 setToast(&state, isPresented: true)
-                return [.delete(todo, index)]
+                return [.delete(todo)]
             }
         case .setSortTarget(let target):
             state.query.sortTarget = target
@@ -332,6 +326,7 @@ private extension TodoListViewModel {
             return [.togglePinned(todo)]
         case .undoDelete:
             guard let undoDeleteTodoId else { return [] }
+            setTodoHidden(&state, todoId: undoDeleteTodoId, isHidden: false)
             self.undoDeleteTodoId = nil
             return [.undoDelete(undoDeleteTodoId)]
         default:
@@ -360,7 +355,12 @@ private extension TodoListViewModel {
             }
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
-            if !isPresented { undoDeleteTodoId = nil }
+            if !isPresented {
+                if let undoDeleteTodoId {
+                    removeHiddenTodo(&state, todoId: undoDeleteTodoId)
+                }
+                self.undoDeleteTodoId = nil
+            }
         case .upsertTodo(let todo):
             return [.upsert(todo)]
         default:
@@ -389,18 +389,8 @@ private extension TodoListViewModel {
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo
             }
-        case .restoreTodo(let todo, let index):
-            if state.todos.contains(where: { $0.id == todo.id }) { break }
-
-            if index <= state.todos.count {
-                state.todos.insert(todo, at: index)
-            } else {
-                state.todos.append(todo)
-            }
-
-            if undoDeleteTodoId == todo.id {
-                undoDeleteTodoId = nil
-            }
+        case .setTodoHidden(let todoId, let isHidden):
+            setTodoHidden(&state, todoId: todoId, isHidden: isHidden)
         case .setLoading(let value):
             state.isLoading = value
         case .appendTodos(let todos, let nextCursor):
@@ -436,6 +426,28 @@ private extension TodoListViewModel {
     ) {
         state.toastMessage = String(localized: "common_undo")
         state.showToast = isPresented
+    }
+
+    func setTodoHidden(
+        _ state: inout State,
+        todoId: String,
+        isHidden: Bool
+    ) {
+        if let todoIndex = state.todos.firstIndex(where: { $0.id == todoId }) {
+            state.todos[todoIndex].isHidden = isHidden
+        }
+
+        if let searchResultIndex = state.searchResults.firstIndex(where: { $0.id == todoId }) {
+            state.searchResults[searchResultIndex].isHidden = isHidden
+        }
+    }
+
+    func removeHiddenTodo(
+        _ state: inout State,
+        todoId: String
+    ) {
+        state.todos.removeAll { $0.id == todoId && $0.isHidden }
+        state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
     }
 
     func scheduleDebouncedSearch(_ query: String) {
