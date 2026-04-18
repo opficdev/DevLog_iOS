@@ -244,9 +244,7 @@ private extension PushNotificationListViewModel {
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
             if !isPresented {
-                if let undoNotificationId {
-                    removeHiddenNotification(&state, notificationId: undoNotificationId)
-                }
+                state.notifications.removeAll { $0.isHidden }
                 self.undoNotificationId = nil
             }
         case .setSelectedTodoId(let todoId):
@@ -316,13 +314,6 @@ private extension PushNotificationListViewModel {
         }) {
             state.notifications[notificationIndex].isHidden = isHidden
         }
-    }
-
-    func removeHiddenNotification(
-        _ state: inout State,
-        notificationId: String
-    ) {
-        state.notifications.removeAll { $0.id == notificationId && $0.isHidden }
     }
 
     func mergedHiddenNotifications(

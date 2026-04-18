@@ -356,9 +356,8 @@ private extension TodoListViewModel {
         case .setToast(let isPresented):
             setToast(&state, isPresented: isPresented)
             if !isPresented {
-                if let undoTodoId {
-                    removeHiddenTodo(&state, todoId: undoTodoId)
-                }
+                state.todos.removeAll { $0.isHidden }
+                state.searchResults.removeAll { $0.isHidden }
                 self.undoTodoId = nil
             }
         case .upsertTodo(let todo):
@@ -440,14 +439,6 @@ private extension TodoListViewModel {
         if let searchResultIndex = state.searchResults.firstIndex(where: { $0.id == todoId }) {
             state.searchResults[searchResultIndex].isHidden = isHidden
         }
-    }
-
-    func removeHiddenTodo(
-        _ state: inout State,
-        todoId: String
-    ) {
-        state.todos.removeAll { $0.id == todoId && $0.isHidden }
-        state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
     }
 
     func scheduleDebouncedSearch(_ query: String) {
