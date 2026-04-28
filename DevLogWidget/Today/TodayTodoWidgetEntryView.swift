@@ -14,7 +14,7 @@ struct TodayTodoWidgetEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Today Todo")
+            Text("Today")
                 .font(.headline)
 
             Spacer()
@@ -42,7 +42,7 @@ struct TodayTodoWidgetEntryView: View {
             }
         case .systemMedium, .systemLarge:
             WidgetPlaceholderCard(
-                title: "Today Todo",
+                title: "Today",
                 message: "저장된 할 일 \(snapshot.totalCount)개"
             )
             .frame(maxWidth: .infinity)
@@ -60,7 +60,7 @@ struct TodayTodoWidgetEntryView: View {
                 .foregroundStyle(.secondary)
         case .systemMedium, .systemLarge:
             WidgetPlaceholderCard(
-                title: "Today Todo",
+                title: "Today",
                 message: "데이터 연결 전"
             )
             .frame(maxWidth: .infinity)

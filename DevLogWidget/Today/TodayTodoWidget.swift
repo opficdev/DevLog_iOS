@@ -21,8 +21,8 @@ struct TodayTodoWidget: Widget {
             TodayTodoWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Today Todo")
         .description("오늘 기준 Todo 목록을 표시합니다.")
+        .configurationDisplayName("Today")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
