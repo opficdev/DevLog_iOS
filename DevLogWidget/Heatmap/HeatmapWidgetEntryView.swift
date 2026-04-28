@@ -13,12 +13,7 @@ struct HeatmapWidgetEntryView: View {
     @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("이번 달 히트맵")
-                .font(.headline)
-
-            Spacer()
-
+        Group {
             if let snapshot = entry.snapshot {
                 content(snapshot)
             } else {
@@ -30,36 +25,70 @@ struct HeatmapWidgetEntryView: View {
 
     @ViewBuilder
     private func content(_ snapshot: HeatmapWidgetSnapshot) -> some View {
-        if widgetFamily == .systemSmall {
+        switch widgetFamily {
+        case .systemSmall:
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(snapshot.maxCount)")
-                    .font(.title)
-                    .bold()
-                Text("이번 달 최대 활동 수")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                header(title: "이번 달 히트맵")
+                WidgetHeatmapGrid(
+                    months: currentMonths(from: snapshot),
+                    selectedActivityKindRawValues: snapshot.selectedActivityKindRawValues,
+                    maxCount: snapshot.maxCount,
+                    showsMonthTitles: false
+                )
             }
-        } else {
-            WidgetPlaceholderCard(
-                title: "이번 달 히트맵",
-                message: "저장된 주차 \(snapshot.weeks.count)개"
-            )
-            .frame(maxWidth: .infinity)
+        case .systemMedium:
+            VStack(alignment: .leading, spacing: 8) {
+                header(title: "이번 분기 히트맵")
+                WidgetHeatmapGrid(
+                    months: snapshot.months,
+                    selectedActivityKindRawValues: snapshot.selectedActivityKindRawValues,
+                    maxCount: snapshot.maxCount,
+                    showsMonthTitles: true
+                )
+            }
+        default:
+            EmptyView()
         }
     }
 
     @ViewBuilder
     private var emptyState: some View {
-        if widgetFamily == .systemSmall {
-            Text("앱을 열어\n히트맵을 준비하세요")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        } else {
+        switch widgetFamily {
+        case .systemSmall:
+            VStack(alignment: .leading, spacing: 8) {
+                Text("이번 달 히트맵")
+                    .font(.headline)
+                Text("앱을 열어\n히트맵을 준비하세요")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        case .systemMedium:
             WidgetPlaceholderCard(
-                title: "이번 달 히트맵",
+                title: "이번 분기 히트맵",
                 message: "데이터 연결 전"
             )
             .frame(maxWidth: .infinity)
+        default:
+            EmptyView()
         }
+    }
+
+    private func header(title: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(title)
+                .font(.headline)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func currentMonths(from snapshot: HeatmapWidgetSnapshot) -> [WidgetHeatmapMonthSnapshot] {
+        if let currentMonth = snapshot.months.first(where: {
+            Calendar.current.isDate($0.monthStart, equalTo: snapshot.generatedAt, toGranularity: .month)
+        }) {
+            return [currentMonth]
+        }
+
+        return Array(snapshot.months.prefix(1))
     }
 }
