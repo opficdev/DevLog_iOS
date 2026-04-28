@@ -31,16 +31,16 @@ final class HeatmapWidgetSyncCoordinator {
         selectedActivityKinds: Set<ActivityKind>,
         now: Date = Date()
     ) async {
-        let monthStart = startOfMonth(for: now)
-        guard let nextMonthStart = calendar.date(byAdding: .month, value: 1, to: monthStart) else {
+        let quarterStart = startOfQuarter(for: now)
+        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
             return
         }
 
         do {
             async let createdTodoPage = fetchTodosUseCase.execute(
                 TodoQuery(
-                    sortDateFrom: monthStart,
-                    sortDateTo: nextMonthStart,
+                    sortDateFrom: quarterStart,
+                    sortDateTo: nextQuarterStart,
                     includesDeleted: true,
                     sortTarget: .createdAt,
                     pageSize: 100,
@@ -50,8 +50,8 @@ final class HeatmapWidgetSyncCoordinator {
             )
             async let completedTodoPage = fetchTodosUseCase.execute(
                 TodoQuery(
-                    sortDateFrom: monthStart,
-                    sortDateTo: nextMonthStart,
+                    sortDateFrom: quarterStart,
+                    sortDateTo: nextQuarterStart,
                     includesDeleted: true,
                     sortTarget: .completedAt,
                     pageSize: 100,
@@ -61,8 +61,8 @@ final class HeatmapWidgetSyncCoordinator {
             )
             async let deletedTodoPage = fetchTodosUseCase.execute(
                 TodoQuery(
-                    sortDateFrom: monthStart,
-                    sortDateTo: nextMonthStart,
+                    sortDateFrom: quarterStart,
+                    sortDateTo: nextQuarterStart,
                     includesDeleted: true,
                     sortTarget: .deletedAt,
                     pageSize: 100,
@@ -76,7 +76,7 @@ final class HeatmapWidgetSyncCoordinator {
                 completedTodos: try await completedTodoPage.items,
                 deletedTodos: try await deletedTodoPage.items,
                 selectedActivityKinds: selectedActivityKinds,
-                monthStart: monthStart,
+                quarterStart: quarterStart,
                 now: now
             )
 
@@ -94,11 +94,12 @@ final class HeatmapWidgetSyncCoordinator {
 }
 
 private extension HeatmapWidgetSyncCoordinator {
-    func startOfMonth(for date: Date) -> Date {
-        guard let monthInterval = calendar.dateInterval(of: .month, for: date) else {
-            return calendar.startOfDay(for: date)
-        }
-
-        return monthInterval.start
+    func startOfQuarter(for date: Date) -> Date {
+        let month = calendar.component(.month, from: date)
+        let startMonth = ((month - 1) / 3) * 3 + 1
+        var components = calendar.dateComponents([.year], from: date)
+        components.month = startMonth
+        components.day = 1
+        return calendar.date(from: components) ?? calendar.startOfDay(for: date)
     }
 }

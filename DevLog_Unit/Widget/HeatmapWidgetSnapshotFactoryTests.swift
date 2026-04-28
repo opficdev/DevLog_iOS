@@ -10,10 +10,12 @@ import Testing
 @testable import DevLog
 
 struct HeatmapWidgetSnapshotFactoryTests {
-    @Test("Heatmap 위젯 스냅샷은 이번 달 기준 주차와 일별 count를 만든다")
-    func heatmap_위젯_스냅샷은_이번_달_기준_주차와_일별_count를_만든다() throws {
+    @Test("Heatmap 위젯 스냅샷은 이번 분기 기준 월과 일별 count를 만든다")
+    func heatmap_위젯_스냅샷은_이번_분기_기준_월과_일별_count를_만든다() throws {
         let calendar = Calendar(identifier: .gregorian)
-        let monthStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+        let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+        let mayStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 5, day: 1)))
+        let juneStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 6, day: 1)))
         let aprilThirdDate = calendar.date(from: DateComponents(year: 2026, month: 4, day: 3))!
         let mayFirstDate = calendar.date(from: DateComponents(year: 2026, month: 5, day: 1))!
         let aprilFifteenthDate = calendar.date(from: DateComponents(year: 2026, month: 4, day: 15))!
@@ -33,32 +35,38 @@ struct HeatmapWidgetSnapshotFactoryTests {
             completedTodos: [
                 makeTodo(
                     id: "todo-completed-apr-03",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     completedAt: aprilThirdDate
                 ),
                 makeTodo(
                     id: "todo-completed-may-01",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     completedAt: mayFirstDate
                 )
             ],
             deletedTodos: [
                 makeTodo(
                     id: "todo-deleted-apr-15",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     deletedAt: aprilFifteenthDate
                 )
             ],
             selectedActivityKinds: [.created, .completed],
-            monthStart: monthStart,
-            now: monthStart
+            quarterStart: quarterStart,
+            now: quarterStart
         )
 
-        #expect(snapshot.monthStart == monthStart)
+        #expect(snapshot.quarterStart == quarterStart)
         #expect(snapshot.selectedActivityKindRawValues == ["created", "completed"])
         #expect(snapshot.maxCount == 2)
-        #expect(snapshot.weeks.count == 5)
-        #expect(snapshot.weeks.flatMap(\.days).filter(\.isVisible).count == 30)
+        #expect(snapshot.months.count == 3)
+        #expect(snapshot.months.map(\.monthStart) == [
+            quarterStart,
+            mayStart,
+            juneStart
+        ])
+        #expect(snapshot.months[0].weeks.count == 5)
+        #expect(snapshot.months.flatMap(\.weeks).flatMap(\.days).filter(\.isVisible).count == 91)
 
         let aprilThird = try #require(day(for: DateComponents(year: 2026, month: 4, day: 3), in: snapshot, calendar: calendar))
         #expect(aprilThird.createdCount == 1)
@@ -70,12 +78,15 @@ struct HeatmapWidgetSnapshotFactoryTests {
         #expect(aprilFifteenth.createdCount == 0)
         #expect(aprilFifteenth.completedCount == 0)
         #expect(aprilFifteenth.deletedCount == 1)
+
+        let mayFirst = try #require(day(for: DateComponents(year: 2026, month: 5, day: 1), in: snapshot, calendar: calendar))
+        #expect(mayFirst.completedCount == 1)
     }
 
     @Test("Heatmap 위젯 스냅샷 maxCount는 선택된 activity kind만 기준으로 계산한다")
     func heatmap_위젯_스냅샷_maxCount는_선택된_activity_kind만_기준으로_계산한다() throws {
         let calendar = Calendar(identifier: .gregorian)
-        let monthStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+        let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
         let targetDate = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 10)))
         let factory = HeatmapWidgetSnapshotFactory(calendar: calendar)
 
@@ -88,23 +99,23 @@ struct HeatmapWidgetSnapshotFactoryTests {
             deletedTodos: [
                 makeTodo(
                     id: "deleted-1",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     deletedAt: targetDate
                 ),
                 makeTodo(
                     id: "deleted-2",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     deletedAt: targetDate
                 ),
                 makeTodo(
                     id: "deleted-3",
-                    createdAt: monthStart,
+                    createdAt: quarterStart,
                     deletedAt: targetDate
                 )
             ],
             selectedActivityKinds: [.deleted],
-            monthStart: monthStart,
-            now: monthStart
+            quarterStart: quarterStart,
+            now: quarterStart
         )
 
         #expect(snapshot.selectedActivityKindRawValues == ["deleted"])
@@ -123,7 +134,8 @@ struct HeatmapWidgetSnapshotFactoryTests {
         guard let date = calendar.date(from: components) else { return nil }
         let targetDate = calendar.startOfDay(for: date)
 
-        return snapshot.weeks
+        return snapshot.months
+            .flatMap(\.weeks)
             .flatMap(\.days)
             .first { day in
                 calendar.isDate(day.date, inSameDayAs: targetDate)

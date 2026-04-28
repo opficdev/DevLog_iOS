@@ -36,30 +36,40 @@ struct HeatmapWidgetSnapshotFactory {
         completedTodos: [Todo],
         deletedTodos: [Todo],
         selectedActivityKinds: Set<ActivityKind>,
-        monthStart: Date,
+        quarterStart: Date,
         now: Date = Date()
     ) -> HeatmapWidgetSnapshot {
-        let normalizedMonthStart = startOfMonth(for: monthStart)
+        let normalizedQuarterStart = startOfQuarter(for: quarterStart)
+        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: normalizedQuarterStart) else {
+            return HeatmapWidgetSnapshot(
+                generatedAt: now,
+                quarterStart: normalizedQuarterStart,
+                selectedActivityKindRawValues: orderedActivityKinds(from: selectedActivityKinds).map(\.rawValue),
+                maxCount: 0,
+                months: []
+            )
+        }
         let dailyCountsByDate = makeDailyCountsByDate(
             createdTodos: createdTodos,
             completedTodos: completedTodos,
             deletedTodos: deletedTodos,
-            monthStart: normalizedMonthStart
+            quarterStart: normalizedQuarterStart,
+            nextQuarterStart: nextQuarterStart
         )
-        let weeks = makeWeeks(
-            monthStart: normalizedMonthStart,
+        let months = makeMonths(
+            quarterStart: normalizedQuarterStart,
             dailyCountsByDate: dailyCountsByDate
         )
 
         return HeatmapWidgetSnapshot(
             generatedAt: now,
-            monthStart: normalizedMonthStart,
+            quarterStart: normalizedQuarterStart,
             selectedActivityKindRawValues: orderedActivityKinds(from: selectedActivityKinds).map(\.rawValue),
             maxCount: maxCount(
-                from: weeks,
+                from: months,
                 selectedActivityKinds: selectedActivityKinds
             ),
-            weeks: weeks
+            months: months
         )
     }
 }
@@ -69,7 +79,8 @@ private extension HeatmapWidgetSnapshotFactory {
         createdTodos: [Todo],
         completedTodos: [Todo],
         deletedTodos: [Todo],
-        monthStart: Date
+        quarterStart: Date,
+        nextQuarterStart: Date
     ) -> [Date: DailyCounts] {
         var dailyCountsByDate = [Date: DailyCounts]()
 
@@ -77,7 +88,8 @@ private extension HeatmapWidgetSnapshotFactory {
             appendCount(
                 activityKind: .created,
                 occurredAt: todo.createdAt,
-                monthStart: monthStart,
+                quarterStart: quarterStart,
+                nextQuarterStart: nextQuarterStart,
                 dailyCountsByDate: &dailyCountsByDate
             )
         }
@@ -87,7 +99,8 @@ private extension HeatmapWidgetSnapshotFactory {
             appendCount(
                 activityKind: .completed,
                 occurredAt: completedAt,
-                monthStart: monthStart,
+                quarterStart: quarterStart,
+                nextQuarterStart: nextQuarterStart,
                 dailyCountsByDate: &dailyCountsByDate
             )
         }
@@ -97,7 +110,8 @@ private extension HeatmapWidgetSnapshotFactory {
             appendCount(
                 activityKind: .deleted,
                 occurredAt: deletedAt,
-                monthStart: monthStart,
+                quarterStart: quarterStart,
+                nextQuarterStart: nextQuarterStart,
                 dailyCountsByDate: &dailyCountsByDate
             )
         }
@@ -108,15 +122,35 @@ private extension HeatmapWidgetSnapshotFactory {
     func appendCount(
         activityKind: ActivityKind,
         occurredAt: Date,
-        monthStart: Date,
+        quarterStart: Date,
+        nextQuarterStart: Date,
         dailyCountsByDate: inout [Date: DailyCounts]
     ) {
-        guard isDateInMonth(occurredAt, monthStart: monthStart) else { return }
+        guard quarterStart <= occurredAt && occurredAt < nextQuarterStart else { return }
 
         let dayStart = calendar.startOfDay(for: occurredAt)
         var dailyCounts = dailyCountsByDate[dayStart] ?? DailyCounts()
         dailyCounts.increment(activityKind)
         dailyCountsByDate[dayStart] = dailyCounts
+    }
+
+    func makeMonths(
+        quarterStart: Date,
+        dailyCountsByDate: [Date: DailyCounts]
+    ) -> [WidgetHeatmapMonthSnapshot] {
+        let monthStarts = (0..<3).compactMap {
+            calendar.date(byAdding: .month, value: $0, to: quarterStart)
+        }
+
+        return monthStarts.map { monthStart in
+            WidgetHeatmapMonthSnapshot(
+                monthStart: monthStart,
+                weeks: makeWeeks(
+                    monthStart: monthStart,
+                    dailyCountsByDate: dailyCountsByDate
+                )
+            )
+        }
     }
 
     func makeWeeks(
@@ -173,29 +207,21 @@ private extension HeatmapWidgetSnapshotFactory {
         return weeks
     }
 
-    func startOfMonth(for date: Date) -> Date {
-        guard let monthInterval = calendar.dateInterval(of: .month, for: date) else {
-            return calendar.startOfDay(for: date)
-        }
-        return monthInterval.start
-    }
-
-    func isDateInMonth(
-        _ date: Date,
-        monthStart: Date
-    ) -> Bool {
-        calendar.isDate(
-            calendar.startOfDay(for: date),
-            equalTo: monthStart,
-            toGranularity: .month
-        )
+    func startOfQuarter(for date: Date) -> Date {
+        let month = calendar.component(.month, from: date)
+        let startMonth = ((month - 1) / 3) * 3 + 1
+        var components = calendar.dateComponents([.year], from: date)
+        components.month = startMonth
+        components.day = 1
+        return calendar.date(from: components) ?? calendar.startOfDay(for: date)
     }
 
     func maxCount(
-        from weeks: [WidgetHeatmapWeekSnapshot],
+        from months: [WidgetHeatmapMonthSnapshot],
         selectedActivityKinds: Set<ActivityKind>
     ) -> Int {
-        weeks
+        months
+            .flatMap(\.weeks)
             .flatMap(\.days)
             .filter(\.isVisible)
             .map { day in
