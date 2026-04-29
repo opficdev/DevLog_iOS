@@ -82,10 +82,6 @@ struct TodayTodoWidgetEntryView: View {
         case .systemMedium:
             GeometryReader { proxy in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("준비 중")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-
                     ForEach(0..<3, id: \.self) { index in
                         placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: index))
                     }
