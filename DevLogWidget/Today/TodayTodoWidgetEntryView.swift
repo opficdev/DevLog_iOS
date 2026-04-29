@@ -37,10 +37,15 @@ struct TodayTodoWidgetEntryView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(snapshot.totalCount)")
                     .font(.system(size: 28, weight: .bold))
-                Text(topItemTitle(from: snapshot))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+
+                if let item = displayedItems(from: snapshot).first {
+                    todoRow(item)
+                } else {
+                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
         case .systemMedium:
             let items = displayedItems(from: snapshot)
@@ -52,7 +57,7 @@ struct TodayTodoWidgetEntryView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(items, id: \.id) { item in
-                        todoRow(item)
+                        todoRow(item, lineLimit: 1)
                     }
                 }
             }
@@ -97,13 +102,6 @@ struct TodayTodoWidgetEntryView: View {
         }
     }
 
-    private func topItemTitle(from snapshot: TodayWidgetSnapshot) -> String {
-        snapshot.sections
-            .flatMap(\.items)
-            .first?
-            .title ?? "오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!"
-    }
-
     private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodoSnapshotItem] {
         Array(snapshot
             .sections
@@ -111,7 +109,7 @@ struct TodayTodoWidgetEntryView: View {
             .prefix(3))
     }
 
-    private func todoRow(_ item: WidgetTodoSnapshotItem) -> some View {
+    private func todoRow(_ item: WidgetTodoSnapshotItem, lineLimit: Int? = nil) -> some View {
         HStack(spacing: 6) {
             Text("#\(item.number)")
                 .font(.caption2)
@@ -125,7 +123,7 @@ struct TodayTodoWidgetEntryView: View {
 
             Text(item.title)
                 .font(.caption)
-                .lineLimit(1)
+                .lineLimit(lineLimit)
         }
     }
 
