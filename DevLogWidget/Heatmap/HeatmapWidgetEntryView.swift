@@ -62,7 +62,6 @@ struct HeatmapWidgetEntryView: View {
                     weekCounts: [5],
                     showsMonthTitles: false
                 )
-                .frame(height: 72)
             }
         case .systemMedium:
             VStack(alignment: .leading, spacing: 8) {
@@ -71,7 +70,6 @@ struct HeatmapWidgetEntryView: View {
                     weekCounts: [5, 5, 5],
                     showsMonthTitles: true
                 )
-                .frame(height: 80)
             }
         default:
             EmptyView()
