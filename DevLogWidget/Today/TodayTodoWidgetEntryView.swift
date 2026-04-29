@@ -65,9 +65,33 @@ struct TodayTodoWidgetEntryView: View {
     @ViewBuilder
     private var emptyState: some View {
         switch widgetFamily {
-        case .systemSmall, .systemMedium:
-            WidgetPlaceholderCard(message: "앱을 열어\nToday 위젯을 준비하세요")
-                .frame(maxWidth: .infinity)
+        case .systemSmall:
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("준비 중")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+
+                    placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 0))
+                    placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 1))
+                }
+            }
+            .frame(height: 48)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        case .systemMedium:
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("준비 중")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+
+                    ForEach(0..<3, id: \.self) { index in
+                        placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: index))
+                    }
+                }
+            }
+            .frame(height: 56)
+            .frame(maxWidth: .infinity, alignment: .leading)
         default:
             EmptyView()
         }
@@ -102,6 +126,31 @@ struct TodayTodoWidgetEntryView: View {
             Text(item.title)
                 .font(.caption)
                 .lineLimit(1)
+        }
+    }
+
+    private func placeholderTodoRow(width: CGFloat) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.secondary.opacity(0.18))
+                .frame(width: 22, height: 8)
+
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.secondary.opacity(0.18))
+                .frame(width: width, height: 8)
+        }
+    }
+
+    private func placeholderTodoRowWidth(in availableWidth: CGFloat, at index: Int) -> CGFloat {
+        let titleAreaWidth = max(availableWidth - 28, 0)
+
+        switch index {
+        case 0:
+            return titleAreaWidth * 2 / 3
+        case 1:
+            return titleAreaWidth / 2
+        default:
+            return titleAreaWidth * 3 / 5
         }
     }
 }
