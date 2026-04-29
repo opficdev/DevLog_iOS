@@ -10,7 +10,7 @@ import AppIntents
 import WidgetKit
 
 struct HeatmapWidget: Widget {
-    let kind = "HeatmapWidget"
+    let kind = WidgetKind.heatmap
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(

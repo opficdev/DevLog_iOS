@@ -10,7 +10,7 @@ import AppIntents
 import WidgetKit
 
 struct TodayTodoWidget: Widget {
-    let kind = "TodayTodoWidget"
+    let kind = WidgetKind.todayTodo
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(

@@ -33,7 +33,7 @@ final class TodayWidgetSyncCoordinator {
 
         do {
             try store.saveTodaySnapshot(todayWidgetSnapshot)
-            WidgetCenter.shared.reloadTimelines(ofKind: "TodayTodoWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.todayTodo)
         } catch {
             return
         }

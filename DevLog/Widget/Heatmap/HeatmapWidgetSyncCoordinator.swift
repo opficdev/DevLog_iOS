@@ -81,7 +81,7 @@ final class HeatmapWidgetSyncCoordinator {
             )
 
             try store.saveHeatmapSnapshot(snapshot)
-            WidgetCenter.shared.reloadTimelines(ofKind: "HeatmapWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.heatmap)
         } catch is CancellationError {
             logger.debug("Heatmap widget sync cancelled.")
         } catch {
