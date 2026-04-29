@@ -72,16 +72,12 @@ struct TodayTodoWidgetEntryView: View {
         switch widgetFamily {
         case .systemSmall:
             GeometryReader { proxy in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("준비 중")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-
+                VStack(alignment: .leading, spacing: 4) {
+                    placeholderTodoCount()
                     placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 0))
-                    placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 1))
                 }
             }
-            .frame(height: 48)
+            .frame(height: 56)
             .frame(maxWidth: .infinity, alignment: .leading)
         case .systemMedium:
             GeometryReader { proxy in
@@ -125,6 +121,12 @@ struct TodayTodoWidgetEntryView: View {
                 .font(.caption)
                 .lineLimit(lineLimit)
         }
+    }
+
+    private func placeholderTodoCount() -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color.secondary.opacity(0.18))
+            .frame(width: 22, height: 28)
     }
 
     private func placeholderTodoRow(width: CGFloat) -> some View {
