@@ -13,7 +13,7 @@ struct TodayTodoWidgetEntryView: View {
     @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading) {
             Text("Today")
                 .font(.headline)
 
@@ -24,6 +24,8 @@ struct TodayTodoWidgetEntryView: View {
             } else {
                 emptyState
             }
+
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -40,12 +42,21 @@ struct TodayTodoWidgetEntryView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
-        case .systemMedium, .systemLarge:
-            WidgetPlaceholderCard(
-                title: "Today",
-                message: "저장된 할 일 \(snapshot.totalCount)개"
-            )
-            .frame(maxWidth: .infinity)
+        case .systemMedium:
+            let items = displayedItems(from: snapshot)
+            VStack(alignment: .leading, spacing: 6) {
+                if items.isEmpty {
+                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                        .multilineTextAlignment(.center)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(items, id: \.id) { item in
+                        todoRow(item)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         default:
             EmptyView()
         }
@@ -54,16 +65,9 @@ struct TodayTodoWidgetEntryView: View {
     @ViewBuilder
     private var emptyState: some View {
         switch widgetFamily {
-        case .systemSmall:
-            Text("앱을 열어\nToday 위젯을 준비하세요")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        case .systemMedium, .systemLarge:
-            WidgetPlaceholderCard(
-                title: "Today",
-                message: "데이터 연결 전"
-            )
-            .frame(maxWidth: .infinity)
+        case .systemSmall, .systemMedium:
+            WidgetPlaceholderCard(message: "앱을 열어\nToday 위젯을 준비하세요")
+                .frame(maxWidth: .infinity)
         default:
             EmptyView()
         }
@@ -73,6 +77,31 @@ struct TodayTodoWidgetEntryView: View {
         snapshot.sections
             .flatMap(\.items)
             .first?
-            .title ?? "할 일이 없습니다"
+            .title ?? "오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!"
+    }
+
+    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodoSnapshotItem] {
+        Array(snapshot
+            .sections
+            .flatMap(\.items)
+            .prefix(3))
+    }
+
+    private func todoRow(_ item: WidgetTodoSnapshotItem) -> some View {
+        HStack(spacing: 6) {
+            Text("#\(item.number)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            if item.isPinned {
+                Image(systemName: "star.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            }
+
+            Text(item.title)
+                .font(.caption)
+                .lineLimit(1)
+        }
     }
 }

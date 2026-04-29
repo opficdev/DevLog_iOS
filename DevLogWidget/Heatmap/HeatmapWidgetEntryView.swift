@@ -63,11 +63,8 @@ struct HeatmapWidgetEntryView: View {
                     .foregroundStyle(.secondary)
             }
         case .systemMedium:
-            WidgetPlaceholderCard(
-                title: "이번 분기 히트맵",
-                message: "데이터 연결 전"
-            )
-            .frame(maxWidth: .infinity)
+            WidgetPlaceholderCard(message: "앱을 열어\n히트맵을 준비하세요")
+                .frame(maxWidth: .infinity)
         default:
             EmptyView()
         }
