@@ -13,8 +13,8 @@ struct TodayTodoWidgetEntryView: View {
     @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Today Todo")
+        VStack(alignment: .leading) {
+            Text("Today")
                 .font(.headline)
 
             Spacer()
@@ -24,6 +24,8 @@ struct TodayTodoWidgetEntryView: View {
             } else {
                 emptyState
             }
+
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -35,17 +37,31 @@ struct TodayTodoWidgetEntryView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(snapshot.totalCount)")
                     .font(.system(size: 28, weight: .bold))
-                Text(topItemTitle(from: snapshot))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+
+                if let item = displayedItems(from: snapshot).first {
+                    todoRow(item)
+                } else {
+                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
-        case .systemMedium, .systemLarge:
-            WidgetPlaceholderCard(
-                title: "Today Todo",
-                message: "저장된 할 일 \(snapshot.totalCount)개"
-            )
-            .frame(maxWidth: .infinity)
+        case .systemMedium:
+            let items = displayedItems(from: snapshot)
+            VStack(alignment: .leading, spacing: 6) {
+                if items.isEmpty {
+                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                        .multilineTextAlignment(.center)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(items, id: \.id) { item in
+                        todoRow(item, lineLimit: 1)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         default:
             EmptyView()
         }
@@ -55,24 +71,82 @@ struct TodayTodoWidgetEntryView: View {
     private var emptyState: some View {
         switch widgetFamily {
         case .systemSmall:
-            Text("앱을 열어\nToday 위젯을 준비하세요")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        case .systemMedium, .systemLarge:
-            WidgetPlaceholderCard(
-                title: "Today Todo",
-                message: "데이터 연결 전"
-            )
-            .frame(maxWidth: .infinity)
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 4) {
+                    placeholderTodoCount()
+                    placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 0))
+                }
+            }
+            .frame(height: 56)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        case .systemMedium:
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(0..<3, id: \.self) { index in
+                        placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: index))
+                    }
+                }
+            }
+            .frame(height: 56)
+            .frame(maxWidth: .infinity, alignment: .leading)
         default:
             EmptyView()
         }
     }
 
-    private func topItemTitle(from snapshot: TodayWidgetSnapshot) -> String {
-        snapshot.sections
+    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodoSnapshotItem] {
+        Array(snapshot
+            .sections
             .flatMap(\.items)
-            .first?
-            .title ?? "할 일이 없습니다"
+            .prefix(3))
+    }
+
+    private func todoRow(_ item: WidgetTodoSnapshotItem, lineLimit: Int? = nil) -> some View {
+        HStack(spacing: 6) {
+            Text("#\(item.number)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            if item.isPinned {
+                Image(systemName: "star.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            }
+
+            Text(item.title)
+                .font(.caption)
+                .lineLimit(lineLimit)
+        }
+    }
+
+    private func placeholderTodoCount() -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color.secondary.opacity(0.18))
+            .frame(width: 22, height: 28)
+    }
+
+    private func placeholderTodoRow(width: CGFloat) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.secondary.opacity(0.18))
+                .frame(width: 22, height: 8)
+
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.secondary.opacity(0.18))
+                .frame(width: width, height: 8)
+        }
+    }
+
+    private func placeholderTodoRowWidth(in availableWidth: CGFloat, at index: Int) -> CGFloat {
+        let titleAreaWidth = max(availableWidth - 28, 0)
+
+        switch index {
+        case 0:
+            return titleAreaWidth * 2 / 3
+        case 1:
+            return titleAreaWidth / 2
+        default:
+            return titleAreaWidth * 3 / 5
+        }
     }
 }

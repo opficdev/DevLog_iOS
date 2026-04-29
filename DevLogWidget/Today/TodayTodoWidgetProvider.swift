@@ -25,7 +25,7 @@ struct TodayTodoWidgetProvider: AppIntentTimelineProvider {
     ) async -> TodayTodoWidgetEntry {
         let snapshot = try? store.loadTodaySnapshot()
         return .init(
-            date: snapshot?.generatedAt ?? .now,
+            date: .now,
             snapshot: snapshot
         )
     }
@@ -39,7 +39,7 @@ struct TodayTodoWidgetProvider: AppIntentTimelineProvider {
         let snapshot = try? store.loadTodaySnapshot()
         let entries: [TodayTodoWidgetEntry] = [
             .init(
-                date: snapshot?.generatedAt ?? .now,
+                date: .now,
                 snapshot: snapshot
             )
         ]

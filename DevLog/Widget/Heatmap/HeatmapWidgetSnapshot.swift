@@ -9,9 +9,14 @@ import Foundation
 
 struct HeatmapWidgetSnapshot: Codable, Equatable {
     let generatedAt: Date
-    let monthStart: Date
+    let quarterStart: Date
     let selectedActivityKindRawValues: [String]
     let maxCount: Int
+    let months: [WidgetHeatmapMonthSnapshot]
+}
+
+struct WidgetHeatmapMonthSnapshot: Codable, Equatable {
+    let monthStart: Date
     let weeks: [WidgetHeatmapWeekSnapshot]
 }
 

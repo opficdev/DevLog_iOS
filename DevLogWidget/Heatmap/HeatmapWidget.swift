@@ -22,7 +22,7 @@ struct HeatmapWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Heatmap")
-        .description("이번 달 활동 히트맵을 표시합니다.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .description("활동 히트맵을 표시합니다.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

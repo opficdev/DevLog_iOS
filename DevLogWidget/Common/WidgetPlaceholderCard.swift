@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct WidgetPlaceholderCard: View {
-    let title: String
     let message: String
 
     var body: some View {
@@ -18,11 +17,7 @@ struct WidgetPlaceholderCard: View {
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-            .overlay(alignment: .topLeading) {
-                Text(title)
-                    .font(.headline)
-                    .padding(12)
+                    .multilineTextAlignment(.center)
             }
     }
 }

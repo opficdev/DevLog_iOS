@@ -25,7 +25,7 @@ struct HeatmapWidgetProvider: AppIntentTimelineProvider {
     ) async -> HeatmapWidgetEntry {
         let snapshot = try? store.loadHeatmapSnapshot()
         return .init(
-            date: snapshot?.generatedAt ?? .now,
+            date: .now,
             snapshot: snapshot
         )
     }
@@ -39,7 +39,7 @@ struct HeatmapWidgetProvider: AppIntentTimelineProvider {
         let snapshot = try? store.loadHeatmapSnapshot()
         let entries: [HeatmapWidgetEntry] = [
             .init(
-                date: snapshot?.generatedAt ?? .now,
+                date: .now,
                 snapshot: snapshot
             )
         ]
