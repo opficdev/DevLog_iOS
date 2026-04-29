@@ -55,17 +55,13 @@ struct WidgetHeatmapPlaceholderGrid: View {
                 showsMonthTitles: showsMonthTitles
             )
 
-            HStack(alignment: .top, spacing: layout.weekdayLabelSpacing) {
-                WidgetHeatmapWeekdayLabels(layout: layout)
-
-                HStack(alignment: .top, spacing: layout.monthSpacing) {
-                    ForEach(Array(weekCounts.enumerated()), id: \.offset) { _, weekCount in
-                        WidgetHeatmapPlaceholderMonthGrid(
-                            weekCount: weekCount,
-                            layout: layout,
-                            showsMonthTitle: showsMonthTitles
-                        )
-                    }
+            HStack(alignment: .top, spacing: layout.monthSpacing) {
+                ForEach(Array(weekCounts.enumerated()), id: \.offset) { _, weekCount in
+                    WidgetHeatmapPlaceholderMonthGrid(
+                        weekCount: weekCount,
+                        layout: layout,
+                        showsMonthTitle: showsMonthTitles
+                    )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
