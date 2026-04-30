@@ -10,19 +10,16 @@ import Foundation
 final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
-    private let widgetSnapshotUpdater: WidgetSnapshotUpdater
-    private let calendar = Calendar.current
-    private let pageSize = 100
-    private let logger = Logger(category: "TodoRepositoryImpl")
+    private let widgetSyncEventBus: WidgetSyncEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
-        widgetSnapshotUpdater: WidgetSnapshotUpdater
+        widgetSyncEventBus: WidgetSyncEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
-        self.widgetSnapshotUpdater = widgetSnapshotUpdater
+        self.widgetSyncEventBus = widgetSyncEventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -95,140 +92,21 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let request = TodoRequest.fromDomain(todo)
         try await todoService.upsertTodo(request: request)
-        updateWidgetSnapshots()
+        widgetSyncEventBus.publish(.todoDataChanged)
     }
     
     func deleteTodo(_ todoId: String) async throws {
         try await todoService.deleteTodo(todoId: todoId)
-        updateWidgetSnapshots()
+        widgetSyncEventBus.publish(.todoDataChanged)
     }
 
     func undoDeleteTodo(_ todoId: String) async throws {
         try await todoService.undoDeleteTodo(todoId: todoId)
-        updateWidgetSnapshots()
+        widgetSyncEventBus.publish(.todoDataChanged)
     }
 }
 
 private extension TodoRepositoryImpl {
-    func updateWidgetSnapshots() {
-        Task { [weak self] in
-            guard let self else { return }
-            async let todaySnapshot: Void = updateTodayWidgetSnapshot()
-            async let heatmapSnapshot: Void = updateHeatmapWidgetSnapshot()
-            _ = await (todaySnapshot, heatmapSnapshot)
-        }
-    }
-
-    func updateTodayWidgetSnapshot() async {
-        do {
-            async let todosWithDueDate = fetchTodayTodos(
-                dueDateFilter: .withDueDate,
-                sortTarget: .dueDate,
-                sortOrder: .oldest
-            )
-            async let todosWithoutDueDate = fetchTodayTodos(
-                dueDateFilter: .withoutDueDate,
-                sortTarget: .updatedAt,
-                sortOrder: .latest
-            )
-            let (todayTodosWithDueDate, todayTodosWithoutDueDate) = try await (
-                todosWithDueDate,
-                todosWithoutDueDate
-            )
-            widgetSnapshotUpdater.updateTodaySnapshot(
-                todos: todayTodosWithDueDate + todayTodosWithoutDueDate
-            )
-        } catch {
-            logger.error(
-                "Failed to fetch today widget snapshot data.",
-                error: error
-            )
-        }
-    }
-
-    func updateHeatmapWidgetSnapshot() async {
-        let now = Date()
-        let quarterStart = widgetSnapshotUpdater.startOfQuarter(for: now)
-        guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: quarterStart) else {
-            return
-        }
-
-        do {
-            async let createdTodos = fetchHeatmapTodos(
-                sortTarget: .createdAt,
-                quarterStart: quarterStart,
-                nextQuarterStart: nextQuarterStart
-            )
-            async let completedTodos = fetchHeatmapTodos(
-                sortTarget: .completedAt,
-                quarterStart: quarterStart,
-                nextQuarterStart: nextQuarterStart
-            )
-            async let deletedTodos = fetchHeatmapTodos(
-                sortTarget: .deletedAt,
-                quarterStart: quarterStart,
-                nextQuarterStart: nextQuarterStart
-            )
-            let (createdTodoItems, completedTodoItems, deletedTodoItems) = try await (
-                createdTodos,
-                completedTodos,
-                deletedTodos
-            )
-            widgetSnapshotUpdater.updateHeatmapSnapshot(
-                createdTodos: createdTodoItems,
-                completedTodos: completedTodoItems,
-                deletedTodos: deletedTodoItems,
-                quarterStart: quarterStart,
-                now: now
-            )
-        } catch {
-            logger.error(
-                "Failed to fetch heatmap widget snapshot data.",
-                error: error
-            )
-        }
-    }
-
-    func fetchTodayTodos(
-        dueDateFilter: TodoQuery.DueDateFilter,
-        sortTarget: TodoQuery.SortTarget,
-        sortOrder: TodoQuery.SortOrder
-    ) async throws -> [TodayTodoItem] {
-        let todoPage = try await fetchTodos(
-            TodoQuery(
-                completionFilter: .incomplete,
-                dueDateFilter: dueDateFilter,
-                sortTarget: sortTarget,
-                sortOrder: sortOrder,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
-        )
-
-        return todoPage.items.compactMap { TodayTodoItem(from: $0) }
-    }
-
-    func fetchHeatmapTodos(
-        sortTarget: TodoQuery.SortTarget,
-        quarterStart: Date,
-        nextQuarterStart: Date
-    ) async throws -> [Todo] {
-        let todoPage = try await fetchTodos(
-            TodoQuery(
-                sortDateFrom: quarterStart,
-                sortDateTo: nextQuarterStart,
-                includesDeleted: true,
-                sortTarget: sortTarget,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
-        )
-
-        return todoPage.items
-    }
-
     func resolve(
         _ response: TodoResponse,
         userTodoCategories: [UserTodoCategory]
