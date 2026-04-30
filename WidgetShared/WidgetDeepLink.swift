@@ -12,15 +12,18 @@ enum WidgetDeepLink {
     static let todayTodoHost = "today"
     static let heatmapHost = "profile"
 
-    static var todayTodoURL: URL {
+    static var todayTodoURL: URL? {
         url(host: todayTodoHost)
     }
 
-    static var heatmapURL: URL {
+    static var heatmapURL: URL? {
         url(host: heatmapHost)
     }
 
-    private static func url(host: String) -> URL {
-        URL(string: "\(scheme)://\(host)")!
+    private static func url(host: String) -> URL? {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = scheme
+        urlComponents.host = host
+        return urlComponents.url
     }
 }
