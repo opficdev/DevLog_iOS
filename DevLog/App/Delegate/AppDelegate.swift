@@ -28,6 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         FirebaseApp.configure()
         _ = container.resolve(FCMTokenSyncHandler.self)
         _ = container.resolve(UserTimeZoneSyncHandler.self)
+        _ = container.resolve(WidgetSyncEventHandler.self)
 
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self

@@ -30,7 +30,7 @@ final class DataAssembler: Assembler {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                widgetSnapshotUpdater: container.resolve(WidgetSnapshotUpdater.self)
+                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
             )
         }
 
