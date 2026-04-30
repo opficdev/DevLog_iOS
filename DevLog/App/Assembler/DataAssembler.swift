@@ -29,8 +29,7 @@ final class DataAssembler: Assembler {
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
-                todoCategoryService: container.resolve(TodoCategoryService.self),
-                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
+                todoCategoryService: container.resolve(TodoCategoryService.self)
             )
         }
 
@@ -98,8 +97,7 @@ final class DataAssembler: Assembler {
             UserPreferencesRepositoryImpl(
                 store: container.resolve(UserDefaultsStore.self),
                 themeStore: container.resolve(ThemeStore.self),
-                widgetSnapshotPreferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self),
-                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
+                widgetSnapshotPreferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
             )
         }
     }

@@ -34,20 +34,12 @@ final class WidgetSyncEventHandler {
 private extension WidgetSyncEventHandler {
     func handle(_ event: WidgetSyncEvent) {
         switch event {
-        case .todoDataChanged:
+        case .syncRequested:
             Task { [weak self] in
                 guard let self else { return }
                 async let todaySnapshot: Void = updateTodayWidgetSnapshot()
                 async let heatmapSnapshot: Void = updateHeatmapWidgetSnapshot()
                 _ = await (todaySnapshot, heatmapSnapshot)
-            }
-        case .todayDisplayOptionsChanged:
-            Task { [weak self] in
-                await self?.updateTodayWidgetSnapshot()
-            }
-        case .heatmapActivityKindsChanged:
-            Task { [weak self] in
-                await self?.updateHeatmapWidgetSnapshot()
             }
         }
     }

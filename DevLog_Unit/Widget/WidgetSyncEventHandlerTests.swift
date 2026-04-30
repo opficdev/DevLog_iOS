@@ -10,8 +10,8 @@ import Testing
 @testable import DevLog
 
 struct WidgetSyncEventHandlerTests {
-    @Test("Todo 데이터 변경 이벤트는 Today와 Heatmap 스냅샷을 갱신한다")
-    func todo_데이터_변경_이벤트는_today와_heatmap_스냅샷을_갱신한다() async throws {
+    @Test("위젯 동기화 요청 이벤트는 Today와 Heatmap 스냅샷을 갱신한다")
+    func 위젯_동기화_요청_이벤트는_today와_heatmap_스냅샷을_갱신한다() async throws {
         let calendar = Calendar.current
         let now = Date()
         let quarterStart = calendar.startOfQuarter(for: now)
@@ -32,7 +32,7 @@ struct WidgetSyncEventHandlerTests {
             ]
         )
 
-        fixture.bus.publish(.todoDataChanged)
+        fixture.bus.publish(.syncRequested)
 
         let todaySnapshot = try await loadTodaySnapshot(from: fixture.snapshotStore)
         let heatmapSnapshot = try await loadHeatmapSnapshot(from: fixture.snapshotStore)

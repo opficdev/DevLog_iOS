@@ -19,13 +19,9 @@ struct WidgetSyncEventBusTests {
                 receivedEvents.append(event)
             }
 
-        bus.publish(.todoDataChanged)
-        bus.publish(.todayDisplayOptionsChanged)
+        bus.publish(.syncRequested)
 
-        #expect(receivedEvents == [
-            .todoDataChanged,
-            .todayDisplayOptionsChanged
-        ])
+        #expect(receivedEvents == [.syncRequested])
         _ = cancellable
     }
 }

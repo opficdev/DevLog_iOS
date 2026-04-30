@@ -10,16 +10,13 @@ import Foundation
 final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
-    private let widgetSyncEventBus: WidgetSyncEventBus
 
     init(
         todoService: TodoService,
-        todoCategoryService: TodoCategoryService,
-        widgetSyncEventBus: WidgetSyncEventBus
+        todoCategoryService: TodoCategoryService
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
-        self.widgetSyncEventBus = widgetSyncEventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -92,17 +89,14 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let request = TodoRequest.fromDomain(todo)
         try await todoService.upsertTodo(request: request)
-        widgetSyncEventBus.publish(.todoDataChanged)
     }
     
     func deleteTodo(_ todoId: String) async throws {
         try await todoService.deleteTodo(todoId: todoId)
-        widgetSyncEventBus.publish(.todoDataChanged)
     }
 
     func undoDeleteTodo(_ todoId: String) async throws {
         try await todoService.undoDeleteTodo(todoId: todoId)
-        widgetSyncEventBus.publish(.todoDataChanged)
     }
 }
 

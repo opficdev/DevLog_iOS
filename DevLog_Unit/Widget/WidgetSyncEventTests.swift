@@ -10,10 +10,8 @@ import Testing
 @testable import DevLog
 
 struct WidgetSyncEventTests {
-    @Test("위젯 동기화 이벤트는 변경 원인만 표현한다")
-    func 위젯_동기화_이벤트는_변경_원인만_표현한다() {
-        #expect(WidgetSyncEvent.todoDataChanged == .todoDataChanged)
-        #expect(WidgetSyncEvent.todayDisplayOptionsChanged == .todayDisplayOptionsChanged)
-        #expect(WidgetSyncEvent.heatmapActivityKindsChanged == .heatmapActivityKindsChanged)
+    @Test("위젯 동기화 이벤트는 동기화 요청만 표현한다")
+    func 위젯_동기화_이벤트는_동기화_요청만_표현한다() {
+        #expect(WidgetSyncEvent.syncRequested == .syncRequested)
     }
 }

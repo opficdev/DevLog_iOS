@@ -6,7 +6,5 @@
 //
 
 enum WidgetSyncEvent: Equatable {
-    case todoDataChanged
-    case todayDisplayOptionsChanged
-    case heatmapActivityKindsChanged
+    case syncRequested
 }
