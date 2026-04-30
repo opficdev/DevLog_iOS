@@ -39,7 +39,7 @@ struct HeatmapWidgetSnapshotFactory {
         quarterStart: Date,
         now: Date = Date()
     ) -> HeatmapWidgetSnapshot {
-        let normalizedQuarterStart = startOfQuarter(for: quarterStart)
+        let normalizedQuarterStart = calendar.startOfQuarter(for: quarterStart)
         guard let nextQuarterStart = calendar.date(byAdding: .month, value: 3, to: normalizedQuarterStart) else {
             return HeatmapWidgetSnapshot(
                 generatedAt: now,
@@ -205,15 +205,6 @@ private extension HeatmapWidgetSnapshotFactory {
         }
 
         return weeks
-    }
-
-    func startOfQuarter(for date: Date) -> Date {
-        let month = calendar.component(.month, from: date)
-        let startMonth = ((month - 1) / 3) * 3 + 1
-        var components = calendar.dateComponents([.year], from: date)
-        components.month = startMonth
-        components.day = 1
-        return calendar.date(from: components) ?? calendar.startOfDay(for: date)
     }
 
     func maxCount(

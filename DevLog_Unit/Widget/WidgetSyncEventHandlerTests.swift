@@ -14,7 +14,7 @@ struct WidgetSyncEventHandlerTests {
     func todo_데이터_변경_이벤트는_today와_heatmap_스냅샷을_갱신한다() async throws {
         let calendar = Calendar.current
         let now = Date()
-        let quarterStart = startOfQuarter(for: now, calendar: calendar)
+        let quarterStart = calendar.startOfQuarter(for: now)
         let fixture = makeFixture(calendar: calendar)
 
         await fixture.todoRepository.setTodos(
@@ -73,13 +73,12 @@ struct WidgetSyncEventHandlerTests {
         let updater = WidgetSnapshotUpdater(
             snapshotStore: snapshotStore,
             preferenceStore: preferenceStore,
-            heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar),
-            calendar: calendar
+            heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
         )
         let handler = WidgetSyncEventHandler(
             eventBus: bus,
-            todoRepository: todoRepository,
-            widgetSnapshotUpdater: updater
+            repository: todoRepository,
+            snapshotUpdater: updater
         )
 
         return (bus, todoRepository, snapshotStore, handler)
@@ -136,17 +135,6 @@ struct WidgetSyncEventHandlerTests {
         )
     }
 
-    private func startOfQuarter(
-        for date: Date,
-        calendar: Calendar
-    ) -> Date {
-        let month = calendar.component(.month, from: date)
-        let startMonth = ((month - 1) / 3) * 3 + 1
-        var components = calendar.dateComponents([.year], from: date)
-        components.month = startMonth
-        components.day = 1
-        return calendar.date(from: components) ?? calendar.startOfDay(for: date)
-    }
 }
 
 private actor WidgetSyncTodoRepositorySpy: TodoRepository {

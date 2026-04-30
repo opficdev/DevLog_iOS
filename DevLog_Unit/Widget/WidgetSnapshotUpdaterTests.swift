@@ -81,8 +81,7 @@ struct WidgetSnapshotUpdaterTests {
         let updater = WidgetSnapshotUpdater(
             snapshotStore: snapshotStore,
             preferenceStore: preferenceStore,
-            heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar),
-            calendar: calendar
+            heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
         )
         return (updater, snapshotStore)
     }

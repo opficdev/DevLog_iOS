@@ -81,7 +81,7 @@ private extension WidgetSyncEventHandler {
 
     func updateHeatmapWidgetSnapshot() async {
         let currentDate = Date()
-        let quarterStart = snapshotUpdater.startOfQuarter(for: currentDate)
+        let quarterStart = Calendar.current.startOfQuarter(for: currentDate)
         guard let nextQuarterStart = Calendar.current.date(byAdding: .month, value: 3, to: quarterStart) else {
             return
         }
