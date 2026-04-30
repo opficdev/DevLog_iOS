@@ -10,7 +10,7 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State var viewModel: MainViewModel
-    @State private var selectedTab = MainTab.home
+    @Binding var selectedTab: MainTab
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -72,10 +72,6 @@ struct MainView: View {
         }
         .onAppear {
             viewModel.send(.onAppear)
-        }
-        .onOpenURL { url in
-            guard let mainTab = MainTab(widgetURL: url) else { return }
-            selectedTab = mainTab
         }
         .alert(
             viewModel.state.alertTitle,
