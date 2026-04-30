@@ -8,11 +8,6 @@
 import Foundation
 
 final class WidgetSnapshotStore {
-    private enum Key {
-        static let todaySnapshot = "Widget.today.snapshot"
-        static let heatmapSnapshot = "Widget.heatmap.snapshot"
-    }
-
     private let store: WidgetSharedDefaultsStore
     private let decoder = JSONDecoder()
 
@@ -21,12 +16,12 @@ final class WidgetSnapshotStore {
     }
 
     func loadTodaySnapshot() throws -> TodayWidgetSnapshot? {
-        guard let data = store.data(forKey: Key.todaySnapshot) else { return nil }
+        guard let data = store.data(forKey: WidgetSnapshotKey.today) else { return nil }
         return try decoder.decode(TodayWidgetSnapshot.self, from: data)
     }
 
     func loadHeatmapSnapshot() throws -> HeatmapWidgetSnapshot? {
-        guard let data = store.data(forKey: Key.heatmapSnapshot) else { return nil }
+        guard let data = store.data(forKey: WidgetSnapshotKey.heatmap) else { return nil }
         return try decoder.decode(HeatmapWidgetSnapshot.self, from: data)
     }
 }

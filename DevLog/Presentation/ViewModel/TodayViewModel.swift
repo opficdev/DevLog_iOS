@@ -71,7 +71,6 @@ final class TodayViewModel: Store {
         case fetchTodos
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
-        case syncTodayWidget
     }
 
     private(set) var state = State()
@@ -83,7 +82,6 @@ final class TodayViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
     private let loadingState = LoadingState()
-    private let widgetCoordinator = TodayWidgetSyncCoordinator()
 
     init(
         fetchTodosUseCase: FetchTodosUseCase,
@@ -258,11 +256,6 @@ final class TodayViewModel: Store {
                     send(.setAlert(true))
                 }
             }
-        case .syncTodayWidget:
-            widgetCoordinator.sync(
-                todos: state.todos,
-                displayOptions: state.displayOptions
-            )
         }
     }
 }
@@ -292,15 +285,12 @@ private extension TodayViewModel {
         case .setDueDateVisibility(let visibility):
             state.displayOptions.dueDateVisibility = visibility
             updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
-            return [.syncTodayWidget]
         case .setFocusVisibility(let visibility):
             state.displayOptions.focusVisibility = visibility
             updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
-            return [.syncTodayWidget]
         case .resetDisplayOptions:
             state.displayOptions = .default
             updateTodayDisplayOptionsUseCase.execute(state.displayOptions)
-            return [.syncTodayWidget]
         case .completeTodo(let item):
             return [.completeTodo(item)]
         case .togglePinned(let item):
@@ -325,7 +315,6 @@ private extension TodayViewModel {
         switch action {
         case .fetchTodos(let items):
             state.todos = items
-            return [.syncTodayWidget]
         case .setLoading(let isLoading):
             state.isLoading = isLoading
         case .updateTodo(let item):
@@ -334,10 +323,8 @@ private extension TodayViewModel {
             } else {
                 state.todos.append(item)
             }
-            return [.syncTodayWidget]
         case .removeTodo(let todoId):
             state.todos.removeAll { $0.id == todoId }
-            return [.syncTodayWidget]
         default:
             break
         }

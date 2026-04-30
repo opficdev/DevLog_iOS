@@ -11,6 +11,7 @@ import SwiftUI
 struct DevLogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @Environment(\.diContainer) var container: DIContainer
+    @Environment(\.scenePhase) var scenePhase
 
     init() {
         AppAssembler().assemble(AppDIContainer.shared)
@@ -24,6 +25,10 @@ struct DevLogApp: App {
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
             ))
             .autocorrectionDisabled()
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .background else { return }
+                container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
+            }
         }
     }
 }

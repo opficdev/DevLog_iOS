@@ -18,5 +18,26 @@ final class PersistenceAssembler: Assembler {
         container.register(WebPageImageStore.self) {
             WebPageImageStore()
         }
+
+        container.register(WidgetSharedDefaultsStore.self) {
+            WidgetSharedDefaultsStore()
+        }
+
+        container.register(WidgetSnapshotStore.self) {
+            WidgetSnapshotStore(
+                store: container.resolve(WidgetSharedDefaultsStore.self)
+            )
+        }
+
+        container.register(WidgetSnapshotPreferenceStore.self) {
+            WidgetSnapshotPreferenceStore()
+        }
+
+        container.register(WidgetSnapshotUpdater.self) {
+            WidgetSnapshotUpdater(
+                snapshotStore: container.resolve(WidgetSnapshotStore.self),
+                preferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
+            )
+        }
     }
 }

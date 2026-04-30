@@ -138,7 +138,7 @@ struct HeatmapWidgetSnapshotFactoryTests {
             .flatMap(\.weeks)
             .flatMap(\.days)
             .first { day in
-                calendar.isDate(day.date, inSameDayAs: targetDate)
+                day.isVisible && calendar.isDate(day.date, inSameDayAs: targetDate)
             }
     }
 

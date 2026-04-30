@@ -96,7 +96,8 @@ final class DataAssembler: Assembler {
         container.register(UserPreferencesRepository.self) {
             UserPreferencesRepositoryImpl(
                 store: container.resolve(UserDefaultsStore.self),
-                themeStore: container.resolve(ThemeStore.self)
+                themeStore: container.resolve(ThemeStore.self),
+                widgetSnapshotPreferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
             )
         }
     }
