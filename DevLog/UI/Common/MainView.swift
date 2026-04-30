@@ -10,9 +10,10 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State var viewModel: MainViewModel
+    @State private var selectedTab = MainTab.home
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             HomeView(viewModel: HomeViewModel(
                 fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                 updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
@@ -28,6 +29,7 @@ struct MainView: View {
                 Image(systemName: "house.fill")
                 Text(String(localized: "nav_home"))
             }
+            .tag(MainTab.home)
             TodayView(viewModel: TodayViewModel(
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
                 fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
@@ -39,6 +41,7 @@ struct MainView: View {
                 Image(systemName: "sun.max.fill")
                 Text(String(localized: "nav_today"))
             }
+            .tag(MainTab.today)
             PushNotificationListView(viewModel: PushNotificationListViewModel(
                 fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
                 deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
@@ -52,6 +55,7 @@ struct MainView: View {
                 Text(String(localized: "nav_notifications"))
             }
             .badge(viewModel.state.unreadPushCount)
+            .tag(MainTab.notification)
             ProfileView(viewModel: ProfileViewModel(
                 fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
                 fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
@@ -64,9 +68,14 @@ struct MainView: View {
                 Image(systemName: "person.crop.circle.fill")
                 Text(String(localized: "nav_profile"))
             }
+            .tag(MainTab.profile)
         }
         .onAppear {
             viewModel.send(.onAppear)
+        }
+        .onOpenURL { url in
+            guard let mainTab = MainTab(widgetURL: url) else { return }
+            selectedTab = mainTab
         }
         .alert(
             viewModel.state.alertTitle,

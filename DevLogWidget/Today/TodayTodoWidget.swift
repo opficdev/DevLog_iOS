@@ -20,6 +20,7 @@ struct TodayTodoWidget: Widget {
         ) { entry in
             TodayTodoWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(WidgetDeepLink.todayTodoURL)
         }
         .description("오늘 기준 Todo 목록을 표시합니다.")
         .configurationDisplayName("Today")
