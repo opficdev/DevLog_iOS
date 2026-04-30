@@ -29,9 +29,14 @@ final class PersistenceAssembler: Assembler {
             )
         }
 
+        container.register(WidgetSnapshotPreferenceStore.self) {
+            WidgetSnapshotPreferenceStore()
+        }
+
         container.register(WidgetSnapshotUpdater.self) {
             WidgetSnapshotUpdater(
-                snapshotStore: container.resolve(WidgetSnapshotStore.self)
+                snapshotStore: container.resolve(WidgetSnapshotStore.self),
+                preferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
             )
         }
     }

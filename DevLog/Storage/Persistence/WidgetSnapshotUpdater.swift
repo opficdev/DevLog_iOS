@@ -10,6 +10,7 @@ import WidgetKit
 
 final class WidgetSnapshotUpdater {
     private let snapshotStore: WidgetSnapshotStore
+    private let preferenceStore: WidgetSnapshotPreferenceStore
     private let todayFactory: TodayWidgetSnapshotFactory
     private let heatmapFactory: HeatmapWidgetSnapshotFactory
     private let calendar: Calendar
@@ -17,14 +18,27 @@ final class WidgetSnapshotUpdater {
 
     init(
         snapshotStore: WidgetSnapshotStore,
+        preferenceStore: WidgetSnapshotPreferenceStore,
         todayFactory: TodayWidgetSnapshotFactory = .init(),
         heatmapFactory: HeatmapWidgetSnapshotFactory = .init(),
         calendar: Calendar = .current
     ) {
         self.snapshotStore = snapshotStore
+        self.preferenceStore = preferenceStore
         self.todayFactory = todayFactory
         self.heatmapFactory = heatmapFactory
         self.calendar = calendar
+    }
+
+    func updateTodaySnapshot(
+        todos: [TodayTodoItem],
+        now: Date = Date()
+    ) {
+        updateTodaySnapshot(
+            todos: todos,
+            displayOptions: preferenceStore.todayDisplayOptions(),
+            now: now
+        )
     }
 
     func updateTodaySnapshot(
@@ -47,6 +61,23 @@ final class WidgetSnapshotUpdater {
                 error: error
             )
         }
+    }
+
+    func updateHeatmapSnapshot(
+        createdTodos: [Todo],
+        completedTodos: [Todo],
+        deletedTodos: [Todo],
+        quarterStart: Date,
+        now: Date = Date()
+    ) {
+        updateHeatmapSnapshot(
+            createdTodos: createdTodos,
+            completedTodos: completedTodos,
+            deletedTodos: deletedTodos,
+            selectedActivityKinds: preferenceStore.selectedActivityKinds(),
+            quarterStart: quarterStart,
+            now: now
+        )
     }
 
     func updateHeatmapSnapshot(

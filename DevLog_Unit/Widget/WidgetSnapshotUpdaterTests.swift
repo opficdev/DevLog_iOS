@@ -75,8 +75,12 @@ struct WidgetSnapshotUpdaterTests {
         let snapshotStore = WidgetSnapshotStore(
             store: WidgetSharedDefaultsStore(userDefaults: userDefaults)
         )
+        let preferenceStore = WidgetSnapshotPreferenceStore(
+            userDefaults: userDefaults
+        )
         let updater = WidgetSnapshotUpdater(
             snapshotStore: snapshotStore,
+            preferenceStore: preferenceStore,
             heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar),
             calendar: calendar
         )

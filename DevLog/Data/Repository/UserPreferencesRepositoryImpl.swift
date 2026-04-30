@@ -15,20 +15,20 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
         static let pushSortOrder = "PushNotification.sortOption"
         static let pushTimeFilter = "PushNotification.timeFilter"
         static let pushUnreadOnly = "PushNotification.showUnreadOnly"
-        static let heatmapActivityTypes = "Profile.heatmap.activityTypes"
-        static let todayDueDateVisibility = "Today.dueDateVisibility"
-        static let todayFocusVisibility = "Today.focusVisibility"
     }
 
     private let store: UserDefaultsStore
     private let themeStore: ThemeStore
+    private let widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore
 
     init(
         store: UserDefaultsStore,
-        themeStore: ThemeStore
+        themeStore: ThemeStore,
+        widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore
     ) {
         self.store = store
         self.themeStore = themeStore
+        self.widgetSnapshotPreferenceStore = widgetSnapshotPreferenceStore
         themeStore.send(systemTheme())
     }
 
@@ -85,29 +85,18 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
     }
 
     func heatmapActivityTypes() -> [String] {
-        store.stringArray(forKey: Key.heatmapActivityTypes)
+        widgetSnapshotPreferenceStore.heatmapActivityTypes()
     }
 
     func setHeatmapActivityTypes(_ activityTypes: [String]) {
-        store.setStringArray(activityTypes, forKey: Key.heatmapActivityTypes)
+        widgetSnapshotPreferenceStore.setHeatmapActivityTypes(activityTypes)
     }
 
     func todayDisplayOptions() -> TodayDisplayOptions {
-        let dueDateVisibilityRawValue = store.string(forKey: Key.todayDueDateVisibility)
-        let focusVisibilityRawValue = store.string(forKey: Key.todayFocusVisibility)
-
-        return TodayDisplayOptions(
-            dueDateVisibility: TodayDisplayOptions.DueDateVisibility(
-                rawValue: dueDateVisibilityRawValue ?? ""
-            ) ?? .all,
-            focusVisibility: TodayDisplayOptions.FocusVisibility(
-                rawValue: focusVisibilityRawValue ?? ""
-            ) ?? .all
-        )
+        widgetSnapshotPreferenceStore.todayDisplayOptions()
     }
 
     func setTodayDisplayOptions(_ options: TodayDisplayOptions) {
-        store.setString(options.dueDateVisibility.rawValue, forKey: Key.todayDueDateVisibility)
-        store.setString(options.focusVisibility.rawValue, forKey: Key.todayFocusVisibility)
+        widgetSnapshotPreferenceStore.setTodayDisplayOptions(options)
     }
 }
