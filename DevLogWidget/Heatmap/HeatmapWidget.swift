@@ -20,6 +20,7 @@ struct HeatmapWidget: Widget {
         ) { entry in
             HeatmapWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(WidgetDeepLink.heatmapURL)
         }
         .configurationDisplayName("Heatmap")
         .description("활동 히트맵을 표시합니다.")
