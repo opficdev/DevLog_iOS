@@ -47,57 +47,6 @@
         }
       }
     },
-    "widget_heatmap_weekday_friday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fri"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "금"
-          }
-        }
-      }
-    },
-    "widget_heatmap_weekday_monday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mon"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "월"
-          }
-        }
-      }
-    },
-    "widget_heatmap_weekday_wednesday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wed"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "수"
-          }
-        }
-      }
-    },
     "widget_heatmap_description" : {
       "extractionState" : "manual",
       "localizations" : {
