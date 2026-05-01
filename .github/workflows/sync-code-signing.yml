@@ -1,0 +1,42 @@
+name: iOS Code Signing
+
+on:
+  workflow_dispatch:
+
+env:
+  RUBY_VERSION: "3.2"
+  APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_KEY_PATH: fastlane/AuthKey.p8
+  SPACESHIP_CONNECT_API_IN_HOUSE: "false"
+  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+permissions:
+  contents: read
+
+jobs:
+  sync-appstore-profiles:
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ env.RUBY_VERSION }}
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
+
+      - name: Sync App Store profiles
+        run: bundle exec fastlane sync_appstore_profiles
