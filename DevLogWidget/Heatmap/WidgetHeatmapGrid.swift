@@ -43,10 +43,12 @@ struct WidgetHeatmapGrid: View {
 }
 
 struct WidgetHeatmapPlaceholderGrid: View {
-    let weekCounts: [Int]
+    let months: [WidgetHeatmapPlaceholderMonthShape]
     let showsMonthTitles: Bool
 
     var body: some View {
+        let weekCounts = months.map(\.weeks.count)
+
         GeometryReader { proxy in
             let layout = WidgetHeatmapLayout(
                 availableWidth: proxy.size.width,
@@ -56,9 +58,9 @@ struct WidgetHeatmapPlaceholderGrid: View {
             )
 
             HStack(alignment: .top, spacing: layout.monthSpacing) {
-                ForEach(Array(weekCounts.enumerated()), id: \.offset) { _, weekCount in
+                ForEach(months) { month in
                     WidgetHeatmapPlaceholderMonthGrid(
-                        weekCount: weekCount,
+                        month: month,
                         layout: layout,
                         showsMonthTitle: showsMonthTitles
                     )
@@ -187,7 +189,7 @@ private enum WidgetHeatmapActivityKind: String {
 }
 
 private struct WidgetHeatmapPlaceholderMonthGrid: View {
-    let weekCount: Int
+    let month: WidgetHeatmapPlaceholderMonthShape
     let layout: WidgetHeatmapLayout
     let showsMonthTitle: Bool
     private let orderedWeekdays = Array(1...7)
@@ -204,9 +206,13 @@ private struct WidgetHeatmapPlaceholderMonthGrid: View {
             VStack(alignment: .leading, spacing: layout.cellSpacing) {
                 ForEach(orderedWeekdays, id: \.self) { weekday in
                     HStack(spacing: layout.cellSpacing) {
-                        ForEach(0..<weekCount, id: \.self) { weekIndex in
+                        ForEach(month.weeks) { week in
+                            let day = week.days.first {
+                                Calendar.current.component(.weekday, from: $0.date) == weekday
+                            }
+
                             RoundedRectangle(cornerRadius: layout.cellCornerRadius)
-                                .fill(Color.secondary.opacity(opacity(weekday: weekday, weekIndex: weekIndex)))
+                                .fill(fillColor(for: day))
                                 .frame(width: layout.cellSize, height: layout.cellSize)
                         }
                     }
@@ -215,8 +221,13 @@ private struct WidgetHeatmapPlaceholderMonthGrid: View {
         }
     }
 
-    private func opacity(weekday: Int, weekIndex: Int) -> Double {
-        switch (weekday + weekIndex) % 4 {
+    private func fillColor(for day: WidgetHeatmapPlaceholderDayShape?) -> Color {
+        guard let day, day.isVisible else { return .clear }
+        return Color.secondary.opacity(opacity(for: day))
+    }
+
+    private func opacity(for day: WidgetHeatmapPlaceholderDayShape) -> Double {
+        switch Calendar.current.component(.day, from: day.date) % 4 {
         case 0:
             return 1 / 8
         case 1:

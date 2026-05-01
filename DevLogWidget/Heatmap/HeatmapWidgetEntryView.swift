@@ -53,13 +53,14 @@ struct HeatmapWidgetEntryView: View {
 
     @ViewBuilder
     private var emptyState: some View {
+        let shape = WidgetHeatmapPlaceholderShape(date: entry.date)
+
         switch widgetFamily {
         case .systemSmall:
             VStack(alignment: .leading, spacing: 8) {
-                Text("이번 달 히트맵")
-                    .font(.headline)
+                header(title: "이번 달 히트맵")
                 WidgetHeatmapPlaceholderGrid(
-                    weekCounts: [5],
+                    months: shape.currentMonths,
                     showsMonthTitles: false
                 )
             }
@@ -67,7 +68,7 @@ struct HeatmapWidgetEntryView: View {
             VStack(alignment: .leading, spacing: 8) {
                 header(title: "이번 분기 히트맵")
                 WidgetHeatmapPlaceholderGrid(
-                    weekCounts: [5, 5, 5],
+                    months: shape.quarterMonths,
                     showsMonthTitles: true
                 )
             }
