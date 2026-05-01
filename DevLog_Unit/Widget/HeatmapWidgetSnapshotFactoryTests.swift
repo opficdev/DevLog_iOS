@@ -126,6 +126,73 @@ struct HeatmapWidgetSnapshotFactoryTests {
         #expect(targetDay.deletedCount == 3)
     }
 
+    @Test("Heatmap 위젯 스냅샷은 분기 시작일은 포함하고 다음 분기 시작일은 제외한다")
+    func heatmap_위젯_스냅샷은_분기_시작일은_포함하고_다음_분기_시작일은_제외한다() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+        let nextQuarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1)))
+        let quarterLastDate = try #require(calendar.date(byAdding: .second, value: -1, to: nextQuarterStart))
+        let factory = HeatmapWidgetSnapshotFactory(calendar: calendar)
+
+        let snapshot = factory.makeSnapshot(
+            createdTodos: [
+                makeTodo(id: "created-quarter-start", createdAt: quarterStart),
+                makeTodo(id: "created-next-quarter-start", createdAt: nextQuarterStart)
+            ],
+            completedTodos: [
+                makeTodo(
+                    id: "completed-quarter-last-date",
+                    createdAt: quarterStart,
+                    completedAt: quarterLastDate
+                )
+            ],
+            deletedTodos: [],
+            selectedActivityKinds: [.created, .completed],
+            quarterStart: quarterStart,
+            now: quarterStart
+        )
+
+        let aprilFirst = try #require(day(for: DateComponents(year: 2026, month: 4, day: 1), in: snapshot, calendar: calendar))
+        let juneThirtieth = try #require(day(for: DateComponents(year: 2026, month: 6, day: 30), in: snapshot, calendar: calendar))
+
+        #expect(aprilFirst.createdCount == 1)
+        #expect(juneThirtieth.completedCount == 1)
+        #expect(day(for: DateComponents(year: 2026, month: 7, day: 1), in: snapshot, calendar: calendar) == nil)
+        #expect(snapshot.maxCount == 1)
+    }
+
+    @Test("Heatmap 위젯 스냅샷은 Q4 분기를 다음 해 1월 전까지 만든다")
+    func heatmap_위젯_스냅샷은_q4_분기를_다음_해_1월_전까지_만든다() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let q4Date = try #require(calendar.date(from: DateComponents(year: 2026, month: 11, day: 10)))
+        let octoberStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 10, day: 1)))
+        let novemberStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 11, day: 1)))
+        let decemberStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 12, day: 1)))
+        let decemberLastDate = try #require(calendar.date(from: DateComponents(year: 2026, month: 12, day: 31)))
+        let nextYearStart = try #require(calendar.date(from: DateComponents(year: 2027, month: 1, day: 1)))
+        let factory = HeatmapWidgetSnapshotFactory(calendar: calendar)
+
+        let snapshot = factory.makeSnapshot(
+            createdTodos: [
+                makeTodo(id: "created-december-last-date", createdAt: decemberLastDate),
+                makeTodo(id: "created-next-year-start", createdAt: nextYearStart)
+            ],
+            completedTodos: [],
+            deletedTodos: [],
+            selectedActivityKinds: [.created],
+            quarterStart: q4Date,
+            now: q4Date
+        )
+
+        let decemberLastDay = try #require(day(for: DateComponents(year: 2026, month: 12, day: 31), in: snapshot, calendar: calendar))
+
+        #expect(snapshot.quarterStart == octoberStart)
+        #expect(snapshot.months.map(\.monthStart) == [octoberStart, novemberStart, decemberStart])
+        #expect(decemberLastDay.createdCount == 1)
+        #expect(day(for: DateComponents(year: 2027, month: 1, day: 1), in: snapshot, calendar: calendar) == nil)
+        #expect(snapshot.maxCount == 1)
+    }
+
     private func day(
         for components: DateComponents,
         in snapshot: HeatmapWidgetSnapshot,

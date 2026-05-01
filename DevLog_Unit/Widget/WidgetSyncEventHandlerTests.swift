@@ -51,6 +51,57 @@ struct WidgetSyncEventHandlerTests {
         _ = fixture.handler
     }
 
+    @Test("Today 스냅샷 조회 실패는 Heatmap 스냅샷 갱신을 막지 않는다")
+    func today_스냅샷_조회_실패는_heatmap_스냅샷_갱신을_막지_않는다() async throws {
+        let calendar = Calendar.current
+        let now = Date()
+        let quarterStart = calendar.startOfQuarter(for: now)
+        let fixture = makeFixture(calendar: calendar)
+
+        await fixture.todoRepository.setTodos(
+            createdTodos: [
+                makeTodo(id: "created", createdAt: now)
+            ],
+            completedTodos: [
+                makeTodo(id: "completed", createdAt: quarterStart, completedAt: now)
+            ],
+            deletedTodos: [
+                makeTodo(id: "deleted", createdAt: quarterStart, deletedAt: now)
+            ]
+        )
+        await fixture.todoRepository.setFailingSortTargets([.dueDate])
+
+        fixture.bus.publish(.syncRequested)
+
+        let heatmapSnapshot = try await loadHeatmapSnapshot(from: fixture.snapshotStore)
+
+        #expect(heatmapSnapshot.maxCount == 3)
+        #expect(try fixture.snapshotStore.loadTodaySnapshot() == nil)
+        _ = fixture.handler
+    }
+
+    @Test("Heatmap 스냅샷 조회 실패는 Today 스냅샷 갱신을 막지 않는다")
+    func heatmap_스냅샷_조회_실패는_today_스냅샷_갱신을_막지_않는다() async throws {
+        let calendar = Calendar.current
+        let now = Date()
+        let fixture = makeFixture(calendar: calendar)
+
+        await fixture.todoRepository.setTodos(
+            todayTodosWithDueDate: [
+                makeTodo(id: "today", createdAt: now, dueDate: now)
+            ]
+        )
+        await fixture.todoRepository.setFailingSortTargets([.createdAt])
+
+        fixture.bus.publish(.syncRequested)
+
+        let todaySnapshot = try await loadTodaySnapshot(from: fixture.snapshotStore)
+
+        #expect(todaySnapshot.totalCount == 1)
+        #expect(try fixture.snapshotStore.loadHeatmapSnapshot() == nil)
+        _ = fixture.handler
+    }
+
     private func makeFixture(
         calendar: Calendar
     ) -> (
@@ -139,6 +190,7 @@ struct WidgetSyncEventHandlerTests {
 
 private actor WidgetSyncTodoRepositorySpy: TodoRepository {
     private var queries = [TodoQuery]()
+    private var failingSortTargets = Set<TodoQuery.SortTarget>()
     private var todayTodosWithDueDate = [Todo]()
     private var todayTodosWithoutDueDate = [Todo]()
     private var createdTodos = [Todo]()
@@ -159,8 +211,16 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
         self.deletedTodos = deletedTodos
     }
 
+    func setFailingSortTargets(_ failingSortTargets: Set<TodoQuery.SortTarget>) {
+        self.failingSortTargets = failingSortTargets
+    }
+
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
         queries.append(query)
+
+        if failingSortTargets.contains(query.sortTarget) {
+            throw DataError.invalidData("WidgetSyncTodoRepositorySpy.fetchTodos failed")
+        }
 
         let items: [Todo]
         switch query.sortTarget {
