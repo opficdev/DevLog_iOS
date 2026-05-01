@@ -58,8 +58,18 @@
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2"
       queueDebuggingEnableBacktraceRecording = "Yes">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.springboard">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DFD3A96F2F8E89DD001DA7CD"
+            BuildableName = "DevLogWidgetExtension.appex"
+            BlueprintName = "DevLogWidgetExtension"
+            ReferencedContainer = "container:DevLog.xcodeproj">
+         </BuildableReference>
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DFD48AFF2DC4D6E2005905C5"
@@ -67,7 +77,7 @@
             BlueprintName = "DevLog"
             ReferencedContainer = "container:DevLog.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCWidgetKind"
