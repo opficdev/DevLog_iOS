@@ -35,4 +35,10 @@ final class WidgetSnapshotStore {
         guard let data = store.data(forKey: WidgetSnapshotKey.heatmap) else { return nil }
         return try decoder.decode(HeatmapWidgetSnapshot.self, from: data)
     }
+
+    func clearSnapshots() {
+        WidgetSnapshotKey.snapshots.forEach {
+            store.removeObject(forKey: $0)
+        }
+    }
 }
