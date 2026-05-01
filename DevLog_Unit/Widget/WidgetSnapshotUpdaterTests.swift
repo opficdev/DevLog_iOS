@@ -73,6 +73,13 @@ struct WidgetSnapshotUpdaterTests {
         let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 30)))
         let fixture = makeFixture(calendar: calendar)
         let todo = try makeTodayTodoItem(now: now)
+        fixture.preferenceStore.setHeatmapActivityTypes(["created"])
+        fixture.preferenceStore.setTodayDisplayOptions(
+            TodayDisplayOptions(
+                dueDateVisibility: .withDueDateOnly,
+                focusVisibility: .focusedOnly
+            )
+        )
 
         fixture.updater.updateTodaySnapshot(
             todos: [todo],
@@ -97,11 +104,17 @@ struct WidgetSnapshotUpdaterTests {
 
         #expect(try fixture.snapshotStore.loadTodaySnapshot() == nil)
         #expect(try fixture.snapshotStore.loadHeatmapSnapshot() == nil)
+        #expect(fixture.preferenceStore.heatmapActivityTypes().isEmpty)
+        #expect(fixture.preferenceStore.todayDisplayOptions() == .default)
     }
 
     private func makeFixture(
         calendar: Calendar = .current
-    ) -> (updater: WidgetSnapshotUpdater, snapshotStore: WidgetSnapshotStore) {
+    ) -> (
+        updater: WidgetSnapshotUpdater,
+        snapshotStore: WidgetSnapshotStore,
+        preferenceStore: WidgetSnapshotPreferenceStore
+    ) {
         let suiteName = "WidgetSnapshotUpdaterTests.\(UUID().uuidString)"
         let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
         userDefaults.removePersistentDomain(forName: suiteName)
@@ -116,7 +129,7 @@ struct WidgetSnapshotUpdaterTests {
             preferenceStore: preferenceStore,
             heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
         )
-        return (updater, snapshotStore)
+        return (updater, snapshotStore, preferenceStore)
     }
 
     private func makeTodayTodoItem(now: Date) throws -> TodayTodoItem {

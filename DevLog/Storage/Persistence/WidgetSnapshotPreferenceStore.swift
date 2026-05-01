@@ -8,10 +8,10 @@
 import Foundation
 
 final class WidgetSnapshotPreferenceStore {
-    private enum Key {
-        static let heatmapActivityTypes = "Profile.heatmap.activityTypes"
-        static let todayDueDateVisibility = "Today.dueDateVisibility"
-        static let todayFocusVisibility = "Today.focusVisibility"
+    private enum Key: String, CaseIterable {
+        case heatmapActivityTypes = "Profile.heatmap.activityTypes"
+        case todayDueDateVisibility = "Today.dueDateVisibility"
+        case todayFocusVisibility = "Today.focusVisibility"
     }
 
     private let userDefaults: UserDefaults
@@ -21,11 +21,11 @@ final class WidgetSnapshotPreferenceStore {
     }
 
     func heatmapActivityTypes() -> [String] {
-        userDefaults.stringArray(forKey: Key.heatmapActivityTypes) ?? []
+        userDefaults.stringArray(forKey: Key.heatmapActivityTypes.rawValue) ?? []
     }
 
     func setHeatmapActivityTypes(_ activityTypes: [String]) {
-        userDefaults.set(activityTypes, forKey: Key.heatmapActivityTypes)
+        userDefaults.set(activityTypes, forKey: Key.heatmapActivityTypes.rawValue)
     }
 
     func selectedActivityKinds() -> Set<ActivityKind> {
@@ -41,8 +41,8 @@ final class WidgetSnapshotPreferenceStore {
     }
 
     func todayDisplayOptions() -> TodayDisplayOptions {
-        let dueDateVisibilityRawValue = userDefaults.string(forKey: Key.todayDueDateVisibility)
-        let focusVisibilityRawValue = userDefaults.string(forKey: Key.todayFocusVisibility)
+        let dueDateVisibilityRawValue = userDefaults.string(forKey: Key.todayDueDateVisibility.rawValue)
+        let focusVisibilityRawValue = userDefaults.string(forKey: Key.todayFocusVisibility.rawValue)
 
         return TodayDisplayOptions(
             dueDateVisibility: TodayDisplayOptions.DueDateVisibility(
@@ -55,7 +55,13 @@ final class WidgetSnapshotPreferenceStore {
     }
 
     func setTodayDisplayOptions(_ options: TodayDisplayOptions) {
-        userDefaults.set(options.dueDateVisibility.rawValue, forKey: Key.todayDueDateVisibility)
-        userDefaults.set(options.focusVisibility.rawValue, forKey: Key.todayFocusVisibility)
+        userDefaults.set(options.dueDateVisibility.rawValue, forKey: Key.todayDueDateVisibility.rawValue)
+        userDefaults.set(options.focusVisibility.rawValue, forKey: Key.todayFocusVisibility.rawValue)
+    }
+
+    func clear() {
+        Key.allCases.forEach {
+            userDefaults.removeObject(forKey: $0.rawValue)
+        }
     }
 }
