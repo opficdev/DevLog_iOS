@@ -1,6 +1,16 @@
 name: iOS TestFlight
 
 on:
+  workflow_dispatch:
+    inputs:
+      upload_to_app_store_connect:
+        description: Upload to App Store Connect
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
   pull_request:
     types:
       - closed
@@ -25,15 +35,20 @@ permissions:
 
 jobs:
   testflight:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (contains(github.event.pull_request.labels.*.name, 'qa') || contains(github.event.pull_request.labels.*.name, 'qa-local'))
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (contains(github.event.pull_request.labels.*.name, 'qa') || contains(github.event.pull_request.labels.*.name, 'qa-local')))
     runs-on: macos-latest
     timeout-minutes: 45
 
     steps:
       - name: Checkout merge commit
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Checkout current ref
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v5
 
       - name: Install private config files
         uses: ./.github/actions/install-private-config
@@ -78,10 +93,10 @@ jobs:
       - name: Build for TestFlight
         run: bundle exec fastlane testflight_build_only
 
-      - name: Skip TestFlight Upload for Local QA Label
-        if: contains(github.event.pull_request.labels.*.name, 'qa-local')
-        run: echo "Skipping TestFlight upload for PR labeled qa-local"
+      - name: Skip TestFlight Upload
+        if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect != 'true')
+        run: echo "Skipping TestFlight upload"
 
       - name: Upload to TestFlight
-        if: contains(github.event.pull_request.labels.*.name, 'qa') && !contains(github.event.pull_request.labels.*.name, 'qa-local')
+        if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa') && !contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect == 'true')
         run: bundle exec fastlane upload_testflight_build
