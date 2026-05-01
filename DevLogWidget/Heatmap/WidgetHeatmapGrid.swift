@@ -74,10 +74,10 @@ struct WidgetHeatmapPlaceholderGrid: View {
 private struct WidgetHeatmapWeekdayLabels: View {
     let layout: WidgetHeatmapLayout
     private let orderedWeekdays = Array(1...7)
-    private let weekdayLabels = [
-        2: "월",
-        4: "수",
-        6: "금"
+    private let weekdayLocalizedStringKeys: [Int: LocalizedStringKey] = [
+        2: "widget_heatmap_weekday_monday",
+        4: "widget_heatmap_weekday_wednesday",
+        6: "widget_heatmap_weekday_friday"
     ]
 
     var body: some View {
@@ -91,8 +91,8 @@ private struct WidgetHeatmapWeekdayLabels: View {
 
     @ViewBuilder
     private func weekdayLabel(for weekday: Int) -> some View {
-        if let label = weekdayLabels[weekday] {
-            Text(label)
+        if let localizedStringKey = weekdayLocalizedStringKeys[weekday] {
+            Text(localizedStringKey)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .frame(

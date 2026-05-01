@@ -28,7 +28,7 @@ struct HeatmapWidgetEntryView: View {
         switch widgetFamily {
         case .systemSmall:
             VStack(alignment: .leading, spacing: 4) {
-                header(title: "이번 달 히트맵")
+                header(title: "widget_heatmap_current_month_title")
                 WidgetHeatmapGrid(
                     months: currentMonths(from: snapshot),
                     selectedActivityKindRawValues: snapshot.selectedActivityKindRawValues,
@@ -38,7 +38,7 @@ struct HeatmapWidgetEntryView: View {
             }
         case .systemMedium:
             VStack(alignment: .leading, spacing: 8) {
-                header(title: "이번 분기 히트맵")
+                header(title: "widget_heatmap_current_quarter_title")
                 WidgetHeatmapGrid(
                     months: snapshot.months,
                     selectedActivityKindRawValues: snapshot.selectedActivityKindRawValues,
@@ -58,7 +58,7 @@ struct HeatmapWidgetEntryView: View {
         switch widgetFamily {
         case .systemSmall:
             VStack(alignment: .leading, spacing: 8) {
-                header(title: "이번 달 히트맵")
+                header(title: "widget_heatmap_current_month_title")
                 WidgetHeatmapPlaceholderGrid(
                     months: shape.currentMonths,
                     showsMonthTitles: false
@@ -66,7 +66,7 @@ struct HeatmapWidgetEntryView: View {
             }
         case .systemMedium:
             VStack(alignment: .leading, spacing: 8) {
-                header(title: "이번 분기 히트맵")
+                header(title: "widget_heatmap_current_quarter_title")
                 WidgetHeatmapPlaceholderGrid(
                     months: shape.quarterMonths,
                     showsMonthTitles: true
@@ -77,7 +77,7 @@ struct HeatmapWidgetEntryView: View {
         }
     }
 
-    private func header(title: String) -> some View {
+    private func header(title: LocalizedStringKey) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(title)
                 .font(.headline)

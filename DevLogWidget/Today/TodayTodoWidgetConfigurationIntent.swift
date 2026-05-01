@@ -10,5 +10,5 @@ import WidgetKit
 
 struct TodayTodoWidgetConfigurationIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "Today"
-    static var description = IntentDescription("오늘 기준 Todo 목록을 표시합니다.")
+    static var description = IntentDescription("widget_today_description")
 }

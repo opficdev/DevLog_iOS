@@ -41,7 +41,7 @@ struct TodayTodoWidgetEntryView: View {
                 if let item = displayedItems(from: snapshot).first {
                     todoRow(item)
                 } else {
-                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                    Text("widget_today_empty_message")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -51,7 +51,7 @@ struct TodayTodoWidgetEntryView: View {
             let items = displayedItems(from: snapshot)
             VStack(alignment: .leading, spacing: 6) {
                 if items.isEmpty {
-                    Text("오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!")
+                    Text("widget_today_empty_message")
                         .multilineTextAlignment(.center)
                         .font(.caption)
                         .foregroundStyle(.secondary)
