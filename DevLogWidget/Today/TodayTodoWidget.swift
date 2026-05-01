@@ -23,7 +23,7 @@ struct TodayTodoWidget: Widget {
                 .widgetURL(WidgetDeepLink.todayTodoURL)
         }
         .description("widget_today_description")
-        .configurationDisplayName("Today")
+        .configurationDisplayName(LocalizedStringResource("widget_today_title"))
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
