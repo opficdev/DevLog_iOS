@@ -22,7 +22,8 @@ final class DataAssembler: Assembler {
                     AuthenticationService.self,
                     name: "GoogleAuthenticationService"
                 ),
-                userService: container.resolve(UserService.self)
+                userService: container.resolve(UserService.self),
+                widgetSnapshotUpdater: container.resolve(WidgetSnapshotUpdater.self)
             )
         }
 
