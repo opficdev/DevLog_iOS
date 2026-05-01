@@ -2,6 +2,15 @@ name: iOS Code Signing
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: Force regenerate profiles
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
 
 env:
   RUBY_VERSION: "3.2"
@@ -13,6 +22,7 @@ env:
   MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
   MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+  MATCH_FORCE: ${{ inputs.force }}
 
 permissions:
   contents: read
