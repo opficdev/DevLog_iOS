@@ -21,4 +21,8 @@ final class WidgetSharedDefaultsStore {
     func setData(_ value: Data?, forKey key: String) {
         userDefaults.set(value, forKey: key)
     }
+
+    func removeObject(forKey key: String) {
+        userDefaults.removeObject(forKey: key)
+    }
 }

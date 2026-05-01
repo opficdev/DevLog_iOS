@@ -104,4 +104,10 @@ final class WidgetSnapshotUpdater {
             )
         }
     }
+
+    func clear() {
+        snapshotStore.clearSnapshots()
+        WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.todayTodo)
+        WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.heatmap)
+    }
 }
