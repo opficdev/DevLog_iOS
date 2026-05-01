@@ -11,19 +11,22 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     private let githubAuthService: AuthenticationService
     private let googleAuthService: AuthenticationService
     private let userService: UserService
+    private let widgetSnapshotUpdater: WidgetSnapshotUpdater
 
     init(
         authService: AuthService,
         appleAuthService: AuthenticationService,
         githubAuthService: AuthenticationService,
         googleAuthService: AuthenticationService,
-        userService: UserService
+        userService: UserService,
+        widgetSnapshotUpdater: WidgetSnapshotUpdater
     ) {
         self.authService = authService
         self.appleAuthService = appleAuthService
         self.githubAuthService = githubAuthService
         self.googleAuthService = googleAuthService
         self.userService = userService
+        self.widgetSnapshotUpdater = widgetSnapshotUpdater
     }
 
     func signIn(_ provider: AuthProvider) async throws {
@@ -58,6 +61,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
               let provider = AuthProvider(rawValue: providerID)
         else {
             try await authService.clearCurrentSession()
+            widgetSnapshotUpdater.clear()
             return
         }
 
@@ -73,6 +77,8 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         } catch AuthError.notAuthenticated {
             try await authService.clearCurrentSession()
         }
+
+        widgetSnapshotUpdater.clear()
     }
 
     func restore() -> Bool {
@@ -100,5 +106,6 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
 
         try await authService.deleteCurrentUser()
         try await authService.clearCurrentSession()
+        widgetSnapshotUpdater.clear()
     }
 }

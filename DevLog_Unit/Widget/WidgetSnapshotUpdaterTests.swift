@@ -66,9 +66,55 @@ struct WidgetSnapshotUpdaterTests {
         #expect(snapshot.maxCount == 1)
     }
 
+    @Test("WidgetSnapshotUpdater는 모든 위젯 스냅샷을 삭제한다")
+    func widgetSnapshotUpdater는_모든_위젯_스냅샷을_삭제한다() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
+        let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 30)))
+        let fixture = makeFixture(calendar: calendar)
+        let todo = try makeTodayTodoItem(now: now)
+        fixture.preferenceStore.setHeatmapActivityTypes(["created"])
+        fixture.preferenceStore.setTodayDisplayOptions(
+            TodayDisplayOptions(
+                dueDateVisibility: .withDueDateOnly,
+                focusVisibility: .focusedOnly
+            )
+        )
+
+        fixture.updater.updateTodaySnapshot(
+            todos: [todo],
+            displayOptions: .default,
+            now: now
+        )
+        fixture.updater.updateHeatmapSnapshot(
+            createdTodos: [
+                makeTodo(
+                    id: "created",
+                    createdAt: now
+                )
+            ],
+            completedTodos: [],
+            deletedTodos: [],
+            selectedActivityKinds: [.created],
+            quarterStart: quarterStart,
+            now: now
+        )
+
+        fixture.updater.clear()
+
+        #expect(try fixture.snapshotStore.loadTodaySnapshot() == nil)
+        #expect(try fixture.snapshotStore.loadHeatmapSnapshot() == nil)
+        #expect(fixture.preferenceStore.heatmapActivityTypes().isEmpty)
+        #expect(fixture.preferenceStore.todayDisplayOptions() == .default)
+    }
+
     private func makeFixture(
         calendar: Calendar = .current
-    ) -> (updater: WidgetSnapshotUpdater, snapshotStore: WidgetSnapshotStore) {
+    ) -> (
+        updater: WidgetSnapshotUpdater,
+        snapshotStore: WidgetSnapshotStore,
+        preferenceStore: WidgetSnapshotPreferenceStore
+    ) {
         let suiteName = "WidgetSnapshotUpdaterTests.\(UUID().uuidString)"
         let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
         userDefaults.removePersistentDomain(forName: suiteName)
@@ -83,7 +129,7 @@ struct WidgetSnapshotUpdaterTests {
             preferenceStore: preferenceStore,
             heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
         )
-        return (updater, snapshotStore)
+        return (updater, snapshotStore, preferenceStore)
     }
 
     private func makeTodayTodoItem(now: Date) throws -> TodayTodoItem {

@@ -104,4 +104,10 @@ final class WidgetSnapshotUpdater {
             )
         }
     }
+
+    func clear() {
+        snapshotStore.clearSnapshots()
+        preferenceStore.clear()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
 }

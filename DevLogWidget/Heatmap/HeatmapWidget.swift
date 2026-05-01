@@ -22,7 +22,7 @@ struct HeatmapWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
                 .widgetURL(WidgetDeepLink.heatmapURL)
         }
-        .configurationDisplayName("Heatmap")
+        .configurationDisplayName(LocalizedStringResource("widget_heatmap_title"))
         .description("widget_heatmap_description")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

@@ -10,4 +10,5 @@ import Foundation
 enum WidgetSnapshotKey {
     static let today = "Widget.today.snapshot"
     static let heatmap = "Widget.heatmap.snapshot"
+    static let snapshots = [today, heatmap]
 }

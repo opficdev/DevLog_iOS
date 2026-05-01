@@ -14,7 +14,7 @@ struct TodayTodoWidgetEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Today")
+            Text("widget_today_title")
                 .font(.headline)
 
             Spacer()
