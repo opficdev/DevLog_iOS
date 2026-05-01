@@ -19,7 +19,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Month Heatmap"
+            "value" : "This Month"
           }
         },
         "ko" : {
@@ -36,7 +36,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Quarter Heatmap"
+            "value" : "This Quarter"
           }
         },
         "ko" : {
