@@ -23,7 +23,7 @@ struct HeatmapWidget: Widget {
                 .widgetURL(WidgetDeepLink.heatmapURL)
         }
         .configurationDisplayName("Heatmap")
-        .description("활동 히트맵을 표시합니다.")
+        .description("widget_heatmap_description")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

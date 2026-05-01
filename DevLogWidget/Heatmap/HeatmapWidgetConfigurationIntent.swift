@@ -10,5 +10,5 @@ import WidgetKit
 
 struct HeatmapWidgetConfigurationIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "Heatmap"
-    static var description = IntentDescription("활동 히트맵을 표시합니다.")
+    static var description = IntentDescription("widget_heatmap_description")
 }

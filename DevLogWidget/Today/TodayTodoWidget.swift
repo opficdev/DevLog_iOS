@@ -22,7 +22,7 @@ struct TodayTodoWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
                 .widgetURL(WidgetDeepLink.todayTodoURL)
         }
-        .description("오늘 기준 Todo 목록을 표시합니다.")
+        .description("widget_today_description")
         .configurationDisplayName("Today")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

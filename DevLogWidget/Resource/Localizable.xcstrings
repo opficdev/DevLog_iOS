@@ -1,0 +1,103 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "#%lld" : {
+
+    },
+    "%lld" : {
+
+    },
+    "Heatmap" : {
+
+    },
+    "Today" : {
+
+    },
+    "widget_heatmap_current_month_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Month"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번 달 히트맵"
+          }
+        }
+      }
+    },
+    "widget_heatmap_current_quarter_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Quarter"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번 분기 히트맵"
+          }
+        }
+      }
+    },
+    "widget_heatmap_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows your activity heatmap."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활동 히트맵을 표시합니다."
+          }
+        }
+      }
+    },
+    "widget_today_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows today's Todo list."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 기준 Todo 목록을 표시합니다."
+          }
+        }
+      }
+    },
+    "widget_today_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tasks for today.\nTake a short break!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

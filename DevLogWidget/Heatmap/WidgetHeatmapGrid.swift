@@ -22,19 +22,15 @@ struct WidgetHeatmapGrid: View {
                 showsMonthTitles: showsMonthTitles
             )
 
-            HStack(alignment: .top, spacing: layout.weekdayLabelSpacing) {
-                WidgetHeatmapWeekdayLabels(layout: layout)
-
-                HStack(alignment: .top, spacing: layout.monthSpacing) {
-                    ForEach(months, id: \.monthStart) { month in
-                        WidgetHeatmapMonthGrid(
-                            month: month,
-                            layout: layout,
-                            selectedActivityKindRawValues: selectedActivityKindRawValues,
-                            maxCount: maxCount,
-                            showsMonthTitle: showsMonthTitles
-                        )
-                    }
+            HStack(alignment: .top, spacing: layout.monthSpacing) {
+                ForEach(months, id: \.monthStart) { month in
+                    WidgetHeatmapMonthGrid(
+                        month: month,
+                        layout: layout,
+                        selectedActivityKindRawValues: selectedActivityKindRawValues,
+                        maxCount: maxCount,
+                        showsMonthTitle: showsMonthTitles
+                    )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -67,45 +63,6 @@ struct WidgetHeatmapPlaceholderGrid: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-    }
-}
-
-private struct WidgetHeatmapWeekdayLabels: View {
-    let layout: WidgetHeatmapLayout
-    private let orderedWeekdays = Array(1...7)
-    private let weekdayLabels = [
-        2: "월",
-        4: "수",
-        6: "금"
-    ]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: layout.cellSpacing) {
-            ForEach(orderedWeekdays, id: \.self) { weekday in
-                weekdayLabel(for: weekday)
-            }
-        }
-        .padding(.top, layout.weekdayTopPadding)
-    }
-
-    @ViewBuilder
-    private func weekdayLabel(for weekday: Int) -> some View {
-        if let label = weekdayLabels[weekday] {
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .frame(
-                    width: layout.weekdayLabelWidth,
-                    height: layout.cellSize,
-                    alignment: .leading
-                )
-        } else {
-            Color.clear
-                .frame(
-                    width: layout.weekdayLabelWidth,
-                    height: layout.cellSize
-                )
         }
     }
 }

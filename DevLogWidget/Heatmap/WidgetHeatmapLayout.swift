@@ -12,8 +12,6 @@ struct WidgetHeatmapLayout {
     let cellSpacing: CGFloat
     let monthSpacing: CGFloat
     let monthTitleSpacing: CGFloat
-    let weekdayLabelSpacing: CGFloat = Self.baseWeekdayLabelSpacing
-    let weekdayLabelWidth: CGFloat = Self.baseWeekdayLabelWidth
     let showsMonthTitles: Bool
 
     init(
@@ -37,10 +35,6 @@ struct WidgetHeatmapLayout {
         )
     }
 
-    var weekdayTopPadding: CGFloat {
-        showsMonthTitles ? cellSize + monthTitleSpacing : 0
-    }
-
     var cellCornerRadius: CGFloat {
         max(2, cellSize * 0.2)
     }
@@ -49,8 +43,6 @@ struct WidgetHeatmapLayout {
     private static let baseMonthSpacing: CGFloat = 10
     private static let maxMonthSpacing: CGFloat = 26
     private static let baseMonthTitleSpacing: CGFloat = 4
-    private static let baseWeekdayLabelSpacing: CGFloat = 5
-    private static let baseWeekdayLabelWidth: CGFloat = 14
 
     private static func resolvedMonthTitleSpacing(showsMonthTitles: Bool) -> CGFloat {
         // 월 제목을 표시하는 Medium에서만 제목과 셀 사이 간격을 확보한다.
@@ -99,10 +91,8 @@ struct WidgetHeatmapLayout {
     ) -> CGFloat {
         // 셀 크기는 높이 기준으로 고정하고, 남는 가로폭만 월 간격 계산에 사용한다.
         let sanitizedWeekCounts = sanitizedWeekCounts(weekCounts)
-        // 요일 라벨 영역, 전체 셀 컬럼, 월 내부 주차 spacing을 더해 기본 너비를 구한다.
-        let contentWidth = baseWeekdayLabelWidth
-            + baseWeekdayLabelSpacing
-            + cellSize * CGFloat(totalColumns(in: sanitizedWeekCounts))
+        // 전체 셀 컬럼과 월 내부 주차 spacing을 더해 기본 너비를 구한다.
+        let contentWidth = cellSize * CGFloat(totalColumns(in: sanitizedWeekCounts))
             + baseCellSpacing * CGFloat(totalColumnSpacings(in: sanitizedWeekCounts))
         // 기본 너비보다 위젯이 넓을 때만 월 간격에 분배할 여유 폭이 생긴다.
         return max(0, availableWidth - contentWidth)
