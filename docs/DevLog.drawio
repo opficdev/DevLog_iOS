@@ -615,7 +615,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="butterfly-architecture-page" name="App Architecture">
-    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1570" pageHeight="1040" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1488" dy="895" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1570" pageHeight="1040" background="none" math="0" shadow="0">
       <root>
         <mxCell id="400" />
         <mxCell id="401" parent="400" />
@@ -762,14 +762,6 @@
         <mxCell id="edge-store-appgroup" edge="1" parent="401" source="widget-snapshot-store" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#16A34A;strokeWidth=3;align=center;edgeStyle=orthogonalEdgeStyle;curved=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="app-group">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-appgroup-reader" edge="1" parent="401" source="app-group" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;align=center;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="widget-reader">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1150" y="682" />
-              <mxPoint x="1150" y="442" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
         <mxCell id="widget-extension-bg" parent="401" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#B8C4D6;strokeWidth=2;container=0;" value="" vertex="1">
           <mxGeometry height="760" width="330" x="1170" y="130" as="geometry" />
         </mxCell>
@@ -815,11 +807,19 @@
         <mxCell id="app-storage" link="https://github.com/opficdev/SwiftUI_DevLog/tree/main/DevLog/Storage" parent="401" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontSize=14;align=center;container=0;" value="&lt;b&gt;Storage&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Defaults / Cache&lt;/span&gt;" vertex="1">
           <mxGeometry height="58" width="135" x="589.5" y="520" as="geometry" />
         </mxCell>
+        <mxCell id="edge-appgroup-reader" edge="1" parent="401" source="app-group" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;align=center;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="widget-reader">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="682" />
+              <mxPoint x="1150" y="442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="widget-architecture-page" name="Widget Architecture">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1280" pageHeight="480" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="480" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
