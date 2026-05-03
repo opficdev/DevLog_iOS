@@ -36,3 +36,6 @@ fastlane/logs/
 # Build Artifacts
 *.ipa
 *.dSYM.zip
+
+# drawio
+*.drawio.bkp
