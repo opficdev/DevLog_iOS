@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Codex" pages="6">
+<mxfile host="Electron" agent="Codex" pages="7">
   <diagram id="store-protocol-page" name="Store Protocol">
     <mxGraphModel dx="912" dy="491" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
@@ -632,7 +632,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="todo-representative-flow-page" name="Todo Representative Flow">
-    <mxGraphModel dx="764" dy="411" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+    <mxGraphModel dx="3142" dy="1889" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
         <mxCell id="500" />
         <mxCell id="501" parent="500" />
@@ -712,6 +712,93 @@
               <mxPoint x="160" y="280" />
             </Array>
           </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="widget-architecture-page" name="Widget Architecture">
+    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="420" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="w-data-bg" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B9D7FF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="360" width="1220" x="30" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="w-service" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Infra/Service/TodoService.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Todo Data&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Firestore&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="130" x="58" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="w-repository" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Domain/Protocol/TodoRepository.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;App Data Source&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Todo query&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="130" x="300" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="w-handler" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Widget/Sync/WidgetSyncEventHandler.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#EAF2FF;strokeColor=#0A84FF;strokeWidth=2;fontColor=#0B1F33;fontSize=13;align=center;" value="&lt;b&gt;Snapshot Sync&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Today / Heatmap data&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="542" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="w-updater" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Storage/Persistence/WidgetSnapshotUpdater.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#EAF2FF;strokeColor=#0A84FF;strokeWidth=2;fontColor=#0B1F33;fontSize=13;align=center;" value="&lt;b&gt;Snapshot Builder&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;apply rules&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="802" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="w-factory" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Widget/Today/TodayWidgetSnapshotFactory.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0A84FF;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Widget Snapshot&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Today / Heatmap&lt;/span&gt;" vertex="1">
+          <mxGeometry height="78" width="160" x="1067" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="w-appgroup" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Widget/Common/WidgetSharedDefaultsStore.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=13;align=center;" value="&lt;b&gt;App Group UserDefaults&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;JSON snapshot data&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="160" x="1067" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="w-preference" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Storage/Persistence/WidgetSnapshotPreferenceStore.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#ECFEFF;strokeColor=#0891B2;strokeWidth=2;fontColor=#164E63;fontSize=13;align=center;" value="&lt;b&gt;Display Preferences&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Today / Heatmap options&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="210" x="772" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="w-widget-store" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLogWidget/Common/WidgetSnapshotStore.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Snapshot Reader&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;read shared snapshot&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="160" x="802" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="w-provider" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLogWidget/Today/TodayTodoWidgetProvider.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Widget Timeline&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;make entry&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="170" x="542" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="w-entry" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Widget Entry&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;snapshot state&lt;/span&gt;" vertex="1">
+          <mxGeometry height="58" width="130" x="300" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="w-entry-view" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Widget View&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;render&lt;/span&gt;" vertex="1">
+          <mxGeometry height="58" width="130" x="58" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="w-data-note" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#D8E0EA;strokeWidth=1;fontColor=#374151;fontSize=12;align=left;spacingLeft=10;" value="Todo 조회 결과와 사용자 설정이 스냅샷으로 변환됩니다.&lt;div&gt;App Group UserDefaults에 JSON 데이터로 저장된 뒤 위젯 확장에서 읽혀 화면으로 렌더링됩니다.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="52" width="562" x="58" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="wd-1" edge="1" parent="1" source="w-service" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-repository" value="Todo data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wd-2" edge="1" parent="1" source="w-repository" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-handler" value="Todo page">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wd-3" edge="1" parent="1" source="w-handler" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-updater" value="Widget input">
+          <mxGeometry relative="1" x="-0.1739" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wd-4" edge="1" parent="1" source="w-updater" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-factory" value="Snapshot">
+          <mxGeometry relative="1" x="-0.2174" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wd-5" edge="1" parent="1" source="w-factory" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#16A34A;strokeWidth=3;" target="w-appgroup" value="Save JSON">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wd-6" edge="1" parent="1" source="w-preference" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0891B2;strokeWidth=3;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="w-updater" value="Options">
+          <mxGeometry relative="1" x="-0.0857" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wd-7" edge="1" parent="1" source="w-appgroup" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;edgeStyle=orthogonalEdgeStyle;" target="w-widget-store" value="Read JSON">
+          <mxGeometry relative="1" x="-0.1048" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wd-8" edge="1" parent="1" source="w-widget-store" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;" target="w-provider" value="Snapshot">
+          <mxGeometry relative="1" x="-0.0667" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wd-9" edge="1" parent="1" source="w-provider" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;" target="w-entry" value="Entry data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wd-10" edge="1" parent="1" source="w-entry" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#7C3AED;strokeWidth=3;" target="w-entry-view" value="Render">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

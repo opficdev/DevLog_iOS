@@ -138,6 +138,14 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
     <td align="center">앱 계층</td>
     <td align="center">Store 프로토콜</td>
   </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img alt="Widget Architecture" src="./docs/Widget.png" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">위젯 데이터 아키텍쳐</td>
+  </tr>
 </table>
 
 ## 프로젝트 구조
