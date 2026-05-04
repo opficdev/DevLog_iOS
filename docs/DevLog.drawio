@@ -40,9 +40,6 @@
         <mxCell id="sp-edge-types-requirements" edge="1" parent="1" source="sp-types" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;align=center;" target="sp-requirements">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="12PGK9UC77JnO6kUNPvJ-1" edge="1" parent="1" source="sp-bg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="sp-bg">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="12PGK9UC77JnO6kUNPvJ-2" connectable="0" parent="1" style="group" value="" vertex="1">
           <mxGeometry height="274" width="665" x="480" y="190.5" as="geometry" />
         </mxCell>
