@@ -21,75 +21,19 @@ struct HeatmapView: View {
             weekCounts: quarter.months.map(\.weeks.count)
         )
 
-        HStack(alignment: .top, spacing: 0) {
-            weekdayLabel(layout: layout)
-            HStack(alignment: .top, spacing: layout.monthSpacing) {
-                ForEach(quarter.months) { month in
-                    MonthCompactHeatmapView(
-                        month: month,
-                        maxCount: maxCount,
-                        layout: layout,
-                        selectedActivityKinds: selectedActivityKinds,
-                        selectedDay: selectedDay,
-                        onSelectDay: onSelectDay
-                    )
-                }
+        HStack(alignment: .top, spacing: layout.monthSpacing) {
+            ForEach(quarter.months) { month in
+                MonthCompactHeatmapView(
+                    month: month,
+                    maxCount: maxCount,
+                    layout: layout,
+                    selectedActivityKinds: selectedActivityKinds,
+                    selectedDay: selectedDay,
+                    onSelectDay: onSelectDay
+                )
             }
         }
         .padding(.vertical, 2)
-    }
-
-    @ViewBuilder
-    private func weekdayLabel(layout: HeatmapLayout) -> some View {
-        let labels: [Int: String] = [
-            2: String(localized: "profile_weekday_mon"),
-            4: String(localized: "profile_weekday_wed"),
-            6: String(localized: "profile_weekday_fri")
-        ]
-        let orderedWeekdays = Array(1...7)
-        let labelFontSize = smallestWeekdayLabelFontSize(
-            labels: Array(labels.values),
-            layout: layout
-        )
-
-        VStack(alignment: .leading, spacing: layout.cellSpacing) {
-            ForEach(orderedWeekdays, id: \.self) { weekday in
-                if let label = labels[weekday] {
-                    Text(label)
-                        .font(.system(size: labelFontSize))
-                        .allowsTightening(true)
-                        .foregroundStyle(.secondary)
-                        .frame(
-                            width: layout.cellSize,
-                            height: layout.cellSize,
-                            alignment: .leading
-                        )
-                } else {
-                    Color.clear
-                        .frame(
-                            width: layout.cellSize,
-                            height: layout.cellSize
-                        )
-                }
-            }
-        }
-        .padding(.top, layout.weekdayTopPadding)
-    }
-
-    private func smallestWeekdayLabelFontSize(labels: [String], layout: HeatmapLayout) -> CGFloat {
-        let captionFont = UIFont.preferredFont(forTextStyle: .caption2)
-        let availableWidth = max(layout.cellSize, 1)
-
-        let fittedSizes = labels.map { label in
-            let textWidth = max(
-                (label as NSString).size(withAttributes: [.font: captionFont]).width,
-                1
-            )
-            let widthRatio = availableWidth / textWidth
-            return captionFont.pointSize * min(widthRatio, 1)
-        }
-
-        return max((fittedSizes.min() ?? captionFont.pointSize).rounded(.down), 1)
     }
 
     private var availableWidth: CGFloat {
@@ -142,11 +86,7 @@ private struct HeatmapLayout {
         }
         let fixedWidth = monthSpacing * CGFloat(max(sanitizedWeekCounts.count - 1, 0))
             + cellSpacing * CGFloat(totalColumnSpacings)
-        cellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns + 1)
-    }
-
-    var weekdayTopPadding: CGFloat {
-        cellSize + monthTitleSpacing
+        cellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns)
     }
 
     var cellCornerRadius: CGFloat {
