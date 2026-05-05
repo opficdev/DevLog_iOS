@@ -79,12 +79,11 @@ private struct HeatmapLayout {
     let monthTitleSpacing: CGFloat = 6
 
     init(availableWidth: CGFloat, weekCounts: [Int]) {
-        let sanitizedWeekCounts = weekCounts.filter { 0 < $0 }
-        let totalColumns = max(sanitizedWeekCounts.reduce(0, +), 1)
-        let totalColumnSpacings = sanitizedWeekCounts.reduce(0) { partialResult, count in
+        let totalColumns = max(weekCounts.reduce(0, +), 1)
+        let totalColumnSpacings = weekCounts.reduce(0) { partialResult, count in
             partialResult + max(count - 1, 0)
         }
-        let fixedWidth = monthSpacing * CGFloat(max(sanitizedWeekCounts.count - 1, 0))
+        let fixedWidth = monthSpacing * CGFloat(max(weekCounts.count - 1, 0))
             + cellSpacing * CGFloat(totalColumnSpacings)
         cellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns)
     }
