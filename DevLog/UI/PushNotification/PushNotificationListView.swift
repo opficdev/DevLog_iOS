@@ -10,12 +10,12 @@ import SwiftUI
 struct PushNotificationListView: View {
     @State private var router = NavigationRouter()
     @State var viewModel: PushNotificationListViewModel
-    @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
+    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -266,7 +266,7 @@ struct PushNotificationListView: View {
                 let todoCategoryItem = TodoCategoryItem(from: item.todoCategory)
                 RoundedRectangle(cornerRadius: 8)
                     .fill(todoCategoryItem.color)
-                    .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                    .frame(width: labelWidth, height: labelWidth)
                     .overlay {
                         Image(systemName: todoCategoryItem.symbolName)
                             .foregroundStyle(Color.white)

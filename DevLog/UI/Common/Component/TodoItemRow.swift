@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodoItemRow: View {
-    @Environment(\.sceneWidth) private var sceneWidth
+    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
     private let item: TodoListItem
 
     init(_ item: TodoListItem) {
@@ -19,7 +19,7 @@ struct TodoItemRow: View {
         HStack {
             Image(systemName: "checkmark.circle")
                 .resizable()
-                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .frame(width: labelWidth, height: labelWidth)
                 .foregroundStyle(item.isCompleted ? .green : .secondary)
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
