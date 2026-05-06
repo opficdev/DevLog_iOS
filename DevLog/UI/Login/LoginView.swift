@@ -25,17 +25,14 @@ struct LoginView: View {
                     LoginButton(logo: Image("Google"), text: String(localized: "login_google_sign_in")) {
                         viewModel.send(.tapSignInButton(.google))
                     }
-                    .frame(width: sceneWidth * 3 / 4, height: sceneWidth / 10)
                     
                     LoginButton(logo: Image("Github"), text: String(localized: "login_github_sign_in")) {
                         viewModel.send(.tapSignInButton(.github))
                     }
-                    .frame(width: sceneWidth * 3 / 4, height: sceneWidth / 10)
                         
                     LoginButton(logo: Image("Apple"), text: String(localized: "login_apple_sign_in")) {
                         viewModel.send(.tapSignInButton(.apple))
                     }
-                    .frame(width: sceneWidth * 3 / 4, height: sceneWidth / 10)
                 }
                 .padding(.bottom, 30)
                 Text(String(localized: "login_terms_notice"))
