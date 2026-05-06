@@ -2,7 +2,7 @@
   "images" : [
     {
       "filename" : "Github_black.png",
-      "idiom" : "iphone"
+      "idiom" : "universal"
     },
     {
       "appearances" : [
@@ -12,7 +12,7 @@
         }
       ],
       "filename" : "Github_white.png",
-      "idiom" : "iphone"
+      "idiom" : "universal"
     }
   ],
   "info" : {
