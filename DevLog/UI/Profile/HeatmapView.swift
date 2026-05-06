@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct HeatmapView: View {
-    @Environment(\.safeAreaInsets) private var safeAreaInsets
-    @Environment(\.sceneWidth) private var sceneWidth
+    @State private var availableWidth = CGFloat.zero
     let quarter: HeatmapQuarter
     let selectedActivityKinds: Set<ActivityKind>
     let selectedDay: HeatmapDay?
@@ -21,31 +20,32 @@ struct HeatmapView: View {
             weekCounts: quarter.months.map(\.weeks.count)
         )
 
-        HStack(alignment: .top, spacing: layout.monthSpacing) {
-            ForEach(quarter.months) { month in
-                MonthCompactHeatmapView(
-                    month: month,
-                    maxCount: maxCount,
-                    layout: layout,
-                    selectedActivityKinds: selectedActivityKinds,
-                    selectedDay: selectedDay,
-                    onSelectDay: onSelectDay
-                )
+        ScrollView(.horizontal) {
+            LazyHStack(alignment: .top, spacing: layout.monthSpacing) {
+                ForEach(quarter.months) { month in
+                    MonthCompactHeatmapView(
+                        month: month,
+                        maxCount: maxCount,
+                        layout: layout,
+                        selectedActivityKinds: selectedActivityKinds,
+                        selectedDay: selectedDay,
+                        onSelectDay: onSelectDay
+                    )
+                }
+            }
+            .padding(.vertical, 2)
+            .frame(width: layout.contentWidth, alignment: .leading)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDisabled(true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear { updateAvailableWidth(geometry.size.width) }
+                    .onChange(of: geometry.size.width) { updateAvailableWidth($1) }
             }
         }
-        .padding(.vertical, 2)
-    }
-
-    private var availableWidth: CGFloat {
-        // ProfileView의 바깥 가로 패딩(16)과 히트맵 카드 내부 패딩(12)을 합한 값
-        let horizontalPadding: CGFloat = 16 + 12
-        return max(
-            0,
-            sceneWidth
-                - safeAreaInsets.leading
-                - safeAreaInsets.trailing
-                - (horizontalPadding * 2)
-        )
     }
 
     private var maxCount: Int {
@@ -70,13 +70,22 @@ struct HeatmapView: View {
         }
         return value
     }
+
+    private func updateAvailableWidth(_ width: CGFloat) {
+        if availableWidth != width {
+            availableWidth = width
+        }
+    }
 }
 
 private struct HeatmapLayout {
+    private static let minimumCellSize: CGFloat = 8
+    private static let maximumCellSize: CGFloat = 22
     let cellSize: CGFloat
     let cellSpacing: CGFloat = 4
     let monthSpacing: CGFloat = 12
     let monthTitleSpacing: CGFloat = 6
+    let contentWidth: CGFloat
 
     init(availableWidth: CGFloat, weekCounts: [Int]) {
         let totalColumns = max(weekCounts.reduce(0, +), 1)
@@ -85,7 +94,9 @@ private struct HeatmapLayout {
         }
         let fixedWidth = monthSpacing * CGFloat(max(weekCounts.count - 1, 0))
             + cellSpacing * CGFloat(totalColumnSpacings)
-        cellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns)
+        let fittingCellSize = max(0, availableWidth - fixedWidth) / CGFloat(totalColumns)
+        cellSize = min(max(fittingCellSize, Self.minimumCellSize), Self.maximumCellSize)
+        contentWidth = cellSize * CGFloat(totalColumns) + fixedWidth
     }
 
     var cellCornerRadius: CGFloat {
