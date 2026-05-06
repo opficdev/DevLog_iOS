@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct WebItemRow: View {
-    @Environment(\.sceneWidth) private var sceneWidth
-
+    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
     let item: WebPageItem
     let showsChevron: Bool
 
     var body: some View {
         HStack {
             thumbnail
-                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .frame(width: labelWidth, height: labelWidth)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading) {

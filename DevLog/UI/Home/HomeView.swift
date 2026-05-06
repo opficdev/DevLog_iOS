@@ -9,9 +9,9 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
-    @Environment(\.sceneWidth) var sceneWidth: CGFloat
     @State private var router = NavigationRouter()
     @State var viewModel: HomeViewModel
+    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -210,7 +210,7 @@ struct HomeView: View {
             } else {
                 ForEach(viewModel.state.recentTodos, id: \.id) { todo in
                     NavigationLink(value: Path.detail(todo.id)) {
-                        RecentTodoRow(todo: todo, sceneWidth: sceneWidth)
+                        RecentTodoRow(todo: todo)
                     }
                 }
             }
@@ -370,7 +370,7 @@ struct HomeView: View {
         HStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(imageColor)
-                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .frame(width: labelWidth, height: labelWidth)
                 .overlay {
                     Image(systemName: systemName)
                         .foregroundStyle(Color.white)
@@ -391,15 +391,15 @@ struct HomeView: View {
 }
 
 private struct RecentTodoRow: View {
+    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
     let todo: RecentTodoItem
-    let sceneWidth: CGFloat
 
     var body: some View {
         let category = TodoCategoryItem(from: todo.category)
         HStack(alignment: .top, spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
                 .fill(category.color)
-                .frame(width: sceneWidth * 0.08, height: sceneWidth * 0.08)
+                .frame(width: labelWidth, height: labelWidth)
                 .overlay {
                     Image(systemName: category.symbolName)
                         .foregroundStyle(Color.white)
