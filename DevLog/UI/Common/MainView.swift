@@ -11,6 +11,7 @@ struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
+    @State private var todoIdToPresent: TodoIdItem?
     @Binding var selectedTab: MainTab
 
     var body: some View {
@@ -118,11 +119,12 @@ struct MainView: View {
                 } content: {
                     PushNotificationListView(
                         viewModel: viewModel,
+                        todoIdToPresent: $todoIdToPresent,
                         isCompactLayout: isCompactLayout
                     )
                 } detail: {
                     Group {
-                        if let todoId = viewModel.state.selectedTodoId?.id {
+                        if let todoId = todoIdToPresent?.id {
                             TodoDetailView(viewModel: TodoDetailViewModel(
                                 fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                                 fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
@@ -222,6 +224,7 @@ struct MainView: View {
     private var notificationView: some View {
         PushNotificationListView(
             viewModel: makePushNotificationListViewModel(),
+            todoIdToPresent: $todoIdToPresent,
             isCompactLayout: isCompactLayout
         )
     }

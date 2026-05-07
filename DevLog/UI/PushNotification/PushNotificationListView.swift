@@ -15,6 +15,7 @@ struct PushNotificationListView: View {
     @State var viewModel: PushNotificationListViewModel
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
+    @Binding var todoIdToPresent: TodoIdItem?
     let isCompactLayout: Bool
 
     var body: some View {
@@ -46,10 +47,10 @@ struct PushNotificationListView: View {
                 .lineLimit(3)
         }
         .sheet(item: Binding(
-            get: { isCompactLayout ? viewModel.state.selectedTodoId : nil },
+            get: { isCompactLayout ? todoIdToPresent : nil },
             set: { item in
                 if item == nil {
-                    viewModel.send(.selectNotification(nil))
+                    selectNotification(nil)
                 }
             }
         )) { item in
@@ -64,7 +65,7 @@ struct PushNotificationListView: View {
                 .id(item.id)
                 .toolbar {
                     ToolbarLeadingButton {
-                        viewModel.send(.selectNotification(nil))
+                        selectNotification(nil)
                     }
                 }
             }
@@ -122,7 +123,7 @@ struct PushNotificationListView: View {
     ) -> some View {
         if isCompactLayout {
             Button {
-                viewModel.send(.selectNotification(notification.id))
+                selectNotification(notification.id)
             } label: {
                 notificationRowContent(notification, index: index, notifications: notifications)
             }
@@ -130,11 +131,11 @@ struct PushNotificationListView: View {
         } else {
             notificationRowContent(notification, index: index, notifications: notifications)
                 .onTapGesture {
-                    viewModel.send(.selectNotification(notification.id))
+                    selectNotification(notification.id)
                 }
                 .accessibilityAddTraits(.isButton)
                 .accessibilityAction {
-                    viewModel.send(.selectNotification(notification.id))
+                    selectNotification(notification.id)
                 }
         }
     }
@@ -389,5 +390,10 @@ struct PushNotificationListView: View {
                 Int64(days)
             )
         }
+    }
+
+    private func selectNotification(_ notificationId: String?) {
+        viewModel.send(.selectNotification(notificationId))
+        todoIdToPresent = viewModel.state.selectedTodoId
     }
 }
