@@ -82,50 +82,43 @@ struct PushNotificationListView: View {
         }
     }
 
+    @ViewBuilder
     private var notificationList: some View {
-        let visibleNotifications = viewModel.state.notifications.filter { !$0.isHidden }
-        return List {
-            Group {
-                if visibleNotifications.isEmpty {
-                    HStack {
-                        Spacer()
-                        Text(String(localized: "push_notifications_empty"))
-                            .foregroundStyle(Color.gray)
-                        Spacer()
-                    }
-                    .listRowSeparator(.hidden)
-                } else {
-                    ForEach(
-                        Array(zip(visibleNotifications.indices, visibleNotifications)),
-                        id: \.1.id
-                    ) { index, notification in
-                        Button {
-                            viewModel.send(.tapNotification(notification))
-                        } label: {
-                            notificationRow(notification)
-                                .padding(.vertical, 8)
-                        }
-                        .buttonStyle(.plain)
-                        .onAppear {
-                            let lastId = visibleNotifications.last?.id
-                            if notification.id == lastId, viewModel.state.hasMore {
-                                viewModel.send(.loadNextPage)
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        .overlay(alignment: .top) {
-                            if #available(iOS 26.0, *) {
-                                if index == 0 {
-                                    Divider()
-                                        .padding(.horizontal, -16)
-                                }
-                            }
-                        }
-                    }
-                }
+        let notifications = viewModel.state.notifications.filter { !$0.isHidden }
+        if notifications.isEmpty {
+            HStack {
+                Spacer()
+                Text(String(localized: "push_notifications_empty"))
+                    .foregroundStyle(Color.gray)
+                Spacer()
             }
-            .listSectionSeparator(.hidden, edges: .top)
-            .listRowBackground(Color.clear)
+        } else {
+            List(
+                Array(zip(notifications.indices, notifications)),
+                id: \.1.id,
+                selection: selectedNotificationIdBinding
+            ) { index, notification in
+                notificationRow(notification)
+                    .padding(.vertical, 8)
+                    .tag(notification.id)
+                    .onAppear {
+                        let lastId = notifications.last?.id
+                        if notification.id == lastId, viewModel.state.hasMore {
+                            viewModel.send(.loadNextPage)
+                        }
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .overlay(alignment: .top) {
+                        if #available(iOS 26.0, *) {
+                            if index == 0 {
+                                Divider()
+                                    .padding(.horizontal, -16)
+                            }
+                        }
+                    }
+                    .listSectionSeparator(.hidden, edges: .top)
+                    .listRowBackground(Color.clear)
+            }
         }
     }
 
