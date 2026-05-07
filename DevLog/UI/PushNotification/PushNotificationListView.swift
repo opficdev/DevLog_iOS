@@ -10,36 +10,18 @@ import SwiftUI
 struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
     @State var viewModel: PushNotificationListViewModel
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
+    let isCompactLayout: Bool
 
     var body: some View {
-        NavigationSplitView {
-            notificationList
-                .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
-                .onScrollOffsetChange { offset in
-                    guard isScrollTrackingEnabled else { return }
-                    headerOffset = max(0, -offset)
-                }
-                .safeAreaInset(edge: .top) { safeAreaHeader }
-                .onAppear { viewModel.send(.fetchNotifications) }
-                .refreshable { viewModel.send(.fetchNotifications) }
-                .navigationTitle(String(localized: "nav_push_notifications"))
-        } detail: {
-            if let todoIdItem = viewModel.state.selectedTodoId {
-                todoDetailView(todoId: todoIdItem.id)
-            } else {
-                ContentUnavailableView(
-                    String(localized: "push_notifications_select_detail"),
-                    systemImage: "bell.badge"
-                )
-                .background(Color(.secondarySystemBackground))
-            }
+        NavigationStack {
+            notificationListContent
         }
+        .listStyle(.sidebar)
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .alert(
             "",
@@ -72,12 +54,19 @@ struct PushNotificationListView: View {
             }
         )) { item in
             NavigationStack {
-                todoDetailView(todoId: item.id)
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            viewModel.send(.selectNotification(nil))
-                        }
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoId: item.id,
+                    showEditButton: false
+                ))
+                .id(item.id)
+                .toolbar {
+                    ToolbarLeadingButton {
+                        viewModel.send(.selectNotification(nil))
                     }
+                }
             }
             .background(Color(.secondarySystemBackground))
             .presentationDragIndicator(.visible)
@@ -89,20 +78,17 @@ struct PushNotificationListView: View {
         }
     }
 
-    private var isCompactLayout: Bool {
-        horizontalSizeClass == .compact
-    }
-
-    @ViewBuilder
-    private func todoDetailView(todoId: String) -> some View {
-        TodoDetailView(viewModel: TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-            todoId: todoId,
-            showEditButton: false
-        ))
-        .id(todoId)
+    private var notificationListContent: some View {
+        notificationList
+            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
+            .onScrollOffsetChange { offset in
+                guard isScrollTrackingEnabled else { return }
+                headerOffset = max(0, -offset)
+            }
+            .safeAreaInset(edge: .top) { safeAreaHeader }
+            .onAppear { viewModel.send(.fetchNotifications) }
+            .refreshable { viewModel.send(.fetchNotifications) }
+            .navigationTitle(String(localized: "nav_push_notifications"))
     }
 
     @ViewBuilder
@@ -120,32 +106,60 @@ struct PushNotificationListView: View {
                 Array(zip(notifications.indices, notifications)),
                 id: \.1.id
             ) { index, notification in
-                Button {
-                    viewModel.send(.selectNotification(notification.id))
-                } label: {
-                    notificationRow(
-                        notification,
-                        isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
-                    )
-                    .onAppear {
-                        let lastId = notifications.last?.id
-                        if notification.id == lastId, viewModel.state.hasMore {
-                            viewModel.send(.loadNextPage)
-                        }
-                    }
-                    .overlay(alignment: .top) {
-                        if #available(iOS 26.0, *) {
-                            if index == 0 {
-                                Divider()
-                                    .padding(.horizontal, -16)
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
+                notificationListRow(notification, index: index, notifications: notifications)
                 .listRowInsets(EdgeInsets())
                 .listSectionSeparator(.hidden, edges: .top)
                 .listRowBackground(Color.clear)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func notificationListRow(
+        _ notification: PushNotificationItem,
+        index: Int,
+        notifications: [PushNotificationItem]
+    ) -> some View {
+        if isCompactLayout {
+            Button {
+                viewModel.send(.selectNotification(notification.id))
+            } label: {
+                notificationRowContent(notification, index: index, notifications: notifications)
+            }
+            .buttonStyle(.plain)
+        } else {
+            notificationRowContent(notification, index: index, notifications: notifications)
+                .onTapGesture {
+                    viewModel.send(.selectNotification(notification.id))
+                }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction {
+                    viewModel.send(.selectNotification(notification.id))
+                }
+        }
+    }
+
+    private func notificationRowContent(
+        _ notification: PushNotificationItem,
+        index: Int,
+        notifications: [PushNotificationItem]
+    ) -> some View {
+        notificationRow(
+            notification,
+            isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
+        )
+        .onAppear {
+            let lastId = notifications.last?.id
+            if notification.id == lastId, viewModel.state.hasMore {
+                viewModel.send(.loadNextPage)
+            }
+        }
+        .overlay(alignment: .top) {
+            if #available(iOS 26.0, *) {
+                if index == 0 {
+                    Divider()
+                        .padding(.horizontal, -16)
+                }
             }
         }
     }
