@@ -21,6 +21,7 @@ final class PushNotificationListViewModel: Store {
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
         var query: PushNotificationQuery
+        var selectedNotificationId: String?
         var selectedTodoId: TodoIdItem?
     }
 
@@ -42,8 +43,7 @@ final class PushNotificationListViewModel: Store {
         case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
         case resetFilters
-        case tapNotification(PushNotificationItem)
-        case setSelectedTodoId(TodoIdItem?)
+        case selectNotification(String?)
     }
 
     enum SideEffect {
@@ -97,10 +97,10 @@ final class PushNotificationListViewModel: Store {
 
         switch action {
         case .deleteNotification, .toggleRead, .undoDelete, .setAlert, .toggleSortOption,
-                .setTimeFilter, .toggleUnreadOnly, .resetFilters, .tapNotification:
+                .setTimeFilter, .toggleUnreadOnly, .resetFilters, .selectNotification:
             effects = reduceByUser(action, state: &state)
 
-        case .fetchNotifications, .setToast, .setSelectedTodoId, .loadNextPage:
+        case .fetchNotifications, .setToast, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
         case .setLoading, .appendNotifications, .resetPagination, .setHasMore,
@@ -221,9 +221,19 @@ private extension PushNotificationListViewModel {
             updateQueryUseCase.execute(state.query)
             state.nextCursor = nil
             return [.fetchNotifications(state.query, cursor: nil)]
-        case .tapNotification(let item):
+        case .selectNotification(let notificationId):
+            state.selectedNotificationId = notificationId
+            guard let notificationId else {
+                state.selectedTodoId = nil
+                return []
+            }
+            guard let index = state.notifications.firstIndex(where: { $0.id == notificationId }) else {
+                state.selectedTodoId = nil
+                return []
+            }
+            let item = state.notifications[index]
             state.selectedTodoId = TodoIdItem(id: item.todoId)
-            if let index = state.notifications.firstIndex(where: { $0.id == item.id }), !item.isRead {
+            if !item.isRead {
                 state.notifications[index].isRead.toggle()
                 return [.toggleRead(item.todoId)]
             }
@@ -247,8 +257,6 @@ private extension PushNotificationListViewModel {
                 state.notifications.removeAll { $0.isHidden }
                 self.undoNotificationId = nil
             }
-        case .setSelectedTodoId(let todoId):
-            state.selectedTodoId = todoId
         default:
             break
         }

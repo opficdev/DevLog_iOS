@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PushNotificationListView: View {
-    @State private var router = NavigationRouter()
     @State var viewModel: PushNotificationListViewModel
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
@@ -18,66 +17,47 @@ struct PushNotificationListView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
-        NavigationStack(path: $router.path) {
+        NavigationSplitView {
             notificationList
-            .listStyle(.plain)
-            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
-            .onScrollOffsetChange { offset in
-                guard isScrollTrackingEnabled else { return }
-                headerOffset = max(0, -offset)
-            }
-            .safeAreaInset(edge: .top) { safeAreaHeader }
-            .background(Color(.secondarySystemBackground))
-            .onAppear { viewModel.send(.fetchNotifications) }
-            .refreshable { viewModel.send(.fetchNotifications) }
-            .navigationTitle(String(localized: "nav_push_notifications"))
-            .alert(
-                "",
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert(isPresented: $0)) }
-            )) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
-            .toast(
-                isPresented: Binding(
-                    get: { viewModel.state.showToast },
-                    set: { viewModel.send(.setToast(isPresented: $0)) }),
-                duration: 5,
-                action: { viewModel.send(.undoDelete) }
-            ) {
-                Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(3)
-            }
-            .sheet(item: Binding(
-                get: { viewModel.state.selectedTodoId },
-                set: { viewModel.send(.setSelectedTodoId($0)) }
-            )) { item in
-                NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoId: item.id,
-                        showEditButton: false
-                    ))
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            viewModel.send(.setSelectedTodoId(nil))
-                        }
-                    }
+                .listStyle(.sidebar)
+                .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
+                .onScrollOffsetChange { offset in
+                    guard isScrollTrackingEnabled else { return }
+                    headerOffset = max(0, -offset)
                 }
-                .background(Color(.secondarySystemBackground))
-                .presentationDragIndicator(.visible)
-            }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
+                .safeAreaInset(edge: .top) { safeAreaHeader }
+                .onAppear { viewModel.send(.fetchNotifications) }
+                .refreshable { viewModel.send(.fetchNotifications) }
+                .navigationTitle(String(localized: "nav_push_notifications"))
+        } detail: {
+            detailContent
+        }
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .alert(
+            "",
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert(isPresented: $0)) }
+        )) {
+            Button(String(localized: "common_close"), role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { viewModel.send(.setToast(isPresented: $0)) }),
+            duration: 5,
+            action: { viewModel.send(.undoDelete) }
+        ) {
+            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+                .font(.caption)
+                .multilineTextAlignment(.center)
+                .lineLimit(3)
+        }
+        .overlay {
+            if viewModel.state.isLoading {
+                LoadingView()
             }
         }
     }
@@ -123,6 +103,26 @@ struct PushNotificationListView: View {
                 .listSectionSeparator(.hidden, edges: .top)
                 .listRowBackground(Color.clear)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var detailContent: some View {
+        if let todoIdItem = viewModel.state.selectedTodoId {
+            TodoDetailView(viewModel: TodoDetailViewModel(
+                fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                todoId: todoIdItem.id,
+                showEditButton: false
+            ))
+            .id(todoIdItem.id)
+        } else {
+            ContentUnavailableView(
+                String(localized: "push_notifications_select_detail"),
+                systemImage: "bell.badge"
+            )
+            .background(Color(.secondarySystemBackground))
         }
     }
 
@@ -278,6 +278,7 @@ struct PushNotificationListView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(item.title)
                     .font(.headline)
+                    .foregroundStyle(Color(.label))
                     .lineLimit(1)
                 Text(item.body)
                     .font(.subheadline)

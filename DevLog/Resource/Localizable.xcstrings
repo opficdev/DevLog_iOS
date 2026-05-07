@@ -1064,6 +1064,23 @@
         }
       }
     },
+    "push_notifications_select_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a notification."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림을 선택해주세요."
+          }
+        }
+      }
+    },
     "push_period" : {
       "extractionState" : "manual",
       "localizations" : {
