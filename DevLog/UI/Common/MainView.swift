@@ -9,80 +9,201 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
     @Binding var selectedTab: MainTab
 
     var body: some View {
+        content
+            .onAppear {
+                viewModel.send(.onAppear)
+            }
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
+            ) {
+                Button(String(localized: "common_close"), role: .cancel) { }
+            } message: {
+                Text(viewModel.state.alertMessage)
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if isCompactLayout {
+            tabView
+        } else {
+            sidebarView
+        }
+    }
+
+    private var isCompactLayout: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    private var sidebarSelection: Binding<MainTab?> {
+        Binding(
+            get: { selectedTab },
+            set: { tab in
+                if let tab {
+                    selectedTab = tab
+                }
+            }
+        )
+    }
+
+    private var tabView: some View {
         TabView(selection: $selectedTab) {
-            HomeView(viewModel: HomeViewModel(
-                fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
-                addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
-                deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
-                undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
-                upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
-            ))
+            homeView
             .tabItem {
-                Image(systemName: "house.fill")
-                Text(String(localized: "nav_home"))
+                tabLabel(.home)
             }
             .tag(MainTab.home)
-            TodayView(viewModel: TodayViewModel(
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
-                updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
-            ))
+
+            todayView
             .tabItem {
-                Image(systemName: "sun.max.fill")
-                Text(String(localized: "nav_today"))
+                tabLabel(.today)
             }
             .tag(MainTab.today)
-            PushNotificationListView(viewModel: PushNotificationListViewModel(
-                fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
-                deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
-                undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
-                toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
-                fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
-                updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
-            ))
+
+            notificationView
             .tabItem {
-                Image(systemName: "bell.fill")
-                Text(String(localized: "nav_notifications"))
+                tabLabel(.notification)
             }
             .badge(viewModel.state.unreadPushCount)
             .tag(MainTab.notification)
-            ProfileView(viewModel: ProfileViewModel(
-                fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
-                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
-                updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
-            ))
+
+            profileView
             .tabItem {
-                Image(systemName: "person.crop.circle.fill")
-                Text(String(localized: "nav_profile"))
+                tabLabel(.profile)
             }
             .tag(MainTab.profile)
         }
-        .onAppear {
-            viewModel.send(.onAppear)
+    }
+
+    private var sidebarView: some View {
+        NavigationSplitView {
+            List(selection: sidebarSelection) {
+                sidebarRow(.home)
+                sidebarRow(.today)
+                sidebarRow(.notification)
+                sidebarRow(.profile)
+            }
+            .listStyle(.sidebar)
+            .navigationTitle(Text(verbatim: "DevLog"))
+        } detail: {
+            selectedTabView
         }
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert($0)) }
-            )
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
+    }
+
+    @ViewBuilder
+    private var selectedTabView: some View {
+        switch selectedTab {
+        case .home:
+            homeView
+        case .today:
+            todayView
+        case .notification:
+            notificationView
+        case .profile:
+            profileView
+        }
+    }
+
+    @ViewBuilder
+    private func sidebarRow(_ tab: MainTab) -> some View {
+        if tab == .notification {
+            tabLabel(tab)
+                .badge(viewModel.state.unreadPushCount)
+                .tag(tab)
+        } else {
+            tabLabel(tab)
+                .tag(tab)
+        }
+    }
+
+    private func tabLabel(_ tab: MainTab) -> some View {
+        Label {
+            Text(tab.title)
+        } icon: {
+            Image(systemName: tab.symbolName)
+        }
+    }
+
+    private var homeView: some View {
+        HomeView(viewModel: HomeViewModel(
+            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+            updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
+            addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
+            deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
+            undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
+        ))
+    }
+
+    private var todayView: some View {
+        TodayView(viewModel: TodayViewModel(
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
+            updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
+        ))
+    }
+
+    private var notificationView: some View {
+        PushNotificationListView(viewModel: PushNotificationListViewModel(
+            fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
+            deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
+            undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
+            toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
+            fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
+            updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
+        ))
+    }
+
+    private var profileView: some View {
+        ProfileView(viewModel: ProfileViewModel(
+            fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
+            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
+            fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
+            updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
+        ))
+    }
+}
+
+private extension MainTab {
+    var title: String {
+        switch self {
+        case .home:
+            String(localized: "nav_home")
+        case .today:
+            String(localized: "nav_today")
+        case .notification:
+            String(localized: "nav_notifications")
+        case .profile:
+            String(localized: "nav_profile")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .home:
+            "house.fill"
+        case .today:
+            "sun.max.fill"
+        case .notification:
+            "bell.fill"
+        case .profile:
+            "person.crop.circle.fill"
         }
     }
 }
