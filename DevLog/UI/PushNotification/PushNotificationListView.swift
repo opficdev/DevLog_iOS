@@ -96,28 +96,32 @@ struct PushNotificationListView: View {
             List(
                 Array(zip(notifications.indices, notifications)),
                 id: \.1.id,
-                selection: selectedNotificationIdBinding
+                selection: Binding(
+                    get: { viewModel.state.selectedNotificationId },
+                    set: { viewModel.send(.selectNotification($0)) }
+                )
             ) { index, notification in
-                notificationRow(notification)
-                    .padding(.vertical, 8)
-                    .tag(notification.id)
-                    .onAppear {
-                        let lastId = notifications.last?.id
-                        if notification.id == lastId, viewModel.state.hasMore {
-                            viewModel.send(.loadNextPage)
-                        }
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                    .overlay(alignment: .top) {
-                        if #available(iOS 26.0, *) {
-                            if index == 0 {
-                                Divider()
-                                    .padding(.horizontal, -16)
+                NavigationLink(value: notification.id) {
+                    notificationRow(notification)
+                        .padding(.vertical, 8)
+                        .onAppear {
+                            let lastId = notifications.last?.id
+                            if notification.id == lastId, viewModel.state.hasMore {
+                                viewModel.send(.loadNextPage)
                             }
                         }
-                    }
-                    .listSectionSeparator(.hidden, edges: .top)
-                    .listRowBackground(Color.clear)
+                        .overlay(alignment: .top) {
+                            if #available(iOS 26.0, *) {
+                                if index == 0 {
+                                    Divider()
+                                        .padding(.horizontal, -16)
+                                }
+                            }
+                        }
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                .listSectionSeparator(.hidden, edges: .top)
+                .listRowBackground(Color.clear)
             }
         }
     }
