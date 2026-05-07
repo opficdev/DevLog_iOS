@@ -305,7 +305,7 @@ struct PushNotificationListView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(item.title)
                     .font(.headline)
-                    .foregroundStyle(Color(.label))
+                    .foregroundStyle(isSelected ? Color.white : Color(.label))
                     .lineLimit(1)
                 Text(item.body)
                     .font(.subheadline)
@@ -321,8 +321,12 @@ struct PushNotificationListView: View {
                     .foregroundStyle(Color.gray)
             }
         }
-        .padding(.vertical, 5)
-        .contentShape(.rect)
+        .padding(8)
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .background {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isSelected ? Color.blue : .clear)
+        }
         .swipeActions(edge: .leading) {
             Button {
                 viewModel.send(.toggleRead(item))
