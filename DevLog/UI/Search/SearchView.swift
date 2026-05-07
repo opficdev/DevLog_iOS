@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.sceneWidth) private var sceneWidth
     @Environment(\.diContainer) private var container: DIContainer
     @State private var router = NavigationRouter()
     @State var viewModel: SearchViewModel

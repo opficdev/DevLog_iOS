@@ -2,7 +2,7 @@
   "images" : [
     {
       "filename" : "Apple_black.png",
-      "idiom" : "iphone"
+      "idiom" : "universal"
     },
     {
       "appearances" : [
@@ -12,7 +12,7 @@
         }
       ],
       "filename" : "Apple_white.png",
-      "idiom" : "iphone"
+      "idiom" : "universal"
     }
   ],
   "info" : {

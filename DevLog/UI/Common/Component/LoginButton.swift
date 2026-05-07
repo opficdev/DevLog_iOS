@@ -10,8 +10,8 @@ import SwiftUI
 struct LoginButton: View {
     @State private var logo: Image?
     @State private var text = ""
-    @State private var height = CGFloat.zero
-    let action: () -> Void
+    @ScaledMetric(relativeTo: .body) private var height = CGFloat(22)
+    private let action: () -> Void
 
     init(
         logo: Image? = nil,
@@ -27,31 +27,24 @@ struct LoginButton: View {
         Button(action: {
             action()
         }) {
-            HStack {
-                Text(text)
-                    .foregroundStyle(Color.primary)
-                    .font(.system(size: height / 3))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            Text(text)
+                .foregroundStyle(Color.primary)
+                .font(.system(.body))
         }
-        .contentShape(RoundedRectangle(cornerRadius: height / 2))
-        .overlay(
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: height / 2)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .onAppear {
-                            height = proxy.size.height
-                        }
-                    if let logo = logo {
-                        logo
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: height / 2, height: height / 2)
-                            .padding(.leading)
-                    }
+        .frame(width: 300, height: height + 16)
+        .contentShape(.capsule)
+        .overlay {
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .stroke(Color.gray, lineWidth: 1)
+                if let logo = logo {
+                    logo
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: height, height: height)
+                        .padding(.leading)
                 }
             }
-        )
+        }
     }
 }
