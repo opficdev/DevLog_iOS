@@ -11,7 +11,7 @@ struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
     @State private var router = NavigationRouter()
     @State var viewModel: HomeViewModel
-    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -391,7 +391,7 @@ struct HomeView: View {
 }
 
 private struct RecentTodoRow: View {
-    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let todo: RecentTodoItem
 
     var body: some View {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodoItemRow: View {
-    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     private let item: TodoListItem
 
     init(_ item: TodoListItem) {

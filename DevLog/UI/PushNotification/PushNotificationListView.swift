@@ -15,7 +15,7 @@ struct PushNotificationListView: View {
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
-    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
         NavigationStack(path: $router.path) {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WebItemRow: View {
-    private let labelWidth: CGFloat = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let item: WebPageItem
     let showsChevron: Bool
 

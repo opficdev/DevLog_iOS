@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginButton: View {
     @State private var logo: Image?
     @State private var text = ""
-    private let height = UIFont.preferredFont(forTextStyle: .body).lineHeight
+    @ScaledMetric(relativeTo: .body) private var height = CGFloat(22)
     private let action: () -> Void
 
     init(
