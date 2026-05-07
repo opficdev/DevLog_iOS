@@ -84,19 +84,81 @@ struct MainView: View {
         }
     }
 
+    @ViewBuilder
     private var sidebarView: some View {
-        NavigationSplitView {
-            List(selection: sidebarSelection) {
-                sidebarRow(.home)
-                sidebarRow(.today)
-                sidebarRow(.notification)
-                sidebarRow(.profile)
+        switch selectedTab.mainTabSplitStyle {
+        case .detailOnly:
+            NavigationSplitView {
+                mainSidebar
+            } detail: {
+                selectedTabView
             }
-            .listStyle(.sidebar)
-            .navigationTitle(Text(verbatim: "DevLog"))
-        } detail: {
-            selectedTabView
+        case .contentDetail:
+            switch selectedTab {
+            case .home:
+                NavigationSplitView {
+                    mainSidebar
+                } content: {
+                    homeView
+                } detail: {
+                    EmptyView()
+                }
+            case .today:
+                NavigationSplitView {
+                    mainSidebar
+                } content: {
+                    todayView
+                } detail: {
+                    EmptyView()
+                }
+            case .notification:
+                let viewModel = makePushNotificationListViewModel()
+                NavigationSplitView {
+                    mainSidebar
+                } content: {
+                    PushNotificationListView(
+                        viewModel: viewModel,
+                        isCompactLayout: isCompactLayout
+                    )
+                } detail: {
+                    Group {
+                        if let todoId = viewModel.state.selectedTodoId?.id {
+                            TodoDetailView(viewModel: TodoDetailViewModel(
+                                fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                                fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                                todoId: todoId,
+                                showEditButton: false
+                            ))
+                            .id(todoId)
+                        } else {
+                            ContentUnavailableView(
+                                String(localized: "push_notifications_select_detail"),
+                                systemImage: "bell.badge"
+                            )
+                            .background(Color(.secondarySystemBackground))
+                        }
+                    }
+                    .background(Color(.secondarySystemBackground).ignoresSafeArea())
+                }
+            case .profile:
+                NavigationSplitView {
+                    mainSidebar
+                } detail: {
+                    selectedTabView
+                }
+            }
         }
+    }
+
+    private var mainSidebar: some View {
+        List(selection: sidebarSelection) {
+            sidebarRow(.home)
+            sidebarRow(.today)
+            sidebarRow(.notification)
+            sidebarRow(.profile)
+        }
+        .listStyle(.sidebar)
     }
 
     @ViewBuilder
@@ -158,14 +220,21 @@ struct MainView: View {
     }
 
     private var notificationView: some View {
-        PushNotificationListView(viewModel: PushNotificationListViewModel(
+        PushNotificationListView(
+            viewModel: makePushNotificationListViewModel(),
+            isCompactLayout: isCompactLayout
+        )
+    }
+
+    private func makePushNotificationListViewModel() -> PushNotificationListViewModel {
+        PushNotificationListViewModel(
             fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
             deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
             undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
             toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
             fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
             updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
-        ))
+        )
     }
 
     private var profileView: some View {
@@ -180,7 +249,21 @@ struct MainView: View {
     }
 }
 
+private enum MainTabSplitStyle {
+    case detailOnly
+    case contentDetail
+}
+
 private extension MainTab {
+    var mainTabSplitStyle: MainTabSplitStyle {
+        switch self {
+        case .home, .today, .notification:
+            .contentDetail
+        case .profile:
+            .detailOnly
+        }
+    }
+
     var title: String {
         switch self {
         case .home:
