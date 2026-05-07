@@ -58,29 +58,29 @@ struct MainView: View {
     private var tabView: some View {
         TabView(selection: $selectedTab) {
             homeView
-            .tabItem {
-                tabLabel(.home)
-            }
-            .tag(MainTab.home)
+                .tabItem {
+                    tabLabel(.home)
+                }
+                .tag(MainTab.home)
 
             todayView
-            .tabItem {
-                tabLabel(.today)
-            }
-            .tag(MainTab.today)
+                .tabItem {
+                    tabLabel(.today)
+                }
+                .tag(MainTab.today)
 
             notificationView
-            .tabItem {
-                tabLabel(.notification)
-            }
-            .badge(viewModel.state.unreadPushCount)
-            .tag(MainTab.notification)
+                .tabItem {
+                    tabLabel(.notification)
+                }
+                .badge(viewModel.state.unreadPushCount)
+                .tag(MainTab.notification)
 
             profileView
-            .tabItem {
-                tabLabel(.profile)
-            }
-            .tag(MainTab.profile)
+                .tabItem {
+                    tabLabel(.profile)
+                }
+                .tag(MainTab.profile)
         }
     }
 
