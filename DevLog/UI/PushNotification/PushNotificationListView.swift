@@ -309,7 +309,7 @@ struct PushNotificationListView: View {
                     .lineLimit(1)
                 Text(item.body)
                     .font(.subheadline)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(isSelected ? Color.white : .gray)
                     .lineLimit(1)
             }
             
@@ -318,7 +318,7 @@ struct PushNotificationListView: View {
             TimelineView(.periodic(from: .now, by: 1.0)) { context in
                 Text(timeAgoText(from: item.receivedAt, now: context.date))
                     .font(.caption2)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(isSelected ? Color.white : .gray)
             }
         }
         .padding(8)
