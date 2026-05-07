@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct PushNotificationListView: View {
-    @State var viewModel: PushNotificationListViewModel
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
+    @State var viewModel: PushNotificationListViewModel
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
-    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
         NavigationSplitView {
             notificationList
-                .listStyle(.sidebar)
                 .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
                 .onScrollOffsetChange { offset in
                     guard isScrollTrackingEnabled else { return }
@@ -30,7 +30,15 @@ struct PushNotificationListView: View {
                 .refreshable { viewModel.send(.fetchNotifications) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
         } detail: {
-            detailContent
+            if let todoIdItem = viewModel.state.selectedTodoId {
+                todoDetailView(todoId: todoIdItem.id)
+            } else {
+                ContentUnavailableView(
+                    String(localized: "push_notifications_select_detail"),
+                    systemImage: "bell.badge"
+                )
+                .background(Color(.secondarySystemBackground))
+            }
         }
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .alert(
@@ -55,11 +63,46 @@ struct PushNotificationListView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
         }
+        .sheet(item: Binding(
+            get: { isCompactLayout ? viewModel.state.selectedTodoId : nil },
+            set: { item in
+                if item == nil {
+                    viewModel.send(.selectNotification(nil))
+                }
+            }
+        )) { item in
+            NavigationStack {
+                todoDetailView(todoId: item.id)
+                    .toolbar {
+                        ToolbarLeadingButton {
+                            viewModel.send(.selectNotification(nil))
+                        }
+                    }
+            }
+            .background(Color(.secondarySystemBackground))
+            .presentationDragIndicator(.visible)
+        }
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()
             }
         }
+    }
+
+    private var isCompactLayout: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    @ViewBuilder
+    private func todoDetailView(todoId: String) -> some View {
+        TodoDetailView(viewModel: TodoDetailViewModel(
+            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+            todoId: todoId,
+            showEditButton: false
+        ))
+        .id(todoId)
     }
 
     @ViewBuilder
@@ -75,54 +118,35 @@ struct PushNotificationListView: View {
         } else {
             List(
                 Array(zip(notifications.indices, notifications)),
-                id: \.1.id,
-                selection: Binding(
-                    get: { viewModel.state.selectedNotificationId },
-                    set: { viewModel.send(.selectNotification($0)) }
-                )
+                id: \.1.id
             ) { index, notification in
-                NavigationLink(value: notification.id) {
-                    notificationRow(notification)
-                        .padding(.vertical, 8)
-                        .onAppear {
-                            let lastId = notifications.last?.id
-                            if notification.id == lastId, viewModel.state.hasMore {
-                                viewModel.send(.loadNextPage)
+                Button {
+                    viewModel.send(.selectNotification(notification.id))
+                } label: {
+                    notificationRow(
+                        notification,
+                        isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
+                    )
+                    .onAppear {
+                        let lastId = notifications.last?.id
+                        if notification.id == lastId, viewModel.state.hasMore {
+                            viewModel.send(.loadNextPage)
+                        }
+                    }
+                    .overlay(alignment: .top) {
+                        if #available(iOS 26.0, *) {
+                            if index == 0 {
+                                Divider()
+                                    .padding(.horizontal, -16)
                             }
                         }
-                        .overlay(alignment: .top) {
-                            if #available(iOS 26.0, *) {
-                                if index == 0 {
-                                    Divider()
-                                        .padding(.horizontal, -16)
-                                }
-                            }
-                        }
+                    }
                 }
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                .buttonStyle(.plain)
+                .listRowInsets(EdgeInsets())
                 .listSectionSeparator(.hidden, edges: .top)
                 .listRowBackground(Color.clear)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var detailContent: some View {
-        if let todoIdItem = viewModel.state.selectedTodoId {
-            TodoDetailView(viewModel: TodoDetailViewModel(
-                fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                todoId: todoIdItem.id,
-                showEditButton: false
-            ))
-            .id(todoIdItem.id)
-        } else {
-            ContentUnavailableView(
-                String(localized: "push_notifications_select_detail"),
-                systemImage: "bell.badge"
-            )
-            .background(Color(.secondarySystemBackground))
         }
     }
 
@@ -257,7 +281,10 @@ struct PushNotificationListView: View {
     }
 
     // swiftlint:disable function_body_length
-    private func notificationRow(_ item: PushNotificationItem) -> some View {
+    private func notificationRow(
+        _ item: PushNotificationItem,
+        isSelected: Bool
+    ) -> some View {
         HStack {
             VStack {
                 let todoCategoryItem = TodoCategoryItem(from: item.todoCategory)
