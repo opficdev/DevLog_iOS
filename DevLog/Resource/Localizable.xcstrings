@@ -1931,6 +1931,23 @@
         }
       }
     },
+    "today_select_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a todo."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo를 선택해주세요."
+          }
+        }
+      }
+    },
     "today_due_overdue" : {
       "extractionState" : "manual",
       "localizations" : {

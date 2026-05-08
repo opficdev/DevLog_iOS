@@ -8,54 +8,41 @@
 import SwiftUI
 
 struct TodayView: View {
-    @Environment(\.diContainer) private var container: any DIContainer
-    @State private var router = NavigationRouter()
+    @Environment(TodayNavigationState.self) private var todayNavigationState
     @State var viewModel: TodayViewModel
+    let isCompactLayout: Bool
 
     var body: some View {
-        NavigationStack(path: $router.path) {
-            List {
-                summarySection
-                if viewModel.sections.isEmpty, !viewModel.state.isLoading {
-                    emptySection
-                } else {
-                    ForEach(viewModel.sections) { section in
-                        todoSection(section.title, items: section.items)
-                    }
+        List {
+            summarySection
+            if viewModel.sections.isEmpty, !viewModel.state.isLoading {
+                emptySection
+            } else {
+                ForEach(viewModel.sections) { section in
+                    todoSection(section.title, items: section.items)
                 }
             }
-            .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "nav_today"))
-            .toolbar { toolbarContent }
-            .navigationDestination(for: Path.self) { path in
-                switch path {
-                case .detail(let todoId):
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoId: todoId
-                    ))
-                }
-            }
-            .background(NavigationBarConfigurator())
-            .refreshable { viewModel.send(.refresh) }
-            .onAppear { viewModel.send(.onAppear) }
-            .alert(
-                viewModel.state.alertTitle,
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert($0)) }
-                )
-            ) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(String(localized: "nav_today"))
+        .toolbar { toolbarContent }
+        .background(NavigationBarConfigurator())
+        .refreshable { viewModel.send(.refresh) }
+        .onAppear { viewModel.send(.onAppear) }
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert($0)) }
+            )
+        ) {
+            Button(String(localized: "common_close"), role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
+        .overlay {
+            if viewModel.state.isLoading {
+                LoadingView()
             }
         }
     }
@@ -145,10 +132,7 @@ struct TodayView: View {
         if !items.isEmpty {
             Section {
                 ForEach(items) { item in
-                    NavigationLink(value: Path.detail(item.id)) {
-                        TodayTodoRow(item: item)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                    }
+                    todoRow(item)
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
                             viewModel.send(.togglePinned(item))
@@ -170,6 +154,25 @@ struct TodayView: View {
                 Text(title)
                     .listRowInsets(EdgeInsets())
             }
+        }
+    }
+
+    @ViewBuilder
+    private func todoRow(_ item: TodayTodoItem) -> some View {
+        if isCompactLayout {
+            NavigationLink(value: TodayRoute.todo(TodoIdItem(id: item.id))) {
+                TodayTodoRow(item: item)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            }
+        } else {
+            Button {
+                todayNavigationState.show(.todo(TodoIdItem(id: item.id)))
+            } label: {
+                TodayTodoRow(item: item)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -208,10 +211,40 @@ struct TodayView: View {
         let title: String
         let message: String
     }
+}
 
-    private enum Path: Hashable {
-        case detail(String)
+@Observable
+final class TodayNavigationState {
+    var path: [TodayRoute] = []
+
+    var root: TodayRoute? {
+        path.first
     }
+
+    var detailPath: [TodayRoute] {
+        get {
+            Array(path.dropFirst())
+        }
+        set {
+            if let todayRoute = root {
+                path = [todayRoute] + newValue
+            } else {
+                path = newValue
+            }
+        }
+    }
+
+    func show(_ todayRoute: TodayRoute) {
+        path = [todayRoute]
+    }
+
+    func push(_ todayRoute: TodayRoute) {
+        path.append(todayRoute)
+    }
+}
+
+enum TodayRoute: Hashable {
+    case todo(TodoIdItem)
 }
 
 private extension TodayDisplayOptions.DueDateVisibility {

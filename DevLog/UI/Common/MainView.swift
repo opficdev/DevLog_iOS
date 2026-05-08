@@ -12,6 +12,7 @@ struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
     @State private var homeNavigationState = HomeNavigationState()
+    @State private var todayNavigationState = TodayNavigationState()
     @State private var todoIdToPresent: TodoIdItem?
     @Binding var selectedTab: MainTab
 
@@ -112,8 +113,9 @@ struct MainView: View {
                 } content: {
                     todayView
                 } detail: {
-                    EmptyView()
+                    todayRegularDetailView
                 }
+                .environment(todayNavigationState)
             case .notification:
                 let viewModel = makePushNotificationListViewModel()
                 NavigationSplitView {
@@ -310,14 +312,75 @@ struct MainView: View {
         )
     }
 
+    @ViewBuilder
     private var todayView: some View {
-        TodayView(viewModel: TodayViewModel(
+        Group {
+            if isCompactLayout {
+                NavigationStack(path: $todayNavigationState.path) {
+                    todayContentView
+                        .navigationDestination(for: TodayRoute.self) { todayRoute in
+                            todayDestinationView(todayRoute)
+                        }
+                }
+            } else {
+                todayContentView
+            }
+        }
+        .environment(todayNavigationState)
+    }
+
+    private var todayContentView: some View {
+        TodayView(
+            viewModel: makeTodayViewModel(),
+            isCompactLayout: isCompactLayout
+        )
+    }
+
+    private func makeTodayViewModel() -> TodayViewModel {
+        TodayViewModel(
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
             fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
             upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
             fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
             updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
-        ))
+        )
+    }
+
+    private var todayDetailPath: Binding<[TodayRoute]> {
+        Binding(
+            get: { todayNavigationState.detailPath },
+            set: { todayNavigationState.detailPath = $0 }
+        )
+    }
+
+    @ViewBuilder
+    private var todayRegularDetailView: some View {
+        NavigationStack(path: todayDetailPath) {
+            Group {
+                if let todayRoute = todayNavigationState.root {
+                    todayDestinationView(todayRoute)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "today_select_detail"),
+                        systemImage: "sun.max"
+                    )
+                    .background(Color(.secondarySystemBackground))
+                }
+            }
+            .navigationDestination(for: TodayRoute.self) { todayRoute in
+                todayDestinationView(todayRoute)
+            }
+        }
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
+        switch todayRoute {
+        case .todo(let item):
+            TodoDetailView(viewModel: makeTodoDetailViewModel(todoId: item.id))
+                .id(item.id)
+        }
     }
 
     private var notificationView: some View {
