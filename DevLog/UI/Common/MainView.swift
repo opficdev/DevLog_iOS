@@ -11,7 +11,7 @@ struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
-    @State private var homeDetailDestination: HomeDetailDestination?
+    @State private var homeNavigationState = HomeNavigationState()
     @State private var todoIdToPresent: TodoIdItem?
     @Binding var selectedTab: MainTab
 
@@ -103,8 +103,9 @@ struct MainView: View {
                 } content: {
                     homeView
                 } detail: {
-                    homeDetailView
+                    homeRegularDetailView
                 }
+                .environment(homeNavigationState)
             case .today:
                 NavigationSplitView {
                     mainSidebar
@@ -198,10 +199,26 @@ struct MainView: View {
         }
     }
 
+    @ViewBuilder
     private var homeView: some View {
+        Group {
+            if isCompactLayout {
+                NavigationStack(path: $homeNavigationState.path) {
+                    homeContentView
+                        .navigationDestination(for: HomeRoute.self) { homeRoute in
+                            homeDestinationView(homeRoute)
+                        }
+                }
+            } else {
+                homeContentView
+            }
+        }
+        .environment(homeNavigationState)
+    }
+
+    private var homeContentView: some View {
         HomeView(
             viewModel: makeHomeViewModel(),
-            homeDetailDestination: $homeDetailDestination,
             isCompactLayout: isCompactLayout
         )
     }
@@ -220,64 +237,77 @@ struct MainView: View {
         )
     }
 
+    private var homeDetailPath: Binding<[HomeRoute]> {
+        Binding(
+            get: { homeNavigationState.detailPath },
+            set: { homeNavigationState.detailPath = $0 }
+        )
+    }
+
     @ViewBuilder
-    private var homeDetailView: some View {
-        Group {
-            switch homeDetailDestination {
-            case .category(let item):
-                TodoListView(
-                    viewModel: TodoListViewModel(
-                        fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                        fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-                        undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-                        category: item.todoCategory
-                    ),
-                    todoIdToPresent: Binding(
-                        get: {
-                            if case .todo(let item) = homeDetailDestination {
-                                item
-                            } else {
-                                nil
-                            }
-                        },
-                        set: { item in
-                            if let item {
-                                homeDetailDestination = .todo(item)
-                            }
-                        }
-                    ),
-                    isCompactLayout: false
-                )
-                .id(item.id)
-            case .todo(let item):
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                    todoId: item.id
-                ))
-                .id(item.id)
-            case .webPage(let item):
-                WebView(url: item.url)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .ignoresSafeArea()
-                    .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            Text(item.title)
-                                .bold()
-                        }
-                    }
-            case .none:
-                ContentUnavailableView(
-                    String(localized: "home_select_detail"),
-                    systemImage: "house"
-                )
-                .background(Color(.secondarySystemBackground))
+    private var homeRegularDetailView: some View {
+        NavigationStack(path: homeDetailPath) {
+            Group {
+                if let homeRoute = homeNavigationState.root {
+                    homeDestinationView(homeRoute)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "home_select_detail"),
+                        systemImage: "house"
+                    )
+                    .background(Color(.secondarySystemBackground))
+                }
+            }
+            .navigationDestination(for: HomeRoute.self) { homeRoute in
+                homeDestinationView(homeRoute)
             }
         }
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private func homeDestinationView(_ homeRoute: HomeRoute) -> some View {
+        switch homeRoute {
+        case .category(let item):
+            TodoListView(
+                viewModel: makeTodoListViewModel(category: item.todoCategory)
+            )
+            .id(item.id)
+        case .todo(let item):
+            TodoDetailView(viewModel: makeTodoDetailViewModel(todoId: item.id))
+            .id(item.id)
+        case .webPage(let item):
+            WebView(url: item.url)
+                .navigationBarTitleDisplayMode(.inline)
+                .ignoresSafeArea()
+                .toolbar(.hidden, for: .tabBar)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(item.title)
+                            .bold()
+                    }
+                }
+        }
+    }
+
+    private func makeTodoListViewModel(category: TodoCategory) -> TodoListViewModel {
+        TodoListViewModel(
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
+            category: category
+        )
+    }
+
+    private func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
+        TodoDetailViewModel(
+            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+            todoId: todoId
+        )
     }
 
     private var todayView: some View {

@@ -8,15 +8,13 @@
 import SwiftUI
 
 struct TodoListView: View {
-    @Environment(NavigationRouter.self) var router: NavigationRouter?
+    @Environment(HomeNavigationState.self) private var homeNavigationState
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
     @State var viewModel: TodoListViewModel
-    @Binding var todoIdToPresent: TodoIdItem?
-    let isCompactLayout: Bool
 
     var body: some View {
         Group {
@@ -51,17 +49,6 @@ struct TodoListView: View {
                         )
                     )
                 )
-            }
-        }
-        .navigationDestination(for: Path.self) { path in
-            switch path {
-            case .detail(let todoId):
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                    todoId: todoId
-                ))
             }
         }
         .alert(
@@ -422,14 +409,6 @@ struct TodoListView: View {
     }
 
     private func selectTodo(_ todoId: String) {
-        if isCompactLayout {
-            router?.push(Path.detail(todoId))
-        } else {
-            todoIdToPresent = TodoIdItem(id: todoId)
-        }
-    }
-
-    private enum Path: Hashable {
-        case detail(String)
+        homeNavigationState.push(.todo(TodoIdItem(id: todoId)))
     }
 }

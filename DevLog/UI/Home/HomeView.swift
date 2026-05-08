@@ -9,147 +9,95 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
-    @State private var router = NavigationRouter()
+    @Environment(HomeNavigationState.self) var homeNavigationState
     @State var viewModel: HomeViewModel
-    @Binding var homeDetailDestination: HomeDetailDestination?
     let isCompactLayout: Bool
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
-        NavigationStack(path: $router.path) {
-            List {
-                todoSection
-                recentTodoSection
-                webPageSection
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "nav_home"))
-            .navigationDestination(for: Path.self) { path in
-                switch path {
-                case .category(let item):
-                    TodoListView(
-                        viewModel: TodoListViewModel(
-                            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-                            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-                            category: item.todoCategory
-                        ),
-                        todoIdToPresent: Binding(
-                            get: {
-                                if case .todo(let item) = homeDetailDestination {
-                                    item
-                                } else {
-                                    nil
-                                }
-                            },
-                            set: { item in
-                                if let item {
-                                    homeDetailDestination = .todo(item)
-                                }
-                            }
-                        ),
-                        isCompactLayout: isCompactLayout
-                    )
-                    .environment(router)
-                case .detail(let todoId):
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoId: todoId
-                    ))
-                case .web(let page):
-                    WebView(url: page.url)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .ignoresSafeArea()
-                        .toolbar(.hidden, for: .tabBar)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                Text(page.title)
-                                    .bold()
-                            }
-                        }
-                }
-            }
-            .toolbar { toolbar }
-            .sheet(isPresented: Binding(
-                get: { viewModel.state.reorderTodo },
-                set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
-            )) {
-                TodoManageView(
-                    viewModel: TodoManageViewModel(viewModel.state.preferences),
-                    onDismiss: { array in
-                        viewModel.send(.setPresentation(.reorderTodo, false))
-                        withAnimation {
-                            viewModel.send(.orderTodoCategory(array))
-                        }
+        List {
+            todoSection
+            recentTodoSection
+            webPageSection
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(String(localized: "nav_home"))
+        .toolbar { toolbar }
+        .sheet(isPresented: Binding(
+            get: { viewModel.state.reorderTodo },
+            set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
+        )) {
+            TodoManageView(
+                viewModel: TodoManageViewModel(viewModel.state.preferences),
+                onDismiss: { array in
+                    viewModel.send(.setPresentation(.reorderTodo, false))
+                    withAnimation {
+                        viewModel.send(.orderTodoCategory(array))
                     }
+                }
+            )
+        }
+        .sheet(isPresented: Binding(
+            get: { viewModel.state.showContentPicker },
+            set: { _, _ in }
+        )) {
+            contentPicker
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { viewModel.state.showTodoEditor },
+            set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
+        )) {
+            if let selectedCategory = viewModel.state.selectedTodoCategory {
+                TodoEditorView(
+                    viewModel: TodoEditorViewModel(
+                        category: selectedCategory,
+                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                    ),
+                    onSubmit: { viewModel.send(.addTodo($0)) }
                 )
             }
-            .sheet(isPresented: Binding(
-                get: { viewModel.state.showContentPicker },
-                set: { _, _ in }
-            )) {
-                contentPicker
-            }
-            .fullScreenCover(isPresented: Binding(
-                get: { viewModel.state.showTodoEditor },
-                set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
-            )) {
-                if let selectedCategory = viewModel.state.selectedTodoCategory {
-                    TodoEditorView(
-                        viewModel: TodoEditorViewModel(
-                            category: selectedCategory,
-                            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
-                        ),
-                        onSubmit: { viewModel.send(.addTodo($0)) }
-                    )
-                }
-            }
-            .fullScreenCover(isPresented: Binding(
-                get: { viewModel.state.showSearchView },
-                set: { viewModel.send(.setPresentation(.searchView, $0)) }
-            )) {
-                SearchView(viewModel: SearchViewModel(
-                    fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                    fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                    fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
-                    updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
-                ))
-            }
-            .alert(
-                viewModel.state.alertTitle,
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert(isPresented: $0)) }
-                )
-            ) {
-                alertButtons
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
-            .toast(
-                isPresented: Binding(
-                    get: { viewModel.state.showToast },
-                    set: { viewModel.send(.setToast(isPresented: $0)) }
-                ),
-                duration: 5,
-                action: { viewModel.send(.undoDeleteWebPage) }
-            ) {
-                Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-            }
-            .onAppear {
-                viewModel.send(.onAppear)
-            }
-            .overlay {
-                if viewModel.state.isAppending {
-                    LoadingView()
-                }
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { viewModel.state.showSearchView },
+            set: { viewModel.send(.setPresentation(.searchView, $0)) }
+        )) {
+            SearchView(viewModel: SearchViewModel(
+                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+                fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
+                updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
+            ))
+        }
+        .alert(
+            viewModel.state.alertTitle,
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert(isPresented: $0)) }
+            )
+        ) {
+            alertButtons
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { viewModel.send(.setToast(isPresented: $0)) }
+            ),
+            duration: 5,
+            action: { viewModel.send(.undoDeleteWebPage) }
+        ) {
+            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+                .font(.caption)
+                .multilineTextAlignment(.center)
+        }
+        .onAppear {
+            viewModel.send(.onAppear)
+        }
+        .overlay {
+            if viewModel.state.isAppending {
+                LoadingView()
             }
         }
     }
@@ -304,7 +252,7 @@ struct HomeView: View {
     @ViewBuilder
     private func todoCategoryRow(_ item: TodoCategoryItem) -> some View {
         if isCompactLayout {
-            NavigationLink(value: Path.category(item)) {
+            NavigationLink(value: HomeRoute.category(item)) {
                 labelImage(
                     text: item.localizedName,
                     systemName: item.symbolName,
@@ -313,7 +261,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                homeDetailDestination = .category(item)
+                homeNavigationState.show(.category(item))
             } label: {
                 labelImage(
                     text: item.localizedName,
@@ -328,12 +276,12 @@ struct HomeView: View {
     @ViewBuilder
     private func recentTodoRow(_ item: RecentTodoItem) -> some View {
         if isCompactLayout {
-            NavigationLink(value: Path.detail(item.id)) {
+            NavigationLink(value: HomeRoute.todo(TodoIdItem(id: item.id))) {
                 RecentTodoRow(todo: item)
             }
         } else {
             Button {
-                homeDetailDestination = .todo(TodoIdItem(id: item.id))
+                homeNavigationState.show(.todo(TodoIdItem(id: item.id)))
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -346,12 +294,12 @@ struct HomeView: View {
     private func webResultRow(_ item: WebPageItem) -> some View {
         Group {
             if isCompactLayout {
-                NavigationLink(value: Path.web(item)) {
+                NavigationLink(value: HomeRoute.webPage(item)) {
                     WebItemRow(item: item, showsChevron: false)
                 }
             } else {
                 Button {
-                    homeDetailDestination = .webPage(item)
+                    homeNavigationState.show(.webPage(item))
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -449,14 +397,39 @@ struct HomeView: View {
         .contentShape(.rect)
     }
 
-    private enum Path: Hashable {
-        case category(TodoCategoryItem)
-        case detail(String)
-        case web(WebPageItem)
+}
+
+@Observable
+final class HomeNavigationState {
+    var path: [HomeRoute] = []
+
+    var root: HomeRoute? {
+        path.first
+    }
+
+    var detailPath: [HomeRoute] {
+        get {
+            Array(path.dropFirst())
+        }
+        set {
+            if let homeRoute = root {
+                path = [homeRoute] + newValue
+            } else {
+                path = newValue
+            }
+        }
+    }
+
+    func show(_ homeRoute: HomeRoute) {
+        path = [homeRoute]
+    }
+
+    func push(_ homeRoute: HomeRoute) {
+        path.append(homeRoute)
     }
 }
 
-enum HomeDetailDestination: Hashable {
+enum HomeRoute: Hashable {
     case category(TodoCategoryItem)
     case todo(TodoIdItem)
     case webPage(WebPageItem)
