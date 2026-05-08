@@ -64,7 +64,7 @@ struct TodoCategoryItem: Identifiable, Hashable {
     var color: Color {
         switch category {
         case .system(let systemTodoCategory):
-            return SystemTodoCategoryItem(from: systemTodoCategory).color
+            return Color(SystemTodoCategoryItem(from: systemTodoCategory).color)
         case .user(let userTodoCategory):
             return UserTodoCategoryItem(from: userTodoCategory).color
         }

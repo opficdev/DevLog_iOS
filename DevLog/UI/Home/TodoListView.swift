@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct TodoListView: View {
-    @State var viewModel: TodoListViewModel
-    @Environment(NavigationRouter.self) var router
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
+    @State var viewModel: TodoListViewModel
 
     var body: some View {
         Group {
@@ -49,17 +49,6 @@ struct TodoListView: View {
                         )
                     )
                 )
-            }
-        }
-        .navigationDestination(for: Path.self) { path in
-            switch path {
-            case .detail(let todoId):
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                    todoId: todoId
-                ))
             }
         }
         .alert(
@@ -121,10 +110,11 @@ struct TodoListView: View {
         .task { viewModel.send(.onAppear) }
     }
 
+    @ViewBuilder
     private var todoListContent: some View {
         let visibleTodos = viewModel.state.todos.filter { !$0.isHidden }
 
-        return ZStack {
+        ZStack {
             List {
                 Group {
                     if visibleTodos.isEmpty, !viewModel.state.isLoading {
@@ -138,7 +128,7 @@ struct TodoListView: View {
                     } else {
                         ForEach(Array(zip(visibleTodos.indices, visibleTodos)), id: \.1.id) { idx, todo in
                             Button {
-                                router.push(Path.detail(todo.id))
+                                selectTodo(todo.id)
                             } label: {
                                 TodoItemRow(todo)
                             }
@@ -268,7 +258,7 @@ struct TodoListView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(displayedTodos) { todo in
                         Button {
-                            router.push(Path.detail(todo.id))
+                            selectTodo(todo.id)
                         } label: {
                             VStack(spacing: 0) {
                                 TodoItemRow(todo)
@@ -418,7 +408,7 @@ struct TodoListView: View {
             .background(Circle().fill(backgroundColor))
     }
 
-private enum Path: Hashable {
-        case detail(String)
+    private func selectTodo(_ todoId: String) {
+        router.push(.todo(TodoIdItem(id: todoId)))
     }
 }

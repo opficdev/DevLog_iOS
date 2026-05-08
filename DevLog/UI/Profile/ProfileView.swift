@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @State var viewModel: ProfileViewModel
-    @State private var router = NavigationRouter()
+    @State private var router = NavigationRouter<ProfileRoute>()
     @Environment(\.diContainer) private var container
     @FocusState private var focused: Bool
 
@@ -88,14 +88,14 @@ struct ProfileView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         Button {
-                            router.push(Path.settings)
+                            router.push(.settings)
                         } label: {
                             Image(systemName: "gearshape")
                         }
                     }
                 }
             }
-            .navigationDestination(for: Path.self) { path in
+            .navigationDestination(for: ProfileRoute.self) { path in
                 switch path {
                 case .settings:
                     SettingView(viewModel: SettingViewModel(
@@ -116,6 +116,8 @@ struct ProfileView: View {
                         todoId: todoId,
                         showEditButton: false
                     ))
+                case .theme, .pushNotification, .account:
+                    EmptyView()
                 }
             }
             .onAppear { viewModel.send(.onAppear) }
@@ -350,7 +352,7 @@ struct ProfileView: View {
                 ForEach(activities) { activity in
                     Button {
                         if !activity.isDeleted {
-                            router.push(Path.activity(activity.todoId))
+                            router.push(.activity(activity.todoId))
                         }
                     } label: {
                         let item = TodoCategoryItem(from: activity.category)
@@ -395,8 +397,12 @@ struct ProfileView: View {
         .padding(.top, 4)
     }
 
-    private enum Path: Hashable {
-        case settings
-        case activity(String)
-    }
+}
+
+enum ProfileRoute: Hashable {
+    case settings
+    case activity(String)
+    case theme
+    case pushNotification
+    case account
 }

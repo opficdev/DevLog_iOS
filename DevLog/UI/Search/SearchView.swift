@@ -10,7 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container: DIContainer
-    @State private var router = NavigationRouter()
+    @State private var router = NavigationRouter<Path>()
     @State var viewModel: SearchViewModel
 
     var body: some View {

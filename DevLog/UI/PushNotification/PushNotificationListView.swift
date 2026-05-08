@@ -8,124 +8,160 @@
 import SwiftUI
 
 struct PushNotificationListView: View {
-    @State private var router = NavigationRouter()
-    @State var viewModel: PushNotificationListViewModel
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.diContainer) private var container: DIContainer
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
+    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
+    @State var viewModel: PushNotificationListViewModel
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
-    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    @Binding var todoIdToPresent: TodoIdItem?
+    let isCompactLayout: Bool
 
     var body: some View {
-        NavigationStack(path: $router.path) {
-            notificationList
-            .listStyle(.plain)
+        NavigationStack {
+            notificationListContent
+        }
+        .listStyle(.sidebar)
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .alert(
+            "",
+            isPresented: Binding(
+                get: { viewModel.state.showAlert },
+                set: { viewModel.send(.setAlert(isPresented: $0)) }
+        )) {
+            Button(String(localized: "common_close"), role: .cancel) { }
+        } message: {
+            Text(viewModel.state.alertMessage)
+        }
+        .toast(
+            isPresented: Binding(
+                get: { viewModel.state.showToast },
+                set: { viewModel.send(.setToast(isPresented: $0)) }),
+            duration: 5,
+            action: { viewModel.send(.undoDelete) }
+        ) {
+            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+                .font(.caption)
+                .multilineTextAlignment(.center)
+                .lineLimit(3)
+        }
+        .sheet(item: Binding(
+            get: { isCompactLayout ? todoIdToPresent : nil },
+            set: { item in
+                if item == nil {
+                    selectNotification(nil)
+                }
+            }
+        )) { item in
+            NavigationStack {
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoId: item.id,
+                    showEditButton: false
+                ))
+                .id(item.id)
+                .toolbar {
+                    ToolbarLeadingButton {
+                        selectNotification(nil)
+                    }
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .presentationDragIndicator(.visible)
+        }
+        .overlay {
+            if viewModel.state.isLoading {
+                LoadingView()
+            }
+        }
+    }
+
+    private var notificationListContent: some View {
+        notificationList
             .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
             .onScrollOffsetChange { offset in
                 guard isScrollTrackingEnabled else { return }
                 headerOffset = max(0, -offset)
             }
             .safeAreaInset(edge: .top) { safeAreaHeader }
-            .background(Color(.secondarySystemBackground))
             .onAppear { viewModel.send(.fetchNotifications) }
             .refreshable { viewModel.send(.fetchNotifications) }
             .navigationTitle(String(localized: "nav_push_notifications"))
-            .alert(
-                "",
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert(isPresented: $0)) }
-            )) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(viewModel.state.alertMessage)
+    }
+
+    @ViewBuilder
+    private var notificationList: some View {
+        let notifications = viewModel.state.notifications.filter { !$0.isHidden }
+        if notifications.isEmpty {
+            HStack {
+                Spacer()
+                Text(String(localized: "push_notifications_empty"))
+                    .foregroundStyle(Color.gray)
+                Spacer()
             }
-            .toast(
-                isPresented: Binding(
-                    get: { viewModel.state.showToast },
-                    set: { viewModel.send(.setToast(isPresented: $0)) }),
-                duration: 5,
-                action: { viewModel.send(.undoDelete) }
-            ) {
-                Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(3)
-            }
-            .sheet(item: Binding(
-                get: { viewModel.state.selectedTodoId },
-                set: { viewModel.send(.setSelectedTodoId($0)) }
-            )) { item in
-                NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoId: item.id,
-                        showEditButton: false
-                    ))
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            viewModel.send(.setSelectedTodoId(nil))
-                        }
-                    }
-                }
-                .background(Color(.secondarySystemBackground))
-                .presentationDragIndicator(.visible)
-            }
-            .overlay {
-                if viewModel.state.isLoading {
-                    LoadingView()
-                }
+        } else {
+            List(
+                Array(zip(notifications.indices, notifications)),
+                id: \.1.id
+            ) { index, notification in
+                notificationListRow(notification, index: index, notifications: notifications)
+                .listRowInsets(EdgeInsets())
+                .listSectionSeparator(.hidden, edges: .top)
+                .listRowBackground(Color.clear)
             }
         }
     }
 
-    private var notificationList: some View {
-        let visibleNotifications = viewModel.state.notifications.filter { !$0.isHidden }
-        return List {
-            Group {
-                if visibleNotifications.isEmpty {
-                    HStack {
-                        Spacer()
-                        Text(String(localized: "push_notifications_empty"))
-                            .foregroundStyle(Color.gray)
-                        Spacer()
-                    }
-                    .listRowSeparator(.hidden)
-                } else {
-                    ForEach(
-                        Array(zip(visibleNotifications.indices, visibleNotifications)),
-                        id: \.1.id
-                    ) { index, notification in
-                        Button {
-                            viewModel.send(.tapNotification(notification))
-                        } label: {
-                            notificationRow(notification)
-                                .padding(.vertical, 8)
-                        }
-                        .buttonStyle(.plain)
-                        .onAppear {
-                            let lastId = visibleNotifications.last?.id
-                            if notification.id == lastId, viewModel.state.hasMore {
-                                viewModel.send(.loadNextPage)
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        .overlay(alignment: .top) {
-                            if #available(iOS 26.0, *) {
-                                if index == 0 {
-                                    Divider()
-                                        .padding(.horizontal, -16)
-                                }
-                            }
-                        }
-                    }
+    @ViewBuilder
+    private func notificationListRow(
+        _ notification: PushNotificationItem,
+        index: Int,
+        notifications: [PushNotificationItem]
+    ) -> some View {
+        if isCompactLayout {
+            Button {
+                selectNotification(notification.id)
+            } label: {
+                notificationRowContent(notification, index: index, notifications: notifications)
+            }
+            .buttonStyle(.plain)
+        } else {
+            notificationRowContent(notification, index: index, notifications: notifications)
+                .onTapGesture {
+                    selectNotification(notification.id)
+                }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction {
+                    selectNotification(notification.id)
+                }
+        }
+    }
+
+    private func notificationRowContent(
+        _ notification: PushNotificationItem,
+        index: Int,
+        notifications: [PushNotificationItem]
+    ) -> some View {
+        notificationRow(
+            notification,
+            isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
+        )
+        .onAppear {
+            let lastId = notifications.last?.id
+            if notification.id == lastId, viewModel.state.hasMore {
+                viewModel.send(.loadNextPage)
+            }
+        }
+        .overlay(alignment: .top) {
+            if #available(iOS 26.0, *) {
+                if index == 0 {
+                    Divider()
+                        .padding(.horizontal, -16)
                 }
             }
-            .listSectionSeparator(.hidden, edges: .top)
-            .listRowBackground(Color.clear)
         }
     }
 
@@ -260,7 +296,10 @@ struct PushNotificationListView: View {
     }
 
     // swiftlint:disable function_body_length
-    private func notificationRow(_ item: PushNotificationItem) -> some View {
+    private func notificationRow(
+        _ item: PushNotificationItem,
+        isSelected: Bool
+    ) -> some View {
         HStack {
             VStack {
                 let todoCategoryItem = TodoCategoryItem(from: item.todoCategory)
@@ -281,10 +320,11 @@ struct PushNotificationListView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(item.title)
                     .font(.headline)
+                    .foregroundStyle(isSelected ? Color.white : Color(.label))
                     .lineLimit(1)
                 Text(item.body)
                     .font(.subheadline)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(isSelected ? Color.white : .gray)
                     .lineLimit(1)
             }
             
@@ -293,11 +333,15 @@ struct PushNotificationListView: View {
             TimelineView(.periodic(from: .now, by: 1.0)) { context in
                 Text(timeAgoText(from: item.receivedAt, now: context.date))
                     .font(.caption2)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(isSelected ? Color.white : .gray)
             }
         }
-        .padding(.vertical, 5)
-        .contentShape(.rect)
+        .padding(8)
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .background {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isSelected ? Color.blue : .clear)
+        }
         .swipeActions(edge: .leading) {
             Button {
                 viewModel.send(.toggleRead(item))
@@ -346,5 +390,10 @@ struct PushNotificationListView: View {
                 Int64(days)
             )
         }
+    }
+
+    private func selectNotification(_ notificationId: String?) {
+        viewModel.send(.selectNotification(notificationId))
+        todoIdToPresent = viewModel.state.selectedTodoId
     }
 }
