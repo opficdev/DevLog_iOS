@@ -11,6 +11,8 @@ struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
     @State private var router = NavigationRouter()
     @State var viewModel: HomeViewModel
+    @Binding var homeDetailDestination: HomeDetailDestination?
+    let isCompactLayout: Bool
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
 
     var body: some View {
@@ -25,14 +27,31 @@ struct HomeView: View {
             .navigationDestination(for: Path.self) { path in
                 switch path {
                 case .category(let item):
-                    TodoListView(viewModel: TodoListViewModel(
-                        fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                        fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-                        undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-                        category: item.todoCategory
-                    ))
+                    TodoListView(
+                        viewModel: TodoListViewModel(
+                            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+                            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+                            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
+                            category: item.todoCategory
+                        ),
+                        todoIdToPresent: Binding(
+                            get: {
+                                if case .todo(let item) = homeDetailDestination {
+                                    item
+                                } else {
+                                    nil
+                                }
+                            },
+                            set: { item in
+                                if let item {
+                                    homeDetailDestination = .todo(item)
+                                }
+                            }
+                        ),
+                        isCompactLayout: isCompactLayout
+                    )
                     .environment(router)
                 case .detail(let todoId):
                     TodoDetailView(viewModel: TodoDetailViewModel(
@@ -168,13 +187,7 @@ struct HomeView: View {
             } else {
                 let preferences = viewModel.state.preferences
                 ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
-                    NavigationLink(value: Path.category(item)) {
-                        labelImage(
-                            text: item.localizedName,
-                            systemName: item.symbolName,
-                            imageColor: item.color
-                        )
-                    }
+                    todoCategoryRow(item)
                 }
             }
         }, header: {
@@ -209,9 +222,7 @@ struct HomeView: View {
                 }
             } else {
                 ForEach(viewModel.state.recentTodos, id: \.id) { todo in
-                    NavigationLink(value: Path.detail(todo.id)) {
-                        RecentTodoRow(todo: todo)
-                    }
+                    recentTodoRow(todo)
                 }
             }
         } header: {
@@ -290,9 +301,63 @@ struct HomeView: View {
         }
     }
 
+    @ViewBuilder
+    private func todoCategoryRow(_ item: TodoCategoryItem) -> some View {
+        if isCompactLayout {
+            NavigationLink(value: Path.category(item)) {
+                labelImage(
+                    text: item.localizedName,
+                    systemName: item.symbolName,
+                    imageColor: item.color
+                )
+            }
+        } else {
+            Button {
+                homeDetailDestination = .category(item)
+            } label: {
+                labelImage(
+                    text: item.localizedName,
+                    systemName: item.symbolName,
+                    imageColor: item.color
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func recentTodoRow(_ item: RecentTodoItem) -> some View {
+        if isCompactLayout {
+            NavigationLink(value: Path.detail(item.id)) {
+                RecentTodoRow(todo: item)
+            }
+        } else {
+            Button {
+                homeDetailDestination = .todo(TodoIdItem(id: item.id))
+            } label: {
+                RecentTodoRow(todo: item)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
     private func webResultRow(_ item: WebPageItem) -> some View {
-        NavigationLink(value: Path.web(item)) {
-            WebItemRow(item: item, showsChevron: false)
+        Group {
+            if isCompactLayout {
+                NavigationLink(value: Path.web(item)) {
+                    WebItemRow(item: item, showsChevron: false)
+                }
+            } else {
+                Button {
+                    homeDetailDestination = .webPage(item)
+                } label: {
+                    WebItemRow(item: item, showsChevron: false)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
@@ -381,6 +446,7 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.vertical, -6)
+        .contentShape(.rect)
     }
 
     private enum Path: Hashable {
@@ -388,6 +454,12 @@ struct HomeView: View {
         case detail(String)
         case web(WebPageItem)
     }
+}
+
+enum HomeDetailDestination: Hashable {
+    case category(TodoCategoryItem)
+    case todo(TodoIdItem)
+    case webPage(WebPageItem)
 }
 
 private struct RecentTodoRow: View {

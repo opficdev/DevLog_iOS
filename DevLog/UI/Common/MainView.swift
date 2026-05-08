@@ -11,6 +11,7 @@ struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
+    @State private var homeDetailDestination: HomeDetailDestination?
     @State private var todoIdToPresent: TodoIdItem?
     @Binding var selectedTab: MainTab
 
@@ -102,7 +103,7 @@ struct MainView: View {
                 } content: {
                     homeView
                 } detail: {
-                    EmptyView()
+                    homeDetailView
                 }
             case .today:
                 NavigationSplitView {
@@ -198,7 +199,15 @@ struct MainView: View {
     }
 
     private var homeView: some View {
-        HomeView(viewModel: HomeViewModel(
+        HomeView(
+            viewModel: makeHomeViewModel(),
+            homeDetailDestination: $homeDetailDestination,
+            isCompactLayout: isCompactLayout
+        )
+    }
+
+    private func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(
             fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
             updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
             addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
@@ -208,7 +217,67 @@ struct MainView: View {
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
             fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
             networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
-        ))
+        )
+    }
+
+    @ViewBuilder
+    private var homeDetailView: some View {
+        Group {
+            switch homeDetailDestination {
+            case .category(let item):
+                TodoListView(
+                    viewModel: TodoListViewModel(
+                        fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+                        fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+                        undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
+                        category: item.todoCategory
+                    ),
+                    todoIdToPresent: Binding(
+                        get: {
+                            if case .todo(let item) = homeDetailDestination {
+                                item
+                            } else {
+                                nil
+                            }
+                        },
+                        set: { item in
+                            if let item {
+                                homeDetailDestination = .todo(item)
+                            }
+                        }
+                    ),
+                    isCompactLayout: false
+                )
+                .id(item.id)
+            case .todo(let item):
+                TodoDetailView(viewModel: TodoDetailViewModel(
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+                    todoId: item.id
+                ))
+                .id(item.id)
+            case .webPage(let item):
+                WebView(url: item.url)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .ignoresSafeArea()
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Text(item.title)
+                                .bold()
+                        }
+                    }
+            case .none:
+                ContentUnavailableView(
+                    String(localized: "home_select_detail"),
+                    systemImage: "house"
+                )
+                .background(Color(.secondarySystemBackground))
+            }
+        }
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
     }
 
     private var todayView: some View {
