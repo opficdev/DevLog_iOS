@@ -142,7 +142,6 @@ struct MainView: View {
                                 String(localized: "push_notifications_select_detail"),
                                 systemImage: "bell.badge"
                             )
-                            .background(Color(.secondarySystemBackground))
                         }
                     }
                     .background(Color(.secondarySystemBackground).ignoresSafeArea())
@@ -257,7 +256,6 @@ struct MainView: View {
                         String(localized: "home_select_detail"),
                         systemImage: "house"
                     )
-                    .background(Color(.secondarySystemBackground))
                 }
             }
             .navigationDestination(for: HomeRoute.self) { homeRoute in
@@ -364,7 +362,6 @@ struct MainView: View {
                         String(localized: "today_select_detail"),
                         systemImage: "sun.max"
                     )
-                    .background(Color(.secondarySystemBackground))
                 }
             }
             .navigationDestination(for: TodayRoute.self) { todayRoute in
