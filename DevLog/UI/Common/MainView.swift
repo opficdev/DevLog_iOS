@@ -11,8 +11,8 @@ struct MainView: View {
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State var viewModel: MainViewModel
-    @State private var homeNavigationState = HomeNavigationState()
-    @State private var todayNavigationState = TodayNavigationState()
+    @State private var homeNavigationRouter = NavigationRouter<HomeRoute>()
+    @State private var todayNavigationRouter = NavigationRouter<TodayRoute>()
     @State private var todoIdToPresent: TodoIdItem?
     @Binding var selectedTab: MainTab
 
@@ -106,7 +106,7 @@ struct MainView: View {
                 } detail: {
                     homeRegularDetailView
                 }
-                .environment(homeNavigationState)
+                .environment(homeNavigationRouter)
             case .today:
                 NavigationSplitView {
                     mainSidebar
@@ -115,7 +115,7 @@ struct MainView: View {
                 } detail: {
                     todayRegularDetailView
                 }
-                .environment(todayNavigationState)
+                .environment(todayNavigationRouter)
             case .notification:
                 let viewModel = makePushNotificationListViewModel()
                 NavigationSplitView {
@@ -205,7 +205,7 @@ struct MainView: View {
     private var homeView: some View {
         Group {
             if isCompactLayout {
-                NavigationStack(path: $homeNavigationState.path) {
+                NavigationStack(path: $homeNavigationRouter.path) {
                     homeContentView
                         .navigationDestination(for: HomeRoute.self) { homeRoute in
                             homeDestinationView(homeRoute)
@@ -215,7 +215,7 @@ struct MainView: View {
                 homeContentView
             }
         }
-        .environment(homeNavigationState)
+        .environment(homeNavigationRouter)
     }
 
     private var homeContentView: some View {
@@ -241,8 +241,8 @@ struct MainView: View {
 
     private var homeDetailPath: Binding<[HomeRoute]> {
         Binding(
-            get: { homeNavigationState.detailPath },
-            set: { homeNavigationState.detailPath = $0 }
+            get: { homeNavigationRouter.detailPath },
+            set: { homeNavigationRouter.detailPath = $0 }
         )
     }
 
@@ -250,7 +250,7 @@ struct MainView: View {
     private var homeRegularDetailView: some View {
         NavigationStack(path: homeDetailPath) {
             Group {
-                if let homeRoute = homeNavigationState.root {
+                if let homeRoute = homeNavigationRouter.root {
                     homeDestinationView(homeRoute)
                 } else {
                     ContentUnavailableView(
@@ -316,7 +316,7 @@ struct MainView: View {
     private var todayView: some View {
         Group {
             if isCompactLayout {
-                NavigationStack(path: $todayNavigationState.path) {
+                NavigationStack(path: $todayNavigationRouter.path) {
                     todayContentView
                         .navigationDestination(for: TodayRoute.self) { todayRoute in
                             todayDestinationView(todayRoute)
@@ -326,7 +326,7 @@ struct MainView: View {
                 todayContentView
             }
         }
-        .environment(todayNavigationState)
+        .environment(todayNavigationRouter)
     }
 
     private var todayContentView: some View {
@@ -348,8 +348,8 @@ struct MainView: View {
 
     private var todayDetailPath: Binding<[TodayRoute]> {
         Binding(
-            get: { todayNavigationState.detailPath },
-            set: { todayNavigationState.detailPath = $0 }
+            get: { todayNavigationRouter.detailPath },
+            set: { todayNavigationRouter.detailPath = $0 }
         )
     }
 
@@ -357,7 +357,7 @@ struct MainView: View {
     private var todayRegularDetailView: some View {
         NavigationStack(path: todayDetailPath) {
             Group {
-                if let todayRoute = todayNavigationState.root {
+                if let todayRoute = todayNavigationRouter.root {
                     todayDestinationView(todayRoute)
                 } else {
                     ContentUnavailableView(

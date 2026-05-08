@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.diContainer) var container: any DIContainer
-    @Environment(HomeNavigationState.self) var homeNavigationState
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
     @State var viewModel: HomeViewModel
     let isCompactLayout: Bool
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
@@ -261,7 +261,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                homeNavigationState.show(.category(item))
+                router.show(.category(item))
             } label: {
                 labelImage(
                     text: item.localizedName,
@@ -281,7 +281,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                homeNavigationState.show(.todo(TodoIdItem(id: item.id)))
+                router.show(.todo(TodoIdItem(id: item.id)))
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -299,7 +299,7 @@ struct HomeView: View {
                 }
             } else {
                 Button {
-                    homeNavigationState.show(.webPage(item))
+                    router.show(.webPage(item))
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -397,36 +397,6 @@ struct HomeView: View {
         .contentShape(.rect)
     }
 
-}
-
-@Observable
-final class HomeNavigationState {
-    var path: [HomeRoute] = []
-
-    var root: HomeRoute? {
-        path.first
-    }
-
-    var detailPath: [HomeRoute] {
-        get {
-            Array(path.dropFirst())
-        }
-        set {
-            if let homeRoute = root {
-                path = [homeRoute] + newValue
-            } else {
-                path = newValue
-            }
-        }
-    }
-
-    func show(_ homeRoute: HomeRoute) {
-        path = [homeRoute]
-    }
-
-    func push(_ homeRoute: HomeRoute) {
-        path.append(homeRoute)
-    }
 }
 
 enum HomeRoute: Hashable {

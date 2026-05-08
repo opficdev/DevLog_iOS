@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodoListView: View {
-    @Environment(HomeNavigationState.self) private var homeNavigationState
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
@@ -409,6 +409,6 @@ struct TodoListView: View {
     }
 
     private func selectTodo(_ todoId: String) {
-        homeNavigationState.push(.todo(TodoIdItem(id: todoId)))
+        router.push(.todo(TodoIdItem(id: todoId)))
     }
 }

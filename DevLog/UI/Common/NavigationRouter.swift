@@ -8,12 +8,31 @@
 import SwiftUI
 
 @Observable
-final class NavigationRouter {
-    var path = NavigationPath()
+final class NavigationRouter<Route: Hashable> {
+    var path: [Route] = []
 
-    func push(_ element: any Hashable) {
-        Task { @MainActor in
-            path.append(element)
+    var root: Route? {
+        path.first
+    }
+
+    var detailPath: [Route] {
+        get {
+            Array(path.dropFirst())
         }
+        set {
+            if let route = root {
+                path = [route] + newValue
+            } else {
+                path = newValue
+            }
+        }
+    }
+
+    func show(_ route: Route) {
+        path = [route]
+    }
+
+    func push(_ route: Route) {
+        path.append(route)
     }
 }

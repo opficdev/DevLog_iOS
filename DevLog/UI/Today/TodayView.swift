@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TodayView: View {
-    @Environment(TodayNavigationState.self) private var todayNavigationState
+    @Environment(NavigationRouter<TodayRoute>.self) private var router
     @State var viewModel: TodayViewModel
     let isCompactLayout: Bool
 
@@ -166,7 +166,7 @@ struct TodayView: View {
             }
         } else {
             Button {
-                todayNavigationState.show(.todo(TodoIdItem(id: item.id)))
+                router.show(.todo(TodoIdItem(id: item.id)))
             } label: {
                 TodayTodoRow(item: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -210,36 +210,6 @@ struct TodayView: View {
     private struct EmptyStateContent {
         let title: String
         let message: String
-    }
-}
-
-@Observable
-final class TodayNavigationState {
-    var path: [TodayRoute] = []
-
-    var root: TodayRoute? {
-        path.first
-    }
-
-    var detailPath: [TodayRoute] {
-        get {
-            Array(path.dropFirst())
-        }
-        set {
-            if let todayRoute = root {
-                path = [todayRoute] + newValue
-            } else {
-                path = newValue
-            }
-        }
-    }
-
-    func show(_ todayRoute: TodayRoute) {
-        path = [todayRoute]
-    }
-
-    func push(_ todayRoute: TodayRoute) {
-        path.append(todayRoute)
     }
 }
 

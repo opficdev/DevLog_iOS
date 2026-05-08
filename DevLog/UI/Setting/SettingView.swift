@@ -9,15 +9,15 @@ import SwiftUI
 
 struct SettingView: View {
     @Environment(\.diContainer) var container: DIContainer
+    @Environment(NavigationRouter<ProfileRoute>.self) private var router
     @State var viewModel: SettingViewModel
-    @Environment(NavigationRouter.self) var router
 
     var body: some View {
         let connected = viewModel.state.isNetworkConnected
         Form {
             Section {
                 Button {
-                    router.push(Path.theme)
+                    router.push(.theme)
                 } label: {
                     HStack {
                         Text(String(localized: "settings_theme"))
@@ -29,7 +29,7 @@ struct SettingView: View {
                 }
 
                 Button {
-                    router.push(Path.pushNotification)
+                    router.push(.pushNotification)
                 } label: {
                     Text(String(localized: "settings_notifications"))
                         .foregroundStyle(connected ? Color.primary : Color.secondary)
@@ -83,7 +83,7 @@ struct SettingView: View {
             
             Section {
                 Button {
-                    router.push(Path.account)
+                    router.push(.account)
                 } label: {
                     Text(String(localized: "settings_account"))
                 }
@@ -110,7 +110,7 @@ struct SettingView: View {
         }
         .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: Path.self) { path in
+        .navigationDestination(for: ProfileRoute.self) { path in
             switch path {
             case .theme:
                 ThemeView(
@@ -134,6 +134,8 @@ struct SettingView: View {
                         unlinkProviderUseCase: container.resolve(UnlinkAuthProviderUseCase.self)
                     )
                 )
+            case .settings, .activity:
+                EmptyView()
             }
         }
         .alert(
@@ -154,10 +156,6 @@ struct SettingView: View {
         .onAppear {
             viewModel.send(.updateDirSize)
         }
-    }
-
-    private enum Path: Hashable {
-        case theme, pushNotification, account
     }
 
     @ViewBuilder
