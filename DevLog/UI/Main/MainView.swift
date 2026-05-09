@@ -113,13 +113,12 @@ struct MainView: View {
                 } detail: {
                     Group {
                         if let todoId = coordinator.todoIdToPresent?.id {
-                            TodoDetailView(viewModel: TodoDetailViewModel(
-                                fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                                fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                                upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                                todoId: todoId,
-                                showEditButton: false
-                            ))
+                            TodoDetailView(
+                                viewModel: makeTodoDetailViewModel(
+                                    todoId: todoId,
+                                    showEditButton: false
+                                )
+                            )
                             .id(todoId)
                         } else {
                             ContentUnavailableView(
@@ -388,12 +387,16 @@ private extension MainView {
         )
     }
 
-    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
+    func makeTodoDetailViewModel(
+        todoId: String,
+        showEditButton: Bool = true
+    ) -> TodoDetailViewModel {
         TodoDetailViewModel(
             fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
             upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-            todoId: todoId
+            todoId: todoId,
+            showEditButton: showEditButton
         )
     }
 }
