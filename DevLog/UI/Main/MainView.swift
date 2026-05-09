@@ -23,26 +23,23 @@ struct MainView: View {
     }
 
     var body: some View {
-        content
-            .onAppear {
-                coordinator.mainViewModel.send(.onAppear)
+        Group {
+            if isCompactLayout {
+                tabView
+            } else {
+                sidebarView
             }
-            .alert(
-                coordinator.mainViewModel.state.alertTitle,
-                isPresented: mainAlertPresented
-            ) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(coordinator.mainViewModel.state.alertMessage)
-            }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if isCompactLayout {
-            tabView
-        } else {
-            sidebarView
+        }
+        .onAppear {
+            coordinator.mainViewModel.send(.onAppear)
+        }
+        .alert(
+            coordinator.mainViewModel.state.alertTitle,
+            isPresented: mainAlertPresented
+        ) {
+            Button(String(localized: "common_close"), role: .cancel) { }
+        } message: {
+            Text(coordinator.mainViewModel.state.alertMessage)
         }
     }
 
