@@ -19,9 +19,7 @@ struct RootView: View {
             if let signIn = viewModel.state.signIn {
                 if signIn {
                     MainView(
-                        viewModel: MainViewModel(
-                            unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
-                        ),
+                        container: container,
                         selectedTab: $selectedMainTab
                     )
                 } else {
