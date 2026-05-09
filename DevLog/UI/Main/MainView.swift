@@ -8,29 +8,32 @@
 import SwiftUI
 
 struct MainView: View {
-    @Environment(\.diContainer) var container: DIContainer
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State var viewModel: MainViewModel
-    @State private var homeNavigationRouter = NavigationRouter<HomeRoute>()
-    @State private var todayNavigationRouter = NavigationRouter<TodayRoute>()
-    @State private var todoIdToPresent: TodoIdItem?
+    @State private var coordinator: MainViewCoordinator
     @Binding var selectedTab: MainTab
+    private let container: DIContainer
+
+    init(
+        container: DIContainer,
+        selectedTab: Binding<MainTab>
+    ) {
+        self.container = container
+        self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        self._selectedTab = selectedTab
+    }
 
     var body: some View {
         content
             .onAppear {
-                viewModel.send(.onAppear)
+                coordinator.mainViewModel.send(.onAppear)
             }
             .alert(
-                viewModel.state.alertTitle,
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert($0)) }
-                )
+                coordinator.mainViewModel.state.alertTitle,
+                isPresented: mainAlertPresented
             ) {
                 Button(String(localized: "common_close"), role: .cancel) { }
             } message: {
-                Text(viewModel.state.alertMessage)
+                Text(coordinator.mainViewModel.state.alertMessage)
             }
     }
 
@@ -41,21 +44,6 @@ struct MainView: View {
         } else {
             sidebarView
         }
-    }
-
-    private var isCompactLayout: Bool {
-        horizontalSizeClass == .compact
-    }
-
-    private var sidebarSelection: Binding<MainTab?> {
-        Binding(
-            get: { selectedTab },
-            set: { tab in
-                if let tab {
-                    selectedTab = tab
-                }
-            }
-        )
     }
 
     private var tabView: some View {
@@ -76,7 +64,7 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.notification)
                 }
-                .badge(viewModel.state.unreadPushCount)
+                .badge(coordinator.mainViewModel.state.unreadPushCount)
                 .tag(MainTab.notification)
 
             profileView
@@ -106,7 +94,7 @@ struct MainView: View {
                 } detail: {
                     homeRegularDetailView
                 }
-                .environment(homeNavigationRouter)
+                .environment(coordinator.homeNavigationRouter)
             case .today:
                 NavigationSplitView {
                     mainSidebar
@@ -115,20 +103,19 @@ struct MainView: View {
                 } detail: {
                     todayRegularDetailView
                 }
-                .environment(todayNavigationRouter)
+                .environment(coordinator.todayNavigationRouter)
             case .notification:
-                let viewModel = makePushNotificationListViewModel()
                 NavigationSplitView {
                     mainSidebar
                 } content: {
                     PushNotificationListView(
-                        viewModel: viewModel,
-                        todoIdToPresent: $todoIdToPresent,
+                        viewModel: coordinator.pushNotificationListViewModel,
+                        todoIdToPresent: todoIdToPresent,
                         isCompactLayout: isCompactLayout
                     )
                 } detail: {
                     Group {
-                        if let todoId = todoIdToPresent?.id {
+                        if let todoId = coordinator.todoIdToPresent?.id {
                             TodoDetailView(viewModel: TodoDetailViewModel(
                                 fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                                 fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
@@ -184,7 +171,7 @@ struct MainView: View {
     private func sidebarRow(_ tab: MainTab) -> some View {
         if tab == .notification {
             tabLabel(tab)
-                .badge(viewModel.state.unreadPushCount)
+                .badge(coordinator.mainViewModel.state.unreadPushCount)
                 .tag(tab)
         } else {
             tabLabel(tab)
@@ -204,7 +191,7 @@ struct MainView: View {
     private var homeView: some View {
         Group {
             if isCompactLayout {
-                NavigationStack(path: $homeNavigationRouter.path) {
+                NavigationStack(path: homeNavigationPath) {
                     homeContentView
                         .navigationDestination(for: HomeRoute.self) { homeRoute in
                             homeDestinationView(homeRoute)
@@ -214,34 +201,13 @@ struct MainView: View {
                 homeContentView
             }
         }
-        .environment(homeNavigationRouter)
+        .environment(coordinator.homeNavigationRouter)
     }
 
     private var homeContentView: some View {
         HomeView(
-            viewModel: makeHomeViewModel(),
+            viewModel: coordinator.homeViewModel,
             isCompactLayout: isCompactLayout
-        )
-    }
-
-    private func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(
-            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
-            addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
-            deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
-            undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
-        )
-    }
-
-    private var homeDetailPath: Binding<[HomeRoute]> {
-        Binding(
-            get: { homeNavigationRouter.detailPath },
-            set: { homeNavigationRouter.detailPath = $0 }
         )
     }
 
@@ -249,7 +215,7 @@ struct MainView: View {
     private var homeRegularDetailView: some View {
         NavigationStack(path: homeDetailPath) {
             Group {
-                if let homeRoute = homeNavigationRouter.root {
+                if let homeRoute = coordinator.homeNavigationRouter.root {
                     homeDestinationView(homeRoute)
                 } else {
                     ContentUnavailableView(
@@ -286,35 +252,15 @@ struct MainView: View {
                         Text(item.title)
                             .bold()
                     }
-                }
+            }
         }
-    }
-
-    private func makeTodoListViewModel(category: TodoCategory) -> TodoListViewModel {
-        TodoListViewModel(
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-            category: category
-        )
-    }
-
-    private func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
-        TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-            todoId: todoId
-        )
     }
 
     @ViewBuilder
     private var todayView: some View {
         Group {
             if isCompactLayout {
-                NavigationStack(path: $todayNavigationRouter.path) {
+                NavigationStack(path: todayNavigationPath) {
                     todayContentView
                         .navigationDestination(for: TodayRoute.self) { todayRoute in
                             todayDestinationView(todayRoute)
@@ -324,30 +270,13 @@ struct MainView: View {
                 todayContentView
             }
         }
-        .environment(todayNavigationRouter)
+        .environment(coordinator.todayNavigationRouter)
     }
 
     private var todayContentView: some View {
         TodayView(
-            viewModel: makeTodayViewModel(),
+            viewModel: coordinator.todayViewModel,
             isCompactLayout: isCompactLayout
-        )
-    }
-
-    private func makeTodayViewModel() -> TodayViewModel {
-        TodayViewModel(
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
-            updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
-        )
-    }
-
-    private var todayDetailPath: Binding<[TodayRoute]> {
-        Binding(
-            get: { todayNavigationRouter.detailPath },
-            set: { todayNavigationRouter.detailPath = $0 }
         )
     }
 
@@ -355,7 +284,7 @@ struct MainView: View {
     private var todayRegularDetailView: some View {
         NavigationStack(path: todayDetailPath) {
             Group {
-                if let todayRoute = todayNavigationRouter.root {
+                if let todayRoute = coordinator.todayNavigationRouter.root {
                     todayDestinationView(todayRoute)
                 } else {
                     ContentUnavailableView(
@@ -382,32 +311,93 @@ struct MainView: View {
 
     private var notificationView: some View {
         PushNotificationListView(
-            viewModel: makePushNotificationListViewModel(),
-            todoIdToPresent: $todoIdToPresent,
+            viewModel: coordinator.pushNotificationListViewModel,
+            todoIdToPresent: todoIdToPresent,
             isCompactLayout: isCompactLayout
         )
     }
 
-    private func makePushNotificationListViewModel() -> PushNotificationListViewModel {
-        PushNotificationListViewModel(
-            fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
-            deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
-            undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
-            toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
-            fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
-            updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
+    private var profileView: some View {
+        ProfileView(viewModel: coordinator.profileViewModel)
+    }
+}
+
+private extension MainView {
+    var isCompactLayout: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    var mainAlertPresented: Binding<Bool> {
+        Binding(
+            get: { coordinator.mainViewModel.state.showAlert },
+            set: { coordinator.mainViewModel.send(.setAlert($0)) }
         )
     }
 
-    private var profileView: some View {
-        ProfileView(viewModel: ProfileViewModel(
-            fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
+    var sidebarSelection: Binding<MainTab?> {
+        Binding(
+            get: { selectedTab },
+            set: { tab in
+                if let tab {
+                    selectedTab = tab
+                }
+            }
+        )
+    }
+
+    var todoIdToPresent: Binding<TodoIdItem?> {
+        Binding(
+            get: { coordinator.todoIdToPresent },
+            set: { coordinator.todoIdToPresent = $0 }
+        )
+    }
+
+    var homeNavigationPath: Binding<[HomeRoute]> {
+        Binding(
+            get: { coordinator.homeNavigationRouter.path },
+            set: { coordinator.homeNavigationRouter.path = $0 }
+        )
+    }
+
+    var homeDetailPath: Binding<[HomeRoute]> {
+        Binding(
+            get: { coordinator.homeNavigationRouter.detailPath },
+            set: { coordinator.homeNavigationRouter.detailPath = $0 }
+        )
+    }
+
+    var todayNavigationPath: Binding<[TodayRoute]> {
+        Binding(
+            get: { coordinator.todayNavigationRouter.path },
+            set: { coordinator.todayNavigationRouter.path = $0 }
+        )
+    }
+
+    var todayDetailPath: Binding<[TodayRoute]> {
+        Binding(
+            get: { coordinator.todayNavigationRouter.detailPath },
+            set: { coordinator.todayNavigationRouter.detailPath = $0 }
+        )
+    }
+
+    func makeTodoListViewModel(category: TodoCategory) -> TodoListViewModel {
+        TodoListViewModel(
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-            fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
-            updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
-        ))
+            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
+            category: category
+        )
+    }
+
+    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
+        TodoDetailViewModel(
+            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
+            todoId: todoId
+        )
     }
 }
 
