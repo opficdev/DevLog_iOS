@@ -13,13 +13,11 @@ struct MainView: View {
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @Binding var selectedTab: MainTab
-    private let container: DIContainer
 
     init(
         container: DIContainer,
         selectedTab: Binding<MainTab>
     ) {
-        self.container = container
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
@@ -117,7 +115,7 @@ struct MainView: View {
                     Group {
                         if let todoId = coordinator.todoIdToPresent?.id {
                             TodoDetailView(
-                                viewModel: makeTodoDetailViewModel(
+                                viewModel: coordinator.todoDetailViewModel(
                                     todoId: todoId,
                                     showEditButton: false
                                 )
@@ -235,11 +233,11 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                viewModel: makeTodoListViewModel(category: item.todoCategory)
+                viewModel: coordinator.todoListViewModel(category: item.todoCategory)
             )
             .id(item.id)
         case .todo(let item):
-            TodoDetailView(viewModel: makeTodoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
             .id(item.id)
         case .webPage(let item):
             WebView(url: item.url)
@@ -302,7 +300,7 @@ struct MainView: View {
     private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
         switch todayRoute {
         case .todo(let item):
-            TodoDetailView(viewModel: makeTodoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
                 .id(item.id)
         }
     }
@@ -378,29 +376,6 @@ private extension MainView {
         )
     }
 
-    func makeTodoListViewModel(category: TodoCategory) -> TodoListViewModel {
-        TodoListViewModel(
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-            category: category
-        )
-    }
-
-    func makeTodoDetailViewModel(
-        todoId: String,
-        showEditButton: Bool = true
-    ) -> TodoDetailViewModel {
-        TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-            todoId: todoId,
-            showEditButton: showEditButton
-        )
-    }
 }
 
 private enum MainTabSplitStyle {
