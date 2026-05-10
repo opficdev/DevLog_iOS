@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct TodayView: View {
-    @Environment(NavigationRouter<TodayRoute>.self) private var router
-    @State var viewModel: TodayViewModel
+    let coordinator: TodayViewCoordinator
     let isCompactLayout: Bool
 
     var body: some View {
         List {
             summarySection
-            if viewModel.sections.isEmpty, !viewModel.state.isLoading {
+            if coordinator.viewModel.sections.isEmpty, !coordinator.viewModel.state.isLoading {
                 emptySection
             } else {
-                ForEach(viewModel.sections) { section in
+                ForEach(coordinator.viewModel.sections) { section in
                     todoSection(section.title, items: section.items)
                 }
             }
@@ -27,21 +26,21 @@ struct TodayView: View {
         .navigationTitle(String(localized: "nav_today"))
         .toolbar { toolbarContent }
         .background(NavigationBarConfigurator())
-        .refreshable { viewModel.send(.refresh) }
-        .onAppear { viewModel.send(.onAppear) }
+        .refreshable { coordinator.viewModel.send(.refresh) }
+        .onAppear { coordinator.viewModel.send(.onAppear) }
         .alert(
-            viewModel.state.alertTitle,
+            coordinator.viewModel.state.alertTitle,
             isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert($0)) }
+                get: { coordinator.viewModel.state.showAlert },
+                set: { coordinator.viewModel.send(.setAlert($0)) }
             )
         ) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
-            Text(viewModel.state.alertMessage)
+            Text(coordinator.viewModel.state.alertMessage)
         }
         .overlay {
-            if viewModel.state.isLoading {
+            if coordinator.viewModel.state.isLoading {
                 LoadingView()
             }
         }
@@ -54,14 +53,14 @@ struct TodayView: View {
                     ForEach(TodayViewModel.SectionScope.allCases, id: \.self) { scope in
                         Button {
                             withAnimation(.easeInOut) {
-                                viewModel.send(.setSectionScope(scope))
+                                coordinator.viewModel.send(.setSectionScope(scope))
                             }
                         } label: {
                             SummaryCard(
                                 title: scope.title,
-                                value: viewModel.summaryValue(for: scope),
+                                value: coordinator.viewModel.summaryValue(for: scope),
                                 accentColor: scope.accentColor,
-                                isSelected: viewModel.state.selectedSectionScope == scope
+                                isSelected: coordinator.viewModel.state.selectedSectionScope == scope
                             )
                         }
                         .buttonStyle(.plain)
@@ -81,8 +80,8 @@ struct TodayView: View {
                 Picker(
                     String(localized: "today_due_visibility_label"),
                     selection: Binding(
-                        get: { viewModel.state.displayOptions.dueDateVisibility },
-                        set: { viewModel.send(.setDueDateVisibility($0)) }
+                        get: { coordinator.viewModel.state.displayOptions.dueDateVisibility },
+                        set: { coordinator.viewModel.send(.setDueDateVisibility($0)) }
                     )
                 ) {
                     ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
@@ -93,20 +92,20 @@ struct TodayView: View {
                 Toggle(
                     String(localized: "today_pinned_only"),
                     isOn: Binding(
-                        get: { viewModel.state.displayOptions.focusVisibility == .focusedOnly },
+                        get: { coordinator.viewModel.state.displayOptions.focusVisibility == .focusedOnly },
                         set: {
-                            viewModel.send(.setFocusVisibility($0 ? .focusedOnly : .all))
+                            coordinator.viewModel.send(.setFocusVisibility($0 ? .focusedOnly : .all))
                         }
                     )
                 )
                 .tint(.orange)
 
-                if viewModel.state.displayOptions.focusVisibility == .focusedOnly {
+                if coordinator.viewModel.state.displayOptions.focusVisibility == .focusedOnly {
                     Text(String(localized: "today_pinned_only_description"))
                         .font(.caption)
                 }
             } label: {
-                let options = viewModel.state.displayOptions
+                let options = coordinator.viewModel.state.displayOptions
                 Image(systemName: "line.3.horizontal.decrease.circle\(options == .default ? "" : ".fill")")
             }
         }
@@ -135,7 +134,7 @@ struct TodayView: View {
                     todoRow(item)
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
-                            viewModel.send(.togglePinned(item))
+                            coordinator.viewModel.send(.togglePinned(item))
                         } label: {
                             Image(systemName: item.isPinned ? "star.slash" : "star.fill")
                         }
@@ -143,7 +142,7 @@ struct TodayView: View {
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {
-                            viewModel.send(.completeTodo(item))
+                            coordinator.viewModel.send(.completeTodo(item))
                         } label: {
                             Label(String(localized: "today_complete_action"), systemImage: "checkmark")
                         }
@@ -162,24 +161,23 @@ struct TodayView: View {
         if isCompactLayout {
             NavigationLink(value: TodayRoute.todo(TodoIdItem(id: item.id))) {
                 TodayTodoRow(item: item)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
         } else {
             Button {
-                router.replace(with: .todo(TodoIdItem(id: item.id)))
+                coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
             } label: {
                 TodayTodoRow(item: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .contentShape(.rect)
             }
             .buttonStyle(.plain)
         }
     }
 
     private var emptyStateContent: EmptyStateContent {
-        switch viewModel.state.selectedSectionScope {
+        switch coordinator.viewModel.state.selectedSectionScope {
         case .all:
-            if viewModel.state.todos.isEmpty {
+            if coordinator.viewModel.state.todos.isEmpty {
                 return EmptyStateContent(
                     title: String(localized: "today_empty_all_title"),
                     message: String(localized: "today_empty_all_message")
