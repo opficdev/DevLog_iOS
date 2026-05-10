@@ -13,7 +13,6 @@ final class TodoListViewModel: Store {
         var todos: [TodoListItem] = []
         var searchText: String = ""
         var searchResults: [TodoListItem] = []
-        let category: TodoCategory
         var showEditor: Bool = false
         var showAlert: Bool = false
         var alertTitle: String = ""
@@ -81,6 +80,7 @@ final class TodoListViewModel: Store {
         case request
     }
 
+    let category: TodoCategory
     private(set) var state: State
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
@@ -106,17 +106,13 @@ final class TodoListViewModel: Store {
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
         self.undoDeleteTodoUseCase = undoDeleteTodoUseCase
+        self.category = category
         self.state = State(
-            category: category,
             query: TodoQuery(category: category)
         )
     }
 
     let searchResultsLimit = 5
-
-    var category: TodoCategory {
-        state.category
-    }
 
     var appliedFilterCount: Int {
         var count = 0
@@ -195,7 +191,7 @@ final class TodoListViewModel: Store {
                             self.endLoading(.immediate)
                         }
                     }
-                    let query = TodoQuery(category: state.category, keyword: keyword)
+                    let query = TodoQuery(category: category, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
                     if Task.isCancelled { return }
                     send(.fetchSearchResults(page.items.compactMap { TodoListItem(from: $0) }))
@@ -311,7 +307,7 @@ private extension TodoListViewModel {
             self.nextCursor = nil
             return [.fetch]
         case .resetFilters:
-            state.query = TodoQuery(category: state.category)
+            state.query = TodoQuery(category: category)
             self.nextCursor = nil
             return [.fetch]
         case .setIsSearching(let value):
