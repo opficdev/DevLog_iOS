@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(NavigationRouter<HomeRoute>.self) private var router
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
@@ -251,7 +250,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                router.show(.category(item))
+                coordinator.router.show(.category(item))
             } label: {
                 labelImage(
                     text: item.localizedName,
@@ -271,7 +270,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                router.show(.todo(TodoIdItem(id: item.id)))
+                coordinator.router.show(.todo(TodoIdItem(id: item.id)))
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -289,7 +288,7 @@ struct HomeView: View {
                 }
             } else {
                 Button {
-                    router.show(.webPage(item))
+                    coordinator.router.show(.webPage(item))
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)
