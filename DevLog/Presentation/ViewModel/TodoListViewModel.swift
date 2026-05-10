@@ -114,6 +114,10 @@ final class TodoListViewModel: Store {
 
     let searchResultsLimit = 5
 
+    var category: TodoCategory {
+        state.category
+    }
+
     var appliedFilterCount: Int {
         var count = 0
         if state.query.sortTarget != .createdAt { count += 1 }

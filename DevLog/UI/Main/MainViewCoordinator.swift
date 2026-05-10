@@ -16,9 +16,9 @@ final class MainViewCoordinator {
     var todoIdToPresent: TodoIdItem?
     private let diContainer: DIContainer
     @ObservationIgnored
-    private var todoListViewModels = [TodoCategory: TodoListViewModel]()
+    private var todoListViewModel: TodoListViewModel?
     @ObservationIgnored
-    private var todoDetailViewModels = [TodoDetailViewModelKey: TodoDetailViewModel]()
+    private var todoDetailViewModel: TodoDetailViewModel?
 
     init(container: DIContainer) {
         self.diContainer = container
@@ -44,7 +44,8 @@ final class MainViewCoordinator {
     }
 
     func todoListViewModel(category: TodoCategory) -> TodoListViewModel {
-        if let todoListViewModel = todoListViewModels[category] {
+        if let todoListViewModel,
+           todoListViewModel.category == category {
             return todoListViewModel
         }
 
@@ -56,7 +57,7 @@ final class MainViewCoordinator {
             undoDeleteTodoUseCase: diContainer.resolve(UndoDeleteTodoUseCase.self),
             category: category
         )
-        todoListViewModels[category] = todoListViewModel
+        self.todoListViewModel = todoListViewModel
         return todoListViewModel
     }
 
@@ -64,11 +65,9 @@ final class MainViewCoordinator {
         todoId: String,
         showEditButton: Bool = true
     ) -> TodoDetailViewModel {
-        let todoDetailViewModelKey = TodoDetailViewModelKey(
-            todoId: todoId,
-            showEditButton: showEditButton
-        )
-        if let todoDetailViewModel = todoDetailViewModels[todoDetailViewModelKey] {
+        if let todoDetailViewModel,
+           todoDetailViewModel.todoId == todoId,
+           todoDetailViewModel.showEditButton == showEditButton {
             return todoDetailViewModel
         }
 
@@ -79,12 +78,7 @@ final class MainViewCoordinator {
             todoId: todoId,
             showEditButton: showEditButton
         )
-        todoDetailViewModels[todoDetailViewModelKey] = todoDetailViewModel
+        self.todoDetailViewModel = todoDetailViewModel
         return todoDetailViewModel
-    }
-
-    private struct TodoDetailViewModelKey: Hashable {
-        let todoId: String
-        let showEditButton: Bool
     }
 }
