@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(\.diContainer) var container: any DIContainer
     @Environment(NavigationRouter<HomeRoute>.self) private var router
-    @State var viewModel: HomeViewModel
-    let isCompactLayout: Bool
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    let coordinator: HomeViewCoordinator
+    let isCompactLayout: Bool
 
     var body: some View {
         List {
@@ -24,79 +23,70 @@ struct HomeView: View {
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
         .sheet(isPresented: Binding(
-            get: { viewModel.state.reorderTodo },
-            set: { viewModel.send(.setPresentation(.reorderTodo, $0)) }
+            get: { coordinator.viewModel.state.reorderTodo },
+            set: { coordinator.viewModel.send(.setPresentation(.reorderTodo, $0)) }
         )) {
             TodoManageView(
-                viewModel: TodoManageViewModel(viewModel.state.preferences),
+                viewModel: coordinator.makeTodoManageViewModel(),
                 onDismiss: { array in
-                    viewModel.send(.setPresentation(.reorderTodo, false))
+                    coordinator.viewModel.send(.setPresentation(.reorderTodo, false))
                     withAnimation {
-                        viewModel.send(.orderTodoCategory(array))
+                        coordinator.viewModel.send(.orderTodoCategory(array))
                     }
                 }
             )
         }
         .sheet(isPresented: Binding(
-            get: { viewModel.state.showContentPicker },
+            get: { coordinator.viewModel.state.showContentPicker },
             set: { _, _ in }
         )) {
             contentPicker
         }
         .fullScreenCover(isPresented: Binding(
-            get: { viewModel.state.showTodoEditor },
-            set: { viewModel.send(.setPresentation(.todoEditor, $0)) }
+            get: { coordinator.viewModel.state.showTodoEditor },
+            set: { coordinator.viewModel.send(.setPresentation(.todoEditor, $0)) }
         )) {
-            if let selectedCategory = viewModel.state.selectedTodoCategory {
+            if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        category: selectedCategory,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
-                    ),
-                    onSubmit: { viewModel.send(.addTodo($0)) }
+                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory),
+                    onSubmit: { coordinator.viewModel.send(.addTodo($0)) }
                 )
             }
         }
         .fullScreenCover(isPresented: Binding(
-            get: { viewModel.state.showSearchView },
-            set: { viewModel.send(.setPresentation(.searchView, $0)) }
+            get: { coordinator.viewModel.state.showSearchView },
+            set: { coordinator.viewModel.send(.setPresentation(.searchView, $0)) }
         )) {
-            SearchView(viewModel: SearchViewModel(
-                fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-                fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-                fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
-                updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
-            ))
+            SearchView(viewModel: coordinator.makeSearchViewModel())
         }
         .alert(
-            viewModel.state.alertTitle,
+            coordinator.viewModel.state.alertTitle,
             isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert(isPresented: $0)) }
+                get: { coordinator.viewModel.state.showAlert },
+                set: { coordinator.viewModel.send(.setAlert(isPresented: $0)) }
             )
         ) {
             alertButtons
         } message: {
-            Text(viewModel.state.alertMessage)
+            Text(coordinator.viewModel.state.alertMessage)
         }
         .toast(
             isPresented: Binding(
-                get: { viewModel.state.showToast },
-                set: { viewModel.send(.setToast(isPresented: $0)) }
+                get: { coordinator.viewModel.state.showToast },
+                set: { coordinator.viewModel.send(.setToast(isPresented: $0)) }
             ),
             duration: 5,
-            action: { viewModel.send(.undoDeleteWebPage) }
+            action: { coordinator.viewModel.send(.undoDeleteWebPage) }
         ) {
-            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
+            Label(coordinator.viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
                 .font(.caption)
                 .multilineTextAlignment(.center)
         }
         .onAppear {
-            viewModel.send(.onAppear)
+            coordinator.viewModel.send(.onAppear)
         }
         .overlay {
-            if viewModel.state.isAppending {
+            if coordinator.viewModel.state.isAppending {
                 LoadingView()
             }
         }
@@ -104,36 +94,36 @@ struct HomeView: View {
 
     @ViewBuilder
     private var alertButtons: some View {
-        switch viewModel.state.alertType {
+        switch coordinator.viewModel.state.alertType {
         case .webPageInput:
             TextField(
                 "https://",
                 text: Binding(
-                    get: { viewModel.state.webPageURLInput },
-                    set: { viewModel.send(.updateWebPageURLInput($0)) }
+                    get: { coordinator.viewModel.state.webPageURLInput },
+                    set: { coordinator.viewModel.send(.updateWebPageURLInput($0)) }
                 )
             )
             .textInputAutocapitalization(.never)
             .keyboardType(.URL)
             Button(String(localized: "home_add")) {
-                viewModel.send(.addWebPage)
+                coordinator.viewModel.send(.addWebPage)
             }
             Button(String(localized: "common_cancel"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
+                coordinator.viewModel.send(.setAlert(isPresented: false))
             }
         case .invalidURL, .error, .none:
             Button(String(localized: "common_close"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
+                coordinator.viewModel.send(.setAlert(isPresented: false))
             }
         }
     }
 
     private var todoSection: some View {
         Section(content: {
-            if viewModel.state.isPreferencesLoading {
+            if coordinator.viewModel.state.isPreferencesLoading {
                 LoadingView()
             } else {
-                let preferences = viewModel.state.preferences
+                let preferences = coordinator.viewModel.state.preferences
                 ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
                     todoCategoryRow(item)
                 }
@@ -146,7 +136,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    viewModel.send(.setPresentation(.reorderTodo, true))
+                    coordinator.viewModel.send(.setPresentation(.reorderTodo, true))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -159,9 +149,9 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if viewModel.state.isRecentTodosLoading {
+            if coordinator.viewModel.state.isRecentTodosLoading {
                 LoadingView()
-            } else if viewModel.state.recentTodos.isEmpty {
+            } else if coordinator.viewModel.state.recentTodos.isEmpty {
                 HStack {
                     Spacer()
                     Text(String(localized: "home_recent_empty"))
@@ -169,7 +159,7 @@ struct HomeView: View {
                     Spacer()
                 }
             } else {
-                ForEach(viewModel.state.recentTodos, id: \.id) { todo in
+                ForEach(coordinator.viewModel.state.recentTodos, id: \.id) { todo in
                     recentTodoRow(todo)
                 }
             }
@@ -186,13 +176,13 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            let webPages = viewModel.state.webPages.filter { !$0.isHidden }
-            if viewModel.state.isWebPageLoading {
+            let webPages = coordinator.viewModel.state.webPages.filter { !$0.isHidden }
+            if coordinator.viewModel.state.isWebPageLoading {
                 LoadingView()
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
-            } else if viewModel.state.needsWebPageRefresh {
+            } else if coordinator.viewModel.state.needsWebPageRefresh {
                 Button {
-                    viewModel.send(.refreshWebPages)
+                    coordinator.viewModel.send(.refreshWebPages)
                 } label: {
                     HStack {
                         Spacer()
@@ -231,18 +221,18 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setPresentation(.contentPicker, true))
+                coordinator.viewModel.send(.setPresentation(.contentPicker, true))
             } label: {
                 Image(systemName: "plus")
             }
-            .disabled(!viewModel.state.isNetworkConnected)
+            .disabled(!coordinator.viewModel.state.isNetworkConnected)
         }
         if #available(iOS 26.0, *) {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setPresentation(.searchView, true))
+                coordinator.viewModel.send(.setPresentation(.searchView, true))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -309,7 +299,7 @@ struct HomeView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                viewModel.send(.deleteWebPage(item))
+                coordinator.viewModel.send(.deleteWebPage(item))
             } label: {
                 Label(String(localized: "common_delete"), systemImage: "trash")
             }
@@ -320,14 +310,14 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
-                    if viewModel.state.isPreferencesLoading {
+                    if coordinator.viewModel.state.isPreferencesLoading {
                         LoadingView()
                     } else {
-                        let preferences = viewModel.state.preferences.filter(\.isVisible)
+                        let preferences = coordinator.viewModel.state.preferences.filter(\.isVisible)
                         ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
-                                    viewModel.send(.tapTodoCategory(item.category))
+                                    coordinator.viewModel.send(.tapTodoCategory(item.category))
                                 }
                             } label: {
                                 labelImage(
@@ -346,7 +336,7 @@ struct HomeView: View {
                 Section {
                     Button {
                         DispatchQueue.main.async {
-                            viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                            coordinator.viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
                         }
                     } label: {
                         labelImage(
@@ -365,7 +355,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        viewModel.send(.setPresentation(.contentPicker, false))
+                        coordinator.viewModel.send(.setPresentation(.contentPicker, false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()

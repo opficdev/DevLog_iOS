@@ -11,28 +11,15 @@ import Foundation
 @Observable
 final class MainViewCoordinator {
     let mainViewModel: MainViewModel
-    let homeViewModel: HomeViewModel
     let todayViewModel: TodayViewModel
     let pushNotificationListViewModel: PushNotificationListViewModel
     let profileViewModel: ProfileViewModel
-    let homeNavigationRouter = NavigationRouter<HomeRoute>()
     let todayNavigationRouter = NavigationRouter<TodayRoute>()
     var todoIdToPresent: TodoIdItem?
 
     init(container: DIContainer) {
         self.mainViewModel = MainViewModel(
             unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
-        )
-        self.homeViewModel = HomeViewModel(
-            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
-            addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
-            deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
-            undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
         )
         self.todayViewModel = TodayViewModel(
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
