@@ -166,7 +166,7 @@ struct TodayView: View {
             }
         } else {
             Button {
-                router.show(.todo(TodoIdItem(id: item.id)))
+                router.replace(with: .todo(TodoIdItem(id: item.id)))
             } label: {
                 TodayTodoRow(item: item)
                     .frame(maxWidth: .infinity, alignment: .leading)

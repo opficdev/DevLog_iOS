@@ -250,7 +250,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                coordinator.router.show(.category(item))
+                coordinator.router.replace(with: .category(item))
             } label: {
                 labelImage(
                     text: item.localizedName,
@@ -270,7 +270,7 @@ struct HomeView: View {
             }
         } else {
             Button {
-                coordinator.router.show(.todo(TodoIdItem(id: item.id)))
+                coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -288,7 +288,7 @@ struct HomeView: View {
                 }
             } else {
                 Button {
-                    coordinator.router.show(.webPage(item))
+                    coordinator.router.replace(with: .webPage(item))
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)

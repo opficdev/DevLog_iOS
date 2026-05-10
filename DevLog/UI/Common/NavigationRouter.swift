@@ -28,7 +28,7 @@ final class NavigationRouter<Route: Hashable> {
         }
     }
 
-    func show(_ route: Route) {
+    func replace(with route: Route) {
         path = [route]
     }
 
