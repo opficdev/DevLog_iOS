@@ -104,7 +104,6 @@ struct MainView: View {
                 } detail: {
                     todayRegularDetailView
                 }
-                .environment(todayViewCoordinator.router)
             case .notification:
                 NavigationSplitView {
                     mainSidebar
@@ -270,7 +269,6 @@ struct MainView: View {
                 todayContentView
             }
         }
-        .environment(todayViewCoordinator.router)
     }
 
     private var todayContentView: some View {
