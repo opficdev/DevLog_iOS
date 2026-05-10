@@ -11,6 +11,7 @@ struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var coordinator: MainViewCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
+    @State private var todayViewCoordinator: TodayViewCoordinator
     @Binding var selectedTab: MainTab
     private let container: DIContainer
 
@@ -21,6 +22,7 @@ struct MainView: View {
         self.container = container
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
+        self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
         self._selectedTab = selectedTab
     }
 
@@ -102,7 +104,7 @@ struct MainView: View {
                 } detail: {
                     todayRegularDetailView
                 }
-                .environment(coordinator.todayNavigationRouter)
+                .environment(todayViewCoordinator.router)
             case .notification:
                 NavigationSplitView {
                     mainSidebar
@@ -268,12 +270,12 @@ struct MainView: View {
                 todayContentView
             }
         }
-        .environment(coordinator.todayNavigationRouter)
+        .environment(todayViewCoordinator.router)
     }
 
     private var todayContentView: some View {
         TodayView(
-            viewModel: coordinator.todayViewModel,
+            coordinator: todayViewCoordinator,
             isCompactLayout: isCompactLayout
         )
     }
@@ -282,7 +284,7 @@ struct MainView: View {
     private var todayRegularDetailView: some View {
         NavigationStack(path: todayDetailPath) {
             Group {
-                if let todayRoute = coordinator.todayNavigationRouter.root {
+                if let todayRoute = todayViewCoordinator.router.root {
                     todayDestinationView(todayRoute)
                 } else {
                     ContentUnavailableView(
@@ -366,15 +368,15 @@ private extension MainView {
 
     var todayNavigationPath: Binding<[TodayRoute]> {
         Binding(
-            get: { coordinator.todayNavigationRouter.path },
-            set: { coordinator.todayNavigationRouter.path = $0 }
+            get: { todayViewCoordinator.router.path },
+            set: { todayViewCoordinator.router.path = $0 }
         )
     }
 
     var todayDetailPath: Binding<[TodayRoute]> {
         Binding(
-            get: { coordinator.todayNavigationRouter.detailPath },
-            set: { coordinator.todayNavigationRouter.detailPath = $0 }
+            get: { todayViewCoordinator.router.detailPath },
+            set: { todayViewCoordinator.router.detailPath = $0 }
         )
     }
 
