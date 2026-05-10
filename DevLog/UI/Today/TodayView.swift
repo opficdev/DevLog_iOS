@@ -161,7 +161,6 @@ struct TodayView: View {
         if isCompactLayout {
             NavigationLink(value: TodayRoute.todo(TodoIdItem(id: item.id))) {
                 TodayTodoRow(item: item)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
         } else {
             Button {
@@ -170,7 +169,6 @@ struct TodayView: View {
                 TodayTodoRow(item: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(.rect)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
             .buttonStyle(.plain)
         }
