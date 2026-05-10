@@ -40,11 +40,11 @@ final class TodoDetailViewModel: Store {
     }
 
     private(set) var state: State = .init()
+    let todoId: String
     let showEditButton: Bool
     private let fetchTodoUseCase: FetchTodoByIdUseCase
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let upsertUseCase: UpsertTodoUseCase
-    private let todoId: String
     private let loadingState = LoadingState()
 
     init(

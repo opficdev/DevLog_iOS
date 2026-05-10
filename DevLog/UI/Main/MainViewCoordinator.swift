@@ -14,8 +14,14 @@ final class MainViewCoordinator {
     let pushNotificationListViewModel: PushNotificationListViewModel
     let profileViewModel: ProfileViewModel
     var todoIdToPresent: TodoIdItem?
+    private let diContainer: DIContainer
+    @ObservationIgnored
+    private var todoListViewModel: TodoListViewModel?
+    @ObservationIgnored
+    private var todoDetailViewModel: TodoDetailViewModel?
 
     init(container: DIContainer) {
+        self.diContainer = container
         self.mainViewModel = MainViewModel(
             unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
         )
@@ -35,5 +41,44 @@ final class MainViewCoordinator {
             fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
             updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
         )
+    }
+
+    func todoListViewModel(category: TodoCategory) -> TodoListViewModel {
+        if let todoListViewModel,
+           todoListViewModel.category == category {
+            return todoListViewModel
+        }
+
+        let todoListViewModel = TodoListViewModel(
+            fetchTodosUseCase: diContainer.resolve(FetchTodosUseCase.self),
+            fetchTodoByIdUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
+            upsertTodoUseCase: diContainer.resolve(UpsertTodoUseCase.self),
+            deleteTodoUseCase: diContainer.resolve(DeleteTodoUseCase.self),
+            undoDeleteTodoUseCase: diContainer.resolve(UndoDeleteTodoUseCase.self),
+            category: category
+        )
+        self.todoListViewModel = todoListViewModel
+        return todoListViewModel
+    }
+
+    func todoDetailViewModel(
+        todoId: String,
+        showEditButton: Bool = true
+    ) -> TodoDetailViewModel {
+        if let todoDetailViewModel,
+           todoDetailViewModel.todoId == todoId,
+           todoDetailViewModel.showEditButton == showEditButton {
+            return todoDetailViewModel
+        }
+
+        let todoDetailViewModel = TodoDetailViewModel(
+            fetchTodoUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
+            upsertUseCase: diContainer.resolve(UpsertTodoUseCase.self),
+            todoId: todoId,
+            showEditButton: showEditButton
+        )
+        self.todoDetailViewModel = todoDetailViewModel
+        return todoDetailViewModel
     }
 }

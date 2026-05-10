@@ -45,7 +45,7 @@ struct TodoListView: View {
                     prompt: Text(
                         String.localizedStringWithFormat(
                             String(localized: "todo_list_search_prompt_format"),
-                            TodoCategoryItem(from: viewModel.state.category).localizedName
+                            TodoCategoryItem(from: viewModel.category).localizedName
                         )
                     )
                 )
@@ -71,14 +71,14 @@ struct TodoListView: View {
         ) {
             Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
         }
-        .navigationTitle(TodoCategoryItem(from: viewModel.state.category).localizedName)
+        .navigationTitle(TodoCategoryItem(from: viewModel.category).localizedName)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },
             set: { viewModel.send(.setShowEditor($0)) }
         )) {
             TodoEditorView(
                 viewModel: TodoEditorViewModel(
-                    category: viewModel.state.category,
+                    category: viewModel.category,
                     fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                     fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
                 ),
@@ -222,7 +222,7 @@ struct TodoListView: View {
                 prompt: Text(
                     String.localizedStringWithFormat(
                         String(localized: "todo_list_search_prompt_format"),
-                        TodoCategoryItem(from: viewModel.state.category).localizedName
+                        TodoCategoryItem(from: viewModel.category).localizedName
                     )
                 )
             )
@@ -240,7 +240,7 @@ struct TodoListView: View {
             Text(
                 String.localizedStringWithFormat(
                     String(localized: "todo_list_search_instruction_format"),
-                    TodoCategoryItem(from: viewModel.state.category).localizedName
+                    TodoCategoryItem(from: viewModel.category).localizedName
                 )
             )
                 .foregroundStyle(Color.gray)
