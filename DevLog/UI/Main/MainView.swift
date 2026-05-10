@@ -10,6 +10,7 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var coordinator: MainViewCoordinator
+    @State private var homeViewCoordinator: HomeViewCoordinator
     @Binding var selectedTab: MainTab
     private let container: DIContainer
 
@@ -19,6 +20,7 @@ struct MainView: View {
     ) {
         self.container = container
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._selectedTab = selectedTab
     }
 
@@ -91,7 +93,7 @@ struct MainView: View {
                 } detail: {
                     homeRegularDetailView
                 }
-                .environment(coordinator.homeNavigationRouter)
+                .environment(homeViewCoordinator.router)
             case .today:
                 NavigationSplitView {
                     mainSidebar
@@ -197,12 +199,12 @@ struct MainView: View {
                 homeContentView
             }
         }
-        .environment(coordinator.homeNavigationRouter)
+        .environment(homeViewCoordinator.router)
     }
 
     private var homeContentView: some View {
         HomeView(
-            viewModel: coordinator.homeViewModel,
+            coordinator: homeViewCoordinator,
             isCompactLayout: isCompactLayout
         )
     }
@@ -211,7 +213,7 @@ struct MainView: View {
     private var homeRegularDetailView: some View {
         NavigationStack(path: homeDetailPath) {
             Group {
-                if let homeRoute = coordinator.homeNavigationRouter.root {
+                if let homeRoute = homeViewCoordinator.router.root {
                     homeDestinationView(homeRoute)
                 } else {
                     ContentUnavailableView(
@@ -350,15 +352,15 @@ private extension MainView {
 
     var homeNavigationPath: Binding<[HomeRoute]> {
         Binding(
-            get: { coordinator.homeNavigationRouter.path },
-            set: { coordinator.homeNavigationRouter.path = $0 }
+            get: { homeViewCoordinator.router.path },
+            set: { homeViewCoordinator.router.path = $0 }
         )
     }
 
     var homeDetailPath: Binding<[HomeRoute]> {
         Binding(
-            get: { coordinator.homeNavigationRouter.detailPath },
-            set: { coordinator.homeNavigationRouter.detailPath = $0 }
+            get: { homeViewCoordinator.router.detailPath },
+            set: { homeViewCoordinator.router.detailPath = $0 }
         )
     }
 
