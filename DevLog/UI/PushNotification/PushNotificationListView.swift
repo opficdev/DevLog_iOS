@@ -20,7 +20,16 @@ struct PushNotificationListView: View {
 
     var body: some View {
         NavigationStack {
-            notificationListContent
+            notificationList
+                .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
+                .onScrollOffsetChange { offset in
+                    guard isScrollTrackingEnabled else { return }
+                    headerOffset = max(0, -offset)
+                }
+                .safeAreaInset(edge: .top) { safeAreaHeader }
+                .onAppear { viewModel.send(.fetchNotifications) }
+                .refreshable { viewModel.send(.fetchNotifications) }
+                .navigationTitle(String(localized: "nav_push_notifications"))
         }
         .listStyle(.sidebar)
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
@@ -77,19 +86,6 @@ struct PushNotificationListView: View {
                 LoadingView()
             }
         }
-    }
-
-    private var notificationListContent: some View {
-        notificationList
-            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
-            .onScrollOffsetChange { offset in
-                guard isScrollTrackingEnabled else { return }
-                headerOffset = max(0, -offset)
-            }
-            .safeAreaInset(edge: .top) { safeAreaHeader }
-            .onAppear { viewModel.send(.fetchNotifications) }
-            .refreshable { viewModel.send(.fetchNotifications) }
-            .navigationTitle(String(localized: "nav_push_notifications"))
     }
 
     @ViewBuilder
