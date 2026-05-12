@@ -20,9 +20,18 @@ struct PushNotificationListView: View {
 
     var body: some View {
         NavigationStack {
-            notificationListContent
+            notificationList
+                .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
+                .onScrollOffsetChange { offset in
+                    guard isScrollTrackingEnabled else { return }
+                    headerOffset = max(0, -offset)
+                }
+                .safeAreaInset(edge: .top) { safeAreaHeader }
+                .onAppear { viewModel.send(.fetchNotifications) }
+                .refreshable { viewModel.send(.fetchNotifications) }
+                .navigationTitle(String(localized: "nav_push_notifications"))
+                .listStyle(.plain)
         }
-        .listStyle(.sidebar)
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .alert(
             "",
@@ -79,38 +88,22 @@ struct PushNotificationListView: View {
         }
     }
 
-    private var notificationListContent: some View {
-        notificationList
-            .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
-            .onScrollOffsetChange { offset in
-                guard isScrollTrackingEnabled else { return }
-                headerOffset = max(0, -offset)
-            }
-            .safeAreaInset(edge: .top) { safeAreaHeader }
-            .onAppear { viewModel.send(.fetchNotifications) }
-            .refreshable { viewModel.send(.fetchNotifications) }
-            .navigationTitle(String(localized: "nav_push_notifications"))
-    }
-
     @ViewBuilder
     private var notificationList: some View {
         let notifications = viewModel.state.notifications.filter { !$0.isHidden }
         if notifications.isEmpty {
-            HStack {
-                Spacer()
-                Text(String(localized: "push_notifications_empty"))
-                    .foregroundStyle(Color.gray)
-                Spacer()
-            }
+            Text(String(localized: "push_notifications_empty"))
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             List(
                 Array(zip(notifications.indices, notifications)),
                 id: \.1.id
             ) { index, notification in
                 notificationListRow(notification, index: index, notifications: notifications)
-                .listRowInsets(EdgeInsets())
-                .listSectionSeparator(.hidden, edges: .top)
-                .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                    .listSectionSeparator(.hidden, edges: .top)
+                    .listRowBackground(Color.clear)
             }
         }
     }
