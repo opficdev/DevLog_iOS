@@ -105,8 +105,8 @@ struct PushNotificationListView: View {
             ) { index, notification in
                 notificationListRow(notification, index: index, notifications: notifications)
                 .listRowInsets(EdgeInsets())
-                .listSectionSeparator(.hidden, edges: .top)
-                .listRowBackground(Color.clear)
+                    .listSectionSeparator(.hidden, edges: .top)
+                    .listRowBackground(Color.clear)
             }
         }
     }
