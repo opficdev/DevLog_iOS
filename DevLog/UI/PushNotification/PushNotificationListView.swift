@@ -92,12 +92,9 @@ struct PushNotificationListView: View {
     private var notificationList: some View {
         let notifications = viewModel.state.notifications.filter { !$0.isHidden }
         if notifications.isEmpty {
-            HStack {
-                Spacer()
-                Text(String(localized: "push_notifications_empty"))
-                    .foregroundStyle(Color.gray)
-                Spacer()
-            }
+            Text(String(localized: "push_notifications_empty"))
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             List(
                 Array(zip(notifications.indices, notifications)),
