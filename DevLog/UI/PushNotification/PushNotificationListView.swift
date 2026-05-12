@@ -30,8 +30,8 @@ struct PushNotificationListView: View {
                 .onAppear { viewModel.send(.fetchNotifications) }
                 .refreshable { viewModel.send(.fetchNotifications) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
+                .listStyle(.plain)
         }
-        .listStyle(.sidebar)
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .alert(
             "",
@@ -104,7 +104,7 @@ struct PushNotificationListView: View {
                 id: \.1.id
             ) { index, notification in
                 notificationListRow(notification, index: index, notifications: notifications)
-                .listRowInsets(EdgeInsets())
+                    .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
                     .listSectionSeparator(.hidden, edges: .top)
                     .listRowBackground(Color.clear)
             }
