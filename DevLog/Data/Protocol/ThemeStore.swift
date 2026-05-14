@@ -7,6 +7,8 @@
 
 import Combine
 import Foundation
+import DevLogDomain
+import DevLogDataDTO
 
 public protocol ThemeStore {
     func observeTheme() -> AnyPublisher<SystemTheme, Never>

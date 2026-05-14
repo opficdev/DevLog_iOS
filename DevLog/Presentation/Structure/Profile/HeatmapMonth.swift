@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
 
 public struct HeatmapMonth: Identifiable, Hashable {
     public var id: Date { monthStart }

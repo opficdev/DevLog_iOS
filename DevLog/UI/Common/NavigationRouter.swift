@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 @Observable
 final class NavigationRouter<Route: Hashable> {

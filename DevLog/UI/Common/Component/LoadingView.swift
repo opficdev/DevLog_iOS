@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct LoadingView: View {
     var body: some View {

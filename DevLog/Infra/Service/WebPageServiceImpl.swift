@@ -8,6 +8,9 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class WebPageServiceImpl: WebPageService {
     private enum FunctionName: String {

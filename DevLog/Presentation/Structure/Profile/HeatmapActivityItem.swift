@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
 
 public struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
     public var id: String { todoId }

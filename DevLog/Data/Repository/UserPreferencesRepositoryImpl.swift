@@ -7,6 +7,11 @@
 
 import Foundation
 import Combine
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataMapper
+import DevLogDataProtocol
 
 final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
     private enum Key {

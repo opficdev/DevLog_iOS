@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public struct PushNotificationResponse {
     public let id: String

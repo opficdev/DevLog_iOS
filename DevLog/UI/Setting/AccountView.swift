@@ -7,6 +7,8 @@
 
 import SwiftUI
 import FirebaseAuth
+import DevLogDomain
+import DevLogPresentation
 
 struct AccountView: View {
     @State var viewModel: AccountViewModel

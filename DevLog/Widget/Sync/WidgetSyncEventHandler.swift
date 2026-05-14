@@ -7,6 +7,11 @@
 
 import Combine
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetShared
 
 final class WidgetSyncEventHandler {
     private let repository: TodoRepository

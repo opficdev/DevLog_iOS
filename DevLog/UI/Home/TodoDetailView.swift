@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer

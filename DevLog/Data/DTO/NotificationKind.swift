@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public enum NotificationKind: String, Codable {
     case info

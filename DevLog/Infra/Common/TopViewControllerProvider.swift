@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class TopViewControllerProvider {
     @MainActor

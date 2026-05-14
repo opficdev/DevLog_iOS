@@ -7,6 +7,9 @@
 
 import Network
 import Combine
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class NWPathConnectivityProviderImpl: NWPathConnectivityProvider {
     private let networkPathMonitor = NWPathMonitor()

@@ -8,6 +8,9 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class TodoServiceImpl: TodoService {
     private enum FunctionName: String {

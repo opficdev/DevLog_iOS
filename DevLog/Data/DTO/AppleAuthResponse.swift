@@ -7,6 +7,7 @@
 
 import Foundation
 import AuthenticationServices
+import DevLogDomain
 
 public struct AppleAuthResponse {
     public let nonce: String

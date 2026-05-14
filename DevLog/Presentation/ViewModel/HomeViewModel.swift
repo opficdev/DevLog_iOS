@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import DevLogDomain
+import DevLogDataCommon
 
 @Observable
 final class HomeViewModel: Store {

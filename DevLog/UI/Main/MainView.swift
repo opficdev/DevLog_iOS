@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

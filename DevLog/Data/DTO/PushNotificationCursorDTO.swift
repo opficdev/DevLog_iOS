@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public struct PushNotificationCursorDTO {
     public let receivedAt: Date

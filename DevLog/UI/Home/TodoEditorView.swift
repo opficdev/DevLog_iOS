@@ -8,6 +8,8 @@
 import MarkdownUI
 import OrderedCollections
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel

@@ -7,6 +7,8 @@
 
 import SwiftUI
 import UIKit
+import DevLogDomain
+import DevLogPresentation
 
 struct UIKitTextEditor: View {
     @Binding var text: String

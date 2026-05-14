@@ -5,6 +5,12 @@
 //  Created by opfic on 3/30/26.
 //
 
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataMapper
+import DevLogDataProtocol
+
 final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
     private let todoCategoryService: TodoCategoryService
 

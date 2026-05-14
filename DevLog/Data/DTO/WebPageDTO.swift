@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public struct WebPageRequest: Encodable {
     public let title: String

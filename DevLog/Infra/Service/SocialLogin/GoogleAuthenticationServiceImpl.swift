@@ -10,6 +10,9 @@ import FirebaseFirestore
 import FirebaseMessaging
 import Foundation
 import GoogleSignIn
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class GoogleAuthenticationServiceImpl: AuthenticationService {
     private let store = Firestore.firestore()

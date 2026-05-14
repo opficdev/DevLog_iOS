@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
 
 @MainActor
 public protocol Store: AnyObject {

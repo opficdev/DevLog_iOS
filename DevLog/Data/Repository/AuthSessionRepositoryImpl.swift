@@ -6,6 +6,11 @@
 //
 
 import Combine
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataMapper
+import DevLogDataProtocol
 
 final class AuthSessionRepositoryImpl: AuthSessionRepository {
     private let authService: AuthService

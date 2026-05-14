@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 /// NavigationBar의 배경색을 지정하고 shadowColor를 제거하는 구조체
 ///

@@ -8,6 +8,9 @@
 import Foundation
 import LinkPresentation
 import UIKit
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class WebPageMetadataServiceImpl: WebPageMetadataService {
     private let imageStore: WebPageImageStore

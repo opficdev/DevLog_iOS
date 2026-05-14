@@ -7,6 +7,12 @@
 
 import Foundation
 import WidgetKit
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetCore
+import DevLogWidgetShared
 
 final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     private let snapshotStore: WidgetSnapshotStore

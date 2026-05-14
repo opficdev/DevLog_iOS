@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataDTO
 
 public protocol WebPageMetadataService {
     func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse

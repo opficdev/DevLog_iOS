@@ -7,6 +7,8 @@
 
 import Foundation
 import OrderedCollections
+import DevLogDomain
+import DevLogDataCommon
 
 @Observable
 final class TodoEditorViewModel: Store {

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct TodoItemRow: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)

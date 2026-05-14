@@ -6,6 +6,11 @@
 //
 
 import Combine
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetShared
 
 protocol WidgetSyncEventBus {
     func publish(_ event: WidgetSyncEvent)

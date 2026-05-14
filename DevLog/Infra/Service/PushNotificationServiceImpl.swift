@@ -9,6 +9,9 @@ import FirebaseAuth
 import Combine
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class PushNotificationServiceImpl: PushNotificationService {
     private enum FunctionName: String {

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 extension EnvironmentValues {
     var safeAreaInsets: EdgeInsets {

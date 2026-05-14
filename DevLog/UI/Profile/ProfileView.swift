@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct ProfileView: View {
     @State var viewModel: ProfileViewModel

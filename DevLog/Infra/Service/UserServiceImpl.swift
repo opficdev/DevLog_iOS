@@ -7,6 +7,9 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class UserServiceImpl: UserService {
     private let store = Firestore.firestore()

@@ -7,6 +7,12 @@
 
 import CryptoKit
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetCore
+import DevLogWidgetShared
 
 actor WebPageImageStoreImpl: WebPageImageStore {
     func cachedImageURL(for url: URL) async throws -> URL {

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogDataCommon
 
 public struct TodoCategoryItem: Identifiable, Hashable {
     public var category: TodoCategory

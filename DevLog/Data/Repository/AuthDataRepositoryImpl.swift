@@ -5,6 +5,12 @@
 //  Created by 최윤진 on 2/12/26.
 //
 
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataMapper
+import DevLogDataProtocol
+
 final class AuthDataRepositoryImpl: AuthDataRepository {
     private let authService: AuthService
     private let appleAuthService: AuthenticationService

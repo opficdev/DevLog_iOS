@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
 
 public struct RecentTodoItem: Identifiable, Hashable {
     public let id: String

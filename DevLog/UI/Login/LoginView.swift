@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme

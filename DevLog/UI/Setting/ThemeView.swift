@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct ThemeView: View {
     @Binding var theme: SystemTheme

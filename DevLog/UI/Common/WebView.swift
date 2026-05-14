@@ -7,6 +7,8 @@
 
 import SwiftUI
 import WebKit
+import DevLogDomain
+import DevLogPresentation
 
 struct WebView: UIViewRepresentable {
     let url: URL

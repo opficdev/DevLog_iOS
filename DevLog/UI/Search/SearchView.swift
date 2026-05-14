@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss

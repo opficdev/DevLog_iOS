@@ -5,6 +5,12 @@
 //  Created by opfic on 4/14/26.
 //
 
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataMapper
+import DevLogDataProtocol
+
 final class WebPageImageRepositoryImpl: WebPageImageRepository {
     private let store: WebPageImageStore
 

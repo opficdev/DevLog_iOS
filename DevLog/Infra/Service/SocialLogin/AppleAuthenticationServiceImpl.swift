@@ -12,6 +12,9 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
+import DevLogDataCommon
+import DevLogDataDTO
+import DevLogDataProtocol
 
 final class AppleAuthenticationServiceImpl: AuthenticationService {
     private enum FunctionName: String {

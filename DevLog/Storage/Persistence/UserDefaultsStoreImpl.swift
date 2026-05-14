@@ -6,6 +6,12 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetCore
+import DevLogWidgetShared
 
 final class UserDefaultsStoreImpl: UserDefaultsStore {
     private let userDefaults: UserDefaults

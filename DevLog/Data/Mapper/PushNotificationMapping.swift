@@ -2,10 +2,12 @@
 //  PushNotificationMapping.swift
 //  DevLog
 //
-
-
 //  Created by 최윤진 on 2/27/26.
 //
+
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataDTO
 
 public extension PushNotificationResponse {
     public func toDomain() throws -> PushNotification {

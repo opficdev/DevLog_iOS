@@ -6,6 +6,11 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataCommon
+import DevLogDataProtocol
+import DevLogPresentation
+import DevLogWidgetShared
 
 final class WidgetSnapshotStore {
     private let store: WidgetSharedDefaultsStore

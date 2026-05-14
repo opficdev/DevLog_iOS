@@ -7,6 +7,8 @@
 
 import Combine
 import Foundation
+import DevLogDomain
+import DevLogDataDTO
 
 public protocol NWPathConnectivityProvider {
     func observeNetworkConnectivity() -> AnyPublisher<Bool, Never>

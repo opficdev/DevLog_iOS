@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 struct SettingView: View {
     @Environment(\.diContainer) var container: DIContainer

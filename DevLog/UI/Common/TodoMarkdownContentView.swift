@@ -7,6 +7,8 @@
 
 import MarkdownUI
 import SwiftUI
+import DevLogDomain
+import DevLogPresentation
 
 private enum TodoMarkdownSection: Equatable {
     case markdown(String)

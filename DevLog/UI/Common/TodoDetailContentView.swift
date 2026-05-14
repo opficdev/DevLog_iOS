@@ -7,6 +7,8 @@
 
 import SwiftUI
 import MarkdownUI
+import DevLogDomain
+import DevLogPresentation
 
 struct TodoDetailContentView: View {
     let title: String

@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogPresentation
 
 @MainActor
 @Observable

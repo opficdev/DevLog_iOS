@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public struct UserProfileResponse: Decodable {
     public let name: String

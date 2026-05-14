@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DevLogDomain
+import DevLogDataDTO
 
 public protocol WebPageService {
     func fetchWebPages(_ query: String) async throws -> [WebPageResponse]

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogDomain
 
 public struct AuthDataResponse {
     public let uid: String
