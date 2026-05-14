@@ -17,14 +17,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		286D442FAA18B8D52A6845FF /* WidgetDeepLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDeepLink.swift; path = ../../WidgetShared/WidgetDeepLink.swift; sourceTree = "<group>"; };
+		286D442FAA18B8D52A6845FF /* WidgetDeepLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDeepLink.swift; path = Sources/WidgetDeepLink.swift; sourceTree = "<group>"; };
 		814ECC408D237131E365FC92 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		9E9FD7B09D0D7EAB8B828A5E /* DevLogWidgetShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A0BDD8E4BCD4F432B11496E0 /* WidgetHeatmapPlaceholderShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetHeatmapPlaceholderShape.swift; path = ../../WidgetShared/WidgetHeatmapPlaceholderShape.swift; sourceTree = "<group>"; };
-		C2B11CDF5A711E473115E8E3 /* Calendar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Calendar.swift; path = ../../WidgetShared/Calendar.swift; sourceTree = "<group>"; };
-		C6B67DC942FD2230C2E3C8EC /* WidgetSnapshotKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotKey.swift; path = ../../WidgetShared/WidgetSnapshotKey.swift; sourceTree = "<group>"; };
-		DEF84B2C1BD8C8ED1F6A5A36 /* WidgetAppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetAppGroup.swift; path = ../../WidgetShared/WidgetAppGroup.swift; sourceTree = "<group>"; };
-		E75E718B8308165441EB1A8A /* WidgetKind.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetKind.swift; path = ../../WidgetShared/WidgetKind.swift; sourceTree = "<group>"; };
+		A0BDD8E4BCD4F432B11496E0 /* WidgetHeatmapPlaceholderShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetHeatmapPlaceholderShape.swift; path = Sources/WidgetHeatmapPlaceholderShape.swift; sourceTree = "<group>"; };
+		C2B11CDF5A711E473115E8E3 /* Calendar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Calendar.swift; path = Sources/Calendar.swift; sourceTree = "<group>"; };
+		C6B67DC942FD2230C2E3C8EC /* WidgetSnapshotKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotKey.swift; path = Sources/WidgetSnapshotKey.swift; sourceTree = "<group>"; };
+		DEF84B2C1BD8C8ED1F6A5A36 /* WidgetAppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetAppGroup.swift; path = Sources/WidgetAppGroup.swift; sourceTree = "<group>"; };
+		E75E718B8308165441EB1A8A /* WidgetKind.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetKind.swift; path = Sources/WidgetKind.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
