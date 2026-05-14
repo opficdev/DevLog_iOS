@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol UserDefaultsStore {
+public protocol UserDefaultsStore {
     func string(forKey key: String) -> String?
     func setString(_ value: String?, forKey key: String)
     func stringArray(forKey key: String) -> [String]

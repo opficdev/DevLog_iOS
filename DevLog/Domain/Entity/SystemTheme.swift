@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-enum SystemTheme: String, Identifiable {
+public enum SystemTheme: String, Identifiable {
     case automatic
     case light
     case dark
     
-    var id: String {
+    public var id: String {
         rawValue
     }
     
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .automatic:
             return NSLocalizedString("system_theme_automatic", comment: "System theme: automatic")
@@ -27,7 +27,7 @@ enum SystemTheme: String, Identifiable {
         }
     }
     
-    var colorScheme: ColorScheme? {
+    public var colorScheme: ColorScheme? {
         switch self {
         case .automatic:
             return nil

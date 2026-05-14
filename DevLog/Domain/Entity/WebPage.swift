@@ -7,9 +7,21 @@
 
 import Foundation
 
-struct WebPage: Hashable {
-    let title: String?
-    let url: URL
-    let displayURL: URL
-    let imageURL: URL?
+public struct WebPage: Hashable {
+    public let title: String?
+    public let url: URL
+    public let displayURL: URL
+    public let imageURL: URL?
+
+    public init(
+        title: String?,
+        url: URL,
+        displayURL: URL,
+        imageURL: URL?
+    ) {
+        self.title = title
+        self.url = url
+        self.displayURL = displayURL
+        self.imageURL = imageURL
+    }
 }

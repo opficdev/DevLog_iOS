@@ -5,6 +5,6 @@
 //  Created by opfic on 4/14/26.
 //
 
-protocol ClearWebPageImageDirectoryUseCase {
+public protocol ClearWebPageImageDirectoryUseCase {
     func execute() async throws
 }

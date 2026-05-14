@@ -5,6 +5,6 @@
 //  Created by 최윤진 on 11/2/25.
 //
 
-protocol SignInUseCase {
+public protocol SignInUseCase {
     func execute(_ provider: AuthProvider) async throws
 }

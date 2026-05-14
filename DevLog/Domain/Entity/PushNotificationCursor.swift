@@ -7,7 +7,15 @@
 
 import Foundation
 
-struct PushNotificationCursor: Equatable {
-    let receivedAt: Date
-    let documentID: String
+public struct PushNotificationCursor: Equatable {
+    public let receivedAt: Date
+    public let documentID: String
+
+    public init(
+        receivedAt: Date,
+        documentID: String
+    ) {
+        self.receivedAt = receivedAt
+        self.documentID = documentID
+    }
 }

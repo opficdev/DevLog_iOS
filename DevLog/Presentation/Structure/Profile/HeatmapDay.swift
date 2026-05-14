@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct HeatmapDay: Hashable {
-    let date: Date
-    let createdCount: Int
-    let completedCount: Int
-    let deletedCount: Int
-    let isVisible: Bool
+public struct HeatmapDay: Hashable {
+    public let date: Date
+    public let createdCount: Int
+    public let completedCount: Int
+    public let deletedCount: Int
+    public let isVisible: Bool
 }

@@ -7,14 +7,14 @@
 
 import Combine
 
-final class ObserveUnreadPushCountUseCaseImpl: ObserveUnreadPushCountUseCase {
+public final class ObserveUnreadPushCountUseCaseImpl: ObserveUnreadPushCountUseCase {
     private let repository: PushNotificationRepository
 
     init(_ repository: PushNotificationRepository) {
         self.repository = repository
     }
 
-    func observe() throws -> AnyPublisher<Int, Error> {
+    public func observe() throws -> AnyPublisher<Int, Error> {
         try repository.observeUnreadPushCount()
             .removeDuplicates()
             .eraseToAnyPublisher()

@@ -7,18 +7,18 @@
 
 import SwiftUI
 
-struct UserTodoCategoryItem: Identifiable, Hashable {
-    let userTodoCategory: UserTodoCategory
+public struct UserTodoCategoryItem: Identifiable, Hashable {
+    public let userTodoCategory: UserTodoCategory
 
     init(from userTodoCategory: UserTodoCategory) {
         self.userTodoCategory = userTodoCategory
     }
 
-    var id: String { userTodoCategory.id }
+    public var id: String { userTodoCategory.id }
 
-    var symbolName: String { "tray.fill" }
+    public var symbolName: String { "tray.fill" }
 
-    var localizedName: String { userTodoCategory.name }
+    public var localizedName: String { userTodoCategory.name }
 
-    var color: Color { Color(hexString: userTodoCategory.colorHex) ?? .gray }
+    public var color: Color { Color(hexString: userTodoCategory.colorHex) ?? .gray }
 }

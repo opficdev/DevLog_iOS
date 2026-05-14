@@ -7,8 +7,18 @@
 
 import Foundation
 
-struct UserTodoCategory: Hashable {
-    var id: String
-    var name: String
-    var colorHex: String
+public struct UserTodoCategory: Hashable {
+    public var id: String
+    public var name: String
+    public var colorHex: String
+
+    public init(
+        id: String,
+        name: String,
+        colorHex: String
+    ) {
+        self.id = id
+        self.name = name
+        self.colorHex = colorHex
+    }
 }

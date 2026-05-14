@@ -5,6 +5,6 @@
 //  Created by opfic on 3/30/26.
 //
 
-protocol FetchTodoCategoryPreferencesUseCase {
+public protocol FetchTodoCategoryPreferencesUseCase {
     func execute() async throws -> [TodoCategoryPreference]
 }

@@ -7,10 +7,24 @@
 
 import Foundation
 
-struct UserProfile {
-    let name: String
-    let email: String
-    let statusMessage: String
-    let avatarURL: URL?
-    let createdAt: Date
+public struct UserProfile {
+    public let name: String
+    public let email: String
+    public let statusMessage: String
+    public let avatarURL: URL?
+    public let createdAt: Date
+
+    public init(
+        name: String,
+        email: String,
+        statusMessage: String,
+        avatarURL: URL?,
+        createdAt: Date
+    ) {
+        self.name = name
+        self.email = email
+        self.statusMessage = statusMessage
+        self.avatarURL = avatarURL
+        self.createdAt = createdAt
+    }
 }

@@ -8,6 +8,6 @@
 import Combine
 import Foundation
 
-protocol NWPathConnectivityProvider {
+public protocol NWPathConnectivityProvider {
     func observeNetworkConnectivity() -> AnyPublisher<Bool, Never>
 }

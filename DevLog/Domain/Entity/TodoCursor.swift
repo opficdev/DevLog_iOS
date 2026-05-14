@@ -7,8 +7,18 @@
 
 import Foundation
 
-struct TodoCursor {
-    let primarySortDate: Date?
-    let secondarySortDate: Date?
-    let documentID: String
+public struct TodoCursor {
+    public let primarySortDate: Date?
+    public let secondarySortDate: Date?
+    public let documentID: String
+
+    public init(
+        primarySortDate: Date?,
+        secondarySortDate: Date?,
+        documentID: String
+    ) {
+        self.primarySortDate = primarySortDate
+        self.secondarySortDate = secondarySortDate
+        self.documentID = documentID
+    }
 }

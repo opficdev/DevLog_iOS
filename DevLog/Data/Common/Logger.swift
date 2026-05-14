@@ -8,18 +8,18 @@
 import Foundation
 import os.log
 
-final class Logger {
+public final class Logger {
     private let subsystem: String
     private let category: String
     private let osLog: OSLog
     
-    init(subsystem: String = Bundle.main.bundleIdentifier ?? "DevLog", category: String) {
+    public init(subsystem: String = Bundle.main.bundleIdentifier ?? "DevLog", category: String) {
         self.subsystem = subsystem
         self.category = category
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
 
-    func debug(
+    public func debug(
         _ message: String,
         file: String = #file,
         function: String = #function,
@@ -28,7 +28,7 @@ final class Logger {
         log(message, type: .debug, file: file, function: function, line: line)
     }
     
-    func info(
+    public func info(
         _ message: String,
         file: String = #file,
         function: String = #function,
@@ -37,7 +37,7 @@ final class Logger {
         log(message, type: .info, file: file, function: function, line: line)
     }
     
-    func warning(
+    public func warning(
         _ message: String,
         file: String = #file,
         function: String = #function,
@@ -46,7 +46,7 @@ final class Logger {
         log(message, type: .default, file: file, function: function, line: line)
     }
     
-    func error(
+    public func error(
         _ message: String,
         error: Error? = nil,
         file: String = #file,
@@ -60,7 +60,7 @@ final class Logger {
         log(fullMessage, type: .error, file: file, function: function, line: line)
     }
     
-    func fault(
+    public func fault(
         _ message: String,
         error: Error? = nil,
         file: String = #file,

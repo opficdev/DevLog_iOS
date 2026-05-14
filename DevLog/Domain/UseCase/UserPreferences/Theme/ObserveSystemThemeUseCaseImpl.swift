@@ -7,14 +7,14 @@
 
 import Combine
 
-final class ObserveSystemThemeUseCaseImpl: ObserveSystemThemeUseCase {
+public final class ObserveSystemThemeUseCaseImpl: ObserveSystemThemeUseCase {
     private let repository: UserPreferencesRepository
 
     init(_ repository: UserPreferencesRepository) {
         self.repository = repository
     }
 
-    func observe() -> AnyPublisher<SystemTheme, Never> {
+    public func observe() -> AnyPublisher<SystemTheme, Never> {
         repository.observeSystemTheme()
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WebPageMetadataService {
+public protocol WebPageMetadataService {
     func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse
     func removeCachedImage(for urlString: String) async
     func cachedImageURL(for urlString: String) async throws -> URL

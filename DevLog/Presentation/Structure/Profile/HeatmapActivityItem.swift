@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
-    var id: String { todoId }
-    let todoId: String
-    let title: String
-    let number: Int
-    let category: TodoCategory
-    let activityKinds: [ActivityKind]
-    let isDeleted: Bool
+public struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
+    public var id: String { todoId }
+    public let todoId: String
+    public let title: String
+    public let number: Int
+    public let category: TodoCategory
+    public let activityKinds: [ActivityKind]
+    public let isDeleted: Bool
 
-    var activityKindItems: [ActivityKindItem] {
+    public var activityKindItems: [ActivityKindItem] {
         let orderedKinds: [ActivityKind] = [.created, .completed, .deleted]
         return orderedKinds.compactMap { activityKind in
             if activityKinds.contains(activityKind) {
@@ -36,7 +36,7 @@ struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
         self.isDeleted = todo.deletedAt != nil
     }
 
-    static func < (lhs: HeatmapActivityItem, rhs: HeatmapActivityItem) -> Bool {
+    public static func < (lhs: HeatmapActivityItem, rhs: HeatmapActivityItem) -> Bool {
         lhs.number < rhs.number
     }
 }

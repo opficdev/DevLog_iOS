@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct UserProfileResponse: Decodable {
-    let name: String
-    let email: String
-    let statusMessage: String
-    let avatarURL: URL?
-    let createdAt: Date
+public struct UserProfileResponse: Decodable {
+    public let name: String
+    public let email: String
+    public let statusMessage: String
+    public let avatarURL: URL?
+    public let createdAt: Date
 }

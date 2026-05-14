@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol ObserveNetworkConnectivityUseCase {
+public protocol ObserveNetworkConnectivityUseCase {
     func observe() -> AnyPublisher<Bool, Never>
 }

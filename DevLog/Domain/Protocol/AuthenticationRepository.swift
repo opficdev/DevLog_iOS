@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol AuthenticationRepository {
+public protocol AuthenticationRepository {
     func signIn(_ provider: AuthProvider) async throws
     func signOut() async throws
     func restore() -> Bool

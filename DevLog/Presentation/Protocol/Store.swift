@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-protocol Store: AnyObject {
+public protocol Store: AnyObject {
     associatedtype State
     associatedtype Action
     associatedtype SideEffect

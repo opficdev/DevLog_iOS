@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct TodoQuery: Equatable {
-    enum SortTarget: Equatable, Hashable {
+public struct TodoQuery: Equatable {
+    public enum SortTarget: Equatable, Hashable {
         case createdAt
         case completedAt
         case deletedAt
         case updatedAt
         case dueDate
 
-        var fieldName: String {
+        public var fieldName: String {
             switch self {
             case .createdAt:
                 return "createdAt"
@@ -31,21 +31,21 @@ struct TodoQuery: Equatable {
         }
     }
 
-    enum SortOrder: Equatable, Hashable {
+    public enum SortOrder: Equatable, Hashable {
         case latest
         case oldest
 
-        var isDescending: Bool {
+        public var isDescending: Bool {
             self == .latest
         }
     }
 
-    enum CompletionFilter: Equatable, Hashable {
+    public enum CompletionFilter: Equatable, Hashable {
         case all
         case incomplete
         case completed
 
-        var isCompletedValue: Bool? {
+        public var isCompletedValue: Bool? {
             switch self {
             case .all:
                 return nil
@@ -57,26 +57,26 @@ struct TodoQuery: Equatable {
         }
     }
 
-    enum DueDateFilter: Equatable, Hashable {
+    public enum DueDateFilter: Equatable, Hashable {
         case all
         case withDueDate
         case withoutDueDate
     }
 
-    var category: TodoCategory?
-    var keyword: String?
-    var isPinned: Bool?
-    var completionFilter: CompletionFilter
-    var dueDateFilter: DueDateFilter
-    var sortDateFrom: Date?
-    var sortDateTo: Date?
-    var includesDeleted: Bool
-    var sortTarget: SortTarget
-    var sortOrder: SortOrder
-    var pageSize: Int
-    var fetchAllPages: Bool
+    public var category: TodoCategory?
+    public var keyword: String?
+    public var isPinned: Bool?
+    public var completionFilter: CompletionFilter
+    public var dueDateFilter: DueDateFilter
+    public var sortDateFrom: Date?
+    public var sortDateTo: Date?
+    public var includesDeleted: Bool
+    public var sortTarget: SortTarget
+    public var sortOrder: SortOrder
+    public var pageSize: Int
+    public var fetchAllPages: Bool
 
-    init(
+    public init(
         category: TodoCategory? = nil,
         keyword: String? = nil,
         isPinned: Bool? = nil,

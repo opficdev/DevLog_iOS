@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct SystemTodoCategoryItem: Identifiable, Hashable {
-    let systemTodoCategory: SystemTodoCategory
+public struct SystemTodoCategoryItem: Identifiable, Hashable {
+    public let systemTodoCategory: SystemTodoCategory
 
     init(from systemTodoCategory: SystemTodoCategory) {
         self.systemTodoCategory = systemTodoCategory
     }
 
-    var id: String { systemTodoCategory.rawValue }
+    public var id: String { systemTodoCategory.rawValue }
 
-    var symbolName: String {
+    public var symbolName: String {
         switch systemTodoCategory {
         case .issue: return "exclamationmark.triangle"
         case .feature: return "sparkles"
@@ -29,7 +29,7 @@ struct SystemTodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         switch systemTodoCategory {
         case .issue: return NSLocalizedString("todo_category_issue", comment: "Todo category: Issue")
         case .feature: return NSLocalizedString("todo_category_feature", comment: "Todo category: Feature")
@@ -42,7 +42,7 @@ struct SystemTodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    var color: UIColor {
+    public var color: UIColor {
         switch systemTodoCategory {
         case .issue: return .systemRed
         case .feature: return .systemGreen

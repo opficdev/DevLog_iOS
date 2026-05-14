@@ -7,22 +7,22 @@
 
 import SwiftUI
 
-struct ActivityKindItem: Identifiable, Hashable {
+public struct ActivityKindItem: Identifiable, Hashable {
     private let activityKind: ActivityKind
 
     init(from activityKind: ActivityKind) {
         self.activityKind = activityKind
     }
 
-    static var selectableItems: [ActivityKindItem] {[
+    public static var selectableItems: [ActivityKindItem] {[
         .init(from: .created), .init(from: .completed), .init(from: .deleted) ]
     }
 
-    var id: String { activityKind.rawValue }
+    public var id: String { activityKind.rawValue }
 
-    var rawValue: String { activityKind.rawValue }
+    public var rawValue: String { activityKind.rawValue }
 
-    var title: String {
+    public var title: String {
         switch activityKind {
         case .created:
             return String(localized: "profile_activity_created")
@@ -33,7 +33,7 @@ struct ActivityKindItem: Identifiable, Hashable {
         }
     }
 
-    var badgeColor: Color {
+    public var badgeColor: Color {
         switch activityKind {
         case .created:
             return .orange

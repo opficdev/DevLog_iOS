@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol PushNotificationRepository {
+public protocol PushNotificationRepository {
     func fetchPushNotificationEnabled() async throws -> Bool
     func fetchPushNotificationTime() async throws -> DateComponents
     func updatePushNotificationSettings(_ settings: PushNotificationSettings) async throws

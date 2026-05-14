@@ -5,14 +5,14 @@
 //  Created by 최윤진 on 3/2/26.
 //
 
-final class FetchHeatmapActivityTypesUseCaseImpl: FetchHeatmapActivityTypesUseCase {
+public final class FetchHeatmapActivityTypesUseCaseImpl: FetchHeatmapActivityTypesUseCase {
     private let repository: UserPreferencesRepository
 
     init(_ repository: UserPreferencesRepository) {
         self.repository = repository
     }
 
-    func execute() -> [String] {
+    public func execute() -> [String] {
         repository.heatmapActivityTypes()
     }
 }

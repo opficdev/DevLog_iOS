@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol AuthSessionRepository {
+public protocol AuthSessionRepository {
     func observeSignedIn() -> AnyPublisher<Bool, Never>
 }

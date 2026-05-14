@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct RecentTodoItem: Identifiable, Hashable {
-    let id: String
-    let number: Int
-    let title: String
-    let isPinned: Bool
-    let updatedAt: Date
-    let tags: [String]
-    var category: TodoCategory
+public struct RecentTodoItem: Identifiable, Hashable {
+    public let id: String
+    public let number: Int
+    public let title: String
+    public let isPinned: Bool
+    public let updatedAt: Date
+    public let tags: [String]
+    public var category: TodoCategory
 
     init?(from todo: Todo) {
         guard let number = todo.number else { return nil }

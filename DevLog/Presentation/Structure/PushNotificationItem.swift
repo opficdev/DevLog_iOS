@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct PushNotificationItem: Identifiable, Hashable {
-    let id: String
-    var isHidden = false
-    let title: String
-    let body: String
-    let receivedAt: Date
-    var isRead: Bool
-    let todoId: String
-    let todoCategory: TodoCategory
+public struct PushNotificationItem: Identifiable, Hashable {
+    public let id: String
+    public var isHidden = false
+    public let title: String
+    public let body: String
+    public let receivedAt: Date
+    public var isRead: Bool
+    public let todoId: String
+    public let todoCategory: TodoCategory
 
     init(from notification: PushNotification) {
         self.id = notification.id

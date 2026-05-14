@@ -7,8 +7,18 @@
 
 import Foundation
 
-struct TodoReference: Hashable {
-    let id: String
-    let title: String
-    let category: TodoCategory
+public struct TodoReference: Hashable {
+    public let id: String
+    public let title: String
+    public let category: TodoCategory
+
+    public init(
+        id: String,
+        title: String,
+        category: TodoCategory
+    ) {
+        self.id = id
+        self.title = title
+        self.category = category
+    }
 }

@@ -7,10 +7,10 @@
 
 import Foundation
 
-extension String {
+public extension String {
     private static let todoReferencePattern = #"^([ \t]*)-[ \t]+refs[ \t]+#(\d+)[ \t]*$"#
 
-    var todoReferenceNumbers: [Int] {
+    public var todoReferenceNumbers: [Int] {
         guard
             let expression = try? NSRegularExpression(
                 pattern: Self.todoReferencePattern,

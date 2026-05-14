@@ -7,21 +7,21 @@
 
 import Combine
 
-final class FetchPushNotificationsUseCaseImpl: FetchPushNotificationsUseCase {
+public final class FetchPushNotificationsUseCaseImpl: FetchPushNotificationsUseCase {
     private let repository: PushNotificationRepository
 
     init(_ repository: PushNotificationRepository) {
         self.repository = repository
     }
 
-    func execute(
+    public func execute(
         _ query: PushNotificationQuery,
         cursor: PushNotificationCursor?
     ) async throws -> PushNotificationPage {
         try await repository.requestNotifications(query, cursor: cursor)
     }
 
-    func observe(
+    public func observe(
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPage, Error> {

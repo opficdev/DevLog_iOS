@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension WebPageResponse {
-    func toDomain() throws -> WebPage {
+public extension WebPageResponse {
+    public func toDomain() throws -> WebPage {
         guard let url = URL(string: url) else {
             throw DataError.invalidData("WebPageResponse.url is invalid: \(url)")
         }

@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-protocol AuthService {
+public protocol AuthService {
     var uid: String? { get }
     var providerIDs: [String] { get }
     var currentUserEmail: String? { get }

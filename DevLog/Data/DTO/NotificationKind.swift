@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum NotificationKind: String, Codable {
+public enum NotificationKind: String, Codable {
     case info
     case warning
     case success

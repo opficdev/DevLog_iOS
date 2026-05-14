@@ -5,7 +5,7 @@
 //  Created by 최윤진 on 1/5/26.
 //
 
-protocol AuthDataRepository {
+public protocol AuthDataRepository {
     /// 현재 로그인한 프로바이더를 가져옵니다
     func fetchCurrentProvider() async throws -> AuthProvider?
     

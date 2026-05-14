@@ -7,16 +7,16 @@
 
 import Foundation
 
-enum WidgetDeepLink {
-    static let scheme = "DevLog"
-    static let todayTodoHost = "today"
-    static let heatmapHost = "profile"
+public enum WidgetDeepLink {
+    public static let scheme = "DevLog"
+    public static let todayTodoHost = "today"
+    public static let heatmapHost = "profile"
 
-    static var todayTodoURL: URL? {
+    public static var todayTodoURL: URL? {
         url(host: todayTodoHost)
     }
 
-    static var heatmapURL: URL? {
+    public static var heatmapURL: URL? {
         url(host: heatmapHost)
     }
 

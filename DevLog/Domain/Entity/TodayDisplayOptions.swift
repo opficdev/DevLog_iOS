@@ -7,22 +7,30 @@
 
 import Foundation
 
-struct TodayDisplayOptions: Equatable {
-    enum DueDateVisibility: String, CaseIterable, Equatable {
+public struct TodayDisplayOptions: Equatable {
+    public enum DueDateVisibility: String, CaseIterable, Equatable {
         case all
         case withDueDateOnly
         case withoutDueDateOnly
     }
 
-    enum FocusVisibility: String, CaseIterable, Equatable {
+    public enum FocusVisibility: String, CaseIterable, Equatable {
         case all
         case focusedOnly
     }
 
-    var dueDateVisibility: DueDateVisibility
-    var focusVisibility: FocusVisibility
+    public var dueDateVisibility: DueDateVisibility
+    public var focusVisibility: FocusVisibility
 
-    static let `default` = TodayDisplayOptions(
+    public init(
+        dueDateVisibility: DueDateVisibility,
+        focusVisibility: FocusVisibility
+    ) {
+        self.dueDateVisibility = dueDateVisibility
+        self.focusVisibility = focusVisibility
+    }
+
+    public static let `default` = TodayDisplayOptions(
         dueDateVisibility: .all,
         focusVisibility: .all
     )

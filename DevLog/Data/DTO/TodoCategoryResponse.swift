@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TodoCategoryResponse {
+public enum TodoCategoryResponse {
     case raw(String)
     case decoded(TodoCategory)
 }

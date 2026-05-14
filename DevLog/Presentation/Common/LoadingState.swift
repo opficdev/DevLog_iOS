@@ -8,12 +8,12 @@
 import Foundation
 
 @MainActor
-final class LoadingState {
+public final class LoadingState {
     private enum DefaultTarget: Hashable {
         case value
     }
 
-    enum Mode {
+    public enum Mode {
         case immediate
         case delayed
     }
@@ -29,7 +29,7 @@ final class LoadingState {
         self.delay = delay
     }
 
-    func begin(
+    public func begin(
         mode: Mode,
         update: @escaping @MainActor (Bool) -> Void
     ) {
@@ -38,7 +38,7 @@ final class LoadingState {
         }
     }
 
-    func begin<T: Hashable>(
+    public func begin<T: Hashable>(
         target: T,
         mode: Mode,
         update: @escaping @MainActor (T, Bool) -> Void
@@ -49,7 +49,7 @@ final class LoadingState {
         }
     }
 
-    func end(
+    public func end(
         mode: Mode,
         update: @escaping @MainActor (Bool) -> Void
     ) {
@@ -58,7 +58,7 @@ final class LoadingState {
         }
     }
 
-    func end<T: Hashable>(
+    public func end<T: Hashable>(
         target: T,
         mode: Mode,
         update: @escaping @MainActor (T, Bool) -> Void

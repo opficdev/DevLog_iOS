@@ -7,7 +7,7 @@
 
 import Combine
 
-protocol FetchPushNotificationsUseCase {
+public protocol FetchPushNotificationsUseCase {
     func execute(
         _ query: PushNotificationQuery,
         cursor: PushNotificationCursor?

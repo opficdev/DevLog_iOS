@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct TodoCategoryItem: Identifiable, Hashable {
-    var category: TodoCategory
-    var isVisible: Bool
+public struct TodoCategoryItem: Identifiable, Hashable {
+    public var category: TodoCategory
+    public var isVisible: Bool
 
     init(from preference: TodoCategoryPreference) {
         self.category = preference.category
@@ -24,18 +24,18 @@ struct TodoCategoryItem: Identifiable, Hashable {
         self.isVisible = isVisible
     }
 
-    var id: String { category.storageValue }
+    public var id: String { category.storageValue }
 
-    var todoCategory: TodoCategory { category }
+    public var todoCategory: TodoCategory { category }
 
-    var preference: TodoCategoryPreference {
+    public var preference: TodoCategoryPreference {
         TodoCategoryPreference(
             category: category,
             isVisible: isVisible
         )
     }
 
-    var isUserCategory: Bool {
+    public var isUserCategory: Bool {
         if case .user = category {
             return true
         }
@@ -43,7 +43,7 @@ struct TodoCategoryItem: Identifiable, Hashable {
         return false
     }
 
-    var symbolName: String {
+    public var symbolName: String {
         switch category {
         case .system(let systemTodoCategory):
             return SystemTodoCategoryItem(from: systemTodoCategory).symbolName
@@ -52,7 +52,7 @@ struct TodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         switch category {
         case .system(let systemTodoCategory):
             return SystemTodoCategoryItem(from: systemTodoCategory).localizedName
@@ -61,7 +61,7 @@ struct TodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    var color: Color {
+    public var color: Color {
         switch category {
         case .system(let systemTodoCategory):
             return Color(SystemTodoCategoryItem(from: systemTodoCategory).color)
@@ -70,11 +70,11 @@ struct TodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    static func == (lhs: TodoCategoryItem, rhs: TodoCategoryItem) -> Bool {
+    public static func == (lhs: TodoCategoryItem, rhs: TodoCategoryItem) -> Bool {
         lhs.category == rhs.category && lhs.isVisible == rhs.isVisible
     }
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
 
         switch category {

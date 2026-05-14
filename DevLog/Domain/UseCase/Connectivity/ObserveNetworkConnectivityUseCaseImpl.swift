@@ -7,14 +7,14 @@
 
 import Combine
 
-final class ObserveNetworkConnectivityUseCaseImpl: ObserveNetworkConnectivityUseCase {
+public final class ObserveNetworkConnectivityUseCaseImpl: ObserveNetworkConnectivityUseCase {
     private let repository: NetworkConnectivityRepository
 
     init(_ repository: NetworkConnectivityRepository) {
         self.repository = repository
     }
 
-    func observe() -> AnyPublisher<Bool, Never> {
+    public func observe() -> AnyPublisher<Bool, Never> {
         repository.observeNetworkConnectivity()
             .removeDuplicates()
             .eraseToAnyPublisher()

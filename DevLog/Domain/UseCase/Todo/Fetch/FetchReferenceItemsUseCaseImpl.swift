@@ -5,14 +5,14 @@
 //  Created by opfic on 3/25/26.
 //
 
-final class FetchReferenceItemsUseCaseImpl: FetchReferenceItemsUseCase {
+public final class FetchReferenceItemsUseCaseImpl: FetchReferenceItemsUseCase {
     private let repository: TodoRepository
 
     init(_ repository: TodoRepository) {
         self.repository = repository
     }
 
-    func execute(_ numbers: [Int]) async throws -> [Int: TodoReference] {
+    public func execute(_ numbers: [Int]) async throws -> [Int: TodoReference] {
         try await repository.fetchReferences(numbers)
     }
 }

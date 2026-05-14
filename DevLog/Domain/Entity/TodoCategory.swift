@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum TodoCategory: Hashable {
+public enum TodoCategory: Hashable {
     case system(SystemTodoCategory)
     case user(UserTodoCategory)
 
-    var storageValue: String {
+    public var storageValue: String {
         switch self {
         case .system(let category):
             return category.rawValue

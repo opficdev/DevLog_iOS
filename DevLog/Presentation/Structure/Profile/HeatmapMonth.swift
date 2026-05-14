@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct HeatmapMonth: Identifiable, Hashable {
-    var id: Date { monthStart }
-    let monthStart: Date
-    let weeks: [[HeatmapDay]]
+public struct HeatmapMonth: Identifiable, Hashable {
+    public var id: Date { monthStart }
+    public let monthStart: Date
+    public let weeks: [[HeatmapDay]]
 }

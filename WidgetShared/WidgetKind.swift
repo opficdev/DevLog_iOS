@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum WidgetKind {
-    static let todayTodo = "TodayTodoWidget"
-    static let heatmap = "HeatmapWidget"
+public enum WidgetKind {
+    public static let todayTodo = "TodayTodoWidget"
+    public static let heatmap = "HeatmapWidget"
 }

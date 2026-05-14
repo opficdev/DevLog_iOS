@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension UIFont {
+public extension UIFont {
     static func from(font: Font) -> UIFont {
         let fontMapping: [Font: UIFont.TextStyle] = [
             .largeTitle: .largeTitle,

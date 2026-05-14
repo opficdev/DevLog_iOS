@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct TodoListItem: Identifiable, Hashable {
-    let id: String
-    var isHidden = false
-    let number: Int
-    let title: String
-    let tags: [String]
-    let isPinned: Bool
-    let isCompleted: Bool
-    let createdAt: Date
-    let updatedAt: Date
+public struct TodoListItem: Identifiable, Hashable {
+    public let id: String
+    public var isHidden = false
+    public let number: Int
+    public let title: String
+    public let tags: [String]
+    public let isPinned: Bool
+    public let isCompleted: Bool
+    public let createdAt: Date
+    public let updatedAt: Date
 
     init?(from todo: Todo) {
         guard let number = todo.number else { return nil }

@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol ObserveSystemThemeUseCase {
+public protocol ObserveSystemThemeUseCase {
     func observe() -> AnyPublisher<SystemTheme, Never>
 }

@@ -2,11 +2,13 @@
 //  PushNotificationMapping.swift
 //  DevLog
 //
+
+
 //  Created by 최윤진 on 2/27/26.
 //
 
-extension PushNotificationResponse {
-    func toDomain() throws -> PushNotification {
+public extension PushNotificationResponse {
+    public func toDomain() throws -> PushNotification {
         let todoCategory: TodoCategory
 
         switch self.todoCategory {
@@ -30,15 +32,15 @@ extension PushNotificationResponse {
     }
 }
 
-extension PushNotificationCursorDTO {
-    func toDomain() -> PushNotificationCursor {
+public extension PushNotificationCursorDTO {
+    public func toDomain() -> PushNotificationCursor {
         PushNotificationCursor(
             receivedAt: self.receivedAt,
             documentID: self.documentID
         )
     }
 
-    static func fromDomain(_ cursor: PushNotificationCursor) -> Self {
+    public static func fromDomain(_ cursor: PushNotificationCursor) -> Self {
         PushNotificationCursorDTO(
             receivedAt: cursor.receivedAt,
             documentID: cursor.documentID
@@ -46,8 +48,8 @@ extension PushNotificationCursorDTO {
     }
 }
 
-extension PushNotificationPageResponse {
-    func toDomain() throws -> PushNotificationPage {
+public extension PushNotificationPageResponse {
+    public func toDomain() throws -> PushNotificationPage {
         let items = try self.items.map { try $0.toDomain() }
         let nextCursor = self.nextCursor?.toDomain()
         return PushNotificationPage(items: items, nextCursor: nextCursor)

@@ -8,9 +8,9 @@
 import Foundation
 import AuthenticationServices
 
-struct AppleAuthResponse {
-    let nonce: String
-    let credential: ASAuthorizationAppleIDCredential
-    let authorizationCode: Data
-    let idTokenString: String
+public struct AppleAuthResponse {
+    public let nonce: String
+    public let credential: ASAuthorizationAppleIDCredential
+    public let authorizationCode: Data
+    public let idTokenString: String
 }

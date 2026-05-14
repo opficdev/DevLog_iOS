@@ -5,7 +5,15 @@
 //  Created by opfic on 2/18/26.
 //
 
-struct PushNotificationPageResponse {
-    let items: [PushNotificationResponse]
-    let nextCursor: PushNotificationCursorDTO?
+public struct PushNotificationPageResponse {
+    public let items: [PushNotificationResponse]
+    public let nextCursor: PushNotificationCursorDTO?
+
+    public init(
+        items: [PushNotificationResponse],
+        nextCursor: PushNotificationCursorDTO?
+    ) {
+        self.items = items
+        self.nextCursor = nextCursor
+    }
 }

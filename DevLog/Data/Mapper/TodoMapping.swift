@@ -2,11 +2,13 @@
 //  TodoMapping.swift
 //  DevLog
 //
+
+
 //  Created by 최윤진 on 2/19/26.
 //
 
-extension TodoRequest {
-    static func fromDomain(_ entity: Todo) -> Self {
+public extension TodoRequest {
+    public static func fromDomain(_ entity: Todo) -> Self {
         TodoRequest(
             id: entity.id,
             isPinned: entity.isPinned,
@@ -25,8 +27,8 @@ extension TodoRequest {
     }
 }
 
-extension TodoResponse {
-    func toDomain() throws -> Todo {
+public extension TodoResponse {
+    public func toDomain() throws -> Todo {
         let todoCategory: TodoCategory
 
         switch category {
@@ -55,8 +57,8 @@ extension TodoResponse {
     }
 }
 
-extension TodoCursorDTO {
-    func toDomain() -> TodoCursor {
+public extension TodoCursorDTO {
+    public func toDomain() -> TodoCursor {
         TodoCursor(
             primarySortDate: primarySortDate,
             secondarySortDate: secondarySortDate,
@@ -64,7 +66,7 @@ extension TodoCursorDTO {
         )
     }
 
-    static func fromDomain(_ cursor: TodoCursor) -> Self {
+    public static func fromDomain(_ cursor: TodoCursor) -> Self {
         TodoCursorDTO(
             primarySortDate: cursor.primarySortDate,
             secondarySortDate: cursor.secondarySortDate,
@@ -73,8 +75,8 @@ extension TodoCursorDTO {
     }
 }
 
-extension TodoPageResponse {
-    func toDomain() throws -> TodoPage {
+public extension TodoPageResponse {
+    public func toDomain() throws -> TodoPage {
         let items = try items.map { try $0.toDomain() }
         let cursor = nextCursor?.toDomain()
         return TodoPage(items: items, nextCursor: cursor)

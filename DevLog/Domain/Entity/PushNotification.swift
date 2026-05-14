@@ -7,12 +7,30 @@
 
 import Foundation
 
-struct PushNotification: Hashable {
-    let id: String
-    let title: String
-    let body: String
-    let receivedAt: Date
-    var isRead: Bool
-    let todoId: String
-    let todoCategory: TodoCategory
+public struct PushNotification: Hashable {
+    public let id: String
+    public let title: String
+    public let body: String
+    public let receivedAt: Date
+    public var isRead: Bool
+    public let todoId: String
+    public let todoCategory: TodoCategory
+
+    public init(
+        id: String,
+        title: String,
+        body: String,
+        receivedAt: Date,
+        isRead: Bool,
+        todoId: String,
+        todoCategory: TodoCategory
+    ) {
+        self.id = id
+        self.title = title
+        self.body = body
+        self.receivedAt = receivedAt
+        self.isRead = isRead
+        self.todoId = todoId
+        self.todoCategory = todoCategory
+    }
 }

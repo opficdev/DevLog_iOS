@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol ObserveUnreadPushCountUseCase {
+public protocol ObserveUnreadPushCountUseCase {
     func observe() throws -> AnyPublisher<Int, Error>
 }

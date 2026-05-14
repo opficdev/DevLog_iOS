@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WebPageService {
+public protocol WebPageService {
     func fetchWebPages(_ query: String) async throws -> [WebPageResponse]
     func upsertWebPage(_ request: WebPageRequest) async throws
     func deleteWebPage(_ urlString: String) async throws

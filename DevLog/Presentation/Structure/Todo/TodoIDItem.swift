@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct TodoIdItem: Identifiable, Hashable {
-    let id: String
+public struct TodoIdItem: Identifiable, Hashable {
+    public let id: String
 }

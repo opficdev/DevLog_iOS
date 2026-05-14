@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct AuthDataResponse {
-    let uid: String
-    let displayName: String?
-    let email: String?
-    let providers: [String]
-    let providerID: String
-    let fcmToken: String
-    let accessToken: String?
+public struct AuthDataResponse {
+    public let uid: String
+    public let displayName: String?
+    public let email: String?
+    public let providers: [String]
+    public let providerID: String
+    public let fcmToken: String
+    public let accessToken: String?
 
     init(
         uid: String,

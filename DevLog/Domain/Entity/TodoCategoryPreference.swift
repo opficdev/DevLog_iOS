@@ -7,7 +7,15 @@
 
 import Foundation
 
-struct TodoCategoryPreference: Equatable {
-    let category: TodoCategory
-    var isVisible: Bool
+public struct TodoCategoryPreference: Equatable {
+    public let category: TodoCategory
+    public var isVisible: Bool
+
+    public init(
+        category: TodoCategory,
+        isVisible: Bool
+    ) {
+        self.category = category
+        self.isVisible = isVisible
+    }
 }

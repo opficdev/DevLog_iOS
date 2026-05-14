@@ -394,14 +394,6 @@ extension PushNotificationQuery.SortOrder {
 }
 
 extension PushNotificationQuery.TimeFilter {
-    var id: String {
-        switch self {
-        case .none: return "none"
-        case .hours(let value): return "hours-\(value)"
-        case .days(let value): return "days-\(value)"
-        }
-    }
-
     var title: String {
         switch self {
         case .none:
@@ -427,19 +419,5 @@ extension PushNotificationQuery.TimeFilter {
             .days(3),
             .days(7)
         ]
-    }
-
-    init(id: String) {
-        if id == "none" {
-            self = .none
-        } else if id.hasPrefix("hours-") {
-            let value = Int(id.replacingOccurrences(of: "hours-", with: "")) ?? 0
-            self = value > 0 ? .hours(value) : .none
-        } else if id.hasPrefix("days-") {
-            let value = Int(id.replacingOccurrences(of: "days-", with: "")) ?? 0
-            self = value > 0 ? .days(value) : .none
-        } else {
-            self = .none
-        }
     }
 }

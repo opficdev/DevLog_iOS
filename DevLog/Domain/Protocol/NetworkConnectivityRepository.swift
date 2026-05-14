@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol NetworkConnectivityRepository {
+public protocol NetworkConnectivityRepository {
     func observeNetworkConnectivity() -> AnyPublisher<Bool, Never>
 }

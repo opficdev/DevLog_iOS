@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol UserPreferencesRepository {
+public protocol UserPreferencesRepository {
     func observeSystemTheme() -> AnyPublisher<SystemTheme, Never>
     func systemTheme() -> SystemTheme
     func setSystemTheme(_ theme: SystemTheme)

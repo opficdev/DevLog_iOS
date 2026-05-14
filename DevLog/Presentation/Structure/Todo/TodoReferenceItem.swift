@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct TodoReferenceItem: Equatable {
-    let id: String
-    let title: String
-    let category: TodoCategoryItem
+public struct TodoReferenceItem: Equatable {
+    public let id: String
+    public let title: String
+    public let category: TodoCategoryItem
 
     init(from todoReference: TodoReference) {
         self.id = todoReference.id

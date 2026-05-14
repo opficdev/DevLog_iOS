@@ -7,6 +7,6 @@
 
 import Foundation
 
-enum WidgetAppGroup {
-    static let identifier = "group.opfic.DevLog"
+public enum WidgetAppGroup {
+    public static let identifier = "group.opfic.DevLog"
 }

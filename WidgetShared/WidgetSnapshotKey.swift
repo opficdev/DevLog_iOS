@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum WidgetSnapshotKey {
-    static let today = "Widget.today.snapshot"
-    static let heatmap = "Widget.heatmap.snapshot"
-    static let snapshots = [today, heatmap]
+public enum WidgetSnapshotKey {
+    public static let today = "Widget.today.snapshot"
+    public static let heatmap = "Widget.heatmap.snapshot"
+    public static let snapshots = [today, heatmap]
 }

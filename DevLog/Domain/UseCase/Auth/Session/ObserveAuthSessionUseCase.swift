@@ -7,6 +7,6 @@
 
 import Combine
 
-protocol ObserveAuthSessionUseCase {
+public protocol ObserveAuthSessionUseCase {
     func observe() -> AnyPublisher<Bool, Never>
 }

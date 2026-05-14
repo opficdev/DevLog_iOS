@@ -5,6 +5,6 @@
 //  Created by 최윤진 on 2/25/26.
 //
 
-protocol UpdateSystemThemeUseCase {
+public protocol UpdateSystemThemeUseCase {
     func execute(_ theme: SystemTheme)
 }

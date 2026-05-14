@@ -5,6 +5,6 @@
 //  Created by opfic on 3/15/26.
 //
 
-protocol UndoDeleteTodoUseCase {
+public protocol UndoDeleteTodoUseCase {
     func execute(_ todoId: String) async throws
 }

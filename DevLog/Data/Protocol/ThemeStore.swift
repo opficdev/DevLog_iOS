@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-protocol ThemeStore {
+public protocol ThemeStore {
     func observeTheme() -> AnyPublisher<SystemTheme, Never>
     func send(_ theme: SystemTheme)
 }

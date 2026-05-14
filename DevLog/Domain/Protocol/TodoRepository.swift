@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol TodoRepository {
+public protocol TodoRepository {
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage
     func fetchTodo(_ todoId: String) async throws -> Todo
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference]

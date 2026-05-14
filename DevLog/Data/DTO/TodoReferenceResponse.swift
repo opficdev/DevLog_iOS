@@ -7,9 +7,21 @@
 
 import Foundation
 
-struct TodoReferenceResponse {
-    let id: String
-    let number: Int
-    let title: String
-    let category: TodoCategoryResponse
+public struct TodoReferenceResponse {
+    public let id: String
+    public let number: Int
+    public let title: String
+    public let category: TodoCategoryResponse
+
+    public init(
+        id: String,
+        number: Int,
+        title: String,
+        category: TodoCategoryResponse
+    ) {
+        self.id = id
+        self.number = number
+        self.title = title
+        self.category = category
+    }
 }

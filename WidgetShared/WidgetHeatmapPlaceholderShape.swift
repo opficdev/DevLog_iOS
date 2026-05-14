@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct WidgetHeatmapPlaceholderShape {
-    let currentMonths: [WidgetHeatmapPlaceholderMonthShape]
-    let quarterMonths: [WidgetHeatmapPlaceholderMonthShape]
+public struct WidgetHeatmapPlaceholderShape {
+    public let currentMonths: [WidgetHeatmapPlaceholderMonthShape]
+    public let quarterMonths: [WidgetHeatmapPlaceholderMonthShape]
 
-    var currentMonthWeekCounts: [Int] {
+    public var currentMonthWeekCounts: [Int] {
         currentMonths.map(\.weeks.count)
     }
 
-    var quarterWeekCounts: [Int] {
+    public var quarterWeekCounts: [Int] {
         quarterMonths.map(\.weeks.count)
     }
 
@@ -108,19 +108,19 @@ struct WidgetHeatmapPlaceholderShape {
     }
 }
 
-struct WidgetHeatmapPlaceholderMonthShape: Identifiable, Hashable {
-    var id: Date { monthStart }
-    let monthStart: Date
-    let weeks: [WidgetHeatmapPlaceholderWeekShape]
+public struct WidgetHeatmapPlaceholderMonthShape: Identifiable, Hashable {
+    public var id: Date { monthStart }
+    public let monthStart: Date
+    public let weeks: [WidgetHeatmapPlaceholderWeekShape]
 }
 
-struct WidgetHeatmapPlaceholderWeekShape: Identifiable, Hashable {
-    let id: Int
-    let days: [WidgetHeatmapPlaceholderDayShape]
+public struct WidgetHeatmapPlaceholderWeekShape: Identifiable, Hashable {
+    public let id: Int
+    public let days: [WidgetHeatmapPlaceholderDayShape]
 }
 
-struct WidgetHeatmapPlaceholderDayShape: Identifiable, Hashable {
-    var id: Date { date }
-    let date: Date
-    let isVisible: Bool
+public struct WidgetHeatmapPlaceholderDayShape: Identifiable, Hashable {
+    public var id: Date { date }
+    public let date: Date
+    public let isVisible: Bool
 }

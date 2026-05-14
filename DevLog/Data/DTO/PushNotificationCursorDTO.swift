@@ -7,7 +7,15 @@
 
 import Foundation
 
-struct PushNotificationCursorDTO {
-    let receivedAt: Date
-    let documentID: String
+public struct PushNotificationCursorDTO {
+    public let receivedAt: Date
+    public let documentID: String
+
+    public init(
+        receivedAt: Date,
+        documentID: String
+    ) {
+        self.receivedAt = receivedAt
+        self.documentID = documentID
+    }
 }

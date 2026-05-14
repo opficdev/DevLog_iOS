@@ -5,6 +5,6 @@
 //  Created by opfic on 4/14/26.
 //
 
-protocol FetchWebPageImageDirSizeUseCase {
+public protocol FetchWebPageImageDirSizeUseCase {
     func execute() async -> Int64
 }

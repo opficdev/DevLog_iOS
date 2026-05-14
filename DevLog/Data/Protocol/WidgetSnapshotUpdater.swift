@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WidgetSnapshotUpdater {
+public protocol WidgetSnapshotUpdater {
     func updateTodaySnapshot(
         todos: [Todo],
         now: Date
