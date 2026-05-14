@@ -1,5 +1,5 @@
 //
-//  WidgetSnapshotPreferenceStore.swift
+//  WidgetSnapshotPreferenceStoreImpl.swift
 //  DevLog
 //
 //  Created by opfic on 4/30/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class WidgetSnapshotPreferenceStore {
+final class WidgetSnapshotPreferenceStoreImpl: WidgetSnapshotPreferenceStore {
     private enum Key: String, CaseIterable {
         case heatmapActivityTypes = "Profile.heatmap.activityTypes"
         case todayDueDateVisibility = "Today.dueDateVisibility"

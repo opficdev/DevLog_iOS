@@ -13,7 +13,7 @@ import FirebaseFunctions
 import FirebaseMessaging
 import Nexa
 
-final class GithubAuthenticationService: NSObject, AuthenticationService {
+final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     private enum FunctionName: String {
         case requestGithubTokens
         case revokeGithubAccessToken
@@ -301,7 +301,7 @@ final class GithubAuthenticationService: NSObject, AuthenticationService {
     }
 }
 
-private extension GithubAuthenticationService {
+private extension GithubAuthenticationServiceImpl {
     struct GitHubUser: Codable {
         let login: String
         let name: String?
@@ -323,7 +323,7 @@ private extension GithubAuthenticationService {
     }
 }
 
-extension GithubAuthenticationService: ASWebAuthenticationPresentationContextProviding {
+extension GithubAuthenticationServiceImpl: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         return provider.keyWindow() ?? ASPresentationAnchor()
     }

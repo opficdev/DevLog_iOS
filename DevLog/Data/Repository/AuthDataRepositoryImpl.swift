@@ -5,8 +5,6 @@
 //  Created by 최윤진 on 2/12/26.
 //
 
-import FirebaseAuth
-
 final class AuthDataRepositoryImpl: AuthDataRepository {
     private let authService: AuthService
     private let appleAuthService: AuthenticationService
@@ -39,8 +37,7 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
     
     func linkProvider(_ provider: AuthProvider) async throws {
         guard let uid = authService.uid,
-              let user = Auth.auth().currentUser,
-              let email = user.email else {
+              let email = authService.currentUserEmail else {
             throw AuthError.notAuthenticated
         }
         
@@ -62,12 +59,11 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
     }
     
     func unlinkProvider(_ provider: AuthProvider) async throws {
-        guard let uid = authService.uid,
-              let user = Auth.auth().currentUser else {
+        guard let uid = authService.uid else {
             throw AuthError.notAuthenticated
         }
 
-        if user.providerData.count <= 1 {
+        if authService.providerCount <= 1 {
             throw AuthError.failedToUnlinkLastProvider
         }
         
@@ -96,12 +92,8 @@ private extension AuthDataRepositoryImpl {
             }
         }
 
-        let nsError = error as NSError
-        if nsError.domain == AuthErrorDomain,
-           let authErrorCode = AuthErrorCode(rawValue: nsError.code) {
-            if authErrorCode == .credentialAlreadyInUse {
-                return AuthError.linkCredentialAlreadyInUse
-            }
+        if authService.isCredentialAlreadyInUseError(error) {
+            return AuthError.linkCredentialAlreadyInUse
         }
 
         return error

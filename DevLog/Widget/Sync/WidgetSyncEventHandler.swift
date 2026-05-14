@@ -61,7 +61,8 @@ private extension WidgetSyncEventHandler {
                 todosWithoutDueDate
             )
             snapshotUpdater.updateTodaySnapshot(
-                todos: todayTodosWithDueDate + todayTodosWithoutDueDate
+                todos: todayTodosWithDueDate + todayTodosWithoutDueDate,
+                now: Date()
             )
         } catch {
             logger.error(
@@ -118,7 +119,7 @@ private extension WidgetSyncEventHandler {
         dueDateFilter: TodoQuery.DueDateFilter,
         sortTarget: TodoQuery.SortTarget,
         sortOrder: TodoQuery.SortOrder
-    ) async throws -> [TodayTodoItem] {
+    ) async throws -> [Todo] {
         let todoPage = try await repository.fetchTodos(
             TodoQuery(
                 completionFilter: .incomplete,
@@ -131,7 +132,7 @@ private extension WidgetSyncEventHandler {
             cursor: nil
         )
 
-        return todoPage.items.compactMap { TodayTodoItem(from: $0) }
+        return todoPage.items
     }
 
     func fetchHeatmapTodos(

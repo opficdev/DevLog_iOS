@@ -11,55 +11,55 @@ final class InfraAssembler: Assembler {
             AuthenticationService.self,
             name: "AppleAuthenticationService"
         ) {
-            AppleAuthenticationService()
+            AppleAuthenticationServiceImpl()
         }
 
         container.register(
             AuthenticationService.self,
             name: "GithubAuthenticationService"
         ) {
-            GithubAuthenticationService()
+            GithubAuthenticationServiceImpl()
         }
 
         container.register(
             AuthenticationService.self,
             name: "GoogleAuthenticationService"
         ) {
-            GoogleAuthenticationService()
+            GoogleAuthenticationServiceImpl()
         }
 
         container.register(AuthService.self) {
-            AuthService()
+            AuthServiceImpl()
         }
 
         container.register(TodoService.self) {
-            TodoService()
+            TodoServiceImpl()
         }
 
         container.register(TodoCategoryService.self) {
-            TodoCategoryService()
+            TodoCategoryServiceImpl()
         }
 
         container.register(UserService.self) {
-            UserService()
+            UserServiceImpl()
         }
 
         container.register(PushNotificationService.self) {
-            PushNotificationService()
+            PushNotificationServiceImpl()
         }
 
         container.register(WebPageService.self) {
-            WebPageService()
+            WebPageServiceImpl()
         }
 
         container.register(WebPageMetadataService.self) {
-            WebPageMetadataService(
+            WebPageMetadataServiceImpl(
                 store: container.resolve(WebPageImageStore.self)
             )
         }
 
         container.register(NWPathConnectivityProvider.self) {
-            NWPathConnectivityProvider()
+            NWPathConnectivityProviderImpl()
         }
     }
 }

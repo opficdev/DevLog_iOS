@@ -1,5 +1,5 @@
 //
-//  WidgetSnapshotUpdater.swift
+//  WidgetSnapshotUpdaterImpl.swift
 //  DevLog
 //
 //  Created by opfic on 4/30/26.
@@ -8,12 +8,12 @@
 import Foundation
 import WidgetKit
 
-final class WidgetSnapshotUpdater {
+final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     private let snapshotStore: WidgetSnapshotStore
     private let preferenceStore: WidgetSnapshotPreferenceStore
     private let todayFactory: TodayWidgetSnapshotFactory
     private let heatmapFactory: HeatmapWidgetSnapshotFactory
-    private let logger = Logger(category: "WidgetSnapshotUpdater")
+    private let logger = Logger(category: "WidgetSnapshotUpdaterImpl")
 
     init(
         snapshotStore: WidgetSnapshotStore,
@@ -28,7 +28,7 @@ final class WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [TodayTodoItem],
+        todos: [Todo],
         now: Date = Date()
     ) {
         updateTodaySnapshot(
@@ -39,12 +39,13 @@ final class WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [TodayTodoItem],
+        todos: [Todo],
         displayOptions: TodayDisplayOptions,
         now: Date = Date()
     ) {
+        let todayTodoItems = todos.compactMap { TodayTodoItem(from: $0) }
         let todayWidgetSnapshot = todayFactory.makeSnapshot(
-            todos: todos,
+            todos: todayTodoItems,
             displayOptions: displayOptions,
             now: now
         )

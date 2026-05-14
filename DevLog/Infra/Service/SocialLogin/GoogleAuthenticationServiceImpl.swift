@@ -11,7 +11,7 @@ import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 
-final class GoogleAuthenticationService: AuthenticationService {
+final class GoogleAuthenticationServiceImpl: AuthenticationService {
     private let store = Firestore.firestore()
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }

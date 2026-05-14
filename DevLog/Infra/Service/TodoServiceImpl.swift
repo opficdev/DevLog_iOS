@@ -1,5 +1,5 @@
 //
-//  TodoService.swift
+//  TodoServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 6/2/25.
@@ -9,7 +9,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
 
-final class TodoService {
+final class TodoServiceImpl: TodoService {
     private enum FunctionName: String {
         case requestTodoDeletion
         case undoTodoDeletion
@@ -18,7 +18,7 @@ final class TodoService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let encoder = Firestore.Encoder()
-    private let logger = Logger(category: "TodoService")
+    private let logger = Logger(category: "TodoServiceImpl")
     
     // swiftlint:disable function_body_length
     func fetchTodos(
@@ -294,7 +294,7 @@ final class TodoService {
     }
 }
 
-private extension TodoService {
+private extension TodoServiceImpl {
     func upsertTodoWithNumberOnCreate(
         _ data: [String: Any],
         for todoRef: DocumentReference,
@@ -330,7 +330,7 @@ private extension TodoService {
                         nextNumber = storedNextNumber
                     } else if counterSnapshot.exists {
                         errorPointer?.pointee = NSError(
-                            domain: "TodoService",
+                            domain: "TodoServiceImpl",
                             code: 1,
                             userInfo: [NSLocalizedDescriptionKey: "Todo counter is invalid."]
                         )

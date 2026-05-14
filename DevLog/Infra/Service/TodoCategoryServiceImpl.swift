@@ -1,5 +1,5 @@
 //
-//  TodoCategoryService.swift
+//  TodoCategoryServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 3/30/26.
@@ -8,7 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 
-final class TodoCategoryService {
+final class TodoCategoryServiceImpl: TodoCategoryService {
     private enum Field: String {
         case items
         case kind
@@ -25,7 +25,7 @@ final class TodoCategoryService {
     }
 
     private let store = Firestore.firestore()
-    private let logger = Logger(category: "TodoCategoryService")
+    private let logger = Logger(category: "TodoCategoryServiceImpl")
 
     func fetchPreferences() async throws -> [TodoCategoryPreference] {
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -87,7 +87,7 @@ final class TodoCategoryService {
     }
 }
 
-private extension TodoCategoryService {
+private extension TodoCategoryServiceImpl {
     func mergedPreferences(
         _ preferences: [TodoCategoryPreference]
     ) -> [TodoCategoryPreference] {

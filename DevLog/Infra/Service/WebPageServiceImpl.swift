@@ -1,5 +1,5 @@
 //
-//  WebPageService.swift
+//  WebPageServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 6/3/25.
@@ -9,7 +9,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
 
-final class WebPageService {
+final class WebPageServiceImpl: WebPageService {
     private enum FunctionName: String {
         case requestWebPageDeletion
         case undoWebPageDeletion
@@ -18,7 +18,7 @@ final class WebPageService {
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
     private let encoder = Firestore.Encoder()
-    private let logger = Logger(category: "WebPageService")
+    private let logger = Logger(category: "WebPageServiceImpl")
 
     /// 저장한 웹페이지를 모두 불러옴
     func fetchWebPages(_ query: String) async throws -> [WebPageResponse] {
@@ -122,7 +122,7 @@ final class WebPageService {
     }
 }
 
-private extension WebPageService {
+private extension WebPageServiceImpl {
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
         let data = snapshot.data()
         guard

@@ -1,5 +1,5 @@
 //
-//  WebPageMetadataService.swift
+//  WebPageMetadataServiceImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 2/9/26.
@@ -9,9 +9,9 @@ import Foundation
 import LinkPresentation
 import UIKit
 
-final class WebPageMetadataService {
+final class WebPageMetadataServiceImpl: WebPageMetadataService {
     private let imageStore: WebPageImageStore
-    private let logger = Logger(category: "WebPageMetadataService")
+    private let logger = Logger(category: "WebPageMetadataServiceImpl")
 
     init(store: WebPageImageStore) {
         self.imageStore = store

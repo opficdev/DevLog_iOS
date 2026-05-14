@@ -1,5 +1,5 @@
 //
-//  WebPageImageStore.swift
+//  WebPageImageStoreImpl.swift
 //  DevLog
 //
 //  Created by opfic on 4/14/26.
@@ -8,7 +8,7 @@
 import CryptoKit
 import Foundation
 
-actor WebPageImageStore {
+actor WebPageImageStoreImpl: WebPageImageStore {
     func cachedImageURL(for url: URL) async throws -> URL {
         return try await Task.detached(priority: .utility) {
             return try Self.cachedImageURL(for: url)
@@ -44,7 +44,7 @@ actor WebPageImageStore {
     }
 }
 
-private extension WebPageImageStore {
+private extension WebPageImageStoreImpl {
     static func hashedFileName(for url: URL) -> String {
         let hashValue = SHA256.hash(data: Data(url.absoluteString.utf8))
         return hashValue.map { String(format: "%02x", $0) }.joined()

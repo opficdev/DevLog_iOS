@@ -1,5 +1,5 @@
 //
-//  UserDefaultsStore.swift
+//  UserDefaultsStoreImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 2/25/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class UserDefaultsStore {
+final class UserDefaultsStoreImpl: UserDefaultsStore {
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {

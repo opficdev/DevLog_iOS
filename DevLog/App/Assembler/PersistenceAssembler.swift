@@ -8,15 +8,15 @@
 final class PersistenceAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(UserDefaultsStore.self) {
-            UserDefaultsStore()
+            UserDefaultsStoreImpl()
         }
 
         container.register(ThemeStore.self) {
-            ThemeStore()
+            ThemeStoreImpl()
         }
 
         container.register(WebPageImageStore.self) {
-            WebPageImageStore()
+            WebPageImageStoreImpl()
         }
 
         container.register(WidgetSharedDefaultsStore.self) {
@@ -30,11 +30,11 @@ final class PersistenceAssembler: Assembler {
         }
 
         container.register(WidgetSnapshotPreferenceStore.self) {
-            WidgetSnapshotPreferenceStore()
+            WidgetSnapshotPreferenceStoreImpl()
         }
 
         container.register(WidgetSnapshotUpdater.self) {
-            WidgetSnapshotUpdater(
+            WidgetSnapshotUpdaterImpl(
                 snapshotStore: container.resolve(WidgetSnapshotStore.self),
                 preferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
             )

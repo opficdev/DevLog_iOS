@@ -13,7 +13,7 @@ import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 
-final class AppleAuthenticationService: AuthenticationService {
+final class AppleAuthenticationServiceImpl: AuthenticationService {
     private enum FunctionName: String {
         case requestAppleCustomToken
         case refreshAppleAccessToken

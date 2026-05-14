@@ -118,10 +118,10 @@ struct WidgetSyncEventHandlerTests {
         let snapshotStore = WidgetSnapshotStore(
             store: WidgetSharedDefaultsStore(userDefaults: userDefaults)
         )
-        let preferenceStore = WidgetSnapshotPreferenceStore(
+        let preferenceStore = WidgetSnapshotPreferenceStoreImpl(
             userDefaults: userDefaults
         )
-        let updater = WidgetSnapshotUpdater(
+        let updater = WidgetSnapshotUpdaterImpl(
             snapshotStore: snapshotStore,
             preferenceStore: preferenceStore,
             heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)

@@ -46,13 +46,13 @@ struct WidgetSnapshotPreferenceStoreTests {
     }
 
     private func makeFixture() -> (
-        widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore,
+        widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStoreImpl,
         userDefaults: UserDefaults
     ) {
         let suiteName = "WidgetSnapshotPreferenceStoreTests.\(UUID().uuidString)"
         let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
         userDefaults.removePersistentDomain(forName: suiteName)
-        let widgetSnapshotPreferenceStore = WidgetSnapshotPreferenceStore(userDefaults: userDefaults)
+        let widgetSnapshotPreferenceStore = WidgetSnapshotPreferenceStoreImpl(userDefaults: userDefaults)
         return (widgetSnapshotPreferenceStore, userDefaults)
     }
 }

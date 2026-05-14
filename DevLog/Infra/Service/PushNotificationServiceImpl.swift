@@ -1,5 +1,5 @@
 //
-//  PushNotificationService.swift
+//  PushNotificationServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 7/10/25.
@@ -10,7 +10,7 @@ import Combine
 import FirebaseFirestore
 import FirebaseFunctions
 
-final class PushNotificationService {
+final class PushNotificationServiceImpl: PushNotificationService {
     private enum FunctionName: String {
         case requestPushNotificationDeletion
         case undoPushNotificationDeletion
@@ -18,7 +18,7 @@ final class PushNotificationService {
 
     private let store = Firestore.firestore()
     private let functions = Functions.functions(region: "asia-northeast3")
-    private let logger = Logger(category: "PushNotificationService")
+    private let logger = Logger(category: "PushNotificationServiceImpl")
 
     /// 푸시 알림 On/Off 설정
     func fetchPushNotificationEnabled() async throws -> Bool {
@@ -262,7 +262,7 @@ final class PushNotificationService {
     }
 }
 
-private extension PushNotificationService {
+private extension PushNotificationServiceImpl {
     func makeQuery(
         uid: String,
         query: PushNotificationQuery

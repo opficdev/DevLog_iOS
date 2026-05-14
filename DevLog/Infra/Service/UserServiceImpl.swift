@@ -1,5 +1,5 @@
 //
-//  UserService.swift
+//  UserServiceImpl.swift
 //  DevLog
 //
 //  Created by opfic on 6/4/25.
@@ -8,9 +8,9 @@
 import FirebaseAuth
 import FirebaseFirestore
 
-final class UserService {
+final class UserServiceImpl: UserService {
     private let store = Firestore.firestore()
-    private let logger = Logger(category: "UserService")
+    private let logger = Logger(category: "UserServiceImpl")
     
     // 유저를 Firestore에 저장 및 업데이트
     func upsertUser(_ response: AuthDataResponse) async throws {

@@ -1,5 +1,5 @@
 //
-//  AuthService.swift
+//  AuthServiceImpl.swift
 //  DevLog
 //
 //  Created by 최윤진 on 11/29/25.
@@ -10,10 +10,10 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
 
-final class AuthService {
+final class AuthServiceImpl: AuthService {
     private let store = Firestore.firestore()
     private let messaging = Messaging.messaging()
-    private let logger = Logger(category: "AuthService")
+    private let logger = Logger(category: "AuthServiceImpl")
     private let subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)
     private var handler: AuthStateDidChangeListenerHandle?
     private var isCompletingSignIn = false
@@ -24,6 +24,14 @@ final class AuthService {
 
     var providerIDs: [String] {
         Auth.auth().currentUser?.providerData.map { $0.providerID } ?? []
+    }
+
+    var currentUserEmail: String? {
+        Auth.auth().currentUser?.email
+    }
+
+    var providerCount: Int {
+        Auth.auth().currentUser?.providerData.count ?? 0
     }
 
     init() {
@@ -121,5 +129,14 @@ final class AuthService {
             logger.error("Failed to sign out while clearing session", error: error)
             throw error
         }
+    }
+
+    func isCredentialAlreadyInUseError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        guard nsError.domain == AuthErrorDomain,
+              let authErrorCode = AuthErrorCode(rawValue: nsError.code) else {
+            return false
+        }
+        return authErrorCode == .credentialAlreadyInUse
     }
 }
