@@ -51,6 +51,38 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 - 분기별 활동 히트맵 제공
 - Google, GitHub, Apple 로그인 및 계정 연동
 
+## 아키텍처
+
+MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방향 흐름을 차용한 구조  
+화면, 상태, 비즈니스 로직, 외부 의존성 분리를 위한 `MVVM + Clean Architecture` 기반 구성
+
+<table>
+  <tr>
+    <td align="center">
+      <img alt="App Architecture" src="./docs/App.png" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">앱 아키텍처</td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img alt="Store Protocol" src="./docs/store-protocol.png" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">Store 프로토콜</td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img alt="Widget Architecture" src="./docs/Widget.png" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">위젯 데이터 아키텍처</td>
+  </tr>
+</table>
+
 ## 주요 기능
 
 ### 로그인 및 계정 관리
@@ -120,37 +152,6 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 | Utility | GoogleSignIn, OrderedCollections |
 | Tooling | Xcode, Swift Package Manager, SwiftLint, Fastlane |
 
-## 아키텍처
-
-MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방향 흐름을 차용한 구조  
-화면, 상태, 비즈니스 로직, 외부 의존성 분리를 위한 `MVVM + Clean Architecture` 기반 구성
-
-<table>
-  <tr>
-    <td align="center">
-      <img alt="App Architecture" src="./docs/App.png" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">앱 아키텍처</td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img alt="Store Protocol" src="./docs/store-protocol.png" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">Store 프로토콜</td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img alt="Widget Architecture" src="./docs/Widget.png" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">위젯 데이터 아키텍처</td>
-  </tr>
-</table>
 
 ## 프로젝트 구조
 
