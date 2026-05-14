@@ -8,6 +8,7 @@
 import SwiftUI
 import AppIntents
 import WidgetKit
+import DevLogWidgetShared
 
 struct HeatmapWidget: Widget {
     let kind = WidgetKind.heatmap

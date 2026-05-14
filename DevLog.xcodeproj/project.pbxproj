@@ -10,12 +10,16 @@
 		0957A66CFE9CB98EA302CC22 /* DevLogWidgetShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 351E9250A1779CBA4D70688E /* DevLogWidgetShared.framework */; };
 		1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; };
+		18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F972F1E8E0F5156FE9651020 /* GoogleSignIn */; };
 		26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; };
 		593BFC1632C776A7D59EF625 /* DevLogDataMapper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF31C7E0802E4877630B4E0D /* DevLogDataMapper.framework */; };
 		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
 		79134AD67952720CCC5069EA /* DevLogStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogStorage.framework */; };
+		7A0D2CD79D383F3D256D6065 /* DevLogWidgetShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 351E9250A1779CBA4D70688E /* DevLogWidgetShared.framework */; };
 		7AB46A7765E72B61AC730D41 /* DevLogUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2F070E465CD9260A295A505 /* DevLogUI.framework */; };
 		8B41461F945DA9A94D3330F9 /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA04D8F5F1B04A3FBE8C5763 /* DevLogDataCommon.framework */; };
+		8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E72BBE64130E2666E4680E1B /* FirebaseMessaging */; };
+		B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */; };
 		B51F2FBCE730B52489D0F89F /* DevLogDataRepository.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C86A027695491A3640899360 /* DevLogDataRepository.framework */; };
 		CA836545BFC2C01D1A1197AF /* DevLogDataDTO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DF226704A710E19F3CCAD1A /* DevLogDataDTO.framework */; };
 		DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */; };
@@ -243,19 +247,45 @@
 		E6378CBE9A1D81625216CF86 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = Application/DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		673A0C8CF8DB5C6AD6614292 /* Exceptions for "Application/DevLogApp/Sources" folder in "DevLog" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Config.xcconfig,
+				Resource/Info.plist,
+			);
+			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
+		};
+		6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/DevLogApp/WidgetExtension" folder in "DevLogWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resource/Info.plist,
+			);
+			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF34164A2E45F67C00F9312B /* DevLog_Unit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = DevLog_Unit;
 			sourceTree = "<group>";
 		};
 		DF8AB7982E938B0B00E50BBF /* Application/DevLogApp/Sources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				673A0C8CF8DB5C6AD6614292 /* Exceptions for "Application/DevLogApp/Sources" folder in "DevLog" target */,
+			);
 			path = Application/DevLogApp/Sources;
 			sourceTree = "<group>";
 		};
 		DFD3A9752F8E89DD001DA7CD /* Application/DevLogApp/WidgetExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/DevLogApp/WidgetExtension" folder in "DevLogWidgetExtension" target */,
+			);
 			path = Application/DevLogApp/WidgetExtension;
 			sourceTree = "<group>";
 		};
@@ -275,6 +305,7 @@
 			files = (
 				DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */,
 				DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */,
+				7A0D2CD79D383F3D256D6065 /* DevLogWidgetShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +325,9 @@
 				7AB46A7765E72B61AC730D41 /* DevLogUI.framework in Frameworks */,
 				1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */,
 				0957A66CFE9CB98EA302CC22 /* DevLogWidgetShared.framework in Frameworks */,
+				B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */,
+				8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */,
+				18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +429,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				0AB29A08B809E8A2E1AD6CA3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DFD3A9752F8E89DD001DA7CD /* Application/DevLogApp/WidgetExtension */,
@@ -435,6 +470,11 @@
 				DF8AB7982E938B0B00E50BBF /* Application/DevLogApp/Sources */,
 			);
 			name = DevLog;
+			packageProductDependencies = (
+				0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */,
+				E72BBE64130E2666E4680E1B /* FirebaseMessaging */,
+				F972F1E8E0F5156FE9651020 /* GoogleSignIn */,
+			);
 			productName = SwiftUI_DevLog;
 			productReference = DFD48B002DC4D6E2005905C5 /* DevLog.app */;
 			productType = "com.apple.product-type.application";
@@ -473,6 +513,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */,
+				D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DFD48B012DC4D6E2005905C5 /* Products */;
@@ -658,6 +700,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0AB29A08B809E8A2E1AD6CA3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogWidgetShared;
+			targetProxy = F0A01BBA37FA27D63B9D6943 /* PBXContainerItemProxy */;
+		};
 		0BFC6FE7043DE7320546ABAF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DevLogDataMapper;
@@ -715,7 +762,7 @@
 		};
 		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
+			productRef = DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */;
 		};
 		DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1124,6 +1171,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+		D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
 		DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint";
@@ -1135,10 +1198,25 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */ = {
+		0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		E72BBE64130E2666E4680E1B /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		F972F1E8E0F5156FE9651020 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

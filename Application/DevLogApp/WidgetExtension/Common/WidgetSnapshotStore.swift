@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogWidgetShared
 
 final class WidgetSnapshotStore {
     private let store: WidgetSharedDefaultsStore

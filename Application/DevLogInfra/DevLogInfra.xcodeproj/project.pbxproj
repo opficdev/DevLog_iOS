@@ -15,6 +15,7 @@
 		5C3D4AB0EA1E2DA901239A6C /* FirestorePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CFC9162F5063E3CB017B40 /* FirestorePath.swift */; };
 		6493ACB77436F1E887D91D59 /* FirebaseAuthUser+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59E81A47825142881793450F /* FirebaseAuthUser+.swift */; };
 		65478CAC7F8597445F84F656 /* TodoServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */; };
+		65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */; };
 		6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */; };
 		6FCB70DE3225AFA821300AC7 /* InfraLayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */; };
 		70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */; };
@@ -24,9 +25,14 @@
 		9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */; };
 		A18672C71ABCFAAFC19775F5 /* DevLogDataProtocol.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CE407FD20ABD6E4ABC9BC63 /* DevLogDataProtocol.framework */; };
 		D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */; };
+		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
 		EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */; };
+		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
 		F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */; };
+		FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */; };
+		FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 94394E2197878DD50AF67628 /* FirebaseMessaging */; };
 		FE130A3E1E85658BD3ECE791 /* FirebaseFunctions+.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */; };
+		FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */ = {isa = PBXBuildFile; productRef = EE91BC971B2F1FFEEDA3A3B8 /* Nexa */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,6 +125,12 @@
 				17DCF2F561737FAE2CE744AC /* DevLogDataCommon.framework in Frameworks */,
 				8DC809F74EA0D636E5F51A83 /* DevLogDataDTO.framework in Frameworks */,
 				A18672C71ABCFAAFC19775F5 /* DevLogDataProtocol.framework in Frameworks */,
+				FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */,
+				65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */,
+				E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */,
+				FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */,
+				EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */,
+				FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +269,14 @@
 				A7332E416B2191D257886169 /* PBXTargetDependency */,
 			);
 			name = DevLogInfra;
+			packageProductDependencies = (
+				2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */,
+				CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */,
+				172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */,
+				94394E2197878DD50AF67628 /* FirebaseMessaging */,
+				7333E70E9D312E56D4A364A6 /* GoogleSignIn */,
+				EE91BC971B2F1FFEEDA3A3B8 /* Nexa */,
+			);
 			productName = DevLogInfra;
 			productReference = 592C8B7B099933759AB316A5 /* DevLogInfra.framework */;
 			productType = "com.apple.product-type.framework";
@@ -280,6 +300,11 @@
 			);
 			mainGroup = 78591B5535D993B16F897C7C;
 			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				7472E8F03A98CCC38B5332F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				13CD939395C6B0EEB80B46F6 /* XCRemoteSwiftPackageReference "Nexa" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
 			projectDirPath = "";
@@ -575,6 +600,66 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		13CD939395C6B0EEB80B46F6 /* XCRemoteSwiftPackageReference "Nexa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/opficdev/Nexa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
+		6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
+		7472E8F03A98CCC38B5332F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		7333E70E9D312E56D4A364A6 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7472E8F03A98CCC38B5332F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		94394E2197878DD50AF67628 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		EE91BC971B2F1FFEEDA3A3B8 /* Nexa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13CD939395C6B0EEB80B46F6 /* XCRemoteSwiftPackageReference "Nexa" */;
+			productName = Nexa;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FF22261AB99602DAB8E9B323 /* Project object */;
 }

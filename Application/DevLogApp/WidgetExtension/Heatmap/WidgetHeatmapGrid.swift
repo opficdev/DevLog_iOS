@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DevLogWidgetShared
 
 struct WidgetHeatmapGrid: View {
     let months: [WidgetHeatmapMonthSnapshot]

@@ -17,6 +17,7 @@
 		26FA5A7B5E8EDE1B8B6BEE4C /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255A04E841570A664D15C72 /* SearchView.swift */; };
 		2781DD85BEB0D586F730C53C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F04A173095F3737E4487EF7 /* ProfileView.swift */; };
 		2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */; };
+		3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 423A6FE16D5EC7FECF77A31A /* MarkdownUI */; };
 		33374D81BED973A28E95EB88 /* HeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D21657B3F9D63E2BE6DD6B4 /* HeatmapView.swift */; };
 		3568FBF125892AF4577A533B /* PushNotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0358ADF733F6A5DECC8FC94 /* PushNotificationListView.swift */; };
 		3C865F560E7A379D616F092D /* TodoManageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9340555B2B620464698851A5 /* TodoManageView.swift */; };
@@ -44,6 +45,8 @@
 		D12294635C147B35F3EA3314 /* PushNotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C295FB79B9FCF187708EFF1 /* PushNotificationSettingsView.swift */; };
 		D7ED2E08383517AA3E242B0C /* TodayViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D877FBAD44D5DF8233F0BB3 /* TodayViewCoordinator.swift */; };
 		DCF1DA50663107DA4687A0D4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C35DBF629B40E93721B79D /* Foundation.framework */; };
+		E68FD303E39CE280ABFC8A57 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = D486CA7A0AC3B3C1992D90D7 /* OrderedCollections */; };
+		E69CD0D89DDDF4A68406680D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D06169FD4B643952DF59EDAE /* FirebaseAuth */; };
 		E9BE203BADA107278CFBDD54 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EBEFF93E1CFC9AF98B4B940 /* HomeView.swift */; };
 		F0B4DBB89733E466B105CF25 /* EnvironmentValues+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931DDC13F47DBC816EDB17D7 /* EnvironmentValues+.swift */; };
 		F1474D4F84693113355B7DA2 /* TodoMarkdownContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119B7970317B27ADC8DC1B3 /* TodoMarkdownContentView.swift */; };
@@ -134,6 +137,9 @@
 				DCF1DA50663107DA4687A0D4 /* Foundation.framework in Frameworks */,
 				A4AD1EE45C758CF4DBA545A9 /* DevLogDomain.framework in Frameworks */,
 				2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */,
+				3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */,
+				E68FD303E39CE280ABFC8A57 /* OrderedCollections in Frameworks */,
+				E69CD0D89DDDF4A68406680D /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +353,11 @@
 				4F02ECB9EB26770F47EC2D36 /* PBXTargetDependency */,
 			);
 			name = DevLogUI;
+			packageProductDependencies = (
+				423A6FE16D5EC7FECF77A31A /* MarkdownUI */,
+				D486CA7A0AC3B3C1992D90D7 /* OrderedCollections */,
+				D06169FD4B643952DF59EDAE /* FirebaseAuth */,
+			);
 			productName = DevLogUI;
 			productReference = EF72EFD447F4FDC1142BABA1 /* DevLogUI.framework */;
 			productType = "com.apple.product-type.framework";
@@ -370,6 +381,11 @@
 			);
 			mainGroup = D808B5660152F4480C65BB71;
 			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				8A1AB2316BD728E4435CE2A1 /* XCRemoteSwiftPackageReference "swift-collections" */,
+				AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B68C915FE344171A3A1311EF /* Products */;
 			projectDirPath = "";
@@ -665,6 +681,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
+		8A1AB2316BD728E4435CE2A1 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
+		AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		423A6FE16D5EC7FECF77A31A /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+		D06169FD4B643952DF59EDAE /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		D486CA7A0AC3B3C1992D90D7 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A1AB2316BD728E4435CE2A1 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2A5CEF5F3893E84D1C70CACE /* Project object */;
 }

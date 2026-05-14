@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogWidgetShared
 
 final class WidgetSharedDefaultsStore {
     private let userDefaults: UserDefaults

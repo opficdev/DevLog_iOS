@@ -19,7 +19,7 @@ public struct WidgetHeatmapPlaceholderShape {
         quarterMonths.map(\.weeks.count)
     }
 
-    init(
+    public init(
         date: Date = Date(),
         calendar: Calendar = .current
     ) {

@@ -8,6 +8,7 @@
 import SwiftUI
 import AppIntents
 import WidgetKit
+import DevLogWidgetShared
 
 struct TodayTodoWidget: Widget {
     let kind = WidgetKind.todayTodo
