@@ -23,9 +23,9 @@
       location = "group:DevLogUI/DevLogUI.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
+      location = "group:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:DevLogWidgetShared/DevLogWidgetShared.xcodeproj">
+      location = "group:Widget/DevLogWidgetShared/DevLogWidgetShared.xcodeproj">
    </FileRef>
 </Workspace>

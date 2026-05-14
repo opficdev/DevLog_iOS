@@ -230,9 +230,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		264087B765CCEA97AB4C0B79 /* DevLogWidgetCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetCore.xcodeproj; path = Application/DevLogWidgetCore/DevLogWidgetCore.xcodeproj; sourceTree = "<group>"; };
+		264087B765CCEA97AB4C0B79 /* DevLogWidgetCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetCore.xcodeproj; path = Application/Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj; sourceTree = "<group>"; };
 		76E37401D4B2CBB105E63892 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = Application/DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
-		80A4526EFBD04A013A8BFC08 /* DevLogWidgetShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetShared.xcodeproj; path = Application/DevLogWidgetShared/DevLogWidgetShared.xcodeproj; sourceTree = "<group>"; };
+		80A4526EFBD04A013A8BFC08 /* DevLogWidgetShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetShared.xcodeproj; path = Application/Widget/DevLogWidgetShared/DevLogWidgetShared.xcodeproj; sourceTree = "<group>"; };
 		89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogUI.xcodeproj; path = Application/DevLogUI/DevLogUI.xcodeproj; sourceTree = "<group>"; };
 		8EEA1D8B1005FDC147585C76 /* DevLogStorage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogStorage.xcodeproj; path = Application/DevLogStorage/DevLogStorage.xcodeproj; sourceTree = "<group>"; };
 		CA2F877790969610EE38BD93 /* DevLogInfra.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogInfra.xcodeproj; path = Application/DevLogInfra/DevLogInfra.xcodeproj; sourceTree = "<group>"; };
@@ -256,7 +256,7 @@
 			);
 			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
 		};
-		6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/DevLogApp/WidgetExtension" folder in "DevLogWidgetExtension" target */ = {
+		6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/Widget/DevLogWidgetExtension" folder in "DevLogWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resource/Info.plist,
@@ -281,12 +281,12 @@
 			path = Application/DevLogApp/Sources;
 			sourceTree = "<group>";
 		};
-		DFD3A9752F8E89DD001DA7CD /* Application/DevLogApp/WidgetExtension */ = {
+		DFD3A9752F8E89DD001DA7CD /* Application/Widget/DevLogWidgetExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/DevLogApp/WidgetExtension" folder in "DevLogWidgetExtension" target */,
+				6D865D5656AAAB2BB495EB93 /* Exceptions for "Application/Widget/DevLogWidgetExtension" folder in "DevLogWidgetExtension" target */,
 			);
-			path = Application/DevLogApp/WidgetExtension;
+			path = Application/Widget/DevLogWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -356,7 +356,7 @@
 				DFD6453F2EC827A10073E133 /* .gitignore */,
 				DF8AB7982E938B0B00E50BBF /* Application/DevLogApp/Sources */,
 				DF34164A2E45F67C00F9312B /* DevLog_Unit */,
-				DFD3A9752F8E89DD001DA7CD /* Application/DevLogApp/WidgetExtension */,
+				DFD3A9752F8E89DD001DA7CD /* Application/Widget/DevLogWidgetExtension */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				DFD48B012DC4D6E2005905C5 /* Products */,
 				4F3D8CEC7F23C3BFF6B9E27B /* Projects */,
@@ -432,7 +432,7 @@
 				0AB29A08B809E8A2E1AD6CA3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DFD3A9752F8E89DD001DA7CD /* Application/DevLogApp/WidgetExtension */,
+				DFD3A9752F8E89DD001DA7CD /* Application/Widget/DevLogWidgetExtension */,
 			);
 			name = DevLogWidgetExtension;
 			productName = DevLogWidgetExtension;
@@ -837,13 +837,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = Application/DevLogApp/WidgetExtension/Resource/DevLogWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Application/Widget/DevLogWidgetExtension/Resource/DevLogWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CPC6N38WA;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Application/DevLogApp/WidgetExtension/Resource/Info.plist;
+				INFOPLIST_FILE = Application/Widget/DevLogWidgetExtension/Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17;
@@ -873,13 +873,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = Application/DevLogApp/WidgetExtension/Resource/DevLogWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Application/Widget/DevLogWidgetExtension/Resource/DevLogWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4CPC6N38WA;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Application/DevLogApp/WidgetExtension/Resource/Info.plist;
+				INFOPLIST_FILE = Application/Widget/DevLogWidgetExtension/Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17;

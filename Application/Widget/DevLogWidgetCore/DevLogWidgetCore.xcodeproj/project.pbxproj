@@ -120,7 +120,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0A1EDF6C52AF092812BC84CA /* DevLogPresentation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogPresentation.xcodeproj; path = ../DevLogPresentation/DevLogPresentation.xcodeproj; sourceTree = "<group>"; };
+		0A1EDF6C52AF092812BC84CA /* DevLogPresentation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogPresentation.xcodeproj; path = ../../DevLogPresentation/DevLogPresentation.xcodeproj; sourceTree = "<group>"; };
 		2C16C61F9C1CC6EE71773E0D /* WidgetSyncEventBus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEventBus.swift; path = Sources/Sync/WidgetSyncEventBus.swift; sourceTree = "<group>"; };
 		2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapWidgetSnapshotFactory.swift; path = Sources/Heatmap/HeatmapWidgetSnapshotFactory.swift; sourceTree = "<group>"; };
 		389BB07F08F830F06F8F536E /* TodayWidgetSnapshotFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayWidgetSnapshotFactory.swift; path = Sources/Today/TodayWidgetSnapshotFactory.swift; sourceTree = "<group>"; };
@@ -132,8 +132,8 @@
 		6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D134BB8FDB16D977E0BCB89 /* HeatmapWidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapWidgetSnapshot.swift; path = Sources/Heatmap/HeatmapWidgetSnapshot.swift; sourceTree = "<group>"; };
 		8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSharedDefaultsStore.swift; path = Sources/Common/WidgetSharedDefaultsStore.swift; sourceTree = "<group>"; };
-		ACFE372A6EC5D1CD395230F0 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
-		B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
+		ACFE372A6EC5D1CD395230F0 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
+		B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		DD66A7F2739CB82F98A10A94 /* WidgetSyncEventHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEventHandler.swift; path = Sources/Sync/WidgetSyncEventHandler.swift; sourceTree = "<group>"; };
 		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
