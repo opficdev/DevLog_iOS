@@ -12,6 +12,7 @@
 		104A1B691C40A8182E5F8EF8 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26AF44FFBB251F34E8F80B5 /* Store.swift */; };
 		10EA3E7496613DE389BF9DB7 /* PushNotificationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF28FCF602F6165DC67FE7D6 /* PushNotificationItem.swift */; };
 		143CCE59C5AE926947DA0EA6 /* SystemTodoCategoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A117BE662EC3F9C96FF9AC61 /* SystemTodoCategoryItem.swift */; };
+		18C98041FF04371B8D65344B /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DCC0B6BEE21E7E61E0D2C8 /* DevLogDataCommon.framework */; };
 		1A5EF7B2B4490CBCA9DAA040 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E844646CD1D172C92451FBE /* SearchViewModel.swift */; };
 		246479E87ECFD0B2DDDA1F75 /* TodoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA522CF101F432B37F315C24 /* TodoListViewModel.swift */; };
 		2FB6AD996A213275B4EEEA05 /* TodayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3C4B51F6957C8E9D93DC4E /* TodayViewModel.swift */; };
@@ -40,8 +41,68 @@
 		D8DCEA367C54C527295E004F /* HeatmapQuarter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2EDDC1E545869FE9C849E4B /* HeatmapQuarter.swift */; };
 		DB081DF4854E8D445EFE0608 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7D1C854833EFD757D7AD4 /* ProfileViewModel.swift */; };
 		E7EBEBA803A9449A6CBEF11B /* RecentTodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39AE1F6609037A277C54DD7 /* RecentTodoItem.swift */; };
+		E91B53D33C90B9298E0B2EA1 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */; };
 		FBD395A75EDED059CC021AF3 /* PushNotificationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A0628537CFB964D5641A5F /* PushNotificationSettingsViewModel.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3DFAA1B8CAA99746A43B0525 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C063BD562070CA11C2AA4EDF;
+			remoteInfo = Subproject;
+		};
+		63A78AEC0654C9B6030C055B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
+			remoteInfo = DevLogDomain;
+		};
+		77E4314FC17F4A0414624BB3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 80A60CC195BD79C638F5B405;
+			remoteInfo = DevLogDataCommon;
+		};
+		7EC73D0C02D4A6D53AB175BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 690289F520872AC78D6C95D3;
+			remoteInfo = Subproject;
+		};
+		8AB12CC1E45EA2E88A0C348C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 44466B71BA6B67309210A7BB;
+			remoteInfo = Subproject;
+		};
+		BDCEF8AD496E43BE1880A579 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 92502C9F074520D19CC451EF;
+			remoteInfo = Subproject;
+		};
+		D589A82F38CCB742DB42F82D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
+			remoteInfo = Subproject;
+		};
+		F62246BFB23AD8069C3C9A25 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
+			remoteInfo = Subproject;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		045ABCD0E3877256008CDAFF /* SettingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingViewModel.swift; path = ../../DevLog/Presentation/ViewModel/SettingViewModel.swift; sourceTree = "<group>"; };
@@ -58,6 +119,7 @@
 		64E49223C6BC0615AC7B9C37 /* ActivityKindItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ActivityKindItem.swift; path = ../../DevLog/Presentation/Structure/Profile/ActivityKindItem.swift; sourceTree = "<group>"; };
 		70C952669C86B8EB042ED7CF /* HeatmapMonth.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapMonth.swift; path = ../../DevLog/Presentation/Structure/Profile/HeatmapMonth.swift; sourceTree = "<group>"; };
 		7E39559C85F238BBE47342B5 /* HomeViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeViewModel.swift; path = ../../DevLog/Presentation/ViewModel/HomeViewModel.swift; sourceTree = "<group>"; };
+		8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 		9305330DB8199E1911FAAF49 /* TodoIDItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoIDItem.swift; path = ../../DevLog/Presentation/Structure/Todo/TodoIDItem.swift; sourceTree = "<group>"; };
 		9C6D01FAEAE8EB1FB2D60C7A /* TodoReferenceItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoReferenceItem.swift; path = ../../DevLog/Presentation/Structure/Todo/TodoReferenceItem.swift; sourceTree = "<group>"; };
 		A04BEF390A74ECC5558A076F /* HeatmapActivityItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapActivityItem.swift; path = ../../DevLog/Presentation/Structure/Profile/HeatmapActivityItem.swift; sourceTree = "<group>"; };
@@ -65,6 +127,7 @@
 		A21824C2F6D3F1903489FFF2 /* TodoDetailViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoDetailViewModel.swift; path = ../../DevLog/Presentation/ViewModel/TodoDetailViewModel.swift; sourceTree = "<group>"; };
 		A9A0628537CFB964D5641A5F /* PushNotificationSettingsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationSettingsViewModel.swift; path = ../../DevLog/Presentation/ViewModel/PushNotificationSettingsViewModel.swift; sourceTree = "<group>"; };
 		B19BFDE3E7FFD430D6DF2AA5 /* WebPageItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageItem.swift; path = ../../DevLog/Presentation/Structure/WebPageItem.swift; sourceTree = "<group>"; };
+		B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		B4D75E33B582B3347AC077B0 /* HeatmapDay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapDay.swift; path = ../../DevLog/Presentation/Structure/Profile/HeatmapDay.swift; sourceTree = "<group>"; };
 		B93F9DFD3646DEC19DB952E0 /* MainViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainViewModel.swift; path = ../../DevLog/Presentation/ViewModel/MainViewModel.swift; sourceTree = "<group>"; };
 		BA522CF101F432B37F315C24 /* TodoListViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoListViewModel.swift; path = ../../DevLog/Presentation/ViewModel/TodoListViewModel.swift; sourceTree = "<group>"; };
@@ -87,6 +150,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */,
+				E91B53D33C90B9298E0B2EA1 /* DevLogDomain.framework in Frameworks */,
+				18C98041FF04371B8D65344B /* DevLogDataCommon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +162,12 @@
 			isa = PBXGroup;
 			children = (
 				5E7473315771B5D3030C5003 /* DevLogPresentation.framework */,
+				6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */,
+				E2DCC0B6BEE21E7E61E0D2C8 /* DevLogDataCommon.framework */,
+				B369CB942ED1617E5B26BEF5 /* DevLogDataDTO.framework */,
+				ECA0FA5D48B08534F54744FC /* DevLogDataProtocol.framework */,
+				80C7F2CB4F4D5904E5DB6956 /* DevLogDataMapper.framework */,
+				45BCDF66F607E7CACB49B7C9 /* DevLogDataRepository.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -107,7 +178,17 @@
 				03D4331F04C462F4C642860F /* Products */,
 				9CC0354538B2A1DF2C74E484 /* Frameworks */,
 				A4A427D518004ED78EB659DE /* DevLogPresentation */,
+				65C85B83FD4ECCC13F82B90F /* Projects */,
 			);
+			sourceTree = "<group>";
+		};
+		65C85B83FD4ECCC13F82B90F /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */,
+				8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */,
+			);
+			name = Projects;
 			sourceTree = "<group>";
 		};
 		9A88EA8D5BC609F90B07B726 /* iOS */ = {
@@ -191,6 +272,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */,
+				3E21F3A3C22C9F31A55EC073 /* PBXTargetDependency */,
 			);
 			name = DevLogPresentation;
 			productName = DevLogPresentation;
@@ -219,12 +302,67 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 03D4331F04C462F4C642860F /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 03D4331F04C462F4C642860F /* Products */;
+					ProjectRef = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
+				},
+				{
+					ProductGroup = 03D4331F04C462F4C642860F /* Products */;
+					ProjectRef = 8ECF3A755EF0EF7F7BAEF5EC /* DevLogData.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		45BCDF66F607E7CACB49B7C9 /* DevLogDataRepository.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDataRepository.framework;
+			remoteRef = D589A82F38CCB742DB42F82D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDomain.framework;
+			remoteRef = F62246BFB23AD8069C3C9A25 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		80C7F2CB4F4D5904E5DB6956 /* DevLogDataMapper.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDataMapper.framework;
+			remoteRef = 8AB12CC1E45EA2E88A0C348C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B369CB942ED1617E5B26BEF5 /* DevLogDataDTO.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDataDTO.framework;
+			remoteRef = BDCEF8AD496E43BE1880A579 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DCC0B6BEE21E7E61E0D2C8 /* DevLogDataCommon.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDataCommon.framework;
+			remoteRef = 7EC73D0C02D4A6D53AB175BB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		ECA0FA5D48B08534F54744FC /* DevLogDataProtocol.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDataProtocol.framework;
+			remoteRef = 3DFAA1B8CAA99746A43B0525 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5F943984CC1B4A3836CF316E /* Resources */ = {
@@ -278,6 +416,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3E21F3A3C22C9F31A55EC073 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogDataCommon;
+			targetProxy = 77E4314FC17F4A0414624BB3 /* PBXContainerItemProxy */;
+		};
+		C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogDomain;
+			targetProxy = 63A78AEC0654C9B6030C055B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1119D89647A3E81696CD6F79 /* Debug */ = {

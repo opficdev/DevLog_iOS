@@ -16,6 +16,7 @@
 		233981B375AF5EA066660B86 /* UIKitTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941338BD9D01E14CF5CCD53B /* UIKitTextEditor.swift */; };
 		26FA5A7B5E8EDE1B8B6BEE4C /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255A04E841570A664D15C72 /* SearchView.swift */; };
 		2781DD85BEB0D586F730C53C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F04A173095F3737E4487EF7 /* ProfileView.swift */; };
+		2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */; };
 		33374D81BED973A28E95EB88 /* HeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D21657B3F9D63E2BE6DD6B4 /* HeatmapView.swift */; };
 		3568FBF125892AF4577A533B /* PushNotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0358ADF733F6A5DECC8FC94 /* PushNotificationListView.swift */; };
 		3C865F560E7A379D616F092D /* TodoManageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9340555B2B620464698851A5 /* TodoManageView.swift */; };
@@ -30,6 +31,7 @@
 		9225927FB28E8A2DD20DEF54 /* CacheableImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 192A2827C2D676A1AE820FBA /* CacheableImage.swift */; };
 		9A245A6C4C2FA8D55EA8840D /* TodoItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3343BE9F2B47D02417F53AEA /* TodoItemRow.swift */; };
 		9E8EAA00729A59F67360F063 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BB99F804DD47B96FCCFDC0 /* WebView.swift */; };
+		A4AD1EE45C758CF4DBA545A9 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03163FCF510FAA69D772F466 /* DevLogDomain.framework */; };
 		AAA318D37BC97EFB4C785ECD /* TodoInfoSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B13C71E611B9D20EA5B5CA /* TodoInfoSheetView.swift */; };
 		AEA3D50A9080249A6359476C /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B72345FA909BFA40078D53 /* CheckBox.swift */; };
 		B4A60A3AB524E4F9D68750C3 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F902DA946EBFEEC4CD14B /* TodayView.swift */; };
@@ -48,6 +50,37 @@
 		F99147DC6D6F48E3842CD204 /* LoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DBA50879A2D0E264B8F49 /* LoginButton.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		4B34A432C50DB9586CA58C58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5E7473315771B5D3030C5003;
+			remoteInfo = Subproject;
+		};
+		D408B4BC83C710F46F7B9E1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
+			remoteInfo = DevLogDomain;
+		};
+		F8D6CA488ADBE3311ABF0142 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A85D2D7D1D6DAAFBF86C9C34;
+			remoteInfo = DevLogPresentation;
+		};
+		FA6ED833721ECB7CAC797902 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
+			remoteInfo = Subproject;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0C295FB79B9FCF187708EFF1 /* PushNotificationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationSettingsView.swift; path = ../../DevLog/UI/Setting/PushNotificationSettingsView.swift; sourceTree = "<group>"; };
 		192A2827C2D676A1AE820FBA /* CacheableImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CacheableImage.swift; path = ../../DevLog/UI/Common/Component/CacheableImage.swift; sourceTree = "<group>"; };
@@ -56,6 +89,7 @@
 		27BB99F804DD47B96FCCFDC0 /* WebView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebView.swift; path = ../../DevLog/UI/Common/WebView.swift; sourceTree = "<group>"; };
 		2A0024EDA21AAFA7DEC7058D /* RelativeTimeText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RelativeTimeText.swift; path = ../../DevLog/UI/Common/Component/RelativeTimeText.swift; sourceTree = "<group>"; };
 		2B45C610096E5AC2967606A6 /* TodoListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoListView.swift; path = ../../DevLog/UI/Home/TodoListView.swift; sourceTree = "<group>"; };
+		2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		2EAB97486EC371BE330C70FE /* Toast.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Toast.swift; path = ../../DevLog/UI/Common/Component/Toast.swift; sourceTree = "<group>"; };
 		31A2C1FC9EABEA7C7CA5D67F /* MainViewCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainViewCoordinator.swift; path = ../../DevLog/UI/Main/MainViewCoordinator.swift; sourceTree = "<group>"; };
 		3343BE9F2B47D02417F53AEA /* TodoItemRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoItemRow.swift; path = ../../DevLog/UI/Common/Component/TodoItemRow.swift; sourceTree = "<group>"; };
@@ -66,6 +100,7 @@
 		5D877FBAD44D5DF8233F0BB3 /* TodayViewCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayViewCoordinator.swift; path = ../../DevLog/UI/Today/TodayViewCoordinator.swift; sourceTree = "<group>"; };
 		69C35DBF629B40E93721B79D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6F5844EB62C68540DD8404C5 /* NavigationBarConfigurator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavigationBarConfigurator.swift; path = ../../DevLog/UI/Common/NavigationBarConfigurator.swift; sourceTree = "<group>"; };
+		7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogPresentation.xcodeproj; path = ../DevLogPresentation/DevLogPresentation.xcodeproj; sourceTree = "<group>"; };
 		7ACCCD8C588175D8E7C91F5D /* NavigationRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavigationRouter.swift; path = ../../DevLog/UI/Common/NavigationRouter.swift; sourceTree = "<group>"; };
 		7F04A173095F3737E4487EF7 /* ProfileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProfileView.swift; path = ../../DevLog/UI/Profile/ProfileView.swift; sourceTree = "<group>"; };
 		8D21657B3F9D63E2BE6DD6B4 /* HeatmapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapView.swift; path = ../../DevLog/UI/Profile/HeatmapView.swift; sourceTree = "<group>"; };
@@ -97,6 +132,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCF1DA50663107DA4687A0D4 /* Foundation.framework in Frameworks */,
+				A4AD1EE45C758CF4DBA545A9 /* DevLogDomain.framework in Frameworks */,
+				2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +146,15 @@
 				69C35DBF629B40E93721B79D /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		6C60332595233030EAFFE839 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */,
+				7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */,
+			);
+			name = Projects;
 			sourceTree = "<group>";
 		};
 		7B53286AA9A58D5B6C0124F8 /* DevLogUI */ = {
@@ -168,6 +214,8 @@
 			isa = PBXGroup;
 			children = (
 				EF72EFD447F4FDC1142BABA1 /* DevLogUI.framework */,
+				03163FCF510FAA69D772F466 /* DevLogDomain.framework */,
+				2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,6 +226,7 @@
 				B68C915FE344171A3A1311EF /* Products */,
 				904674574352E72D5129271C /* Frameworks */,
 				7B53286AA9A58D5B6C0124F8 /* DevLogUI */,
+				6C60332595233030EAFFE839 /* Projects */,
 			);
 			sourceTree = "<group>";
 		};
@@ -206,6 +255,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				20304BBBBB4E5B09A653B1F4 /* PBXTargetDependency */,
+				4F02ECB9EB26770F47EC2D36 /* PBXTargetDependency */,
 			);
 			name = DevLogUI;
 			productName = DevLogUI;
@@ -234,12 +285,39 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B68C915FE344171A3A1311EF /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B68C915FE344171A3A1311EF /* Products */;
+					ProjectRef = 2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */;
+				},
+				{
+					ProductGroup = B68C915FE344171A3A1311EF /* Products */;
+					ProjectRef = 7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D205F480E5CDACDE14BEF619 /* DevLogUI */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		03163FCF510FAA69D772F466 /* DevLogDomain.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDomain.framework;
+			remoteRef = FA6ED833721ECB7CAC797902 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogPresentation.framework;
+			remoteRef = 4B34A432C50DB9586CA58C58 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		770F98EDFF3E434D5AA9B2FF /* Resources */ = {
@@ -298,6 +376,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		20304BBBBB4E5B09A653B1F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogDomain;
+			targetProxy = D408B4BC83C710F46F7B9E1B /* PBXContainerItemProxy */;
+		};
+		4F02ECB9EB26770F47EC2D36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogPresentation;
+			targetProxy = F8D6CA488ADBE3311ABF0142 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0017B20412D6EAAA00596A5A /* Release */ = {
