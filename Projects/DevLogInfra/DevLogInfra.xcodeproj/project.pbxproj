@@ -138,6 +138,51 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		091FD7B63F7A260D118E5905 /* SocialLogin */ = {
+			isa = PBXGroup;
+			children = (
+				3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */,
+				1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */,
+				50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */,
+			);
+			name = SocialLogin;
+			sourceTree = "<group>";
+		};
+		244A3B94B9BD4908079A38FB /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				64CFC9162F5063E3CB017B40 /* FirestorePath.swift */,
+				F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */,
+				4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
+		3B9BF1B497E846541A8B6685 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				59E81A47825142881793450F /* FirebaseAuthUser+.swift */,
+				F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */,
+			);
+			name = Extension;
+			sourceTree = "<group>";
+		};
+		66108C2B6459C7D70E0EF39E /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */,
+				B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */,
+				C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */,
+				091FD7B63F7A260D118E5905 /* SocialLogin */,
+				CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */,
+				BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */,
+				383CD000472C3025FACB9EFF /* UserServiceImpl.swift */,
+				34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */,
+				E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */,
+			);
+			name = Service;
+			sourceTree = "<group>";
+		};
 		78591B5535D993B16F897C7C = {
 			isa = PBXGroup;
 			children = (
@@ -159,22 +204,9 @@
 		959D79D1263CC74E32B40D78 /* DevLogInfra */ = {
 			isa = PBXGroup;
 			children = (
-				64CFC9162F5063E3CB017B40 /* FirestorePath.swift */,
-				F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */,
-				4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */,
-				59E81A47825142881793450F /* FirebaseAuthUser+.swift */,
-				F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */,
-				E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */,
-				B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */,
-				C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */,
-				3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */,
-				1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */,
-				50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */,
-				CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */,
-				BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */,
-				383CD000472C3025FACB9EFF /* UserServiceImpl.swift */,
-				34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */,
-				E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */,
+				244A3B94B9BD4908079A38FB /* Common */,
+				3B9BF1B497E846541A8B6685 /* Extension */,
+				66108C2B6459C7D70E0EF39E /* Service */,
 			);
 			name = DevLogInfra;
 			sourceTree = "<group>";

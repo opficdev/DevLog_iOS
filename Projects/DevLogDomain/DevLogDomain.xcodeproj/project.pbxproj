@@ -259,6 +259,106 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		06336E5F6A9C07507981A938 /* Fetch */ = {
+			isa = PBXGroup;
+			children = (
+				E2AC2F400228CA6C5B5FCA33 /* PushNotification */,
+				B615A8EBC1607DD519DCCD30 /* UserProfile */,
+			);
+			name = Fetch;
+			sourceTree = "<group>";
+		};
+		0AB4C554FD913FAB4BF9254D /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				84CDC9921CF2D8DA239470F5 /* Auth */,
+				80C57B5FA6161026812068DD /* Connectivity */,
+				3996DCFE303C8495DC264683 /* PushNotification */,
+				F6876E20E55D968679BBC568 /* Todo */,
+				CB7D53372BE26ABDCF965442 /* TodoCategory */,
+				D9AF57A16253B7CD26A1B811 /* UserData */,
+				FCF6F8666B756E2E47044ED8 /* UserPreferences */,
+				C72910638DF912220397473A /* WebPage */,
+			);
+			name = UseCase;
+			sourceTree = "<group>";
+		};
+		1457DBCD42F2BF1475EA19BE /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				8ADDC57ACEBB9CEB3FCD3F80 /* ObserveSystemThemeUseCase.swift */,
+				01351069EBDFEFE9BEB4E26F /* ObserveSystemThemeUseCaseImpl.swift */,
+				5E821078E0E30A646FFFC1F1 /* UpdateSystemThemeUseCase.swift */,
+				B306337D1C6C39407105B783 /* UpdateSystemThemeUseCaseImpl.swift */,
+			);
+			name = Theme;
+			sourceTree = "<group>";
+		};
+		1598BEE4375C98BA8C7539D1 /* Fetch */ = {
+			isa = PBXGroup;
+			children = (
+				A403DFBCDB028B255F8B9EC5 /* FetchReferenceItemsUseCase.swift */,
+				DA4EC8FBD39E0AEF21117F7C /* FetchReferenceItemsUseCaseImpl.swift */,
+				AD49CB792C5CCA040D99F1CD /* FetchTodoByIDUseCase.swift */,
+				0DD73A331A61A27A1A9BDFD0 /* FetchTodoByIDUseCaseImpl.swift */,
+				8FD502CE4EB95263D32AF23E /* FetchTodosUseCase.swift */,
+				D01987DD2F38CF633D3C4162 /* FetchTodosUseCaseImpl.swift */,
+			);
+			name = Fetch;
+			sourceTree = "<group>";
+		};
+		184F08ABBFD4950C68506C6B /* Provider */ = {
+			isa = PBXGroup;
+			children = (
+				975B88E82CD480E408410A60 /* FetchAuthProvidersUseCase.swift */,
+				6357C21C07A2374530C5302B /* FetchAuthProvidersUseCaseImpl.swift */,
+				C766DC43AFC8A07B1E009FF1 /* LinkAuthProviderUseCase.swift */,
+				A22B34E1AF11D76CE7171CE7 /* LinkAuthProviderUseCaseImpl.swift */,
+				4C2EA32A4DF93B6F77789409 /* UnlinkAuthProviderUseCase.swift */,
+				7EBE5CCA6FD562D1FD4E3DC0 /* UnlinkAuthProviderUseCaseImpl.swift */,
+			);
+			name = Provider;
+			sourceTree = "<group>";
+		};
+		2F900B6B2CFB144D1BD0DC5E /* Delete */ = {
+			isa = PBXGroup;
+			children = (
+				755AD7D03795F56790F1B378 /* DeleteAuthUseCase.swift */,
+				4F7C774056C083FD3BDFEE92 /* DeleteAuthUseCaseImpl.swift */,
+			);
+			name = Delete;
+			sourceTree = "<group>";
+		};
+		317FCABCB97C8954415C0BA9 /* Fetch */ = {
+			isa = PBXGroup;
+			children = (
+				11B14A760F12F75DD433E6E3 /* FetchTodoCategoryPreferencesUseCase.swift */,
+				0135F093DDF8F5DB4D320010 /* FetchTodoCategoryPreferencesUseCaseImpl.swift */,
+			);
+			name = Fetch;
+			sourceTree = "<group>";
+		};
+		327E9B9DDDE4584E00736BF6 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				B3E4B6613C6FA82D6772ED06 /* FetchRecentSearchQueriesUseCase.swift */,
+				9161CF59F34F6666BDD773A8 /* FetchRecentSearchQueriesUseCaseImpl.swift */,
+				4721FC0DF30EE97CCFD8AEB2 /* UpdateRecentSearchQueriesUseCase.swift */,
+				9B2B36142EDE421CE4CAF82E /* UpdateRecentSearchQueriesUseCaseImpl.swift */,
+			);
+			name = Search;
+			sourceTree = "<group>";
+		};
+		3996DCFE303C8495DC264683 /* PushNotification */ = {
+			isa = PBXGroup;
+			children = (
+				83FA2E9993A1F8268BE76269 /* Delete */,
+				A445ABF384869CACBDA0B49F /* Fetch */,
+				C5D0DDB4C845B51522E7AB89 /* Read */,
+			);
+			name = PushNotification;
+			sourceTree = "<group>";
+		};
 		40116A7CE17130969F51069D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -267,125 +367,33 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		534E4B81FFFA3D0023139ACE /* DevLogDomain */ = {
+		45BC2C7111BDE0C5F3091439 /* Fetch */ = {
 			isa = PBXGroup;
 			children = (
-				D3C71ECDDDA08716A716D9B2 /* ActivityKind.swift */,
-				F9A9B5170723706520E75DC7 /* AuthProvider.swift */,
-				C482DCAC8527FFE9767388C8 /* PushNotification.swift */,
-				741F53346E83DDAB8912B25C /* PushNotificationCursor.swift */,
-				1DBC9D7FFF5FC58F5EE67A4E /* PushNotificationPage.swift */,
-				C46B06C77D7DB705ECED40A6 /* PushNotificationQuery.swift */,
-				A86771BA0A9014E81E93B8C0 /* PushNotificationSettings.swift */,
-				F6452B0B4E524F90595D77FD /* SystemTheme.swift */,
-				372106128F8BE30DDE0D41E7 /* SystemTodoCategory.swift */,
-				087434742ED1FAA4546120B9 /* TodayDisplayOptions.swift */,
-				07865C391ACEC35BD969A730 /* Todo.swift */,
-				7697A8469158261B1299B121 /* TodoCategory.swift */,
-				06CE556F368F3FFB8F45D19B /* TodoCategoryPreference.swift */,
-				42C7EE23A3F45CFA5C2F7ECE /* TodoCursor.swift */,
-				E8C9C99957DF94BCF349AEE8 /* TodoPage.swift */,
-				F528B902B4AC945DE2357AF4 /* TodoQuery.swift */,
-				C1914B9FD743F5AC5E82A431 /* TodoReference.swift */,
-				A32E327BE5F24582BDE808DE /* UserProfile.swift */,
-				F5AFD6F6E1DDE50BC837955F /* UserTodoCategory.swift */,
-				1290A4B9F0ED6ABFABC5749D /* WebPage.swift */,
-				83B40B6FE8272B804E1C7712 /* Array.swift */,
-				05D14CAC89969BC5FB42B8D1 /* String.swift */,
-				7CE5DDD90F87E43F27311D31 /* UIFont.swift */,
-				1725CFBBBCE02A2C5412C24D /* AuthDataRepository.swift */,
-				323A45003F23C91F09B2583C /* AuthSessionRepository.swift */,
-				64F3941915699B8D1DC2631A /* AuthenticationRepository.swift */,
-				090C424EC663DC420E210405 /* NetworkConnectivityRepository.swift */,
-				1DE514CE1D81A91A79B3F483 /* PushNotificationRepository.swift */,
-				B843042D7E2BCD42C7DD3FE4 /* TodoCategoryRepository.swift */,
-				7CCD260120C0B0358DA09105 /* TodoRepository.swift */,
-				44D430F73E1C4A9F5EC65263 /* UserDataRepository.swift */,
-				C6606DC27F4AC1B348D9A499 /* UserPreferencesRepository.swift */,
-				45439A52C6F35B7655776A07 /* WebPageImageRepository.swift */,
-				F28AC36CBBB716A8B3C6FDDD /* WebPageRepository.swift */,
-				755AD7D03795F56790F1B378 /* DeleteAuthUseCase.swift */,
-				4F7C774056C083FD3BDFEE92 /* DeleteAuthUseCaseImpl.swift */,
-				975B88E82CD480E408410A60 /* FetchAuthProvidersUseCase.swift */,
-				6357C21C07A2374530C5302B /* FetchAuthProvidersUseCaseImpl.swift */,
-				C766DC43AFC8A07B1E009FF1 /* LinkAuthProviderUseCase.swift */,
-				A22B34E1AF11D76CE7171CE7 /* LinkAuthProviderUseCaseImpl.swift */,
-				4C2EA32A4DF93B6F77789409 /* UnlinkAuthProviderUseCase.swift */,
-				7EBE5CCA6FD562D1FD4E3DC0 /* UnlinkAuthProviderUseCaseImpl.swift */,
-				41B41F22B16C359A70312D77 /* ObserveAuthSessionUseCase.swift */,
-				8B831790BFE85097FB9034BD /* ObserveAuthSessionUseCaseImpl.swift */,
-				517E1CF92FE5C7461C24F2F2 /* SignInUseCase.swift */,
-				2B41302357AD2793E8F75E88 /* SignInUseCaseImpl.swift */,
-				1A4B3291A774346C97DDCA02 /* SignOutUseCase.swift */,
-				8B7A3642B89C1CA241B6AADF /* SignOutUseCaseImpl.swift */,
-				2E2D323E5EAF19D03C4BFAD0 /* ObserveNetworkConnectivityUseCase.swift */,
-				12F96A31F7367B2BFA3F8226 /* ObserveNetworkConnectivityUseCaseImpl.swift */,
-				A10FD608ACEAFA303C7743BA /* DeletePushNotificationUseCase.swift */,
-				4C1EF4E237E1F3BEDAB0B730 /* DeletePushNotificationUseCaseImpl.swift */,
-				1ADECD2AC2EA5C3AF0567E21 /* UndoDeletePushNotificationUseCase.swift */,
-				03910A114D3321A63F692113 /* UndoDeletePushNotificationUseCaseImpl.swift */,
-				4B6A80CB4CD95B3FE2463F52 /* FetchPushNotificationsUseCase.swift */,
-				A275ADD90916E0CD19E658A1 /* FetchPushNotificationsUseCaseImpl.swift */,
-				7255B9F0D6EA9A0D9C81F512 /* ObserveUnreadPushCountUseCase.swift */,
-				68D7B585C369EADAEBE8A470 /* ObserveUnreadPushCountUseCaseImpl.swift */,
-				658249EA021AFF8428B32FD0 /* TogglePushNotificationReadUseCase.swift */,
-				EFCB23F0E622C1872DA543DB /* TogglePushNotificationReadUseCaseImpl.swift */,
-				DD0C8F7B1FB7DE7DD17C99BE /* DeleteTodoUseCase.swift */,
-				AB02651AFF3D9DE27351DA7B /* DeleteTodoUseCaseImpl.swift */,
-				0E6726827D53639E678488EE /* UndoDeleteTodoUseCase.swift */,
-				522510AA4DD57769034B3A49 /* UndoDeleteTodoUseCaseImpl.swift */,
-				A403DFBCDB028B255F8B9EC5 /* FetchReferenceItemsUseCase.swift */,
-				DA4EC8FBD39E0AEF21117F7C /* FetchReferenceItemsUseCaseImpl.swift */,
-				AD49CB792C5CCA040D99F1CD /* FetchTodoByIDUseCase.swift */,
-				0DD73A331A61A27A1A9BDFD0 /* FetchTodoByIDUseCaseImpl.swift */,
-				8FD502CE4EB95263D32AF23E /* FetchTodosUseCase.swift */,
-				D01987DD2F38CF633D3C4162 /* FetchTodosUseCaseImpl.swift */,
-				127C20813795B0B77A99F955 /* UpsertTodoUseCase.swift */,
-				1B484D427B8653E772AB4156 /* UpsertTodoUseCaseImpl.swift */,
-				11B14A760F12F75DD433E6E3 /* FetchTodoCategoryPreferencesUseCase.swift */,
-				0135F093DDF8F5DB4D320010 /* FetchTodoCategoryPreferencesUseCaseImpl.swift */,
-				E4ED6069D8B0C24A2C3E295C /* UpdateTodoCategoryPreferencesUseCase.swift */,
-				759AFAA7929D8227152D0C09 /* UpdateTodoCategoryPreferencesUseCaseImpl.swift */,
-				65FE1967BCA4B1FF8D517617 /* FetchPushNotificationSettingsUseCase.swift */,
-				1CF1E8DC279C84BE986E2296 /* FetchPushNotificationSettingsUseCaseImpl.swift */,
-				6C1F27652023B70495066F9E /* FetchUserDataUseCase.swift */,
-				DD23C531988288EA45977604 /* FetchUserDataUseCaseImpl.swift */,
-				A0FB230E9723243D9C16E1C3 /* UpdatePushSettingsUseCase.swift */,
-				5EB6D6DDEED0E961F68CB3E3 /* UpdatePushSettingsUseCaseImpl.swift */,
-				015FCD58DFE25D15A98767DD /* UpsertStatusMessageUseCase.swift */,
-				328FC6A361021DBFC9C0FB3B /* UpsertStatusMessageUseCaseImpl.swift */,
-				E22EE946DD06C2BDA66070D5 /* FetchHeatmapActivityTypesUseCase.swift */,
-				56F3A28A8CE602EF8A5A12F7 /* FetchHeatmapActivityTypesUseCaseImpl.swift */,
-				49115FDA37F30A80D0756093 /* UpdateHeatmapActivityTypesUseCase.swift */,
-				DA4F782752735905BE93CD95 /* UpdateHeatmapActivityTypesUseCaseImpl.swift */,
-				3D653CA5AFBA637461B27A7F /* FetchPushNotificationQueryUseCase.swift */,
-				B498CD874F5AE906BB27898F /* FetchPushNotificationQueryUseCaseImpl.swift */,
-				A2632BB4BB4A6F4FA74B2CC6 /* UpdatePushNotificationQueryUseCase.swift */,
-				A5CEE90FC2BA6B2E4F9B5B2E /* UpdatePushNotificationQueryUseCaseImpl.swift */,
-				B3E4B6613C6FA82D6772ED06 /* FetchRecentSearchQueriesUseCase.swift */,
-				9161CF59F34F6666BDD773A8 /* FetchRecentSearchQueriesUseCaseImpl.swift */,
-				4721FC0DF30EE97CCFD8AEB2 /* UpdateRecentSearchQueriesUseCase.swift */,
-				9B2B36142EDE421CE4CAF82E /* UpdateRecentSearchQueriesUseCaseImpl.swift */,
-				8ADDC57ACEBB9CEB3FCD3F80 /* ObserveSystemThemeUseCase.swift */,
-				01351069EBDFEFE9BEB4E26F /* ObserveSystemThemeUseCaseImpl.swift */,
-				5E821078E0E30A646FFFC1F1 /* UpdateSystemThemeUseCase.swift */,
-				B306337D1C6C39407105B783 /* UpdateSystemThemeUseCaseImpl.swift */,
-				6D457ED2B8E1CA7C2E401DBB /* FetchTodayDisplayOptionsUseCase.swift */,
-				746A826E7B24EF22A287ABC5 /* FetchTodayDisplayOptionsUseCaseImpl.swift */,
-				0F9677D48BA38AB69BE26D3A /* UpdateTodayDisplayOptionsUseCase.swift */,
-				6D13DBD497C26307CEDEF65E /* UpdateTodayDisplayOptionsUseCaseImpl.swift */,
 				D9956BD2EFBA1679FF20ED65 /* FetchWebPageImageDirSizeUseCase.swift */,
 				B663E911F22760A9B0C71DA6 /* FetchWebPageImageDirSizeUseCaseImpl.swift */,
 				F0378EC4E10380BAE247185B /* FetchWebPagesUseCase.swift */,
 				C18AFE080D0761AFF8D82FC5 /* FetchWebPagesUseCaseImpl.swift */,
-				F9F4C2B618DA0B796EC02CF4 /* AddWebPageUseCase.swift */,
-				DB6B0536F975D3FE76D0B58F /* AddWebPageUseCaseImpl.swift */,
-				76BA71B47A419D205968A49D /* ClearWebPageImageDirectoryUseCase.swift */,
-				01DC43DAB9ACFA7C5A237F91 /* ClearWebPageImageDirectoryUseCaseImpl.swift */,
-				9594B66FCEF77D951B887634 /* DeleteWebPageUseCase.swift */,
-				F276F5D3E9AD8963189E58AC /* DeleteWebPageUseCaseImpl.swift */,
-				931E348B8445B611C6486B0D /* UndoDeleteWebPageUseCase.swift */,
-				D310014E8ACFC3A55D3B83B3 /* UndoDeleteWebPageUseCaseImpl.swift */,
+			);
+			name = Fetch;
+			sourceTree = "<group>";
+		};
+		4F9F55F7D14CFF5FE12CAFCB /* Upsert */ = {
+			isa = PBXGroup;
+			children = (
+				127C20813795B0B77A99F955 /* UpsertTodoUseCase.swift */,
+				1B484D427B8653E772AB4156 /* UpsertTodoUseCaseImpl.swift */,
+			);
+			name = Upsert;
+			sourceTree = "<group>";
+		};
+		534E4B81FFFA3D0023139ACE /* DevLogDomain */ = {
+			isa = PBXGroup;
+			children = (
+				F03D4FA66135D7389D0875CD /* Entity */,
+				8B8F6BA8BF451E1CBC307D0C /* Extension */,
+				DE798AF67BA388CA15458757 /* Protocol */,
+				0AB4C554FD913FAB4BF9254D /* UseCase */,
 			);
 			name = DevLogDomain;
 			sourceTree = "<group>";
@@ -399,6 +407,81 @@
 			);
 			sourceTree = "<group>";
 		};
+		688ADC34CD0FB088D172D8C7 /* Update */ = {
+			isa = PBXGroup;
+			children = (
+				E4ED6069D8B0C24A2C3E295C /* UpdateTodoCategoryPreferencesUseCase.swift */,
+				759AFAA7929D8227152D0C09 /* UpdateTodoCategoryPreferencesUseCaseImpl.swift */,
+			);
+			name = Update;
+			sourceTree = "<group>";
+		};
+		6A84385E66B1D2C674DEDF0A /* Upsert */ = {
+			isa = PBXGroup;
+			children = (
+				F9F4C2B618DA0B796EC02CF4 /* AddWebPageUseCase.swift */,
+				DB6B0536F975D3FE76D0B58F /* AddWebPageUseCaseImpl.swift */,
+				76BA71B47A419D205968A49D /* ClearWebPageImageDirectoryUseCase.swift */,
+				01DC43DAB9ACFA7C5A237F91 /* ClearWebPageImageDirectoryUseCaseImpl.swift */,
+				9594B66FCEF77D951B887634 /* DeleteWebPageUseCase.swift */,
+				F276F5D3E9AD8963189E58AC /* DeleteWebPageUseCaseImpl.swift */,
+				931E348B8445B611C6486B0D /* UndoDeleteWebPageUseCase.swift */,
+				D310014E8ACFC3A55D3B83B3 /* UndoDeleteWebPageUseCaseImpl.swift */,
+			);
+			name = Upsert;
+			sourceTree = "<group>";
+		};
+		6B96A1D80F1C793E7DA8C9CE /* Update */ = {
+			isa = PBXGroup;
+			children = (
+				9115E808E16303728A3E757A /* PushNotification */,
+				B59C2CB181D693BE6B251584 /* StatusMessage */,
+			);
+			name = Update;
+			sourceTree = "<group>";
+		};
+		80C57B5FA6161026812068DD /* Connectivity */ = {
+			isa = PBXGroup;
+			children = (
+				2E2D323E5EAF19D03C4BFAD0 /* ObserveNetworkConnectivityUseCase.swift */,
+				12F96A31F7367B2BFA3F8226 /* ObserveNetworkConnectivityUseCaseImpl.swift */,
+			);
+			name = Connectivity;
+			sourceTree = "<group>";
+		};
+		83FA2E9993A1F8268BE76269 /* Delete */ = {
+			isa = PBXGroup;
+			children = (
+				A10FD608ACEAFA303C7743BA /* DeletePushNotificationUseCase.swift */,
+				4C1EF4E237E1F3BEDAB0B730 /* DeletePushNotificationUseCaseImpl.swift */,
+				1ADECD2AC2EA5C3AF0567E21 /* UndoDeletePushNotificationUseCase.swift */,
+				03910A114D3321A63F692113 /* UndoDeletePushNotificationUseCaseImpl.swift */,
+			);
+			name = Delete;
+			sourceTree = "<group>";
+		};
+		84CDC9921CF2D8DA239470F5 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				2F900B6B2CFB144D1BD0DC5E /* Delete */,
+				184F08ABBFD4950C68506C6B /* Provider */,
+				BF13E260CE83484D507017FD /* Session */,
+				C710163E9E5D7BE012B2C715 /* SignIn */,
+				E7BE7C8FD6C4DF4FE11D7EB0 /* SignOut */,
+			);
+			name = Auth;
+			sourceTree = "<group>";
+		};
+		8B8F6BA8BF451E1CBC307D0C /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				83B40B6FE8272B804E1C7712 /* Array.swift */,
+				05D14CAC89969BC5FB42B8D1 /* String.swift */,
+				7CE5DDD90F87E43F27311D31 /* UIFont.swift */,
+			);
+			name = Extension;
+			sourceTree = "<group>";
+		};
 		8FA83A83534627957C480771 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -407,12 +490,233 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		9115E808E16303728A3E757A /* PushNotification */ = {
+			isa = PBXGroup;
+			children = (
+				A0FB230E9723243D9C16E1C3 /* UpdatePushSettingsUseCase.swift */,
+				5EB6D6DDEED0E961F68CB3E3 /* UpdatePushSettingsUseCaseImpl.swift */,
+			);
+			name = PushNotification;
+			sourceTree = "<group>";
+		};
+		A445ABF384869CACBDA0B49F /* Fetch */ = {
+			isa = PBXGroup;
+			children = (
+				4B6A80CB4CD95B3FE2463F52 /* FetchPushNotificationsUseCase.swift */,
+				A275ADD90916E0CD19E658A1 /* FetchPushNotificationsUseCaseImpl.swift */,
+				7255B9F0D6EA9A0D9C81F512 /* ObserveUnreadPushCountUseCase.swift */,
+				68D7B585C369EADAEBE8A470 /* ObserveUnreadPushCountUseCaseImpl.swift */,
+			);
+			name = Fetch;
+			sourceTree = "<group>";
+		};
+		AC00BDA05DCFD82B8F4151D0 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				6D457ED2B8E1CA7C2E401DBB /* FetchTodayDisplayOptionsUseCase.swift */,
+				746A826E7B24EF22A287ABC5 /* FetchTodayDisplayOptionsUseCaseImpl.swift */,
+				0F9677D48BA38AB69BE26D3A /* UpdateTodayDisplayOptionsUseCase.swift */,
+				6D13DBD497C26307CEDEF65E /* UpdateTodayDisplayOptionsUseCaseImpl.swift */,
+			);
+			name = Today;
+			sourceTree = "<group>";
+		};
 		B4BFBC14E31354BAE25BA2A4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B59C2CB181D693BE6B251584 /* StatusMessage */ = {
+			isa = PBXGroup;
+			children = (
+				015FCD58DFE25D15A98767DD /* UpsertStatusMessageUseCase.swift */,
+				328FC6A361021DBFC9C0FB3B /* UpsertStatusMessageUseCaseImpl.swift */,
+			);
+			name = StatusMessage;
+			sourceTree = "<group>";
+		};
+		B615A8EBC1607DD519DCCD30 /* UserProfile */ = {
+			isa = PBXGroup;
+			children = (
+				6C1F27652023B70495066F9E /* FetchUserDataUseCase.swift */,
+				DD23C531988288EA45977604 /* FetchUserDataUseCaseImpl.swift */,
+			);
+			name = UserProfile;
+			sourceTree = "<group>";
+		};
+		BF13E260CE83484D507017FD /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				41B41F22B16C359A70312D77 /* ObserveAuthSessionUseCase.swift */,
+				8B831790BFE85097FB9034BD /* ObserveAuthSessionUseCaseImpl.swift */,
+			);
+			name = Session;
+			sourceTree = "<group>";
+		};
+		BF6EF979972886A1BA8BFB15 /* PushNotification */ = {
+			isa = PBXGroup;
+			children = (
+				3D653CA5AFBA637461B27A7F /* FetchPushNotificationQueryUseCase.swift */,
+				B498CD874F5AE906BB27898F /* FetchPushNotificationQueryUseCaseImpl.swift */,
+				A2632BB4BB4A6F4FA74B2CC6 /* UpdatePushNotificationQueryUseCase.swift */,
+				A5CEE90FC2BA6B2E4F9B5B2E /* UpdatePushNotificationQueryUseCaseImpl.swift */,
+			);
+			name = PushNotification;
+			sourceTree = "<group>";
+		};
+		C1F15DC51854AAC446876339 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				E22EE946DD06C2BDA66070D5 /* FetchHeatmapActivityTypesUseCase.swift */,
+				56F3A28A8CE602EF8A5A12F7 /* FetchHeatmapActivityTypesUseCaseImpl.swift */,
+				49115FDA37F30A80D0756093 /* UpdateHeatmapActivityTypesUseCase.swift */,
+				DA4F782752735905BE93CD95 /* UpdateHeatmapActivityTypesUseCaseImpl.swift */,
+			);
+			name = Profile;
+			sourceTree = "<group>";
+		};
+		C5D0DDB4C845B51522E7AB89 /* Read */ = {
+			isa = PBXGroup;
+			children = (
+				658249EA021AFF8428B32FD0 /* TogglePushNotificationReadUseCase.swift */,
+				EFCB23F0E622C1872DA543DB /* TogglePushNotificationReadUseCaseImpl.swift */,
+			);
+			name = Read;
+			sourceTree = "<group>";
+		};
+		C710163E9E5D7BE012B2C715 /* SignIn */ = {
+			isa = PBXGroup;
+			children = (
+				517E1CF92FE5C7461C24F2F2 /* SignInUseCase.swift */,
+				2B41302357AD2793E8F75E88 /* SignInUseCaseImpl.swift */,
+			);
+			name = SignIn;
+			sourceTree = "<group>";
+		};
+		C72910638DF912220397473A /* WebPage */ = {
+			isa = PBXGroup;
+			children = (
+				45BC2C7111BDE0C5F3091439 /* Fetch */,
+				6A84385E66B1D2C674DEDF0A /* Upsert */,
+			);
+			name = WebPage;
+			sourceTree = "<group>";
+		};
+		CB7D53372BE26ABDCF965442 /* TodoCategory */ = {
+			isa = PBXGroup;
+			children = (
+				317FCABCB97C8954415C0BA9 /* Fetch */,
+				688ADC34CD0FB088D172D8C7 /* Update */,
+			);
+			name = TodoCategory;
+			sourceTree = "<group>";
+		};
+		D9AF57A16253B7CD26A1B811 /* UserData */ = {
+			isa = PBXGroup;
+			children = (
+				06336E5F6A9C07507981A938 /* Fetch */,
+				6B96A1D80F1C793E7DA8C9CE /* Update */,
+			);
+			name = UserData;
+			sourceTree = "<group>";
+		};
+		DE798AF67BA388CA15458757 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				1725CFBBBCE02A2C5412C24D /* AuthDataRepository.swift */,
+				323A45003F23C91F09B2583C /* AuthSessionRepository.swift */,
+				64F3941915699B8D1DC2631A /* AuthenticationRepository.swift */,
+				090C424EC663DC420E210405 /* NetworkConnectivityRepository.swift */,
+				1DE514CE1D81A91A79B3F483 /* PushNotificationRepository.swift */,
+				B843042D7E2BCD42C7DD3FE4 /* TodoCategoryRepository.swift */,
+				7CCD260120C0B0358DA09105 /* TodoRepository.swift */,
+				44D430F73E1C4A9F5EC65263 /* UserDataRepository.swift */,
+				C6606DC27F4AC1B348D9A499 /* UserPreferencesRepository.swift */,
+				45439A52C6F35B7655776A07 /* WebPageImageRepository.swift */,
+				F28AC36CBBB716A8B3C6FDDD /* WebPageRepository.swift */,
+			);
+			name = Protocol;
+			sourceTree = "<group>";
+		};
+		E2AC2F400228CA6C5B5FCA33 /* PushNotification */ = {
+			isa = PBXGroup;
+			children = (
+				65FE1967BCA4B1FF8D517617 /* FetchPushNotificationSettingsUseCase.swift */,
+				1CF1E8DC279C84BE986E2296 /* FetchPushNotificationSettingsUseCaseImpl.swift */,
+			);
+			name = PushNotification;
+			sourceTree = "<group>";
+		};
+		E7BE7C8FD6C4DF4FE11D7EB0 /* SignOut */ = {
+			isa = PBXGroup;
+			children = (
+				1A4B3291A774346C97DDCA02 /* SignOutUseCase.swift */,
+				8B7A3642B89C1CA241B6AADF /* SignOutUseCaseImpl.swift */,
+			);
+			name = SignOut;
+			sourceTree = "<group>";
+		};
+		F03D4FA66135D7389D0875CD /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				D3C71ECDDDA08716A716D9B2 /* ActivityKind.swift */,
+				F9A9B5170723706520E75DC7 /* AuthProvider.swift */,
+				C482DCAC8527FFE9767388C8 /* PushNotification.swift */,
+				741F53346E83DDAB8912B25C /* PushNotificationCursor.swift */,
+				1DBC9D7FFF5FC58F5EE67A4E /* PushNotificationPage.swift */,
+				C46B06C77D7DB705ECED40A6 /* PushNotificationQuery.swift */,
+				A86771BA0A9014E81E93B8C0 /* PushNotificationSettings.swift */,
+				372106128F8BE30DDE0D41E7 /* SystemTodoCategory.swift */,
+				087434742ED1FAA4546120B9 /* TodayDisplayOptions.swift */,
+				07865C391ACEC35BD969A730 /* Todo.swift */,
+				7697A8469158261B1299B121 /* TodoCategory.swift */,
+				06CE556F368F3FFB8F45D19B /* TodoCategoryPreference.swift */,
+				42C7EE23A3F45CFA5C2F7ECE /* TodoCursor.swift */,
+				E8C9C99957DF94BCF349AEE8 /* TodoPage.swift */,
+				F528B902B4AC945DE2357AF4 /* TodoQuery.swift */,
+				C1914B9FD743F5AC5E82A431 /* TodoReference.swift */,
+				A32E327BE5F24582BDE808DE /* UserProfile.swift */,
+				F5AFD6F6E1DDE50BC837955F /* UserTodoCategory.swift */,
+				1290A4B9F0ED6ABFABC5749D /* WebPage.swift */,
+				F6452B0B4E524F90595D77FD /* SystemTheme.swift */,
+			);
+			name = Entity;
+			sourceTree = "<group>";
+		};
+		F6876E20E55D968679BBC568 /* Todo */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB0055967E0A20E49E1842 /* Delete */,
+				1598BEE4375C98BA8C7539D1 /* Fetch */,
+				4F9F55F7D14CFF5FE12CAFCB /* Upsert */,
+			);
+			name = Todo;
+			sourceTree = "<group>";
+		};
+		F6EB0055967E0A20E49E1842 /* Delete */ = {
+			isa = PBXGroup;
+			children = (
+				DD0C8F7B1FB7DE7DD17C99BE /* DeleteTodoUseCase.swift */,
+				AB02651AFF3D9DE27351DA7B /* DeleteTodoUseCaseImpl.swift */,
+				0E6726827D53639E678488EE /* UndoDeleteTodoUseCase.swift */,
+				522510AA4DD57769034B3A49 /* UndoDeleteTodoUseCaseImpl.swift */,
+			);
+			name = Delete;
+			sourceTree = "<group>";
+		};
+		FCF6F8666B756E2E47044ED8 /* UserPreferences */ = {
+			isa = PBXGroup;
+			children = (
+				C1F15DC51854AAC446876339 /* Profile */,
+				BF6EF979972886A1BA8BFB15 /* PushNotification */,
+				327E9B9DDDE4584E00736BF6 /* Search */,
+				1457DBCD42F2BF1475EA19BE /* Theme */,
+				AC00BDA05DCFD82B8F4151D0 /* Today */,
+			);
+			name = UserPreferences;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

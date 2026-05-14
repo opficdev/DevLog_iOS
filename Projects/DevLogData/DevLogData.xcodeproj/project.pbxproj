@@ -267,20 +267,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		27CDFCFF9F1093391B8566A1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				690289F520872AC78D6C95D3 /* DevLogDataCommon.framework */,
-				92502C9F074520D19CC451EF /* DevLogDataDTO.framework */,
-				C063BD562070CA11C2AA4EDF /* DevLogDataProtocol.framework */,
-				44466B71BA6B67309210A7BB /* DevLogDataMapper.framework */,
-				4AB6E00A38C37CDBF82B57FD /* DevLogDataRepository.framework */,
-				2039D0A2EB1ADD163DFC253D /* DevLogDomain.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		32F3EA46CD5E7F17AC449CB8 /* DevLogDataDTO */ = {
+		1DECEF89B4893159CF3166B3 /* DTO */ = {
 			isa = PBXGroup;
 			children = (
 				EB4A7B045A63D5BC6A541D8E /* AppleAuthResponse.swift */,
@@ -298,7 +285,50 @@
 				550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */,
 				EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */,
 			);
-			name = DevLogDataDTO;
+			name = DTO;
+			sourceTree = "<group>";
+		};
+		27CDFCFF9F1093391B8566A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				690289F520872AC78D6C95D3 /* DevLogDataCommon.framework */,
+				92502C9F074520D19CC451EF /* DevLogDataDTO.framework */,
+				C063BD562070CA11C2AA4EDF /* DevLogDataProtocol.framework */,
+				44466B71BA6B67309210A7BB /* DevLogDataMapper.framework */,
+				4AB6E00A38C37CDBF82B57FD /* DevLogDataRepository.framework */,
+				2039D0A2EB1ADD163DFC253D /* DevLogDomain.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		28BA3BE754C65F0ABE0B18D3 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				E7154773B586C2D41307CD49 /* AuthenticationService.swift */,
+				7559825C27ED42F9F86EBAC1 /* AuthService.swift */,
+				3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */,
+				2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */,
+				22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */,
+				082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */,
+				60E716EC015A5805DD7C949B /* TodoService.swift */,
+				18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */,
+				C42BC563A225597B3D761253 /* UserService.swift */,
+				454F04A5E5887B163DD7E5A9 /* WebPageImageStore.swift */,
+				7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */,
+				ADE1FE53786D11AC7B192698 /* WebPageService.swift */,
+				BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */,
+				3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */,
+			);
+			name = Protocol;
+			sourceTree = "<group>";
+		};
+		2EF24323F391ADD8E2880BB1 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */,
+				67FC3A5288FABA7441F4D6AA /* Logger.swift */,
+			);
+			name = Common;
 			sourceTree = "<group>";
 		};
 		3957A84DA44597517DA50BD3 /* Frameworks */ = {
@@ -317,25 +347,27 @@
 			name = Projects;
 			sourceTree = "<group>";
 		};
-		7B245CFF089F6CEF60B4F6D2 /* DevLogDataProtocol */ = {
+		5A15B28E791BA16F53BAF94E /* DevLogData */ = {
 			isa = PBXGroup;
 			children = (
-				7559825C27ED42F9F86EBAC1 /* AuthService.swift */,
-				E7154773B586C2D41307CD49 /* AuthenticationService.swift */,
-				3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */,
-				2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */,
-				22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */,
-				082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */,
-				60E716EC015A5805DD7C949B /* TodoService.swift */,
-				18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */,
-				C42BC563A225597B3D761253 /* UserService.swift */,
-				454F04A5E5887B163DD7E5A9 /* WebPageImageStore.swift */,
-				7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */,
-				ADE1FE53786D11AC7B192698 /* WebPageService.swift */,
-				BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */,
-				3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */,
+				2EF24323F391ADD8E2880BB1 /* Common */,
+				1DECEF89B4893159CF3166B3 /* DTO */,
+				7FB2D81FB32074F3D7A657A3 /* Mapper */,
+				28BA3BE754C65F0ABE0B18D3 /* Protocol */,
+				934C5041615819F6B6124803 /* Repository */,
 			);
-			name = DevLogDataProtocol;
+			name = DevLogData;
+			sourceTree = "<group>";
+		};
+		7FB2D81FB32074F3D7A657A3 /* Mapper */ = {
+			isa = PBXGroup;
+			children = (
+				44C564559DBDF765945456FA /* PushNotificationMapping.swift */,
+				17CB1CEA7122BFEDED0F4370 /* TodoMapping.swift */,
+				37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */,
+				3C2B7108CD63C65097876046 /* WebPageMapping.swift */,
+			);
+			name = Mapper;
 			sourceTree = "<group>";
 		};
 		8800BDCE685EF17A4BCB28C8 /* iOS */ = {
@@ -346,27 +378,7 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		8C9988B575EE07030E07DEDE /* DevLogDataCommon */ = {
-			isa = PBXGroup;
-			children = (
-				A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */,
-				67FC3A5288FABA7441F4D6AA /* Logger.swift */,
-			);
-			name = DevLogDataCommon;
-			sourceTree = "<group>";
-		};
-		AC74AEDF3E1FA188F66D5536 /* DevLogDataMapper */ = {
-			isa = PBXGroup;
-			children = (
-				44C564559DBDF765945456FA /* PushNotificationMapping.swift */,
-				17CB1CEA7122BFEDED0F4370 /* TodoMapping.swift */,
-				37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */,
-				3C2B7108CD63C65097876046 /* WebPageMapping.swift */,
-			);
-			name = DevLogDataMapper;
-			sourceTree = "<group>";
-		};
-		E08CCD18836950C1AECD91DE /* DevLogDataRepository */ = {
+		934C5041615819F6B6124803 /* Repository */ = {
 			isa = PBXGroup;
 			children = (
 				7B3ED1B2326966F84851DFDD /* AuthDataRepositoryImpl.swift */,
@@ -381,7 +393,7 @@
 				914EE1DC0A02968747B6B3A2 /* WebPageImageRepositoryImpl.swift */,
 				1AAF764A3F6E025A18E6A0BC /* WebPageRepositoryImpl.swift */,
 			);
-			name = DevLogDataRepository;
+			name = Repository;
 			sourceTree = "<group>";
 		};
 		FEAA5F036FEFF5A2BF2FD218 = {
@@ -389,12 +401,8 @@
 			children = (
 				27CDFCFF9F1093391B8566A1 /* Products */,
 				3957A84DA44597517DA50BD3 /* Frameworks */,
-				8C9988B575EE07030E07DEDE /* DevLogDataCommon */,
-				32F3EA46CD5E7F17AC449CB8 /* DevLogDataDTO */,
-				7B245CFF089F6CEF60B4F6D2 /* DevLogDataProtocol */,
-				AC74AEDF3E1FA188F66D5536 /* DevLogDataMapper */,
-				E08CCD18836950C1AECD91DE /* DevLogDataRepository */,
 				42F9CB6B105B33619467DE78 /* Projects */,
+				5A15B28E791BA16F53BAF94E /* DevLogData */,
 			);
 			sourceTree = "<group>";
 		};

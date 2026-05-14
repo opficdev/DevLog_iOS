@@ -155,6 +155,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0DF87932E361E05C3DF43062 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */,
+				5283608C47D4283E39B5991B /* WidgetSnapshotStore.swift */,
+				504A164843100A1DC6A74661 /* WidgetSyncEvent.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
 		22B18020E715C5AFC73F00FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,21 +210,34 @@
 			);
 			sourceTree = "<group>";
 		};
+		9EDB2111AA4B065C046573A1 /* Heatmap */ = {
+			isa = PBXGroup;
+			children = (
+				7D134BB8FDB16D977E0BCB89 /* HeatmapWidgetSnapshot.swift */,
+				2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */,
+			);
+			name = Heatmap;
+			sourceTree = "<group>";
+		};
 		B60F0C6B052E1EF8CC827AD9 /* DevLogWidgetCore */ = {
 			isa = PBXGroup;
 			children = (
-				8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */,
-				5283608C47D4283E39B5991B /* WidgetSnapshotStore.swift */,
-				504A164843100A1DC6A74661 /* WidgetSyncEvent.swift */,
-				7D134BB8FDB16D977E0BCB89 /* HeatmapWidgetSnapshot.swift */,
-				2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */,
+				0DF87932E361E05C3DF43062 /* Common */,
+				9EDB2111AA4B065C046573A1 /* Heatmap */,
+				E41A9AF45640EBD9FA86BDB5 /* Sync */,
+				E5E553CFDDE987761CDB995F /* Today */,
+			);
+			name = DevLogWidgetCore;
+			sourceTree = "<group>";
+		};
+		E41A9AF45640EBD9FA86BDB5 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
 				2C16C61F9C1CC6EE71773E0D /* WidgetSyncEventBus.swift */,
 				489FB48B79E61FF3332C9F3F /* WidgetSyncEventBusImpl.swift */,
 				DD66A7F2739CB82F98A10A94 /* WidgetSyncEventHandler.swift */,
-				6525FA954E53789A9D91613A /* TodayWidgetSnapshot.swift */,
-				389BB07F08F830F06F8F536E /* TodayWidgetSnapshotFactory.swift */,
 			);
-			name = DevLogWidgetCore;
+			name = Sync;
 			sourceTree = "<group>";
 		};
 		E4683C4F36BFC412C75D164A /* iOS */ = {
@@ -223,6 +246,15 @@
 				FBD260F923A87C1577DBFF0F /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		E5E553CFDDE987761CDB995F /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				6525FA954E53789A9D91613A /* TodayWidgetSnapshot.swift */,
+				389BB07F08F830F06F8F536E /* TodayWidgetSnapshotFactory.swift */,
+			);
+			name = Today;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

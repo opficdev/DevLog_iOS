@@ -172,6 +172,33 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		1193621431B4F1245A560067 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				D985AFDC4BC28BB5F34D35B1 /* Color+Hex.swift */,
+			);
+			name = Extension;
+			sourceTree = "<group>";
+		};
+		13DA278FCF792713D53657D7 /* Structure */ = {
+			isa = PBXGroup;
+			children = (
+				D9C1D736903B0AD12DA504BA /* Profile */,
+				BF28FCF602F6165DC67FE7D6 /* PushNotificationItem.swift */,
+				E4A0DAED0089A38F5494701B /* Todo */,
+				B19BFDE3E7FFD430D6DF2AA5 /* WebPageItem.swift */,
+			);
+			name = Structure;
+			sourceTree = "<group>";
+		};
+		1DB192900CD86ED478FCDE79 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				D26AF44FFBB251F34E8F80B5 /* Store.swift */,
+			);
+			name = Protocol;
+			sourceTree = "<group>";
+		};
 		253FAAC4504D4C5E1B11C833 = {
 			isa = PBXGroup;
 			children = (
@@ -191,43 +218,9 @@
 			name = Projects;
 			sourceTree = "<group>";
 		};
-		9A88EA8D5BC609F90B07B726 /* iOS */ = {
+		727E4EDC1C08E03AAA6FED64 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				3E43EBE726188C58FFB2B6CD /* Foundation.framework */,
-			);
-			name = iOS;
-			sourceTree = "<group>";
-		};
-		9CC0354538B2A1DF2C74E484 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				9A88EA8D5BC609F90B07B726 /* iOS */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A4A427D518004ED78EB659DE /* DevLogPresentation */ = {
-			isa = PBXGroup;
-			children = (
-				E06ED9387372D891F65B1CAD /* LoadingState.swift */,
-				D985AFDC4BC28BB5F34D35B1 /* Color+Hex.swift */,
-				D26AF44FFBB251F34E8F80B5 /* Store.swift */,
-				64E49223C6BC0615AC7B9C37 /* ActivityKindItem.swift */,
-				A04BEF390A74ECC5558A076F /* HeatmapActivityItem.swift */,
-				B4D75E33B582B3347AC077B0 /* HeatmapDay.swift */,
-				70C952669C86B8EB042ED7CF /* HeatmapMonth.swift */,
-				C2EDDC1E545869FE9C849E4B /* HeatmapQuarter.swift */,
-				BF28FCF602F6165DC67FE7D6 /* PushNotificationItem.swift */,
-				F39AE1F6609037A277C54DD7 /* RecentTodoItem.swift */,
-				A117BE662EC3F9C96FF9AC61 /* SystemTodoCategoryItem.swift */,
-				2BCF82DE8DF3DDEAF78826B5 /* TodayTodoItem.swift */,
-				0BE3388699802CC7CD57BD74 /* TodoCategoryItem.swift */,
-				9305330DB8199E1911FAAF49 /* TodoIDItem.swift */,
-				D7258BA3748F0B1BDB1AFFD3 /* TodoListItem.swift */,
-				9C6D01FAEAE8EB1FB2D60C7A /* TodoReferenceItem.swift */,
-				F2B9AAA5D7DDF4A39E678406 /* UserTodoCategoryItem.swift */,
-				B19BFDE3E7FFD430D6DF2AA5 /* WebPageItem.swift */,
 				1B9804109E1FE95126DD869B /* AccountViewModel.swift */,
 				7E39559C85F238BBE47342B5 /* HomeViewModel.swift */,
 				C39861EE0C254CCC9A608201 /* LoginViewModel.swift */,
@@ -244,7 +237,70 @@
 				BA522CF101F432B37F315C24 /* TodoListViewModel.swift */,
 				5EF81D9BB299B33C5ED8DB52 /* TodoManageViewModel.swift */,
 			);
+			name = ViewModel;
+			sourceTree = "<group>";
+		};
+		9A88EA8D5BC609F90B07B726 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3E43EBE726188C58FFB2B6CD /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		9CC0354538B2A1DF2C74E484 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9A88EA8D5BC609F90B07B726 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9DE70A3D1E020E5B69721DB1 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				E06ED9387372D891F65B1CAD /* LoadingState.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
+		A4A427D518004ED78EB659DE /* DevLogPresentation */ = {
+			isa = PBXGroup;
+			children = (
+				9DE70A3D1E020E5B69721DB1 /* Common */,
+				1193621431B4F1245A560067 /* Extension */,
+				1DB192900CD86ED478FCDE79 /* Protocol */,
+				13DA278FCF792713D53657D7 /* Structure */,
+				727E4EDC1C08E03AAA6FED64 /* ViewModel */,
+			);
 			name = DevLogPresentation;
+			sourceTree = "<group>";
+		};
+		D9C1D736903B0AD12DA504BA /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				64E49223C6BC0615AC7B9C37 /* ActivityKindItem.swift */,
+				A04BEF390A74ECC5558A076F /* HeatmapActivityItem.swift */,
+				B4D75E33B582B3347AC077B0 /* HeatmapDay.swift */,
+				70C952669C86B8EB042ED7CF /* HeatmapMonth.swift */,
+				C2EDDC1E545869FE9C849E4B /* HeatmapQuarter.swift */,
+			);
+			name = Profile;
+			sourceTree = "<group>";
+		};
+		E4A0DAED0089A38F5494701B /* Todo */ = {
+			isa = PBXGroup;
+			children = (
+				F39AE1F6609037A277C54DD7 /* RecentTodoItem.swift */,
+				A117BE662EC3F9C96FF9AC61 /* SystemTodoCategoryItem.swift */,
+				2BCF82DE8DF3DDEAF78826B5 /* TodayTodoItem.swift */,
+				0BE3388699802CC7CD57BD74 /* TodoCategoryItem.swift */,
+				9305330DB8199E1911FAAF49 /* TodoIDItem.swift */,
+				D7258BA3748F0B1BDB1AFFD3 /* TodoListItem.swift */,
+				9C6D01FAEAE8EB1FB2D60C7A /* TodoReferenceItem.swift */,
+				F2B9AAA5D7DDF4A39E678406 /* UserTodoCategoryItem.swift */,
+			);
+			name = Todo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
