@@ -103,24 +103,12 @@
     </mxGraphModel>
   </diagram>
   <diagram id="delete-flow-page" name="Delete Undo Flow">
-    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
+    <mxGraphModel dx="555" dy="333" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="du-request-device" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Presentation/ViewModel/PushNotificationListViewModel.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#EAF2FF;strokeColor=#0A84FF;strokeWidth=2;fontColor=#0B1F33;fontSize=13;align=center;" value="&lt;b&gt;iOS Client&lt;/b&gt;" vertex="1">
           <mxGeometry height="70" width="200" x="80" y="250" as="geometry" />
-        </mxCell>
-        <mxCell id="du-functions" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/Firebase/functions/src/notification/deletion.ts" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=13;align=center;" value="&lt;b&gt;Cloud Functions&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;삭제·Undo 요청 처리&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="200" x="390" y="250" as="geometry" />
-        </mxCell>
-        <mxCell id="du-firestore" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/Firebase/functions/src/notification/deletion.ts" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Firestore 알림 문서&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;삭제 상태 저장·해제&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="200" x="710" y="250" as="geometry" />
-        </mxCell>
-        <mxCell id="du-request-list" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Presentation/ViewModel/PushNotificationListViewModel.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;요청 기기 리스트&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;서버 재조회로 동기화&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="200" x="1020" y="150" as="geometry" />
-        </mxCell>
-        <mxCell id="du-other-list" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;다른 기기 리스트&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;같은 삭제 상태 반영&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="200" x="1020" y="350" as="geometry" />
         </mxCell>
         <mxCell id="du-edge-request-functions" edge="1" parent="1" source="du-request-device" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;labelBackgroundColor=#FFFFFF;fontSize=12;" target="du-functions" value="삭제·Undo 요청">
           <mxGeometry relative="1" x="-0.0909" y="15" as="geometry">
@@ -132,7 +120,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="du-edge-functions-undo" edge="1" parent="1" source="du-functions" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#16A34A;strokeWidth=3;labelBackgroundColor=#FFFFFF;fontSize=12;" target="du-firestore" value="">
+        <mxCell id="du-edge-functions-undo" edge="1" parent="1" source="du-functions" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#16A34A;strokeWidth=3;labelBackgroundColor=#FFFFFF;fontSize=12;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="du-firestore" value="">
           <mxGeometry relative="1" x="0.0909" y="9" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -146,6 +134,18 @@
           <mxGeometry relative="1" x="-0.4165" y="-28" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="du-functions" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/Firebase/functions/src/notification/deletion.ts" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=13;align=center;" value="&lt;b&gt;Cloud Functions&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;삭제·Undo 요청 처리&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="200" x="390" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="du-firestore" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/Firebase/functions/src/notification/deletion.ts" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;Firestore 알림 문서&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;삭제 상태 저장·해제&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="200" x="710" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="du-request-list" link="https://github.com/opficdev/SwiftUI_DevLog/blob/main/DevLog/Presentation/ViewModel/PushNotificationListViewModel.swift" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;요청 기기 리스트&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;서버 재조회로 동기화&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="200" x="1020" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="du-other-list" parent="1" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=2;fontColor=#1F2328;fontSize=13;align=center;" value="&lt;b&gt;다른 기기 리스트&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;같은 삭제 상태 반영&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="200" x="1020" y="350" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
