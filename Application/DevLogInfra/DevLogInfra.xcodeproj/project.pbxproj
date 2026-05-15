@@ -32,6 +32,7 @@
 		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
 		F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4F874032FD57C0BBCC41C64 /* DevLogData.framework */; };
 		F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */; };
+		3CE81EA6CD7444739AC73633 /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592C8B7B099933759AB316A5 /* DevLogInfra.framework */; };
 		FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */; };
 		FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 94394E2197878DD50AF67628 /* FirebaseMessaging */; };
 		FE130A3E1E85658BD3ECE791 /* FirebaseFunctions+.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */; };
@@ -81,6 +82,13 @@
 			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
 			remoteInfo = DevLogDomain;
 		};
+		66FBFAC873BD4CEDA5984DD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FF22261AB99602DAB8E9B323 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB9B628AE2E0684C1FCF8840;
+			remoteInfo = DevLogInfra;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +100,7 @@
 		4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TopViewControllerProvider.swift; path = Sources/Common/TopViewControllerProvider.swift; sourceTree = "<group>"; };
 		50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GoogleAuthenticationServiceImpl.swift; path = Sources/Service/SocialLogin/GoogleAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
 		592C8B7B099933759AB316A5 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogInfraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		59E81A47825142881793450F /* FirebaseAuthUser+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FirebaseAuthUser+.swift"; path = "Sources/Extension/FirebaseAuthUser+.swift"; sourceTree = "<group>"; };
 		64CFC9162F5063E3CB017B40 /* FirestorePath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirestorePath.swift; path = Sources/Common/FirestorePath.swift; sourceTree = "<group>"; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -128,6 +137,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA4F133C2BE849A5A33F3499 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CE81EA6CD7444739AC73633 /* DevLogInfra.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -135,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				592C8B7B099933759AB316A5 /* DevLogInfra.framework */,
+				AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */,
 				8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */,
 				A4F874032FD57C0BBCC41C64 /* DevLogData.framework */,
 				B55555555555555555555555 /* DevLogCore.framework */,
@@ -278,6 +296,24 @@
 			productReference = 592C8B7B099933759AB316A5 /* DevLogInfra.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		38643C4F96B2449E85275475 /* DevLogInfraTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66178A1F2D3D41EF921A2B31 /* Build configuration list for PBXNativeTarget "DevLogInfraTests" */;
+			buildPhases = (
+				70CD76339E5E4F7AA090CCB9 /* Sources */,
+				AA4F133C2BE849A5A33F3499 /* Frameworks */,
+				D5817DC8BA6F4C22B1F4D94B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD23C8A4110847EABDCAA271 /* PBXTargetDependency */,
+			);
+			name = DevLogInfraTests;
+			productName = DevLogInfraTests;
+			productReference = AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -286,6 +322,12 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					38643C4F96B2449E85275475 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = CB9B628AE2E0684C1FCF8840;
+					};
+				};
 			};
 			buildConfigurationList = C6F3911AA3FBE8FB727B853A /* Build configuration list for PBXProject "DevLogInfra" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -322,6 +364,7 @@
 			projectRoot = "";
 			targets = (
 				CB9B628AE2E0684C1FCF8840 /* DevLogInfra */,
+				38643C4F96B2449E85275475 /* DevLogInfraTests */,
 			);
 		};
 /* End PBXProject section */
@@ -358,6 +401,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D5817DC8BA6F4C22B1F4D94B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -387,6 +437,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		70CD76339E5E4F7AA090CCB9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -404,6 +461,11 @@
 			isa = PBXTargetDependency;
 			name = DevLogCore;
 			targetProxy = B66666666666666666666666 /* PBXContainerItemProxy */;
+		};
+		DD23C8A4110847EABDCAA271 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB9B628AE2E0684C1FCF8840 /* DevLogInfra */;
+			targetProxy = 66FBFAC873BD4CEDA5984DD4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -572,6 +634,36 @@
 			};
 			name = Debug;
 		};
+		7F06F2F8F58E4D2AA5A0891E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogInfraTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogInfra;
+			};
+			name = Debug;
+		};
+		744098DF376F4E6B9A2736E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogInfraTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogInfra;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -589,6 +681,15 @@
 			buildConfigurations = (
 				EC4C1A0879F2C632B39430D8 /* Debug */,
 				B1D42568726630BF33AC1CB9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66178A1F2D3D41EF921A2B31 /* Build configuration list for PBXNativeTarget "DevLogInfraTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				744098DF376F4E6B9A2736E4 /* Release */,
+				7F06F2F8F58E4D2AA5A0891E /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
