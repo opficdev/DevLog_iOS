@@ -6,6 +6,7 @@
 //
 
 import DevLogCore
+import DevLogDomain
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [

@@ -6,10 +6,11 @@
 //
 
 import DevLogCore
-import DevLogDomain
 
-final class DomainAssembler: Assembler {
-    func assemble(_ container: any DIContainer) {
+public final class DomainAssembler: Assembler {
+    public init() { }
+
+    public func assemble(_ container: any DIContainer) {
         registerAuthUseCases(container)
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)

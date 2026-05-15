@@ -59,10 +59,12 @@
 		6941CE2F8E390A78BA99EB2F /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE5DDD90F87E43F27311D31 /* UIFont.swift */; };
 		6CCA27E186BA818C36FCD69A /* AuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A9B5170723706520E75DC7 /* AuthProvider.swift */; };
 		6E9DF84535092F43786277E9 /* UpdateRecentSearchQueriesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4721FC0DF30EE97CCFD8AEB2 /* UpdateRecentSearchQueriesUseCase.swift */; };
+		7179FD5B4EBF8C744819A8DE /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A255290C54315FBBFEE3D5C /* DevLogCore.framework */; };
 		71BAC4D47D7B9351E59745F0 /* AddWebPageUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6B0536F975D3FE76D0B58F /* AddWebPageUseCaseImpl.swift */; };
 		73969D227D8103F45DFD546D /* TodoQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = F528B902B4AC945DE2357AF4 /* TodoQuery.swift */; };
 		740D49EA35D555A5CC0B740C /* FetchReferenceItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A403DFBCDB028B255F8B9EC5 /* FetchReferenceItemsUseCase.swift */; };
 		76DE905274DA17536AC07024 /* FetchPushNotificationSettingsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FE1967BCA4B1FF8D517617 /* FetchPushNotificationSettingsUseCase.swift */; };
+		76E68B1719213F527010811E /* DomainAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEB9043B95C0711DFB83006 /* DomainAssembler.swift */; };
 		79E0CF57B7A79A24A2D7C030 /* SignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 517E1CF92FE5C7461C24F2F2 /* SignInUseCase.swift */; };
 		7B8CBBEFB51817FB36B0F02E /* ActivityKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C71ECDDDA08716A716D9B2 /* ActivityKind.swift */; };
 		7DE9D23DA294DD0A2E247B55 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7697A8469158261B1299B121 /* TodoCategory.swift */; };
@@ -125,6 +127,30 @@
 		FC43C025719D63AC2FEAA0D2 /* UndoDeletePushNotificationUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03910A114D3321A63F692113 /* UndoDeletePushNotificationUseCaseImpl.swift */; };
 		FC9F3DE1D0F3D83CF07D4935 /* PushNotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A86771BA0A9014E81E93B8C0 /* PushNotificationSettings.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		382F8B0169E4B5594A5A0CB5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
+			remoteInfo = Subproject;
+		};
+		3FA49F27369B1E23BB63D104 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
+			remoteInfo = DevLogCore;
+		};
+		DF4F66BE2FB6F8F900ED4BA9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
+			remoteInfo = DevLogCore;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		01351069EBDFEFE9BEB4E26F /* ObserveSystemThemeUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObserveSystemThemeUseCaseImpl.swift; path = Sources/UseCase/UserPreferences/Theme/ObserveSystemThemeUseCaseImpl.swift; sourceTree = "<group>"; };
@@ -200,6 +226,7 @@
 		931E348B8445B611C6486B0D /* UndoDeleteWebPageUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UndoDeleteWebPageUseCase.swift; path = Sources/UseCase/WebPage/Upsert/UndoDeleteWebPageUseCase.swift; sourceTree = "<group>"; };
 		9594B66FCEF77D951B887634 /* DeleteWebPageUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeleteWebPageUseCase.swift; path = Sources/UseCase/WebPage/Upsert/DeleteWebPageUseCase.swift; sourceTree = "<group>"; };
 		975B88E82CD480E408410A60 /* FetchAuthProvidersUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchAuthProvidersUseCase.swift; path = Sources/UseCase/Auth/Provider/FetchAuthProvidersUseCase.swift; sourceTree = "<group>"; };
+		984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		9B2B36142EDE421CE4CAF82E /* UpdateRecentSearchQueriesUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdateRecentSearchQueriesUseCaseImpl.swift; path = Sources/UseCase/UserPreferences/Search/UpdateRecentSearchQueriesUseCaseImpl.swift; sourceTree = "<group>"; };
 		A0FB230E9723243D9C16E1C3 /* UpdatePushSettingsUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdatePushSettingsUseCase.swift; path = Sources/UseCase/UserData/Update/PushNotification/UpdatePushSettingsUseCase.swift; sourceTree = "<group>"; };
 		A10FD608ACEAFA303C7743BA /* DeletePushNotificationUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeletePushNotificationUseCase.swift; path = Sources/UseCase/PushNotification/Delete/DeletePushNotificationUseCase.swift; sourceTree = "<group>"; };
@@ -237,6 +264,7 @@
 		E4ED6069D8B0C24A2C3E295C /* UpdateTodoCategoryPreferencesUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdateTodoCategoryPreferencesUseCase.swift; path = Sources/UseCase/TodoCategory/Update/UpdateTodoCategoryPreferencesUseCase.swift; sourceTree = "<group>"; };
 		E8C9C99957DF94BCF349AEE8 /* TodoPage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoPage.swift; path = Sources/Entity/TodoPage.swift; sourceTree = "<group>"; };
 		EFCB23F0E622C1872DA543DB /* TogglePushNotificationReadUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TogglePushNotificationReadUseCaseImpl.swift; path = Sources/UseCase/PushNotification/Read/TogglePushNotificationReadUseCaseImpl.swift; sourceTree = "<group>"; };
+		EFEB9043B95C0711DFB83006 /* DomainAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DomainAssembler.swift; path = Sources/DomainAssembler.swift; sourceTree = "<group>"; };
 		F0378EC4E10380BAE247185B /* FetchWebPagesUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchWebPagesUseCase.swift; path = Sources/UseCase/WebPage/Fetch/FetchWebPagesUseCase.swift; sourceTree = "<group>"; };
 		F276F5D3E9AD8963189E58AC /* DeleteWebPageUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeleteWebPageUseCaseImpl.swift; path = Sources/UseCase/WebPage/Upsert/DeleteWebPageUseCaseImpl.swift; sourceTree = "<group>"; };
 		F28AC36CBBB716A8B3C6FDDD /* WebPageRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageRepository.swift; path = Sources/Protocol/WebPageRepository.swift; sourceTree = "<group>"; };
@@ -253,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5044FDD5ED149194C21F45DD /* Foundation.framework in Frameworks */,
+				7179FD5B4EBF8C744819A8DE /* DevLogCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,6 +423,7 @@
 				8B8F6BA8BF451E1CBC307D0C /* Extension */,
 				DE798AF67BA388CA15458757 /* Protocol */,
 				0AB4C554FD913FAB4BF9254D /* UseCase */,
+				EFEB9043B95C0711DFB83006 /* DomainAssembler.swift */,
 			);
 			name = DevLogDomain;
 			sourceTree = "<group>";
@@ -404,6 +434,7 @@
 				B4BFBC14E31354BAE25BA2A4 /* Products */,
 				40116A7CE17130969F51069D /* Frameworks */,
 				534E4B81FFFA3D0023139ACE /* DevLogDomain */,
+				88BF7FD280466FBA9905EAF1 /* Projects */,
 			);
 			sourceTree = "<group>";
 		};
@@ -472,6 +503,14 @@
 			name = Auth;
 			sourceTree = "<group>";
 		};
+		88BF7FD280466FBA9905EAF1 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
 		8B8F6BA8BF451E1CBC307D0C /* Extension */ = {
 			isa = PBXGroup;
 			children = (
@@ -525,6 +564,7 @@
 			isa = PBXGroup;
 			children = (
 				3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */,
+				1A255290C54315FBBFEE3D5C /* DevLogCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -641,6 +681,14 @@
 			name = Protocol;
 			sourceTree = "<group>";
 		};
+		DF4F66BB2FB6F8F800ED4BA9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DF4F66BF2FB6F8F900ED4BA9 /* DevLogCore.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		E2AC2F400228CA6C5B5FCA33 /* PushNotification */ = {
 			isa = PBXGroup;
 			children = (
@@ -744,6 +792,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C87AAAC2357E4D2820F6470A /* PBXTargetDependency */,
 			);
 			name = DevLogDomain;
 			productName = DevLogDomain;
@@ -768,16 +817,37 @@
 				Base,
 			);
 			mainGroup = 63B68BC59AF32C52B6CBF85B;
-			minimizedProjectReferenceProxies = 0;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = B4BFBC14E31354BAE25BA2A4 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = DF4F66BB2FB6F8F800ED4BA9 /* Products */;
+					ProjectRef = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7D1E74925088998D68BBFBBB /* DevLogDomain */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		1A255290C54315FBBFEE3D5C /* DevLogCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogCore.framework;
+			remoteRef = 382F8B0169E4B5594A5A0CB5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		DF4F66BF2FB6F8F900ED4BA9 /* DevLogCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogCore.framework;
+			remoteRef = DF4F66BE2FB6F8F900ED4BA9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0A4716162D54F03993DEF290 /* Resources */ = {
@@ -910,10 +980,19 @@
 				9D39B3BEA4F1EC0A7AEB4927 /* DeleteWebPageUseCaseImpl.swift in Sources */,
 				E821A95E218A4B131EAF7906 /* UndoDeleteWebPageUseCase.swift in Sources */,
 				4DF153046EACFF1116D0B084 /* UndoDeleteWebPageUseCaseImpl.swift in Sources */,
+				76E68B1719213F527010811E /* DomainAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C87AAAC2357E4D2820F6470A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogCore;
+			targetProxy = 3FA49F27369B1E23BB63D104 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3A4C7479653B809907982EE0 /* Debug */ = {
@@ -1025,8 +1104,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
