@@ -7,10 +7,11 @@
 
 import DevLogCore
 import DevLogData
-import DevLogInfra
 
-final class InfraAssembler: Assembler {
-    func assemble(_ container: any DIContainer) {
+public final class InfraAssembler: Assembler {
+    public init() { }
+
+    public func assemble(_ container: any DIContainer) {
         container.register(
             AuthenticationService.self,
             name: "AppleAuthenticationService"

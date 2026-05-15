@@ -24,6 +24,8 @@
 		87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */; };
 		93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */; };
 		9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */; };
+		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
+		B33333333333333333333333 /* InfraAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22222222222222222222222 /* InfraAssembler.swift */; };
 		D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */; };
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
 		EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */; };
@@ -43,6 +45,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = D9D76C33D8B4790694BD3488;
 			remoteInfo = DevLogData;
+		};
+		B66666666666666666666666 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B44444444444444444444444 /* DevLogCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
+			remoteInfo = DevLogCore;
+		};
+		B77777777777777777777777 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B44444444444444444444444 /* DevLogCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
+			remoteInfo = Subproject;
 		};
 		3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -80,7 +96,9 @@
 		64CFC9162F5063E3CB017B40 /* FirestorePath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirestorePath.swift; path = Sources/Common/FirestorePath.swift; sourceTree = "<group>"; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
+		B22222222222222222222222 /* InfraAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InfraAssembler.swift; path = Sources/InfraAssembler.swift; sourceTree = "<group>"; };
 		B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NWPathConnectivityProviderImpl.swift; path = Sources/Service/NWPathConnectivityProviderImpl.swift; sourceTree = "<group>"; };
+		B44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoServiceImpl.swift; path = Sources/Service/TodoServiceImpl.swift; sourceTree = "<group>"; };
 		C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationServiceImpl.swift; path = Sources/Service/PushNotificationServiceImpl.swift; sourceTree = "<group>"; };
 		CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryServiceImpl.swift; path = Sources/Service/TodoCategoryServiceImpl.swift; sourceTree = "<group>"; };
@@ -106,6 +124,7 @@
 				EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */,
 				FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */,
 				F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */,
+				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,6 +137,7 @@
 				592C8B7B099933759AB316A5 /* DevLogInfra.framework */,
 				8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */,
 				A4F874032FD57C0BBCC41C64 /* DevLogData.framework */,
+				B55555555555555555555555 /* DevLogCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -190,6 +210,7 @@
 		959D79D1263CC74E32B40D78 /* DevLogInfra */ = {
 			isa = PBXGroup;
 			children = (
+				B22222222222222222222222 /* InfraAssembler.swift */,
 				244A3B94B9BD4908079A38FB /* Common */,
 				3B9BF1B497E846541A8B6685 /* Extension */,
 				66108C2B6459C7D70E0EF39E /* Service */,
@@ -202,6 +223,7 @@
 			children = (
 				DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */,
 				A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */,
+				B44444444444444444444444 /* DevLogCore.xcodeproj */,
 			);
 			name = Projects;
 			sourceTree = "<group>";
@@ -241,6 +263,7 @@
 			dependencies = (
 				342FB70B2E884012B67F8B38 /* PBXTargetDependency */,
 				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
+				B88888888888888888888888 /* PBXTargetDependency */,
 			);
 			name = DevLogInfra;
 			packageProductDependencies = (
@@ -291,6 +314,10 @@
 					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
 					ProjectRef = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
 				},
+				{
+					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
+					ProjectRef = B44444444444444444444444 /* DevLogCore.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -312,6 +339,13 @@
 			fileType = wrapper.framework;
 			path = DevLogData.framework;
 			remoteRef = 92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B55555555555555555555555 /* DevLogCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogCore.framework;
+			remoteRef = B77777777777777777777777 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -349,6 +383,7 @@
 				4A36236096C643DA1FF29771 /* UserServiceImpl.swift in Sources */,
 				70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */,
 				87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */,
+				B33333333333333333333333 /* InfraAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,6 +399,11 @@
 			isa = PBXTargetDependency;
 			name = DevLogData;
 			targetProxy = 242875057F793AB5E271751C /* PBXContainerItemProxy */;
+		};
+		B88888888888888888888888 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogCore;
+			targetProxy = B66666666666666666666666 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -8,6 +8,7 @@
 import DevLogCore
 import DevLogData
 import DevLogDomain
+import DevLogInfra
 import DevLogStorage
 
 final class AppAssembler: Assembler {
