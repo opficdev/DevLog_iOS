@@ -12,12 +12,20 @@
 		186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; };
 		18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F972F1E8E0F5156FE9651020 /* GoogleSignIn */; };
 		26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; };
+		020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		618B54224ACD6B35D9A8F841 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
 		79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; };
 		8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E72BBE64130E2666E4680E1B /* FirebaseMessaging */; };
+		0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; };
+		A54A1843C2074FD4A651238F /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */; };
+		B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */; };
 		DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */; };
 		DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -146,6 +154,34 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		274175EE34F94EC88B092534 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A54A1843C2074FD4A651238F /* DevLogWidgetCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8D4472904EC49ABB6712905 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */,
+				1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */,
+				020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */,
+				B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */,
+				B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */,
+				393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */,
+				0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -339,6 +375,7 @@
 				DFD3A96C2F8E89DD001DA7CD /* Sources */,
 				DFD3A96D2F8E89DD001DA7CD /* Frameworks */,
 				DFD3A96E2F8E89DD001DA7CD /* Resources */,
+				274175EE34F94EC88B092534 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -360,6 +397,7 @@
 				DFD48AFC2DC4D6E2005905C5 /* Sources */,
 				DFD48AFD2DC4D6E2005905C5 /* Frameworks */,
 				DFD48AFE2DC4D6E2005905C5 /* Resources */,
+				D8D4472904EC49ABB6712905 /* Embed Frameworks */,
 				DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
