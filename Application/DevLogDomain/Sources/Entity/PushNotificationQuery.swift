@@ -67,7 +67,7 @@ public extension PushNotificationQuery.TimeFilter {
         }
     }
 
-    public var thresholdDate: Date? {
+    var thresholdDate: Date? {
         switch self {
         case .none:
             return nil

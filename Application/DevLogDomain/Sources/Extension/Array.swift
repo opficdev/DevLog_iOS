@@ -30,7 +30,7 @@ extension Array: @retroactive RawRepresentable where Element: Codable {
 }
 
 public extension Array {
-    public func chunked(maxCount: Int) -> [[Element]] {
+    func chunked(maxCount: Int) -> [[Element]] {
         guard 0 < maxCount else { return [] }
 
         var chunks = [[Element]]()

@@ -9,7 +9,7 @@ import Foundation
 import DevLogDomain
 
 public extension WebPageResponse {
-    public func toDomain() throws -> WebPage {
+    func toDomain() throws -> WebPage {
         guard let url = URL(string: url) else {
             throw DataError.invalidData("WebPageResponse.url is invalid: \(url)")
         }

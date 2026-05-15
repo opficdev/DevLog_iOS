@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Calendar {
-    public func startOfQuarter(for date: Date) -> Date {
+    func startOfQuarter(for date: Date) -> Date {
         let month = component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
         var components = dateComponents([.year], from: date)

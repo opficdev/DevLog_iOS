@@ -8,7 +8,7 @@
 import DevLogDomain
 
 public extension PushNotificationResponse {
-    public func toDomain() throws -> PushNotification {
+    func toDomain() throws -> PushNotification {
         let todoCategory: TodoCategory
 
         switch self.todoCategory {
@@ -33,14 +33,14 @@ public extension PushNotificationResponse {
 }
 
 public extension PushNotificationCursorDTO {
-    public func toDomain() -> PushNotificationCursor {
+    func toDomain() -> PushNotificationCursor {
         PushNotificationCursor(
             receivedAt: self.receivedAt,
             documentID: self.documentID
         )
     }
 
-    public static func fromDomain(_ cursor: PushNotificationCursor) -> Self {
+    static func fromDomain(_ cursor: PushNotificationCursor) -> Self {
         PushNotificationCursorDTO(
             receivedAt: cursor.receivedAt,
             documentID: cursor.documentID
@@ -49,7 +49,7 @@ public extension PushNotificationCursorDTO {
 }
 
 public extension PushNotificationPageResponse {
-    public func toDomain() throws -> PushNotificationPage {
+    func toDomain() throws -> PushNotificationPage {
         let items = try self.items.map { try $0.toDomain() }
         let nextCursor = self.nextCursor?.toDomain()
         return PushNotificationPage(items: items, nextCursor: nextCursor)

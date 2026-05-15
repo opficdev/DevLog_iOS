@@ -8,7 +8,7 @@
 import DevLogDomain
 
 public extension UserProfileResponse {
-    public func toDomain() -> UserProfile {
+    func toDomain() -> UserProfile {
         UserProfile(
             name: self.name,
             email: self.email,

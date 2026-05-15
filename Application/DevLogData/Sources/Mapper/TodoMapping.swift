@@ -8,7 +8,7 @@
 import DevLogDomain
 
 public extension TodoRequest {
-    public static func fromDomain(_ entity: Todo) -> Self {
+    static func fromDomain(_ entity: Todo) -> Self {
         TodoRequest(
             id: entity.id,
             isPinned: entity.isPinned,
@@ -28,7 +28,7 @@ public extension TodoRequest {
 }
 
 public extension TodoResponse {
-    public func toDomain() throws -> Todo {
+    func toDomain() throws -> Todo {
         let todoCategory: TodoCategory
 
         switch category {
@@ -58,7 +58,7 @@ public extension TodoResponse {
 }
 
 public extension TodoCursorDTO {
-    public func toDomain() -> TodoCursor {
+    func toDomain() -> TodoCursor {
         TodoCursor(
             primarySortDate: primarySortDate,
             secondarySortDate: secondarySortDate,
@@ -66,7 +66,7 @@ public extension TodoCursorDTO {
         )
     }
 
-    public static func fromDomain(_ cursor: TodoCursor) -> Self {
+    static func fromDomain(_ cursor: TodoCursor) -> Self {
         TodoCursorDTO(
             primarySortDate: cursor.primarySortDate,
             secondarySortDate: cursor.secondarySortDate,
@@ -76,7 +76,7 @@ public extension TodoCursorDTO {
 }
 
 public extension TodoPageResponse {
-    public func toDomain() throws -> TodoPage {
+    func toDomain() throws -> TodoPage {
         let items = try items.map { try $0.toDomain() }
         let cursor = nextCursor?.toDomain()
         return TodoPage(items: items, nextCursor: cursor)
