@@ -12,6 +12,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 import Nexa
+import DevLogCore
 import DevLogData
 
 final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {

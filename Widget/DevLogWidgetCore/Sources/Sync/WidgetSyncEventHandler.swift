@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import DevLogCore
 import DevLogDomain
 import DevLogData
 

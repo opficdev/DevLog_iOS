@@ -8,6 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogCore
 import DevLogData
 
 final class WebPageServiceImpl: WebPageService {

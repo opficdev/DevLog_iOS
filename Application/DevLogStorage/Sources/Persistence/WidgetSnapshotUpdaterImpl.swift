@@ -7,6 +7,7 @@
 
 import Foundation
 import WidgetKit
+import DevLogCore
 import DevLogDomain
 import DevLogData
 import DevLogWidgetCore

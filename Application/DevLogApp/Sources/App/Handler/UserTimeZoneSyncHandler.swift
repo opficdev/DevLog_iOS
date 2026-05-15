@@ -6,6 +6,7 @@
 //
 
 import Combine
+import DevLogCore
 import DevLogData
 import UIKit
 

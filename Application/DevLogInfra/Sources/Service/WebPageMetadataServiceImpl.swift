@@ -8,6 +8,7 @@
 import Foundation
 import LinkPresentation
 import UIKit
+import DevLogCore
 import DevLogData
 
 final class WebPageMetadataServiceImpl: WebPageMetadataService {

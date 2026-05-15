@@ -15,7 +15,6 @@
 		0C8E1C07EF01FB22BF8B80B9 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */; };
 		14D1BF4D1F50FB067DA875B3 /* WebPageDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */; };
 		159FADC56D29B32B0613BB77 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2039D0A2EB1ADD163DFC253D /* DevLogDomain.framework */; };
-		18C2B39408BF745FE0BFC810 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67FC3A5288FABA7441F4D6AA /* Logger.swift */; };
 		18D37737A07ECBDA79EA9270 /* WidgetSnapshotPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */; };
 		2068F0B84A3BC53EEB156D82 /* WebPageMetadataResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */; };
 		238E950C1B6FF60F0840EA35 /* TodoCursorDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9FA1F72AAE9808A4800EEA /* TodoCursorDTO.swift */; };
@@ -91,7 +90,6 @@
 		E671A77745F90F217E091010 /* UserDefaultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */; };
 		E860E8E59EE2F714EF7F0FD8 /* UserProfileResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387E711B7A3BA319D3E7C2AB /* UserProfileResponse.swift */; };
 		E8FA3EF7AE26AA96A2168FEE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD765636013B36A3BCCCF8B7 /* Foundation.framework */; };
-		E9D070C8D3644AA9E7AB7EEA /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67FC3A5288FABA7441F4D6AA /* Logger.swift */; };
 		EB5E684FF9C0430609D41D24 /* WidgetSnapshotUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */; };
 		F515D3BD025E835AFFFAE8F6 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7559825C27ED42F9F86EBAC1 /* AuthService.swift */; };
 		FB654D9A5FD611C1CC1F9C15 /* PushNotificationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */; };
@@ -177,7 +175,6 @@
 		60E716EC015A5805DD7C949B /* TodoService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoService.swift; path = Sources/Protocol/TodoService.swift; sourceTree = "<group>"; };
 		6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationResponse.swift; path = Sources/DTO/PushNotificationResponse.swift; sourceTree = "<group>"; };
 		63198F8EBCD1DCBB407926F8 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
-		67FC3A5288FABA7441F4D6AA /* Logger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Logger.swift; path = Sources/Common/Logger.swift; sourceTree = "<group>"; };
 		7559825C27ED42F9F86EBAC1 /* AuthService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthService.swift; path = Sources/Protocol/AuthService.swift; sourceTree = "<group>"; };
 		78DB5B22BE2E31B18173E89E /* NetworkConnectivityRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkConnectivityRepositoryImpl.swift; path = Sources/Repository/NetworkConnectivityRepositoryImpl.swift; sourceTree = "<group>"; };
 		7B3ED1B2326966F84851DFDD /* AuthDataRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthDataRepositoryImpl.swift; path = Sources/Repository/AuthDataRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -270,7 +267,6 @@
 			isa = PBXGroup;
 			children = (
 				A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */,
-				67FC3A5288FABA7441F4D6AA /* Logger.swift */,
 			);
 			name = Common;
 			sourceTree = "<group>";
@@ -468,7 +464,6 @@
 				9B584555CC7504BEDF5F8008 /* WebPageImageRepositoryImpl.swift in Sources */,
 				4BD06832F56598B25183EF06 /* WebPageRepositoryImpl.swift in Sources */,
 				58FFF761F471A091E5A8BCF5 /* DataLayerError.swift in Sources */,
-				E9D070C8D3644AA9E7AB7EEA /* Logger.swift in Sources */,
 				5168B6165545231B3E9CB52D /* AuthDataResponse.swift in Sources */,
 				B73F5314433AE44F09034914 /* NotificationKind.swift in Sources */,
 				B77ADC0FB7F0CEE46F3D46BB /* PushNotificationCursorDTO.swift in Sources */,

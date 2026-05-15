@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseMessaging
 import Foundation
 import GoogleSignIn
+import DevLogCore
 import DevLogData
 
 final class GoogleAuthenticationServiceImpl: AuthenticationService {

@@ -9,6 +9,7 @@ import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
+import DevLogCore
 import DevLogData
 
 final class AuthServiceImpl: AuthService {

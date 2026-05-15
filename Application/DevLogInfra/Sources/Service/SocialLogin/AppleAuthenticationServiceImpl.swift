@@ -12,6 +12,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
+import DevLogCore
 import DevLogData
 
 final class AppleAuthenticationServiceImpl: AuthenticationService {

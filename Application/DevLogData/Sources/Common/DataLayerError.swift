@@ -7,6 +7,7 @@
 
 import AuthenticationServices
 import Foundation
+import DevLogCore
 
 public enum AuthError: Error {
     case notAuthenticated

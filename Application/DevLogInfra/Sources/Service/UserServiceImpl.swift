@@ -7,6 +7,7 @@
 
 import FirebaseAuth
 import FirebaseFirestore
+import DevLogCore
 import DevLogData
 
 final class UserServiceImpl: UserService {

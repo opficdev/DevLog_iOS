@@ -12,7 +12,7 @@ public final class Logger {
     private let subsystem: String
     private let category: String
     private let osLog: OSLog
-    
+
     public init(subsystem: String = Bundle.main.bundleIdentifier ?? "DevLog", category: String) {
         self.subsystem = subsystem
         self.category = category
@@ -27,7 +27,7 @@ public final class Logger {
     ) {
         log(message, type: .debug, file: file, function: function, line: line)
     }
-    
+
     public func info(
         _ message: String,
         file: String = #file,
@@ -36,7 +36,7 @@ public final class Logger {
     ) {
         log(message, type: .info, file: file, function: function, line: line)
     }
-    
+
     public func warning(
         _ message: String,
         file: String = #file,
@@ -45,7 +45,7 @@ public final class Logger {
     ) {
         log(message, type: .default, file: file, function: function, line: line)
     }
-    
+
     public func error(
         _ message: String,
         error: Error? = nil,
@@ -59,7 +59,7 @@ public final class Logger {
         }
         log(fullMessage, type: .error, file: file, function: function, line: line)
     }
-    
+
     public func fault(
         _ message: String,
         error: Error? = nil,
@@ -83,7 +83,7 @@ public final class Logger {
     ) {
         let fileName = (file as NSString).lastPathComponent
         let logMessage = "[\(fileName):\(line)] \(function) - \(message)"
-        
+
         #if DEBUG
         os_log("%{public}@", log: osLog, type: type, logMessage)
         #else
