@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Application/DevLogApp/DevLogApp.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogCore/DevLogCore.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogDomain/DevLogDomain.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogData/DevLogData.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogInfra/DevLogInfra.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogStorage/DevLogStorage.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Application/DevLogPresentation/DevLogPresentation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Widget/DevLogWidgetShared/DevLogWidgetShared.xcodeproj">
+   </FileRef>
+</Workspace>
