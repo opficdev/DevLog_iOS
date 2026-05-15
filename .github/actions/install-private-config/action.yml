@@ -29,8 +29,8 @@ runs:
         trap 'rm -rf "$privateConfigCheckoutPath"' EXIT
         configSourcePath="$privateConfigCheckoutPath/resources/DevLog/Config.xcconfig"
         googleServiceInfoSourcePath="$privateConfigCheckoutPath/resources/DevLog/GoogleService-Info.plist"
-        configDestinationPath="$GITHUB_WORKSPACE/DevLog/Resource/Config.xcconfig"
-        googleServiceInfoDestinationPath="$GITHUB_WORKSPACE/DevLog/Resource/GoogleService-Info.plist"
+        configDestinationPath="$GITHUB_WORKSPACE/Application/DevLogApp/Sources/Resource/Config.xcconfig"
+        googleServiceInfoDestinationPath="$GITHUB_WORKSPACE/Application/DevLogApp/Sources/Resource/GoogleService-Info.plist"
 
         rm -rf "$privateConfigCheckoutPath"
         mkdir -p "$privateConfigCheckoutPath"
