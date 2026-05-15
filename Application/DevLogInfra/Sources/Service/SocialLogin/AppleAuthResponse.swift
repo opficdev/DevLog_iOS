@@ -13,16 +13,4 @@ struct AppleAuthResponse {
     let credential: ASAuthorizationAppleIDCredential
     let authorizationCode: Data
     let idTokenString: String
-
-    init(
-        nonce: String,
-        credential: ASAuthorizationAppleIDCredential,
-        authorizationCode: Data,
-        idTokenString: String
-    ) {
-        self.nonce = nonce
-        self.credential = credential
-        self.authorizationCode = authorizationCode
-        self.idTokenString = idTokenString
-    }
 }
