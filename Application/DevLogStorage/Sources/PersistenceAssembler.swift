@@ -7,11 +7,12 @@
 
 import DevLogCore
 import DevLogData
-import DevLogStorage
 import DevLogWidgetCore
 
-final class PersistenceAssembler: Assembler {
-    func assemble(_ container: any DIContainer) {
+public final class PersistenceAssembler: Assembler {
+    public init() { }
+
+    public func assemble(_ container: any DIContainer) {
         container.register(UserDefaultsStore.self) {
             UserDefaultsStoreImpl()
         }

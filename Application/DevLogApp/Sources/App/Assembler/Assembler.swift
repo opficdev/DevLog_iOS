@@ -8,6 +8,7 @@
 import DevLogCore
 import DevLogData
 import DevLogDomain
+import DevLogStorage
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [

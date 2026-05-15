@@ -14,6 +14,8 @@
 		7044FCFCA32C8AA8F6FF4474 /* ThemeStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */; };
 		7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
 		9814DBF1A0DCD650FEF5A376 /* WidgetSnapshotUpdaterImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */; };
+		A11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
+		A33333333333333333333333 /* PersistenceAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22222222222222222222222 /* PersistenceAssembler.swift */; };
 		B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */; };
 		E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 /* End PBXBuildFile section */
@@ -25,6 +27,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 687DD42230CC25053ABB5FB8;
 			remoteInfo = DevLogWidgetCore;
+		};
+		A66666666666666666666666 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A44444444444444444444444 /* DevLogCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
+			remoteInfo = DevLogCore;
+		};
+		A77777777777777777777777 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A44444444444444444444444 /* DevLogCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
+			remoteInfo = Subproject;
 		};
 		7CD34B27DE3CD401A888D01C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -72,6 +88,8 @@
 		85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotUpdaterImpl.swift; path = Sources/Persistence/WidgetSnapshotUpdaterImpl.swift; sourceTree = "<group>"; };
 		86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A22222222222222222222222 /* PersistenceAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceAssembler.swift; path = Sources/PersistenceAssembler.swift; sourceTree = "<group>"; };
+		A44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		AEA9DB8D523E749E611B96FA /* DevLogWidgetCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetCore.xcodeproj; path = ../../Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj; sourceTree = "<group>"; };
 		C9566895E4A451286246B008 /* WebPageImageStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageImageStoreImpl.swift; path = Sources/Persistence/WebPageImageStoreImpl.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -85,6 +103,7 @@
 				7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */,
 				E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */,
 				3B8FAEC025F373D4CFC262D4 /* DevLogData.framework in Frameworks */,
+				A11111111111111111111111 /* DevLogCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +129,7 @@
 		63CE47D539EE6F9653C99773 /* DevLogStorage */ = {
 			isa = PBXGroup;
 			children = (
+				A22222222222222222222222 /* PersistenceAssembler.swift */,
 				721064495EFC6DDBA559F465 /* Persistence */,
 			);
 			name = DevLogStorage;
@@ -143,6 +163,7 @@
 				596DB8A398F4BCB331775AB9 /* DevLogDomain.xcodeproj */,
 				52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */,
 				AEA9DB8D523E749E611B96FA /* DevLogWidgetCore.xcodeproj */,
+				A44444444444444444444444 /* DevLogCore.xcodeproj */,
 			);
 			name = Projects;
 			sourceTree = "<group>";
@@ -154,6 +175,7 @@
 				F334BCFC52C730D5901F6051 /* DevLogDomain.framework */,
 				5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */,
 				493A5D0B4274807F2B948AB3 /* DevLogData.framework */,
+				A55555555555555555555555 /* DevLogCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,6 +208,7 @@
 				083FDD9BBD997A11EED7ACA9 /* PBXTargetDependency */,
 				8C9EB60C8E58A67726AF0EF1 /* PBXTargetDependency */,
 				65214D4CBB998A4369598E01 /* PBXTargetDependency */,
+				A88888888888888888888888 /* PBXTargetDependency */,
 			);
 			name = DevLogStorage;
 			productName = DevLogStorage;
@@ -227,6 +250,10 @@
 					ProductGroup = C96806E27CED4BE0CA95A9B0 /* Products */;
 					ProjectRef = AEA9DB8D523E749E611B96FA /* DevLogWidgetCore.xcodeproj */;
 				},
+				{
+					ProductGroup = C96806E27CED4BE0CA95A9B0 /* Products */;
+					ProjectRef = A44444444444444444444444 /* DevLogCore.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -248,6 +275,13 @@
 			fileType = wrapper.framework;
 			path = DevLogWidgetCore.framework;
 			remoteRef = 7CD34B27DE3CD401A888D01C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A55555555555555555555555 /* DevLogCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogCore.framework;
+			remoteRef = A77777777777777777777777 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		F334BCFC52C730D5901F6051 /* DevLogDomain.framework */ = {
@@ -279,6 +313,7 @@
 				50BBA1C19A7C61B8B8F3A68B /* WebPageImageStoreImpl.swift in Sources */,
 				B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */,
 				9814DBF1A0DCD650FEF5A376 /* WidgetSnapshotUpdaterImpl.swift in Sources */,
+				A33333333333333333333333 /* PersistenceAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +334,11 @@
 			isa = PBXTargetDependency;
 			name = DevLogWidgetCore;
 			targetProxy = 6556E45987F0D11205D84D04 /* PBXContainerItemProxy */;
+		};
+		A88888888888888888888888 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogCore;
+			targetProxy = A66666666666666666666666 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
