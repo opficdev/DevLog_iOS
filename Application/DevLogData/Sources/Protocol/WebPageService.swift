@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDomain
 import DevLogDataDTO
 
 public protocol WebPageService {
