@@ -6,6 +6,22 @@
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DFD48AFF2DC4D6E2005905C5"
+               BuildableName = "DevLog.app"
+               BlueprintName = "DevLog"
+               ReferencedContainer = "container:DevLogApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -22,7 +38,7 @@
                BlueprintIdentifier = "DF3416442E45F67C00F9312B"
                BuildableName = "DevLog_Unit.xctest"
                BlueprintName = "DevLog_Unit"
-               ReferencedContainer = "container:DevLog.xcodeproj">
+               ReferencedContainer = "container:DevLogApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -44,7 +60,7 @@
             BlueprintIdentifier = "DFD48AFF2DC4D6E2005905C5"
             BuildableName = "DevLog.app"
             BlueprintName = "DevLog"
-            ReferencedContainer = "container:DevLog.xcodeproj">
+            ReferencedContainer = "container:DevLogApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -54,15 +70,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DFD48AFF2DC4D6E2005905C5"
             BuildableName = "DevLog.app"
             BlueprintName = "DevLog"
-            ReferencedContainer = "container:DevLog.xcodeproj">
+            ReferencedContainer = "container:DevLogApp.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

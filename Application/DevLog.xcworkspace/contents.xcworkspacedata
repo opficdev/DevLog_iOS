@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:../DevLog.xcodeproj">
+      location = "group:DevLogApp/DevLogApp.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:DevLogCore/DevLogCore.xcodeproj">
