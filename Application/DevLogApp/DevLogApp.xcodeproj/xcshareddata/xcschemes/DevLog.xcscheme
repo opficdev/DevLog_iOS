@@ -36,8 +36,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DF3416442E45F67C00F9312B"
-               BuildableName = "DevLog_Unit.xctest"
-               BlueprintName = "DevLog_Unit"
+               BuildableName = "DevLogAppTests.xctest"
+               BlueprintName = "DevLogAppTests"
                ReferencedContainer = "container:DevLogApp.xcodeproj">
             </BuildableReference>
          </TestableReference>

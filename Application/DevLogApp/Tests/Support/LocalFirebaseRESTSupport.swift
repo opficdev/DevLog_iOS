@@ -1,6 +1,6 @@
 //
 //  LocalFirebaseRESTSupport.swift
-//  DevLog_Unit
+//  DevLogAppTests
 //
 //  Created by opfic on 4/6/26.
 //

@@ -166,7 +166,7 @@
 		AA11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		CA2F877790969610EE38BD93 /* DevLogInfra.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogInfra.xcodeproj; path = ../DevLogInfra/DevLogInfra.xcodeproj; sourceTree = "<group>"; };
 		DC0CB81C9BF2596ADCE8FB90 /* DevLogPresentation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogPresentation.xcodeproj; path = ../DevLogPresentation/DevLogPresentation.xcodeproj; sourceTree = "<group>"; };
-		DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLog_Unit.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -193,11 +193,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DF34164A2E45F67C00F9312B /* ../../DevLog_Unit */ = {
+		DF34164A2E45F67C00F9312B /* Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 			);
-			path = ../../DevLog_Unit;
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		DF8AB7982E938B0B00E50BBF /* Sources */ = {
@@ -259,7 +259,7 @@
 		4B47FFC0E73415A65560089A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */,
+				DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */,
 				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
 				DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */,
 				AE11B22C33D44E55F6677889 /* DevLogCore.framework */,
@@ -291,7 +291,7 @@
 			isa = PBXGroup;
 			children = (
 				DF8AB7982E938B0B00E50BBF /* Sources */,
-				DF34164A2E45F67C00F9312B /* ../../DevLog_Unit */,
+				DF34164A2E45F67C00F9312B /* Tests */,
 				DFD3A9752F8E89DD001DA7CD /* ../../Widget/DevLogWidgetExtension */,
 				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
 				4F3D8CEC7F23C3BFF6B9E27B /* Projects */,
@@ -311,9 +311,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DF3416442E45F67C00F9312B /* DevLog_Unit */ = {
+		DF3416442E45F67C00F9312B /* DevLogAppTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */;
+			buildConfigurationList = DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLogAppTests" */;
 			buildPhases = (
 				DF3416462E45F67C00F9312B /* Sources */,
 				DF3416472E45F67C00F9312B /* Frameworks */,
@@ -325,11 +325,11 @@
 				DF34164C2E45F67C00F9312B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DF34164A2E45F67C00F9312B /* ../../DevLog_Unit */,
+				DF34164A2E45F67C00F9312B /* Tests */,
 			);
-			name = DevLog_Unit;
-			productName = DevLog_Unit;
-			productReference = DF3416492E45F67C00F9312B /* DevLog_Unit.xctest */;
+			name = DevLogAppTests;
+			productName = DevLogAppTests;
+			productReference = DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */ = {
@@ -460,7 +460,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				DF3416442E45F67C00F9312B /* DevLog_Unit */,
+				DF3416442E45F67C00F9312B /* DevLogAppTests */,
 				DFD48AFF2DC4D6E2005905C5 /* DevLog */,
 				DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */,
 			);
@@ -635,7 +635,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog_Unit;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLogAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -660,7 +660,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog_Unit;
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLogAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -975,7 +975,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLog_Unit" */ = {
+		DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLogAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF34164D2E45F67C00F9312B /* Debug */,
