@@ -3,14 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0553E143B544CD7ACD082298 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A9C9F3E543201091571C00 /* LoadingView.swift */; };
 		071B4E6FE1D0DC0EF26E0705 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01ACB5EB0ACD6D3233BA118 /* MainView.swift */; };
 		075FA5A9704297F5A51D765D /* ThemeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD88694DEEB6DE8DE51EE0B4 /* ThemeView.swift */; };
-		0A11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E11B22C33D44E55F6677889 /* DevLogCore.framework */; };
 		0A5A148F5EF1BAD010BED113 /* HeatmapMonth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C952669C86B8EB042ED7CF /* HeatmapMonth.swift */; };
 		0CEB2B1729B59439362725A5 /* ToolbarButton+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378C11F76082EF6BE53A3066 /* ToolbarButton+.swift */; };
 		0F4B4A95DBD1219D374B47E3 /* HeatmapActivityItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04BEF390A74ECC5558A076F /* HeatmapActivityItem.swift */; };
@@ -79,9 +78,7 @@
 		D7ED2E08383517AA3E242B0C /* TodayViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D877FBAD44D5DF8233F0BB3 /* TodayViewCoordinator.swift */; };
 		D8DCEA367C54C527295E004F /* HeatmapQuarter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2EDDC1E545869FE9C849E4B /* HeatmapQuarter.swift */; };
 		DB081DF4854E8D445EFE0608 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7D1C854833EFD757D7AD4 /* ProfileViewModel.swift */; };
-		E69CD0D89DDDF4A68406680D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D06169FD4B643952DF59EDAE /* FirebaseAuth */; };
 		E7EBEBA803A9449A6CBEF11B /* RecentTodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39AE1F6609037A277C54DD7 /* RecentTodoItem.swift */; };
-		E91B53D33C90B9298E0B2EA1 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */; };
 		E9BE203BADA107278CFBDD54 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EBEFF93E1CFC9AF98B4B940 /* HomeView.swift */; };
 		F0B4DBB89733E466B105CF25 /* EnvironmentValues+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931DDC13F47DBC816EDB17D7 /* EnvironmentValues+.swift */; };
 		F1474D4F84693113355B7DA2 /* TodoMarkdownContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119B7970317B27ADC8DC1B3 /* TodoMarkdownContentView.swift */; };
@@ -97,13 +94,6 @@
 			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
 			remoteInfo = DevLogCore;
 		};
-		0C11B22C33D44E55F6677889 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
-			remoteInfo = Subproject;
-		};
 		63A78AEC0654C9B6030C055B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
@@ -111,12 +101,12 @@
 			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
 			remoteInfo = DevLogDomain;
 		};
-		F62246BFB23AD8069C3C9A25 /* PBXContainerItemProxy */ = {
+		DFE459162FB7283400441703 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
-			remoteInfo = Subproject;
+			remoteInfo = DevLogDomain;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -146,7 +136,7 @@
 		53B7D1C854833EFD757D7AD4 /* ProfileViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProfileViewModel.swift; path = Sources/ViewModel/ProfileViewModel.swift; sourceTree = "<group>"; };
 		57F86003764E015A7DBFD9A6 /* HomeViewCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeViewCoordinator.swift; path = Sources/Home/HomeViewCoordinator.swift; sourceTree = "<group>"; };
 		5D877FBAD44D5DF8233F0BB3 /* TodayViewCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayViewCoordinator.swift; path = Sources/Today/TodayViewCoordinator.swift; sourceTree = "<group>"; };
-		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DevLogPresentation.framework; path = "/Users/opfic/Desktop/Github/App/SwiftUI_DevLog/Application/DevLogPresentation/build/Debug-iphoneos/DevLogPresentation.framework"; sourceTree = "<absolute>"; };
 		5EF81D9BB299B33C5ED8DB52 /* TodoManageViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoManageViewModel.swift; path = Sources/ViewModel/TodoManageViewModel.swift; sourceTree = "<group>"; };
 		64E49223C6BC0615AC7B9C37 /* ActivityKindItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ActivityKindItem.swift; path = Sources/Structure/Profile/ActivityKindItem.swift; sourceTree = "<group>"; };
 		6F5844EB62C68540DD8404C5 /* NavigationBarConfigurator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavigationBarConfigurator.swift; path = Sources/Common/NavigationBarConfigurator.swift; sourceTree = "<group>"; };
@@ -206,11 +196,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */,
 				3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */,
-				E69CD0D89DDDF4A68406680D /* FirebaseAuth in Frameworks */,
 				CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */,
-				E91B53D33C90B9298E0B2EA1 /* DevLogDomain.framework in Frameworks */,
 				1B8D0C5D8C506642FFB8F9FA /* OrderedCollections in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -230,9 +217,7 @@
 		03D4331F04C462F4C642860F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0E11B22C33D44E55F6677889 /* DevLogCore.framework */,
-				5E7473315771B5D3030C5003 /* DevLogPresentation.framework */,
-				6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */,
+				DFE459172FB7283400441703 /* DevLogDomain.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -543,7 +528,6 @@
 			name = DevLogPresentation;
 			packageProductDependencies = (
 				423A6FE16D5EC7FECF77A31A /* MarkdownUI */,
-				D06169FD4B643952DF59EDAE /* FirebaseAuth */,
 				7D6DDD31C1122286D5852621 /* OrderedCollections */,
 			);
 			productName = DevLogPresentation;
@@ -568,13 +552,10 @@
 				Base,
 			);
 			mainGroup = 253FAAC4504D4C5E1B11C833;
-			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
-				AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				4A268C0F47C89BEF1B5B794F /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 03D4331F04C462F4C642860F /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -595,18 +576,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		0E11B22C33D44E55F6677889 /* DevLogCore.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogCore.framework;
-			remoteRef = 0C11B22C33D44E55F6677889 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		6AF2C2F0F0FE28B3D9B45801 /* DevLogDomain.framework */ = {
+		DFE459172FB7283400441703 /* DevLogDomain.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = DevLogDomain.framework;
-			remoteRef = F62246BFB23AD8069C3C9A25 /* PBXContainerItemProxy */;
+			remoteRef = DFE459162FB7283400441703 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -792,7 +766,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -817,7 +795,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -923,14 +905,6 @@
 				minimumVersion = 1.3.0;
 			};
 		};
-		AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.15.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -943,11 +917,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4A268C0F47C89BEF1B5B794F /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
-		};
-		D06169FD4B643952DF59EDAE /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AC62D62F9D1E8C3E3279BC3A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
