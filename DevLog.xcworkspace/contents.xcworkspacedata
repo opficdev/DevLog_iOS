@@ -17,7 +17,7 @@
       location = "group:Application/DevLogInfra/DevLogInfra.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Application/DevLogStorage/DevLogStorage.xcodeproj">
+      location = "group:Application/DevLogPersistence/DevLogPersistence.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Application/DevLogPresentation/DevLogPresentation.xcodeproj">

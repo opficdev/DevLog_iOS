@@ -22,7 +22,7 @@
 		B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */; };
 		E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 		F47DBE7D3E7E49F08D4B5530 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
-		4EE7A141A66C408EB8897D4A /* DevLogStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */; };
+		4EE7A141A66C408EB8897D4A /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */; };
 		5F89EB23199E4ABEA925CF92 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493A5D0B4274807F2B948AB3 /* DevLogData.framework */; };
 		4763564ECF9942DCB6A7D3D2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 /* End PBXBuildFile section */
@@ -82,7 +82,7 @@
 			containerPortal = DF1E7E43C1BA2439E9B82492 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 0C205A501EF8E79FA9A73C4B;
-			remoteInfo = DevLogStorage;
+			remoteInfo = DevLogPersistence;
 		};
 		E797C92EB75C449E9AE5F53F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -125,11 +125,11 @@
 		04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThemeStoreImpl.swift; path = Sources/Persistence/ThemeStoreImpl.swift; sourceTree = "<group>"; };
 		52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 		596DB8A398F4BCB331775AB9 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
-		62B066C5B0714BC3B5F4D9D0 /* DevLogStorageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogStorageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		62B066C5B0714BC3B5F4D9D0 /* DevLogPersistenceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPersistenceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotPreferenceStoreImpl.swift; path = Sources/Persistence/WidgetSnapshotPreferenceStoreImpl.swift; sourceTree = "<group>"; };
 		7DAF91F98F483FF07C38820D /* UserDefaultsStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsStoreImpl.swift; path = Sources/Persistence/UserDefaultsStoreImpl.swift; sourceTree = "<group>"; };
 		85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotUpdaterImpl.swift; path = Sources/Persistence/WidgetSnapshotUpdaterImpl.swift; sourceTree = "<group>"; };
-		86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A22222222222222222222222 /* PersistenceAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceAssembler.swift; path = Sources/PersistenceAssembler.swift; sourceTree = "<group>"; };
 		A44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
@@ -156,7 +156,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4EE7A141A66C408EB8897D4A /* DevLogStorage.framework in Frameworks */,
+				4EE7A141A66C408EB8897D4A /* DevLogPersistence.framework in Frameworks */,
 				F47DBE7D3E7E49F08D4B5530 /* DevLogCore.framework in Frameworks */,
 				8A95AB09613C4F54883A7A38 /* DevLogDomain.framework in Frameworks */,
 				5F89EB23199E4ABEA925CF92 /* DevLogData.framework in Frameworks */,
@@ -183,13 +183,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		63CE47D539EE6F9653C99773 /* DevLogStorage */ = {
+		63CE47D539EE6F9653C99773 /* DevLogPersistence */ = {
 			isa = PBXGroup;
 			children = (
 				A22222222222222222222222 /* PersistenceAssembler.swift */,
 				721064495EFC6DDBA559F465 /* Persistence */,
 			);
-			name = DevLogStorage;
+			name = DevLogPersistence;
 			sourceTree = "<group>";
 		};
 		721064495EFC6DDBA559F465 /* Persistence */ = {
@@ -225,7 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				49F17FD9095E72DC89748471 /* Frameworks */,
-				63CE47D539EE6F9653C99773 /* DevLogStorage */,
+				63CE47D539EE6F9653C99773 /* DevLogPersistence */,
 				D5D04ADAA14A44289CF9A22E /* Tests */,
 				C005798DC28F77FF8B0E248A /* Projects */,
 				C96806E27CED4BE0CA95A9B0 /* Products */,
@@ -246,8 +246,8 @@
 		C96806E27CED4BE0CA95A9B0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */,
-				62B066C5B0714BC3B5F4D9D0 /* DevLogStorageTests.xctest */,
+				86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */,
+				62B066C5B0714BC3B5F4D9D0 /* DevLogPersistenceTests.xctest */,
 				F334BCFC52C730D5901F6051 /* DevLogDomain.framework */,
 				5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */,
 				493A5D0B4274807F2B948AB3 /* DevLogData.framework */,
@@ -269,9 +269,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		0C205A501EF8E79FA9A73C4B /* DevLogStorage */ = {
+		0C205A501EF8E79FA9A73C4B /* DevLogPersistence */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8C12A3FB7175A40B4479C85B /* Build configuration list for PBXNativeTarget "DevLogStorage" */;
+			buildConfigurationList = 8C12A3FB7175A40B4479C85B /* Build configuration list for PBXNativeTarget "DevLogPersistence" */;
 			buildPhases = (
 				5FF511FD5A5529526022FD9C /* Headers */,
 				D4CC01793812ABB253D6AC08 /* Sources */,
@@ -286,14 +286,14 @@
 				65214D4CBB998A4369598E01 /* PBXTargetDependency */,
 				A88888888888888888888888 /* PBXTargetDependency */,
 			);
-			name = DevLogStorage;
-			productName = DevLogStorage;
-			productReference = 86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */;
+			name = DevLogPersistence;
+			productName = DevLogPersistence;
+			productReference = 86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		BE1ADABE58664FAC8B321F12 /* DevLogStorageTests */ = {
+		BE1ADABE58664FAC8B321F12 /* DevLogPersistenceTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5D9A9D653D4C471C82E467D2 /* Build configuration list for PBXNativeTarget "DevLogStorageTests" */;
+			buildConfigurationList = 5D9A9D653D4C471C82E467D2 /* Build configuration list for PBXNativeTarget "DevLogPersistenceTests" */;
 			buildPhases = (
 				21B6276975A04D6D8BDC646D /* Sources */,
 				292BB970C2B54490BD9BFCDA /* Frameworks */,
@@ -308,9 +308,9 @@
 				0ADC5DDD59EB427EB1B33FC4 /* PBXTargetDependency */,
 				49EA84B99E32462D8FFD9073 /* PBXTargetDependency */,
 			);
-			name = DevLogStorageTests;
-			productName = DevLogStorageTests;
-			productReference = 62B066C5B0714BC3B5F4D9D0 /* DevLogStorageTests.xctest */;
+			name = DevLogPersistenceTests;
+			productName = DevLogPersistenceTests;
+			productReference = 62B066C5B0714BC3B5F4D9D0 /* DevLogPersistenceTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -327,7 +327,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7977F26B747BC5BCE5E0A6B4 /* Build configuration list for PBXProject "DevLogStorage" */;
+			buildConfigurationList = 7977F26B747BC5BCE5E0A6B4 /* Build configuration list for PBXProject "DevLogPersistence" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -360,8 +360,8 @@
 			);
 			projectRoot = "";
 			targets = (
-				0C205A501EF8E79FA9A73C4B /* DevLogStorage */,
-				BE1ADABE58664FAC8B321F12 /* DevLogStorageTests */,
+				0C205A501EF8E79FA9A73C4B /* DevLogPersistence */,
+				BE1ADABE58664FAC8B321F12 /* DevLogPersistenceTests */,
 			);
 		};
 /* End PBXProject section */
@@ -452,7 +452,7 @@
 		};
 		369778EAD3564AB68A495DA7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C205A501EF8E79FA9A73C4B /* DevLogStorage */;
+			target = 0C205A501EF8E79FA9A73C4B /* DevLogPersistence */;
 			targetProxy = E235680901FF45419002A175 /* PBXContainerItemProxy */;
 		};
 		49EA84B99E32462D8FFD9073 /* PBXTargetDependency */ = {
@@ -562,7 +562,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogStorage;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistence;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -582,13 +582,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogStorageTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistenceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogStorage;
+				TEST_TARGET_NAME = DevLogPersistence;
 			};
 			name = Debug;
 		};
@@ -654,13 +654,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogStorageTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistenceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogStorage;
+				TEST_TARGET_NAME = DevLogPersistence;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -678,7 +678,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogStorage;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistence;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -692,7 +692,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7977F26B747BC5BCE5E0A6B4 /* Build configuration list for PBXProject "DevLogStorage" */ = {
+		7977F26B747BC5BCE5E0A6B4 /* Build configuration list for PBXProject "DevLogPersistence" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3047117C7630A6B91F1477F5 /* Debug */,
@@ -701,7 +701,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8C12A3FB7175A40B4479C85B /* Build configuration list for PBXNativeTarget "DevLogStorage" */ = {
+		8C12A3FB7175A40B4479C85B /* Build configuration list for PBXNativeTarget "DevLogPersistence" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				586E1D6B64BF31CC733055C9 /* Release */,
@@ -710,7 +710,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5D9A9D653D4C471C82E467D2 /* Build configuration list for PBXNativeTarget "DevLogStorageTests" */ = {
+		5D9A9D653D4C471C82E467D2 /* Build configuration list for PBXNativeTarget "DevLogPersistenceTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				318C40EC8339400D9F44404E /* Debug */,

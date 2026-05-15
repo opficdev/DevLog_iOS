@@ -1,6 +1,6 @@
 //
 //  WidgetSnapshotUpdaterTests.swift
-//  DevLogStorageTests
+//  DevLogPersistenceTests
 //
 //  Created by opfic on 4/30/26.
 //
@@ -8,7 +8,7 @@
 import Foundation
 import DevLogDomain
 import Testing
-@testable import DevLogStorage
+@testable import DevLogPersistence
 @testable import DevLogWidgetCore
 
 struct WidgetSnapshotUpdaterTests {
