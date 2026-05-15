@@ -367,6 +367,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BEEFAA000000000000000004 /* PBXTargetDependency */,
 				0FC02D22248748E49355C84A /* PBXTargetDependency */,
 				F7745FE3BB124A799D253D66 /* PBXTargetDependency */,
 				0DDA8FBB36DE47AA85B6E75E /* PBXTargetDependency */,
@@ -512,6 +513,10 @@
 
 /* Begin PBXTargetDependency section */
 		BEEFAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = BEEFAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+		};
+		BEEFAA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = BEEFAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
 		};

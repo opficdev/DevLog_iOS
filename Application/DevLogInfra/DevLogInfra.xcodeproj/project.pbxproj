@@ -317,6 +317,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1F4AAA000000000000000004 /* PBXTargetDependency */,
 				DD23C8A4110847EABDCAA271 /* PBXTargetDependency */,
 			);
 			name = DevLogInfraTests;
@@ -461,6 +462,10 @@
 
 /* Begin PBXTargetDependency section */
 		1F4AAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+		};
+		1F4AAA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
 		};
