@@ -21,8 +21,6 @@
 		DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */; };
 		DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */; };
 		DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		DFD645402EC827A10073E133 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = DFD6453F2EC827A10073E133 /* .gitignore */; };
-		DFD74E2F2E423EA700613803 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFD74E2E2E423EA700613803 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,8 +171,6 @@
 		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD6453F2EC827A10073E133 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = ../../.gitignore; sourceTree = "<group>"; };
-		DFD74E2E2E423EA700613803 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ../../README.md; sourceTree = "<group>"; };
 		E6378CBE9A1D81625216CF86 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -294,8 +290,6 @@
 		DFD48AF72DC4D6E2005905C5 = {
 			isa = PBXGroup;
 			children = (
-				DFD74E2E2E423EA700613803 /* README.md */,
-				DFD6453F2EC827A10073E133 /* .gitignore */,
 				DF8AB7982E938B0B00E50BBF /* Sources */,
 				DF34164A2E45F67C00F9312B /* ../../DevLog_Unit */,
 				DFD3A9752F8E89DD001DA7CD /* ../../Widget/DevLogWidgetExtension */,
@@ -544,8 +538,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFD645402EC827A10073E133 /* .gitignore in Resources */,
-				DFD74E2F2E423EA700613803 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
