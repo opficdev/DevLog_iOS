@@ -1,13 +1,15 @@
 //
 //  WidgetSnapshotUpdaterTests.swift
-//  DevLog_Unit
+//  DevLogStorageTests
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
+import DevLogDomain
 import Testing
-@testable import DevLog
+@testable import DevLogStorage
+@testable import DevLogWidgetCore
 
 struct WidgetSnapshotUpdaterTests {
     @Test("Today 스냅샷 갱신은 Today 스냅샷을 저장한다")
@@ -36,6 +38,8 @@ struct WidgetSnapshotUpdaterTests {
         let calendar = Calendar(identifier: .gregorian)
         let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
         let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 30)))
+        let completedAt = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 3)))
+        let deletedAt = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 4)))
         let fixture = makeFixture(calendar: calendar)
 
         fixture.updater.updateHeatmapSnapshot(
@@ -49,14 +53,14 @@ struct WidgetSnapshotUpdaterTests {
                 makeTodo(
                     id: "completed",
                     createdAt: quarterStart,
-                    completedAt: try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 3)))
+                    completedAt: completedAt
                 )
             ],
             deletedTodos: [
                 makeTodo(
                     id: "deleted",
                     createdAt: quarterStart,
-                    deletedAt: try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 4)))
+                    deletedAt: deletedAt
                 )
             ],
             selectedActivityKinds: [.created, .completed],
