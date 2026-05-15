@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDataDTO
 
 public protocol WebPageImageStore {
     func cachedImageURL(for url: URL) async throws -> URL

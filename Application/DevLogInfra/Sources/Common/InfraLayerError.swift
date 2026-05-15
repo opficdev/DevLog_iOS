@@ -7,9 +7,7 @@
 
 import AuthenticationServices
 import Foundation
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 enum FirestoreError: Error, LocalizedError {
     case dataNotFound(_ key: String)

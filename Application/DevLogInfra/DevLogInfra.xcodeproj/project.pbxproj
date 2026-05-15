@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */; };
-		17DCF2F561737FAE2CE744AC /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93139280AFA8F1C2B741F3 /* DevLogDataCommon.framework */; };
 		1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */; };
 		21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */; };
 		3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */; };
@@ -23,14 +22,13 @@
 		73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */; };
 		7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */; };
 		87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */; };
-		8DC809F74EA0D636E5F51A83 /* DevLogDataDTO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A5DD33E6F5140069CA53AAF /* DevLogDataDTO.framework */; };
 		93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */; };
 		9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */; };
-		A18672C71ABCFAAFC19775F5 /* DevLogDataProtocol.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CE407FD20ABD6E4ABC9BC63 /* DevLogDataProtocol.framework */; };
 		D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */; };
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
 		EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */; };
 		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
+		F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4F874032FD57C0BBCC41C64 /* DevLogData.framework */; };
 		F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */; };
 		FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */; };
 		FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 94394E2197878DD50AF67628 /* FirebaseMessaging */; };
@@ -39,19 +37,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		222664031A3755F898AC4A64 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
-			remoteInfo = Subproject;
-		};
-		32EC06031958F9D5646C1D0C /* PBXContainerItemProxy */ = {
+		242875057F793AB5E271751C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 6D02EDBA887507AC7BA79658;
-			remoteInfo = DevLogDataProtocol;
+			remoteGlobalIDString = D9D76C33D8B4790694BD3488;
+			remoteInfo = DevLogData;
 		};
 		3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -60,47 +51,12 @@
 			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
 			remoteInfo = Subproject;
 		};
-		3C55FED4AAAFF680BC9A9419 /* PBXContainerItemProxy */ = {
+		92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 690289F520872AC78D6C95D3;
+			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
 			remoteInfo = Subproject;
-		};
-		3CCA8B999AE2B98D2879E143 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 80A60CC195BD79C638F5B405;
-			remoteInfo = DevLogDataCommon;
-		};
-		727CFE0E6C6DAB110ACB562B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = C063BD562070CA11C2AA4EDF;
-			remoteInfo = Subproject;
-		};
-		7C38D533DC06F649C1864BD6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 44466B71BA6B67309210A7BB;
-			remoteInfo = Subproject;
-		};
-		9CDFD7B003CE61367A243C92 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 92502C9F074520D19CC451EF;
-			remoteInfo = Subproject;
-		};
-		9E214F3BA927C38871E8B03B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 0B9228953A84A7D7ED3BC5B8;
-			remoteInfo = DevLogDataDTO;
 		};
 		DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -123,13 +79,13 @@
 		59E81A47825142881793450F /* FirebaseAuthUser+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FirebaseAuthUser+.swift"; path = "Sources/Extension/FirebaseAuthUser+.swift"; sourceTree = "<group>"; };
 		64CFC9162F5063E3CB017B40 /* FirestorePath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirestorePath.swift; path = Sources/Common/FirestorePath.swift; sourceTree = "<group>"; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NWPathConnectivityProviderImpl.swift; path = Sources/Service/NWPathConnectivityProviderImpl.swift; sourceTree = "<group>"; };
 		BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoServiceImpl.swift; path = Sources/Service/TodoServiceImpl.swift; sourceTree = "<group>"; };
 		C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationServiceImpl.swift; path = Sources/Service/PushNotificationServiceImpl.swift; sourceTree = "<group>"; };
 		CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryServiceImpl.swift; path = Sources/Service/TodoCategoryServiceImpl.swift; sourceTree = "<group>"; };
 		D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleAuthResponse.swift; path = Sources/Service/SocialLogin/AppleAuthResponse.swift; sourceTree = "<group>"; };
 		DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
-		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthServiceImpl.swift; path = Sources/Service/AuthServiceImpl.swift; sourceTree = "<group>"; };
 		E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageServiceImpl.swift; path = Sources/Service/WebPageServiceImpl.swift; sourceTree = "<group>"; };
 		F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InfraLayerError.swift; path = Sources/Common/InfraLayerError.swift; sourceTree = "<group>"; };
@@ -142,9 +98,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */,
-				17DCF2F561737FAE2CE744AC /* DevLogDataCommon.framework in Frameworks */,
-				8DC809F74EA0D636E5F51A83 /* DevLogDataDTO.framework in Frameworks */,
-				A18672C71ABCFAAFC19775F5 /* DevLogDataProtocol.framework in Frameworks */,
 				21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */,
 				FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */,
 				65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */,
@@ -152,6 +105,7 @@
 				FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */,
 				EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */,
 				FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */,
+				F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,12 +116,8 @@
 			isa = PBXGroup;
 			children = (
 				592C8B7B099933759AB316A5 /* DevLogInfra.framework */,
-				7E93139280AFA8F1C2B741F3 /* DevLogDataCommon.framework */,
-				6A5DD33E6F5140069CA53AAF /* DevLogDataDTO.framework */,
-				6CE407FD20ABD6E4ABC9BC63 /* DevLogDataProtocol.framework */,
-				2AC0C307821B12C249CFFC13 /* DevLogDataMapper.framework */,
-				344EDB4AD1E8A6EE910CBABC /* DevLogDataRepository.framework */,
 				8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */,
+				A4F874032FD57C0BBCC41C64 /* DevLogData.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -289,10 +239,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				70E913DD1742622E14034FA5 /* PBXTargetDependency */,
-				56E7098218C952A11F239418 /* PBXTargetDependency */,
-				A7332E416B2191D257886169 /* PBXTargetDependency */,
 				342FB70B2E884012B67F8B38 /* PBXTargetDependency */,
+				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
 			);
 			name = DevLogInfra;
 			packageProductDependencies = (
@@ -352,46 +300,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2AC0C307821B12C249CFFC13 /* DevLogDataMapper.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataMapper.framework;
-			remoteRef = 7C38D533DC06F649C1864BD6 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		344EDB4AD1E8A6EE910CBABC /* DevLogDataRepository.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataRepository.framework;
-			remoteRef = 222664031A3755F898AC4A64 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		6A5DD33E6F5140069CA53AAF /* DevLogDataDTO.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataDTO.framework;
-			remoteRef = 9CDFD7B003CE61367A243C92 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		6CE407FD20ABD6E4ABC9BC63 /* DevLogDataProtocol.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataProtocol.framework;
-			remoteRef = 727CFE0E6C6DAB110ACB562B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7E93139280AFA8F1C2B741F3 /* DevLogDataCommon.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataCommon.framework;
-			remoteRef = 3C55FED4AAAFF680BC9A9419 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = DevLogDomain.framework;
 			remoteRef = 3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A4F874032FD57C0BBCC41C64 /* DevLogData.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogData.framework;
+			remoteRef = 92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -440,20 +360,10 @@
 			name = DevLogDomain;
 			targetProxy = DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */;
 		};
-		56E7098218C952A11F239418 /* PBXTargetDependency */ = {
+		B62EE119F71162DAB0F9D034 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = DevLogDataDTO;
-			targetProxy = 9E214F3BA927C38871E8B03B /* PBXContainerItemProxy */;
-		};
-		70E913DD1742622E14034FA5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDataCommon;
-			targetProxy = 3CCA8B999AE2B98D2879E143 /* PBXContainerItemProxy */;
-		};
-		A7332E416B2191D257886169 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDataProtocol;
-			targetProxy = 32EC06031958F9D5646C1D0C /* PBXContainerItemProxy */;
+			name = DevLogData;
+			targetProxy = 242875057F793AB5E271751C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

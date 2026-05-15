@@ -6,10 +6,6 @@
 //
 
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataMapper
-import DevLogDataProtocol
 
 final class AuthDataRepositoryImpl: AuthDataRepository {
     private let authService: AuthService

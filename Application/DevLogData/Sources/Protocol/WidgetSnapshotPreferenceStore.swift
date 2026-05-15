@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogDataDTO
 
 public protocol WidgetSnapshotPreferenceStore {
     func heatmapActivityTypes() -> [String]

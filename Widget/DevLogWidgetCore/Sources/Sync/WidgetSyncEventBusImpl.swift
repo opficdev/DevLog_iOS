@@ -7,8 +7,7 @@
 
 import Combine
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataProtocol
+import DevLogData
 import DevLogWidgetShared
 
 final class WidgetSyncEventBusImpl: WidgetSyncEventBus {

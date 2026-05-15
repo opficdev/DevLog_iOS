@@ -9,9 +9,7 @@ import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 final class AuthServiceImpl: AuthService {
     private let store = Firestore.firestore()

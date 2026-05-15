@@ -7,8 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
 
 public extension WebPageResponse {
     public func toDomain() throws -> WebPage {

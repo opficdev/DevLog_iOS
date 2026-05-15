@@ -7,7 +7,7 @@
 
 import SwiftUI
 import DevLogDomain
-import DevLogDataCommon
+import DevLogData
 
 public struct UserTodoCategoryItem: Identifiable, Hashable {
     public let userTodoCategory: UserTodoCategory

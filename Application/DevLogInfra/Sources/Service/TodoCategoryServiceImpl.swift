@@ -8,9 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 final class TodoCategoryServiceImpl: TodoCategoryService {
     private enum Field: String {

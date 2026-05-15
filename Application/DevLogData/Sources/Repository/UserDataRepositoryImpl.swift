@@ -6,10 +6,6 @@
 //
 
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataMapper
-import DevLogDataProtocol
 
 final class UserDataRepositoryImpl: UserDataRepository {
     private let userService: UserService

@@ -6,7 +6,6 @@
 //
 
 import DevLogDomain
-import DevLogDataDTO
 
 public extension UserProfileResponse {
     public func toDomain() -> UserProfile {

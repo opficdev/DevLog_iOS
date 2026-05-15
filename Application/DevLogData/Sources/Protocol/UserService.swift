@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDataDTO
 
 public protocol UserService {
     func upsertUser(_ response: AuthDataResponse) async throws

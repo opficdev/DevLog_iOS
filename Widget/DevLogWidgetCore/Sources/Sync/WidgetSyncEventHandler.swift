@@ -8,8 +8,7 @@
 import Combine
 import Foundation
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataProtocol
+import DevLogData
 import DevLogWidgetShared
 
 final class WidgetSyncEventHandler {

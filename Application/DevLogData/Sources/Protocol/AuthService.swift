@@ -7,7 +7,6 @@
 
 import Combine
 import Foundation
-import DevLogDataDTO
 
 public protocol AuthService {
     var uid: String? { get }

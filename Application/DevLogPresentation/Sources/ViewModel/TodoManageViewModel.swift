@@ -7,7 +7,7 @@
 
 import SwiftUI
 import DevLogDomain
-import DevLogDataCommon
+import DevLogData
 
 @Observable
 final class TodoManageViewModel: Store {

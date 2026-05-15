@@ -7,7 +7,7 @@
 
 import SwiftUI
 import DevLogDomain
-import DevLogDataCommon
+import DevLogData
 
 extension Color {
     static var randomValue: Color {

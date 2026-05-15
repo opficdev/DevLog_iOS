@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "80A60CC195BD79C638F5B405"
-               BuildableName = "DevLogDataCommon.framework"
-               BlueprintName = "DevLogDataCommon"
+               BlueprintIdentifier = "D9D76C33D8B4790694BD3488"
+               BuildableName = "DevLogData.framework"
+               BlueprintName = "DevLogData"
                ReferencedContainer = "container:DevLogData.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDataDTO
 
 public protocol AuthenticationService {
     func signIn() async throws -> AuthDataResponse

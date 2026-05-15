@@ -8,7 +8,6 @@
 import Combine
 import Foundation
 import DevLogDomain
-import DevLogDataDTO
 
 public protocol PushNotificationService {
     func fetchPushNotificationEnabled() async throws -> Bool

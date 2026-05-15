@@ -6,8 +6,6 @@
 //
 
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
 
 public extension TodoRequest {
     public static func fromDomain(_ entity: Todo) -> Self {

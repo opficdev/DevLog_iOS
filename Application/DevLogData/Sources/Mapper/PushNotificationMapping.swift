@@ -6,8 +6,6 @@
 //
 
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
 
 public extension PushNotificationResponse {
     public func toDomain() throws -> PushNotification {

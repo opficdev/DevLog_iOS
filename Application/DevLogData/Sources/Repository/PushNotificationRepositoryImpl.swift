@@ -8,10 +8,6 @@
 import Foundation
 import Combine
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataMapper
-import DevLogDataProtocol
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
     private let pushNotificationService: PushNotificationService

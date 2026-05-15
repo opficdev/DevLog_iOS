@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDataDTO
 
 public protocol UserDefaultsStore {
     func string(forKey key: String) -> String?

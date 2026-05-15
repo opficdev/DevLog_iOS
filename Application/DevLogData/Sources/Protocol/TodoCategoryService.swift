@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogDataDTO
 
 public protocol TodoCategoryService {
     func fetchPreferences() async throws -> [TodoCategoryPreference]

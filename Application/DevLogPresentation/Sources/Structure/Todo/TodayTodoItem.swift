@@ -7,7 +7,7 @@
 
 import Foundation
 import DevLogDomain
-import DevLogDataCommon
+import DevLogData
 
 public struct TodayTodoItem: Identifiable, Hashable {
     public let id: String

@@ -9,32 +9,17 @@
 /* Begin PBXBuildFile section */
 		041CEED3822FCBD881DF75CD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */; };
 		0B318F82A17C708D399761BB /* DevLogWidgetShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A901500062F184A55322ED05 /* DevLogWidgetShared.framework */; };
+		3B8FAEC025F373D4CFC262D4 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493A5D0B4274807F2B948AB3 /* DevLogData.framework */; };
 		50BBA1C19A7C61B8B8F3A68B /* WebPageImageStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9566895E4A451286246B008 /* WebPageImageStoreImpl.swift */; };
 		5967B32779F22DD0E3C2D247 /* UserDefaultsStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAF91F98F483FF07C38820D /* UserDefaultsStoreImpl.swift */; };
 		7044FCFCA32C8AA8F6FF4474 /* ThemeStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */; };
 		7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
-		809200C32B4373978AEB0E9C /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E11B536BC8D874B485E853C1 /* DevLogDataCommon.framework */; };
 		9814DBF1A0DCD650FEF5A376 /* WidgetSnapshotUpdaterImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */; };
 		B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */; };
 		E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
-		FD5714A26C340EB6EA8EDF20 /* DevLogDataProtocol.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B82421EAA10239DFA7F2BC87 /* DevLogDataProtocol.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		1E8A0ECBDDDDE7B102E9CE1B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 690289F520872AC78D6C95D3;
-			remoteInfo = Subproject;
-		};
-		60C2DA2FC710E0E17F04FE38 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 80A60CC195BD79C638F5B405;
-			remoteInfo = DevLogDataCommon;
-		};
 		6556E45987F0D11205D84D04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AEA9DB8D523E749E611B96FA /* DevLogWidgetCore.xcodeproj */;
@@ -63,13 +48,6 @@
 			remoteGlobalIDString = 6AF1B307A7E7CC03AA2BABB1;
 			remoteInfo = Subproject;
 		};
-		B483D32B2CE2C7866C3D2B67 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = C063BD562070CA11C2AA4EDF;
-			remoteInfo = Subproject;
-		};
 		B5FF9EF1399BA2E5A9D85D03 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 596DB8A398F4BCB331775AB9 /* DevLogDomain.xcodeproj */;
@@ -84,33 +62,19 @@
 			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
 			remoteInfo = DevLogDomain;
 		};
-		D4D5E6A626F52A82593C41A7 /* PBXContainerItemProxy */ = {
+		C3709692ED10C6BFC0F41348 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
 			remoteInfo = Subproject;
 		};
-		EF59A8B8BF9427A9CCBFDED7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 92502C9F074520D19CC451EF;
-			remoteInfo = Subproject;
-		};
-		F6327665FB1D25A5C222EAC8 /* PBXContainerItemProxy */ = {
+		D43AB7BB6E43AEF760FBB23C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 6D02EDBA887507AC7BA79658;
-			remoteInfo = DevLogDataProtocol;
-		};
-		FEC02A9EDC4A1473ED0A43B5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 44466B71BA6B67309210A7BB;
-			remoteInfo = Subproject;
+			remoteGlobalIDString = D9D76C33D8B4790694BD3488;
+			remoteInfo = DevLogData;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -135,10 +99,9 @@
 			files = (
 				041CEED3822FCBD881DF75CD /* Foundation.framework in Frameworks */,
 				7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */,
-				809200C32B4373978AEB0E9C /* DevLogDataCommon.framework in Frameworks */,
-				FD5714A26C340EB6EA8EDF20 /* DevLogDataProtocol.framework in Frameworks */,
 				E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */,
 				0B318F82A17C708D399761BB /* DevLogWidgetShared.framework in Frameworks */,
+				3B8FAEC025F373D4CFC262D4 /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,13 +159,9 @@
 			children = (
 				86E8AA2A43914F444BF5A6C2 /* DevLogStorage.framework */,
 				F334BCFC52C730D5901F6051 /* DevLogDomain.framework */,
-				E11B536BC8D874B485E853C1 /* DevLogDataCommon.framework */,
-				D300944DB7E80C6114C3B3CC /* DevLogDataDTO.framework */,
-				B82421EAA10239DFA7F2BC87 /* DevLogDataProtocol.framework */,
-				C44C541F40188C5D426687A9 /* DevLogDataMapper.framework */,
-				85C80A6D5C01B14BC8BA3898 /* DevLogDataRepository.framework */,
 				5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */,
 				A901500062F184A55322ED05 /* DevLogWidgetShared.framework */,
+				493A5D0B4274807F2B948AB3 /* DevLogData.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -244,10 +203,9 @@
 			);
 			dependencies = (
 				083FDD9BBD997A11EED7ACA9 /* PBXTargetDependency */,
-				4E20E0F4BBBBD8A8C0B4C71F /* PBXTargetDependency */,
-				990E65E094C3CCFB4C1E1A8B /* PBXTargetDependency */,
 				8C9EB60C8E58A67726AF0EF1 /* PBXTargetDependency */,
 				79C71E38CBE3984287E4AC6A /* PBXTargetDependency */,
+				65214D4CBB998A4369598E01 /* PBXTargetDependency */,
 			);
 			name = DevLogStorage;
 			productName = DevLogStorage;
@@ -302,6 +260,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		493A5D0B4274807F2B948AB3 /* DevLogData.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogData.framework;
+			remoteRef = C3709692ED10C6BFC0F41348 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -309,46 +274,11 @@
 			remoteRef = 7CD34B27DE3CD401A888D01C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		85C80A6D5C01B14BC8BA3898 /* DevLogDataRepository.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataRepository.framework;
-			remoteRef = D4D5E6A626F52A82593C41A7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		A901500062F184A55322ED05 /* DevLogWidgetShared.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = DevLogWidgetShared.framework;
 			remoteRef = 702B915FA3D211548F1624EC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		B82421EAA10239DFA7F2BC87 /* DevLogDataProtocol.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataProtocol.framework;
-			remoteRef = B483D32B2CE2C7866C3D2B67 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		C44C541F40188C5D426687A9 /* DevLogDataMapper.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataMapper.framework;
-			remoteRef = FEC02A9EDC4A1473ED0A43B5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D300944DB7E80C6114C3B3CC /* DevLogDataDTO.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataDTO.framework;
-			remoteRef = EF59A8B8BF9427A9CCBFDED7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E11B536BC8D874B485E853C1 /* DevLogDataCommon.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDataCommon.framework;
-			remoteRef = 1E8A0ECBDDDDE7B102E9CE1B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		F334BCFC52C730D5901F6051 /* DevLogDomain.framework */ = {
@@ -391,10 +321,10 @@
 			name = DevLogDomain;
 			targetProxy = C118DECC34A0AE1E3085D4AB /* PBXContainerItemProxy */;
 		};
-		4E20E0F4BBBBD8A8C0B4C71F /* PBXTargetDependency */ = {
+		65214D4CBB998A4369598E01 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = DevLogDataCommon;
-			targetProxy = 60C2DA2FC710E0E17F04FE38 /* PBXContainerItemProxy */;
+			name = DevLogData;
+			targetProxy = D43AB7BB6E43AEF760FBB23C /* PBXContainerItemProxy */;
 		};
 		79C71E38CBE3984287E4AC6A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -405,11 +335,6 @@
 			isa = PBXTargetDependency;
 			name = DevLogWidgetCore;
 			targetProxy = 6556E45987F0D11205D84D04 /* PBXContainerItemProxy */;
-		};
-		990E65E094C3CCFB4C1E1A8B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDataProtocol;
-			targetProxy = F6327665FB1D25A5C222EAC8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

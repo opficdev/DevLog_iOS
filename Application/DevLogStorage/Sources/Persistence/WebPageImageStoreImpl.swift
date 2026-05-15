@@ -8,8 +8,7 @@
 import CryptoKit
 import Foundation
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataProtocol
+import DevLogData
 import DevLogWidgetCore
 import DevLogWidgetShared
 

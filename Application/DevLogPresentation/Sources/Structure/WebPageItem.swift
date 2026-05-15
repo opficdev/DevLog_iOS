@@ -7,7 +7,7 @@
 
 import SwiftUI
 import DevLogDomain
-import DevLogDataCommon
+import DevLogData
 
 public struct WebPageItem: Identifiable, Hashable {
     private let metadata: WebPage

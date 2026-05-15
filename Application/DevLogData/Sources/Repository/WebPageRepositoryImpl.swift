@@ -8,10 +8,6 @@
 import Foundation
 import UIKit
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataMapper
-import DevLogDataProtocol
 
 final class WebPageRepositoryImpl: WebPageRepository {
     private let webPageService: WebPageService

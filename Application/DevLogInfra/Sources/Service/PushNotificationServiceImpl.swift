@@ -10,9 +10,7 @@ import Combine
 import FirebaseFirestore
 import FirebaseFunctions
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 final class PushNotificationServiceImpl: PushNotificationService {
     private enum FunctionName: String {

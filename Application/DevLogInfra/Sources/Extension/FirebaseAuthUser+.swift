@@ -7,9 +7,7 @@
 
 import Foundation
 import FirebaseAuth
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 extension FirebaseAuth.User {
     func makeResponse(

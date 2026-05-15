@@ -7,6 +7,7 @@
 
 import UIKit
 import DevLogCore
+import DevLogData
 import Firebase
 import GoogleSignIn
 

@@ -6,9 +6,7 @@
 //
 
 import FirebaseFunctions
-import DevLogDataCommon
-import DevLogDataDTO
-import DevLogDataProtocol
+import DevLogData
 
 extension Functions {
     func httpsCallable(_ name: some RawRepresentable<String>) -> HTTPSCallable {

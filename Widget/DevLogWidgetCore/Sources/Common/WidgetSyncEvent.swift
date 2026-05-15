@@ -6,8 +6,7 @@
 //
 
 import DevLogDomain
-import DevLogDataCommon
-import DevLogDataProtocol
+import DevLogData
 import DevLogWidgetShared
 
 enum WidgetSyncEvent: Equatable {
