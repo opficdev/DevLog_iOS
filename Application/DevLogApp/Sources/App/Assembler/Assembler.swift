@@ -6,6 +6,7 @@
 //
 
 import DevLogCore
+import DevLogData
 import DevLogDomain
 
 final class AppAssembler: Assembler {

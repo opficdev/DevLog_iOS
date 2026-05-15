@@ -6,11 +6,12 @@
 //
 
 import DevLogCore
-import DevLogData
 import DevLogDomain
 
-final class DataAssembler: Assembler {
-    func assemble(_ container: any DIContainer) {
+public final class DataAssembler: Assembler {
+    public init() { }
+
+    public func assemble(_ container: any DIContainer) {
         container.register(AuthenticationRepository.self) {
             AuthenticationRepositoryImpl(
                 authService: container.resolve(AuthService.self),
