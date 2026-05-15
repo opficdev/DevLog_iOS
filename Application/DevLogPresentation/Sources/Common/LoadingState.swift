@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 @MainActor
 public final class LoadingState {

@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct HeatmapDay: Hashable {
     public let date: Date

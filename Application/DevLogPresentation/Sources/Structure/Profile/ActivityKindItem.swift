@@ -7,7 +7,6 @@
 
 import SwiftUI
 import DevLogDomain
-import DevLogData
 
 public struct ActivityKindItem: Identifiable, Hashable {
     private let activityKind: ActivityKind

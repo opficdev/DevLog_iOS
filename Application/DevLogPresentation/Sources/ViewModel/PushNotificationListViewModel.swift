@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import DevLogDomain
-import DevLogData
 
 @Observable
 final class PushNotificationListViewModel: Store {

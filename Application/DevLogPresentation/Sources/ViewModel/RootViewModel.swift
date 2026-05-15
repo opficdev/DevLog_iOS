@@ -9,7 +9,6 @@ import Foundation
 import Combine
 import UserNotifications
 import DevLogDomain
-import DevLogData
 
 @Observable
 final class RootViewModel: Store {

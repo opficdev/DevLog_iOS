@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct TodoReferenceItem: Equatable {
     public let id: String

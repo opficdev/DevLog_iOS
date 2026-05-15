@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct RecentTodoItem: Identifiable, Hashable {
     public let id: String

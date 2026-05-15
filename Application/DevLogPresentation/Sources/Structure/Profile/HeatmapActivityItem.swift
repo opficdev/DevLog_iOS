@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
     public var id: String { todoId }

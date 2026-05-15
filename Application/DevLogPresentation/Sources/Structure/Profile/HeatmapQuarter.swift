@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct HeatmapQuarter: Identifiable, Hashable {
     public var id: Date { quarterStart }

@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct PushNotificationItem: Identifiable, Hashable {
     public let id: String

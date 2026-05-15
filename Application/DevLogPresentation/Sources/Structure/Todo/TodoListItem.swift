@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogDomain
-import DevLogData
 
 public struct TodoListItem: Identifiable, Hashable {
     public let id: String
