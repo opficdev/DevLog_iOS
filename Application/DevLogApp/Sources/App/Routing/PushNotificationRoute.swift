@@ -8,33 +8,22 @@
 import Foundation
 import Combine
 
-enum AppRoute: Equatable, Identifiable {
-    case todoDetail(String)
-
-    var id: String {
-        switch self {
-        case .todoDetail(let todoId):
-            return "todo:\(todoId)"
-        }
-    }
-}
-
 final class PushNotificationRoute {
     static let shared = PushNotificationRoute()
 
-    func observe() -> AnyPublisher<AppRoute, Never> {
+    func observe() -> AnyPublisher<String, Never> {
         subject
             .compactMap { $0 }
             .eraseToAnyPublisher()
     }
 
-    private let subject = CurrentValueSubject<AppRoute?, Never>(nil)
+    private let subject = CurrentValueSubject<String?, Never>(nil)
 
     private init() { }
 
     func handlePushTap(userInfo: [AnyHashable: Any]) {
         guard let todoId = extractTodoId(from: userInfo) else { return }
-        subject.send(.todoDetail(todoId))
+        subject.send(todoId)
     }
 
     func clear() {

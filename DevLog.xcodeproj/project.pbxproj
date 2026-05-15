@@ -17,7 +17,6 @@
 		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
 		79134AD67952720CCC5069EA /* DevLogStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogStorage.framework */; };
 		7A0D2CD79D383F3D256D6065 /* DevLogWidgetShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 351E9250A1779CBA4D70688E /* DevLogWidgetShared.framework */; };
-		7AB46A7765E72B61AC730D41 /* DevLogUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2F070E465CD9260A295A505 /* DevLogUI.framework */; };
 		8B41461F945DA9A94D3330F9 /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA04D8F5F1B04A3FBE8C5763 /* DevLogDataCommon.framework */; };
 		8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E72BBE64130E2666E4680E1B /* FirebaseMessaging */; };
 		B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */; };
@@ -74,13 +73,6 @@
 			remoteGlobalIDString = A85D2D7D1D6DAAFBF86C9C34;
 			remoteInfo = DevLogPresentation;
 		};
-		18CFACC537B0E3106305F47B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = EF72EFD447F4FDC1142BABA1;
-			remoteInfo = Subproject;
-		};
 		1EE32CC37C6DFCB68E794DB9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E6378CBE9A1D81625216CF86 /* DevLogData.xcodeproj */;
@@ -101,13 +93,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 0C205A501EF8E79FA9A73C4B;
 			remoteInfo = DevLogStorage;
-		};
-		52E6272133B73E021A630191 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D205F480E5CDACDE14BEF619;
-			remoteInfo = DevLogUI;
 		};
 		687F85C6DCE6D569D448B141 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -249,7 +234,6 @@
 		264087B765CCEA97AB4C0B79 /* DevLogWidgetCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetCore.xcodeproj; path = Application/Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj; sourceTree = "<group>"; };
 		76E37401D4B2CBB105E63892 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = Application/DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		80A4526EFBD04A013A8BFC08 /* DevLogWidgetShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetShared.xcodeproj; path = Application/Widget/DevLogWidgetShared/DevLogWidgetShared.xcodeproj; sourceTree = "<group>"; };
-		89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogUI.xcodeproj; path = Application/DevLogUI/DevLogUI.xcodeproj; sourceTree = "<group>"; };
 		8EEA1D8B1005FDC147585C76 /* DevLogStorage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogStorage.xcodeproj; path = Application/DevLogStorage/DevLogStorage.xcodeproj; sourceTree = "<group>"; };
 		CA2F877790969610EE38BD93 /* DevLogInfra.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogInfra.xcodeproj; path = Application/DevLogInfra/DevLogInfra.xcodeproj; sourceTree = "<group>"; };
 		DC0CB81C9BF2596ADCE8FB90 /* DevLogPresentation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogPresentation.xcodeproj; path = Application/DevLogPresentation/DevLogPresentation.xcodeproj; sourceTree = "<group>"; };
@@ -339,7 +323,6 @@
 				7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */,
 				79134AD67952720CCC5069EA /* DevLogStorage.framework in Frameworks */,
 				26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */,
-				7AB46A7765E72B61AC730D41 /* DevLogUI.framework in Frameworks */,
 				1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */,
 				0957A66CFE9CB98EA302CC22 /* DevLogWidgetShared.framework in Frameworks */,
 				B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */,
@@ -360,7 +343,6 @@
 				CA2F877790969610EE38BD93 /* DevLogInfra.xcodeproj */,
 				8EEA1D8B1005FDC147585C76 /* DevLogStorage.xcodeproj */,
 				DC0CB81C9BF2596ADCE8FB90 /* DevLogPresentation.xcodeproj */,
-				89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */,
 				264087B765CCEA97AB4C0B79 /* DevLogWidgetCore.xcodeproj */,
 				80A4526EFBD04A013A8BFC08 /* DevLogWidgetShared.xcodeproj */,
 			);
@@ -397,7 +379,6 @@
 				9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */,
 				6FFA0A819CB16649AC35CCE6 /* DevLogStorage.framework */,
 				67918B544432C45E63273D84 /* DevLogPresentation.framework */,
-				A2F070E465CD9260A295A505 /* DevLogUI.framework */,
 				EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */,
 				351E9250A1779CBA4D70688E /* DevLogWidgetShared.framework */,
 			);
@@ -482,7 +463,6 @@
 				56CC02CD824E370E0BF33D2E /* PBXTargetDependency */,
 				CD56EF21C39E985CEDBB9165 /* PBXTargetDependency */,
 				F00B1378BDC6B8D7CCD24AB0 /* PBXTargetDependency */,
-				9F9CC6108F20A1C3067082DD /* PBXTargetDependency */,
 				A2A3C286B46BB965A8D4C047 /* PBXTargetDependency */,
 				88A796BDB56C53FB2A6CBBB0 /* PBXTargetDependency */,
 			);
@@ -566,10 +546,6 @@
 				},
 				{
 					ProductGroup = DFD48B012DC4D6E2005905C5 /* Products */;
-					ProjectRef = 89088BF6F221B5C0F51917E3 /* DevLogUI.xcodeproj */;
-				},
-				{
-					ProductGroup = DFD48B012DC4D6E2005905C5 /* Products */;
 					ProjectRef = 264087B765CCEA97AB4C0B79 /* DevLogWidgetCore.xcodeproj */;
 				},
 				{
@@ -634,13 +610,6 @@
 			fileType = wrapper.framework;
 			path = DevLogInfra.framework;
 			remoteRef = A974AB39F1B9AEC8C3519A47 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A2F070E465CD9260A295A505 /* DevLogUI.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogUI.framework;
-			remoteRef = 18CFACC537B0E3106305F47B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		AF31C7E0802E4877630B4E0D /* DevLogDataMapper.framework */ = {
@@ -765,11 +734,6 @@
 			isa = PBXTargetDependency;
 			name = DevLogDataCommon;
 			targetProxy = 16573F1134973B16E8CBBE1A /* PBXContainerItemProxy */;
-		};
-		9F9CC6108F20A1C3067082DD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogUI;
-			targetProxy = 52E6272133B73E021A630191 /* PBXContainerItemProxy */;
 		};
 		A2A3C286B46BB965A8D4C047 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

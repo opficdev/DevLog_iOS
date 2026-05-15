@@ -7,6 +7,7 @@
 
 import SwiftUI
 import DevLogCore
+import DevLogPresentation
 
 @main
 struct DevLogApp: App {
@@ -20,11 +21,14 @@ struct DevLogApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(viewModel: RootViewModel(
+            RootView(
                 sessionUseCase: container.resolve(ObserveAuthSessionUseCase.self),
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self)
-            ))
+                systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                widgetURLTab: { MainTab(widgetURL: $0) },
+                pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
+                clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }
+            )
             .autocorrectionDisabled()
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .background else { return }
