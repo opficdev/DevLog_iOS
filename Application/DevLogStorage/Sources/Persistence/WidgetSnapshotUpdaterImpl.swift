@@ -10,7 +10,6 @@ import WidgetKit
 import DevLogDomain
 import DevLogDataCommon
 import DevLogDataProtocol
-import DevLogPresentation
 import DevLogWidgetCore
 import DevLogWidgetShared
 
@@ -49,9 +48,8 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
         displayOptions: TodayDisplayOptions,
         now: Date = Date()
     ) {
-        let todayTodoItems = todos.compactMap { TodayTodoItem(from: $0) }
         let todayWidgetSnapshot = todayFactory.makeSnapshot(
-            todos: todayTodoItems,
+            todos: todos,
             displayOptions: displayOptions,
             now: now
         )
