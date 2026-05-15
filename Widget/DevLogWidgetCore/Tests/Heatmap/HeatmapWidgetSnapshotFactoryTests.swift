@@ -1,13 +1,14 @@
 //
 //  HeatmapWidgetSnapshotFactoryTests.swift
-//  DevLog_Unit
+//  DevLogWidgetCoreTests
 //
 //  Created by opfic on 4/17/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLog
+import DevLogDomain
+@testable import DevLogWidgetCore
 
 struct HeatmapWidgetSnapshotFactoryTests {
     @Test("Heatmap 위젯 스냅샷은 이번 분기 기준 월과 일별 count를 만든다")

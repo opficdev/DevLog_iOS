@@ -1,13 +1,14 @@
 //
 //  TodayWidgetSnapshotFactoryTests.swift
-//  DevLog_Unit
+//  DevLogWidgetCoreTests
 //
 //  Created by opfic on 4/17/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLog
+import DevLogDomain
+@testable import DevLogWidgetCore
 
 struct TodayWidgetSnapshotFactoryTests {
     @Test("Today 위젯 스냅샷은 화면 규칙과 같은 순서로 섹션과 요약 수치를 만든다")

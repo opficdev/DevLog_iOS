@@ -1,13 +1,15 @@
 //
 //  WidgetSyncEventHandlerTests.swift
-//  DevLog_Unit
+//  DevLogWidgetCoreTests
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLog
+import DevLogData
+import DevLogDomain
+@testable import DevLogWidgetCore
 
 struct WidgetSyncEventHandlerTests {
     @Test("위젯 동기화 요청 이벤트는 Today와 Heatmap 스냅샷을 갱신한다")
@@ -34,12 +36,18 @@ struct WidgetSyncEventHandlerTests {
 
         fixture.bus.publish(.syncRequested)
 
-        let todaySnapshot = try await loadTodaySnapshot(from: fixture.snapshotStore)
-        let heatmapSnapshot = try await loadHeatmapSnapshot(from: fixture.snapshotStore)
+        try await waitUntil {
+            fixture.snapshotUpdater.hasTodayUpdate && fixture.snapshotUpdater.hasHeatmapUpdate
+        }
+
+        let todayUpdates = fixture.snapshotUpdater.todayUpdates
+        let heatmapUpdates = fixture.snapshotUpdater.heatmapUpdates
         let queries = await fixture.todoRepository.calledQueries()
 
-        #expect(todaySnapshot.totalCount == 1)
-        #expect(heatmapSnapshot.maxCount == 3)
+        #expect(todayUpdates.first?.todos.map(\.id) == ["today"])
+        #expect(heatmapUpdates.first?.createdTodos.map(\.id) == ["created"])
+        #expect(heatmapUpdates.first?.completedTodos.map(\.id) == ["completed"])
+        #expect(heatmapUpdates.first?.deletedTodos.map(\.id) == ["deleted"])
         #expect(queries.count == 5)
         #expect(Set(queries.map(\.sortTarget)) == Set([
             .dueDate,
@@ -73,10 +81,14 @@ struct WidgetSyncEventHandlerTests {
 
         fixture.bus.publish(.syncRequested)
 
-        let heatmapSnapshot = try await loadHeatmapSnapshot(from: fixture.snapshotStore)
+        try await waitUntil {
+            fixture.snapshotUpdater.hasHeatmapUpdate
+        }
 
-        #expect(heatmapSnapshot.maxCount == 3)
-        #expect(try fixture.snapshotStore.loadTodaySnapshot() == nil)
+        #expect(fixture.snapshotUpdater.todayUpdates.isEmpty)
+        #expect(fixture.snapshotUpdater.heatmapUpdates.first?.createdTodos.map(\.id) == ["created"])
+        #expect(fixture.snapshotUpdater.heatmapUpdates.first?.completedTodos.map(\.id) == ["completed"])
+        #expect(fixture.snapshotUpdater.heatmapUpdates.first?.deletedTodos.map(\.id) == ["deleted"])
         _ = fixture.handler
     }
 
@@ -95,10 +107,12 @@ struct WidgetSyncEventHandlerTests {
 
         fixture.bus.publish(.syncRequested)
 
-        let todaySnapshot = try await loadTodaySnapshot(from: fixture.snapshotStore)
+        try await waitUntil {
+            fixture.snapshotUpdater.hasTodayUpdate
+        }
 
-        #expect(todaySnapshot.totalCount == 1)
-        #expect(try fixture.snapshotStore.loadHeatmapSnapshot() == nil)
+        #expect(fixture.snapshotUpdater.todayUpdates.first?.todos.map(\.id) == ["today"])
+        #expect(fixture.snapshotUpdater.heatmapUpdates.isEmpty)
         _ = fixture.handler
     }
 
@@ -107,58 +121,19 @@ struct WidgetSyncEventHandlerTests {
     ) -> (
         bus: WidgetSyncEventBusImpl,
         todoRepository: WidgetSyncTodoRepositorySpy,
-        snapshotStore: WidgetSnapshotStore,
+        snapshotUpdater: WidgetSnapshotUpdaterSpy,
         handler: WidgetSyncEventHandler
     ) {
-        let suiteName = "WidgetSyncEventHandlerTests.\(UUID().uuidString)"
-        let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
-        userDefaults.removePersistentDomain(forName: suiteName)
         let bus = WidgetSyncEventBusImpl()
         let todoRepository = WidgetSyncTodoRepositorySpy()
-        let snapshotStore = WidgetSnapshotStore(
-            store: WidgetSharedDefaultsStore(userDefaults: userDefaults)
-        )
-        let preferenceStore = WidgetSnapshotPreferenceStoreImpl(
-            userDefaults: userDefaults
-        )
-        let updater = WidgetSnapshotUpdaterImpl(
-            snapshotStore: snapshotStore,
-            preferenceStore: preferenceStore,
-            heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
-        )
+        let snapshotUpdater = WidgetSnapshotUpdaterSpy()
         let handler = WidgetSyncEventHandler(
             eventBus: bus,
             repository: todoRepository,
-            snapshotUpdater: updater
+            snapshotUpdater: snapshotUpdater
         )
 
-        return (bus, todoRepository, snapshotStore, handler)
-    }
-
-    private func loadTodaySnapshot(
-        from snapshotStore: WidgetSnapshotStore
-    ) async throws -> TodayWidgetSnapshot {
-        for _ in 0..<20 {
-            if let snapshot = try snapshotStore.loadTodaySnapshot() {
-                return snapshot
-            }
-            try await Task.sleep(nanoseconds: 50_000_000)
-        }
-
-        return try #require(try snapshotStore.loadTodaySnapshot())
-    }
-
-    private func loadHeatmapSnapshot(
-        from snapshotStore: WidgetSnapshotStore
-    ) async throws -> HeatmapWidgetSnapshot {
-        for _ in 0..<20 {
-            if let snapshot = try snapshotStore.loadHeatmapSnapshot() {
-                return snapshot
-            }
-            try await Task.sleep(nanoseconds: 50_000_000)
-        }
-
-        return try #require(try snapshotStore.loadHeatmapSnapshot())
+        return (bus, todoRepository, snapshotUpdater, handler)
     }
 
     private func makeTodo(
@@ -219,7 +194,7 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
         queries.append(query)
 
         if failingSortTargets.contains(query.sortTarget) {
-            throw DataError.invalidData("WidgetSyncTodoRepositorySpy.fetchTodos failed")
+            throw WidgetSyncTodoRepositorySpyError.fetchTodosFailed
         }
 
         let items: [Todo]
@@ -240,26 +215,170 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
     }
 
     func fetchTodo(_ todoId: String) async throws -> Todo {
-        throw DataError.invalidData("WidgetSyncTodoRepositorySpy.fetchTodo should not be called")
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
-        throw DataError.invalidData("WidgetSyncTodoRepositorySpy.fetchReferences should not be called")
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
     func upsertTodo(_ todo: Todo) async throws {
-        throw DataError.invalidData("WidgetSyncTodoRepositorySpy.upsertTodo should not be called")
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
     func deleteTodo(_ todoId: String) async throws {
-        throw DataError.invalidData("WidgetSyncTodoRepositorySpy.deleteTodo should not be called")
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
     func undoDeleteTodo(_ todoId: String) async throws {
-        throw DataError.invalidData("WidgetSyncTodoRepositorySpy.undoDeleteTodo should not be called")
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
     func calledQueries() -> [TodoQuery] {
         queries
+    }
+}
+
+private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
+    struct TodayUpdate {
+        let todos: [Todo]
+        let displayOptions: TodayDisplayOptions?
+        let now: Date
+    }
+
+    struct HeatmapUpdate {
+        let createdTodos: [Todo]
+        let completedTodos: [Todo]
+        let deletedTodos: [Todo]
+        let selectedActivityKinds: Set<ActivityKind>?
+        let quarterStart: Date
+        let now: Date
+    }
+
+    private let lock = NSRecursiveLock()
+    private var storedTodayUpdates = [TodayUpdate]()
+    private var storedHeatmapUpdates = [HeatmapUpdate]()
+    private(set) var clearCallCount = 0
+
+    var todayUpdates: [TodayUpdate] {
+        lock.lock()
+        defer { lock.unlock() }
+        return storedTodayUpdates
+    }
+
+    var heatmapUpdates: [HeatmapUpdate] {
+        lock.lock()
+        defer { lock.unlock() }
+        return storedHeatmapUpdates
+    }
+
+    var hasTodayUpdate: Bool {
+        !todayUpdates.isEmpty
+    }
+
+    var hasHeatmapUpdate: Bool {
+        !heatmapUpdates.isEmpty
+    }
+
+    func updateTodaySnapshot(
+        todos: [Todo],
+        now: Date
+    ) {
+        appendTodayUpdate(
+            TodayUpdate(
+                todos: todos,
+                displayOptions: nil,
+                now: now
+            )
+        )
+    }
+
+    func updateTodaySnapshot(
+        todos: [Todo],
+        displayOptions: TodayDisplayOptions,
+        now: Date
+    ) {
+        appendTodayUpdate(
+            TodayUpdate(
+                todos: todos,
+                displayOptions: displayOptions,
+                now: now
+            )
+        )
+    }
+
+    func updateHeatmapSnapshot(
+        createdTodos: [Todo],
+        completedTodos: [Todo],
+        deletedTodos: [Todo],
+        quarterStart: Date,
+        now: Date
+    ) {
+        appendHeatmapUpdate(
+            HeatmapUpdate(
+                createdTodos: createdTodos,
+                completedTodos: completedTodos,
+                deletedTodos: deletedTodos,
+                selectedActivityKinds: nil,
+                quarterStart: quarterStart,
+                now: now
+            )
+        )
+    }
+
+    func updateHeatmapSnapshot(
+        createdTodos: [Todo],
+        completedTodos: [Todo],
+        deletedTodos: [Todo],
+        selectedActivityKinds: Set<ActivityKind>,
+        quarterStart: Date,
+        now: Date
+    ) {
+        appendHeatmapUpdate(
+            HeatmapUpdate(
+                createdTodos: createdTodos,
+                completedTodos: completedTodos,
+                deletedTodos: deletedTodos,
+                selectedActivityKinds: selectedActivityKinds,
+                quarterStart: quarterStart,
+                now: now
+            )
+        )
+    }
+
+    func clear() {
+        lock.lock()
+        defer { lock.unlock() }
+        clearCallCount += 1
+    }
+
+    private func appendTodayUpdate(_ update: TodayUpdate) {
+        lock.lock()
+        defer { lock.unlock() }
+        storedTodayUpdates.append(update)
+    }
+
+    private func appendHeatmapUpdate(_ update: HeatmapUpdate) {
+        lock.lock()
+        defer { lock.unlock() }
+        storedHeatmapUpdates.append(update)
+    }
+}
+
+private enum WidgetSyncTodoRepositorySpyError: Error {
+    case fetchTodosFailed
+    case unexpectedCall
+}
+
+private func waitUntil(
+    timeout: Duration = .seconds(1),
+    pollInterval: Duration = .milliseconds(20),
+    _ condition: @escaping () -> Bool
+) async throws {
+    let continuousClock = ContinuousClock()
+    let deadline = continuousClock.now + timeout
+
+    while !condition() && continuousClock.now < deadline {
+        try await Task.sleep(for: pollInterval)
     }
 }
