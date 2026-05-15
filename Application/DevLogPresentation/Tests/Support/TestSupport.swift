@@ -1,6 +1,6 @@
 //
 //  TestSupport.swift
-//  DevLog_Unit
+//  DevLogPresentationTests
 //
 //  Created by opfic on 4/6/26.
 //
@@ -8,7 +8,8 @@
 import Testing
 import Foundation
 import Combine
-@testable import DevLog
+import DevLogDomain
+@testable import DevLogPresentation
 
 @MainActor
 func waitUntil(
