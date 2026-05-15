@@ -9,10 +9,9 @@ import UIKit
 import DevLogCore
 import DevLogData
 import DevLogWidgetCore
-import Firebase
 import GoogleSignIn
 
-class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     private let logger = Logger(category: "AppDelegate")
     private let container = AppDIContainer.shared
 
@@ -28,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        FirebaseApp.configure()
+        container.resolve(FirebaseAppService.self).configure()
         _ = container.resolve(FCMTokenSyncHandler.self)
         _ = container.resolve(UserTimeZoneSyncHandler.self)
         _ = container.resolve(WidgetSyncEventHandler.self)
@@ -50,25 +49,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         NotificationCenter.default.post(name: .didRequestUserTimeZoneSync, object: nil)
 
         // Firebase Messaging 설정
-        Messaging.messaging().delegate = self
-        
+        container.resolve(PushMessagingService.self).setDelegate(self)
+
         // 앱이 완전 종료되어도, 알림을 통해 앱이 시작된 경우 처리
         if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
             Task { @MainActor in
                 PushNotificationRoute.shared.handlePushTap(userInfo: remoteNotification)
             }
         }
-        
+
         return true
     }
-    
+
     // APNs 등록 성공
     func application(
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         logger.info("APNs token: \(deviceToken.map { String(format: "%02.2hhx", $0) }.joined())")
-        Messaging.messaging().apnsToken = deviceToken
+        container.resolve(PushMessagingService.self).setAPNSToken(deviceToken)
     }
 
     // APNs 등록 실패
@@ -78,10 +77,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         logger.error("Failed to register APNs token", error: error)
     }
 
-    // FCMToken 갱신
-    func messaging(
-        _ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?
-    ) {
+}
+
+extension AppDelegate: PushMessagingServiceDelegate {
+    func pushMessagingService(_ service: PushMessagingService, didReceiveRegistrationToken fcmToken: String?) {
         if let fcmToken = fcmToken {
             logger.info("FCM token: \(fcmToken)")
             NotificationCenter.default.post(

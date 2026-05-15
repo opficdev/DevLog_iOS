@@ -19,6 +19,7 @@
 		3F09F91345793F8C14F5CC05 /* WidgetSnapshotUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */; };
 		410CB3F18CADB18146AE82B7 /* DataAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CDDE9287D2855E4AF14021 /* DataAssembler.swift */; };
 		41371B777FE701652CA2E798 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7154773B586C2D41307CD49 /* AuthenticationService.swift */; };
+		A7084A7C1DE34A0EA3E0E327 /* FirebaseAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */; };
 		4BD06832F56598B25183EF06 /* WebPageRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF764A3F6E025A18E6A0BC /* WebPageRepositoryImpl.swift */; };
 		4C0F2F479581D2E091C429B2 /* TodoCategoryRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E09221F6FBF67359105995 /* TodoCategoryRepositoryImpl.swift */; };
 		50C769615D094189B739F055 /* UserPreferencesRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0202E26A972D5D274AF77C67 /* UserPreferencesRepositoryImpl.swift */; };
@@ -36,6 +37,7 @@
 		7FD388EB6C3123479B304478 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2039D0A2EB1ADD163DFC253D /* DevLogDomain.framework */; };
 		90776FF719A37EAE1CB1BB1B /* TodoCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */; };
 		922EECF001AF1EAC4EE5ACAA /* PushNotificationMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C564559DBDF765945456FA /* PushNotificationMapping.swift */; };
+		D60472ECAF3C42569988BBE1 /* PushMessagingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0912860F6ED464D95F2D648 /* PushMessagingService.swift */; };
 		94BC00B678F8511CC23BCA17 /* UserDefaultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */; };
 		963AA368BA2E4A085206768C /* ThemeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */; };
 		986DAE304B67FC8F8563FC40 /* AuthSessionRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CBBE2B99B80E70DCD800ED /* AuthSessionRepositoryImpl.swift */; };
@@ -141,6 +143,7 @@
 		48EFCDACF284D106254C4BF1 /* AuthDataResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthDataResponse.swift; path = Sources/DTO/AuthDataResponse.swift; sourceTree = "<group>"; };
 		4AB6E00A38C37CDBF82B57FD /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DevLogData.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0A3B72D714B42CDB4E3E905 /* DevLogDataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseAppService.swift; path = Sources/Protocol/FirebaseAppService.swift; sourceTree = "<group>"; };
 		550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageDTO.swift; path = Sources/DTO/WebPageDTO.swift; sourceTree = "<group>"; };
 		60E716EC015A5805DD7C949B /* TodoService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoService.swift; path = Sources/Protocol/TodoService.swift; sourceTree = "<group>"; };
 		6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationResponse.swift; path = Sources/DTO/PushNotificationResponse.swift; sourceTree = "<group>"; };
@@ -152,6 +155,7 @@
 		80CBBE2B99B80E70DCD800ED /* AuthSessionRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthSessionRepositoryImpl.swift; path = Sources/Repository/AuthSessionRepositoryImpl.swift; sourceTree = "<group>"; };
 		8B167270C81CB76E8F5ED9CA /* UserDataRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDataRepositoryImpl.swift; path = Sources/Repository/UserDataRepositoryImpl.swift; sourceTree = "<group>"; };
 		914EE1DC0A02968747B6B3A2 /* WebPageImageRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageImageRepositoryImpl.swift; path = Sources/Repository/WebPageImageRepositoryImpl.swift; sourceTree = "<group>"; };
+		E0912860F6ED464D95F2D648 /* PushMessagingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushMessagingService.swift; path = Sources/Protocol/PushMessagingService.swift; sourceTree = "<group>"; };
 		A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataLayerError.swift; path = Sources/Common/DataLayerError.swift; sourceTree = "<group>"; };
 		ADE1FE53786D11AC7B192698 /* WebPageService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageService.swift; path = Sources/Protocol/WebPageService.swift; sourceTree = "<group>"; };
 		B1ABB0ED51067433D3C90F02 /* TodoPageResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoPageResponse.swift; path = Sources/DTO/TodoPageResponse.swift; sourceTree = "<group>"; };
@@ -226,7 +230,9 @@
 			children = (
 				E7154773B586C2D41307CD49 /* AuthenticationService.swift */,
 				7559825C27ED42F9F86EBAC1 /* AuthService.swift */,
+				8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */,
 				3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */,
+				E0912860F6ED464D95F2D648 /* PushMessagingService.swift */,
 				2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */,
 				22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */,
 				082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */,
@@ -490,7 +496,9 @@
 				B3655250BCDBFAFBFA941F63 /* WebPageMetadataResponse.swift in Sources */,
 				F515D3BD025E835AFFFAE8F6 /* AuthService.swift in Sources */,
 				41371B777FE701652CA2E798 /* AuthenticationService.swift in Sources */,
+				A7084A7C1DE34A0EA3E0E327 /* FirebaseAppService.swift in Sources */,
 				36A48634DC1A350421118FEB /* NWPathConnectivityProvider.swift in Sources */,
+				D60472ECAF3C42569988BBE1 /* PushMessagingService.swift in Sources */,
 				2A057B6B7F6900E50AC2E031 /* PushNotificationService.swift in Sources */,
 				963AA368BA2E4A085206768C /* ThemeStore.swift in Sources */,
 				90776FF719A37EAE1CB1BB1B /* TodoCategoryService.swift in Sources */,

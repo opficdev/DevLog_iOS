@@ -12,6 +12,14 @@ public final class InfraAssembler: Assembler {
     public init() { }
 
     public func assemble(_ container: any DIContainer) {
+        container.register(FirebaseAppService.self) {
+            FirebaseAppServiceImpl()
+        }
+
+        container.register(PushMessagingService.self) {
+            PushMessagingServiceImpl()
+        }
+
         container.register(
             AuthenticationService.self,
             name: "AppleAuthenticationService"

@@ -16,13 +16,11 @@
 		618B54224ACD6B35D9A8F841 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
 		79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; };
-		8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E72BBE64130E2666E4680E1B /* FirebaseMessaging */; };
 		0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; };
 		A54A1843C2074FD4A651238F /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */; };
 		B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -282,8 +280,6 @@
 				79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */,
 				26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */,
 				1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */,
-				B05135963579A188BC8AC7AA /* FirebaseCore in Frameworks */,
-				8D3BD712CB129F2527B00CFB /* FirebaseMessaging in Frameworks */,
 				18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */,
 				160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */,
 			);
@@ -418,8 +414,6 @@
 			);
 			name = DevLog;
 			packageProductDependencies = (
-				0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */,
-				E72BBE64130E2666E4680E1B /* FirebaseMessaging */,
 				F972F1E8E0F5156FE9651020 /* GoogleSignIn */,
 			);
 			productName = SwiftUI_DevLog;
@@ -460,7 +454,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */,
-				D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -1060,14 +1053,6 @@
 				minimumVersion = 9.0.0;
 			};
 		};
-		D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.15.0;
-			};
-		};
 		DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint";
@@ -1079,20 +1064,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0B7D3A68C7E7BF5D4A437D29 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
 		DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-		E72BBE64130E2666E4680E1B /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D7AE705B27EA8F3775A1284E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
 		};
 		F972F1E8E0F5156FE9651020 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
