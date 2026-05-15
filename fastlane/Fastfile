@@ -1,4 +1,5 @@
-XCODE_PROJ = "DevLog.xcodeproj"
+XCODE_WORKSPACE = "DevLog.xcworkspace"
+XCODE_PROJ = "Application/DevLogApp/DevLogApp.xcodeproj"
 APP_IDENTIFIER = "opfic.DevLog"
 WIDGET_IDENTIFIER = "opfic.DevLog.DevLogWidget"
 APP_IDENTIFIERS = [APP_IDENTIFIER, WIDGET_IDENTIFIER]
@@ -108,7 +109,7 @@ platform :ios do
     end
 
     build_app(
-      project: XCODE_PROJ,
+      workspace: XCODE_WORKSPACE,
       scheme: TARGET_NAME,
       export_method: "app-store",
       output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,

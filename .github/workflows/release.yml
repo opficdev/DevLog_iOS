@@ -25,7 +25,7 @@ jobs:
       - name: Read release version
         id: release_version
         run: |
-          version=$(ruby -e 'project = File.read("DevLog.xcodeproj/project.pbxproj"); match = project.match(/MARKETING_VERSION = ([^;]+);/); abort("MARKETING_VERSION not found") if match.nil?; puts match[1]')
+          version=$(ruby -e 'project = File.read("Application/DevLogApp/DevLogApp.xcodeproj/project.pbxproj"); match = project.match(/MARKETING_VERSION = ([^;]+);/); abort("MARKETING_VERSION not found") if match.nil?; puts match[1]')
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
 

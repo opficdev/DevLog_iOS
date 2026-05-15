@@ -4,6 +4,7 @@ on:
   pull_request:
 
 env:
+  WORKSPACE: DevLog.xcworkspace
   SCHEME: DevLog
   XCODE_VERSION: latest
   MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
@@ -158,12 +159,14 @@ jobs:
           set +e
           echo "== Resolving Swift Package dependencies =="
           xcodebuild \
+            -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
             -configuration Debug \
             -clonedSourcePackagesDirPath "$SPM_DIR" \
             -resolvePackageDependencies
           echo "== Starting xcodebuild build =="
           xcodebuild \
+            -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
