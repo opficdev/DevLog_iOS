@@ -62,6 +62,7 @@
 		6E9DF84535092F43786277E9 /* UpdateRecentSearchQueriesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4721FC0DF30EE97CCFD8AEB2 /* UpdateRecentSearchQueriesUseCase.swift */; };
 		7179FD5B4EBF8C744819A8DE /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A255290C54315FBBFEE3D5C /* DevLogCore.framework */; };
 		71BAC4D47D7B9351E59745F0 /* AddWebPageUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6B0536F975D3FE76D0B58F /* AddWebPageUseCaseImpl.swift */; };
+		4FC02B8BD98D4A888C4B9DAA /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */; };
 		73969D227D8103F45DFD546D /* TodoQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = F528B902B4AC945DE2357AF4 /* TodoQuery.swift */; };
 		740D49EA35D555A5CC0B740C /* FetchReferenceItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A403DFBCDB028B255F8B9EC5 /* FetchReferenceItemsUseCase.swift */; };
 		76DE905274DA17536AC07024 /* FetchPushNotificationSettingsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FE1967BCA4B1FF8D517617 /* FetchPushNotificationSettingsUseCase.swift */; };
@@ -144,6 +145,13 @@
 			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
 			remoteInfo = DevLogCore;
 		};
+		0B3A8BCEA8F240E7A0287892 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3D911168F99784261C777CF5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
+			remoteInfo = DevLogDomain;
+		};
 		DF4F66BE2FB6F8F900ED4BA9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
@@ -186,6 +194,7 @@
 		372106128F8BE30DDE0D41E7 /* SystemTodoCategory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SystemTodoCategory.swift; path = Sources/Entity/SystemTodoCategory.swift; sourceTree = "<group>"; };
 		3D653CA5AFBA637461B27A7F /* FetchPushNotificationQueryUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchPushNotificationQueryUseCase.swift; path = Sources/UseCase/UserPreferences/PushNotification/FetchPushNotificationQueryUseCase.swift; sourceTree = "<group>"; };
 		3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FA48D71FB864FBFB25626BE /* DevLogDomainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogDomainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41B41F22B16C359A70312D77 /* ObserveAuthSessionUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObserveAuthSessionUseCase.swift; path = Sources/UseCase/Auth/Session/ObserveAuthSessionUseCase.swift; sourceTree = "<group>"; };
 		42C7EE23A3F45CFA5C2F7ECE /* TodoCursor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCursor.swift; path = Sources/Entity/TodoCursor.swift; sourceTree = "<group>"; };
 		44D430F73E1C4A9F5EC65263 /* UserDataRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDataRepository.swift; path = Sources/Protocol/UserDataRepository.swift; sourceTree = "<group>"; };
@@ -284,6 +293,14 @@
 			files = (
 				5044FDD5ED149194C21F45DD /* Foundation.framework in Frameworks */,
 				7179FD5B4EBF8C744819A8DE /* DevLogCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A1545FED6E346038E0A6D96 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FC02B8BD98D4A888C4B9DAA /* DevLogDomain.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,6 +583,7 @@
 			isa = PBXGroup;
 			children = (
 				3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */,
+				8FA48D71FB864FBFB25626BE /* DevLogDomainTests.xctest */,
 				1A255290C54315FBBFEE3D5C /* DevLogCore.framework */,
 			);
 			name = Products;
@@ -802,6 +820,24 @@
 			productReference = 3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		B7DE5AF183DE4CED9FEAD8B0 /* DevLogDomainTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A09236D14D844CFD80483854 /* Build configuration list for PBXNativeTarget "DevLogDomainTests" */;
+			buildPhases = (
+				0D62B34AFC764A4CBA1F117E /* Sources */,
+				9A1545FED6E346038E0A6D96 /* Frameworks */,
+				FFDD4F1C096448ABB2209219 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F8E77F4F6B984FA18618FEAF /* PBXTargetDependency */,
+			);
+			name = DevLogDomainTests;
+			productName = DevLogDomainTests;
+			productReference = 8FA48D71FB864FBFB25626BE /* DevLogDomainTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -810,6 +846,12 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					B7DE5AF183DE4CED9FEAD8B0 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 7D1E74925088998D68BBFBBB;
+					};
+				};
 			};
 			buildConfigurationList = 6AF8ED1DC9D941A4993FB61A /* Build configuration list for PBXProject "DevLogDomain" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -831,6 +873,7 @@
 			projectRoot = "";
 			targets = (
 				7D1E74925088998D68BBFBBB /* DevLogDomain */,
+				B7DE5AF183DE4CED9FEAD8B0 /* DevLogDomainTests */,
 			);
 		};
 /* End PBXProject section */
@@ -854,6 +897,13 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		0A4716162D54F03993DEF290 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FFDD4F1C096448ABB2209219 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -988,6 +1038,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D62B34AFC764A4CBA1F117E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -995,6 +1052,11 @@
 			isa = PBXTargetDependency;
 			name = DevLogCore;
 			targetProxy = 3FA49F27369B1E23BB63D104 /* PBXContainerItemProxy */;
+		};
+		F8E77F4F6B984FA18618FEAF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7D1E74925088998D68BBFBBB /* DevLogDomain */;
+			targetProxy = 0B3A8BCEA8F240E7A0287892 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1162,6 +1224,36 @@
 			};
 			name = Release;
 		};
+		86C9C00D3F064DB3BBCA4D13 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogDomain;
+			};
+			name = Debug;
+		};
+		DD016DD24E1D491080C4E490 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogDomain;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1179,6 +1271,15 @@
 			buildConfigurations = (
 				F0EB74E2AA0977D6CB2E3A56 /* Release */,
 				CE7099C63D3B75B186422932 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A09236D14D844CFD80483854 /* Build configuration list for PBXNativeTarget "DevLogDomainTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD016DD24E1D491080C4E490 /* Release */,
+				86C9C00D3F064DB3BBCA4D13 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
