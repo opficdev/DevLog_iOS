@@ -25,7 +25,4 @@
    <FileRef
       location = "group:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:Widget/DevLogWidgetShared/DevLogWidgetShared.xcodeproj">
-   </FileRef>
 </Workspace>

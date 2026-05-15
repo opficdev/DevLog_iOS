@@ -10,7 +10,6 @@ import WidgetKit
 import DevLogDomain
 import DevLogData
 import DevLogWidgetCore
-import DevLogWidgetShared
 
 final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     private let snapshotStore: WidgetSnapshotStore

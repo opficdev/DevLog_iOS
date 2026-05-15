@@ -7,6 +7,8 @@
 
 import DevLogCore
 import DevLogData
+import DevLogStorage
+import DevLogWidgetCore
 
 final class PersistenceAssembler: Assembler {
     func assemble(_ container: any DIContainer) {

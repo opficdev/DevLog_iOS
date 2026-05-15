@@ -7,6 +7,7 @@
 
 import DevLogCore
 import DevLogData
+import DevLogInfra
 
 final class InfraAssembler: Assembler {
     func assemble(_ container: any DIContainer) {

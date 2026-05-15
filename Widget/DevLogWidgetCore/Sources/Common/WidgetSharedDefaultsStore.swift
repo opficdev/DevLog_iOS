@@ -8,12 +8,11 @@
 import Foundation
 import DevLogDomain
 import DevLogData
-import DevLogWidgetShared
 
-final class WidgetSharedDefaultsStore {
+public final class WidgetSharedDefaultsStore {
     private let userDefaults: UserDefaults
 
-    init(userDefaults: UserDefaults = UserDefaults(suiteName: WidgetAppGroup.identifier) ?? .standard) {
+    public init(userDefaults: UserDefaults = UserDefaults(suiteName: WidgetAppGroup.identifier) ?? .standard) {
         self.userDefaults = userDefaults
     }
 

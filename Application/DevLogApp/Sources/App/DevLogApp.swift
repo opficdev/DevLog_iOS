@@ -7,7 +7,9 @@
 
 import SwiftUI
 import DevLogCore
+import DevLogDomain
 import DevLogPresentation
+import DevLogWidgetCore
 
 @main
 struct DevLogApp: App {

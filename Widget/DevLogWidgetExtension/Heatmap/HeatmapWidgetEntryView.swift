@@ -7,7 +7,7 @@
 
 import SwiftUI
 import WidgetKit
-import DevLogWidgetShared
+import DevLogWidgetCore
 
 struct HeatmapWidgetEntryView: View {
     let entry: HeatmapWidgetEntry

@@ -8,16 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		13912C8BE3310B5BCCE71ED8 /* WidgetSharedDefaultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */; };
-		1E316639D5B48E091F18C91D /* DevLogWidgetShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E46E84150C232E2525F648D1 /* DevLogWidgetShared.framework */; };
+		20835D8A267CC408B23301A7 /* WidgetSnapshotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972B4258F31014D567D84C97 /* WidgetSnapshotKey.swift */; };
+		2C60DC971EC65AD91A40E790 /* WidgetKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6C43B59E810D0CD5BC507 /* WidgetKind.swift */; };
 		3BF3B864B5A91686CFA17EDD /* WidgetSyncEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504A164843100A1DC6A74661 /* WidgetSyncEvent.swift */; };
+		54CBD3BDE2DE86D68291FF5D /* WidgetHeatmapPlaceholderShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FE1A3A6AAAB25C26F0FC43 /* WidgetHeatmapPlaceholderShape.swift */; };
 		5C7FE28461303EC8CE211B57 /* WidgetSyncEventBusImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 489FB48B79E61FF3332C9F3F /* WidgetSyncEventBusImpl.swift */; };
 		641BA820F65E8F78F200EDCF /* HeatmapWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D134BB8FDB16D977E0BCB89 /* HeatmapWidgetSnapshot.swift */; };
 		75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBD260F923A87C1577DBFF0F /* Foundation.framework */; };
 		80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
+		A14D5069306E93272F138551 /* Calendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DF1E781780B7BC63E38230 /* Calendar.swift */; };
 		A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
 		A839995EF6B607DBECF11933 /* HeatmapWidgetSnapshotFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */; };
 		B2223843996C9D11E0193B16 /* WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5283608C47D4283E39B5991B /* WidgetSnapshotStore.swift */; };
 		CD7C54E749A6696CF92AEF71 /* WidgetSyncEventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C16C61F9C1CC6EE71773E0D /* WidgetSyncEventBus.swift */; };
+		DE6586C0349C991B7AB9B732 /* WidgetAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F938E87841D0E3147CC73238 /* WidgetAppGroup.swift */; };
+		E22B5DAAF713E374BAAAF6DE /* WidgetDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEECB9CFCE00F6DF5262C31 /* WidgetDeepLink.swift */; };
 		F29C18438886406B532B926B /* TodayWidgetSnapshotFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389BB07F08F830F06F8F536E /* TodayWidgetSnapshotFactory.swift */; };
 		F9D4F24C64D75DC51F89BBC5 /* TodayWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6525FA954E53789A9D91613A /* TodayWidgetSnapshot.swift */; };
 		FF161CCB92AC2C2C754DDA8C /* WidgetSyncEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD66A7F2739CB82F98A10A94 /* WidgetSyncEventHandler.swift */; };
@@ -31,25 +36,11 @@
 			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
 			remoteInfo = Subproject;
 		};
-		3021BF47C2FDC8E6FA84B229 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6132E3181090167467D26A41 /* DevLogWidgetShared.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
-			remoteInfo = DevLogWidgetShared;
-		};
 		406A7B367DEC67D4F9E38522 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
-			remoteInfo = Subproject;
-		};
-		42BDD2F44A35E6964E4E3FF2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6132E3181090167467D26A41 /* DevLogWidgetShared.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
 			remoteInfo = Subproject;
 		};
 		6B58A164E93F51C78CBAE314 /* PBXContainerItemProxy */ = {
@@ -69,20 +60,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		08FE1A3A6AAAB25C26F0FC43 /* WidgetHeatmapPlaceholderShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetHeatmapPlaceholderShape.swift; path = Sources/Common/WidgetHeatmapPlaceholderShape.swift; sourceTree = "<group>"; };
 		2C16C61F9C1CC6EE71773E0D /* WidgetSyncEventBus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEventBus.swift; path = Sources/Sync/WidgetSyncEventBus.swift; sourceTree = "<group>"; };
 		2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapWidgetSnapshotFactory.swift; path = Sources/Heatmap/HeatmapWidgetSnapshotFactory.swift; sourceTree = "<group>"; };
 		389BB07F08F830F06F8F536E /* TodayWidgetSnapshotFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayWidgetSnapshotFactory.swift; path = Sources/Today/TodayWidgetSnapshotFactory.swift; sourceTree = "<group>"; };
 		489FB48B79E61FF3332C9F3F /* WidgetSyncEventBusImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEventBusImpl.swift; path = Sources/Sync/WidgetSyncEventBusImpl.swift; sourceTree = "<group>"; };
 		504A164843100A1DC6A74661 /* WidgetSyncEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEvent.swift; path = Sources/Common/WidgetSyncEvent.swift; sourceTree = "<group>"; };
 		5283608C47D4283E39B5991B /* WidgetSnapshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotStore.swift; path = Sources/Common/WidgetSnapshotStore.swift; sourceTree = "<group>"; };
-		6132E3181090167467D26A41 /* DevLogWidgetShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetShared.xcodeproj; path = ../DevLogWidgetShared/DevLogWidgetShared.xcodeproj; sourceTree = "<group>"; };
 		6525FA954E53789A9D91613A /* TodayWidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayWidgetSnapshot.swift; path = Sources/Today/TodayWidgetSnapshot.swift; sourceTree = "<group>"; };
+		65DF1E781780B7BC63E38230 /* Calendar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Calendar.swift; path = Sources/Common/Calendar.swift; sourceTree = "<group>"; };
 		6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D134BB8FDB16D977E0BCB89 /* HeatmapWidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HeatmapWidgetSnapshot.swift; path = Sources/Heatmap/HeatmapWidgetSnapshot.swift; sourceTree = "<group>"; };
+		81B6C43B59E810D0CD5BC507 /* WidgetKind.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetKind.swift; path = Sources/Common/WidgetKind.swift; sourceTree = "<group>"; };
 		8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSharedDefaultsStore.swift; path = Sources/Common/WidgetSharedDefaultsStore.swift; sourceTree = "<group>"; };
+		972B4258F31014D567D84C97 /* WidgetSnapshotKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotKey.swift; path = Sources/Common/WidgetSnapshotKey.swift; sourceTree = "<group>"; };
 		ACFE372A6EC5D1CD395230F0 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../../Application/DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 		B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../../Application/DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		DD66A7F2739CB82F98A10A94 /* WidgetSyncEventHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSyncEventHandler.swift; path = Sources/Sync/WidgetSyncEventHandler.swift; sourceTree = "<group>"; };
+		EEEECB9CFCE00F6DF5262C31 /* WidgetDeepLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDeepLink.swift; path = Sources/Common/WidgetDeepLink.swift; sourceTree = "<group>"; };
+		F938E87841D0E3147CC73238 /* WidgetAppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetAppGroup.swift; path = Sources/Common/WidgetAppGroup.swift; sourceTree = "<group>"; };
 		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -93,7 +89,6 @@
 			files = (
 				75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */,
 				A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */,
-				1E316639D5B48E091F18C91D /* DevLogWidgetShared.framework in Frameworks */,
 				80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -107,6 +102,12 @@
 				8613B33284297F26BA6A30C6 /* WidgetSharedDefaultsStore.swift */,
 				5283608C47D4283E39B5991B /* WidgetSnapshotStore.swift */,
 				504A164843100A1DC6A74661 /* WidgetSyncEvent.swift */,
+				65DF1E781780B7BC63E38230 /* Calendar.swift */,
+				F938E87841D0E3147CC73238 /* WidgetAppGroup.swift */,
+				EEEECB9CFCE00F6DF5262C31 /* WidgetDeepLink.swift */,
+				08FE1A3A6AAAB25C26F0FC43 /* WidgetHeatmapPlaceholderShape.swift */,
+				81B6C43B59E810D0CD5BC507 /* WidgetKind.swift */,
+				972B4258F31014D567D84C97 /* WidgetSnapshotKey.swift */,
 			);
 			name = Common;
 			sourceTree = "<group>";
@@ -124,29 +125,17 @@
 			children = (
 				B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */,
 				ACFE372A6EC5D1CD395230F0 /* DevLogData.xcodeproj */,
-				6132E3181090167467D26A41 /* DevLogWidgetShared.xcodeproj */,
 			);
 			name = Projects;
-			sourceTree = "<group>";
-		};
-		573F3011EB6718B39FCF276F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */,
-				B108898FD3650BE0C116BD3C /* DevLogDomain.framework */,
-				E46E84150C232E2525F648D1 /* DevLogWidgetShared.framework */,
-				7C18996E00A69C4BCB0F63AE /* DevLogData.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		6AE182A73B6A9D0A2981CE97 = {
 			isa = PBXGroup;
 			children = (
-				573F3011EB6718B39FCF276F /* Products */,
 				22B18020E715C5AFC73F00FA /* Frameworks */,
 				B60F0C6B052E1EF8CC827AD9 /* DevLogWidgetCore */,
 				23F6B7BB30A8782BF2FB2D92 /* Projects */,
+				A71745ED0B0D9E29633DB923 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -157,6 +146,16 @@
 				2D6463570FC81D6C61C16A34 /* HeatmapWidgetSnapshotFactory.swift */,
 			);
 			name = Heatmap;
+			sourceTree = "<group>";
+		};
+		A71745ED0B0D9E29633DB923 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */,
+				B108898FD3650BE0C116BD3C /* DevLogDomain.framework */,
+				7C18996E00A69C4BCB0F63AE /* DevLogData.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		B60F0C6B052E1EF8CC827AD9 /* DevLogWidgetCore */ = {
@@ -223,7 +222,6 @@
 			);
 			dependencies = (
 				504FAABF657F1D901A2B6BB9 /* PBXTargetDependency */,
-				5A7DA83CEEE7600394C47846 /* PBXTargetDependency */,
 				F1C4B031EE5FEF47898D9562 /* PBXTargetDependency */,
 			);
 			name = DevLogWidgetCore;
@@ -251,20 +249,16 @@
 			mainGroup = 6AE182A73B6A9D0A2981CE97;
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 573F3011EB6718B39FCF276F /* Products */;
+			productRefGroup = A71745ED0B0D9E29633DB923 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 573F3011EB6718B39FCF276F /* Products */;
+					ProductGroup = A71745ED0B0D9E29633DB923 /* Products */;
 					ProjectRef = B196335237B8C8EDB5700A7F /* DevLogDomain.xcodeproj */;
 				},
 				{
-					ProductGroup = 573F3011EB6718B39FCF276F /* Products */;
+					ProductGroup = A71745ED0B0D9E29633DB923 /* Products */;
 					ProjectRef = ACFE372A6EC5D1CD395230F0 /* DevLogData.xcodeproj */;
-				},
-				{
-					ProductGroup = 573F3011EB6718B39FCF276F /* Products */;
-					ProjectRef = 6132E3181090167467D26A41 /* DevLogWidgetShared.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -287,13 +281,6 @@
 			fileType = wrapper.framework;
 			path = DevLogDomain.framework;
 			remoteRef = 406A7B367DEC67D4F9E38522 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E46E84150C232E2525F648D1 /* DevLogWidgetShared.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogWidgetShared.framework;
-			remoteRef = 42BDD2F44A35E6964E4E3FF2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -323,6 +310,12 @@
 				FF161CCB92AC2C2C754DDA8C /* WidgetSyncEventHandler.swift in Sources */,
 				F9D4F24C64D75DC51F89BBC5 /* TodayWidgetSnapshot.swift in Sources */,
 				F29C18438886406B532B926B /* TodayWidgetSnapshotFactory.swift in Sources */,
+				A14D5069306E93272F138551 /* Calendar.swift in Sources */,
+				DE6586C0349C991B7AB9B732 /* WidgetAppGroup.swift in Sources */,
+				E22B5DAAF713E374BAAAF6DE /* WidgetDeepLink.swift in Sources */,
+				54CBD3BDE2DE86D68291FF5D /* WidgetHeatmapPlaceholderShape.swift in Sources */,
+				2C60DC971EC65AD91A40E790 /* WidgetKind.swift in Sources */,
+				20835D8A267CC408B23301A7 /* WidgetSnapshotKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,11 +326,6 @@
 			isa = PBXTargetDependency;
 			name = DevLogDomain;
 			targetProxy = 6B58A164E93F51C78CBAE314 /* PBXContainerItemProxy */;
-		};
-		5A7DA83CEEE7600394C47846 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogWidgetShared;
-			targetProxy = 3021BF47C2FDC8E6FA84B229 /* PBXContainerItemProxy */;
 		};
 		F1C4B031EE5FEF47898D9562 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

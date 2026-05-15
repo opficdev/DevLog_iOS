@@ -9,7 +9,6 @@ import Foundation
 import DevLogDomain
 import DevLogData
 import DevLogWidgetCore
-import DevLogWidgetShared
 
 final class UserDefaultsStoreImpl: UserDefaultsStore {
     private let userDefaults: UserDefaults

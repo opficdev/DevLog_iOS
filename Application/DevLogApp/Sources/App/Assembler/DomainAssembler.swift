@@ -6,6 +6,7 @@
 //
 
 import DevLogCore
+import DevLogDomain
 
 final class DomainAssembler: Assembler {
     func assemble(_ container: any DIContainer) {

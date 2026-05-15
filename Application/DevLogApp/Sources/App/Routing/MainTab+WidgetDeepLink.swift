@@ -7,7 +7,7 @@
 
 import Foundation
 import DevLogPresentation
-import DevLogWidgetShared
+import DevLogWidgetCore
 
 extension MainTab {
     init?(widgetURL: URL) {

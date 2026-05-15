@@ -8,9 +8,8 @@
 import Combine
 import DevLogDomain
 import DevLogData
-import DevLogWidgetShared
 
-protocol WidgetSyncEventBus {
+public protocol WidgetSyncEventBus {
     func publish(_ event: WidgetSyncEvent)
     func observe() -> AnyPublisher<WidgetSyncEvent, Never>
 }

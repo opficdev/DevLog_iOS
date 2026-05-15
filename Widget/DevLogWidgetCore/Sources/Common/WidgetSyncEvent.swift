@@ -7,8 +7,7 @@
 
 import DevLogDomain
 import DevLogData
-import DevLogWidgetShared
 
-enum WidgetSyncEvent: Equatable {
+public enum WidgetSyncEvent: Equatable {
     case syncRequested
 }

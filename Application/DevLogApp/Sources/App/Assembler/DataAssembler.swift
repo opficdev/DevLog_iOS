@@ -7,6 +7,7 @@
 
 import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class DataAssembler: Assembler {
     func assemble(_ container: any DIContainer) {

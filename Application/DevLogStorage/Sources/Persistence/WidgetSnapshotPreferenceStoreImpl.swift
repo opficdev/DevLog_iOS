@@ -9,7 +9,6 @@ import Foundation
 import DevLogDomain
 import DevLogData
 import DevLogWidgetCore
-import DevLogWidgetShared
 
 final class WidgetSnapshotPreferenceStoreImpl: WidgetSnapshotPreferenceStore {
     private enum Key: String, CaseIterable {

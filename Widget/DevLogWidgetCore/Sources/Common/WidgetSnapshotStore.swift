@@ -8,7 +8,6 @@
 import Foundation
 import DevLogDomain
 import DevLogData
-import DevLogWidgetShared
 
 public final class WidgetSnapshotStore {
     private let store: WidgetSharedDefaultsStore
@@ -19,7 +18,7 @@ public final class WidgetSnapshotStore {
         self.store = WidgetSharedDefaultsStore()
     }
 
-    init(store: WidgetSharedDefaultsStore) {
+    public init(store: WidgetSharedDefaultsStore) {
         self.store = store
     }
 

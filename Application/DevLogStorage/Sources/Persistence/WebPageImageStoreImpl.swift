@@ -10,7 +10,6 @@ import Foundation
 import DevLogDomain
 import DevLogData
 import DevLogWidgetCore
-import DevLogWidgetShared
 
 actor WebPageImageStoreImpl: WebPageImageStore {
     func cachedImageURL(for url: URL) async throws -> URL {

@@ -9,16 +9,15 @@ import Combine
 import Foundation
 import DevLogDomain
 import DevLogData
-import DevLogWidgetShared
 
-final class WidgetSyncEventHandler {
+public final class WidgetSyncEventHandler {
     private let repository: TodoRepository
     private let snapshotUpdater: WidgetSnapshotUpdater
     private let pageSize = 100
     private let logger = Logger(category: "WidgetSyncEventHandler")
     private var cancellables = Set<AnyCancellable>()
 
-    init(
+    public init(
         eventBus: WidgetSyncEventBus,
         repository: TodoRepository,
         snapshotUpdater: WidgetSnapshotUpdater
