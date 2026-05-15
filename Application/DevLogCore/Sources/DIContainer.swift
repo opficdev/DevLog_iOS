@@ -1,30 +1,30 @@
 //
 //  DIContainer.swift
-//  DevLog
+//  DevLogCore
 //
-//  Created by 최윤진 on 11/16/25.
+//  Created by opfic on 5/15/26.
 //
 
 import Foundation
 
-struct DependencyName: Hashable, ExpressibleByStringLiteral {
-    let rawValue: String
+public struct DependencyName: Hashable, ExpressibleByStringLiteral {
+    public let rawValue: String
 
-    init(rawValue: String) {
+    public init(rawValue: String) {
         self.rawValue = rawValue
     }
 
-    init(stringLiteral value: String) {
+    public init(stringLiteral value: String) {
         self.rawValue = value
     }
 }
 
-enum DependencyScope {
+public enum DependencyScope {
     case singleton
     case transient
 }
 
-protocol DIContainer {
+public protocol DIContainer {
     func register<T>(
         _ type: T.Type,
         name: DependencyName?,
@@ -35,7 +35,7 @@ protocol DIContainer {
     func resolve<T>(_ type: T.Type, name: DependencyName?) -> T
 }
 
-extension DIContainer {
+public extension DIContainer {
     func register<T>(
         _ type: T.Type,
         name: DependencyName? = nil,
@@ -50,8 +50,8 @@ extension DIContainer {
     }
 }
 
-final class AppDIContainer: DIContainer {
-    static let shared = AppDIContainer()
+public final class AppDIContainer: DIContainer {
+    public static let shared = AppDIContainer()
 
     private let lock = NSRecursiveLock()
 
@@ -70,7 +70,7 @@ final class AppDIContainer: DIContainer {
     private var registrations = [Key: Registration]()
     private var singletons = [Key: Any]()
 
-    func register<T>(
+    public func register<T>(
         _ type: T.Type,
         name: DependencyName? = nil,
         scope: DependencyScope = .singleton,
@@ -83,7 +83,7 @@ final class AppDIContainer: DIContainer {
         registrations[key] = Registration(scope: scope, factory: factory)
     }
 
-    func resolve<T>(_ type: T.Type, name: DependencyName? = nil) -> T {
+    public func resolve<T>(_ type: T.Type, name: DependencyName? = nil) -> T {
         lock.lock()
         defer { lock.unlock() }
 

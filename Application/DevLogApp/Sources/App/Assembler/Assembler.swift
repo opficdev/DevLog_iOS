@@ -5,9 +5,7 @@
 //  Created by 최윤진 on 12/7/25.
 //
 
-protocol Assembler {
-    func assemble(_ container: DIContainer)
-}
+import DevLogCore
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [

@@ -1,8 +1,8 @@
 //
 //  DIContainerKey.swift
-//  DevLog
+//  DevLogCore
 //
-//  Created by 최윤진 on 12/14/25.
+//  Created by opfic on 5/15/26.
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ private struct DIContainerKey: EnvironmentKey {
     static let defaultValue: any DIContainer = AppDIContainer.shared
 }
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     var diContainer: any DIContainer {
         get { self[DIContainerKey.self] }
         set { self[DIContainerKey.self] = newValue }

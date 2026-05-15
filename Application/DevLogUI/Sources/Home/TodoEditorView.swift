@@ -8,6 +8,7 @@
 import MarkdownUI
 import OrderedCollections
 import SwiftUI
+import DevLogCore
 import DevLogDomain
 import DevLogPresentation
 

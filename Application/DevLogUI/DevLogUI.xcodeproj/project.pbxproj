@@ -17,6 +17,7 @@
 		26FA5A7B5E8EDE1B8B6BEE4C /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255A04E841570A664D15C72 /* SearchView.swift */; };
 		2781DD85BEB0D586F730C53C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F04A173095F3737E4487EF7 /* ProfileView.swift */; };
 		2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */; };
+		0A11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E11B22C33D44E55F6677889 /* DevLogCore.framework */; };
 		3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 423A6FE16D5EC7FECF77A31A /* MarkdownUI */; };
 		33374D81BED973A28E95EB88 /* HeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D21657B3F9D63E2BE6DD6B4 /* HeatmapView.swift */; };
 		3568FBF125892AF4577A533B /* PushNotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0358ADF733F6A5DECC8FC94 /* PushNotificationListView.swift */; };
@@ -54,6 +55,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0B11B22C33D44E55F6677889 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
+			remoteInfo = DevLogCore;
+		};
+		0C11B22C33D44E55F6677889 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
+			remoteInfo = Subproject;
+		};
 		4B34A432C50DB9586CA58C58 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */;
@@ -85,6 +100,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		0C295FB79B9FCF187708EFF1 /* PushNotificationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationSettingsView.swift; path = Sources/Setting/PushNotificationSettingsView.swift; sourceTree = "<group>"; };
 		192A2827C2D676A1AE820FBA /* CacheableImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CacheableImage.swift; path = Sources/Common/Component/CacheableImage.swift; sourceTree = "<group>"; };
 		1F5DBA50879A2D0E264B8F49 /* LoginButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoginButton.swift; path = Sources/Common/Component/LoginButton.swift; sourceTree = "<group>"; };
@@ -135,6 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCF1DA50663107DA4687A0D4 /* Foundation.framework in Frameworks */,
+				0A11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */,
 				A4AD1EE45C758CF4DBA545A9 /* DevLogDomain.framework in Frameworks */,
 				2A16034EA7F17361A17B80AA /* DevLogPresentation.framework in Frameworks */,
 				3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */,
@@ -209,6 +226,7 @@
 		6C60332595233030EAFFE839 /* Projects */ = {
 			isa = PBXGroup;
 			children = (
+				0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */,
 				2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */,
 				7621BD8208E00468E86EB79E /* DevLogPresentation.xcodeproj */,
 			);
@@ -299,6 +317,7 @@
 			isa = PBXGroup;
 			children = (
 				EF72EFD447F4FDC1142BABA1 /* DevLogUI.framework */,
+				0E11B22C33D44E55F6677889 /* DevLogCore.framework */,
 				03163FCF510FAA69D772F466 /* DevLogDomain.framework */,
 				2A7EFE823B69A90528963EA6 /* DevLogPresentation.framework */,
 			);
@@ -349,6 +368,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				0F11B22C33D44E55F6677889 /* PBXTargetDependency */,
 				20304BBBBB4E5B09A653B1F4 /* PBXTargetDependency */,
 				4F02ECB9EB26770F47EC2D36 /* PBXTargetDependency */,
 			);
@@ -392,6 +412,10 @@
 			projectReferences = (
 				{
 					ProductGroup = B68C915FE344171A3A1311EF /* Products */;
+					ProjectRef = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
+				},
+				{
+					ProductGroup = B68C915FE344171A3A1311EF /* Products */;
 					ProjectRef = 2C6BDD744FEDC1C8352DF878 /* DevLogDomain.xcodeproj */;
 				},
 				{
@@ -407,6 +431,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		0E11B22C33D44E55F6677889 /* DevLogCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogCore.framework;
+			remoteRef = 0C11B22C33D44E55F6677889 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		03163FCF510FAA69D772F466 /* DevLogDomain.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -482,6 +513,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0F11B22C33D44E55F6677889 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogCore;
+			targetProxy = 0B11B22C33D44E55F6677889 /* PBXContainerItemProxy */;
+		};
 		20304BBBBB4E5B09A653B1F4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DevLogDomain;

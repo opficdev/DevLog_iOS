@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DevLogCore
 
 struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer

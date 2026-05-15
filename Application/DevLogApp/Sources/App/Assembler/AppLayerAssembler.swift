@@ -5,6 +5,8 @@
 //  Created by opfic on 3/19/26.
 //
 
+import DevLogCore
+
 final class AppLayerAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(WidgetSyncEventBus.self) {

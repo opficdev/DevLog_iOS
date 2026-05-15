@@ -5,8 +5,10 @@
 //  Created by 최윤진 on 12/7/25.
 //
 
+import DevLogCore
+
 final class DomainAssembler: Assembler {
-    func assemble(_ container: DIContainer) {
+    func assemble(_ container: any DIContainer) {
         registerAuthUseCases(container)
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
@@ -20,7 +22,7 @@ final class DomainAssembler: Assembler {
 }
 
 private extension DomainAssembler {
-    func registerAuthUseCases(_ container: DIContainer) {
+    func registerAuthUseCases(_ container: any DIContainer) {
         container.register(SignInUseCase.self) {
             SignInUseCaseImpl(container.resolve(AuthenticationRepository.self))
         }
@@ -38,7 +40,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerConnectivityUseCases(_ container: DIContainer) {
+    func registerConnectivityUseCases(_ container: any DIContainer) {
         container.register(ObserveNetworkConnectivityUseCase.self) {
             ObserveNetworkConnectivityUseCaseImpl(
                 container.resolve(NetworkConnectivityRepository.self)
@@ -46,7 +48,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerAuthProviderUseCases(_ container: DIContainer) {
+    func registerAuthProviderUseCases(_ container: any DIContainer) {
         container.register(FetchAuthProvidersUseCase.self) {
             FetchAuthProvidersUseCaseImpl(container.resolve(AuthDataRepository.self))
         }
@@ -60,7 +62,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerTodoUseCases(_ container: DIContainer) {
+    func registerTodoUseCases(_ container: any DIContainer) {
         container.register(FetchTodoByIdUseCase.self) {
             FetchTodoByIdUseCaseImpl(container.resolve(TodoRepository.self))
         }
@@ -86,7 +88,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerTodoCategoryUseCases(_ container: DIContainer) {
+    func registerTodoCategoryUseCases(_ container: any DIContainer) {
         container.register(FetchTodoCategoryPreferencesUseCase.self) {
             FetchTodoCategoryPreferencesUseCaseImpl(
                 container.resolve(TodoCategoryRepository.self)
@@ -100,7 +102,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerUserDataUseCases(_ container: DIContainer) {
+    func registerUserDataUseCases(_ container: any DIContainer) {
         container.register(FetchUserDataUseCase.self) {
             FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
         }
@@ -110,7 +112,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerPushNotificationUseCases(_ container: DIContainer) {
+    func registerPushNotificationUseCases(_ container: any DIContainer) {
         container.register(FetchPushSettingsUseCase.self) {
             FetchPushNotificationSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
@@ -140,7 +142,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerWebPageUseCases(_ container: DIContainer) {
+    func registerWebPageUseCases(_ container: any DIContainer) {
         container.register(FetchWebPagesUseCase.self) {
             FetchWebPagesUseCaseImpl(container.resolve(WebPageRepository.self))
         }
@@ -166,7 +168,7 @@ private extension DomainAssembler {
         }
     }
 
-    func registerUserPreferencesUseCases(_ container: DIContainer) {
+    func registerUserPreferencesUseCases(_ container: any DIContainer) {
         container.register(ObserveSystemThemeUseCase.self) {
             ObserveSystemThemeUseCaseImpl(container.resolve(UserPreferencesRepository.self))
         }

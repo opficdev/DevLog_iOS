@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DevLogCore
 
 @main
 struct DevLogApp: App {

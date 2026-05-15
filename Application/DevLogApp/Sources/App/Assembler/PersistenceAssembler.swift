@@ -5,6 +5,8 @@
 //  Created by opfic on 3/15/26.
 //
 
+import DevLogCore
+
 final class PersistenceAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(UserDefaultsStore.self) {

@@ -5,6 +5,8 @@
 //  Created by 최윤진 on 12/7/25.
 //
 
+import DevLogCore
+
 final class DataAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(AuthenticationRepository.self) {
