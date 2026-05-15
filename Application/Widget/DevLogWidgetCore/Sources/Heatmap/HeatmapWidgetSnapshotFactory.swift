@@ -9,10 +9,9 @@ import Foundation
 import DevLogDomain
 import DevLogDataCommon
 import DevLogDataProtocol
-import DevLogPresentation
 import DevLogWidgetShared
 
-struct HeatmapWidgetSnapshotFactory {
+public struct HeatmapWidgetSnapshotFactory {
     fileprivate struct DailyCounts {
         var createdCount = 0
         var completedCount = 0
@@ -32,11 +31,11 @@ struct HeatmapWidgetSnapshotFactory {
 
     private let calendar: Calendar
 
-    init(calendar: Calendar = .current) {
+    public init(calendar: Calendar = .current) {
         self.calendar = calendar
     }
 
-    func makeSnapshot(
+    public func makeSnapshot(
         createdTodos: [Todo],
         completedTodos: [Todo],
         deletedTodos: [Todo],

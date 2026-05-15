@@ -9,10 +9,9 @@ import Foundation
 import DevLogDomain
 import DevLogDataCommon
 import DevLogDataProtocol
-import DevLogPresentation
 import DevLogWidgetShared
 
-struct TodayWidgetSnapshotFactory {
+public struct TodayWidgetSnapshotFactory {
     private enum SectionCategory: String, CaseIterable {
         case focused
         case overdue
@@ -22,13 +21,13 @@ struct TodayWidgetSnapshotFactory {
     }
 
     private struct SectionCollection {
-        var focused = [TodayTodoItem]()
-        var overdue = [TodayTodoItem]()
-        var dueSoon = [TodayTodoItem]()
-        var later = [TodayTodoItem]()
-        var unscheduled = [TodayTodoItem]()
+        var focused = [TodayWidgetTodoItem]()
+        var overdue = [TodayWidgetTodoItem]()
+        var dueSoon = [TodayWidgetTodoItem]()
+        var later = [TodayWidgetTodoItem]()
+        var unscheduled = [TodayWidgetTodoItem]()
 
-        func items(for category: SectionCategory) -> [TodayTodoItem] {
+        func items(for category: SectionCategory) -> [TodayWidgetTodoItem] {
             switch category {
             case .focused:
                 focused
@@ -44,10 +43,27 @@ struct TodayWidgetSnapshotFactory {
         }
     }
 
+    private struct TodayWidgetTodoItem {
+        let id: String
+        let number: Int
+        let title: String
+        let isPinned: Bool
+        let dueDate: Date?
+
+        init?(from todo: Todo) {
+            guard let number = todo.number else { return nil }
+            self.id = todo.id
+            self.number = number
+            self.title = todo.title
+            self.isPinned = todo.isPinned
+            self.dueDate = todo.dueDate
+        }
+    }
+
     private let calendar: Calendar
     private let upcomingWindowDays: Int
 
-    init(
+    public init(
         calendar: Calendar = .current,
         upcomingWindowDays: Int = 7
     ) {
@@ -55,13 +71,14 @@ struct TodayWidgetSnapshotFactory {
         self.upcomingWindowDays = upcomingWindowDays
     }
 
-    func makeSnapshot(
-        todos: [TodayTodoItem],
+    public func makeSnapshot(
+        todos: [Todo],
         displayOptions: TodayDisplayOptions,
         now: Date = Date()
     ) -> TodayWidgetSnapshot {
+        let todayWidgetTodoItems = todos.compactMap { TodayWidgetTodoItem(from: $0) }
         let displayedTodos = displayedTodos(
-            from: todos,
+            from: todayWidgetTodoItems,
             displayOptions: displayOptions
         )
         let sections = groupedSectionItems(
@@ -96,10 +113,10 @@ struct TodayWidgetSnapshotFactory {
     }
 
     private func displayedTodos(
-        from todos: [TodayTodoItem],
+        from todos: [TodayWidgetTodoItem],
         displayOptions: TodayDisplayOptions
-    ) -> [TodayTodoItem] {
-        let dueDateFilteredTodos: [TodayTodoItem]
+    ) -> [TodayWidgetTodoItem] {
+        let dueDateFilteredTodos: [TodayWidgetTodoItem]
         switch displayOptions.dueDateVisibility {
         case .all:
             dueDateFilteredTodos = todos
@@ -118,7 +135,7 @@ struct TodayWidgetSnapshotFactory {
     }
 
     private func groupedSectionItems(
-        from items: [TodayTodoItem],
+        from items: [TodayWidgetTodoItem],
         now: Date
     ) -> SectionCollection {
         let startOfToday = calendar.startOfDay(for: now)
@@ -160,7 +177,7 @@ struct TodayWidgetSnapshotFactory {
     }
 
     private func isOverdue(
-        _ item: TodayTodoItem,
+        _ item: TodayWidgetTodoItem,
         now: Date
     ) -> Bool {
         guard let dueDate = item.dueDate else { return false }
@@ -168,7 +185,7 @@ struct TodayWidgetSnapshotFactory {
     }
 
     private func isDueSoon(
-        _ item: TodayTodoItem,
+        _ item: TodayWidgetTodoItem,
         now: Date
     ) -> Bool {
         guard let dueDate = item.dueDate else { return false }

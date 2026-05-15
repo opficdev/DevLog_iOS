@@ -9,10 +9,9 @@ import Foundation
 import DevLogDomain
 import DevLogDataCommon
 import DevLogDataProtocol
-import DevLogPresentation
 import DevLogWidgetShared
 
-struct TodayWidgetSnapshot: Codable, Equatable {
+public struct TodayWidgetSnapshot: Codable, Equatable {
     let generatedAt: Date
     let totalCount: Int
     let focusedCount: Int
@@ -21,12 +20,12 @@ struct TodayWidgetSnapshot: Codable, Equatable {
     let sections: [TodayWidgetSectionSnapshot]
 }
 
-struct TodayWidgetSectionSnapshot: Codable, Equatable {
+public struct TodayWidgetSectionSnapshot: Codable, Equatable {
     let category: String
     let items: [WidgetTodoSnapshotItem]
 }
 
-struct WidgetTodoSnapshotItem: Codable, Equatable {
+public struct WidgetTodoSnapshotItem: Codable, Equatable {
     let id: String
     let number: Int
     let title: String

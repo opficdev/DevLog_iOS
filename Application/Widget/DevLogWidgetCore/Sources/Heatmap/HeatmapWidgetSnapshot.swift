@@ -9,10 +9,9 @@ import Foundation
 import DevLogDomain
 import DevLogDataCommon
 import DevLogDataProtocol
-import DevLogPresentation
 import DevLogWidgetShared
 
-struct HeatmapWidgetSnapshot: Codable, Equatable {
+public struct HeatmapWidgetSnapshot: Codable, Equatable {
     let generatedAt: Date
     let quarterStart: Date
     let selectedActivityKindRawValues: [String]
@@ -20,17 +19,17 @@ struct HeatmapWidgetSnapshot: Codable, Equatable {
     let months: [WidgetHeatmapMonthSnapshot]
 }
 
-struct WidgetHeatmapMonthSnapshot: Codable, Equatable {
+public struct WidgetHeatmapMonthSnapshot: Codable, Equatable {
     let monthStart: Date
     let weeks: [WidgetHeatmapWeekSnapshot]
 }
 
-struct WidgetHeatmapWeekSnapshot: Codable, Equatable {
+public struct WidgetHeatmapWeekSnapshot: Codable, Equatable {
     let id: Int
     let days: [WidgetHeatmapDaySnapshot]
 }
 
-struct WidgetHeatmapDaySnapshot: Codable, Equatable {
+public struct WidgetHeatmapDaySnapshot: Codable, Equatable {
     let date: Date
     let createdCount: Int
     let completedCount: Int

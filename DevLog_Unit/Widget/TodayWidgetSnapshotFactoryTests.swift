@@ -67,36 +67,36 @@ struct TodayWidgetSnapshotFactoryTests {
         let factory = TodayWidgetSnapshotFactory(calendar: calendar)
 
         let snapshot = factory.makeSnapshot(
-            todos: try [
-                makeTodayTodoItem(
+            todos: [
+                makeTodo(
                     id: "todo-overdue",
                     number: 1,
                     title: "지난 일정",
                     isPinned: false,
                     dueDate: yesterday
                 ),
-                makeTodayTodoItem(
+                makeTodo(
                     id: "todo-today",
                     number: 2,
                     title: "오늘 일정",
                     isPinned: false,
                     dueDate: now
                 ),
-                makeTodayTodoItem(
+                makeTodo(
                     id: "todo-seven-days-later",
                     number: 3,
                     title: "7일 뒤 일정",
                     isPinned: false,
                     dueDate: sevenDaysLater
                 ),
-                makeTodayTodoItem(
+                makeTodo(
                     id: "todo-eight-days-later",
                     number: 4,
                     title: "8일 뒤 일정",
                     isPinned: false,
                     dueDate: eightDaysLater
                 ),
-                makeTodayTodoItem(
+                makeTodo(
                     id: "todo-unscheduled",
                     number: 5,
                     title: "미정 일정",
@@ -121,41 +121,41 @@ struct TodayWidgetSnapshotFactoryTests {
     private func makeTodayTodos(
         now: Date,
         calendar: Calendar
-    ) throws -> [TodayTodoItem] {
+    ) throws -> [Todo] {
         let overdueDate = try #require(calendar.date(byAdding: .day, value: -1, to: now))
         let dueSoonDate = try #require(calendar.date(byAdding: .day, value: 3, to: now))
         let laterDate = try #require(calendar.date(byAdding: .day, value: 9, to: now))
 
-        return try [
-            makeTodayTodoItem(
+        return [
+            makeTodo(
                 id: "todo-1",
                 number: 1,
                 title: "고정된 할 일",
                 isPinned: true,
                 dueDate: dueSoonDate
             ),
-            makeTodayTodoItem(
+            makeTodo(
                 id: "todo-2",
                 number: 2,
                 title: "지난 일정",
                 isPinned: false,
                 dueDate: overdueDate
             ),
-            makeTodayTodoItem(
+            makeTodo(
                 id: "todo-3",
                 number: 3,
                 title: "임박 일정",
                 isPinned: false,
                 dueDate: dueSoonDate
             ),
-            makeTodayTodoItem(
+            makeTodo(
                 id: "todo-4",
                 number: 4,
                 title: "나중 일정",
                 isPinned: false,
                 dueDate: laterDate
             ),
-            makeTodayTodoItem(
+            makeTodo(
                 id: "todo-5",
                 number: 5,
                 title: "미정 일정",
@@ -165,14 +165,14 @@ struct TodayWidgetSnapshotFactoryTests {
         ]
     }
 
-    private func makeTodayTodoItem(
+    private func makeTodo(
         id: String,
         number: Int,
         title: String,
         isPinned: Bool,
         dueDate: Date?
-    ) throws -> TodayTodoItem {
-        let todo = Todo(
+    ) -> Todo {
+        Todo(
             id: id,
             isPinned: isPinned,
             isCompleted: false,
@@ -188,7 +188,5 @@ struct TodayWidgetSnapshotFactoryTests {
             tags: [],
             category: .system(.feature)
         )
-
-        return try #require(TodayTodoItem(from: todo))
     }
 }
