@@ -17,7 +17,7 @@ public struct AuthDataResponse {
     public let fcmToken: String
     public let accessToken: String?
 
-    init(
+    public init(
         uid: String,
         displayName: String?,
         email: String?,

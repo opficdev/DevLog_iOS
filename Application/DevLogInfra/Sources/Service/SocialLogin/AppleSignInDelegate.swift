@@ -7,6 +7,7 @@
 
 import Foundation
 import AuthenticationServices
+import UIKit
 
 @MainActor
 final class AppleSignInDelegate: NSObject,
@@ -24,11 +25,11 @@ final class AppleSignInDelegate: NSObject,
     ) {
         finish(.success(authorization))
     }
-    
+
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         finish(.failure(error))
     }
-    
+
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }.flatMap { $0.windows }.first { $0.isKeyWindow }!

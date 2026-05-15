@@ -8,6 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogDomain
 import DevLogDataCommon
 import DevLogDataDTO
 import DevLogDataProtocol

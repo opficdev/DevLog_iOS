@@ -10,6 +10,7 @@
 		0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */; };
 		17DCF2F561737FAE2CE744AC /* DevLogDataCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93139280AFA8F1C2B741F3 /* DevLogDataCommon.framework */; };
 		1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */; };
+		21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */; };
 		3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */; };
 		4A36236096C643DA1FF29771 /* UserServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383CD000472C3025FACB9EFF /* UserServiceImpl.swift */; };
 		5C3D4AB0EA1E2DA901239A6C /* FirestorePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CFC9162F5063E3CB017B40 /* FirestorePath.swift */; };
@@ -19,6 +20,8 @@
 		6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */; };
 		6FCB70DE3225AFA821300AC7 /* InfraLayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */; };
 		70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */; };
+		73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */; };
+		7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */; };
 		87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */; };
 		8DC809F74EA0D636E5F51A83 /* DevLogDataDTO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A5DD33E6F5140069CA53AAF /* DevLogDataDTO.framework */; };
 		93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */; };
@@ -49,6 +52,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6D02EDBA887507AC7BA79658;
 			remoteInfo = DevLogDataProtocol;
+		};
+		3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
+			remoteInfo = Subproject;
 		};
 		3C55FED4AAAFF680BC9A9419 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -92,9 +102,17 @@
 			remoteGlobalIDString = 0B9228953A84A7D7ED3BC5B8;
 			remoteInfo = DevLogDataDTO;
 		};
+		DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
+			remoteInfo = DevLogDomain;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleSignInDelegate.swift; path = Sources/Service/SocialLogin/AppleSignInDelegate.swift; sourceTree = "<group>"; };
 		1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GithubAuthenticationServiceImpl.swift; path = Sources/Service/SocialLogin/GithubAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
 		34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMetadataServiceImpl.swift; path = Sources/Service/WebPageMetadataServiceImpl.swift; sourceTree = "<group>"; };
 		383CD000472C3025FACB9EFF /* UserServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserServiceImpl.swift; path = Sources/Service/UserServiceImpl.swift; sourceTree = "<group>"; };
@@ -109,7 +127,9 @@
 		BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoServiceImpl.swift; path = Sources/Service/TodoServiceImpl.swift; sourceTree = "<group>"; };
 		C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationServiceImpl.swift; path = Sources/Service/PushNotificationServiceImpl.swift; sourceTree = "<group>"; };
 		CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryServiceImpl.swift; path = Sources/Service/TodoCategoryServiceImpl.swift; sourceTree = "<group>"; };
+		D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleAuthResponse.swift; path = Sources/Service/SocialLogin/AppleAuthResponse.swift; sourceTree = "<group>"; };
 		DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
+		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthServiceImpl.swift; path = Sources/Service/AuthServiceImpl.swift; sourceTree = "<group>"; };
 		E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageServiceImpl.swift; path = Sources/Service/WebPageServiceImpl.swift; sourceTree = "<group>"; };
 		F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InfraLayerError.swift; path = Sources/Common/InfraLayerError.swift; sourceTree = "<group>"; };
@@ -125,6 +145,7 @@
 				17DCF2F561737FAE2CE744AC /* DevLogDataCommon.framework in Frameworks */,
 				8DC809F74EA0D636E5F51A83 /* DevLogDataDTO.framework in Frameworks */,
 				A18672C71ABCFAAFC19775F5 /* DevLogDataProtocol.framework in Frameworks */,
+				21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */,
 				FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */,
 				65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */,
 				E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */,
@@ -146,6 +167,7 @@
 				6CE407FD20ABD6E4ABC9BC63 /* DevLogDataProtocol.framework */,
 				2AC0C307821B12C249CFFC13 /* DevLogDataMapper.framework */,
 				344EDB4AD1E8A6EE910CBABC /* DevLogDataRepository.framework */,
+				8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -153,6 +175,8 @@
 		091FD7B63F7A260D118E5905 /* SocialLogin */ = {
 			isa = PBXGroup;
 			children = (
+				D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */,
+				0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */,
 				3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */,
 				1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */,
 				50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */,
@@ -227,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */,
+				A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */,
 			);
 			name = Projects;
 			sourceTree = "<group>";
@@ -267,6 +292,7 @@
 				70E913DD1742622E14034FA5 /* PBXTargetDependency */,
 				56E7098218C952A11F239418 /* PBXTargetDependency */,
 				A7332E416B2191D257886169 /* PBXTargetDependency */,
+				342FB70B2E884012B67F8B38 /* PBXTargetDependency */,
 			);
 			name = DevLogInfra;
 			packageProductDependencies = (
@@ -313,6 +339,10 @@
 					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
 					ProjectRef = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
 				},
+				{
+					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
+					ProjectRef = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -357,6 +387,13 @@
 			remoteRef = 3C55FED4AAAFF680BC9A9419 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DevLogDomain.framework;
+			remoteRef = 3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -382,6 +419,8 @@
 				6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */,
 				D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */,
 				0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */,
+				7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */,
+				73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */,
 				93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */,
 				1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */,
 				3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */,
@@ -396,6 +435,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		342FB70B2E884012B67F8B38 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DevLogDomain;
+			targetProxy = DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */;
+		};
 		56E7098218C952A11F239418 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DevLogDataDTO;

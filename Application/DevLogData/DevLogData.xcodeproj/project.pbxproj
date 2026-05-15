@@ -45,7 +45,6 @@
 		6F59D30C084D7C827CC50F51 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD765636013B36A3BCCCF8B7 /* Foundation.framework */; };
 		6FB5E632397385B569B5FB5E /* PushNotificationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */; };
 		71C83A8D875833719759B1FE /* UserDataRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B167270C81CB76E8F5ED9CA /* UserDataRepositoryImpl.swift */; };
-		74E91703D0FC8E5849507A99 /* AppleAuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4A7B045A63D5BC6A541D8E /* AppleAuthResponse.swift */; };
 		7A71FF2428AECD0170B555F7 /* WebPageMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */; };
 		7A74659BAEE980ECCBA0D22A /* UserProfileMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */; };
 		7C88E53D0CC7798B5EFF8228 /* DevLogDataDTO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92502C9F074520D19CC451EF /* DevLogDataDTO.framework */; };
@@ -205,7 +204,6 @@
 		D2F02873E48CF8A12FA931F0 /* TodoCategoryResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryResponse.swift; path = Sources/DTO/TodoCategoryResponse.swift; sourceTree = "<group>"; };
 		DD765636013B36A3BCCCF8B7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		E7154773B586C2D41307CD49 /* AuthenticationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationService.swift; path = Sources/Protocol/AuthenticationService.swift; sourceTree = "<group>"; };
-		EB4A7B045A63D5BC6A541D8E /* AppleAuthResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleAuthResponse.swift; path = Sources/DTO/AppleAuthResponse.swift; sourceTree = "<group>"; };
 		EE96D070821D1FB62A155AB5 /* PushNotificationPageResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationPageResponse.swift; path = Sources/DTO/PushNotificationPageResponse.swift; sourceTree = "<group>"; };
 		EF9FA1F72AAE9808A4800EEA /* TodoCursorDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCursorDTO.swift; path = Sources/DTO/TodoCursorDTO.swift; sourceTree = "<group>"; };
 		EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMetadataResponse.swift; path = Sources/DTO/WebPageMetadataResponse.swift; sourceTree = "<group>"; };
@@ -270,7 +268,6 @@
 		1DECEF89B4893159CF3166B3 /* DTO */ = {
 			isa = PBXGroup;
 			children = (
-				EB4A7B045A63D5BC6A541D8E /* AppleAuthResponse.swift */,
 				48EFCDACF284D106254C4BF1 /* AuthDataResponse.swift */,
 				13680A4153A719F15E7DFDF6 /* NotificationKind.swift */,
 				2DF12B44E80793EF948B211B /* PushNotificationCursorDTO.swift */,
@@ -699,7 +696,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74E91703D0FC8E5849507A99 /* AppleAuthResponse.swift in Sources */,
 				3E47658FDC0F074222D07B2C /* AuthDataResponse.swift in Sources */,
 				2D91812BD78B5FA8DBE2F030 /* NotificationKind.swift in Sources */,
 				5D56791D0D2F4F4B299C183C /* PushNotificationCursorDTO.swift in Sources */,

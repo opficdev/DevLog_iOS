@@ -9,6 +9,7 @@ import FirebaseAuth
 import Combine
 import FirebaseFirestore
 import FirebaseFunctions
+import DevLogDomain
 import DevLogDataCommon
 import DevLogDataDTO
 import DevLogDataProtocol
