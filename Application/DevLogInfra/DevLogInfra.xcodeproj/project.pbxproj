@@ -287,6 +287,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1F4AAA000000000000000001 /* PBXTargetDependency */,
 				342FB70B2E884012B67F8B38 /* PBXTargetDependency */,
 				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
 				B88888888888888888888888 /* PBXTargetDependency */,
@@ -352,6 +353,7 @@
 				6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				7472E8F03A98CCC38B5332F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				13CD939395C6B0EEB80B46F6 /* XCRemoteSwiftPackageReference "Nexa" */,
+				1F4AAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
@@ -458,6 +460,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1F4AAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+		};
 		342FB70B2E884012B67F8B38 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DevLogDomain;
@@ -732,9 +738,22 @@
 				minimumVersion = 9.0.0;
 			};
 		};
+		1F4AAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.62.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F4AAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6A88F5113FA6A29A059E7035 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
