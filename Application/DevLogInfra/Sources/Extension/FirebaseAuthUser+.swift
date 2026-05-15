@@ -26,3 +26,14 @@ extension FirebaseAuth.User {
         )
     }
 }
+
+extension Error {
+    var isFirebaseCredentialAlreadyInUse: Bool {
+        let nsError = self as NSError
+        guard nsError.domain == AuthErrorDomain,
+              let authErrorCode = AuthErrorCode(rawValue: nsError.code) else {
+            return false
+        }
+        return authErrorCode == .credentialAlreadyInUse
+    }
+}

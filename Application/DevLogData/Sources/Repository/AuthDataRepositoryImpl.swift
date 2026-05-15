@@ -94,10 +94,6 @@ private extension AuthDataRepositoryImpl {
             }
         }
 
-        if authService.isCredentialAlreadyInUseError(error) {
-            return AuthError.linkCredentialAlreadyInUse
-        }
-
         return error
     }
 }

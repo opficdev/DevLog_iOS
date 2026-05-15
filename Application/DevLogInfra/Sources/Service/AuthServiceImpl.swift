@@ -134,12 +134,4 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
-    func isCredentialAlreadyInUseError(_ error: Error) -> Bool {
-        let nsError = error as NSError
-        guard nsError.domain == AuthErrorDomain,
-              let authErrorCode = AuthErrorCode(rawValue: nsError.code) else {
-            return false
-        }
-        return authErrorCode == .credentialAlreadyInUse
-    }
 }

@@ -14,6 +14,7 @@ import FirebaseMessaging
 import Nexa
 import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     private enum FunctionName: String {
@@ -143,6 +144,9 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             logger.info("Successfully linked GitHub account")
         } catch {
             logger.error("Failed to link GitHub account", error: error)
+            if error.isFirebaseCredentialAlreadyInUse {
+                throw AuthError.linkCredentialAlreadyInUse
+            }
             throw error
         }
     }

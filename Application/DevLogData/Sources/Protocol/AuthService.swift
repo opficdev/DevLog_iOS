@@ -21,5 +21,4 @@ public protocol AuthService {
     func getProviderID() async throws -> String?
     func deleteCurrentUser() async throws
     func clearCurrentSession() async throws
-    func isCredentialAlreadyInUseError(_ error: Error) -> Bool
 }

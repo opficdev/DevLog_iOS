@@ -12,6 +12,7 @@ import Foundation
 import GoogleSignIn
 import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class GoogleAuthenticationServiceImpl: AuthenticationService {
     private let store = Firestore.firestore()
@@ -123,6 +124,9 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             try await user?.link(with: credential)
         } catch {
             logger.error("Failed to link Google account", error: error)
+            if error.isFirebaseCredentialAlreadyInUse {
+                throw AuthError.linkCredentialAlreadyInUse
+            }
             throw error
         }
     }
