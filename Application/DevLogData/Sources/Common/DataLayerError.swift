@@ -9,15 +9,6 @@ import AuthenticationServices
 import Foundation
 import DevLogCore
 
-public enum AuthError: Error {
-    case notAuthenticated
-    case failedToUnlinkLastProvider
-    case linkEmailNotFound
-    case linkEmailMismatch
-    case linkCredentialAlreadyInUse
-    case unsupportedProvider
-}
-
 public enum EmailFetchError: Error, Equatable {
     case emailNotFound
     case emailMismatch

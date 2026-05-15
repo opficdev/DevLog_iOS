@@ -153,7 +153,7 @@ private extension AccountViewModel {
             return .linkEmailMismatch
         case .linkCredentialAlreadyInUse:
             return .linkCredentialAlreadyInUse
-        case .notAuthenticated, .failedToUnlinkLastProvider, .unsupportedProvider:
+        case .notAuthenticated, .failedToUnlinkLastProvider, .emailNotFound, .unsupportedProvider:
             return .error
         }
     }

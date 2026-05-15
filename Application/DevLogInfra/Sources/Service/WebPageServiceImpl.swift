@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class WebPageServiceImpl: WebPageService {
     private enum FunctionName: String {

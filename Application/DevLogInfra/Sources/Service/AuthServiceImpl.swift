@@ -11,6 +11,7 @@ import FirebaseFirestore
 import FirebaseMessaging
 import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class AuthServiceImpl: AuthService {
     private let store = Firestore.firestore()

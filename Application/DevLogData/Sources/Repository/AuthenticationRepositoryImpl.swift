@@ -53,7 +53,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             }
 
             authService.cancelSignIn()
-            throw error
+            throw mapSignInError(error)
         }
     }
 
@@ -109,5 +109,16 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         try await authService.deleteCurrentUser()
         try await authService.clearCurrentSession()
         widgetSnapshotUpdater.clear()
+    }
+}
+
+private extension AuthenticationRepositoryImpl {
+    func mapSignInError(_ error: Error) -> Error {
+        if let emailFetchError = error as? EmailFetchError,
+           emailFetchError == .emailNotFound {
+            return AuthError.emailNotFound
+        }
+
+        return error
     }
 }

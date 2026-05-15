@@ -100,8 +100,7 @@ private extension LoginViewModel {
     }
 
     func alertType(for error: Error) -> AlertType {
-        if let emailFetchError = error as? EmailFetchError,
-           emailFetchError == .emailNotFound {
+        if case AuthError.emailNotFound = error {
             return .emailUnavailable
         }
 

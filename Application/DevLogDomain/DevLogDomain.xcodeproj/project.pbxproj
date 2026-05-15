@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A1111111111111111111111 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2222222222222222222222 /* AuthError.swift */; };
 		077096D1600C7389AE494C8D /* UpdateSystemThemeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E821078E0E30A646FFFC1F1 /* UpdateSystemThemeUseCase.swift */; };
 		108705FB292C48F626E0A5C9 /* AddWebPageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F4C2B618DA0B796EC02CF4 /* AddWebPageUseCase.swift */; };
 		120C2A8316793FDC3B58FE4E /* FetchPushNotificationQueryUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B498CD874F5AE906BB27898F /* FetchPushNotificationQueryUseCaseImpl.swift */; };
@@ -157,6 +158,7 @@
 		0135F093DDF8F5DB4D320010 /* FetchTodoCategoryPreferencesUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchTodoCategoryPreferencesUseCaseImpl.swift; path = Sources/UseCase/TodoCategory/Fetch/FetchTodoCategoryPreferencesUseCaseImpl.swift; sourceTree = "<group>"; };
 		015FCD58DFE25D15A98767DD /* UpsertStatusMessageUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpsertStatusMessageUseCase.swift; path = Sources/UseCase/UserData/Update/StatusMessage/UpsertStatusMessageUseCase.swift; sourceTree = "<group>"; };
 		01DC43DAB9ACFA7C5A237F91 /* ClearWebPageImageDirectoryUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClearWebPageImageDirectoryUseCaseImpl.swift; path = Sources/UseCase/WebPage/Upsert/ClearWebPageImageDirectoryUseCaseImpl.swift; sourceTree = "<group>"; };
+		0A2222222222222222222222 /* AuthError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthError.swift; path = Sources/Entity/AuthError.swift; sourceTree = "<group>"; };
 		03910A114D3321A63F692113 /* UndoDeletePushNotificationUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UndoDeletePushNotificationUseCaseImpl.swift; path = Sources/UseCase/PushNotification/Delete/UndoDeletePushNotificationUseCaseImpl.swift; sourceTree = "<group>"; };
 		05D14CAC89969BC5FB42B8D1 /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = Sources/Extension/String.swift; sourceTree = "<group>"; };
 		06CE556F368F3FFB8F45D19B /* TodoCategoryPreference.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryPreference.swift; path = Sources/Entity/TodoCategoryPreference.swift; sourceTree = "<group>"; };
@@ -711,6 +713,7 @@
 			isa = PBXGroup;
 			children = (
 				D3C71ECDDDA08716A716D9B2 /* ActivityKind.swift */,
+				0A2222222222222222222222 /* AuthError.swift */,
 				F9A9B5170723706520E75DC7 /* AuthProvider.swift */,
 				C482DCAC8527FFE9767388C8 /* PushNotification.swift */,
 				741F53346E83DDAB8912B25C /* PushNotificationCursor.swift */,
@@ -865,6 +868,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B8CBBEFB51817FB36B0F02E /* ActivityKind.swift in Sources */,
+				0A1111111111111111111111 /* AuthError.swift in Sources */,
 				6CCA27E186BA818C36FCD69A /* AuthProvider.swift in Sources */,
 				A7A49D396929B3C1DBBEE572 /* PushNotification.swift in Sources */,
 				923BA6345B44D68CB47C7CA4 /* PushNotificationCursor.swift in Sources */,
