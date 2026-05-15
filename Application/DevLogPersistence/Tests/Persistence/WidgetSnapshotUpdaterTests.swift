@@ -41,6 +41,7 @@ struct WidgetSnapshotUpdaterTests {
         let completedAt = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 3)))
         let deletedAt = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 4)))
         let fixture = makeFixture(calendar: calendar)
+        fixture.preferenceStore.setHeatmapActivityTypes(["created", "completed"])
 
         fixture.updater.updateHeatmapSnapshot(
             createdTodos: [
@@ -63,7 +64,6 @@ struct WidgetSnapshotUpdaterTests {
                     deletedAt: deletedAt
                 )
             ],
-            selectedActivityKinds: [.created, .completed],
             quarterStart: quarterStart,
             now: now
         )
@@ -107,7 +107,6 @@ struct WidgetSnapshotUpdaterTests {
             ],
             completedTodos: [],
             deletedTodos: [],
-            selectedActivityKinds: [.created],
             quarterStart: quarterStart,
             now: now
         )
@@ -122,11 +121,7 @@ struct WidgetSnapshotUpdaterTests {
 
     private func makeFixture(
         calendar: Calendar = .current
-    ) -> (
-        updater: WidgetSnapshotUpdaterImpl,
-        snapshotStore: WidgetSnapshotStore,
-        preferenceStore: WidgetSnapshotPreferenceStoreImpl
-    ) {
+    ) -> Fixture {
         let suiteName = "WidgetSnapshotUpdaterTests.\(UUID().uuidString)"
         let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
         userDefaults.removePersistentDomain(forName: suiteName)
@@ -141,7 +136,11 @@ struct WidgetSnapshotUpdaterTests {
             preferenceStore: preferenceStore,
             heatmapFactory: HeatmapWidgetSnapshotFactory(calendar: calendar)
         )
-        return (updater, snapshotStore, preferenceStore)
+        return Fixture(
+            updater: updater,
+            snapshotStore: snapshotStore,
+            preferenceStore: preferenceStore
+        )
     }
 
     private func makeTodo(
@@ -168,4 +167,10 @@ struct WidgetSnapshotUpdaterTests {
             category: .system(.feature)
         )
     }
+}
+
+private struct Fixture {
+    let updater: WidgetSnapshotUpdaterImpl
+    let snapshotStore: WidgetSnapshotStore
+    let preferenceStore: WidgetSnapshotPreferenceStoreImpl
 }

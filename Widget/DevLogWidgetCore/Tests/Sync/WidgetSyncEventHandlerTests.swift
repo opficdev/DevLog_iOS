@@ -255,7 +255,6 @@ final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
         let createdTodos: [Todo]
         let completedTodos: [Todo]
         let deletedTodos: [Todo]
-        let selectedActivityKinds: Set<ActivityKind>?
         let quarterStart: Date
         let now: Date
     }
@@ -324,27 +323,6 @@ final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
                 createdTodos: createdTodos,
                 completedTodos: completedTodos,
                 deletedTodos: deletedTodos,
-                selectedActivityKinds: nil,
-                quarterStart: quarterStart,
-                now: now
-            )
-        )
-    }
-
-    func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
-        selectedActivityKinds: Set<ActivityKind>,
-        quarterStart: Date,
-        now: Date
-    ) {
-        appendHeatmapUpdate(
-            HeatmapUpdate(
-                createdTodos: createdTodos,
-                completedTodos: completedTodos,
-                deletedTodos: deletedTodos,
-                selectedActivityKinds: selectedActivityKinds,
                 quarterStart: quarterStart,
                 now: now
             )

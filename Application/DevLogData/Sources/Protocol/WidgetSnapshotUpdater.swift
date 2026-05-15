@@ -25,13 +25,5 @@ public protocol WidgetSnapshotUpdater {
         quarterStart: Date,
         now: Date
     )
-    func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
-        selectedActivityKinds: Set<ActivityKind>,
-        quarterStart: Date,
-        now: Date
-    )
     func clear()
 }
