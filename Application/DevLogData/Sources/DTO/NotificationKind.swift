@@ -1,6 +1,6 @@
 //
 //  NotificationKind.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by opfic on 6/28/25.
 //

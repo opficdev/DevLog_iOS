@@ -1,6 +1,6 @@
 //
 //  TodoCursorDTO.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by opfic on 2/21/26.
 //

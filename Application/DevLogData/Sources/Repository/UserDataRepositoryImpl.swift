@@ -1,6 +1,6 @@
 //
 //  UserDataRepositoryImpl.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 1/10/26.
 //

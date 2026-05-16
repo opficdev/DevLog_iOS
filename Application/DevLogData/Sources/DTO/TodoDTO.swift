@@ -1,6 +1,6 @@
 //
 //  TodoDTO.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 12/14/25.
 //

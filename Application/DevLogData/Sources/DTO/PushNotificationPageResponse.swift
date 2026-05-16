@@ -1,6 +1,6 @@
 //
 //  PushNotificationPageResponse.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by opfic on 2/18/26.
 //
