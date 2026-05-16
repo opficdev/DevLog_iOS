@@ -10,7 +10,6 @@ import Combine
 import FirebaseFirestore
 import FirebaseFunctions
 import DevLogCore
-import DevLogDomain
 import DevLogData
 
 final class PushNotificationServiceImpl: PushNotificationService {

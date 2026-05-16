@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import DevLogCore
 import DevLogDomain
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {

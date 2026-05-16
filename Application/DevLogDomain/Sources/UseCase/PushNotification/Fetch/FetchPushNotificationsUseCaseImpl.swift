@@ -6,6 +6,7 @@
 //
 
 import Combine
+import DevLogCore
 
 public final class FetchPushNotificationsUseCaseImpl: FetchPushNotificationsUseCase {
     private let repository: PushNotificationRepository
