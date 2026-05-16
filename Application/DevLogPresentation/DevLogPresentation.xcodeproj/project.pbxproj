@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -214,6 +214,23 @@
 		162C22DBA28543BFB70765FD /* DeleteWebPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteWebPageTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A4A427D518004ED78EB659DF /* Exceptions for "Sources" folder in "DevLogPresentation" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */;
+		};
+		4320D5C2F6A44B24BF69A36C /* Exceptions for "Tests" folder in "DevLogPresentationTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = BB5614AE13A04E97AC91BD37 /* DevLogPresentationTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		583BF4C4F7EB77076D3CFEA2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -286,11 +303,11 @@
 		253FAAC4504D4C5E1B11C833 = {
 			isa = PBXGroup;
 			children = (
-				03D4331F04C462F4C642860F /* Products */,
-				9CC0354538B2A1DF2C74E484 /* Frameworks */,
-				A4A427D518004ED78EB659DE /* DevLogPresentation */,
+				A4A427D518004ED78EB659DE /* Sources */,
 				4320D5C2F6A44B24BF69A36B /* Tests */,
+				9CC0354538B2A1DF2C74E484 /* Frameworks */,
 				65C85B83FD4ECCC13F82B90F /* Projects */,
+				03D4331F04C462F4C642860F /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -309,11 +326,9 @@
 			sourceTree = "<group>";
 		};
 		4320D5C2F6A44B24BF69A36B /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				A2F3BB0BD4CE46CF9110C0B9 /* PushNotification */,
-				DB5EF73082994CCB8C57468D /* WebPage */,
-				E1150CDF9E2748F18885904D /* Support */,
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4320D5C2F6A44B24BF69A36C /* Exceptions for "Tests" folder in "DevLogPresentationTests" target */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -474,19 +489,12 @@
 			path = PushNotification;
 			sourceTree = "<group>";
 		};
-		A4A427D518004ED78EB659DE /* DevLogPresentation */ = {
-			isa = PBXGroup;
-			children = (
-				AA0000000000000000000005 /* Root */,
-				AA0000000000000000000006 /* Routing */,
-				7B53286AA9A58D5B6C0124F8 /* View */,
-				9DE70A3D1E020E5B69721DB1 /* Common */,
-				1193621431B4F1245A560067 /* Extension */,
-				1DB192900CD86ED478FCDE79 /* Protocol */,
-				13DA278FCF792713D53657D7 /* Structure */,
-				727E4EDC1C08E03AAA6FED64 /* ViewModel */,
+		A4A427D518004ED78EB659DE /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A4A427D518004ED78EB659DF /* Exceptions for "Sources" folder in "DevLogPresentation" target */,
 			);
-			name = DevLogPresentation;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		AA0000000000000000000005 /* Root */ = {
@@ -594,6 +602,9 @@
 				0F11B22C33D44E55F6677889 /* PBXTargetDependency */,
 				C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				A4A427D518004ED78EB659DE /* Sources */,
+			);
 			name = DevLogPresentation;
 			packageProductDependencies = (
 				423A6FE16D5EC7FECF77A31A /* MarkdownUI */,
@@ -617,6 +628,9 @@
 				FEEAAA000000000000000004 /* PBXTargetDependency */,
 				A4FB56AD9F854F9D93800AD6 /* PBXTargetDependency */,
 				001ED161D33049B18CFB34D9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4320D5C2F6A44B24BF69A36B /* Tests */,
 			);
 			name = DevLogPresentationTests;
 			productName = DevLogPresentationTests;
@@ -703,80 +717,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0000000000000000000001 /* RootView.swift in Sources */,
-				AA0000000000000000000003 /* MainTab.swift in Sources */,
-				0553E143B544CD7ACD082298 /* LoadingView.swift in Sources */,
-				071B4E6FE1D0DC0EF26E0705 /* MainView.swift in Sources */,
-				075FA5A9704297F5A51D765D /* ThemeView.swift in Sources */,
-				0CEB2B1729B59439362725A5 /* ToolbarButtons.swift in Sources */,
-				1EC3663DB97BFF5D2D511DAF /* AccountView.swift in Sources */,
-				1F5831DA8EC5DCC3AF604DC7 /* TodoDetailView.swift in Sources */,
-				233981B375AF5EA066660B86 /* UIKitTextEditor.swift in Sources */,
-				26FA5A7B5E8EDE1B8B6BEE4C /* SearchView.swift in Sources */,
-				2781DD85BEB0D586F730C53C /* ProfileView.swift in Sources */,
-				33374D81BED973A28E95EB88 /* HeatmapView.swift in Sources */,
-				3568FBF125892AF4577A533B /* PushNotificationListView.swift in Sources */,
-				3C865F560E7A379D616F092D /* TodoManageView.swift in Sources */,
-				3E3A8CF9B7867748C06B02AD /* HomeViewCoordinator.swift in Sources */,
-				4A7897CEB011769A2C01CB4C /* TodoEditorView.swift in Sources */,
-				4C497F6F2C1A7ADCE28CBF4D /* NavigationRouter.swift in Sources */,
-				5417F145841A7CAF38C83F35 /* TodoListView.swift in Sources */,
-				54FB7AB76BCAED80E9CB742D /* WebItemRow.swift in Sources */,
-				73FF33B77C4FE6E19604D9AE /* View+.swift in Sources */,
-				81F78FF2F35149E80FDA1BAF /* SettingView.swift in Sources */,
-				8A11F86B28EC69A9D6CA4FD2 /* MainViewCoordinator.swift in Sources */,
-				9225927FB28E8A2DD20DEF54 /* CacheableImage.swift in Sources */,
-				9A245A6C4C2FA8D55EA8840D /* TodoItemRow.swift in Sources */,
-				9E8EAA00729A59F67360F063 /* WebView.swift in Sources */,
-				AAA318D37BC97EFB4C785ECD /* TodoInfoSheetView.swift in Sources */,
-				AEA3D50A9080249A6359476C /* CheckBox.swift in Sources */,
-				B4A60A3AB524E4F9D68750C3 /* TodayView.swift in Sources */,
-				BABB40EAD145095BEC1ACB58 /* TodoDetailContentView.swift in Sources */,
-				BB77CD69698477D38EEB62DA /* Toast.swift in Sources */,
-				BE5CF573B4B89C77F4A36A94 /* LoginView.swift in Sources */,
-				C4F0BBA11DCEC8017F541999 /* Tags.swift in Sources */,
-				C5654549920DB2EEBA5A3F07 /* NavigationBarConfigurator.swift in Sources */,
-				C85FD011138539C08D18D22F /* RelativeTimeText.swift in Sources */,
-				D12294635C147B35F3EA3314 /* PushNotificationSettingsView.swift in Sources */,
-				D7ED2E08383517AA3E242B0C /* TodayViewCoordinator.swift in Sources */,
-				E9BE203BADA107278CFBDD54 /* HomeView.swift in Sources */,
-				F0B4DBB89733E466B105CF25 /* EnvironmentValues+.swift in Sources */,
-				F1474D4F84693113355B7DA2 /* TodoMarkdownContentView.swift in Sources */,
-				F99147DC6D6F48E3842CD204 /* LoginButton.swift in Sources */,
-				3530599B937DC8E3F908F3F3 /* LoadingState.swift in Sources */,
-				BAFA35470372A100D996D4A8 /* Color+Hex.swift in Sources */,
-				104A1B691C40A8182E5F8EF8 /* Store.swift in Sources */,
-				363613285150A9CE24C9A251 /* ActivityKindItem.swift in Sources */,
-				0F4B4A95DBD1219D374B47E3 /* HeatmapActivityItem.swift in Sources */,
-				A36B72465455E8FE6C5D95FD /* HeatmapDay.swift in Sources */,
-				0A5A148F5EF1BAD010BED113 /* HeatmapMonth.swift in Sources */,
-				D8DCEA367C54C527295E004F /* HeatmapQuarter.swift in Sources */,
-				10EA3E7496613DE389BF9DB7 /* PushNotificationItem.swift in Sources */,
-				E7EBEBA803A9449A6CBEF11B /* RecentTodoItem.swift in Sources */,
-				143CCE59C5AE926947DA0EA6 /* SystemTodoCategoryItem.swift in Sources */,
-				CD1D494C5D0EC118C8BAD491 /* TodayTodoItem.swift in Sources */,
-				8177365142615E093EFEBA2D /* TodoCategoryItem.swift in Sources */,
-				8F0F4426566FDABC9804C3FD /* TodoIdItem.swift in Sources */,
-				BD140AE5E7EBE1F485AE5C65 /* TodoListItem.swift in Sources */,
-				C3F4F347400691516783EF81 /* TodoReferenceItem.swift in Sources */,
-				C217400D4242DC74BA88D82D /* UserTodoCategoryItem.swift in Sources */,
-				BDC5D53C3F06032A1CE7AFDA /* WebPageItem.swift in Sources */,
-				516FF64DF6F521E446A4E55B /* AccountViewModel.swift in Sources */,
-				72DEE86FF7C989E685B4AC0B /* HomeViewModel.swift in Sources */,
-				5C687AA63F317542D6EBAC59 /* LoginViewModel.swift in Sources */,
-				44ACA41EDDAB32BA6DD4419B /* MainViewModel.swift in Sources */,
-				DB081DF4854E8D445EFE0608 /* ProfileViewModel.swift in Sources */,
-				73D3CC9EDECF98AEE1D71A7E /* PushNotificationListViewModel.swift in Sources */,
-				FBD395A75EDED059CC021AF3 /* PushNotificationSettingsViewModel.swift in Sources */,
-				5E60673D981843248E402D54 /* RootViewModel.swift in Sources */,
-				1A5EF7B2B4490CBCA9DAA040 /* SearchViewModel.swift in Sources */,
-				44B70769659747F403D98B3A /* SettingViewModel.swift in Sources */,
-				2FB6AD996A213275B4EEEA05 /* TodayViewModel.swift in Sources */,
-				55F93EBF8B32C5B838DC13A3 /* TodoDetailViewModel.swift in Sources */,
-				AB242EFD5B25055A0F4B3436 /* TodoEditorViewModel.swift in Sources */,
-				246479E87ECFD0B2DDDA1F75 /* TodoListViewModel.swift in Sources */,
-				59A456649207F4FA33CCD747 /* TodoManageViewModel.swift in Sources */,
-				5AEA41661900EE365204FD79 /* Error+SocialLogin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,9 +724,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDD29A077265459D91A5AE58 /* TestSupport.swift in Sources */,
-				E3D6A097A4EA44FAB02C83EB /* DeleteWebPageTests.swift in Sources */,
-				F5D0F59FAAFD40DAAE032B82 /* DeletePushNotificationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
