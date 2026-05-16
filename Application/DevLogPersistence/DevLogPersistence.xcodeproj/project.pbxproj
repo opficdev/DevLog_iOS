@@ -36,7 +36,6 @@
 		86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF02DF082FB8DCCD008C7784 /* tt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tt.swift; sourceTree = "<group>"; };
 		F334BCFC52C730D5901F6051 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -251,7 +250,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF02DF092FB8DCCD008C7784 /* tt.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
