@@ -1,6 +1,6 @@
 //
 //  HeatmapWidgetConfigurationIntent.swift
-//  DevLogWidget
+//  DevLogWidgetExtension
 //
 //  Created by opfic on 4/15/26.
 //

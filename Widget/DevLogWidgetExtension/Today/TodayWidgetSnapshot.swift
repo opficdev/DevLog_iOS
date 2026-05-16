@@ -1,6 +1,6 @@
 //
 //  TodayWidgetSnapshot.swift
-//  DevLogWidget
+//  DevLogWidgetExtension
 //
 //  Created by opfic on 4/17/26.
 //
