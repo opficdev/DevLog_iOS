@@ -1,6 +1,6 @@
 //
 //  ProfileView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/7/25.
 //

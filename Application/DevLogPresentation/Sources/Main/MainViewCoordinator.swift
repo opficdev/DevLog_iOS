@@ -1,6 +1,6 @@
 //
 //  MainViewCoordinator.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/9/26.
 //

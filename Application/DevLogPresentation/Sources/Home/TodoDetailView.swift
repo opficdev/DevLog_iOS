@@ -1,6 +1,6 @@
 //
 //  TodoDetailView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 6/12/25.
 //

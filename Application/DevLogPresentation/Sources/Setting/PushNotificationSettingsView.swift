@@ -1,6 +1,6 @@
 //
 //  PushNotificationSettingsView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/14/25.
 //

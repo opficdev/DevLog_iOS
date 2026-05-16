@@ -1,6 +1,6 @@
 //
 //  AccountViewModel.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 2/12/26.
 //

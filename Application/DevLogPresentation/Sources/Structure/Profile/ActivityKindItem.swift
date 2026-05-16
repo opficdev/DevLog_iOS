@@ -1,6 +1,6 @@
 //
 //  ActivityKindItem.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 4/4/26.
 //

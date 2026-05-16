@@ -1,6 +1,6 @@
 //
 //  Error+SocialLogin.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/15/26.
 //

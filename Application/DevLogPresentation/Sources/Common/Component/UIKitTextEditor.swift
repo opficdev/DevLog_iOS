@@ -1,6 +1,6 @@
 //
 //  UIKitTextEditor.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 3/18/26.
 //

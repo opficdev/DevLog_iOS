@@ -1,6 +1,6 @@
 //
 //  TodayViewCoordinator.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/10/26.
 //

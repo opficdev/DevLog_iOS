@@ -1,6 +1,6 @@
 //
 //  CheckBox.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 6/17/25.
 //

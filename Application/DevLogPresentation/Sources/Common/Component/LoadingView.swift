@@ -1,6 +1,6 @@
 //
 //  LoadingView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/16/25.
 //

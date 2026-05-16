@@ -1,6 +1,6 @@
 //
 //  NavigationRouter.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 1/1/26.
 //

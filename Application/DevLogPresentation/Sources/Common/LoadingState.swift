@@ -1,6 +1,6 @@
 //
 //  LoadingState.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 3/16/26.
 //

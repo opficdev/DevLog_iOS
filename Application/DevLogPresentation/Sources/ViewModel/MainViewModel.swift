@@ -1,6 +1,6 @@
 //
 //  MainViewModel.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 3/17/26.
 //

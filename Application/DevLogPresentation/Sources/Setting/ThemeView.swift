@@ -1,6 +1,6 @@
 //
 //  ThemeView.swift
-//  SwiftUI_DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/6/25.
 //
