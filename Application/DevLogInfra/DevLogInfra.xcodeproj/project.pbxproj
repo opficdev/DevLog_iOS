@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -124,6 +124,34 @@
 		F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FirebaseFunctions+.swift"; path = "Sources/Extension/FirebaseFunctions+.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		959D79D1263CC74E32B40D79 /* Exceptions for "Sources" folder in "DevLogInfra" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = CB9B628AE2E0684C1FCF8840 /* DevLogInfra */;
+		};
+		959D79D1263CC74E32B40D7B /* Exceptions for "Tests" folder in "DevLogInfraTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 38643C4F96B2449E85275475 /* DevLogInfraTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		959D79D1263CC74E32B40D7A /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				959D79D1263CC74E32B40D7B /* Exceptions for "Tests" folder in "DevLogInfraTests" target */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		D357D4FEA7FE7E547ABC10EF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -218,10 +246,11 @@
 		78591B5535D993B16F897C7C = {
 			isa = PBXGroup;
 			children = (
-				0488BFD2A2F470EEE29679F1 /* Products */,
+				959D79D1263CC74E32B40D78 /* Sources */,
+				959D79D1263CC74E32B40D7A /* Tests */,
 				FBD6499620DAC9E2F9216AD5 /* Frameworks */,
-				959D79D1263CC74E32B40D78 /* DevLogInfra */,
 				D47699189A73B8C6972C611A /* Projects */,
+				0488BFD2A2F470EEE29679F1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -233,15 +262,12 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		959D79D1263CC74E32B40D78 /* DevLogInfra */ = {
-			isa = PBXGroup;
-			children = (
-				B22222222222222222222222 /* InfraAssembler.swift */,
-				244A3B94B9BD4908079A38FB /* Common */,
-				3B9BF1B497E846541A8B6685 /* Extension */,
-				66108C2B6459C7D70E0EF39E /* Service */,
+		959D79D1263CC74E32B40D78 /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				959D79D1263CC74E32B40D79 /* Exceptions for "Sources" folder in "DevLogInfra" target */,
 			);
-			name = DevLogInfra;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		D47699189A73B8C6972C611A /* Projects */ = {
@@ -292,6 +318,9 @@
 				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
 				B88888888888888888888888 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				959D79D1263CC74E32B40D78 /* Sources */,
+			);
 			name = DevLogInfra;
 			packageProductDependencies = (
 				06ADD17826F44543B09286DA /* FirebaseCore */,
@@ -319,6 +348,9 @@
 			dependencies = (
 				1F4AAA000000000000000004 /* PBXTargetDependency */,
 				DD23C8A4110847EABDCAA271 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				959D79D1263CC74E32B40D7A /* Tests */,
 			);
 			name = DevLogInfraTests;
 			productName = DevLogInfraTests;
@@ -427,27 +459,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5C3D4AB0EA1E2DA901239A6C /* FirestorePath.swift in Sources */,
-				6FCB70DE3225AFA821300AC7 /* InfraLayerError.swift in Sources */,
-				9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */,
-				6493ACB77436F1E887D91D59 /* FirebaseAuthUser+.swift in Sources */,
-				FE130A3E1E85658BD3ECE791 /* FirebaseFunctions+.swift in Sources */,
-				6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */,
-				05C3F42B54064540A301FC8C /* FirebaseAppServiceImpl.swift in Sources */,
-				D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */,
-				EFCE1F76080E4B7FBED6DB0E /* PushMessagingServiceImpl.swift in Sources */,
-				0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */,
-				7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */,
-				73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */,
-				93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */,
-				1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */,
-				3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */,
-				EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */,
-				65478CAC7F8597445F84F656 /* TodoServiceImpl.swift in Sources */,
-				4A36236096C643DA1FF29771 /* UserServiceImpl.swift in Sources */,
-				70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */,
-				87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */,
-				B33333333333333333333333 /* InfraAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
