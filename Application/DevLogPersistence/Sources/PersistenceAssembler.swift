@@ -1,6 +1,6 @@
 //
 //  PersistenceAssembler.swift
-//  DevLog
+//  DevLogPersistence
 //
 //  Created by opfic on 3/15/26.
 //

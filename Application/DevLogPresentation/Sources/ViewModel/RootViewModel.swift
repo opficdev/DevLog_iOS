@@ -1,6 +1,6 @@
 //
 //  RootViewModel.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by AI on 2/12/26.
 //

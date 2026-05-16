@@ -1,6 +1,6 @@
 //
 //  TodoCategory.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 3/29/26.
 //

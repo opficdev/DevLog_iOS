@@ -1,6 +1,6 @@
 //
 //  SystemTheme.swift
-//  SwiftUI_DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 5/6/25.
 //

@@ -1,6 +1,6 @@
 //
 //  NavigationBarConfigurator.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 3/5/26.
 //

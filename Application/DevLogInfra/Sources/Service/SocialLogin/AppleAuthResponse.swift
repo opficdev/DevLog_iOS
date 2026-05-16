@@ -1,6 +1,6 @@
 //
 //  AppleAuthResponse.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by opfic on 5/16/25.
 //

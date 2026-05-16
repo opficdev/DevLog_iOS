@@ -1,6 +1,6 @@
 //
 //  RootView.swift
-//  SwiftUI_DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/2/25.
 //

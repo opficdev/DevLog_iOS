@@ -1,6 +1,6 @@
 //
 //  PushNotification.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 6/28/25.
 //

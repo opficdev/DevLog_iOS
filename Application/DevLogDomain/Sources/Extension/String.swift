@@ -1,6 +1,6 @@
 //
 //  String.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 5/19/25.
 //

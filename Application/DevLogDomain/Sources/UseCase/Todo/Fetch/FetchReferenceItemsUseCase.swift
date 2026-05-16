@@ -1,6 +1,6 @@
 //
 //  FetchReferenceItemsUseCase.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 3/25/26.
 //

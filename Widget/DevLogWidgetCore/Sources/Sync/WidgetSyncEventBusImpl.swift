@@ -1,6 +1,6 @@
 //
 //  WidgetSyncEventBusImpl.swift
-//  DevLog
+//  DevLogWidgetCore
 //
 //  Created by opfic on 4/30/26.
 //

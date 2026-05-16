@@ -1,6 +1,6 @@
 //
 //  LoginButton.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 4/25/25.
 //

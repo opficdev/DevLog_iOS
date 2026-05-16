@@ -1,6 +1,6 @@
 //
 //  AuthError.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 5/15/26.
 //

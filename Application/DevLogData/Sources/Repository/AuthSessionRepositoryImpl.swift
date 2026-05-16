@@ -1,6 +1,6 @@
 //
 //  AuthSessionRepositoryImpl.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 12/31/25.
 //

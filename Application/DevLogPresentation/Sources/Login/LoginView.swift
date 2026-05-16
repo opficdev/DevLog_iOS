@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 12/30/24.
 //

@@ -1,6 +1,6 @@
 //
 //  WebPage.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 2/9/26.
 //

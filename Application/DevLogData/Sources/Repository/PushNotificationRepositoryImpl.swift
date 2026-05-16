@@ -1,6 +1,6 @@
 //
 //  PushNotificationRepositoryImpl.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 1/18/26.
 //

@@ -1,6 +1,6 @@
 //
 //  TodoManageViewModel.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 11/30/25.
 //

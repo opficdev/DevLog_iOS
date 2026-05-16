@@ -1,6 +1,6 @@
 //
 //  PushNotificationListViewModel.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 11/22/25.
 //

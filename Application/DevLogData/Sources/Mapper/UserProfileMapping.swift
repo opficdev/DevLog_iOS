@@ -1,6 +1,6 @@
 //
 //  UserProfileMapping.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 2/19/26.
 //

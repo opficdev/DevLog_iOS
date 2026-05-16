@@ -1,6 +1,6 @@
 //
 //  FirebaseAuthUser+.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by 최윤진 on 11/3/25.
 //

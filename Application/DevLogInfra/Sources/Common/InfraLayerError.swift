@@ -1,6 +1,6 @@
 //
 //  InfraLayerError.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by opfic on 3/11/26.
 //

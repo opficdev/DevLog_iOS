@@ -1,6 +1,6 @@
 //
 //  FetchHeatmapActivityTypesUseCase.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 3/2/26.
 //

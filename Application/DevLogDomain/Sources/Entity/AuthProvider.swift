@@ -1,6 +1,6 @@
 //
 //  AuthProvider.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 10/26/25.
 //

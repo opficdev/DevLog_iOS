@@ -1,6 +1,6 @@
 //
-//  ToolbarButton+.swift
-//  DevLog
+//  ToolbarButtons.swift
+//  DevLogPresentation
 //
 //  Created by 최윤진 on 3/1/26.
 //

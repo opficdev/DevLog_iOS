@@ -1,6 +1,6 @@
 //
 //  WebView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/23/25.
 //

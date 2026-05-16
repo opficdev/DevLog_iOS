@@ -1,6 +1,6 @@
 //
 //  ClearWebPageImageDirectoryUseCase.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 4/14/26.
 //

@@ -1,6 +1,6 @@
 //
 //  WidgetSnapshotKey.swift
-//  DevLog
+//  DevLogWidgetCore
 //
 //  Created by opfic on 4/29/26.
 //

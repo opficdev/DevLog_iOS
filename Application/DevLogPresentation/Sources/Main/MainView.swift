@@ -1,6 +1,6 @@
 //
 //  MainView.swift
-//  DevLog
+//  DevLogPresentation
 //
 //  Created by opfic on 5/8/25.
 //

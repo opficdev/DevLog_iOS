@@ -1,6 +1,6 @@
 //
 //  WebPageImageRepositoryImpl.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by opfic on 4/14/26.
 //

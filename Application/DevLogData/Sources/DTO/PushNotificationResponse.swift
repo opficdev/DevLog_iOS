@@ -1,6 +1,6 @@
 //
 //  PushNotificationResponse.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by 최윤진 on 2/10/26.
 //

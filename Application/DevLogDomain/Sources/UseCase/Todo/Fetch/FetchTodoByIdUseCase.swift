@@ -1,6 +1,6 @@
 //
-//  FetchTodoUseCase.swift
-//  DevLog
+//  FetchTodoByIdUseCase.swift
+//  DevLogDomain
 //
 //  Created by opfic on 2/15/26.
 //

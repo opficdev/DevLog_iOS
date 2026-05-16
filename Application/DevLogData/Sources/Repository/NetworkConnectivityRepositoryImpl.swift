@@ -1,6 +1,6 @@
 //
 //  NetworkConnectivityRepositoryImpl.swift
-//  DevLog
+//  DevLogData
 //
 //  Created by opfic on 3/26/26.
 //
