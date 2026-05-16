@@ -11,17 +11,12 @@
 		3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 423A6FE16D5EC7FECF77A31A /* MarkdownUI */; };
 		CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E43EBE726188C58FFB2B6CD /* Foundation.framework */; };
 		D5BCE781F72346A08F831AC3 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE459172FB7283400441703 /* DevLogDomain.framework */; };
+		E318BB71FCCC61D38115BC0C /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE459172FB7283400441703 /* DevLogDomain.framework */; };
+		01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045D0608DB7069603090D029 /* DevLogCore.framework */; };
 		0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E7473315771B5D3030C5003 /* DevLogPresentation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0B11B22C33D44E55F6677889 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
-			remoteInfo = DevLogCore;
-		};
 		0829BE4E037D4E0C846B6C81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 096704712B06C41C6A0FE074 /* Project object */;
@@ -29,35 +24,14 @@
 			remoteGlobalIDString = A85D2D7D1D6DAAFBF86C9C34;
 			remoteInfo = DevLogPresentation;
 		};
-		3D5C8EE9B4C743CFAC5CAC06 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
-			remoteInfo = DevLogDomain;
-		};
-		63A78AEC0654C9B6030C055B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
-			remoteInfo = DevLogDomain;
-		};
-		DFE459162FB7283400441703 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
-			remoteInfo = DevLogDomain;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		3E43EBE726188C58FFB2B6CD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		045D0608DB7069603090D029 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DevLogPresentation.framework; path = "/Users/opfic/Desktop/Github/App/SwiftUI_DevLog/Application/DevLogPresentation/build/Debug-iphoneos/DevLogPresentation.framework"; sourceTree = "<absolute>"; };
-		B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPresentationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFE459172FB7283400441703 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -84,6 +58,8 @@
 			files = (
 				3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */,
 				CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */,
+				01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */,
+				E318BB71FCCC61D38115BC0C /* DevLogDomain.framework in Frameworks */,
 				1B8D0C5D8C506642FFB8F9FA /* OrderedCollections in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */,
+				045D0608DB7069603090D029 /* DevLogCore.framework */,
 				DFE459172FB7283400441703 /* DevLogDomain.framework */,
 			);
 			name = Products;
@@ -115,7 +92,6 @@
 				A4A427D518004ED78EB659DE /* Sources */,
 				4320D5C2F6A44B24BF69A36B /* Tests */,
 				9CC0354538B2A1DF2C74E484 /* Frameworks */,
-				65C85B83FD4ECCC13F82B90F /* Projects */,
 				03D4331F04C462F4C642860F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -126,15 +102,6 @@
 				4320D5C2F6A44B24BF69A36C /* Exceptions for "Tests" folder in "DevLogPresentationTests" target */,
 			);
 			path = Tests;
-			sourceTree = "<group>";
-		};
-		65C85B83FD4ECCC13F82B90F /* Projects */ = {
-			isa = PBXGroup;
-			children = (
-				0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */,
-				B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */,
-			);
-			name = Projects;
 			sourceTree = "<group>";
 		};
 		9A88EA8D5BC609F90B07B726 /* iOS */ = {
@@ -187,8 +154,6 @@
 			);
 			dependencies = (
 				FEEAAA000000000000000001 /* PBXTargetDependency */,
-				0F11B22C33D44E55F6677889 /* PBXTargetDependency */,
-				C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A4A427D518004ED78EB659DE /* Sources */,
@@ -215,7 +180,6 @@
 			dependencies = (
 				FEEAAA000000000000000004 /* PBXTargetDependency */,
 				A4FB56AD9F854F9D93800AD6 /* PBXTargetDependency */,
-				001ED161D33049B18CFB34D9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4320D5C2F6A44B24BF69A36B /* Tests */,
@@ -255,16 +219,6 @@
 			);
 			productRefGroup = 03D4331F04C462F4C642860F /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 03D4331F04C462F4C642860F /* Products */;
-					ProjectRef = 0D11B22C33D44E55F6677889 /* DevLogCore.xcodeproj */;
-				},
-				{
-					ProductGroup = 03D4331F04C462F4C642860F /* Products */;
-					ProjectRef = B2511C949378771BDB605CC6 /* DevLogDomain.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */,
@@ -273,15 +227,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		DFE459172FB7283400441703 /* DevLogDomain.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDomain.framework;
-			remoteRef = DFE459162FB7283400441703 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5F943984CC1B4A3836CF316E /* Resources */ = {
@@ -326,25 +271,10 @@
 			isa = PBXTargetDependency;
 			productRef = FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
 		};
-		0F11B22C33D44E55F6677889 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogCore;
-			targetProxy = 0B11B22C33D44E55F6677889 /* PBXContainerItemProxy */;
-		};
-		001ED161D33049B18CFB34D9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDomain;
-			targetProxy = 3D5C8EE9B4C743CFAC5CAC06 /* PBXContainerItemProxy */;
-		};
 		A4FB56AD9F854F9D93800AD6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */;
 			targetProxy = 0829BE4E037D4E0C846B6C81 /* PBXContainerItemProxy */;
-		};
-		C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDomain;
-			targetProxy = 63A78AEC0654C9B6030C055B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

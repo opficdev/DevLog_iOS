@@ -12,6 +12,7 @@
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
 		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
 		F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4F874032FD57C0BBCC41C64 /* DevLogData.framework */; };
+		E06504AD71E9A40ACCA85ABB /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05A93F27C7172C85CD7252AA /* DevLogDomain.framework */; };
 		F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */; };
 		3CE81EA6CD7444739AC73633 /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592C8B7B099933759AB316A5 /* DevLogInfra.framework */; };
 		5F7A14F2C5294547884212E1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 06ADD17826F44543B09286DA /* FirebaseCore */; };
@@ -21,34 +22,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		242875057F793AB5E271751C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D9D76C33D8B4790694BD3488;
-			remoteInfo = DevLogData;
-		};
-		B66666666666666666666666 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B44444444444444444444444 /* DevLogCore.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
-			remoteInfo = DevLogCore;
-		};
-		B77777777777777777777777 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B44444444444444444444444 /* DevLogCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
-			remoteInfo = Subproject;
-		};
-		92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
-			remoteInfo = Subproject;
-		};
 		66FBFAC873BD4CEDA5984DD4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FF22261AB99602DAB8E9B323 /* Project object */;
@@ -62,8 +35,9 @@
 		592C8B7B099933759AB316A5 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogInfraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		B44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
-		DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
+		A4F874032FD57C0BBCC41C64 /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		05A93F27C7172C85CD7252AA /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -108,6 +82,7 @@
 				EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */,
 				FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */,
 				F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */,
+				E06504AD71E9A40ACCA85ABB /* DevLogDomain.framework in Frameworks */,
 				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -129,6 +104,7 @@
 				592C8B7B099933759AB316A5 /* DevLogInfra.framework */,
 				AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */,
 				A4F874032FD57C0BBCC41C64 /* DevLogData.framework */,
+				05A93F27C7172C85CD7252AA /* DevLogDomain.framework */,
 				B55555555555555555555555 /* DevLogCore.framework */,
 			);
 			name = Products;
@@ -140,7 +116,6 @@
 				959D79D1263CC74E32B40D78 /* Sources */,
 				959D79D1263CC74E32B40D7A /* Tests */,
 				FBD6499620DAC9E2F9216AD5 /* Frameworks */,
-				D47699189A73B8C6972C611A /* Projects */,
 				0488BFD2A2F470EEE29679F1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -159,15 +134,6 @@
 				959D79D1263CC74E32B40D79 /* Exceptions for "Sources" folder in "DevLogInfra" target */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		D47699189A73B8C6972C611A /* Projects */ = {
-			isa = PBXGroup;
-			children = (
-				DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */,
-				B44444444444444444444444 /* DevLogCore.xcodeproj */,
-			);
-			name = Projects;
 			sourceTree = "<group>";
 		};
 		FBD6499620DAC9E2F9216AD5 /* Frameworks */ = {
@@ -204,8 +170,6 @@
 			);
 			dependencies = (
 				1F4AAA000000000000000001 /* PBXTargetDependency */,
-				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
-				B88888888888888888888888 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				959D79D1263CC74E32B40D78 /* Sources */,
@@ -280,16 +244,6 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
-					ProjectRef = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
-				},
-				{
-					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
-					ProjectRef = B44444444444444444444444 /* DevLogCore.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				CB9B628AE2E0684C1FCF8840 /* DevLogInfra */,
@@ -298,22 +252,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		A4F874032FD57C0BBCC41C64 /* DevLogData.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogData.framework;
-			remoteRef = 92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		B55555555555555555555555 /* DevLogCore.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogCore.framework;
-			remoteRef = B77777777777777777777777 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		24A3D66AD03AA277EDDA0CC7 /* Resources */ = {
@@ -357,16 +295,6 @@
 		1F4AAA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
-		B62EE119F71162DAB0F9D034 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogData;
-			targetProxy = 242875057F793AB5E271751C /* PBXContainerItemProxy */;
-		};
-		B88888888888888888888888 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogCore;
-			targetProxy = B66666666666666666666666 /* PBXContainerItemProxy */;
 		};
 		DD23C8A4110847EABDCAA271 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
