@@ -116,7 +116,7 @@ private extension DomainAssembler {
 
     func registerPushNotificationUseCases(_ container: any DIContainer) {
         container.register(FetchPushSettingsUseCase.self) {
-            FetchPushNotificationSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
+            FetchPushSettingsUseCaseImpl(container.resolve(PushNotificationRepository.self))
         }
 
         container.register(UpdatePushSettingsUseCase.self) {

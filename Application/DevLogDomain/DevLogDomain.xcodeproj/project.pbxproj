@@ -108,7 +108,7 @@
 		DD2EDF7A517D0B96BD33EECF /* FetchUserDataUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1F27652023B70495066F9E /* FetchUserDataUseCase.swift */; };
 		DD4F8EC25943435D6F52A31E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D14CAC89969BC5FB42B8D1 /* String.swift */; };
 		DDCC1EF77FF676BF55920294 /* UpdateTodoCategoryPreferencesUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759AFAA7929D8227152D0C09 /* UpdateTodoCategoryPreferencesUseCaseImpl.swift */; };
-		DE533613F55F517E74FAAAB1 /* FetchPushNotificationSettingsUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF1E8DC279C84BE986E2296 /* FetchPushNotificationSettingsUseCaseImpl.swift */; };
+		DE533613F55F517E74FAAAB1 /* FetchPushSettingsUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF1E8DC279C84BE986E2296 /* FetchPushSettingsUseCaseImpl.swift */; };
 		E2F63B8E23E940C4C2029551 /* SignInUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B41302357AD2793E8F75E88 /* SignInUseCaseImpl.swift */; };
 		E2FD30DB60B1100C314EDF49 /* ObserveUnreadPushCountUseCaseImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7B585C369EADAEBE8A470 /* ObserveUnreadPushCountUseCaseImpl.swift */; };
 		E36F4A98939F682531D0CA91 /* SystemTodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372106128F8BE30DDE0D41E7 /* SystemTodoCategory.swift */; };
@@ -184,7 +184,7 @@
 		1A4B3291A774346C97DDCA02 /* SignOutUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SignOutUseCase.swift; path = Sources/UseCase/Auth/SignOut/SignOutUseCase.swift; sourceTree = "<group>"; };
 		1ADECD2AC2EA5C3AF0567E21 /* UndoDeletePushNotificationUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UndoDeletePushNotificationUseCase.swift; path = Sources/UseCase/PushNotification/Delete/UndoDeletePushNotificationUseCase.swift; sourceTree = "<group>"; };
 		1B484D427B8653E772AB4156 /* UpsertTodoUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpsertTodoUseCaseImpl.swift; path = Sources/UseCase/Todo/Upsert/UpsertTodoUseCaseImpl.swift; sourceTree = "<group>"; };
-		1CF1E8DC279C84BE986E2296 /* FetchPushNotificationSettingsUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchPushNotificationSettingsUseCaseImpl.swift; path = Sources/UseCase/UserData/Fetch/PushNotification/FetchPushNotificationSettingsUseCaseImpl.swift; sourceTree = "<group>"; };
+		1CF1E8DC279C84BE986E2296 /* FetchPushSettingsUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FetchPushSettingsUseCaseImpl.swift; path = Sources/UseCase/UserData/Fetch/PushNotification/FetchPushSettingsUseCaseImpl.swift; sourceTree = "<group>"; };
 		1DBC9D7FFF5FC58F5EE67A4E /* PushNotificationPage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationPage.swift; path = Sources/Entity/PushNotificationPage.swift; sourceTree = "<group>"; };
 		1DE514CE1D81A91A79B3F483 /* PushNotificationRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationRepository.swift; path = Sources/Protocol/PushNotificationRepository.swift; sourceTree = "<group>"; };
 		2B41302357AD2793E8F75E88 /* SignInUseCaseImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SignInUseCaseImpl.swift; path = Sources/UseCase/Auth/SignIn/SignInUseCaseImpl.swift; sourceTree = "<group>"; };
@@ -713,7 +713,7 @@
 			isa = PBXGroup;
 			children = (
 				65FE1967BCA4B1FF8D517617 /* FetchPushSettingsUseCase.swift */,
-				1CF1E8DC279C84BE986E2296 /* FetchPushNotificationSettingsUseCaseImpl.swift */,
+				1CF1E8DC279C84BE986E2296 /* FetchPushSettingsUseCaseImpl.swift */,
 			);
 			name = PushNotification;
 			sourceTree = "<group>";
@@ -1000,7 +1000,7 @@
 				93FA660D3518C64F541F2990 /* UpdateTodoCategoryPreferencesUseCase.swift in Sources */,
 				DDCC1EF77FF676BF55920294 /* UpdateTodoCategoryPreferencesUseCaseImpl.swift in Sources */,
 				76DE905274DA17536AC07024 /* FetchPushSettingsUseCase.swift in Sources */,
-				DE533613F55F517E74FAAAB1 /* FetchPushNotificationSettingsUseCaseImpl.swift in Sources */,
+				DE533613F55F517E74FAAAB1 /* FetchPushSettingsUseCaseImpl.swift in Sources */,
 				DD2EDF7A517D0B96BD33EECF /* FetchUserDataUseCase.swift in Sources */,
 				3D951E5FD03D60E4994EF109 /* FetchUserDataUseCaseImpl.swift in Sources */,
 				1DF07B23A72AA6D0CD7D7F2E /* UpdatePushSettingsUseCase.swift in Sources */,

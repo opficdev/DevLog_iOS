@@ -1,11 +1,11 @@
 //
-//  FetchPushNotificationSettingsUseCaseImpl.swift
+//  FetchPushSettingsUseCaseImpl.swift
 //  DevLogDomain
 //
 //  Created by 최윤진 on 1/24/26.
 //
 
-public final class FetchPushNotificationSettingsUseCaseImpl: FetchPushSettingsUseCase {
+public final class FetchPushSettingsUseCaseImpl: FetchPushSettingsUseCase {
     private let repository: PushNotificationRepository
 
     init(_ repository: PushNotificationRepository) {
