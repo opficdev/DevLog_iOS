@@ -1,6 +1,6 @@
 //
 //  ObserveNetworkConnectivityUseCaseImpl.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 3/26/26.
 //

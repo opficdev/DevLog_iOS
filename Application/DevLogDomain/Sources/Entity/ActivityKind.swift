@@ -1,6 +1,6 @@
 //
 //  ActivityKind.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 4/4/26.
 //

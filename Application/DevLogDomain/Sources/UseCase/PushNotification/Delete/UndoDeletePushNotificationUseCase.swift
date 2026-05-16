@@ -1,6 +1,6 @@
 //
 //  UndoDeletePushNotificationUseCase.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 3/16/26.
 //

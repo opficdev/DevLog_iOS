@@ -1,6 +1,6 @@
 //
 //  Array.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 6/19/25.
 //

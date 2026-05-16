@@ -1,6 +1,6 @@
 //
 //  TodoRepository.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 11/29/25.
 //

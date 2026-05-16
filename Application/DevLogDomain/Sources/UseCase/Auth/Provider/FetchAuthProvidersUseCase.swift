@@ -1,6 +1,6 @@
 //
 //  FetchAuthProvidersUseCase.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 2/12/26.
 //

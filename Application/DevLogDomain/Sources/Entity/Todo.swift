@@ -1,6 +1,6 @@
 //
 //  TodoTask.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by opfic on 5/29/25.
 //

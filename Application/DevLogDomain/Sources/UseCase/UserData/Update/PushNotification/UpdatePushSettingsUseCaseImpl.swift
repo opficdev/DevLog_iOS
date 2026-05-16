@@ -1,6 +1,6 @@
 //
 //  UpdatePushSettingsUseCaseImpl.swift
-//  DevLog
+//  DevLogDomain
 //
 //  Created by 최윤진 on 1/25/26.
 //
