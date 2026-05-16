@@ -244,7 +244,7 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
     }
 }
 
-final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
+private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     struct TodayUpdate {
         let todos: [Todo]
         let displayOptions: TodayDisplayOptions?
