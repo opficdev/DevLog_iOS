@@ -22,46 +22,62 @@ final class WebPageRepositoryImpl: WebPageRepository {
     }
 
     func fetch(_ query: String) async throws -> [WebPage] {
-        let responses = try await webPageService.fetchWebPages(query)
-        var pages: [WebPage] = []
-        pages.reserveCapacity(responses.count)
+        do {
+            let responses = try await webPageService.fetchWebPages(query)
+            var pages: [WebPage] = []
+            pages.reserveCapacity(responses.count)
 
-        for response in responses {
-            if await needsImageRestore(response) {
-                if let restored = try? await restoreWebPage(response) {
-                    pages.append(restored)
-                } else if let page = try? responseWithoutImage(response).toDomain() {
+            for response in responses {
+                if await needsImageRestore(response) {
+                    if let restored = try? await restoreWebPage(response) {
+                        pages.append(restored)
+                    } else if let page = try? responseWithoutImage(response).toDomain() {
+                        pages.append(page)
+                    }
+                    continue
+                }
+                if let page = try? response.toDomain() {
                     pages.append(page)
                 }
-                continue
             }
-            if let page = try? response.toDomain() {
-                pages.append(page)
-            }
-        }
 
-        return pages
+            return pages
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 
     func upsert(_ urlString: String) async throws {
-        let metadata = try await metadataService.fetchMetadata(from: urlString)
-        let request = WebPageRequest(
-            title: metadata.title,
-            url: urlString,
-            displayURL: metadata.displayURL,
-            imageURL: metadata.imageURL,
-            isDeleted: false
-        )
-        try await webPageService.upsertWebPage(request)
+        do {
+            let metadata = try await metadataService.fetchMetadata(from: urlString)
+            let request = WebPageRequest(
+                title: metadata.title,
+                url: urlString,
+                displayURL: metadata.displayURL,
+                imageURL: metadata.imageURL,
+                isDeleted: false
+            )
+            try await webPageService.upsertWebPage(request)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 
     func delete(_ urlString: String) async throws {
-        try await webPageService.deleteWebPage(urlString)
-        await metadataService.removeCachedImage(for: urlString)
+        do {
+            try await webPageService.deleteWebPage(urlString)
+            await metadataService.removeCachedImage(for: urlString)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 
     func undoDelete(_ urlString: String) async throws {
-        try await webPageService.undoDeleteWebPage(urlString)
+        do {
+            try await webPageService.undoDeleteWebPage(urlString)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 }
 

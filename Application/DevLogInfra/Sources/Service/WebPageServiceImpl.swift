@@ -10,7 +10,6 @@ import FirebaseFirestore
 import FirebaseFunctions
 import DevLogCore
 import DevLogData
-import DevLogDomain
 
 final class WebPageServiceImpl: WebPageService {
     private enum FunctionName: String {
@@ -29,7 +28,7 @@ final class WebPageServiceImpl: WebPageService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -62,7 +61,7 @@ final class WebPageServiceImpl: WebPageService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -82,7 +81,7 @@ final class WebPageServiceImpl: WebPageService {
 
         guard Auth.auth().currentUser?.uid != nil else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -100,7 +99,7 @@ final class WebPageServiceImpl: WebPageService {
 
         guard Auth.auth().currentUser?.uid != nil else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
