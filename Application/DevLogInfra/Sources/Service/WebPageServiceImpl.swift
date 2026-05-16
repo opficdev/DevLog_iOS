@@ -1,6 +1,6 @@
 //
 //  WebPageServiceImpl.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by opfic on 6/3/25.
 //

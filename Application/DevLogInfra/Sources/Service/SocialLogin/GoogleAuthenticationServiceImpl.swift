@@ -1,6 +1,6 @@
 //
 //  GoogleAuthenticationService.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by opfic on 6/4/25.
 //

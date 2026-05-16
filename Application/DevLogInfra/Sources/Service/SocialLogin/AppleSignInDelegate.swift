@@ -1,6 +1,6 @@
 //
 //  AppleSignInDelegate.swift
-//  DevLog
+//  DevLogInfra
 //
 //  Created by opfic on 4/17/25.
 //
