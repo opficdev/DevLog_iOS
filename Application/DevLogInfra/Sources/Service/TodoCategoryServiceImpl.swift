@@ -33,7 +33,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
     func fetchPreferences() async throws -> [TodoCategoryPreference] {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         logger.info("Fetching todo category preferences")
@@ -70,7 +70,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
     func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         logger.info("Updating todo category preferences")

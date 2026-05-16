@@ -9,10 +9,13 @@ import DevLogDomain
 
 extension Error {
     func toDomain() -> Error {
-        if case .notAuthenticated = self as? DataLayerError {
+        switch self as? DataLayerError {
+        case .notAuthenticated:
             return AuthError.notAuthenticated
+        case .linkCredentialAlreadyInUse:
+            return AuthError.linkCredentialAlreadyInUse
+        case .none:
+            return self
         }
-
-        return self
     }
 }

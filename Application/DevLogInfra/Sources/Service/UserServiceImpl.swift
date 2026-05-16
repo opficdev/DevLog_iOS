@@ -9,7 +9,6 @@ import FirebaseAuth
 import FirebaseFirestore
 import DevLogCore
 import DevLogData
-import DevLogDomain
 
 final class UserServiceImpl: UserService {
     private let store = Firestore.firestore()
@@ -21,7 +20,7 @@ final class UserServiceImpl: UserService {
         
         guard let user = Auth.auth().currentUser else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -115,7 +114,7 @@ final class UserServiceImpl: UserService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -153,7 +152,7 @@ final class UserServiceImpl: UserService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {

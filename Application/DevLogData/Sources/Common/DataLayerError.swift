@@ -46,6 +46,7 @@ public enum DataError: Error {
 
 public enum DataLayerError: Error {
     case notAuthenticated
+    case linkCredentialAlreadyInUse
 }
 
 public extension Error {

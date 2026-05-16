@@ -29,7 +29,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -55,7 +55,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
 
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -83,7 +83,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {
@@ -113,7 +113,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         cursor: PushNotificationCursorDTO?
     ) async throws -> PushNotificationPageResponse {
         do {
-            guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+            guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
             var firestoreQuery = makeQuery(uid: uid, query: notificationQuery)
 
@@ -153,7 +153,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPageResponse, Error> {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         let subject = PassthroughSubject<PushNotificationPageResponse, Error>()
         let pageLimit = max(query.pageSize, limit)
@@ -183,7 +183,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
     }
 
     func observeUnreadPushCount() throws -> AnyPublisher<Int, Error> {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         let subject = PassthroughSubject<Int, Error>()
         let listener = store.collection(FirestorePath.notifications(uid))
@@ -208,7 +208,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
     /// 푸시 알림 기록 삭제
     func deleteNotification(_ notificationID: String) async throws {
         do {
-            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+            guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
             let function = functions.httpsCallable(FunctionName.requestPushNotificationDeletion)
             _ = try await function.call(["notificationId": notificationID])
@@ -220,7 +220,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
 
     func undoDeleteNotification(_ notificationID: String) async throws {
         do {
-            guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+            guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
             let function = functions.httpsCallable(FunctionName.undoPushNotificationDeletion)
             _ = try await function.call(["notificationId": notificationID])
@@ -237,7 +237,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         do {
             guard let uid = Auth.auth().currentUser?.uid else {
                 logger.error("User not authenticated")
-                throw AuthError.notAuthenticated
+                throw DataLayerError.notAuthenticated
             }
 
             let collection = store.collection(FirestorePath.notifications(uid))
