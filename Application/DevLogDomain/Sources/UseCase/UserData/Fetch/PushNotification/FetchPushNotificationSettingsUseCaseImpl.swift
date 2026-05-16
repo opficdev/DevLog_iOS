@@ -1,5 +1,5 @@
 //
-//  FetchPushNotificationDataUseCaseImpl.swift
+//  FetchPushNotificationSettingsUseCaseImpl.swift
 //  DevLogDomain
 //
 //  Created by 최윤진 on 1/24/26.
