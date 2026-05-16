@@ -71,29 +71,11 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
         quarterStart: Date,
         now: Date = Date()
     ) {
-        updateHeatmapSnapshot(
-            createdTodos: createdTodos,
-            completedTodos: completedTodos,
-            deletedTodos: deletedTodos,
-            selectedActivityKinds: preferenceStore.selectedActivityKinds(),
-            quarterStart: quarterStart,
-            now: now
-        )
-    }
-
-    func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
-        selectedActivityKinds: Set<ActivityKind>,
-        quarterStart: Date,
-        now: Date = Date()
-    ) {
         let heatmapWidgetSnapshot = heatmapFactory.makeSnapshot(
             createdTodos: createdTodos,
             completedTodos: completedTodos,
             deletedTodos: deletedTodos,
-            selectedActivityKinds: selectedActivityKinds,
+            selectedActivityKinds: preferenceStore.selectedActivityKinds(),
             quarterStart: quarterStart,
             now: now
         )

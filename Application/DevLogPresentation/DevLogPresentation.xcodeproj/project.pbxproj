@@ -590,6 +590,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FEEAAA000000000000000001 /* PBXTargetDependency */,
 				0F11B22C33D44E55F6677889 /* PBXTargetDependency */,
 				C8EA2345A40DFA6BCCD803EE /* PBXTargetDependency */,
 			);
@@ -613,6 +614,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FEEAAA000000000000000004 /* PBXTargetDependency */,
 				A4FB56AD9F854F9D93800AD6 /* PBXTargetDependency */,
 				001ED161D33049B18CFB34D9 /* PBXTargetDependency */,
 			);
@@ -647,6 +649,7 @@
 			packageReferences = (
 				3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				4A268C0F47C89BEF1B5B794F /* XCRemoteSwiftPackageReference "swift-collections" */,
+				FEEAAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			productRefGroup = 03D4331F04C462F4C642860F /* Products */;
 			projectDirPath = "";
@@ -790,6 +793,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FEEAAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+		};
+		FEEAAA000000000000000004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+		};
 		0F11B22C33D44E55F6677889 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DevLogCore;
@@ -1079,9 +1090,22 @@
 				minimumVersion = 1.3.0;
 			};
 		};
+		FEEAAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.62.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FEEAAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		423A6FE16D5EC7FECF77A31A /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;

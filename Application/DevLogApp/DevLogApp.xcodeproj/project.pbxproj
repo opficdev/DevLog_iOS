@@ -354,6 +354,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DF66A07E2EA52E9F0098E643 /* PBXTargetDependency */,
 				DF34164C2E45F67C00F9312B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -635,6 +636,10 @@
 			targetProxy = DF34164B2E45F67C00F9312B /* PBXContainerItemProxy */;
 		};
 		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */;
+		};
+		DF66A07E2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */;
 		};

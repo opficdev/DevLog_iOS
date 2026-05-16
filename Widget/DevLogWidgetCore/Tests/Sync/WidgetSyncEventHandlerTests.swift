@@ -116,14 +116,7 @@ struct WidgetSyncEventHandlerTests {
         _ = fixture.handler
     }
 
-    private func makeFixture(
-        calendar: Calendar
-    ) -> (
-        bus: WidgetSyncEventBusImpl,
-        todoRepository: WidgetSyncTodoRepositorySpy,
-        snapshotUpdater: WidgetSnapshotUpdaterSpy,
-        handler: WidgetSyncEventHandler
-    ) {
+    private func makeFixture(calendar: Calendar) -> Fixture {
         let bus = WidgetSyncEventBusImpl()
         let todoRepository = WidgetSyncTodoRepositorySpy()
         let snapshotUpdater = WidgetSnapshotUpdaterSpy()
@@ -133,7 +126,12 @@ struct WidgetSyncEventHandlerTests {
             snapshotUpdater: snapshotUpdater
         )
 
-        return (bus, todoRepository, snapshotUpdater, handler)
+        return Fixture(
+            bus: bus,
+            todoRepository: todoRepository,
+            snapshotUpdater: snapshotUpdater,
+            handler: handler
+        )
     }
 
     private func makeTodo(
@@ -161,6 +159,13 @@ struct WidgetSyncEventHandlerTests {
         )
     }
 
+}
+
+private struct Fixture {
+    let bus: WidgetSyncEventBusImpl
+    let todoRepository: WidgetSyncTodoRepositorySpy
+    let snapshotUpdater: WidgetSnapshotUpdaterSpy
+    let handler: WidgetSyncEventHandler
 }
 
 private actor WidgetSyncTodoRepositorySpy: TodoRepository {
@@ -250,7 +255,6 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
         let createdTodos: [Todo]
         let completedTodos: [Todo]
         let deletedTodos: [Todo]
-        let selectedActivityKinds: Set<ActivityKind>?
         let quarterStart: Date
         let now: Date
     }
@@ -319,27 +323,6 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
                 createdTodos: createdTodos,
                 completedTodos: completedTodos,
                 deletedTodos: deletedTodos,
-                selectedActivityKinds: nil,
-                quarterStart: quarterStart,
-                now: now
-            )
-        )
-    }
-
-    func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
-        selectedActivityKinds: Set<ActivityKind>,
-        quarterStart: Date,
-        now: Date
-    ) {
-        appendHeatmapUpdate(
-            HeatmapUpdate(
-                createdTodos: createdTodos,
-                completedTodos: completedTodos,
-                deletedTodos: deletedTodos,
-                selectedActivityKinds: selectedActivityKinds,
                 quarterStart: quarterStart,
                 now: now
             )
