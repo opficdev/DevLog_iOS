@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -139,6 +139,23 @@
 		34625468B650427AA753F4E6 /* WidgetSnapshotUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotUpdaterTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		63CE47D539EE6F9653C99774 /* Exceptions for "Sources" folder in "DevLogPersistence" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 0C205A501EF8E79FA9A73C4B /* DevLogPersistence */;
+		};
+		D5D04ADAA14A44289CF9A22F /* Exceptions for "Tests" folder in "DevLogPersistenceTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = BE1ADABE58664FAC8B321F12 /* DevLogPersistenceTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		66FC24A6C49BE85AEA4B9B02 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -183,13 +200,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		63CE47D539EE6F9653C99773 /* DevLogPersistence */ = {
-			isa = PBXGroup;
-			children = (
-				A22222222222222222222222 /* PersistenceAssembler.swift */,
-				721064495EFC6DDBA559F465 /* Persistence */,
+		63CE47D539EE6F9653C99773 /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				63CE47D539EE6F9653C99774 /* Exceptions for "Sources" folder in "DevLogPersistence" target */,
 			);
-			name = DevLogPersistence;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		721064495EFC6DDBA559F465 /* Persistence */ = {
@@ -214,9 +230,9 @@
 			sourceTree = "<group>";
 		};
 		D5D04ADAA14A44289CF9A22E /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				1A6D6E26D8E1475E97C67805 /* Persistence */,
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D5D04ADAA14A44289CF9A22F /* Exceptions for "Tests" folder in "DevLogPersistenceTests" target */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -224,9 +240,9 @@
 		9DC6ED43838A6F065422AA8B = {
 			isa = PBXGroup;
 			children = (
-				49F17FD9095E72DC89748471 /* Frameworks */,
-				63CE47D539EE6F9653C99773 /* DevLogPersistence */,
+				63CE47D539EE6F9653C99773 /* Sources */,
 				D5D04ADAA14A44289CF9A22E /* Tests */,
+				49F17FD9095E72DC89748471 /* Frameworks */,
 				C005798DC28F77FF8B0E248A /* Projects */,
 				C96806E27CED4BE0CA95A9B0 /* Products */,
 			);
@@ -287,6 +303,9 @@
 				65214D4CBB998A4369598E01 /* PBXTargetDependency */,
 				A88888888888888888888888 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				63CE47D539EE6F9653C99773 /* Sources */,
+			);
 			name = DevLogPersistence;
 			productName = DevLogPersistence;
 			productReference = 86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */;
@@ -309,6 +328,9 @@
 				E715970F49AF4988A793106D /* PBXTargetDependency */,
 				0ADC5DDD59EB427EB1B33FC4 /* PBXTargetDependency */,
 				49EA84B99E32462D8FFD9073 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D5D04ADAA14A44289CF9A22E /* Tests */,
 			);
 			name = DevLogPersistenceTests;
 			productName = DevLogPersistenceTests;
@@ -424,12 +446,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7044FCFCA32C8AA8F6FF4474 /* ThemeStoreImpl.swift in Sources */,
-				5967B32779F22DD0E3C2D247 /* UserDefaultsStoreImpl.swift in Sources */,
-				50BBA1C19A7C61B8B8F3A68B /* WebPageImageStoreImpl.swift in Sources */,
-				B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */,
-				9814DBF1A0DCD650FEF5A376 /* WidgetSnapshotUpdaterImpl.swift in Sources */,
-				A33333333333333333333333 /* PersistenceAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,8 +453,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F16B4E3565C450BBEEE3993 /* WidgetSnapshotPreferenceStoreTests.swift in Sources */,
-				95FC6A06F2434722A1B8A7D0 /* WidgetSnapshotUpdaterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
