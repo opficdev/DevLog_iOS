@@ -43,7 +43,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
             return pages
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -59,7 +59,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
             )
             try await webPageService.upsertWebPage(request)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -68,7 +68,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
             try await webPageService.deleteWebPage(urlString)
             await metadataService.removeCachedImage(for: urlString)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -76,7 +76,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
         do {
             try await webPageService.undoDeleteWebPage(urlString)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 }

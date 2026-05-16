@@ -46,7 +46,7 @@ final class TodoRepositoryImpl: TodoRepository {
                 nextCursor: todoResponse.nextCursor
             ).toDomain()
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -66,7 +66,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
             return try resolve(todoResponse, userTodoCategories: userTodoCategories).toDomain()
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -97,7 +97,7 @@ final class TodoRepositoryImpl: TodoRepository {
                 )
             }
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
     
@@ -106,7 +106,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.upsertTodo(request: request)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
     
@@ -114,7 +114,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.deleteTodo(todoId: todoId)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 
@@ -122,7 +122,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
         } catch {
-            throw error.toDataLayerError()
+            throw error.toDomain()
         }
     }
 }
