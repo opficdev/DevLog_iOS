@@ -3,60 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		014DD58F9A49EF8F613A8512 /* TodoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28D4F60262075223EC096E0 /* TodoDTO.swift */; };
-		02AD0EC1D813FD957B53FBE5 /* PushNotificationRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEB1EE245302780E69EC631 /* PushNotificationRepositoryImpl.swift */; };
-		05E9A2CF2D447750487BDC38 /* WebPageDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */; };
-		238E950C1B6FF60F0840EA35 /* TodoCursorDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9FA1F72AAE9808A4800EEA /* TodoCursorDTO.swift */; };
-		2A057B6B7F6900E50AC2E031 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */; };
-		320469937B9BD964D29F5C97 /* TodoRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F8C39E4E51A7A62D716612 /* TodoRepositoryImpl.swift */; };
-		326C26B47FCE678C36BE5788 /* AuthenticationRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09310E1D16103C0E6E96C7C7 /* AuthenticationRepositoryImpl.swift */; };
-		355537B4107978D346594E6A /* WidgetSnapshotPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */; };
-		36A48634DC1A350421118FEB /* NWPathConnectivityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */; };
-		3F09F91345793F8C14F5CC05 /* WidgetSnapshotUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */; };
-		410CB3F18CADB18146AE82B7 /* DataAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CDDE9287D2855E4AF14021 /* DataAssembler.swift */; };
-		41371B777FE701652CA2E798 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7154773B586C2D41307CD49 /* AuthenticationService.swift */; };
-		A7084A7C1DE34A0EA3E0E327 /* FirebaseAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */; };
-		4BD06832F56598B25183EF06 /* WebPageRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF764A3F6E025A18E6A0BC /* WebPageRepositoryImpl.swift */; };
-		4C0F2F479581D2E091C429B2 /* TodoCategoryRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E09221F6FBF67359105995 /* TodoCategoryRepositoryImpl.swift */; };
-		50C769615D094189B739F055 /* UserPreferencesRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0202E26A972D5D274AF77C67 /* UserPreferencesRepositoryImpl.swift */; };
-		5168B6165545231B3E9CB52D /* AuthDataResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EFCDACF284D106254C4BF1 /* AuthDataResponse.swift */; };
-		51F956F957951237D7B09387 /* TodoPageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ABB0ED51067433D3C90F02 /* TodoPageResponse.swift */; };
-		57E1BC53D8D628A254A270A1 /* TodoCategoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F02873E48CF8A12FA931F0 /* TodoCategoryResponse.swift */; };
-		58FFF761F471A091E5A8BCF5 /* DataLayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */; };
-		672BED915B5A7A1A0A29B4FD /* TodoReferenceResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6961039F12AFD8B33F25DF /* TodoReferenceResponse.swift */; };
-		696ECBF42D3E9504BE9939FB /* AuthDataRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3ED1B2326966F84851DFDD /* AuthDataRepositoryImpl.swift */; };
-		6DACC3B9A91F4B83A51E001C /* NetworkConnectivityRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78DB5B22BE2E31B18173E89E /* NetworkConnectivityRepositoryImpl.swift */; };
-		6FB32AA05C08D6C55F7345D7 /* WebPageImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454F04A5E5887B163DD7E5A9 /* WebPageImageStore.swift */; };
-		71C83A8D875833719759B1FE /* UserDataRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B167270C81CB76E8F5ED9CA /* UserDataRepositoryImpl.swift */; };
-		7A1360E04BA36E6476DB4430 /* UserProfileMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */; };
-		7C9171AA49A09F0D8F8A4419 /* WebPageMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2B7108CD63C65097876046 /* WebPageMapping.swift */; };
 		7FD388EB6C3123479B304478 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2039D0A2EB1ADD163DFC253D /* DevLogDomain.framework */; };
-		90776FF719A37EAE1CB1BB1B /* TodoCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */; };
-		922EECF001AF1EAC4EE5ACAA /* PushNotificationMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C564559DBDF765945456FA /* PushNotificationMapping.swift */; };
-		D60472ECAF3C42569988BBE1 /* PushMessagingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0912860F6ED464D95F2D648 /* PushMessagingService.swift */; };
-		94BC00B678F8511CC23BCA17 /* UserDefaultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */; };
-		963AA368BA2E4A085206768C /* ThemeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */; };
-		986DAE304B67FC8F8563FC40 /* AuthSessionRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CBBE2B99B80E70DCD800ED /* AuthSessionRepositoryImpl.swift */; };
-		9B584555CC7504BEDF5F8008 /* WebPageImageRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914EE1DC0A02968747B6B3A2 /* WebPageImageRepositoryImpl.swift */; };
-		9DBA952A12D983B8398F40FB /* WebPageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADE1FE53786D11AC7B192698 /* WebPageService.swift */; };
-		B4A86993344617CDA0279841 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42BC563A225597B3D761253 /* UserService.swift */; };
-		B35B7FCCDD45C7C302B3E94D /* TodoMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1CEA7122BFEDED0F4370 /* TodoMapping.swift */; };
-		B3655250BCDBFAFBFA941F63 /* WebPageMetadataResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */; };
-		B73F5314433AE44F09034914 /* NotificationKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13680A4153A719F15E7DFDF6 /* NotificationKind.swift */; };
-		B77ADC0FB7F0CEE46F3D46BB /* PushNotificationCursorDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF12B44E80793EF948B211B /* PushNotificationCursorDTO.swift */; };
-		D5A27B2AC5CDF6C4878CC5FF /* PushNotificationPageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE96D070821D1FB62A155AB5 /* PushNotificationPageResponse.swift */; };
-		D7D9BD96D0F8E1647775A61A /* TodoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E716EC015A5805DD7C949B /* TodoService.swift */; };
 		DCB68C9605BC30C11D84C5CD /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AECA90DBE02246762CB1ED1 /* DevLogCore.framework */; };
-		E5772C4226F405A20B26ED3B /* WebPageMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */; };
-		E860E8E59EE2F714EF7F0FD8 /* UserProfileResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387E711B7A3BA319D3E7C2AB /* UserProfileResponse.swift */; };
 		E4F40336334B44B89E8A9477 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AB6E00A38C37CDBF82B57FD /* DevLogData.framework */; };
 		E8FA3EF7AE26AA96A2168FEE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD765636013B36A3BCCCF8B7 /* Foundation.framework */; };
-		F515D3BD025E835AFFFAE8F6 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7559825C27ED42F9F86EBAC1 /* AuthService.swift */; };
-		FB654D9A5FD611C1CC1F9C15 /* PushNotificationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,58 +73,40 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0202E26A972D5D274AF77C67 /* UserPreferencesRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserPreferencesRepositoryImpl.swift; path = Sources/Repository/UserPreferencesRepositoryImpl.swift; sourceTree = "<group>"; };
-		082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryService.swift; path = Sources/Protocol/TodoCategoryService.swift; sourceTree = "<group>"; };
-		09310E1D16103C0E6E96C7C7 /* AuthenticationRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationRepositoryImpl.swift; path = Sources/Repository/AuthenticationRepositoryImpl.swift; sourceTree = "<group>"; };
-		13680A4153A719F15E7DFDF6 /* NotificationKind.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NotificationKind.swift; path = Sources/DTO/NotificationKind.swift; sourceTree = "<group>"; };
-		17CB1CEA7122BFEDED0F4370 /* TodoMapping.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoMapping.swift; path = Sources/Mapper/TodoMapping.swift; sourceTree = "<group>"; };
-		18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsStore.swift; path = Sources/Protocol/UserDefaultsStore.swift; sourceTree = "<group>"; };
-		1AAF764A3F6E025A18E6A0BC /* WebPageRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageRepositoryImpl.swift; path = Sources/Repository/WebPageRepositoryImpl.swift; sourceTree = "<group>"; };
-		22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThemeStore.swift; path = Sources/Protocol/ThemeStore.swift; sourceTree = "<group>"; };
-		29CDDE9287D2855E4AF14021 /* DataAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataAssembler.swift; path = Sources/DataAssembler.swift; sourceTree = "<group>"; };
-		2DF12B44E80793EF948B211B /* PushNotificationCursorDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationCursorDTO.swift; path = Sources/DTO/PushNotificationCursorDTO.swift; sourceTree = "<group>"; };
-		2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationService.swift; path = Sources/Protocol/PushNotificationService.swift; sourceTree = "<group>"; };
-		36E09221F6FBF67359105995 /* TodoCategoryRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryRepositoryImpl.swift; path = Sources/Repository/TodoCategoryRepositoryImpl.swift; sourceTree = "<group>"; };
-		37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserProfileMapping.swift; path = Sources/Mapper/UserProfileMapping.swift; sourceTree = "<group>"; };
-		387E711B7A3BA319D3E7C2AB /* UserProfileResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserProfileResponse.swift; path = Sources/DTO/UserProfileResponse.swift; sourceTree = "<group>"; };
-		3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NWPathConnectivityProvider.swift; path = Sources/Protocol/NWPathConnectivityProvider.swift; sourceTree = "<group>"; };
-		3C2B7108CD63C65097876046 /* WebPageMapping.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMapping.swift; path = Sources/Mapper/WebPageMapping.swift; sourceTree = "<group>"; };
-		3CEB1EE245302780E69EC631 /* PushNotificationRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationRepositoryImpl.swift; path = Sources/Repository/PushNotificationRepositoryImpl.swift; sourceTree = "<group>"; };
-		3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotUpdater.swift; path = Sources/Protocol/WidgetSnapshotUpdater.swift; sourceTree = "<group>"; };
-		3F6961039F12AFD8B33F25DF /* TodoReferenceResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoReferenceResponse.swift; path = Sources/DTO/TodoReferenceResponse.swift; sourceTree = "<group>"; };
-		44C564559DBDF765945456FA /* PushNotificationMapping.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationMapping.swift; path = Sources/Mapper/PushNotificationMapping.swift; sourceTree = "<group>"; };
-		454F04A5E5887B163DD7E5A9 /* WebPageImageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageImageStore.swift; path = Sources/Protocol/WebPageImageStore.swift; sourceTree = "<group>"; };
-		48EFCDACF284D106254C4BF1 /* AuthDataResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthDataResponse.swift; path = Sources/DTO/AuthDataResponse.swift; sourceTree = "<group>"; };
 		4AB6E00A38C37CDBF82B57FD /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DevLogData.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0A3B72D714B42CDB4E3E905 /* DevLogDataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseAppService.swift; path = Sources/Protocol/FirebaseAppService.swift; sourceTree = "<group>"; };
-		550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageDTO.swift; path = Sources/DTO/WebPageDTO.swift; sourceTree = "<group>"; };
-		60E716EC015A5805DD7C949B /* TodoService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoService.swift; path = Sources/Protocol/TodoService.swift; sourceTree = "<group>"; };
-		6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationResponse.swift; path = Sources/DTO/PushNotificationResponse.swift; sourceTree = "<group>"; };
 		63198F8EBCD1DCBB407926F8 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
-		7559825C27ED42F9F86EBAC1 /* AuthService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthService.swift; path = Sources/Protocol/AuthService.swift; sourceTree = "<group>"; };
-		78DB5B22BE2E31B18173E89E /* NetworkConnectivityRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkConnectivityRepositoryImpl.swift; path = Sources/Repository/NetworkConnectivityRepositoryImpl.swift; sourceTree = "<group>"; };
-		7B3ED1B2326966F84851DFDD /* AuthDataRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthDataRepositoryImpl.swift; path = Sources/Repository/AuthDataRepositoryImpl.swift; sourceTree = "<group>"; };
-		7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMetadataService.swift; path = Sources/Protocol/WebPageMetadataService.swift; sourceTree = "<group>"; };
-		80CBBE2B99B80E70DCD800ED /* AuthSessionRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthSessionRepositoryImpl.swift; path = Sources/Repository/AuthSessionRepositoryImpl.swift; sourceTree = "<group>"; };
-		8B167270C81CB76E8F5ED9CA /* UserDataRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDataRepositoryImpl.swift; path = Sources/Repository/UserDataRepositoryImpl.swift; sourceTree = "<group>"; };
-		914EE1DC0A02968747B6B3A2 /* WebPageImageRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageImageRepositoryImpl.swift; path = Sources/Repository/WebPageImageRepositoryImpl.swift; sourceTree = "<group>"; };
-		E0912860F6ED464D95F2D648 /* PushMessagingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushMessagingService.swift; path = Sources/Protocol/PushMessagingService.swift; sourceTree = "<group>"; };
-		A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataLayerError.swift; path = Sources/Common/DataLayerError.swift; sourceTree = "<group>"; };
-		ADE1FE53786D11AC7B192698 /* WebPageService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageService.swift; path = Sources/Protocol/WebPageService.swift; sourceTree = "<group>"; };
-		B1ABB0ED51067433D3C90F02 /* TodoPageResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoPageResponse.swift; path = Sources/DTO/TodoPageResponse.swift; sourceTree = "<group>"; };
-		B28D4F60262075223EC096E0 /* TodoDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoDTO.swift; path = Sources/DTO/TodoDTO.swift; sourceTree = "<group>"; };
-		B5F8C39E4E51A7A62D716612 /* TodoRepositoryImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoRepositoryImpl.swift; path = Sources/Repository/TodoRepositoryImpl.swift; sourceTree = "<group>"; };
-		BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotPreferenceStore.swift; path = Sources/Protocol/WidgetSnapshotPreferenceStore.swift; sourceTree = "<group>"; };
-		C42BC563A225597B3D761253 /* UserService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserService.swift; path = Sources/Protocol/UserService.swift; sourceTree = "<group>"; };
-		D2F02873E48CF8A12FA931F0 /* TodoCategoryResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryResponse.swift; path = Sources/DTO/TodoCategoryResponse.swift; sourceTree = "<group>"; };
 		DD765636013B36A3BCCCF8B7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		E7154773B586C2D41307CD49 /* AuthenticationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationService.swift; path = Sources/Protocol/AuthenticationService.swift; sourceTree = "<group>"; };
-		EE96D070821D1FB62A155AB5 /* PushNotificationPageResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationPageResponse.swift; path = Sources/DTO/PushNotificationPageResponse.swift; sourceTree = "<group>"; };
-		EF9FA1F72AAE9808A4800EEA /* TodoCursorDTO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCursorDTO.swift; path = Sources/DTO/TodoCursorDTO.swift; sourceTree = "<group>"; };
-		EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMetadataResponse.swift; path = Sources/DTO/WebPageMetadataResponse.swift; sourceTree = "<group>"; };
 		F7FCB65CAFCBF2BF1791B45B /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A15B28E791BA16F53BAF94F /* Exceptions for "Sources" folder in "DevLogData" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = D9D76C33D8B4790694BD3488 /* DevLogData */;
+		};
+		5A15B28E791BA16F53BAF951 /* Exceptions for "Tests" folder in "DevLogDataTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 8D39D659A2924AA7AE52714A /* DevLogDataTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		5A15B28E791BA16F53BAF950 /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A15B28E791BA16F53BAF951 /* Exceptions for "Tests" folder in "DevLogDataTests" target */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DC3B63D4A3808A9CE20EE7CD /* Frameworks */ = {
@@ -194,26 +130,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1DECEF89B4893159CF3166B3 /* DTO */ = {
-			isa = PBXGroup;
-			children = (
-				48EFCDACF284D106254C4BF1 /* AuthDataResponse.swift */,
-				13680A4153A719F15E7DFDF6 /* NotificationKind.swift */,
-				2DF12B44E80793EF948B211B /* PushNotificationCursorDTO.swift */,
-				EE96D070821D1FB62A155AB5 /* PushNotificationPageResponse.swift */,
-				6109198D924EFE51F0D884D4 /* PushNotificationResponse.swift */,
-				D2F02873E48CF8A12FA931F0 /* TodoCategoryResponse.swift */,
-				EF9FA1F72AAE9808A4800EEA /* TodoCursorDTO.swift */,
-				B28D4F60262075223EC096E0 /* TodoDTO.swift */,
-				B1ABB0ED51067433D3C90F02 /* TodoPageResponse.swift */,
-				3F6961039F12AFD8B33F25DF /* TodoReferenceResponse.swift */,
-				387E711B7A3BA319D3E7C2AB /* UserProfileResponse.swift */,
-				550C0805BC3896C8868B6FB2 /* WebPageDTO.swift */,
-				EFF0EE2378B0A169F046A70D /* WebPageMetadataResponse.swift */,
-			);
-			name = DTO;
-			sourceTree = "<group>";
-		};
 		27CDFCFF9F1093391B8566A1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -223,37 +139,6 @@
 				3AECA90DBE02246762CB1ED1 /* DevLogCore.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		28BA3BE754C65F0ABE0B18D3 /* Protocol */ = {
-			isa = PBXGroup;
-			children = (
-				E7154773B586C2D41307CD49 /* AuthenticationService.swift */,
-				7559825C27ED42F9F86EBAC1 /* AuthService.swift */,
-				8A9508F58EA84409A10F12A8 /* FirebaseAppService.swift */,
-				3B67886F72C946CBC709AFCB /* NWPathConnectivityProvider.swift */,
-				E0912860F6ED464D95F2D648 /* PushMessagingService.swift */,
-				2FF70E9CD388C10B69945D7C /* PushNotificationService.swift */,
-				22359AD075B1EFEDD17A8A0C /* ThemeStore.swift */,
-				082E30ECD7061C9E401FF2D0 /* TodoCategoryService.swift */,
-				60E716EC015A5805DD7C949B /* TodoService.swift */,
-				18D627D7628D41EE342DB1B2 /* UserDefaultsStore.swift */,
-				C42BC563A225597B3D761253 /* UserService.swift */,
-				454F04A5E5887B163DD7E5A9 /* WebPageImageStore.swift */,
-				7DFB11DECBE7A9F169DE4CD5 /* WebPageMetadataService.swift */,
-				ADE1FE53786D11AC7B192698 /* WebPageService.swift */,
-				BAFC323115ECC1B37429AC09 /* WidgetSnapshotPreferenceStore.swift */,
-				3D8178F2D3DAE010896141ED /* WidgetSnapshotUpdater.swift */,
-			);
-			name = Protocol;
-			sourceTree = "<group>";
-		};
-		2EF24323F391ADD8E2880BB1 /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				A7D76A08AAD3B63F20E01668 /* DataLayerError.swift */,
-			);
-			name = Common;
 			sourceTree = "<group>";
 		};
 		3957A84DA44597517DA50BD3 /* Frameworks */ = {
@@ -273,28 +158,12 @@
 			name = Projects;
 			sourceTree = "<group>";
 		};
-		5A15B28E791BA16F53BAF94E /* DevLogData */ = {
-			isa = PBXGroup;
-			children = (
-				2EF24323F391ADD8E2880BB1 /* Common */,
-				1DECEF89B4893159CF3166B3 /* DTO */,
-				7FB2D81FB32074F3D7A657A3 /* Mapper */,
-				28BA3BE754C65F0ABE0B18D3 /* Protocol */,
-				934C5041615819F6B6124803 /* Repository */,
-				29CDDE9287D2855E4AF14021 /* DataAssembler.swift */,
+		5A15B28E791BA16F53BAF94E /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A15B28E791BA16F53BAF94F /* Exceptions for "Sources" folder in "DevLogData" target */,
 			);
-			name = DevLogData;
-			sourceTree = "<group>";
-		};
-		7FB2D81FB32074F3D7A657A3 /* Mapper */ = {
-			isa = PBXGroup;
-			children = (
-				44C564559DBDF765945456FA /* PushNotificationMapping.swift */,
-				17CB1CEA7122BFEDED0F4370 /* TodoMapping.swift */,
-				37830EA98EFABE66D2ADBCE9 /* UserProfileMapping.swift */,
-				3C2B7108CD63C65097876046 /* WebPageMapping.swift */,
-			);
-			name = Mapper;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		8800BDCE685EF17A4BCB28C8 /* iOS */ = {
@@ -305,31 +174,14 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		934C5041615819F6B6124803 /* Repository */ = {
-			isa = PBXGroup;
-			children = (
-				7B3ED1B2326966F84851DFDD /* AuthDataRepositoryImpl.swift */,
-				80CBBE2B99B80E70DCD800ED /* AuthSessionRepositoryImpl.swift */,
-				09310E1D16103C0E6E96C7C7 /* AuthenticationRepositoryImpl.swift */,
-				78DB5B22BE2E31B18173E89E /* NetworkConnectivityRepositoryImpl.swift */,
-				3CEB1EE245302780E69EC631 /* PushNotificationRepositoryImpl.swift */,
-				36E09221F6FBF67359105995 /* TodoCategoryRepositoryImpl.swift */,
-				B5F8C39E4E51A7A62D716612 /* TodoRepositoryImpl.swift */,
-				8B167270C81CB76E8F5ED9CA /* UserDataRepositoryImpl.swift */,
-				0202E26A972D5D274AF77C67 /* UserPreferencesRepositoryImpl.swift */,
-				914EE1DC0A02968747B6B3A2 /* WebPageImageRepositoryImpl.swift */,
-				1AAF764A3F6E025A18E6A0BC /* WebPageRepositoryImpl.swift */,
-			);
-			name = Repository;
-			sourceTree = "<group>";
-		};
 		FEAA5F036FEFF5A2BF2FD218 = {
 			isa = PBXGroup;
 			children = (
-				27CDFCFF9F1093391B8566A1 /* Products */,
+				5A15B28E791BA16F53BAF94E /* Sources */,
+				5A15B28E791BA16F53BAF950 /* Tests */,
 				3957A84DA44597517DA50BD3 /* Frameworks */,
 				42F9CB6B105B33619467DE78 /* Projects */,
-				5A15B28E791BA16F53BAF94E /* DevLogData */,
+				27CDFCFF9F1093391B8566A1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -362,6 +214,9 @@
 				C2D9D7E526019AEF507D8EFD /* PBXTargetDependency */,
 				EAD8C47A731CEFD89B8D06EF /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				5A15B28E791BA16F53BAF94E /* Sources */,
+			);
 			name = DevLogData;
 			productName = DevLogData;
 			productReference = 4AB6E00A38C37CDBF82B57FD /* DevLogData.framework */;
@@ -380,6 +235,9 @@
 			dependencies = (
 				DA7AAA000000000000000004 /* PBXTargetDependency */,
 				59B3918E35454521A69DAA14 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5A15B28E791BA16F53BAF950 /* Tests */,
 			);
 			name = DevLogDataTests;
 			productName = DevLogDataTests;
@@ -474,52 +332,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				696ECBF42D3E9504BE9939FB /* AuthDataRepositoryImpl.swift in Sources */,
-				986DAE304B67FC8F8563FC40 /* AuthSessionRepositoryImpl.swift in Sources */,
-				326C26B47FCE678C36BE5788 /* AuthenticationRepositoryImpl.swift in Sources */,
-				6DACC3B9A91F4B83A51E001C /* NetworkConnectivityRepositoryImpl.swift in Sources */,
-				02AD0EC1D813FD957B53FBE5 /* PushNotificationRepositoryImpl.swift in Sources */,
-				4C0F2F479581D2E091C429B2 /* TodoCategoryRepositoryImpl.swift in Sources */,
-				320469937B9BD964D29F5C97 /* TodoRepositoryImpl.swift in Sources */,
-				71C83A8D875833719759B1FE /* UserDataRepositoryImpl.swift in Sources */,
-				50C769615D094189B739F055 /* UserPreferencesRepositoryImpl.swift in Sources */,
-				9B584555CC7504BEDF5F8008 /* WebPageImageRepositoryImpl.swift in Sources */,
-				4BD06832F56598B25183EF06 /* WebPageRepositoryImpl.swift in Sources */,
-				58FFF761F471A091E5A8BCF5 /* DataLayerError.swift in Sources */,
-				5168B6165545231B3E9CB52D /* AuthDataResponse.swift in Sources */,
-				B73F5314433AE44F09034914 /* NotificationKind.swift in Sources */,
-				B77ADC0FB7F0CEE46F3D46BB /* PushNotificationCursorDTO.swift in Sources */,
-				D5A27B2AC5CDF6C4878CC5FF /* PushNotificationPageResponse.swift in Sources */,
-				FB654D9A5FD611C1CC1F9C15 /* PushNotificationResponse.swift in Sources */,
-				57E1BC53D8D628A254A270A1 /* TodoCategoryResponse.swift in Sources */,
-				238E950C1B6FF60F0840EA35 /* TodoCursorDTO.swift in Sources */,
-				014DD58F9A49EF8F613A8512 /* TodoDTO.swift in Sources */,
-				51F956F957951237D7B09387 /* TodoPageResponse.swift in Sources */,
-				672BED915B5A7A1A0A29B4FD /* TodoReferenceResponse.swift in Sources */,
-				E860E8E59EE2F714EF7F0FD8 /* UserProfileResponse.swift in Sources */,
-				05E9A2CF2D447750487BDC38 /* WebPageDTO.swift in Sources */,
-				B3655250BCDBFAFBFA941F63 /* WebPageMetadataResponse.swift in Sources */,
-				F515D3BD025E835AFFFAE8F6 /* AuthService.swift in Sources */,
-				41371B777FE701652CA2E798 /* AuthenticationService.swift in Sources */,
-				A7084A7C1DE34A0EA3E0E327 /* FirebaseAppService.swift in Sources */,
-				36A48634DC1A350421118FEB /* NWPathConnectivityProvider.swift in Sources */,
-				D60472ECAF3C42569988BBE1 /* PushMessagingService.swift in Sources */,
-				2A057B6B7F6900E50AC2E031 /* PushNotificationService.swift in Sources */,
-				963AA368BA2E4A085206768C /* ThemeStore.swift in Sources */,
-				90776FF719A37EAE1CB1BB1B /* TodoCategoryService.swift in Sources */,
-				D7D9BD96D0F8E1647775A61A /* TodoService.swift in Sources */,
-				94BC00B678F8511CC23BCA17 /* UserDefaultsStore.swift in Sources */,
-				B4A86993344617CDA0279841 /* UserService.swift in Sources */,
-				6FB32AA05C08D6C55F7345D7 /* WebPageImageStore.swift in Sources */,
-				E5772C4226F405A20B26ED3B /* WebPageMetadataService.swift in Sources */,
-				9DBA952A12D983B8398F40FB /* WebPageService.swift in Sources */,
-				355537B4107978D346594E6A /* WidgetSnapshotPreferenceStore.swift in Sources */,
-				3F09F91345793F8C14F5CC05 /* WidgetSnapshotUpdater.swift in Sources */,
-				922EECF001AF1EAC4EE5ACAA /* PushNotificationMapping.swift in Sources */,
-				B35B7FCCDD45C7C302B3E94D /* TodoMapping.swift in Sources */,
-				7A1360E04BA36E6476DB4430 /* UserProfileMapping.swift in Sources */,
-				7C9171AA49A09F0D8F8A4419 /* WebPageMapping.swift in Sources */,
-				410CB3F18CADB18146AE82B7 /* DataAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

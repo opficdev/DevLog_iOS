@@ -3,27 +3,40 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		18BA78C685175B1BC0DEFCCB /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B11CDF5A711E473115E8E3 /* DIContainer.swift */; };
-		2D055D7F21B321D6CCD40A16 /* Assembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF84B2C1BD8C8ED1F6A5A36 /* Assembler.swift */; };
-		426DCA0450FA71859C097406 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24157E06FA40FD0AC6DB568 /* Logger.swift */; };
 		6C3457965AC3DE2CD7E8F88B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 814ECC408D237131E365FC92 /* Foundation.framework */; };
-		83B6C8EF4EC3C621C760D1D9 /* DIContainerKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F73A6F95CE0B1E3E95F0E38C /* DIContainerKey.swift */; };
 		9F2C5C9D87F694B2E82DD1F6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2BC15A37223F5B128C8DE92 /* SwiftUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		814ECC408D237131E365FC92 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		9E9FD7B09D0D7EAB8B828A5E /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B24157E06FA40FD0AC6DB568 /* Logger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Logger.swift; path = Sources/Logger.swift; sourceTree = "<group>"; };
-		C2B11CDF5A711E473115E8E3 /* DIContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DIContainer.swift; path = Sources/DIContainer.swift; sourceTree = "<group>"; };
 		D2BC15A37223F5B128C8DE92 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
-		DEF84B2C1BD8C8ED1F6A5A36 /* Assembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Assembler.swift; path = Sources/Assembler.swift; sourceTree = "<group>"; };
-		F73A6F95CE0B1E3E95F0E38C /* DIContainerKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DIContainerKey.swift; path = Sources/DIContainerKey.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DA0865721A6D430B66025E67 /* Exceptions for "Sources" folder in "DevLogCore" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 5755BDB768C11CE0FDEA4828 /* DevLogCore */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DA0865721A6D430B66025E66 /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DA0865721A6D430B66025E67 /* Exceptions for "Sources" folder in "DevLogCore" target */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		B36EC59A07DCF6BD1DCD4667 /* Frameworks */ = {
@@ -57,9 +70,9 @@
 		C0DE4BE90CB1A6B4CEDFCA61 = {
 			isa = PBXGroup;
 			children = (
-				B66C037F848BDEE68DAC8902 /* Products */,
+				DA0865721A6D430B66025E66 /* Sources */,
 				3A2B4275F79E5911D714CC6A /* Frameworks */,
-				DA0865721A6D430B66025E66 /* DevLogCore */,
+				B66C037F848BDEE68DAC8902 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -70,17 +83,6 @@
 				D2BC15A37223F5B128C8DE92 /* SwiftUI.framework */,
 			);
 			name = iOS;
-			sourceTree = "<group>";
-		};
-		DA0865721A6D430B66025E66 /* DevLogCore */ = {
-			isa = PBXGroup;
-			children = (
-				DEF84B2C1BD8C8ED1F6A5A36 /* Assembler.swift */,
-				C2B11CDF5A711E473115E8E3 /* DIContainer.swift */,
-				F73A6F95CE0B1E3E95F0E38C /* DIContainerKey.swift */,
-				B24157E06FA40FD0AC6DB568 /* Logger.swift */,
-			);
-			name = DevLogCore;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -109,6 +111,9 @@
 			);
 			dependencies = (
 				C0DEAA000000000000000001 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DA0865721A6D430B66025E66 /* Sources */,
 			);
 			name = DevLogCore;
 			productName = DevLogCore;
@@ -162,10 +167,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2D055D7F21B321D6CCD40A16 /* Assembler.swift in Sources */,
-				18BA78C685175B1BC0DEFCCB /* DIContainer.swift in Sources */,
-				83B6C8EF4EC3C621C760D1D9 /* DIContainerKey.swift in Sources */,
-				426DCA0450FA71859C097406 /* Logger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

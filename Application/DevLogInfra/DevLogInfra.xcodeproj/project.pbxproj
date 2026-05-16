@@ -3,33 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */; };
-		1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */; };
 		21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */; };
-		3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */; };
-		4A36236096C643DA1FF29771 /* UserServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383CD000472C3025FACB9EFF /* UserServiceImpl.swift */; };
-		5C3D4AB0EA1E2DA901239A6C /* FirestorePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CFC9162F5063E3CB017B40 /* FirestorePath.swift */; };
-		6493ACB77436F1E887D91D59 /* FirebaseAuthUser+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59E81A47825142881793450F /* FirebaseAuthUser+.swift */; };
-		05C3F42B54064540A301FC8C /* FirebaseAppServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51EAC568E6946C5B4770B09 /* FirebaseAppServiceImpl.swift */; };
-		65478CAC7F8597445F84F656 /* TodoServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */; };
 		65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */; };
-		6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */; };
-		6FCB70DE3225AFA821300AC7 /* InfraLayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */; };
-		70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */; };
-		73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */; };
-		7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */; };
-		87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */; };
-		93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */; };
-		9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */; };
 		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
-		B33333333333333333333333 /* InfraAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22222222222222222222222 /* InfraAssembler.swift */; };
-		D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */; };
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
-		EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */; };
 		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
 		F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4F874032FD57C0BBCC41C64 /* DevLogData.framework */; };
 		F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */; };
@@ -37,8 +18,6 @@
 		5F7A14F2C5294547884212E1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 06ADD17826F44543B09286DA /* FirebaseCore */; };
 		FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC59F98E5A6BFA339C3E5BD /* FirebaseAuth */; };
 		FB8043FF7043AFDA0E3F705B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 94394E2197878DD50AF67628 /* FirebaseMessaging */; };
-		EFCE1F76080E4B7FBED6DB0E /* PushMessagingServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B961C40988C9455B9644B92F /* PushMessagingServiceImpl.swift */; };
-		FE130A3E1E85658BD3ECE791 /* FirebaseFunctions+.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */; };
 		FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */ = {isa = PBXBuildFile; productRef = EE91BC971B2F1FFEEDA3A3B8 /* Nexa */; };
 /* End PBXBuildFile section */
 
@@ -95,34 +74,41 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleSignInDelegate.swift; path = Sources/Service/SocialLogin/AppleSignInDelegate.swift; sourceTree = "<group>"; };
-		1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GithubAuthenticationServiceImpl.swift; path = Sources/Service/SocialLogin/GithubAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
-		34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageMetadataServiceImpl.swift; path = Sources/Service/WebPageMetadataServiceImpl.swift; sourceTree = "<group>"; };
-		383CD000472C3025FACB9EFF /* UserServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserServiceImpl.swift; path = Sources/Service/UserServiceImpl.swift; sourceTree = "<group>"; };
-		3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleAuthenticationServiceImpl.swift; path = Sources/Service/SocialLogin/AppleAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
-		4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TopViewControllerProvider.swift; path = Sources/Common/TopViewControllerProvider.swift; sourceTree = "<group>"; };
-		50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GoogleAuthenticationServiceImpl.swift; path = Sources/Service/SocialLogin/GoogleAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
 		592C8B7B099933759AB316A5 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogInfraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C51EAC568E6946C5B4770B09 /* FirebaseAppServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseAppServiceImpl.swift; path = Sources/Service/FirebaseAppServiceImpl.swift; sourceTree = "<group>"; };
-		59E81A47825142881793450F /* FirebaseAuthUser+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FirebaseAuthUser+.swift"; path = "Sources/Extension/FirebaseAuthUser+.swift"; sourceTree = "<group>"; };
-		64CFC9162F5063E3CB017B40 /* FirestorePath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirestorePath.swift; path = Sources/Common/FirestorePath.swift; sourceTree = "<group>"; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
-		B22222222222222222222222 /* InfraAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InfraAssembler.swift; path = Sources/InfraAssembler.swift; sourceTree = "<group>"; };
-		B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NWPathConnectivityProviderImpl.swift; path = Sources/Service/NWPathConnectivityProviderImpl.swift; sourceTree = "<group>"; };
 		B44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
-		BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoServiceImpl.swift; path = Sources/Service/TodoServiceImpl.swift; sourceTree = "<group>"; };
-		B961C40988C9455B9644B92F /* PushMessagingServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushMessagingServiceImpl.swift; path = Sources/Service/PushMessagingServiceImpl.swift; sourceTree = "<group>"; };
-		C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushNotificationServiceImpl.swift; path = Sources/Service/PushNotificationServiceImpl.swift; sourceTree = "<group>"; };
-		CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodoCategoryServiceImpl.swift; path = Sources/Service/TodoCategoryServiceImpl.swift; sourceTree = "<group>"; };
-		D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleAuthResponse.swift; path = Sources/Service/SocialLogin/AppleAuthResponse.swift; sourceTree = "<group>"; };
 		DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
-		E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthServiceImpl.swift; path = Sources/Service/AuthServiceImpl.swift; sourceTree = "<group>"; };
-		E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageServiceImpl.swift; path = Sources/Service/WebPageServiceImpl.swift; sourceTree = "<group>"; };
-		F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InfraLayerError.swift; path = Sources/Common/InfraLayerError.swift; sourceTree = "<group>"; };
-		F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FirebaseFunctions+.swift"; path = "Sources/Extension/FirebaseFunctions+.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		959D79D1263CC74E32B40D79 /* Exceptions for "Sources" folder in "DevLogInfra" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = CB9B628AE2E0684C1FCF8840 /* DevLogInfra */;
+		};
+		959D79D1263CC74E32B40D7B /* Exceptions for "Tests" folder in "DevLogInfraTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 38643C4F96B2449E85275475 /* DevLogInfraTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		959D79D1263CC74E32B40D7A /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				959D79D1263CC74E32B40D7B /* Exceptions for "Tests" folder in "DevLogInfraTests" target */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D357D4FEA7FE7E547ABC10EF /* Frameworks */ = {
@@ -166,62 +152,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		091FD7B63F7A260D118E5905 /* SocialLogin */ = {
-			isa = PBXGroup;
-			children = (
-				D2C9755DE5674266B3C6F90C /* AppleAuthResponse.swift */,
-				0CB84E61E29D44B48D3A1211 /* AppleSignInDelegate.swift */,
-				3E56286B1275FC5BD988C94B /* AppleAuthenticationServiceImpl.swift */,
-				1E570F577BDD00D5DD473D84 /* GithubAuthenticationServiceImpl.swift */,
-				50F6E155C43BBEB56B3D7403 /* GoogleAuthenticationServiceImpl.swift */,
-			);
-			name = SocialLogin;
-			sourceTree = "<group>";
-		};
-		244A3B94B9BD4908079A38FB /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				64CFC9162F5063E3CB017B40 /* FirestorePath.swift */,
-				F0BD9ECDA007FB1BC02C2B98 /* InfraLayerError.swift */,
-				4ED31F0EEEF764BB7538C585 /* TopViewControllerProvider.swift */,
-			);
-			name = Common;
-			sourceTree = "<group>";
-		};
-		3B9BF1B497E846541A8B6685 /* Extension */ = {
-			isa = PBXGroup;
-			children = (
-				59E81A47825142881793450F /* FirebaseAuthUser+.swift */,
-				F9AFF9DAE09B8132A62D6DA8 /* FirebaseFunctions+.swift */,
-			);
-			name = Extension;
-			sourceTree = "<group>";
-		};
-		66108C2B6459C7D70E0EF39E /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				E08FBC9DACB1DA5DAE2D1960 /* AuthServiceImpl.swift */,
-				C51EAC568E6946C5B4770B09 /* FirebaseAppServiceImpl.swift */,
-				B33BE8E906B890526D3476AE /* NWPathConnectivityProviderImpl.swift */,
-				B961C40988C9455B9644B92F /* PushMessagingServiceImpl.swift */,
-				C66E5D9D27AB4B3EE3974E88 /* PushNotificationServiceImpl.swift */,
-				091FD7B63F7A260D118E5905 /* SocialLogin */,
-				CC30F1A30BDA822507BD6C4D /* TodoCategoryServiceImpl.swift */,
-				BE5EF0B863FF47BFEC508304 /* TodoServiceImpl.swift */,
-				383CD000472C3025FACB9EFF /* UserServiceImpl.swift */,
-				34EB8D1DB924582822B68442 /* WebPageMetadataServiceImpl.swift */,
-				E93766DC3248CC084F8CFA73 /* WebPageServiceImpl.swift */,
-			);
-			name = Service;
-			sourceTree = "<group>";
-		};
 		78591B5535D993B16F897C7C = {
 			isa = PBXGroup;
 			children = (
-				0488BFD2A2F470EEE29679F1 /* Products */,
+				959D79D1263CC74E32B40D78 /* Sources */,
+				959D79D1263CC74E32B40D7A /* Tests */,
 				FBD6499620DAC9E2F9216AD5 /* Frameworks */,
-				959D79D1263CC74E32B40D78 /* DevLogInfra */,
 				D47699189A73B8C6972C611A /* Projects */,
+				0488BFD2A2F470EEE29679F1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -233,15 +171,12 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		959D79D1263CC74E32B40D78 /* DevLogInfra */ = {
-			isa = PBXGroup;
-			children = (
-				B22222222222222222222222 /* InfraAssembler.swift */,
-				244A3B94B9BD4908079A38FB /* Common */,
-				3B9BF1B497E846541A8B6685 /* Extension */,
-				66108C2B6459C7D70E0EF39E /* Service */,
+		959D79D1263CC74E32B40D78 /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				959D79D1263CC74E32B40D79 /* Exceptions for "Sources" folder in "DevLogInfra" target */,
 			);
-			name = DevLogInfra;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		D47699189A73B8C6972C611A /* Projects */ = {
@@ -292,6 +227,9 @@
 				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
 				B88888888888888888888888 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				959D79D1263CC74E32B40D78 /* Sources */,
+			);
 			name = DevLogInfra;
 			packageProductDependencies = (
 				06ADD17826F44543B09286DA /* FirebaseCore */,
@@ -319,6 +257,9 @@
 			dependencies = (
 				1F4AAA000000000000000004 /* PBXTargetDependency */,
 				DD23C8A4110847EABDCAA271 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				959D79D1263CC74E32B40D7A /* Tests */,
 			);
 			name = DevLogInfraTests;
 			productName = DevLogInfraTests;
@@ -427,27 +368,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5C3D4AB0EA1E2DA901239A6C /* FirestorePath.swift in Sources */,
-				6FCB70DE3225AFA821300AC7 /* InfraLayerError.swift in Sources */,
-				9529B735E38CE98A8EC12AC3 /* TopViewControllerProvider.swift in Sources */,
-				6493ACB77436F1E887D91D59 /* FirebaseAuthUser+.swift in Sources */,
-				FE130A3E1E85658BD3ECE791 /* FirebaseFunctions+.swift in Sources */,
-				6F30F7AD6A048E8ED847D123 /* AuthServiceImpl.swift in Sources */,
-				05C3F42B54064540A301FC8C /* FirebaseAppServiceImpl.swift in Sources */,
-				D6A1524366DC5CF153821979 /* NWPathConnectivityProviderImpl.swift in Sources */,
-				EFCE1F76080E4B7FBED6DB0E /* PushMessagingServiceImpl.swift in Sources */,
-				0E1D2D0391955DAAAEB0090F /* PushNotificationServiceImpl.swift in Sources */,
-				7711F199E79F41919891BF31 /* AppleAuthResponse.swift in Sources */,
-				73814E7535B64F24905F1EF1 /* AppleSignInDelegate.swift in Sources */,
-				93D79429D184808FB702BF2D /* AppleAuthenticationServiceImpl.swift in Sources */,
-				1F4B40F21FD77E3BB481E763 /* GithubAuthenticationServiceImpl.swift in Sources */,
-				3A2B4478D6F3438C00240EB4 /* GoogleAuthenticationServiceImpl.swift in Sources */,
-				EA3F834C61E50B4F60789473 /* TodoCategoryServiceImpl.swift in Sources */,
-				65478CAC7F8597445F84F656 /* TodoServiceImpl.swift in Sources */,
-				4A36236096C643DA1FF29771 /* UserServiceImpl.swift in Sources */,
-				70CDB738E0DE3895B7539B16 /* WebPageMetadataServiceImpl.swift in Sources */,
-				87F2CCAD35FD485467397CCC /* WebPageServiceImpl.swift in Sources */,
-				B33333333333333333333333 /* InfraAssembler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
