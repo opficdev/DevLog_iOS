@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -145,6 +145,23 @@
 		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B60F0C6B052E1EF8CC827ADA /* Exceptions for "Sources" folder in "DevLogWidgetCore" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = 687DD42230CC25053ABB5FB8 /* DevLogWidgetCore */;
+		};
+		E69EC16509DD43B9A31327C3 /* Exceptions for "Tests" folder in "DevLogWidgetCoreTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = F425C01049EE418C85A74D15 /* DevLogWidgetCoreTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		ABB4D885A18FE546FC106112 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -218,9 +235,9 @@
 		6AE182A73B6A9D0A2981CE97 = {
 			isa = PBXGroup;
 			children = (
-				22B18020E715C5AFC73F00FA /* Frameworks */,
-				B60F0C6B052E1EF8CC827AD9 /* DevLogWidgetCore */,
+				B60F0C6B052E1EF8CC827AD9 /* Sources */,
 				E69EC16509DD43B9A31327C2 /* Tests */,
+				22B18020E715C5AFC73F00FA /* Frameworks */,
 				23F6B7BB30A8782BF2FB2D92 /* Projects */,
 				A71745ED0B0D9E29633DB923 /* Products */,
 			);
@@ -255,15 +272,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B60F0C6B052E1EF8CC827AD9 /* DevLogWidgetCore */ = {
-			isa = PBXGroup;
-			children = (
-				0DF87932E361E05C3DF43062 /* Common */,
-				9EDB2111AA4B065C046573A1 /* Heatmap */,
-				E41A9AF45640EBD9FA86BDB5 /* Sync */,
-				E5E553CFDDE987761CDB995F /* Today */,
+		B60F0C6B052E1EF8CC827AD9 /* Sources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B60F0C6B052E1EF8CC827ADA /* Exceptions for "Sources" folder in "DevLogWidgetCore" target */,
 			);
-			name = DevLogWidgetCore;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		A245EBE875FA406391F0CB15 /* Sync */ = {
@@ -286,12 +300,9 @@
 			sourceTree = "<group>";
 		};
 		E69EC16509DD43B9A31327C2 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				114245E1B15E45EEB291C0AC /* Common */,
-				4E47381D32B340F0B5E87F9D /* Heatmap */,
-				A245EBE875FA406391F0CB15 /* Sync */,
-				54CC903F49E2449681CB9A66 /* Today */,
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E69EC16509DD43B9A31327C3 /* Exceptions for "Tests" folder in "DevLogWidgetCoreTests" target */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -351,6 +362,9 @@
 				504FAABF657F1D901A2B6BB9 /* PBXTargetDependency */,
 				F1C4B031EE5FEF47898D9562 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				B60F0C6B052E1EF8CC827AD9 /* Sources */,
+			);
 			name = DevLogWidgetCore;
 			productName = DevLogWidgetCore;
 			productReference = 6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */;
@@ -372,6 +386,9 @@
 				F7745FE3BB124A799D253D66 /* PBXTargetDependency */,
 				0DDA8FBB36DE47AA85B6E75E /* PBXTargetDependency */,
 				9BECD433C38843B2AF71F106 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E69EC16509DD43B9A31327C2 /* Tests */,
 			);
 			name = DevLogWidgetCoreTests;
 			productName = DevLogWidgetCoreTests;
@@ -476,22 +493,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13912C8BE3310B5BCCE71ED8 /* WidgetSharedDefaultsStore.swift in Sources */,
-				B2223843996C9D11E0193B16 /* WidgetSnapshotStore.swift in Sources */,
-				3BF3B864B5A91686CFA17EDD /* WidgetSyncEvent.swift in Sources */,
-				641BA820F65E8F78F200EDCF /* HeatmapWidgetSnapshot.swift in Sources */,
-				A839995EF6B607DBECF11933 /* HeatmapWidgetSnapshotFactory.swift in Sources */,
-				CD7C54E749A6696CF92AEF71 /* WidgetSyncEventBus.swift in Sources */,
-				5C7FE28461303EC8CE211B57 /* WidgetSyncEventBusImpl.swift in Sources */,
-				FF161CCB92AC2C2C754DDA8C /* WidgetSyncEventHandler.swift in Sources */,
-				F9D4F24C64D75DC51F89BBC5 /* TodayWidgetSnapshot.swift in Sources */,
-				F29C18438886406B532B926B /* TodayWidgetSnapshotFactory.swift in Sources */,
-				A14D5069306E93272F138551 /* Calendar.swift in Sources */,
-				DE6586C0349C991B7AB9B732 /* WidgetAppGroup.swift in Sources */,
-				E22B5DAAF713E374BAAAF6DE /* WidgetDeepLink.swift in Sources */,
-				54CBD3BDE2DE86D68291FF5D /* WidgetHeatmapPlaceholderShape.swift in Sources */,
-				2C60DC971EC65AD91A40E790 /* WidgetKind.swift in Sources */,
-				20835D8A267CC408B23301A7 /* WidgetSnapshotKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,13 +500,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D04295532E14A0B9D76FFF3 /* WidgetHeatmapPlaceholderShapeTests.swift in Sources */,
-				9088FC81711B41E080B7FF3B /* WidgetSharedConstantsTests.swift in Sources */,
-				FF5C4EC48B1F4D85892F80FA /* WidgetSyncEventTests.swift in Sources */,
-				606584818D1A49DA9DAB3193 /* HeatmapWidgetSnapshotFactoryTests.swift in Sources */,
-				D970FF8A2AF44369B8E98448 /* WidgetSyncEventBusTests.swift in Sources */,
-				3737A4044B88452480B031F6 /* WidgetSyncEventHandlerTests.swift in Sources */,
-				AEF64ED829024819BB68B5C5 /* TodayWidgetSnapshotFactoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
