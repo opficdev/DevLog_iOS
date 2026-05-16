@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogCore
 import DevLogDomain
 
 @Observable
@@ -109,7 +110,7 @@ final class TodoListViewModel: Store {
         self.undoDeleteTodoUseCase = undoDeleteTodoUseCase
         self.category = category
         self.state = State(
-            query: TodoQuery(category: category)
+            query: TodoQuery(categoryId: category.storageValue)
         )
     }
 
@@ -192,7 +193,7 @@ final class TodoListViewModel: Store {
                             self.endLoading(.immediate)
                         }
                     }
-                    let query = TodoQuery(category: category, keyword: keyword)
+                    let query = TodoQuery(categoryId: category.storageValue, keyword: keyword)
                     let page = try await fetchTodosUseCase.execute(query, cursor: nil)
                     if Task.isCancelled { return }
                     send(.fetchSearchResults(page.items.compactMap { TodoListItem(from: $0) }))
@@ -308,7 +309,7 @@ private extension TodoListViewModel {
             self.nextCursor = nil
             return [.fetch]
         case .resetFilters:
-            state.query = TodoQuery(category: category)
+            state.query = TodoQuery(categoryId: category.storageValue)
             self.nextCursor = nil
             return [.fetch]
         case .setIsSearching(let value):

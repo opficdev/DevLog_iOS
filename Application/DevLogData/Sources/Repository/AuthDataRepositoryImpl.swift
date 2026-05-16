@@ -94,6 +94,6 @@ private extension AuthDataRepositoryImpl {
             }
         }
 
-        return error
+        return error.toDomain()
     }
 }

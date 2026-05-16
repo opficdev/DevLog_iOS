@@ -1,6 +1,6 @@
 //
 //  PushNotificationQuery.swift
-//  DevLogDomain
+//  DevLogCore
 //
 //  Created by opfic on 2/18/26.
 //

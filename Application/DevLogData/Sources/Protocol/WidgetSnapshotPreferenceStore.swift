@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogCore
 import DevLogDomain
 
 public protocol WidgetSnapshotPreferenceStore {

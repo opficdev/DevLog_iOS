@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */; };
 		65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */; };
 		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
@@ -43,26 +42,12 @@
 			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
 			remoteInfo = Subproject;
 		};
-		3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3F08F6B94839E9021FCFC466;
-			remoteInfo = Subproject;
-		};
 		92ED4507B81AC42C599EE7EE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4AB6E00A38C37CDBF82B57FD;
 			remoteInfo = Subproject;
-		};
-		DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
-			remoteInfo = DevLogDomain;
 		};
 		66FBFAC873BD4CEDA5984DD4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -77,7 +62,6 @@
 		592C8B7B099933759AB316A5 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogInfraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CC9FAB56498FA5BAEAC59A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		B44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,7 +100,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F75AA9259C6636CF733C4D82 /* Foundation.framework in Frameworks */,
-				21F6F37746C943D1A019963F /* DevLogDomain.framework in Frameworks */,
 				5F7A14F2C5294547884212E1 /* FirebaseCore in Frameworks */,
 				FB5186BC5A89B7DADAB8A82A /* FirebaseAuth in Frameworks */,
 				65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */,
@@ -145,7 +128,6 @@
 			children = (
 				592C8B7B099933759AB316A5 /* DevLogInfra.framework */,
 				AD628A91CC6D40B29D89DEA3 /* DevLogInfraTests.xctest */,
-				8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */,
 				A4F874032FD57C0BBCC41C64 /* DevLogData.framework */,
 				B55555555555555555555555 /* DevLogCore.framework */,
 			);
@@ -183,7 +165,6 @@
 			isa = PBXGroup;
 			children = (
 				DC20615F7FBF2DEEB480D826 /* DevLogData.xcodeproj */,
-				A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */,
 				B44444444444444444444444 /* DevLogCore.xcodeproj */,
 			);
 			name = Projects;
@@ -223,7 +204,6 @@
 			);
 			dependencies = (
 				1F4AAA000000000000000001 /* PBXTargetDependency */,
-				342FB70B2E884012B67F8B38 /* PBXTargetDependency */,
 				B62EE119F71162DAB0F9D034 /* PBXTargetDependency */,
 				B88888888888888888888888 /* PBXTargetDependency */,
 			);
@@ -307,10 +287,6 @@
 				},
 				{
 					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
-					ProjectRef = A748C00357094C72BA72DC72 /* DevLogDomain.xcodeproj */;
-				},
-				{
-					ProductGroup = 0488BFD2A2F470EEE29679F1 /* Products */;
 					ProjectRef = B44444444444444444444444 /* DevLogCore.xcodeproj */;
 				},
 			);
@@ -323,13 +299,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		8C4421AE6B9E4E419E73297F /* DevLogDomain.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogDomain.framework;
-			remoteRef = 3941472A0F8E4DA796217D2B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		A4F874032FD57C0BBCC41C64 /* DevLogData.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -388,11 +357,6 @@
 		1F4AAA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 1F4AAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
-		342FB70B2E884012B67F8B38 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogDomain;
-			targetProxy = DD5CC520521F4F86A8EC6225 /* PBXContainerItemProxy */;
 		};
 		B62EE119F71162DAB0F9D034 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

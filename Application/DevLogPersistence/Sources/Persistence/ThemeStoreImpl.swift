@@ -6,9 +6,8 @@
 //
 
 import Combine
-import DevLogDomain
+import DevLogCore
 import DevLogData
-import DevLogWidgetCore
 
 final class ThemeStoreImpl: ThemeStore {
     private let subject = CurrentValueSubject<SystemTheme, Never>(.automatic)

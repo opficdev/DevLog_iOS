@@ -11,7 +11,6 @@ import FirebaseFirestore
 import FirebaseMessaging
 import DevLogCore
 import DevLogData
-import DevLogDomain
 
 final class AuthServiceImpl: AuthService {
     private let store = Firestore.firestore()
@@ -106,7 +105,7 @@ final class AuthServiceImpl: AuthService {
 
         guard let currentUser = Auth.auth().currentUser else {
             logger.warning("No current user to delete")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         do {

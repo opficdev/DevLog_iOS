@@ -5,6 +5,8 @@
 //  Created by opfic on 3/3/26.
 //
 
+import DevLogCore
+
 public final class FetchTodosUseCaseImpl: FetchTodosUseCase {
     private let repository: TodoRepository
 

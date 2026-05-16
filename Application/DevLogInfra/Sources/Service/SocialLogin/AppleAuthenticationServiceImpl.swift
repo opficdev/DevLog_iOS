@@ -14,7 +14,6 @@ import FirebaseMessaging
 import Foundation
 import DevLogCore
 import DevLogData
-import DevLogDomain
 
 final class AppleAuthenticationServiceImpl: AuthenticationService {
     private enum FunctionName: String {
@@ -161,7 +160,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         } catch {
             logger.error("Failed to link Apple account", error: error)
             if error.isFirebaseCredentialAlreadyInUse {
-                throw AuthError.linkCredentialAlreadyInUse
+                throw DataLayerError.linkCredentialAlreadyInUse
             }
             throw error
         }

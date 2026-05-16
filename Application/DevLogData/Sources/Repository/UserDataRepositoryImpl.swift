@@ -15,12 +15,20 @@ final class UserDataRepositoryImpl: UserDataRepository {
     }
 
     func fetch() async throws -> UserProfile {
-        let response = try await userService.fetchUserProfile()
+        do {
+            let response = try await userService.fetchUserProfile()
 
-        return response.toDomain()
+            return response.toDomain()
+        } catch {
+            throw error.toDomain()
+        }
     }
 
     func upsertStatusMessage(_ message: String) async throws {
-        try await userService.upsertStatusMessage(message)
+        do {
+            try await userService.upsertStatusMessage(message)
+        } catch {
+            throw error.toDomain()
+        }
     }
 }

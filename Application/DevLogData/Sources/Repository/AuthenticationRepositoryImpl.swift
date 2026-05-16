@@ -76,8 +76,12 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             case .google:
                 try await googleAuthService.signOut(uid)
             }
-        } catch AuthError.notAuthenticated {
-            try await authService.clearCurrentSession()
+        } catch {
+            if case AuthError.notAuthenticated = error.toDomain() {
+                try await authService.clearCurrentSession()
+            } else {
+                throw error.toDomain()
+            }
         }
 
         widgetSnapshotUpdater.clear()
@@ -106,9 +110,13 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             }
         }
 
-        try await authService.deleteCurrentUser()
-        try await authService.clearCurrentSession()
-        widgetSnapshotUpdater.clear()
+        do {
+            try await authService.deleteCurrentUser()
+            try await authService.clearCurrentSession()
+            widgetSnapshotUpdater.clear()
+        } catch {
+            throw error.toDomain()
+        }
     }
 }
 
@@ -119,6 +127,6 @@ private extension AuthenticationRepositoryImpl {
             return AuthError.emailNotFound
         }
 
-        return error
+        return error.toDomain()
     }
 }

@@ -5,6 +5,8 @@
 //  Created by 최윤진 on 2/25/26.
 //
 
+import DevLogCore
+
 public final class UpdatePushNotificationQueryUseCaseImpl: UpdatePushNotificationQueryUseCase {
     private let repository: UserPreferencesRepository
 

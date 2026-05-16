@@ -1,6 +1,6 @@
 //
 //  SystemTheme.swift
-//  DevLogDomain
+//  DevLogCore
 //
 //  Created by opfic on 5/6/25.
 //

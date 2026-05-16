@@ -8,7 +8,6 @@
 import FirebaseAuth
 import FirebaseFirestore
 import DevLogCore
-import DevLogDomain
 import DevLogData
 
 final class TodoCategoryServiceImpl: TodoCategoryService {
@@ -30,10 +29,10 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
     private let store = Firestore.firestore()
     private let logger = Logger(category: "TodoCategoryServiceImpl")
 
-    func fetchPreferences() async throws -> [TodoCategoryPreference] {
+    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse] {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         logger.info("Fetching todo category preferences")
@@ -45,32 +44,27 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
 
             guard let items = snapshot.data()?[Field.items.rawValue] as? [[String: Any]] else {
                 logger.info("Todo category preferences not found, using defaults")
-                return SystemTodoCategory.allCases.map {
-                    TodoCategoryPreference(category: .system($0), isVisible: true)
-                }
+                return []
             }
 
             let preferences = items.compactMap { makePreference($0) }
             if preferences.isEmpty {
                 logger.info("Todo category preferences empty, using defaults")
-                return SystemTodoCategory.allCases.map {
-                    TodoCategoryPreference(category: .system($0), isVisible: true)
-                }
+                return []
             }
 
-            let mergedPreferences = mergedPreferences(preferences)
             logger.info("Successfully fetched todo category preferences")
-            return mergedPreferences
+            return preferences
         } catch {
             logger.error("Failed to fetch todo category preferences", error: error)
             throw error
         }
     }
 
-    func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws {
+    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
-            throw AuthError.notAuthenticated
+            throw DataLayerError.notAuthenticated
         }
 
         logger.info("Updating todo category preferences")
@@ -91,34 +85,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
 }
 
 private extension TodoCategoryServiceImpl {
-    func mergedPreferences(
-        _ preferences: [TodoCategoryPreference]
-    ) -> [TodoCategoryPreference] {
-        var mergedPreferences = preferences
-
-        for systemTodoCategory in SystemTodoCategory.allCases {
-            let containsSystemTodoCategory = preferences.contains { preference in
-                guard case .system(let currentSystemTodoCategory) = preference.category else {
-                    return false
-                }
-
-                return currentSystemTodoCategory == systemTodoCategory
-            }
-
-            if containsSystemTodoCategory { continue }
-
-            mergedPreferences.append(
-                TodoCategoryPreference(
-                    category: .system(systemTodoCategory),
-                    isVisible: true
-                )
-            )
-        }
-
-        return mergedPreferences
-    }
-
-    func makePreference(_ items: [String: Any]) -> TodoCategoryPreference? {
+    func makePreference(_ items: [String: Any]) -> TodoCategoryPreferenceResponse? {
         guard
             let kindString = items[Field.kind.rawValue] as? String,
             let kind = Kind(rawValue: kindString),
@@ -129,15 +96,12 @@ private extension TodoCategoryServiceImpl {
 
         switch kind {
         case .system:
-            guard
-                let systemCategoryString = items[Field.systemCategory.rawValue] as? String,
-                let systemTodoCategory = SystemTodoCategory(rawValue: systemCategoryString)
-            else {
+            guard let systemCategoryString = items[Field.systemCategory.rawValue] as? String else {
                 return nil
             }
 
-            return TodoCategoryPreference(
-                category: .system(systemTodoCategory),
+            return TodoCategoryPreferenceResponse(
+                category: .system(systemCategoryString),
                 isVisible: isVisible
             )
         case .user:
@@ -149,9 +113,9 @@ private extension TodoCategoryServiceImpl {
                 return nil
             }
 
-            return TodoCategoryPreference(
+            return TodoCategoryPreferenceResponse(
                 category: .user(
-                    UserTodoCategory(
+                    TodoCategoryPreferenceResponse.UserCategory(
                         id: id,
                         name: name,
                         colorHex: colorHex
@@ -162,20 +126,20 @@ private extension TodoCategoryServiceImpl {
         }
     }
 
-    func toDictionary(_ preference: TodoCategoryPreference) -> [String: Any] {
+    func toDictionary(_ preference: TodoCategoryPreferenceResponse) -> [String: Any] {
         switch preference.category {
-        case .system(let systemTodoCategory):
+        case .system(let rawValue):
             return [
                 Field.kind.rawValue: Kind.system.rawValue,
-                Field.systemCategory.rawValue: systemTodoCategory.rawValue,
+                Field.systemCategory.rawValue: rawValue,
                 Field.isVisible.rawValue: preference.isVisible
             ]
-        case .user(let userTodoCategory):
+        case .user(let userCategory):
             return [
                 Field.kind.rawValue: Kind.user.rawValue,
-                Field.id.rawValue: userTodoCategory.id,
-                Field.name.rawValue: userTodoCategory.name,
-                Field.colorHex.rawValue: userTodoCategory.colorHex,
+                Field.id.rawValue: userCategory.id,
+                Field.name.rawValue: userCategory.name,
+                Field.colorHex.rawValue: userCategory.colorHex,
                 Field.isVisible.rawValue: preference.isVisible
             ]
         }

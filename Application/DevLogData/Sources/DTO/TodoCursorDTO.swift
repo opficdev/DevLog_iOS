@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DevLogDomain
 
 public struct TodoCursorDTO {
     public let primarySortDate: Date?

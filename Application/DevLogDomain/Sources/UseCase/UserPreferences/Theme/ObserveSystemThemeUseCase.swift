@@ -6,6 +6,7 @@
 //
 
 import Combine
+import DevLogCore
 
 public protocol ObserveSystemThemeUseCase {
     func observe() -> AnyPublisher<SystemTheme, Never>

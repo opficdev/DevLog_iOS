@@ -7,7 +7,7 @@
 
 import Combine
 import Foundation
-import DevLogDomain
+import DevLogCore
 
 public protocol PushNotificationService {
     func fetchPushNotificationEnabled() async throws -> Bool

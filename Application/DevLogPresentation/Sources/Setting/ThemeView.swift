@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DevLogCore
 import DevLogDomain
 
 struct ThemeView: View {
