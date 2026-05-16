@@ -1,6 +1,6 @@
 //
 //  UserDefaultsStoreImpl.swift
-//  DevLog
+//  DevLogPersistence
 //
 //  Created by 최윤진 on 2/25/26.
 //

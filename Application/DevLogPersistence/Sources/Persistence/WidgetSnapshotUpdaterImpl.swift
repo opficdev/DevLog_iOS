@@ -1,6 +1,6 @@
 //
 //  WidgetSnapshotUpdaterImpl.swift
-//  DevLog
+//  DevLogPersistence
 //
 //  Created by opfic on 4/30/26.
 //
