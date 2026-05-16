@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; };
 		186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; };
 		18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F972F1E8E0F5156FE9651020 /* GoogleSignIn */; };
+		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; };
-		020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		618B54224ACD6B35D9A8F841 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
 		79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; };
-		0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; };
 		A54A1843C2074FD4A651238F /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; };
 		B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -89,17 +89,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		67918B544432C45E63273D84 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE11B22C33D44E55F6677889 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1B97007E09855108A99428B /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA49949C677DDE083F7DE29E /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -124,8 +124,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF34164A2E45F67C00F9312B /* Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Tests;
 			sourceTree = "<group>";
 		};
@@ -397,11 +395,11 @@
 		};
 		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */;
+			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
 		};
 		DF66A07E2EA52E9F0098E643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */;
+			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
 		};
 		DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -819,7 +817,7 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DF66A07C2EA52E9F0098E643 /* plugin:SwiftLintBuildToolPlugin */ = {
+		DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

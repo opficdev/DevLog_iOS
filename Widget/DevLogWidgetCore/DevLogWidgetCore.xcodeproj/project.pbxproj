@@ -3,18 +3,18 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBD260F923A87C1577DBFF0F /* Foundation.framework */; };
+		7E979130578F4839B3C640C1 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
 		80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
 		8EF4007864D24A1F9074C80A /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */; };
-		B69F5362A64E4C8FAA88393A /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
-		CE64C1569E684FD7BF6E21E7 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
-		7E979130578F4839B3C640C1 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
 		A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
 		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
+		B69F5362A64E4C8FAA88393A /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
+		CE64C1569E684FD7BF6E21E7 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,23 +28,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		099A7D56A0E544A28733E668 /* DevLogWidgetCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogWidgetCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		B55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C18996E00A69C4BCB0F63AE /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B108898FD3650BE0C116BD3C /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B60F0C6B052E1EF8CC827ADA /* Exceptions for "Sources" folder in "DevLogWidgetCore" target */ = {
+		B60F0C6B052E1EF8CC827ADA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
 			);
 			target = 687DD42230CC25053ABB5FB8 /* DevLogWidgetCore */;
 		};
-		E69EC16509DD43B9A31327C3 /* Exceptions for "Tests" folder in "DevLogWidgetCoreTests" target */ = {
+		E69EC16509DD43B9A31327C3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
@@ -53,18 +53,12 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B60F0C6B052E1EF8CC827AD9 /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B60F0C6B052E1EF8CC827ADA /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Sources; sourceTree = "<group>"; };
+		E69EC16509DD43B9A31327C2 /* Tests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E69EC16509DD43B9A31327C3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
-		ABB4D885A18FE546FC106112 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */,
-				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
-				A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */,
-				80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3AA539BB51824CBF80B7C94A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -73,6 +67,17 @@
 				B69F5362A64E4C8FAA88393A /* DevLogCore.framework in Frameworks */,
 				CE64C1569E684FD7BF6E21E7 /* DevLogDomain.framework in Frameworks */,
 				7E979130578F4839B3C640C1 /* DevLogData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABB4D885A18FE546FC106112 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */,
+				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
+				A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */,
+				80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,22 +112,6 @@
 				7C18996E00A69C4BCB0F63AE /* DevLogData.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		B60F0C6B052E1EF8CC827AD9 /* Sources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B60F0C6B052E1EF8CC827ADA /* Exceptions for "Sources" folder in "DevLogWidgetCore" target */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		E69EC16509DD43B9A31327C2 /* Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E69EC16509DD43B9A31327C3 /* Exceptions for "Tests" folder in "DevLogWidgetCoreTests" target */,
-			);
-			path = Tests;
 			sourceTree = "<group>";
 		};
 		E4683C4F36BFC412C75D164A /* iOS */ = {
@@ -213,11 +202,9 @@
 				Base,
 			);
 			mainGroup = 6AE182A73B6A9D0A2981CE97;
-			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				BEEFAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = A71745ED0B0D9E29633DB923 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -227,7 +214,6 @@
 			);
 		};
 /* End PBXProject section */
-
 
 /* Begin PBXResourcesBuildPhase section */
 		26D0E06B5E51FC49407674A2 /* Resources */ = {
@@ -247,14 +233,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E1043BC6F578C87214D6C661 /* Sources */ = {
+		7FF66E64B14245E2A5CB8569 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7FF66E64B14245E2A5CB8569 /* Sources */ = {
+		E1043BC6F578C87214D6C661 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -264,39 +250,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		BEEFAA000000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = BEEFAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
-		BEEFAA000000000000000004 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = BEEFAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
 		0FC02D22248748E49355C84A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 687DD42230CC25053ABB5FB8 /* DevLogWidgetCore */;
 			targetProxy = 0B7A0A7092BC4744A8B90CF1 /* PBXContainerItemProxy */;
 		};
+		BEEFAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = BEEFAA000000000000000003 /* SwiftLintBuildToolPlugin */;
+		};
+		BEEFAA000000000000000004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = BEEFAA000000000000000003 /* SwiftLintBuildToolPlugin */;
+		};
 /* End PBXTargetDependency section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		BEEFAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/SwiftLint";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.62.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		BEEFAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BEEFAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8E2FD158204AEBB5D6B1CAA7 /* Release */ = {
@@ -311,7 +278,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -324,24 +295,6 @@
 			};
 			name = Release;
 		};
-		C8AB811EE79C44E18B3C5FDA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogWidgetCore;
-			};
-			name = Debug;
-		};
 		A126E2F5B68D409C837729AA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -349,7 +302,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -373,7 +330,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -382,6 +343,28 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		C8AB811EE79C44E18B3C5FDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogWidgetCore;
 			};
 			name = Debug;
 		};
@@ -503,20 +486,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A8996A1DFD084C1D6663F586 /* Build configuration list for PBXNativeTarget "DevLogWidgetCore" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8E2FD158204AEBB5D6B1CAA7 /* Release */,
-				C5BA4998DAC2550DE98EA22B /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		6F75FCBA6A204D4FA892DEF2 /* Build configuration list for PBXNativeTarget "DevLogWidgetCoreTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8AB811EE79C44E18B3C5FDA /* Debug */,
 				A126E2F5B68D409C837729AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A8996A1DFD084C1D6663F586 /* Build configuration list for PBXNativeTarget "DevLogWidgetCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E2FD158204AEBB5D6B1CAA7 /* Release */,
+				C5BA4998DAC2550DE98EA22B /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -531,6 +514,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BEEFAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.62.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BEEFAA000000000000000003 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BEEFAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 836D58C848CD386B5BF2287A /* Project object */;
 }

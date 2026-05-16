@@ -3,17 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045D0608DB7069603090D029 /* DevLogCore.framework */; };
+		0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E7473315771B5D3030C5003 /* DevLogPresentation.framework */; };
 		1B8D0C5D8C506642FFB8F9FA /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6DDD31C1122286D5852621 /* OrderedCollections */; };
 		3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 423A6FE16D5EC7FECF77A31A /* MarkdownUI */; };
 		CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E43EBE726188C58FFB2B6CD /* Foundation.framework */; };
 		D5BCE781F72346A08F831AC3 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE459172FB7283400441703 /* DevLogDomain.framework */; };
 		E318BB71FCCC61D38115BC0C /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE459172FB7283400441703 /* DevLogDomain.framework */; };
-		01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045D0608DB7069603090D029 /* DevLogCore.framework */; };
-		0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E7473315771B5D3030C5003 /* DevLogPresentation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,31 +27,45 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3E43EBE726188C58FFB2B6CD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		045D0608DB7069603090D029 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DevLogPresentation.framework; path = "/Users/opfic/Desktop/Github/App/SwiftUI_DevLog/Application/DevLogPresentation/build/Debug-iphoneos/DevLogPresentation.framework"; sourceTree = "<absolute>"; };
-		F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPresentationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E43EBE726188C58FFB2B6CD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFE459172FB7283400441703 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPresentationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A4A427D518004ED78EB659DF /* Exceptions for "Sources" folder in "DevLogPresentation" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				.swiftlint.yml,
-			);
-			target = A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */;
-		};
-		4320D5C2F6A44B24BF69A36C /* Exceptions for "Tests" folder in "DevLogPresentationTests" target */ = {
+		4320D5C2F6A44B24BF69A36C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
 			);
 			target = BB5614AE13A04E97AC91BD37 /* DevLogPresentationTests */;
 		};
+		A4A427D518004ED78EB659DF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4320D5C2F6A44B24BF69A36B /* Tests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (4320D5C2F6A44B24BF69A36C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tests; sourceTree = "<group>"; };
+		A4A427D518004ED78EB659DE /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A4A427D518004ED78EB659DF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Sources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		51A82EDFE96F43B8900A3E8C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */,
+				D5BCE781F72346A08F831AC3 /* DevLogDomain.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		583BF4C4F7EB77076D3CFEA2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -61,15 +75,6 @@
 				01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */,
 				E318BB71FCCC61D38115BC0C /* DevLogDomain.framework in Frameworks */,
 				1B8D0C5D8C506642FFB8F9FA /* OrderedCollections in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51A82EDFE96F43B8900A3E8C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */,
-				D5BCE781F72346A08F831AC3 /* DevLogDomain.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,15 +98,8 @@
 				4320D5C2F6A44B24BF69A36B /* Tests */,
 				9CC0354538B2A1DF2C74E484 /* Frameworks */,
 				03D4331F04C462F4C642860F /* Products */,
+				DF02DBC92FB8D9F1008C7784 /* Recovered References */,
 			);
-			sourceTree = "<group>";
-		};
-		4320D5C2F6A44B24BF69A36B /* Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				4320D5C2F6A44B24BF69A36C /* Exceptions for "Tests" folder in "DevLogPresentationTests" target */,
-			);
-			path = Tests;
 			sourceTree = "<group>";
 		};
 		9A88EA8D5BC609F90B07B726 /* iOS */ = {
@@ -120,12 +118,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		A4A427D518004ED78EB659DE /* Sources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A4A427D518004ED78EB659DF /* Exceptions for "Sources" folder in "DevLogPresentation" target */,
+		DF02DBC92FB8D9F1008C7784 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				5E7473315771B5D3030C5003 /* DevLogPresentation.framework */,
 			);
-			path = Sources;
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -227,7 +225,6 @@
 		};
 /* End PBXProject section */
 
-
 /* Begin PBXResourcesBuildPhase section */
 		5F943984CC1B4A3836CF316E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -246,14 +243,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F3DA432031981B11AF07B907 /* Sources */ = {
+		B35683B73EC04117BE5F8A9D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B35683B73EC04117BE5F8A9D /* Sources */ = {
+		F3DA432031981B11AF07B907 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -263,18 +260,18 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		FEEAAA000000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
-		FEEAAA000000000000000004 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
 		A4FB56AD9F854F9D93800AD6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A85D2D7D1D6DAAFBF86C9C34 /* DevLogPresentation */;
 			targetProxy = 0829BE4E037D4E0C846B6C81 /* PBXContainerItemProxy */;
+		};
+		FEEAAA000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = FEEAAA000000000000000003 /* SwiftLintBuildToolPlugin */;
+		};
+		FEEAAA000000000000000004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = FEEAAA000000000000000003 /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -369,28 +366,6 @@
 			};
 			name = Release;
 		};
-		CB9C4E76716149638008AD42 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentationTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogPresentation;
-			};
-			name = Debug;
-		};
 		8DD7AD0C295CF0638E03F403 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -418,29 +393,6 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
-		};
-		F63EFE6D267A4A16A91F429B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentationTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogPresentation;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 		973B1093961F1A8F15179643 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -493,6 +445,51 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CB9C4E76716149638008AD42 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogPresentation;
+			};
+			name = Debug;
+		};
+		F63EFE6D267A4A16A91F429B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPresentationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogPresentation;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -556,11 +553,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FEEAAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FEEAAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
 		423A6FE16D5EC7FECF77A31A /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3268290C30B3BFC6DE469DE1 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
@@ -570,6 +562,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4A268C0F47C89BEF1B5B794F /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
+		};
+		FEEAAA000000000000000003 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FEEAAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

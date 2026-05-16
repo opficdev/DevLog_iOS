@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,7 +18,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DA0865721A6D430B66025E67 /* Exceptions for "Sources" folder in "DevLogCore" target */ = {
+		DA0865721A6D430B66025E67 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
@@ -28,14 +28,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DA0865721A6D430B66025E66 /* Sources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DA0865721A6D430B66025E67 /* Exceptions for "Sources" folder in "DevLogCore" target */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
+		DA0865721A6D430B66025E66 /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (DA0865721A6D430B66025E67 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Sources; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,11 +131,9 @@
 				Base,
 			);
 			mainGroup = C0DE4BE90CB1A6B4CEDFCA61;
-			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				C0DEAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = B66C037F848BDEE68DAC8902 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -175,28 +166,9 @@
 /* Begin PBXTargetDependency section */
 		C0DEAA000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = C0DEAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+			productRef = C0DEAA000000000000000003 /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		C0DEAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/SwiftLint";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.62.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		C0DEAA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C0DEAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0095EA3D0E3FC18B545418BE /* Debug */ = {
@@ -211,7 +183,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -289,7 +265,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -385,6 +365,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C0DEAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.62.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C0DEAA000000000000000003 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0DEAA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3CF16EA616D3B65329E78465 /* Project object */;
 }
