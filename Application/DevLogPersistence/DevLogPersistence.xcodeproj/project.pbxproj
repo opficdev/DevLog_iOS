@@ -9,17 +9,9 @@
 /* Begin PBXBuildFile section */
 		041CEED3822FCBD881DF75CD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */; };
 		3B8FAEC025F373D4CFC262D4 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493A5D0B4274807F2B948AB3 /* DevLogData.framework */; };
-		50BBA1C19A7C61B8B8F3A68B /* WebPageImageStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9566895E4A451286246B008 /* WebPageImageStoreImpl.swift */; };
-		5967B32779F22DD0E3C2D247 /* UserDefaultsStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAF91F98F483FF07C38820D /* UserDefaultsStoreImpl.swift */; };
-		6F16B4E3565C450BBEEE3993 /* WidgetSnapshotPreferenceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE32A69CF8C4CA7A121FC8F /* WidgetSnapshotPreferenceStoreTests.swift */; };
-		7044FCFCA32C8AA8F6FF4474 /* ThemeStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */; };
 		7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
 		8A95AB09613C4F54883A7A38 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
-		95FC6A06F2434722A1B8A7D0 /* WidgetSnapshotUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34625468B650427AA753F4E6 /* WidgetSnapshotUpdaterTests.swift */; };
-		9814DBF1A0DCD650FEF5A376 /* WidgetSnapshotUpdaterImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */; };
 		A11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
-		A33333333333333333333333 /* PersistenceAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22222222222222222222222 /* PersistenceAssembler.swift */; };
-		B1EAEC66B3C4F0B16072F5BE /* WidgetSnapshotPreferenceStoreImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */; };
 		E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 		F47DBE7D3E7E49F08D4B5530 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
 		4EE7A141A66C408EB8897D4A /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */; };
@@ -122,21 +114,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThemeStoreImpl.swift; path = Sources/Persistence/ThemeStoreImpl.swift; sourceTree = "<group>"; };
 		52A6964627E9E20D0D6A26B9 /* DevLogData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogData.xcodeproj; path = ../DevLogData/DevLogData.xcodeproj; sourceTree = "<group>"; };
 		596DB8A398F4BCB331775AB9 /* DevLogDomain.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogDomain.xcodeproj; path = ../DevLogDomain/DevLogDomain.xcodeproj; sourceTree = "<group>"; };
 		62B066C5B0714BC3B5F4D9D0 /* DevLogPersistenceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPersistenceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotPreferenceStoreImpl.swift; path = Sources/Persistence/WidgetSnapshotPreferenceStoreImpl.swift; sourceTree = "<group>"; };
-		7DAF91F98F483FF07C38820D /* UserDefaultsStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsStoreImpl.swift; path = Sources/Persistence/UserDefaultsStoreImpl.swift; sourceTree = "<group>"; };
-		85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshotUpdaterImpl.swift; path = Sources/Persistence/WidgetSnapshotUpdaterImpl.swift; sourceTree = "<group>"; };
 		86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A22222222222222222222222 /* PersistenceAssembler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceAssembler.swift; path = Sources/PersistenceAssembler.swift; sourceTree = "<group>"; };
 		A44444444444444444444444 /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		AEA9DB8D523E749E611B96FA /* DevLogWidgetCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevLogWidgetCore.xcodeproj; path = ../../Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj; sourceTree = "<group>"; };
-		BCE32A69CF8C4CA7A121FC8F /* WidgetSnapshotPreferenceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotPreferenceStoreTests.swift; sourceTree = "<group>"; };
-		C9566895E4A451286246B008 /* WebPageImageStoreImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WebPageImageStoreImpl.swift; path = Sources/Persistence/WebPageImageStoreImpl.swift; sourceTree = "<group>"; };
-		34625468B650427AA753F4E6 /* WidgetSnapshotUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotUpdaterTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -206,27 +190,6 @@
 				63CE47D539EE6F9653C99774 /* Exceptions for "Sources" folder in "DevLogPersistence" target */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		721064495EFC6DDBA559F465 /* Persistence */ = {
-			isa = PBXGroup;
-			children = (
-				04780AD732B7659D3DA1D9AC /* ThemeStoreImpl.swift */,
-				7DAF91F98F483FF07C38820D /* UserDefaultsStoreImpl.swift */,
-				C9566895E4A451286246B008 /* WebPageImageStoreImpl.swift */,
-				6C8A7AA23C4A011F28EB5406 /* WidgetSnapshotPreferenceStoreImpl.swift */,
-				85D9D7AE4397A6195D68E3F8 /* WidgetSnapshotUpdaterImpl.swift */,
-			);
-			name = Persistence;
-			sourceTree = "<group>";
-		};
-		1A6D6E26D8E1475E97C67805 /* Persistence */ = {
-			isa = PBXGroup;
-			children = (
-				BCE32A69CF8C4CA7A121FC8F /* WidgetSnapshotPreferenceStoreTests.swift */,
-				34625468B650427AA753F4E6 /* WidgetSnapshotUpdaterTests.swift */,
-			);
-			path = Persistence;
 			sourceTree = "<group>";
 		};
 		D5D04ADAA14A44289CF9A22E /* Tests */ = {
