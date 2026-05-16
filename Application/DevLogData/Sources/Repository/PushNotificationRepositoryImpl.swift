@@ -61,8 +61,8 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
             async let responseTask = pushNotificationService.requestNotifications(query, cursor: cursorDTO)
             async let preferencesTask = todoCategoryService.fetchPreferences()
 
-            let (response, preferences) = try await (responseTask, preferencesTask)
-            return try resolvePage(from: response, with: preferences)
+            let (response, preferenceResponses) = try await (responseTask, preferencesTask)
+            return try resolvePage(from: response, with: preferenceResponses.toDomain())
         } catch {
             throw error.toDomain()
         }
@@ -91,7 +91,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 
                         Task {
                             do {
-                                let preferences = try await self.todoCategoryService.fetchPreferences()
+                                let preferences = try await self.todoCategoryService.fetchPreferences().toDomain()
                                 let page = try self.resolvePage(from: response, with: preferences)
                                 subject.send(page)
                             } catch {

@@ -16,7 +16,7 @@ final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
 
     func fetchPreferences() async throws -> [TodoCategoryPreference] {
         do {
-            return try await todoCategoryService.fetchPreferences()
+            return try await todoCategoryService.fetchPreferences().toDomain()
         } catch {
             throw error.toDomain()
         }
@@ -24,7 +24,9 @@ final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
 
     func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws {
         do {
-            try await todoCategoryService.updatePreferences(preferences)
+            try await todoCategoryService.updatePreferences(
+                preferences.map(TodoCategoryPreferenceResponse.fromDomain)
+            )
         } catch {
             throw error.toDomain()
         }

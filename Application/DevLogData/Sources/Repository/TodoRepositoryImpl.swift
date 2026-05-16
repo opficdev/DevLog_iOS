@@ -28,8 +28,8 @@ final class TodoRepositoryImpl: TodoRepository {
             async let response = todoService.fetchTodos(query, cursor: responseCursor)
             async let preferences = todoCategoryService.fetchPreferences()
 
-            let (todoResponse, todoPreferences) = try await (response, preferences)
-            let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
+            let (todoResponse, todoPreferenceResponses) = try await (response, preferences)
+            let userTodoCategories: [UserTodoCategory] = todoPreferenceResponses.toDomain().compactMap { preference in
                 guard case .user(let category) = preference.category else {
                     return nil
                 }
@@ -55,8 +55,8 @@ final class TodoRepositoryImpl: TodoRepository {
             async let response = todoService.fetchTodo(todoId: todoId)
             async let preferences = todoCategoryService.fetchPreferences()
 
-            let (todoResponse, todoPreferences) = try await (response, preferences)
-            let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
+            let (todoResponse, todoPreferenceResponses) = try await (response, preferences)
+            let userTodoCategories: [UserTodoCategory] = todoPreferenceResponses.toDomain().compactMap { preference in
                 guard case .user(let category) = preference.category else {
                     return nil
                 }
@@ -75,8 +75,8 @@ final class TodoRepositoryImpl: TodoRepository {
             async let responseTask = todoService.fetchReferences(numbers)
             async let preferencesTask = todoCategoryService.fetchPreferences()
 
-            let (responses, preferences) = try await (responseTask, preferencesTask)
-            let userTodoCategories: [UserTodoCategory] = preferences.compactMap { preference in
+            let (responses, preferenceResponses) = try await (responseTask, preferencesTask)
+            let userTodoCategories: [UserTodoCategory] = preferenceResponses.toDomain().compactMap { preference in
                 guard case .user(let category) = preference.category else {
                     return nil
                 }

@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import DevLogDomain
 
 public protocol TodoCategoryService {
-    func fetchPreferences() async throws -> [TodoCategoryPreference]
-    func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws
+    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse]
+    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws
 }
