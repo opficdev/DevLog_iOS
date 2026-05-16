@@ -76,17 +76,18 @@ private func mergedTodoCategoryPreferences(
     _ preferences: [TodoCategoryPreference]
 ) -> [TodoCategoryPreference] {
     var mergedPreferences = preferences
-
-    for systemTodoCategory in SystemTodoCategory.allCases {
-        let containsSystemTodoCategory = preferences.contains { preference in
-            guard case .system(let currentSystemTodoCategory) = preference.category else {
-                return false
+    let existingSystemTodoCategories = Set<SystemTodoCategory>(
+        preferences.compactMap { preference in
+            guard case .system(let systemTodoCategory) = preference.category else {
+                return nil
             }
 
-            return currentSystemTodoCategory == systemTodoCategory
+            return systemTodoCategory
         }
+    )
 
-        if containsSystemTodoCategory { continue }
+    for systemTodoCategory in SystemTodoCategory.allCases {
+        if existingSystemTodoCategories.contains(systemTodoCategory) { continue }
 
         mergedPreferences.append(
             TodoCategoryPreference(
