@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogCore
 import DevLogDomain
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -22,82 +23,107 @@ final class TodoRepositoryImpl: TodoRepository {
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
         let responseCursor = cursor.map { TodoCursorDTO.fromDomain($0) }
-        async let response = todoService.fetchTodos(query, cursor: responseCursor)
-        async let preferences = todoCategoryService.fetchPreferences()
 
-        let (todoResponse, todoPreferences) = try await (response, preferences)
-        let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
-            guard case .user(let category) = preference.category else {
-                return nil
+        do {
+            async let response = todoService.fetchTodos(query, cursor: responseCursor)
+            async let preferences = todoCategoryService.fetchPreferences()
+
+            let (todoResponse, todoPreferences) = try await (response, preferences)
+            let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
+                guard case .user(let category) = preference.category else {
+                    return nil
+                }
+
+                return category
             }
 
-            return category
-        }
+            let resolvedTodoResponses = try todoResponse.items.map {
+                try resolve($0, userTodoCategories: userTodoCategories)
+            }
 
-        let resolvedTodoResponses = try todoResponse.items.map {
-            try resolve($0, userTodoCategories: userTodoCategories)
+            return try TodoPageResponse(
+                items: resolvedTodoResponses,
+                nextCursor: todoResponse.nextCursor
+            ).toDomain()
+        } catch {
+            throw error.toDataLayerError()
         }
-
-        return try TodoPageResponse(
-            items: resolvedTodoResponses,
-            nextCursor: todoResponse.nextCursor
-        ).toDomain()
     }
 
     func fetchTodo(_ todoId: String) async throws -> Todo {
-        async let response = todoService.fetchTodo(todoId: todoId)
-        async let preferences = todoCategoryService.fetchPreferences()
+        do {
+            async let response = todoService.fetchTodo(todoId: todoId)
+            async let preferences = todoCategoryService.fetchPreferences()
 
-        let (todoResponse, todoPreferences) = try await (response, preferences)
-        let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
-            guard case .user(let category) = preference.category else {
-                return nil
+            let (todoResponse, todoPreferences) = try await (response, preferences)
+            let userTodoCategories: [UserTodoCategory] = todoPreferences.compactMap { preference in
+                guard case .user(let category) = preference.category else {
+                    return nil
+                }
+
+                return category
             }
 
-            return category
+            return try resolve(todoResponse, userTodoCategories: userTodoCategories).toDomain()
+        } catch {
+            throw error.toDataLayerError()
         }
-
-        return try resolve(todoResponse, userTodoCategories: userTodoCategories).toDomain()
     }
 
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
-        async let responseTask = todoService.fetchReferences(numbers)
-        async let preferencesTask = todoCategoryService.fetchPreferences()
+        do {
+            async let responseTask = todoService.fetchReferences(numbers)
+            async let preferencesTask = todoCategoryService.fetchPreferences()
 
-        let (responses, preferences) = try await (responseTask, preferencesTask)
-        let userTodoCategories: [UserTodoCategory] = preferences.compactMap { preference in
-            guard case .user(let category) = preference.category else {
-                return nil
+            let (responses, preferences) = try await (responseTask, preferencesTask)
+            let userTodoCategories: [UserTodoCategory] = preferences.compactMap { preference in
+                guard case .user(let category) = preference.category else {
+                    return nil
+                }
+
+                return category
             }
 
-            return category
-        }
+            return try responses.reduce(into: [Int: TodoReference]()) { partialResult, pair in
+                let response = try resolve(pair.value, userTodoCategories: userTodoCategories)
+                guard case let .decoded(category) = response.category else {
+                    throw DataError.invalidData("TodoReferenceResponse.category must be resolved before use")
+                }
 
-        return try responses.reduce(into: [Int: TodoReference]()) { partialResult, pair in
-            let response = try resolve(pair.value, userTodoCategories: userTodoCategories)
-            guard case let .decoded(category) = response.category else {
-                throw DataError.invalidData("TodoReferenceResponse.category must be resolved before use")
+                partialResult[pair.key] = TodoReference(
+                    id: response.id,
+                    title: response.title,
+                    category: category
+                )
             }
-
-            partialResult[pair.key] = TodoReference(
-                id: response.id,
-                title: response.title,
-                category: category
-            )
+        } catch {
+            throw error.toDataLayerError()
         }
     }
     
     func upsertTodo(_ todo: Todo) async throws {
         let request = TodoRequest.fromDomain(todo)
-        try await todoService.upsertTodo(request: request)
+        do {
+            try await todoService.upsertTodo(request: request)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
     
     func deleteTodo(_ todoId: String) async throws {
-        try await todoService.deleteTodo(todoId: todoId)
+        do {
+            try await todoService.deleteTodo(todoId: todoId)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 
     func undoDeleteTodo(_ todoId: String) async throws {
-        try await todoService.undoDeleteTodo(todoId: todoId)
+        do {
+            try await todoService.undoDeleteTodo(todoId: todoId)
+        } catch {
+            throw error.toDataLayerError()
+        }
     }
 }
 
@@ -147,23 +173,23 @@ private extension TodoRepositoryImpl {
         _ response: TodoReferenceResponse,
         userTodoCategories: [UserTodoCategory]
     ) throws -> TodoReferenceResponse {
-        let categoryID: String
+        let categoryId: String
         switch response.category {
         case .raw(let value):
-            categoryID = value
+            categoryId = value
         case .decoded:
             return response
         }
 
         let category: TodoCategory
-        if let systemTodoCategory = SystemTodoCategory(rawValue: categoryID) {
+        if let systemTodoCategory = SystemTodoCategory(rawValue: categoryId) {
             category = .system(systemTodoCategory)
         } else if let userTodoCategory = userTodoCategories.first(where: {
-            $0.id == categoryID
+            $0.id == categoryId
         }) {
             category = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(categoryID)")
+            throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(categoryId)")
         }
 
         return TodoReferenceResponse(

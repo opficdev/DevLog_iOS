@@ -1,6 +1,6 @@
 //
 //  TodoQuery.swift
-//  DevLogDomain
+//  DevLogCore
 //
 //  Created by opfic on 2/21/26.
 //
@@ -14,47 +14,17 @@ public struct TodoQuery: Equatable {
         case deletedAt
         case updatedAt
         case dueDate
-
-        public var fieldName: String {
-            switch self {
-            case .createdAt:
-                return "createdAt"
-            case .completedAt:
-                return "completedAt"
-            case .deletedAt:
-                return "deletedAt"
-            case .updatedAt:
-                return "updatedAt"
-            case .dueDate:
-                return "dueDate"
-            }
-        }
     }
 
     public enum SortOrder: Equatable, Hashable {
         case latest
         case oldest
-
-        public var isDescending: Bool {
-            self == .latest
-        }
     }
 
     public enum CompletionFilter: Equatable, Hashable {
         case all
         case incomplete
         case completed
-
-        public var isCompletedValue: Bool? {
-            switch self {
-            case .all:
-                return nil
-            case .incomplete:
-                return false
-            case .completed:
-                return true
-            }
-        }
     }
 
     public enum DueDateFilter: Equatable, Hashable {
@@ -63,7 +33,7 @@ public struct TodoQuery: Equatable {
         case withoutDueDate
     }
 
-    public var category: TodoCategory?
+    public var categoryId: String?
     public var keyword: String?
     public var isPinned: Bool?
     public var completionFilter: CompletionFilter
@@ -77,7 +47,7 @@ public struct TodoQuery: Equatable {
     public var fetchAllPages: Bool
 
     public init(
-        category: TodoCategory? = nil,
+        categoryId: String? = nil,
         keyword: String? = nil,
         isPinned: Bool? = nil,
         completionFilter: CompletionFilter = .all,
@@ -90,7 +60,7 @@ public struct TodoQuery: Equatable {
         pageSize: Int = 20,
         fetchAllPages: Bool = false
     ) {
-        self.category = category
+        self.categoryId = categoryId
         self.keyword = keyword
         self.isPinned = isPinned
         self.completionFilter = completionFilter

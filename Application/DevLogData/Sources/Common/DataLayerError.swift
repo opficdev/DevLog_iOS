@@ -44,6 +44,10 @@ public enum DataError: Error {
     }
 }
 
+public enum DataLayerError: Error {
+    case notAuthenticated
+}
+
 public extension Error {
     var isSocialLoginCancelled: Bool {
         switch self {

@@ -215,9 +215,9 @@ private struct TodoEditorInfoSheetView: View {
                         String(localized: "todo_category"),
                         selection: Binding(
                             get: { viewModel.state.category.id },
-                            set: { categoryID in
+                            set: { categoryId in
                                 guard let item = viewModel.state.categories.first(where: {
-                                    $0.id == categoryID
+                                    $0.id == categoryId
                                 }) else {
                                     return
                                 }

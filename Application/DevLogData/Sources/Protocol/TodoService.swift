@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DevLogDomain
+import DevLogCore
 
 public protocol TodoService {
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursorDTO?) async throws -> TodoPageResponse

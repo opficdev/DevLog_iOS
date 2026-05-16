@@ -9,7 +9,6 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFunctions
 import DevLogCore
-import DevLogDomain
 import DevLogData
 
 final class TodoServiceImpl: TodoService {
@@ -28,16 +27,18 @@ final class TodoServiceImpl: TodoService {
         _ query: TodoQuery,
         cursor: TodoCursorDTO?
     ) async throws -> TodoPageResponse {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         let trimmedKeyword = query.keyword?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let logComponents: [String?] = [
             "sortTarget=\(query.sortTarget.fieldName)",
             "sortOrder=\(query.sortOrder == .latest ? "latest" : "oldest")",
             query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
-            query.category != nil ? "category=\(query.category!.storageValue)" : nil,
+            query.categoryId != nil ? "category=\(query.categoryId!)" : nil,
             query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
-            query.completionFilter.isCompletedValue != nil ? "completed=\(query.completionFilter.isCompletedValue!)" : nil,
+            query.completionFilter.isCompletedValue != nil
+                ? "completed=\(query.completionFilter.isCompletedValue!)"
+                : nil,
             query.dueDateFilter != .all ? "dueDateFilter=\(query.dueDateFilter)" : nil,
             query.sortDateFrom != nil ? "sortDateFrom=\(query.sortDateFrom!)" : nil,
             query.sortDateTo != nil ? "sortDateTo=\(query.sortDateTo!)" : nil,
@@ -50,10 +51,10 @@ final class TodoServiceImpl: TodoService {
 
         var firestoreQuery = makeQuery(uid: uid, query: query)
 
-        if let category = query.category {
+        if let categoryId = query.categoryId {
             firestoreQuery = firestoreQuery.whereField(
                 TodoFieldKey.category.rawValue,
-                isEqualTo: category.storageValue
+                isEqualTo: categoryId
             )
         }
 
@@ -99,7 +100,10 @@ final class TodoServiceImpl: TodoService {
                 while true {
                     var pageQuery = firestoreQuery
                     if let pageCursor {
-                        guard let cursorValues = cursorValues(for: query, cursor: pageCursor) else {
+                        guard let cursorValues = cursorValues(
+                            for: query,
+                            cursor: pageCursor
+                        ) else {
                             logger.error("Failed to build cursor values for paginated todo fetch.")
                             break
                         }
@@ -165,7 +169,7 @@ final class TodoServiceImpl: TodoService {
     // swiftlint:enable function_body_length
 
     func upsertTodo(request: TodoRequest) async throws {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         logger.info("Upserting todo")
         
@@ -199,7 +203,7 @@ final class TodoServiceImpl: TodoService {
     }
     
     func deleteTodo(todoId: String) async throws {
-        guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+        guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
         logger.info("Requesting todo deletion")
         
@@ -215,7 +219,7 @@ final class TodoServiceImpl: TodoService {
     }
 
     func undoDeleteTodo(todoId: String) async throws {
-        guard Auth.auth().currentUser?.uid != nil else { throw AuthError.notAuthenticated }
+        guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
         logger.info("Undoing todo deletion")
 
@@ -231,7 +235,7 @@ final class TodoServiceImpl: TodoService {
     }
 
     func fetchTodo(todoId: String) async throws -> TodoResponse {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         logger.info("Fetching todo")
 
@@ -254,7 +258,7 @@ final class TodoServiceImpl: TodoService {
     }
 
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReferenceResponse] {
-        guard let uid = Auth.auth().currentUser?.uid else { throw AuthError.notAuthenticated }
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         let uniqueNumbers = Array(Set(numbers)).sorted()
         if uniqueNumbers.isEmpty { return [:] }
@@ -524,5 +528,41 @@ private extension TodoServiceImpl {
     enum CounterFieldKey: String {
         case nextNumber
         case updatedAt
+    }
+}
+
+private extension TodoQuery.SortTarget {
+    var fieldName: String {
+        switch self {
+        case .createdAt:
+            return "createdAt"
+        case .completedAt:
+            return "completedAt"
+        case .deletedAt:
+            return "deletedAt"
+        case .updatedAt:
+            return "updatedAt"
+        case .dueDate:
+            return "dueDate"
+        }
+    }
+}
+
+private extension TodoQuery.SortOrder {
+    var isDescending: Bool {
+        self == .latest
+    }
+}
+
+private extension TodoQuery.CompletionFilter {
+    var isCompletedValue: Bool? {
+        switch self {
+        case .all:
+            return nil
+        case .incomplete:
+            return false
+        case .completed:
+            return true
+        }
     }
 }

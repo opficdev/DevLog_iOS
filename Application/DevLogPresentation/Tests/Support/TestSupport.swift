@@ -8,6 +8,7 @@
 import Testing
 import Foundation
 import Combine
+import DevLogCore
 import DevLogDomain
 @testable import DevLogPresentation
 

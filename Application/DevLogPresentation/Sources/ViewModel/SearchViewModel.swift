@@ -7,6 +7,7 @@
 
 import Foundation
 import OrderedCollections
+import DevLogCore
 import DevLogDomain
 
 @Observable
