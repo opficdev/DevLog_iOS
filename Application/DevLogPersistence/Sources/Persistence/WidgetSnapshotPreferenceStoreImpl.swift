@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import DevLogDomain
+import DevLogCore
 import DevLogData
+import DevLogDomain
 
 final class WidgetSnapshotPreferenceStoreImpl: WidgetSnapshotPreferenceStore {
     private enum Key: String, CaseIterable {

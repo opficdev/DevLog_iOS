@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import DevLogCore
 import DevLogDomain
 @testable import DevLogWidgetCore
 

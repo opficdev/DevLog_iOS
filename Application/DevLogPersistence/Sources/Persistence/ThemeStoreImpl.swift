@@ -6,7 +6,7 @@
 //
 
 import Combine
-import DevLogDomain
+import DevLogCore
 import DevLogData
 
 final class ThemeStoreImpl: ThemeStore {

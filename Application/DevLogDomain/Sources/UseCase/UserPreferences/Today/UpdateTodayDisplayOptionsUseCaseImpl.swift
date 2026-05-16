@@ -5,6 +5,8 @@
 //  Created by opfic on 3/6/26.
 //
 
+import DevLogCore
+
 public final class UpdateTodayDisplayOptionsUseCaseImpl: UpdateTodayDisplayOptionsUseCase {
     private let repository: UserPreferencesRepository
 
