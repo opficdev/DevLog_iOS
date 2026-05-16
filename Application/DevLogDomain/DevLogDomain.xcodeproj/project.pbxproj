@@ -3,30 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4FC02B8BD98D4A888C4B9DAA /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */; };
 		5044FDD5ED149194C21F45DD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF9FBE3E5B1E3AF0A65F342 /* Foundation.framework */; };
 		7179FD5B4EBF8C744819A8DE /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A255290C54315FBBFEE3D5C /* DevLogCore.framework */; };
-		4FC02B8BD98D4A888C4B9DAA /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		382F8B0169E4B5594A5A0CB5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
-			remoteInfo = Subproject;
-		};
-		3FA49F27369B1E23BB63D104 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5755BDB768C11CE0FDEA4828;
-			remoteInfo = DevLogCore;
-		};
 		0B3A8BCEA8F240E7A0287892 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3D911168F99784261C777CF5 /* Project object */;
@@ -34,31 +20,24 @@
 			remoteGlobalIDString = 7D1E74925088998D68BBFBBB;
 			remoteInfo = DevLogDomain;
 		};
-		DF4F66BE2FB6F8F900ED4BA9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9E9FD7B09D0D7EAB8B828A5E;
-			remoteInfo = DevLogCore;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A255290C54315FBBFEE3D5C /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FA48D71FB864FBFB25626BE /* DevLogDomainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogDomainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.pb-project"; name = DevLogCore.xcodeproj; path = ../DevLogCore/DevLogCore.xcodeproj; sourceTree = "<group>"; };
 		CCF9FBE3E5B1E3AF0A65F342 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		534E4B81FFFA3D0023139ACF /* Exceptions for "Sources" folder in "DevLogDomain" target */ = {
+		534E4B81FFFA3D0023139ACF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
 			);
 			target = 7D1E74925088998D68BBFBBB /* DevLogDomain */;
 		};
-		534E4B81FFFA3D0023139AD1 /* Exceptions for "Tests" folder in "DevLogDomainTests" target */ = {
+		534E4B81FFFA3D0023139AD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				.swiftlint.yml,
@@ -68,14 +47,8 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		534E4B81FFFA3D0023139AD0 /* Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				534E4B81FFFA3D0023139AD1 /* Exceptions for "Tests" folder in "DevLogDomainTests" target */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
+		534E4B81FFFA3D0023139ACE /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (534E4B81FFFA3D0023139ACF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Sources; sourceTree = "<group>"; };
+		534E4B81FFFA3D0023139AD0 /* Tests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (534E4B81FFFA3D0023139AD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,31 +80,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		534E4B81FFFA3D0023139ACE /* Sources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				534E4B81FFFA3D0023139ACF /* Exceptions for "Sources" folder in "DevLogDomain" target */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
 		63B68BC59AF32C52B6CBF85B = {
 			isa = PBXGroup;
 			children = (
 				534E4B81FFFA3D0023139ACE /* Sources */,
 				534E4B81FFFA3D0023139AD0 /* Tests */,
 				40116A7CE17130969F51069D /* Frameworks */,
-				88BF7FD280466FBA9905EAF1 /* Projects */,
 				B4BFBC14E31354BAE25BA2A4 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		88BF7FD280466FBA9905EAF1 /* Projects */ = {
-			isa = PBXGroup;
-			children = (
-				984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */,
-			);
-			name = Projects;
 			sourceTree = "<group>";
 		};
 		8FA83A83534627957C480771 /* iOS */ = {
@@ -148,14 +104,6 @@
 				3F08F6B94839E9021FCFC466 /* DevLogDomain.framework */,
 				8FA48D71FB864FBFB25626BE /* DevLogDomainTests.xctest */,
 				1A255290C54315FBBFEE3D5C /* DevLogCore.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		DF4F66BB2FB6F8F800ED4BA9 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				DF4F66BF2FB6F8F900ED4BA9 /* DevLogCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,7 +134,6 @@
 			);
 			dependencies = (
 				D011AA000000000000000001 /* PBXTargetDependency */,
-				C87AAAC2357E4D2820F6470A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				534E4B81FFFA3D0023139ACE /* Sources */,
@@ -247,12 +194,6 @@
 			);
 			productRefGroup = B4BFBC14E31354BAE25BA2A4 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = DF4F66BB2FB6F8F800ED4BA9 /* Products */;
-					ProjectRef = 984FA2FF512E3A17EC214CAD /* DevLogCore.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				7D1E74925088998D68BBFBBB /* DevLogDomain */,
@@ -260,23 +201,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		1A255290C54315FBBFEE3D5C /* DevLogCore.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogCore.framework;
-			remoteRef = 382F8B0169E4B5594A5A0CB5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DF4F66BF2FB6F8F900ED4BA9 /* DevLogCore.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = DevLogCore.framework;
-			remoteRef = DF4F66BE2FB6F8F900ED4BA9 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0A4716162D54F03993DEF290 /* Resources */ = {
@@ -296,14 +220,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1B05160EC8564CFF74EEA733 /* Sources */ = {
+		0D62B34AFC764A4CBA1F117E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0D62B34AFC764A4CBA1F117E /* Sources */ = {
+		1B05160EC8564CFF74EEA733 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -315,16 +239,11 @@
 /* Begin PBXTargetDependency section */
 		D011AA000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = D011AA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
+			productRef = D011AA000000000000000003 /* SwiftLintBuildToolPlugin */;
 		};
 		D011AA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = D011AA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */;
-		};
-		C87AAAC2357E4D2820F6470A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DevLogCore;
-			targetProxy = 3FA49F27369B1E23BB63D104 /* PBXContainerItemProxy */;
+			productRef = D011AA000000000000000003 /* SwiftLintBuildToolPlugin */;
 		};
 		F8E77F4F6B984FA18618FEAF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -332,25 +251,6 @@
 			targetProxy = 0B3A8BCEA8F240E7A0287892 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D011AA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/SwiftLint";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.62.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D011AA000000000000000003 /* plugin:SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D011AA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3A4C7479653B809907982EE0 /* Debug */ = {
@@ -411,6 +311,25 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		86C9C00D3F064DB3BBCA4D13 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogDomain;
 			};
 			name = Debug;
 		};
@@ -479,7 +398,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomain;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -490,6 +413,25 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
+		};
+		DD016DD24E1D491080C4E490 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DevLogDomain;
+			};
+			name = Release;
 		};
 		F0EB74E2AA0977D6CB2E3A56 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -503,7 +445,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomain;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -513,36 +459,6 @@
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
-		86C9C00D3F064DB3BBCA4D13 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogDomain;
-			};
-			name = Debug;
-		};
-		DD016DD24E1D491080C4E490 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogDomainTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DevLogDomain;
 			};
 			name = Release;
 		};
@@ -558,15 +474,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1CC6382BF27FF25C0A22374 /* Build configuration list for PBXNativeTarget "DevLogDomain" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F0EB74E2AA0977D6CB2E3A56 /* Release */,
-				CE7099C63D3B75B186422932 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A09236D14D844CFD80483854 /* Build configuration list for PBXNativeTarget "DevLogDomainTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -576,7 +483,35 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		A1CC6382BF27FF25C0A22374 /* Build configuration list for PBXNativeTarget "DevLogDomain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F0EB74E2AA0977D6CB2E3A56 /* Release */,
+				CE7099C63D3B75B186422932 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D011AA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.62.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D011AA000000000000000003 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D011AA000000000000000002 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3D911168F99784261C777CF5 /* Project object */;
 }
