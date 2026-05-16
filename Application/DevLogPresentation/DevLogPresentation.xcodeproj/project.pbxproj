@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		01D899033F573BBB31F1F1CB /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045D0608DB7069603090D029 /* DevLogCore.framework */; };
-		0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E7473315771B5D3030C5003 /* DevLogPresentation.framework */; };
 		1B8D0C5D8C506642FFB8F9FA /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7D6DDD31C1122286D5852621 /* OrderedCollections */; };
 		3120506A710A0B6505226C05 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 423A6FE16D5EC7FECF77A31A /* MarkdownUI */; };
 		CC36598B842BA60E284D4A9E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E43EBE726188C58FFB2B6CD /* Foundation.framework */; };
@@ -29,7 +28,7 @@
 /* Begin PBXFileReference section */
 		045D0608DB7069603090D029 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E43EBE726188C58FFB2B6CD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		5E7473315771B5D3030C5003 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFB2BA3C2FB8E5BE00720E6F /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFE459172FB7283400441703 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPresentationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -61,7 +60,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0530C4A2CF7B413A831F5EA9 /* DevLogPresentation.framework in Frameworks */,
 				D5BCE781F72346A08F831AC3 /* DevLogDomain.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -87,6 +85,7 @@
 				F8C1C9C28BDE46D39FC79A72 /* DevLogPresentationTests.xctest */,
 				045D0608DB7069603090D029 /* DevLogCore.framework */,
 				DFE459172FB7283400441703 /* DevLogDomain.framework */,
+				DFB2BA3C2FB8E5BE00720E6F /* DevLogPresentation.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -98,7 +97,6 @@
 				4320D5C2F6A44B24BF69A36B /* Tests */,
 				9CC0354538B2A1DF2C74E484 /* Frameworks */,
 				03D4331F04C462F4C642860F /* Products */,
-				DF02DBC92FB8D9F1008C7784 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -116,14 +114,6 @@
 				9A88EA8D5BC609F90B07B726 /* iOS */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		DF02DBC92FB8D9F1008C7784 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				5E7473315771B5D3030C5003 /* DevLogPresentation.framework */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,7 +152,7 @@
 				7D6DDD31C1122286D5852621 /* OrderedCollections */,
 			);
 			productName = DevLogPresentation;
-			productReference = 5E7473315771B5D3030C5003 /* DevLogPresentation.framework */;
+			productReference = DFB2BA3C2FB8E5BE00720E6F /* DevLogPresentation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		BB5614AE13A04E97AC91BD37 /* DevLogPresentationTests */ = {
