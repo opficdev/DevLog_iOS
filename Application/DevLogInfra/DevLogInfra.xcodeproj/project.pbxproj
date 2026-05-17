@@ -11,7 +11,6 @@
 		5F7A14F2C5294547884212E1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 06ADD17826F44543B09286DA /* FirebaseCore */; };
 		65623F19F34A9A75BC72EE36 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE8F32B22E13743B3FF3B66B /* FirebaseFirestore */; };
 		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
-		E06504AD71E9A40ACCA85ABB /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05A93F27C7172C85CD7252AA /* DevLogDomain.framework */; };
 		E747320CAD03A579976E87F8 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 172AF9DE3BC54E9E0B4EFD19 /* FirebaseFunctions */; };
 		EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7333E70E9D312E56D4A364A6 /* GoogleSignIn */; };
 		F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4F874032FD57C0BBCC41C64 /* DevLogData.framework */; };
@@ -84,7 +83,6 @@
 				EE62AAD289D9CED31CC9E05D /* GoogleSignIn in Frameworks */,
 				FEBF252AD70A910C914D3D22 /* Nexa in Frameworks */,
 				F085DED20E80F63AE071D8BA /* DevLogData.framework in Frameworks */,
-				E06504AD71E9A40ACCA85ABB /* DevLogDomain.framework in Frameworks */,
 				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,7 +175,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				1F4AAA000000000000000001 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				959D79D1263CC74E32B40D78 /* Sources */,
@@ -271,10 +268,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		1F4AAA000000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 1F4AAA000000000000000003 /* SwiftLintBuildToolPlugin */;
-		};
 		1F4AAA000000000000000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 1F4AAA000000000000000003 /* SwiftLintBuildToolPlugin */;
