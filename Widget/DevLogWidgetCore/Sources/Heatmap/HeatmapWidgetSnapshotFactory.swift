@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogCore
-import DevLogDomain
 import DevLogData
 
 public struct HeatmapWidgetSnapshotFactory {
@@ -35,9 +34,9 @@ public struct HeatmapWidgetSnapshotFactory {
     }
 
     public func makeSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
+        createdTodos: [WidgetTodoSnapshot],
+        completedTodos: [WidgetTodoSnapshot],
+        deletedTodos: [WidgetTodoSnapshot],
         selectedActivityKinds: Set<ActivityKind>,
         quarterStart: Date,
         now: Date = Date()
@@ -79,9 +78,9 @@ public struct HeatmapWidgetSnapshotFactory {
 
 private extension HeatmapWidgetSnapshotFactory {
     func makeDailyCountsByDate(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
+        createdTodos: [WidgetTodoSnapshot],
+        completedTodos: [WidgetTodoSnapshot],
+        deletedTodos: [WidgetTodoSnapshot],
         quarterStart: Date,
         nextQuarterStart: Date
     ) -> [Date: DailyCounts] {

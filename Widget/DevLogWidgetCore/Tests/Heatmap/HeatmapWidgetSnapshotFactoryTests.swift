@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 import DevLogCore
-import DevLogDomain
+import DevLogData
 @testable import DevLogWidgetCore
 
 struct HeatmapWidgetSnapshotFactoryTests {
@@ -216,22 +216,16 @@ struct HeatmapWidgetSnapshotFactoryTests {
         createdAt: Date,
         completedAt: Date? = nil,
         deletedAt: Date? = nil
-    ) -> Todo {
-        Todo(
+    ) -> WidgetTodoSnapshot {
+        WidgetTodoSnapshot(
             id: id,
-            isPinned: false,
-            isCompleted: completedAt != nil,
-            isChecked: false,
             number: 1,
             title: id,
-            content: "",
+            isPinned: false,
             createdAt: createdAt,
-            updatedAt: createdAt,
             completedAt: completedAt,
             deletedAt: deletedAt,
-            dueDate: nil,
-            tags: [],
-            category: .system(.feature)
+            dueDate: nil
         )
     }
 }

@@ -64,7 +64,7 @@ private extension WidgetSyncEventHandler {
                 todosWithoutDueDate
             )
             snapshotUpdater.updateTodaySnapshot(
-                todos: todayTodosWithDueDate + todayTodosWithoutDueDate,
+                todos: (todayTodosWithDueDate + todayTodosWithoutDueDate).map(WidgetTodoSnapshot.fromDomain),
                 now: Date()
             )
         } catch {
@@ -104,9 +104,9 @@ private extension WidgetSyncEventHandler {
                 deletedTodos
             )
             snapshotUpdater.updateHeatmapSnapshot(
-                createdTodos: createdTodoItems,
-                completedTodos: completedTodoItems,
-                deletedTodos: deletedTodoItems,
+                createdTodos: createdTodoItems.map(WidgetTodoSnapshot.fromDomain),
+                completedTodos: completedTodoItems.map(WidgetTodoSnapshot.fromDomain),
+                deletedTodos: deletedTodoItems.map(WidgetTodoSnapshot.fromDomain),
                 quarterStart: quarterStart,
                 now: currentDate
             )

@@ -7,22 +7,21 @@
 
 import Foundation
 import DevLogCore
-import DevLogDomain
 
 public protocol WidgetSnapshotUpdater {
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         now: Date
     )
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         displayOptions: TodayDisplayOptions,
         now: Date
     )
     func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
+        createdTodos: [WidgetTodoSnapshot],
+        completedTodos: [WidgetTodoSnapshot],
+        deletedTodos: [WidgetTodoSnapshot],
         quarterStart: Date,
         now: Date
     )
