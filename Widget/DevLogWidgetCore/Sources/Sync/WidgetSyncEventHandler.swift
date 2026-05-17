@@ -40,14 +40,15 @@ private extension WidgetSyncEventHandler {
         case .syncRequested:
             Task { [weak self] in
                 guard let self else { return }
-                async let todaySnapshot: Void = updateTodayWidgetSnapshot()
-                async let heatmapSnapshot: Void = updateHeatmapWidgetSnapshot()
+                let now = Date()
+                async let todaySnapshot: Void = updateTodayWidgetSnapshot(now: now)
+                async let heatmapSnapshot: Void = updateHeatmapWidgetSnapshot(now: now)
                 _ = await (todaySnapshot, heatmapSnapshot)
             }
         }
     }
 
-    func updateTodayWidgetSnapshot() async {
+    func updateTodayWidgetSnapshot(now: Date) async {
         do {
             async let todosWithDueDate = fetchTodayTodos(
                 dueDateFilter: .withDueDate,
@@ -64,8 +65,8 @@ private extension WidgetSyncEventHandler {
                 todosWithoutDueDate
             )
             snapshotUpdater.updateTodaySnapshot(
-                todos: todayTodosWithDueDate + todayTodosWithoutDueDate,
-                now: Date()
+                todos: (todayTodosWithDueDate + todayTodosWithoutDueDate).map(WidgetTodoSnapshot.fromDomain),
+                now: now
             )
         } catch {
             logger.error(
@@ -75,9 +76,8 @@ private extension WidgetSyncEventHandler {
         }
     }
 
-    func updateHeatmapWidgetSnapshot() async {
-        let currentDate = Date()
-        let quarterStart = Calendar.current.startOfQuarter(for: currentDate)
+    func updateHeatmapWidgetSnapshot(now: Date) async {
+        let quarterStart = Calendar.current.startOfQuarter(for: now)
         guard let nextQuarterStart = Calendar.current.date(byAdding: .month, value: 3, to: quarterStart) else {
             return
         }
@@ -104,11 +104,11 @@ private extension WidgetSyncEventHandler {
                 deletedTodos
             )
             snapshotUpdater.updateHeatmapSnapshot(
-                createdTodos: createdTodoItems,
-                completedTodos: completedTodoItems,
-                deletedTodos: deletedTodoItems,
+                createdTodos: createdTodoItems.map(WidgetTodoSnapshot.fromDomain),
+                completedTodos: completedTodoItems.map(WidgetTodoSnapshot.fromDomain),
+                deletedTodos: deletedTodoItems.map(WidgetTodoSnapshot.fromDomain),
                 quarterStart: quarterStart,
-                now: currentDate
+                now: now
             )
         } catch {
             logger.error(

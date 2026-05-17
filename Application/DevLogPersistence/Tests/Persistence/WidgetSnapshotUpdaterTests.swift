@@ -7,7 +7,7 @@
 
 import Foundation
 import DevLogCore
-import DevLogDomain
+import DevLogData
 import Testing
 @testable import DevLogPersistence
 @testable import DevLogWidgetCore
@@ -150,22 +150,16 @@ struct WidgetSnapshotUpdaterTests {
         completedAt: Date? = nil,
         deletedAt: Date? = nil,
         dueDate: Date? = nil
-    ) -> Todo {
-        Todo(
+    ) -> WidgetTodoSnapshot {
+        WidgetTodoSnapshot(
             id: id,
-            isPinned: false,
-            isCompleted: completedAt != nil,
-            isChecked: false,
             number: 1,
             title: id,
-            content: "",
+            isPinned: false,
             createdAt: createdAt,
-            updatedAt: createdAt,
             completedAt: completedAt,
             deletedAt: deletedAt,
-            dueDate: dueDate,
-            tags: [],
-            category: .system(.feature)
+            dueDate: dueDate
         )
     }
 }

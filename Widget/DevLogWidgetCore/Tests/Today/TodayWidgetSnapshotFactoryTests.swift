@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 import DevLogCore
-import DevLogDomain
+import DevLogData
 @testable import DevLogWidgetCore
 
 struct TodayWidgetSnapshotFactoryTests {
@@ -123,7 +123,7 @@ struct TodayWidgetSnapshotFactoryTests {
     private func makeTodayTodos(
         now: Date,
         calendar: Calendar
-    ) throws -> [Todo] {
+    ) throws -> [WidgetTodoSnapshot] {
         let overdueDate = try #require(calendar.date(byAdding: .day, value: -1, to: now))
         let dueSoonDate = try #require(calendar.date(byAdding: .day, value: 3, to: now))
         let laterDate = try #require(calendar.date(byAdding: .day, value: 9, to: now))
@@ -173,22 +173,16 @@ struct TodayWidgetSnapshotFactoryTests {
         title: String,
         isPinned: Bool,
         dueDate: Date?
-    ) -> Todo {
-        Todo(
+    ) -> WidgetTodoSnapshot {
+        WidgetTodoSnapshot(
             id: id,
-            isPinned: isPinned,
-            isCompleted: false,
-            isChecked: false,
             number: number,
             title: title,
-            content: "",
+            isPinned: isPinned,
             createdAt: .now,
-            updatedAt: .now,
             completedAt: nil,
             deletedAt: nil,
-            dueDate: dueDate,
-            tags: [],
-            category: .system(.feature)
+            dueDate: dueDate
         )
     }
 }

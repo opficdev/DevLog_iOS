@@ -49,6 +49,7 @@ struct WidgetSyncEventHandlerTests {
         #expect(heatmapUpdates.first?.createdTodos.map(\.id) == ["created"])
         #expect(heatmapUpdates.first?.completedTodos.map(\.id) == ["completed"])
         #expect(heatmapUpdates.first?.deletedTodos.map(\.id) == ["deleted"])
+        #expect(todayUpdates.first?.now == heatmapUpdates.first?.now)
         #expect(queries.count == 5)
         #expect(Set(queries.map(\.sortTarget)) == Set([
             .dueDate,
@@ -247,15 +248,15 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
 
 private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     struct TodayUpdate {
-        let todos: [Todo]
+        let todos: [WidgetTodoSnapshot]
         let displayOptions: TodayDisplayOptions?
         let now: Date
     }
 
     struct HeatmapUpdate {
-        let createdTodos: [Todo]
-        let completedTodos: [Todo]
-        let deletedTodos: [Todo]
+        let createdTodos: [WidgetTodoSnapshot]
+        let completedTodos: [WidgetTodoSnapshot]
+        let deletedTodos: [WidgetTodoSnapshot]
         let quarterStart: Date
         let now: Date
     }
@@ -286,7 +287,7 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         now: Date
     ) {
         appendTodayUpdate(
@@ -299,7 +300,7 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         displayOptions: TodayDisplayOptions,
         now: Date
     ) {
@@ -313,9 +314,9 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     }
 
     func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
+        createdTodos: [WidgetTodoSnapshot],
+        completedTodos: [WidgetTodoSnapshot],
+        deletedTodos: [WidgetTodoSnapshot],
         quarterStart: Date,
         now: Date
     ) {

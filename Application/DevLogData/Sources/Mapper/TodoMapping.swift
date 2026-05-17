@@ -57,6 +57,21 @@ public extension TodoResponse {
     }
 }
 
+public extension WidgetTodoSnapshot {
+    static func fromDomain(_ todo: Todo) -> Self {
+        WidgetTodoSnapshot(
+            id: todo.id,
+            number: todo.number,
+            title: todo.title,
+            isPinned: todo.isPinned,
+            createdAt: todo.createdAt,
+            completedAt: todo.completedAt,
+            deletedAt: todo.deletedAt,
+            dueDate: todo.dueDate
+        )
+    }
+}
+
 public extension TodoCursorDTO {
     func toDomain() -> TodoCursor {
         TodoCursor(

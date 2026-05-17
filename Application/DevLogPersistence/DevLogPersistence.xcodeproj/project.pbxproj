@@ -12,8 +12,6 @@
 		4763564ECF9942DCB6A7D3D2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 		4EE7A141A66C408EB8897D4A /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */; };
 		5F89EB23199E4ABEA925CF92 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493A5D0B4274807F2B948AB3 /* DevLogData.framework */; };
-		7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
-		8A95AB09613C4F54883A7A38 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F334BCFC52C730D5901F6051 /* DevLogDomain.framework */; };
 		A11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
 		E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */; };
 		F47DBE7D3E7E49F08D4B5530 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A55555555555555555555555 /* DevLogCore.framework */; };
@@ -36,7 +34,6 @@
 		86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98B16FCDA8A71E2E4E1DC05E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F334BCFC52C730D5901F6051 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -68,7 +65,6 @@
 			files = (
 				4EE7A141A66C408EB8897D4A /* DevLogPersistence.framework in Frameworks */,
 				F47DBE7D3E7E49F08D4B5530 /* DevLogCore.framework in Frameworks */,
-				8A95AB09613C4F54883A7A38 /* DevLogDomain.framework in Frameworks */,
 				5F89EB23199E4ABEA925CF92 /* DevLogData.framework in Frameworks */,
 				4763564ECF9942DCB6A7D3D2 /* DevLogWidgetCore.framework in Frameworks */,
 			);
@@ -79,7 +75,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				041CEED3822FCBD881DF75CD /* Foundation.framework in Frameworks */,
-				7D8DE74BD24B456D42B04806 /* DevLogDomain.framework in Frameworks */,
 				E53E13B73BFAF0C51013ECA2 /* DevLogWidgetCore.framework in Frameworks */,
 				3B8FAEC025F373D4CFC262D4 /* DevLogData.framework in Frameworks */,
 				A11111111111111111111111 /* DevLogCore.framework in Frameworks */,
@@ -120,7 +115,6 @@
 			children = (
 				86E8AA2A43914F444BF5A6C2 /* DevLogPersistence.framework */,
 				62B066C5B0714BC3B5F4D9D0 /* DevLogPersistenceTests.xctest */,
-				F334BCFC52C730D5901F6051 /* DevLogDomain.framework */,
 				5FF5E1613F059A4B77931161 /* DevLogWidgetCore.framework */,
 				493A5D0B4274807F2B948AB3 /* DevLogData.framework */,
 				A55555555555555555555555 /* DevLogCore.framework */,

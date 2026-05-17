@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DevLogDomain
+import DevLogCore
 import Testing
 @testable import DevLogPersistence
 

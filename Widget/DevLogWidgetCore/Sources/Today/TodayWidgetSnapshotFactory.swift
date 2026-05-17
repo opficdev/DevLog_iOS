@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogCore
-import DevLogDomain
 import DevLogData
 
 public struct TodayWidgetSnapshotFactory {
@@ -49,7 +48,7 @@ public struct TodayWidgetSnapshotFactory {
         let isPinned: Bool
         let dueDate: Date?
 
-        init?(from todo: Todo) {
+        init?(from todo: WidgetTodoSnapshot) {
             guard let number = todo.number else { return nil }
             self.id = todo.id
             self.number = number
@@ -71,7 +70,7 @@ public struct TodayWidgetSnapshotFactory {
     }
 
     public func makeSnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         displayOptions: TodayDisplayOptions,
         now: Date = Date()
     ) -> TodayWidgetSnapshot {

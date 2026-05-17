@@ -8,7 +8,6 @@
 import Foundation
 import WidgetKit
 import DevLogCore
-import DevLogDomain
 import DevLogData
 import DevLogWidgetCore
 
@@ -32,7 +31,7 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         now: Date = Date()
     ) {
         updateTodaySnapshot(
@@ -43,7 +42,7 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     }
 
     func updateTodaySnapshot(
-        todos: [Todo],
+        todos: [WidgetTodoSnapshot],
         displayOptions: TodayDisplayOptions,
         now: Date = Date()
     ) {
@@ -65,9 +64,9 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     }
 
     func updateHeatmapSnapshot(
-        createdTodos: [Todo],
-        completedTodos: [Todo],
-        deletedTodos: [Todo],
+        createdTodos: [WidgetTodoSnapshot],
+        completedTodos: [WidgetTodoSnapshot],
+        deletedTodos: [WidgetTodoSnapshot],
         quarterStart: Date,
         now: Date = Date()
     ) {
