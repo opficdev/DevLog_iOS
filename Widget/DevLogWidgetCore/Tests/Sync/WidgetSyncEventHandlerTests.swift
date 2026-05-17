@@ -49,6 +49,7 @@ struct WidgetSyncEventHandlerTests {
         #expect(heatmapUpdates.first?.createdTodos.map(\.id) == ["created"])
         #expect(heatmapUpdates.first?.completedTodos.map(\.id) == ["completed"])
         #expect(heatmapUpdates.first?.deletedTodos.map(\.id) == ["deleted"])
+        #expect(todayUpdates.first?.now == heatmapUpdates.first?.now)
         #expect(queries.count == 5)
         #expect(Set(queries.map(\.sortTarget)) == Set([
             .dueDate,
