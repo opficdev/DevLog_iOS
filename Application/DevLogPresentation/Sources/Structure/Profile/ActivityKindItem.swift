@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogCore
 
 public struct ActivityKindItem: Identifiable, Hashable {
     private let activityKind: ActivityKind

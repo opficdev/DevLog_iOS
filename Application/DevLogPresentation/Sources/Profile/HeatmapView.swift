@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogCore
 
 struct HeatmapView: View {
     @State private var availableWidth = CGFloat.zero

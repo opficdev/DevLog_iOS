@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogCore
 import DevLogDomain
 
 public struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
