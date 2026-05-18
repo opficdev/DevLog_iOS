@@ -8,7 +8,6 @@
 import UIKit
 import DevLogCore
 import DevLogData
-import DevLogWidgetCore
 import GoogleSignIn
 
 class AppDelegate: UIResponder, UIApplicationDelegate {

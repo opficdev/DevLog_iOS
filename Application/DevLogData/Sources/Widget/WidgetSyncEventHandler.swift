@@ -1,6 +1,6 @@
 //
 //  WidgetSyncEventHandler.swift
-//  DevLogWidgetCore
+//  DevLogData
 //
 //  Created by opfic on 4/30/26.
 //
@@ -9,7 +9,6 @@ import Combine
 import Foundation
 import DevLogCore
 import DevLogDomain
-import DevLogData
 
 public final class WidgetSyncEventHandler {
     private let repository: TodoRepository

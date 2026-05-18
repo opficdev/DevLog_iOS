@@ -1,6 +1,6 @@
 //
 //  WidgetSyncEventHandlerTests.swift
-//  DevLogWidgetCoreTests
+//  DevLogDataTests
 //
 //  Created by opfic on 4/30/26.
 //
@@ -8,9 +8,8 @@
 import Foundation
 import Testing
 import DevLogCore
-import DevLogData
 import DevLogDomain
-@testable import DevLogWidgetCore
+@testable import DevLogData
 
 struct WidgetSyncEventHandlerTests {
     @Test("위젯 동기화 요청 이벤트는 Today와 Heatmap 스냅샷을 갱신한다")

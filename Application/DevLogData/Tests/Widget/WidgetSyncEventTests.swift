@@ -1,13 +1,13 @@
 //
 //  WidgetSyncEventTests.swift
-//  DevLogWidgetCoreTests
+//  DevLogDataTests
 //
 //  Created by opfic on 4/29/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLogWidgetCore
+@testable import DevLogData
 
 struct WidgetSyncEventTests {
     @Test("위젯 동기화 이벤트는 동기화 요청만 표현한다")

@@ -7,7 +7,6 @@
 
 import Foundation
 import DevLogCore
-import DevLogData
 
 public struct HeatmapWidgetSnapshotFactory {
     fileprivate struct DailyCounts {
