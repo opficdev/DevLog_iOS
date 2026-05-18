@@ -8,13 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBD260F923A87C1577DBFF0F /* Foundation.framework */; };
-		7E979130578F4839B3C640C1 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
-		80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C18996E00A69C4BCB0F63AE /* DevLogData.framework */; };
 		8EF4007864D24A1F9074C80A /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */; };
-		A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
 		B11111111111111111111111 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
 		B69F5362A64E4C8FAA88393A /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B55555555555555555555555 /* DevLogCore.framework */; };
-		CE64C1569E684FD7BF6E21E7 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B108898FD3650BE0C116BD3C /* DevLogDomain.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,8 +26,6 @@
 /* Begin PBXFileReference section */
 		099A7D56A0E544A28733E668 /* DevLogWidgetCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogWidgetCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7C18996E00A69C4BCB0F63AE /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B108898FD3650BE0C116BD3C /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B55555555555555555555555 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBD260F923A87C1577DBFF0F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -65,8 +59,6 @@
 			files = (
 				8EF4007864D24A1F9074C80A /* DevLogWidgetCore.framework in Frameworks */,
 				B69F5362A64E4C8FAA88393A /* DevLogCore.framework in Frameworks */,
-				CE64C1569E684FD7BF6E21E7 /* DevLogDomain.framework in Frameworks */,
-				7E979130578F4839B3C640C1 /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,8 +68,6 @@
 			files = (
 				75C99AB35C6DF930E824185E /* Foundation.framework in Frameworks */,
 				B11111111111111111111111 /* DevLogCore.framework in Frameworks */,
-				A1DEB84CF3B18EC2005382C5 /* DevLogDomain.framework in Frameworks */,
-				80423C5F6B880409E39FD20F /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,8 +98,6 @@
 				6AF1B307A7E7CC03AA2BABB1 /* DevLogWidgetCore.framework */,
 				099A7D56A0E544A28733E668 /* DevLogWidgetCoreTests.xctest */,
 				B55555555555555555555555 /* DevLogCore.framework */,
-				B108898FD3650BE0C116BD3C /* DevLogDomain.framework */,
-				7C18996E00A69C4BCB0F63AE /* DevLogData.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";

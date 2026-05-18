@@ -8,7 +8,6 @@
 import Foundation
 import Testing
 import DevLogCore
-import DevLogData
 @testable import DevLogWidgetCore
 
 struct TodayWidgetSnapshotFactoryTests {
