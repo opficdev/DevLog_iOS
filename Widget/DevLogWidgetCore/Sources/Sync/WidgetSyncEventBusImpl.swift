@@ -6,8 +6,6 @@
 //
 
 import Combine
-import DevLogDomain
-import DevLogData
 
 public final class WidgetSyncEventBusImpl: WidgetSyncEventBus {
     private let subject = PassthroughSubject<WidgetSyncEvent, Never>()

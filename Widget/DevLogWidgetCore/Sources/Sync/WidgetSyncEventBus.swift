@@ -6,8 +6,6 @@
 //
 
 import Combine
-import DevLogDomain
-import DevLogData
 
 public protocol WidgetSyncEventBus {
     func publish(_ event: WidgetSyncEvent)

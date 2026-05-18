@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import DevLogDomain
-import DevLogData
 
 public struct TodayWidgetSnapshot: Codable, Equatable {
     let generatedAt: Date
