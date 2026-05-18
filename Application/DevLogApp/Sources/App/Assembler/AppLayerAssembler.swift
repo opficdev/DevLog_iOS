@@ -8,7 +8,6 @@
 import DevLogCore
 import DevLogData
 import DevLogDomain
-import DevLogWidgetCore
 
 final class AppLayerAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
