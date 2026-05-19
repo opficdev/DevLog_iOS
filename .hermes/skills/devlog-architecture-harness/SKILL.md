@@ -17,7 +17,7 @@ metadata:
 
 ## When to use
 
-Use this skill in `/Users/opfic/Desktop/Github/App/SwiftUI_DevLog` when the task touches any of these areas:
+Use this skill in the repository root when the task touches any of these areas:
 
 - Module boundary changes.
 - File moves across `Application/DevLog*` or `Widget/DevLog*` targets.

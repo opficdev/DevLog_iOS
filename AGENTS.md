@@ -2,7 +2,7 @@
 
 ## Scope
 
-These instructions apply only to `/Users/opfic/Desktop/Github/App/SwiftUI_DevLog`.
+These instructions apply only to the repository root.
 
 ## Logic preservation and optimization
 
