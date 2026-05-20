@@ -144,7 +144,7 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 | 구분 | 스택 |
 | --- | --- |
 | Deployment Target | iOS 17+ |
-| Architecture | Modular Architecture, MVVM, MVI-inspired state flow, Clean Architecture, DI Container |
+| Architecture | Modular Architecture, MVVM, MVI-inspired state flow, Clean Architecture |
 | UI | SwiftUI, Charts, MarkdownUI |
 | State & Async | Observable, Combine, async/await |
 | Backend | FirebaseAuth, FirebaseFirestore, Firebase Cloud Functions, FirebaseMessaging |
