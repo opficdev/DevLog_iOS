@@ -54,7 +54,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 ## 아키텍처
 
 MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방향 흐름을 차용한 구조  
-화면, 상태, 비즈니스 로직, 외부 의존성 분리를 위한 `MVVM + Clean Architecture` 기반 구성
+`DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `MVVM + Clean Architecture` 기반 구성
 
 <table>
   <tr>
@@ -144,7 +144,7 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 | 구분 | 스택 |
 | --- | --- |
 | Deployment Target | iOS 17+ |
-| Architecture | MVVM, MVI-inspired state flow, Clean Architecture, Repository Pattern, DI Container |
+| Architecture | Modular Architecture, MVVM, MVI-inspired state flow, Clean Architecture, DI Container |
 | UI | SwiftUI, Charts, MarkdownUI |
 | State & Async | Observable, Combine, async/await |
 | Backend | FirebaseAuth, FirebaseFirestore, Firebase Cloud Functions, FirebaseMessaging |
@@ -157,16 +157,20 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 
 ```text
 SwiftUI_DevLog/
-├── DevLog/
-│   ├── App/                  # 앱 진입점, DI, Assembler, Root 구성
-│   ├── Data/                 # DTO, Mapper, Repository 구현
-│   ├── Domain/               # Entity, Protocol, UseCase
-│   ├── Infra/                # Firebase 및 시스템 서비스
-│   ├── Presentation/         # ViewModel, 화면용 구조체와 프로토콜
-│   ├── Storage/              # 로컬 저장소 및 사용자 설정 영속성 처리
-│   ├── UI/                   # SwiftUI 화면
-│   └── Resource/             # plist, asset, 이미지 리소스
+├── DevLog.xcworkspace
+├── Application/
+│	├── DevLogApp/             # 앱 진입점, 앱 생명주기, 라우팅, Assembler 구성
+│	├── DevLogCore/            # DI, Logger, Query, 공통 값 타입
+│	├── DevLogDomain/          # Entity, Repository Protocol, UseCase
+│	├── DevLogData/            # Repository 구현, DTO, Mapper, Data 계층 Protocol
+│	├── DevLogInfra/           # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
+│	├── DevLogPersistence/     # UserDefaults, 이미지 저장소, 위젯 스냅샷 영속성 처리
+│	└── DevLogPresentation/    # SwiftUI 화면, ViewModel, Store, Coordinator
+├── Widget/
+│	├── DevLogWidgetCore/      # 위젯 스냅샷 모델, Factory, App Group 상수
+│	└── DevLogWidgetExtension/ # WidgetKit UI, Provider, Timeline
 ├── Firebase/
-│   └── functions/            # 인증 보조, 푸시 발송, 정리 작업용 Cloud Functions
+│	└── functions/            # 인증 보조, 푸시 발송, 정리 작업용 Cloud Functions
+├── docs/                     # README 이미지와 draw.io 원본
 └── README.md
 ```
