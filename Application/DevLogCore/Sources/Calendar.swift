@@ -1,6 +1,6 @@
 //
 //  Calendar.swift
-//  DevLogWidgetCore
+//  DevLogCore
 //
 //  Created by opfic on 4/30/26.
 //
