@@ -14,6 +14,7 @@ struct MainView: View {
     @State private var coordinator: MainViewCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
+    @State private var profileViewCoordinator: ProfileViewCoordinator
     @Binding var selectedTab: MainTab
 
     init(
@@ -23,6 +24,7 @@ struct MainView: View {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
+        self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
         self._selectedTab = selectedTab
     }
 
@@ -316,7 +318,7 @@ struct MainView: View {
     }
 
     private var profileView: some View {
-        ProfileView(viewModel: coordinator.profileViewModel)
+        ProfileView(coordinator: profileViewCoordinator)
     }
 }
 

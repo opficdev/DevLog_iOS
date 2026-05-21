@@ -10,42 +10,42 @@ import DevLogCore
 import DevLogDomain
 
 struct ProfileView: View {
-    @State var viewModel: ProfileViewModel
-    @State private var router = NavigationRouter<ProfileRoute>()
-    @Environment(\.diContainer) private var container
+    let coordinator: ProfileViewCoordinator
     @FocusState private var focused: Bool
 
     var body: some View {
-        NavigationStack(path: $router.path) {
+        NavigationStack(path: navigationPath) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        CacheableImage(url: viewModel.state.avatarURL) {
+                        CacheableImage(url: coordinator.viewModel.state.avatarURL) {
                             Image(systemName: "person.crop.circle.fill")
                                 .resizable()
                                 .scaledToFill()
                                 .foregroundStyle(Color(.systemGray2))
                         }
-                            .frame(width: 60, height: 60)
-                            .cornerRadius(30)
-                            .foregroundStyle(Color.gray)
+                        .frame(width: 60, height: 60)
+                        .cornerRadius(30)
+                        .foregroundStyle(Color.gray)
 
                         VStack(alignment: .leading) {
-                            Text(viewModel.state.name)
+                            Text(coordinator.viewModel.state.name)
                                 .font(.title2)
                                 .bold()
-                            Text(viewModel.state.email)
+                            Text(coordinator.viewModel.state.email)
                                 .font(.caption2)
                                 .foregroundStyle(Color.gray)
                         }
                     }
-                    let connected = viewModel.state.isNetworkConnected
+                    let connected = coordinator.viewModel.state.isNetworkConnected
                     HStack {
                         HStack {
                             Image(systemName: "face.smiling")
-                            TextField(text: Binding(
-                                get: { viewModel.state.statusMessage },
-                                set: { viewModel.send(.updateStatusMessage($0)) })
+                            TextField(
+                                text: Binding(
+                                    get: { coordinator.viewModel.state.statusMessage },
+                                    set: { coordinator.viewModel.send(.updateStatusMessage($0)) }
+                                )
                             ) {
                                 Text(String(localized: "profile_status_placeholder"))
                             }
@@ -53,9 +53,10 @@ struct ProfileView: View {
                             .focused($focused)
                             .disabled(!connected)
 
-                            if !viewModel.state.statusMessage.isEmpty && viewModel.state.showDoneButton {
+                            if !coordinator.viewModel.state.statusMessage.isEmpty,
+                               coordinator.viewModel.state.showDoneButton {
                                 Button(action: {
-                                    viewModel.send(.tapResetStatusMessageButton)
+                                    coordinator.viewModel.send(.tapResetStatusMessageButton)
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                 }
@@ -68,10 +69,10 @@ struct ProfileView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color(.secondarySystemGroupedBackground))
                         )
-                        if viewModel.state.showDoneButton {
+                        if coordinator.viewModel.state.showDoneButton {
                             Button(action: {
                                 focused = false
-                                viewModel.send(.willUpdateStatusMessage)
+                                coordinator.viewModel.send(.willUpdateStatusMessage)
                             }) {
                                 Text(String(localized: "profile_done"))
                             }
@@ -83,14 +84,14 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal, 16)
             }
-            .refreshable { viewModel.send(.refresh) }
+            .refreshable { coordinator.viewModel.send(.refresh) }
             .frame(maxWidth: .infinity)
             .background(Color(.systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         Button {
-                            router.push(.settings)
+                            coordinator.router.push(.settings)
                         } label: {
                             Image(systemName: "gearshape")
                         }
@@ -100,47 +101,46 @@ struct ProfileView: View {
             .navigationDestination(for: ProfileRoute.self) { path in
                 switch path {
                 case .settings:
-                    SettingView(viewModel: SettingViewModel(
-                        deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
-                        signOutUseCase: container.resolve(SignOutUseCase.self),
-                        networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                        systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                        updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self),
-                        fetchWebPageImageDirSizeUseCase: container.resolve(FetchWebPageImageDirSizeUseCase.self),
-                        clearWebPageImageDirectoryUseCase: container.resolve(ClearWebPageImageDirectoryUseCase.self)
-                    ))
-                    .environment(router)
+                    SettingView(viewModel: coordinator.settingViewModel)
+                        .environment(coordinator.router)
                 case .activity(let todoId):
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                        todoId: todoId,
-                        showEditButton: false
-                    ))
-                case .theme, .pushNotification, .account:
-                    EmptyView()
+                    TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
+                case .theme:
+                    ThemeView(
+                        theme: Binding(
+                            get: { coordinator.settingViewModel.state.theme },
+                            set: { coordinator.settingViewModel.send(.setTheme($0)) }
+                        )
+                    )
+                case .pushNotification:
+                    PushNotificationSettingsView(viewModel: coordinator.makePushNotificationSettingsViewModel())
+                case .account:
+                    AccountView(viewModel: coordinator.makeAccountViewModel())
                 }
             }
-            .onAppear { viewModel.send(.onAppear) }
+            .onAppear { coordinator.viewModel.send(.onAppear) }
             .onChange(of: focused) { _, newValue in
                 withAnimation {
-                    viewModel.send(.updateStatusTextFieldFocus(newValue))
+                    coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
                 }
             }
             .alert(
-                "", isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert($0)) }
-            )) {
+                "",
+                isPresented: Binding(
+                    get: { coordinator.viewModel.state.showAlert },
+                    set: { coordinator.viewModel.send(.setAlert($0)) }
+                )
+            ) {
                 Button(String(localized: "common_close"), role: .cancel) { }
             } message: {
-                Text(viewModel.state.alertMessage)
+                Text(coordinator.viewModel.state.alertMessage)
             }
-            .sheet(isPresented: Binding(
-                get: { viewModel.state.showQuarterPicker },
-                set: { viewModel.send(.setQuarterPickerPresented($0)) }
-            )) {
+            .sheet(
+                isPresented: Binding(
+                    get: { coordinator.viewModel.state.showQuarterPicker },
+                    set: { coordinator.viewModel.send(.setQuarterPickerPresented($0)) }
+                )
+            ) {
                 quarterPickerSheet
             }
         }
@@ -158,17 +158,17 @@ struct ProfileView: View {
 
             quarterNavigator
 
-            if let quarter = viewModel.state.activityQuarter {
+            if let quarter = coordinator.viewModel.state.activityQuarter {
                 HeatmapView(
                     quarter: quarter,
-                    selectedActivityKinds: viewModel.state.selectedActivityKinds,
-                    selectedDay: viewModel.state.selectedDay,
-                    onSelectDay: { viewModel.send(.selectDay($0)) }
+                    selectedActivityKinds: coordinator.viewModel.state.selectedActivityKinds,
+                    selectedDay: coordinator.viewModel.state.selectedDay,
+                    onSelectDay: { coordinator.viewModel.send(.selectDay($0)) }
                 )
-                if let selectedDay = viewModel.state.selectedDay {
+                if let selectedDay = coordinator.viewModel.state.selectedDay {
                     selectedDayDetailSection(for: selectedDay)
                         .overlay {
-                            if viewModel.state.isLoading {
+                            if coordinator.viewModel.state.isLoading {
                                 LoadingView()
                             }
                         }
@@ -184,9 +184,9 @@ struct ProfileView: View {
 
     @ViewBuilder
     private var quarterResetButton: some View {
-        if !viewModel.isViewingCurrentQuarter {
+        if !coordinator.viewModel.isViewingCurrentQuarter {
             Button {
-                viewModel.send(.moveToCurrentQuarter)
+                coordinator.viewModel.send(.moveToCurrentQuarter)
             } label: {
                 Image(systemName: "arrow.uturn.backward")
                     .bold()
@@ -206,25 +206,23 @@ struct ProfileView: View {
                             guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
                                 return false
                             }
-                            return viewModel.state.selectedActivityKinds.contains(activityKind)
+                            return coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
                         },
                         set: { _ in
                             guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
                                 return
                             }
-                            viewModel.send(.toggleActivityKind(activityKind))
+                            coordinator.viewModel.send(.toggleActivityKind(activityKind))
                         }
                     )
                 )
-                .disabled(
-                    {
-                        guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                            return false
-                        }
-                        return viewModel.state.selectedActivityKinds.count == 1
-                            && viewModel.state.selectedActivityKinds.contains(activityKind)
-                    }()
-                )
+                .disabled({
+                    guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+                        return false
+                    }
+                    return coordinator.viewModel.state.selectedActivityKinds.count == 1
+                        && coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
+                }())
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
@@ -236,17 +234,17 @@ struct ProfileView: View {
     private var quarterNavigator: some View {
         HStack {
             Button {
-                viewModel.send(.moveQuarter(-1))
+                coordinator.viewModel.send(.moveQuarter(-1))
             } label: {
                 Image(systemName: "chevron.left")
             }
-            .disabled(!viewModel.canMoveToPreviousQuarter)
+            .disabled(!coordinator.viewModel.canMoveToPreviousQuarter)
             Spacer()
             Button {
-                viewModel.send(.openQuarterPicker)
+                coordinator.viewModel.send(.openQuarterPicker)
             } label: {
                 HStack(spacing: 4) {
-                    Text(viewModel.quarterTitle)
+                    Text(coordinator.viewModel.quarterTitle)
                         .font(.subheadline)
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.caption2)
@@ -256,11 +254,11 @@ struct ProfileView: View {
             .buttonStyle(.plain)
             Spacer()
             Button {
-                viewModel.send(.moveQuarter(1))
+                coordinator.viewModel.send(.moveQuarter(1))
             } label: {
                 Image(systemName: "chevron.right")
             }
-            .disabled(!viewModel.canMoveToNextQuarter)
+            .disabled(!coordinator.viewModel.canMoveToNextQuarter)
         }
     }
 
@@ -272,11 +270,14 @@ struct ProfileView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Picker("", selection: Binding(
-                        get: { viewModel.state.selectedQuarterPickerYear },
-                        set: { viewModel.send(.setQuarterPickerYear($0)) }
-                    )) {
-                        ForEach(viewModel.availableQuarterYears, id: \.self) { year in
+                    Picker(
+                        "",
+                        selection: Binding(
+                            get: { coordinator.viewModel.state.selectedQuarterPickerYear },
+                            set: { coordinator.viewModel.send(.setQuarterPickerYear($0)) }
+                        )
+                    ) {
+                        ForEach(coordinator.viewModel.availableQuarterYears, id: \.self) { year in
                             Text(verbatim: String(year))
                                 .tag(year)
                         }
@@ -298,7 +299,7 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarTrailingButton {
-                    viewModel.send(.setQuarterPickerPresented(false))
+                    coordinator.viewModel.send(.setQuarterPickerPresented(false))
                 }
             }
         }
@@ -308,13 +309,13 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func quarterSelectionButton(for quarter: Int) -> some View {
-        let quarterStart = viewModel.quarterStartForPicker(quarter: quarter)
-        let isEnabled = viewModel.isQuarterSelectableForPicker(quarter)
-        let isSelected = viewModel.isQuarterSelectedForPicker(quarter)
+        let quarterStart = coordinator.viewModel.quarterStartForPicker(quarter: quarter)
+        let isEnabled = coordinator.viewModel.isQuarterSelectableForPicker(quarter)
+        let isSelected = coordinator.viewModel.isQuarterSelectedForPicker(quarter)
 
         Button {
             guard let quarterStart else { return }
-            viewModel.send(.selectQuarter(quarterStart))
+            coordinator.viewModel.send(.selectQuarter(quarterStart))
         } label: {
             Text(
                 String.localizedStringWithFormat(
@@ -322,14 +323,14 @@ struct ProfileView: View {
                     Int64(quarter)
                 )
             )
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isSelected ? Color.blue : Color(.systemGray5))
-                )
-                .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
+            .font(.subheadline.weight(.semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.blue : Color(.systemGray5))
+            )
+            .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
@@ -337,7 +338,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func selectedDayDetailSection(for day: HeatmapDay) -> some View {
-        let activities = viewModel.selectedDayActivities
+        let activities = coordinator.viewModel.selectedDayActivities
 
         VStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
@@ -354,7 +355,7 @@ struct ProfileView: View {
                 ForEach(activities) { activity in
                     Button {
                         if !activity.isDeleted {
-                            router.push(.activity(activity.todoId))
+                            coordinator.router.push(.activity(activity.todoId))
                         }
                     } label: {
                         let item = TodoCategoryItem(from: activity.category)
@@ -399,6 +400,12 @@ struct ProfileView: View {
         .padding(.top, 4)
     }
 
+    private var navigationPath: Binding<[ProfileRoute]> {
+        Binding(
+            get: { coordinator.router.path },
+            set: { coordinator.router.path = $0 }
+        )
+    }
 }
 
 enum ProfileRoute: Hashable {
