@@ -176,8 +176,8 @@ jobs:
             -showBuildTimingSummary \
             build \
             | tee build.log
-          echo "== xcodebuild finished =="
           XC_STATUS=${PIPESTATUS[0]}
+          echo "== xcodebuild finished =="
           set -e
 
           exit $XC_STATUS
