@@ -98,8 +98,8 @@ struct ProfileView: View {
                     }
                 }
             }
-            .navigationDestination(for: ProfileRoute.self) { path in
-                switch path {
+            .navigationDestination(for: ProfileRoute.self) { route in
+                switch route {
                 case .settings:
                     SettingView(viewModel: coordinator.settingViewModel)
                         .environment(coordinator.router)
