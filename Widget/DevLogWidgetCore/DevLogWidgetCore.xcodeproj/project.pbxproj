@@ -256,6 +256,8 @@
 /* Begin XCBuildConfiguration section */
 		8E2FD158204AEBB5D6B1CAA7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = B60F0C6B052E1EF8CC827AD9 /* Sources */;
+			baseConfigurationReferenceRelativePath = Version.xcconfig;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -271,6 +273,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -308,6 +311,8 @@
 		};
 		C5BA4998DAC2550DE98EA22B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = B60F0C6B052E1EF8CC827AD9 /* Sources */;
+			baseConfigurationReferenceRelativePath = Version.xcconfig;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -323,6 +328,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogWidgetCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
