@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DevLogCore
 
 public struct WidgetHeatmapPlaceholderShape {
     public let currentMonths: [WidgetHeatmapPlaceholderMonthShape]
