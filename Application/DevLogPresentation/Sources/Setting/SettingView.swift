@@ -6,11 +6,9 @@
 //
 
 import SwiftUI
-import DevLogCore
 import DevLogDomain
 
 struct SettingView: View {
-    @Environment(\.diContainer) var container: DIContainer
     @Environment(NavigationRouter<ProfileRoute>.self) private var router
     @State var viewModel: SettingViewModel
 
@@ -112,34 +110,6 @@ struct SettingView: View {
         }
         .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: ProfileRoute.self) { path in
-            switch path {
-            case .theme:
-                ThemeView(
-                    theme: Binding(
-                        get: { viewModel.state.theme },
-                        set: { viewModel.send(.setTheme($0)) }
-                    )
-                )
-            case .pushNotification:
-                PushNotificationSettingsView(
-                    viewModel: PushNotificationSettingsViewModel(
-                        fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self),
-                        updatePushSettingsUseCase: container.resolve(UpdatePushSettingsUseCase.self)
-                    )
-                )
-            case .account:
-                AccountView(
-                    viewModel: AccountViewModel(
-                        fetchProvidersUseCase: container.resolve(FetchAuthProvidersUseCase.self),
-                        linkProviderUseCase: container.resolve(LinkAuthProviderUseCase.self),
-                        unlinkProviderUseCase: container.resolve(UnlinkAuthProviderUseCase.self)
-                    )
-                )
-            case .settings, .activity:
-                EmptyView()
-            }
-        }
         .alert(
             viewModel.state.alertTitle,
             isPresented: Binding(
