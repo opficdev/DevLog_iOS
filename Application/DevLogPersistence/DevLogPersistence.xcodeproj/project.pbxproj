@@ -351,6 +351,8 @@
 		};
 		586E1D6B64BF31CC733055C9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 63CE47D539EE6F9653C99773 /* Sources */;
+			baseConfigurationReferenceRelativePath = Version.xcconfig;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -366,7 +368,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistence;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -458,6 +459,8 @@
 		};
 		D36B8CAC0F1A28A54A5C1BFA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 63CE47D539EE6F9653C99773 /* Sources */;
+			baseConfigurationReferenceRelativePath = Version.xcconfig;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -473,7 +476,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opfic.DevLog.DevLogPersistence;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
