@@ -106,32 +106,27 @@ struct TodoEditorView: View {
     }
 
     private var tabViewSelector: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Button(action: {
-                    viewModel.send(.setTabViewTag(.editor))
-                    field = .content
-                }) {
-                    Text(String(localized: "todo_edit"))
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(
-                            viewModel.state.tabViewTag == .editor ? Color.primary : Color.secondary
-                        )
+        Picker(
+            "",
+            selection: Binding(
+                get: { viewModel.state.tabViewTag },
+                set: { tag in
+                    if tag == .editor {
+                        viewModel.send(.setTabViewTag(.editor))
+                        field = .content
+                    } else {
+                        transitionToPreview()
+                    }
                 }
-                Divider()
-                Button(action: {
-                    transitionToPreview()
-                }) {
-                    Text(String(localized: "todo_preview"))
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(
-                            viewModel.state.tabViewTag == .preview ? Color.primary : Color.gray
-                        )
-                }
-            }
-            .padding(.vertical, 10)
-            .background(Color(.systemBackground))
+            )
+        ) {
+            Text(String(localized: "todo_write"))
+                .tag(TodoEditorViewModel.Tag.editor)
+            Text(String(localized: "todo_preview"))
+                .tag(TodoEditorViewModel.Tag.preview)
         }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
     }
 
     private var tabView: some View {

@@ -2689,6 +2689,23 @@
         }
       }
     },
+    "todo_write" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성"
+          }
+        }
+      }
+    },
     "todo_editor_description_optional" : {
       "extractionState" : "manual",
       "localizations" : {
