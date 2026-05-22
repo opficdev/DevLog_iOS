@@ -120,7 +120,7 @@ struct TodoEditorView: View {
                 }
             )
         ) {
-            Text(String(localized: "todo_edit"))
+            Text(String(localized: "todo_write"))
                 .tag(TodoEditorViewModel.Tag.editor)
             Text(String(localized: "todo_preview"))
                 .tag(TodoEditorViewModel.Tag.preview)
