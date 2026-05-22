@@ -14,7 +14,7 @@ public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State var viewModel: RootViewModel
     @State private var selectedRoute: Route?
-    @State private var selectedMainTab = MainTab.home
+    @State private var selectedMainTab: MainTab?
     private let widgetURLTab: (URL) -> MainTab?
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
     private let clearPushNotificationRoute: () -> Void
@@ -56,16 +56,22 @@ public struct RootView: View {
         .preferredColorScheme(viewModel.state.theme.colorScheme)
         .onAppear { viewModel.send(.onAppear) }
         .onChange(of: viewModel.state.signIn) { _, value in
-            guard value == false else { return }
-            selectedMainTab = .home
+            guard let value else { return }
+            if value {
+                selectedMainTab = .home
+            } else {
+                selectedMainTab = nil
+            }
         }
         .onOpenURL { url in
             guard let mainTab = widgetURLTab(url) else { return }
             switch viewModel.state.signIn {
             case .some(false):
-                selectedMainTab = .home
-            case .some(true), .none:
+                break
+            case .some(true):
                 selectedMainTab = mainTab
+            case .none:
+                break
             }
         }
         .alert(viewModel.state.alertTitle, isPresented: Binding(

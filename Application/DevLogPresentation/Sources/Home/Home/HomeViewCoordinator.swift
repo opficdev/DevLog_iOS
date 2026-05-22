@@ -45,6 +45,10 @@ final class HomeViewCoordinator {
         )
     }
 
+    func loadInitialData() {
+        viewModel.send(.loadInitialData)
+    }
+
     func makeTodoManageViewModel() -> TodoManageViewModel {
         TodoManageViewModel(viewModel.state.preferences)
     }

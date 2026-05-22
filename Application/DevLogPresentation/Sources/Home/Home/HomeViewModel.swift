@@ -38,7 +38,7 @@ final class HomeViewModel: Store {
     }
 
     enum Action {
-        case onAppear
+        case loadInitialData
         case networkStatusChanged(Bool)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
@@ -145,7 +145,7 @@ final class HomeViewModel: Store {
         switch action {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
-        case .onAppear, .setPresentation, .setAlert, .setToast, .refreshWebPages,
+        case .loadInitialData, .setPresentation, .setAlert, .setToast, .refreshWebPages,
                 .tapTodoCategory, .orderTodoCategory, .addTodo, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
@@ -274,7 +274,7 @@ private extension HomeViewModel {
     // swiftlint:disable cyclomatic_complexity
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .onAppear:
+        case .loadInitialData:
             return [.fetchTodoCategoryPreferences, .fetchRecentTodos, .fetchWebPages]
         case .refreshWebPages:
             return [.fetchWebPages]
