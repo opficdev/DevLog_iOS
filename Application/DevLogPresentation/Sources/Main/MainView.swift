@@ -15,11 +15,11 @@ struct MainView: View {
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
-    @Binding var selectedTab: MainTab
+    @Binding var selectedTab: MainTab?
 
     init(
         container: DIContainer,
-        selectedTab: Binding<MainTab>
+        selectedTab: Binding<MainTab?>
     ) {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
@@ -30,14 +30,19 @@ struct MainView: View {
 
     var body: some View {
         Group {
-            if isCompactLayout {
-                tabView
-            } else {
-                sidebarView
+            if let selectedTab {
+                if isCompactLayout {
+                    tabView
+                } else {
+                    sidebarView(for: selectedTab)
+                }
             }
         }
-        .onAppear {
+        .onChange(of: selectedTab) { oldValue, newValue in
             coordinator.mainViewModel.send(.onAppear)
+            if oldValue == nil && newValue == .home {
+                homeViewCoordinator.viewModel.send(.loadInitialData)
+            }
         }
         .alert(
             coordinator.mainViewModel.state.alertTitle,
@@ -55,37 +60,37 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.home)
                 }
-                .tag(MainTab.home)
+                .tag(MainTab.home as MainTab?)
 
             todayView
                 .tabItem {
                     tabLabel(.today)
                 }
-                .tag(MainTab.today)
+                .tag(MainTab.today as MainTab?)
 
             notificationView
                 .tabItem {
                     tabLabel(.notification)
                 }
                 .badge(coordinator.mainViewModel.state.unreadPushCount)
-                .tag(MainTab.notification)
+                .tag(MainTab.notification as MainTab?)
 
             profileView
                 .tabItem {
                     tabLabel(.profile)
                 }
-                .tag(MainTab.profile)
+                .tag(MainTab.profile as MainTab?)
         }
     }
 
     @ViewBuilder
-    private var sidebarView: some View {
+    private func sidebarView(for selectedTab: MainTab) -> some View {
         switch selectedTab.mainTabSplitStyle {
         case .detailOnly:
             NavigationSplitView {
                 mainSidebar
             } detail: {
-                selectedTabView
+                selectedTabView(for: selectedTab)
             }
         case .contentDetail:
             switch selectedTab {
@@ -138,7 +143,7 @@ struct MainView: View {
                 NavigationSplitView {
                     mainSidebar
                 } detail: {
-                    selectedTabView
+                    selectedTabView(for: selectedTab)
                 }
             }
         }
@@ -155,7 +160,7 @@ struct MainView: View {
     }
 
     @ViewBuilder
-    private var selectedTabView: some View {
+    private func selectedTabView(for selectedTab: MainTab) -> some View {
         switch selectedTab {
         case .home:
             homeView
@@ -338,9 +343,7 @@ private extension MainView {
         Binding(
             get: { selectedTab },
             set: { tab in
-                if let tab {
-                    selectedTab = tab
-                }
+                selectedTab = tab
             }
         )
     }

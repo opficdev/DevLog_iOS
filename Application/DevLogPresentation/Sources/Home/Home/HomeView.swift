@@ -82,9 +82,6 @@ struct HomeView: View {
                 .font(.caption)
                 .multilineTextAlignment(.center)
         }
-        .onAppear {
-            coordinator.viewModel.send(.onAppear)
-        }
         .overlay {
             if coordinator.viewModel.state.isAppending {
                 LoadingView()
