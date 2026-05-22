@@ -9,9 +9,12 @@ import DevLogData
 import FirebaseCore
 
 final class FirebaseAppServiceImpl: FirebaseAppService {
+    private static var isConfigured = false
+
     func configure() {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
+        guard !Self.isConfigured else { return }
+
+        FirebaseApp.configure()
+        Self.isConfigured = true
     }
 }
