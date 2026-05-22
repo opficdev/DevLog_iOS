@@ -12,7 +12,6 @@
 		1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
 		160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; };
 		186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; };
-		18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F972F1E8E0F5156FE9651020 /* GoogleSignIn */; };
 		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; };
 		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -161,7 +160,6 @@
 				79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */,
 				26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */,
 				1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */,
-				18D57A125ACCF0F6B11A7101 /* GoogleSignIn in Frameworks */,
 				160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,7 +270,6 @@
 			);
 			name = DevLog;
 			packageProductDependencies = (
-				F972F1E8E0F5156FE9651020 /* GoogleSignIn */,
 			);
 			productName = SwiftUI_DevLog;
 			productReference = DFD48B002DC4D6E2005905C5 /* DevLog.app */;
@@ -312,7 +309,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */,
-				1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4B47FFC0E73415A65560089A /* Products */;
@@ -785,14 +781,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
-			};
-		};
 		DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint";
@@ -808,11 +796,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-		F972F1E8E0F5156FE9651020 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1D75B0AFC69F88110A25217B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

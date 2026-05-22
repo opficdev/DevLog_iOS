@@ -8,7 +8,7 @@
 import UIKit
 import DevLogCore
 import DevLogData
-import GoogleSignIn
+import DevLogInfra
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let logger = Logger(category: "AppDelegate")
@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        return GIDSignIn.sharedInstance.handle(url)
+        return GoogleSignInURLHandler.handle(url)
     }
 
     func application(
