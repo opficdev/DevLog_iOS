@@ -343,7 +343,9 @@ private extension MainView {
         Binding(
             get: { selectedTab },
             set: { tab in
-                selectedTab = tab
+                if let tab {
+                    selectedTab = tab
+                }
             }
         )
     }
