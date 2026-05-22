@@ -41,7 +41,7 @@ struct MainView: View {
         .onChange(of: selectedTab) { oldValue, newValue in
             coordinator.mainViewModel.send(.onAppear)
             if oldValue == nil && newValue == .home {
-                homeViewCoordinator.viewModel.send(.loadInitialData)
+                homeViewCoordinator.loadInitialData()
             }
         }
         .alert(
