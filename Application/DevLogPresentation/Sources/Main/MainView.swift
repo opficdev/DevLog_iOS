@@ -38,8 +38,10 @@ struct MainView: View {
                 }
             }
         }
-        .onChange(of: selectedTab) { oldValue, newValue in
+        .onAppear {
             coordinator.mainViewModel.send(.onAppear)
+        }
+        .onChange(of: selectedTab) { oldValue, newValue in
             if oldValue == nil && newValue == .home {
                 homeViewCoordinator.loadInitialData()
             }
