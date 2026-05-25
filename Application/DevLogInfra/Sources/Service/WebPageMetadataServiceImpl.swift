@@ -74,10 +74,13 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
         guard let imageProvider else { return nil }
 
+        guard let data = try await imageData(from: imageProvider) else { return nil }
+        return try await imageStore.saveImage(data, for: url)
+    }
+
+    private func imageData(from imageProvider: NSItemProvider) async throws -> Data? {
         return try await withCheckedThrowingContinuation { continuation in
-            //  `[imageStore]`은 배열이 아니고 캡쳐 리스트
-            //  명시적으로 imageStore을 캡쳐하겠다고 작성한 것
-            imageProvider.loadObject(ofClass: UIImage.self) { [imageStore] image, error in
+            imageProvider.loadObject(ofClass: UIImage.self) { image, error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
@@ -89,14 +92,7 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
                     return
                 }
 
-                Task {
-                    do {
-                        let fileURL = try await imageStore.saveImage(data, for: url)
-                        continuation.resume(returning: fileURL)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
+                continuation.resume(returning: data)
             }
         }
     }
