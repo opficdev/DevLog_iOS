@@ -24,4 +24,8 @@ final class TodayViewCoordinator {
             updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
         )
     }
+
+    func fetchData() {
+        viewModel.send(.fetchData)
+    }
 }

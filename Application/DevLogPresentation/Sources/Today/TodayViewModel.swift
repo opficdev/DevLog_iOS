@@ -62,7 +62,7 @@ final class TodayViewModel: Store {
         case resetDisplayOptions
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
-        case onAppear
+        case fetchData
         case fetchTodos([TodayTodoItem])
         case setLoading(Bool)
         case updateTodo(TodayTodoItem)
@@ -178,7 +178,7 @@ final class TodayViewModel: Store {
         case .refresh, .setAlert, .setSectionScope, .setDueDateVisibility, .setFocusVisibility,
                 .resetDisplayOptions, .completeTodo, .togglePinned:
             effects = reduceByUser(action, state: &state)
-        case .onAppear:
+        case .fetchData:
             effects = reduceByView(action, state: &state)
         case .fetchTodos, .setLoading, .updateTodo, .removeTodo:
             effects = reduceByRun(action, state: &state)
@@ -305,7 +305,7 @@ private extension TodayViewModel {
 
     func reduceByView(_ action: Action, state: inout State) -> [SideEffect] {
         switch action {
-        case .onAppear:
+        case .fetchData:
             return [.fetchTodos]
         default:
             break
