@@ -29,7 +29,6 @@ struct TodayView: View {
         .toolbar { toolbarContent }
         .background(NavigationBarConfigurator())
         .refreshable { coordinator.viewModel.send(.refresh) }
-        .onAppear { coordinator.viewModel.send(.onAppear) }
         .alert(
             coordinator.viewModel.state.alertTitle,
             isPresented: Binding(

@@ -44,6 +44,8 @@ struct MainView: View {
         .onChange(of: selectedTab) { _, newValue in
             if newValue == .home {
                 homeViewCoordinator.loadInitialData()
+            } else if newValue == .today {
+                todayViewCoordinator.fetchData()
             }
         }
         .alert(
