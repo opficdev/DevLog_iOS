@@ -2,6 +2,7 @@
   "sourceLanguage" : "ko",
   "strings" : {
     "" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13,6 +14,7 @@
       "shouldTranslate" : false
     },
     "#%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24,6 +26,7 @@
       "shouldTranslate" : false
     },
     "%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -425,23 +428,6 @@
         }
       }
     },
-    "home_select_detail" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select an item."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목을 선택해주세요."
-          }
-        }
-      }
-    },
     "home_recent_title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -455,6 +441,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최근 수정"
+          }
+        }
+      }
+    },
+    "home_select_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select an item."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 선택해주세요."
           }
         }
       }
@@ -528,45 +531,12 @@
       }
     },
     "https://" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "https://"
-          }
-        }
-      }
-    },
-    "login_apple_sign_in" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in with Apple"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "애플 계정으로 로그인"
-          }
-        }
-      }
-    },
-    "login_github_sign_in" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in with GitHub"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "깃헙 계정으로 로그인"
           }
         }
       }
@@ -601,6 +571,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이메일 확인 불가"
+          }
+        }
+      }
+    },
+    "login_apple_sign_in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with Apple"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "애플 계정으로 로그인"
+          }
+        }
+      }
+    },
+    "login_github_sign_in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with GitHub"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "깃헙 계정으로 로그인"
           }
         }
       }
@@ -1931,23 +1935,6 @@
         }
       }
     },
-    "today_select_detail" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select a todo."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todo를 선택해주세요."
-          }
-        }
-      }
-    },
     "today_due_overdue" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2322,6 +2309,23 @@
         }
       }
     },
+    "today_select_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a todo."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo를 선택해주세요."
+          }
+        }
+      }
+    },
     "today_summary_all" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2391,6 +2395,7 @@
       }
     },
     "TODO" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2436,6 +2441,7 @@
     },
     "todo_category_doc" : {
       "comment" : "Todo category: Documentation",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2453,6 +2459,7 @@
     },
     "todo_category_etc" : {
       "comment" : "Todo category: Etc",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2470,6 +2477,7 @@
     },
     "todo_category_feature" : {
       "comment" : "Todo category: Feature",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2487,6 +2495,7 @@
     },
     "todo_category_improvement" : {
       "comment" : "Todo category: Improvement",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2504,6 +2513,7 @@
     },
     "todo_category_issue" : {
       "comment" : "Todo category: Issue",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2521,6 +2531,7 @@
     },
     "todo_category_research" : {
       "comment" : "Todo category: Research",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2538,6 +2549,7 @@
     },
     "todo_category_review" : {
       "comment" : "Todo category: Review",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2555,6 +2567,7 @@
     },
     "todo_category_test" : {
       "comment" : "Todo category: Test",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2685,23 +2698,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "수정"
-          }
-        }
-      }
-    },
-    "todo_write" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Write"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "작성"
           }
         }
       }
@@ -3386,7 +3382,25 @@
         }
       }
     },
+    "todo_write" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성"
+          }
+        }
+      }
+    },
     "Todos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3397,6 +3411,7 @@
       }
     },
     "Web Page" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3407,6 +3422,7 @@
       }
     },
     "Web Pages" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
