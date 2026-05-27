@@ -118,7 +118,6 @@ struct ProfileView: View {
                     AccountView(viewModel: coordinator.makeAccountViewModel())
                 }
             }
-            .onAppear { coordinator.viewModel.send(.onAppear) }
             .onChange(of: focused) { _, newValue in
                 withAnimation {
                     coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))

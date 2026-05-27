@@ -46,6 +46,8 @@ struct MainView: View {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
                 todayViewCoordinator.fetchData()
+            } else if newValue == .profile {
+                profileViewCoordinator.fetchData()
             }
         }
         .alert(

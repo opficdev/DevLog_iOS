@@ -38,6 +38,10 @@ final class ProfileViewCoordinator {
         )
     }
 
+    func fetchData() {
+        viewModel.send(.fetchData)
+    }
+
     func makeAccountViewModel() -> AccountViewModel {
         AccountViewModel(
             fetchProvidersUseCase: container.resolve(FetchAuthProvidersUseCase.self),
