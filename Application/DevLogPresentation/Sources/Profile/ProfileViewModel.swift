@@ -34,7 +34,7 @@ final class ProfileViewModel: Store {
     }
 
     enum Action {
-        case onAppear, refresh
+        case fetchData, refresh
         case networkStatusChanged(Bool)
         case setLoading(Bool)
         case setAlert(Bool)
@@ -98,7 +98,7 @@ final class ProfileViewModel: Store {
         var state = self.state
         var effects: [SideEffect] = []
         switch action {
-        case .onAppear, .refresh:
+        case .fetchData, .refresh:
             if state.selectedQuarterStart == nil {
                 guard let quarterStart = quarterStart(for: Date()) else { break }
                 state.selectedQuarterStart = quarterStart
