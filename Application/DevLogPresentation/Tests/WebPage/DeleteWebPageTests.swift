@@ -45,7 +45,7 @@ struct DeleteWebPageTests {
             networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy
         )
 
-        homeViewModel.send(.loadInitialData)
+        homeViewModel.send(.fetchData)
         await waitUntil {
             !homeViewModel.state.webPages.isEmpty
         }
@@ -97,7 +97,7 @@ struct DeleteWebPageTests {
             networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy
         )
 
-        homeViewModel.send(.loadInitialData)
+        homeViewModel.send(.fetchData)
         await waitUntil {
             !homeViewModel.state.webPages.isEmpty
         }
