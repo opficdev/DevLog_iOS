@@ -83,6 +83,7 @@ final class TodayViewModel: Store {
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let loadingState = LoadingState()
 
     init(
@@ -90,12 +91,14 @@ final class TodayViewModel: Store {
         fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodayDisplayOptionsUseCase: FetchTodayDisplayOptionsUseCase,
-        updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase
+        updateTodayDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchTodoByIdUseCase = fetchTodoByIdUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.updateTodayDisplayOptionsUseCase = updateTodayDisplayOptionsUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         self.state.displayOptions = fetchTodayDisplayOptionsUseCase.execute()
     }
 
@@ -235,6 +238,7 @@ final class TodayViewModel: Store {
                     todo.completedAt = now
                     todo.updatedAt = now
                     try await upsertTodoUseCase.execute(todo)
+                    trackAnalyticsEventUseCase.execute(.todoComplete)
                     send(.removeTodo(todo.id))
                 } catch {
                     send(.setAlert(true))
