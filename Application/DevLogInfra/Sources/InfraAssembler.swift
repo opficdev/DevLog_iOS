@@ -16,6 +16,10 @@ public final class InfraAssembler: Assembler {
             FirebaseAppServiceImpl()
         }
 
+        container.register(AnalyticsService.self) {
+            FirebaseAnalyticsServiceImpl()
+        }
+
         container.register(PushMessagingService.self) {
             PushMessagingServiceImpl()
         }
