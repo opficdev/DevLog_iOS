@@ -13,8 +13,6 @@ import DevLogDomain
 @Observable
 final class MainViewCoordinator {
     let mainViewModel: MainViewModel
-    let pushNotificationListViewModel: PushNotificationListViewModel
-    var todoIdToPresent: TodoIdItem?
     private let diContainer: DIContainer
     @ObservationIgnored
     private var todoListViewModel: TodoListViewModel?
@@ -27,18 +25,6 @@ final class MainViewCoordinator {
             trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
             unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
         )
-        self.pushNotificationListViewModel = PushNotificationListViewModel(
-            fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
-            deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
-            undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
-            toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
-            fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
-            updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
-        )
-    }
-
-    func fetchData() {
-        pushNotificationListViewModel.send(.fetchNotifications)
     }
 
     func todoListViewModel(category: TodoCategory) -> TodoListViewModel {

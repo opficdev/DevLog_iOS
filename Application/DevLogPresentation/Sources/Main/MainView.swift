@@ -49,7 +49,6 @@ struct MainView: View {
             } else if newValue == .today {
                 todayViewCoordinator.fetchData()
             } else if newValue == .notification {
-                coordinator.fetchData()
             } else if newValue == .profile {
                 profileViewCoordinator.fetchData()
             }
@@ -126,17 +125,11 @@ struct MainView: View {
                     mainSidebar
                 } content: {
                     PushNotificationListView(
-                        viewModel: coordinator.pushNotificationListViewModel,
-                        todoIdToPresent: todoIdToPresent,
                         isCompactLayout: isCompactLayout
                     )
                 } detail: {
                     Group {
-                        if let todoId = coordinator.todoIdToPresent?.id {
                             TodoDetailView(
-                                viewModel: coordinator.todoDetailViewModel(
-                                    todoId: todoId,
-                                    showEditButton: false
                                 )
                             )
                             .id(todoId)
@@ -326,8 +319,6 @@ struct MainView: View {
 
     private var notificationView: some View {
         PushNotificationListView(
-            viewModel: coordinator.pushNotificationListViewModel,
-            todoIdToPresent: todoIdToPresent,
             isCompactLayout: isCompactLayout
         )
     }
@@ -357,13 +348,6 @@ private extension MainView {
                     selectedTab = tab
                 }
             }
-        )
-    }
-
-    var todoIdToPresent: Binding<TodoIdItem?> {
-        Binding(
-            get: { coordinator.todoIdToPresent },
-            set: { coordinator.todoIdToPresent = $0 }
         )
     }
 
