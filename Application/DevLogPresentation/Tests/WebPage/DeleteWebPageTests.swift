@@ -32,6 +32,7 @@ struct DeleteWebPageTests {
             ]
         )
         let observeNetworkConnectivityUseCaseSpy = ObserveNetworkConnectivityUseCaseSpy()
+        let trackAnalyticsEventUseCaseSpy = TrackAnalyticsEventUseCaseSpy()
 
         let homeViewModel = HomeViewModel(
             fetchPreferencesUseCase: fetchTodoCategoryPreferencesUseCaseSpy,
@@ -42,7 +43,8 @@ struct DeleteWebPageTests {
             upsertTodoUseCase: upsertTodoUseCaseSpy,
             fetchTodosUseCase: fetchTodosUseCaseSpy,
             fetchWebPagesUseCase: fetchWebPagesUseCaseSpy,
-            networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy
+            networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy,
+            trackAnalyticsEventUseCase: trackAnalyticsEventUseCaseSpy
         )
 
         homeViewModel.send(.fetchData)
@@ -84,6 +86,7 @@ struct DeleteWebPageTests {
             ]
         )
         let observeNetworkConnectivityUseCaseSpy = ObserveNetworkConnectivityUseCaseSpy()
+        let trackAnalyticsEventUseCaseSpy = TrackAnalyticsEventUseCaseSpy()
 
         let homeViewModel = HomeViewModel(
             fetchPreferencesUseCase: fetchTodoCategoryPreferencesUseCaseSpy,
@@ -94,7 +97,8 @@ struct DeleteWebPageTests {
             upsertTodoUseCase: upsertTodoUseCaseSpy,
             fetchTodosUseCase: fetchTodosUseCaseSpy,
             fetchWebPagesUseCase: fetchWebPagesUseCaseSpy,
-            networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy
+            networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy,
+            trackAnalyticsEventUseCase: trackAnalyticsEventUseCaseSpy
         )
 
         homeViewModel.send(.fetchData)
@@ -118,4 +122,8 @@ struct DeleteWebPageTests {
         #expect(undoDeleteWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"])
         #expect(!restoredWebPageItem.isHidden)
     }
+}
+
+private struct TrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
+    func execute(_ event: AnalyticsEvent) { }
 }
