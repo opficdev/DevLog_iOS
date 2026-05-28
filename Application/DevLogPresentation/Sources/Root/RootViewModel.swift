@@ -32,6 +32,7 @@ final class RootViewModel: Store {
 
     enum SideEffect {
         case clearApplicationBadgeCount
+        case trackLoginScreen
     }
 
     private(set) var state: State
@@ -39,15 +40,18 @@ final class RootViewModel: Store {
     private let sessionUseCase: ObserveAuthSessionUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     
     init(
         sessionUseCase: ObserveAuthSessionUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
-        systemThemeUseCase: ObserveSystemThemeUseCase
+        systemThemeUseCase: ObserveSystemThemeUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     ) {
         self.sessionUseCase = sessionUseCase
         self.networkConnectivityUseCase = networkConnectivityUseCase
         self.systemThemeUseCase = systemThemeUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         self.state = State()
         
         setupNetworkObserving()
@@ -74,6 +78,9 @@ final class RootViewModel: Store {
             state.theme = theme
         case .didLogined(let result):
             state.signIn = result
+            if !result {
+                effects = [.trackLoginScreen]
+            }
         }
         
         if self.state != state { self.state = state }
@@ -84,6 +91,8 @@ final class RootViewModel: Store {
         switch effect {
         case .clearApplicationBadgeCount:
             UNUserNotificationCenter.current().setBadgeCount(0) { _ in }
+        case .trackLoginScreen:
+            trackAnalyticsEventUseCase.execute(.screenView("login"))
         }
     }
 }

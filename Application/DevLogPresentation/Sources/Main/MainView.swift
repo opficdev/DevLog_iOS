@@ -42,6 +42,8 @@ struct MainView: View {
             coordinator.mainViewModel.send(.onAppear)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
+            guard let newValue else { return }
+            coordinator.mainViewModel.send(.selectedTabChanged(newValue))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {

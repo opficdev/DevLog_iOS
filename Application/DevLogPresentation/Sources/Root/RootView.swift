@@ -23,6 +23,7 @@ public struct RootView: View {
         sessionUseCase: ObserveAuthSessionUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
         widgetURLTab: @escaping (URL) -> MainTab?,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
@@ -30,7 +31,8 @@ public struct RootView: View {
         self._viewModel = State(initialValue: RootViewModel(
             sessionUseCase: sessionUseCase,
             networkConnectivityUseCase: networkConnectivityUseCase,
-            systemThemeUseCase: systemThemeUseCase
+            systemThemeUseCase: systemThemeUseCase,
+            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
         ))
         self.widgetURLTab = widgetURLTab
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher

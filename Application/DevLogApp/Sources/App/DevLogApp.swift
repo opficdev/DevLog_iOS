@@ -27,6 +27,7 @@ struct DevLogApp: App {
                 sessionUseCase: container.resolve(ObserveAuthSessionUseCase.self),
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
+                trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
                 widgetURLTab: { MainTab(widgetURL: $0) },
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
                 clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }
