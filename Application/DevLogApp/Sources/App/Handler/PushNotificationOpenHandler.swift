@@ -8,6 +8,7 @@
 import Foundation
 import DevLogDomain
 
+@MainActor
 final class PushNotificationOpenHandler {
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
 
