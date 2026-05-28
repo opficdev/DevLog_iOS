@@ -566,7 +566,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="butterfly-architecture-page" name="App Architecture">
-    <mxGraphModel dx="3142" dy="1889" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1040" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1571" dy="944" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1040" background="none" math="0" shadow="0">
       <root>
         <mxCell id="400" />
         <mxCell id="401" parent="400" />
@@ -746,7 +746,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="widget-architecture-page" name="Widget Architecture">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1500" pageHeight="480" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1488" dy="895" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="480" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -793,7 +793,7 @@
           <mxGeometry height="58" width="150" x="68" y="350" as="geometry" />
         </mxCell>
         <mxCell id="w-data-note" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#D8E0EA;strokeWidth=1;fontColor=#374151;fontSize=12;align=left;spacingLeft=10;" value="위젯 확장은 Domain/Data/Infra/Persistence를 직접 참조하지 않습니다.&lt;div&gt;WidgetCore의 Snapshot 계약과 App Group UserDefaults에 저장된 JSON만 읽어 화면을 구성합니다.&lt;/div&gt;" vertex="1">
-          <mxGeometry height="52" width="562" x="50" y="260" as="geometry" />
+          <mxGeometry height="52" width="530" x="50" y="260" as="geometry" />
         </mxCell>
         <mxCell id="wd-1" edge="1" parent="1" source="w-service" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-repository" value="service data">
           <mxGeometry relative="1" as="geometry" />
