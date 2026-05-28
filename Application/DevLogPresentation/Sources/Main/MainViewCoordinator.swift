@@ -37,6 +37,10 @@ final class MainViewCoordinator {
         )
     }
 
+    func fetchData() {
+        pushNotificationListViewModel.send(.fetchNotifications)
+    }
+
     func todoListViewModel(category: TodoCategory) -> TodoListViewModel {
         if let todoListViewModel,
            todoListViewModel.category == category {
