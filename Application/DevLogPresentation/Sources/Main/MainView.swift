@@ -14,6 +14,7 @@ struct MainView: View {
     @State private var coordinator: MainViewCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
+    @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
     @Binding var selectedTab: MainTab?
 
@@ -24,6 +25,9 @@ struct MainView: View {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
+        self._pushNotificationListViewCoordinator = State(
+            initialValue: PushNotificationListViewCoordinator(container: container)
+        )
         self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
         self._selectedTab = selectedTab
     }
@@ -48,6 +52,8 @@ struct MainView: View {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
                 todayViewCoordinator.fetchData()
+            } else if newValue == .notification {
+                pushNotificationListViewCoordinator.fetchData()
             } else if newValue == .profile {
                 profileViewCoordinator.fetchData()
             }
@@ -124,17 +130,15 @@ struct MainView: View {
                     mainSidebar
                 } content: {
                     PushNotificationListView(
-                        viewModel: coordinator.pushNotificationListViewModel,
-                        todoIdToPresent: todoIdToPresent,
+                        coordinator: pushNotificationListViewCoordinator,
                         isCompactLayout: isCompactLayout
                     )
                 } detail: {
                     Group {
-                        if let todoId = coordinator.todoIdToPresent?.id {
+                        if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
                             TodoDetailView(
-                                viewModel: coordinator.todoDetailViewModel(
-                                    todoId: todoId,
-                                    showEditButton: false
+                                viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
+                                    todoId: todoId
                                 )
                             )
                             .id(todoId)
@@ -324,8 +328,7 @@ struct MainView: View {
 
     private var notificationView: some View {
         PushNotificationListView(
-            viewModel: coordinator.pushNotificationListViewModel,
-            todoIdToPresent: todoIdToPresent,
+            coordinator: pushNotificationListViewCoordinator,
             isCompactLayout: isCompactLayout
         )
     }
@@ -355,13 +358,6 @@ private extension MainView {
                     selectedTab = tab
                 }
             }
-        )
-    }
-
-    var todoIdToPresent: Binding<TodoIdItem?> {
-        Binding(
-            get: { coordinator.todoIdToPresent },
-            set: { coordinator.todoIdToPresent = $0 }
         )
     }
 

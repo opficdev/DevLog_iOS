@@ -1,4 +1,4 @@
-<mxfile host="Electron" agent="Codex" pages="7">
+<mxfile host="Electron" agent="Codex" pages="8">
   <diagram id="store-protocol-page" name="Store Protocol">
     <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1280" pageHeight="600" background="none" math="0" shadow="0">
       <root>
@@ -103,7 +103,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="delete-flow-page" name="Delete Undo Flow">
-    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -292,7 +292,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="webpage-image-restore-page" name="WebPage Image Restore Flow">
-    <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1280" pageHeight="600" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -378,6 +378,104 @@
         </mxCell>
         <mxCell id="web-img-legend" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D8E0EA;strokeWidth=2;fontColor=#334155;fontSize=12;align=left;spacingLeft=14;" value="&lt;b&gt;화살표 의미&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#0A84FF&quot;&gt;■&lt;/font&gt; WebPage 목록 조회&lt;br&gt;&lt;font color=&quot;#0891B2&quot;&gt;■&lt;/font&gt; 이미지 URL 검증&lt;br&gt;&lt;font color=&quot;#16A34A&quot;&gt;■&lt;/font&gt; 이미지 복구·문서 갱신&lt;br&gt;&lt;font color=&quot;#7C3AED&quot;&gt;■&lt;/font&gt; 복구 결과 반환" vertex="1">
           <mxGeometry height="100" width="150" x="1000" y="170" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="main-tab-fetch-trigger-flow-page" name="Main Tab Fetch Trigger Flow">
+    <mxGraphModel dx="1571" dy="944" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1480" pageHeight="560" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="main-tab-root" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="범용 UI&lt;br&gt;NavigationSplitView" vertex="1">
+          <mxGeometry height="64" width="220" x="395" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-tree-root-container" edge="1" parent="1" source="main-tab-root" style="endArrow=none;html=1;rounded=1;strokeColor=#94A3B8;strokeWidth=2;" target="main-tab-container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-tree-container-home" edge="1" parent="1" source="main-tab-container" style="endArrow=none;html=1;rounded=1;strokeColor=#94A3B8;strokeWidth=2;" target="main-tab-home">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="315" />
+              <mxPoint x="190" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-tree-container-today" edge="1" parent="1" source="main-tab-container" style="endArrow=none;html=1;rounded=1;strokeColor=#94A3B8;strokeWidth=2;" target="main-tab-today">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="315" />
+              <mxPoint x="400" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-tree-container-notification" edge="1" parent="1" source="main-tab-container" style="endArrow=none;html=1;rounded=1;strokeColor=#94A3B8;strokeWidth=2;" target="main-tab-notification">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="315" />
+              <mxPoint x="610" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-tree-container-profile" edge="1" parent="1" source="main-tab-container" style="endArrow=none;html=1;rounded=1;strokeColor=#94A3B8;strokeWidth=2;" target="main-tab-profile">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="315" />
+              <mxPoint x="820" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-home-before-trigger" edge="1" parent="1" source="main-tab-home" style="endArrow=none;html=1;rounded=1;dashed=1;strokeColor=#E11D48;strokeWidth=2;" target="main-tab-before-trigger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-today-before-trigger" edge="1" parent="1" source="main-tab-today" style="endArrow=none;html=1;rounded=1;dashed=1;strokeColor=#E11D48;strokeWidth=2;" target="main-tab-before-trigger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-notification-before-trigger" edge="1" parent="1" source="main-tab-notification" style="endArrow=none;html=1;rounded=1;dashed=1;strokeColor=#E11D48;strokeWidth=2;" target="main-tab-before-trigger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-profile-before-trigger" edge="1" parent="1" source="main-tab-profile" style="endArrow=none;html=1;rounded=1;dashed=1;strokeColor=#E11D48;strokeWidth=2;" target="main-tab-before-trigger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-before-trigger" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#E11D48;strokeWidth=2;fontColor=#BE123C;fontStyle=1;fontSize=13;align=center;container=0;" value="각 탭 화면 onAppear" vertex="1">
+          <mxGeometry height="52" width="260" x="375" y="438" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-before-fetch" edge="1" parent="1" source="main-tab-before-trigger" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#E11D48;strokeWidth=3;labelBackgroundColor=#FFFFFF;fontSize=12;fontColor=#BE123C;edgeStyle=orthogonalEdgeStyle;" target="main-tab-network" value="화면 재구성 시 재요청">
+          <mxGeometry relative="1" x="-0.2869" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="760" y="464" />
+              <mxPoint x="1115" y="464" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-after-container-fetch" edge="1" parent="1" source="main-tab-container" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#16A34A;strokeWidth=3;labelBackgroundColor=#FFFFFF;fontSize=12;fontColor=#15803D;" target="main-tab-network" value="탭 선택 이벤트">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="247" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="main-tab-legend" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D8E0EA;strokeWidth=2;fontColor=#334155;fontSize=12;align=left;spacingLeft=14;spacingTop=10;container=0;" value="&lt;b&gt;화살표 의미&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#E11D48&quot;&gt;■&lt;/font&gt; Before: 화면 재구성 시 재요청&lt;br&gt;&lt;font color=&quot;#16A34A&quot;&gt;■&lt;/font&gt; After: 탭 컨테이너가 선택된 탭 요청 제어" vertex="1">
+          <mxGeometry height="68" width="250" x="930" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-home" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="HomeView" vertex="1">
+          <mxGeometry height="58" width="180" x="100" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-today" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="TodayView" vertex="1">
+          <mxGeometry height="58" width="180" x="310" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-notification" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="PushNotificationListView" vertex="1">
+          <mxGeometry height="58" width="180" x="520" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-profile" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#A7B4C6;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="ProfileView" vertex="1">
+          <mxGeometry height="58" width="180" x="730" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-network" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#475569;strokeWidth=2;fontColor=#1F2328;fontStyle=1;fontSize=14;align=center;container=0;" value="네트워크 요청&lt;br&gt;선택된 탭 데이터 조회" vertex="1">
+          <mxGeometry height="76" width="210" x="1010" y="209" as="geometry" />
+        </mxCell>
+        <mxCell id="main-tab-container" parent="1" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#0A84FF;strokeWidth=2;fontColor=#0B1F33;fontStyle=1;fontSize=14;align=center;container=0;" value="탭 컨테이너&lt;br&gt;탭 선택 상태 관리" vertex="1">
+          <mxGeometry height="64" width="220" x="395" y="215" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
@@ -468,7 +566,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="butterfly-architecture-page" name="App Architecture">
-    <mxGraphModel dx="3142" dy="1889" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1040" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1571" dy="944" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1040" background="none" math="0" shadow="0">
       <root>
         <mxCell id="400" />
         <mxCell id="401" parent="400" />
@@ -648,7 +746,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="widget-architecture-page" name="Widget Architecture">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1500" pageHeight="480" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1488" dy="895" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="480" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -695,7 +793,7 @@
           <mxGeometry height="58" width="150" x="68" y="350" as="geometry" />
         </mxCell>
         <mxCell id="w-data-note" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#D8E0EA;strokeWidth=1;fontColor=#374151;fontSize=12;align=left;spacingLeft=10;" value="위젯 확장은 Domain/Data/Infra/Persistence를 직접 참조하지 않습니다.&lt;div&gt;WidgetCore의 Snapshot 계약과 App Group UserDefaults에 저장된 JSON만 읽어 화면을 구성합니다.&lt;/div&gt;" vertex="1">
-          <mxGeometry height="52" width="562" x="50" y="260" as="geometry" />
+          <mxGeometry height="52" width="530" x="50" y="260" as="geometry" />
         </mxCell>
         <mxCell id="wd-1" edge="1" parent="1" source="w-service" style="endArrow=blockThin;endFill=1;endSize=16;html=1;rounded=1;strokeColor=#0A84FF;strokeWidth=3;" target="w-repository" value="service data">
           <mxGeometry relative="1" as="geometry" />

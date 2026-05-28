@@ -11,14 +11,16 @@ import DevLogDomain
 
 struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.diContainer) private var container: DIContainer
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
-    @State var viewModel: PushNotificationListViewModel
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
-    @Binding var todoIdToPresent: TodoIdItem?
+    let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
+
+    private var viewModel: PushNotificationListViewModel {
+        coordinator.viewModel
+    }
 
     var body: some View {
         NavigationStack {
@@ -29,7 +31,6 @@ struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .onAppear { viewModel.send(.fetchNotifications) }
                 .refreshable { viewModel.send(.fetchNotifications) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
@@ -58,7 +59,7 @@ struct PushNotificationListView: View {
                 .lineLimit(3)
         }
         .sheet(item: Binding(
-            get: { isCompactLayout ? todoIdToPresent : nil },
+            get: { isCompactLayout ? coordinator.todoIdToPresent : nil },
             set: { item in
                 if item == nil {
                     selectNotification(nil)
@@ -66,13 +67,7 @@ struct PushNotificationListView: View {
             }
         )) { item in
             NavigationStack {
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
-                    todoId: item.id,
-                    showEditButton: false
-                ))
+                TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: item.id))
                 .id(item.id)
                 .toolbar {
                     ToolbarLeadingButton {
@@ -389,6 +384,6 @@ struct PushNotificationListView: View {
 
     private func selectNotification(_ notificationId: String?) {
         viewModel.send(.selectNotification(notificationId))
-        todoIdToPresent = viewModel.state.selectedTodoId
+        coordinator.todoIdToPresent = viewModel.state.selectedTodoId
     }
 }
