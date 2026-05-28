@@ -52,8 +52,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // 앱이 완전 종료되어도, 알림을 통해 앱이 시작된 경우 처리
         if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+            let handler = container.resolve(PushNotificationOpenHandler.self)
             Task { @MainActor in
-                PushNotificationRoute.shared.handlePushTap(userInfo: remoteNotification)
+                handler.handlePushOpen(userInfo: remoteNotification)
             }
         }
 
@@ -110,8 +111,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     ) {
         logger.info("Tapped notification: \(response.notification.request.content.userInfo)")
         let userInfo = response.notification.request.content.userInfo
+        let handler = container.resolve(PushNotificationOpenHandler.self)
         Task { @MainActor in
-            PushNotificationRoute.shared.handlePushTap(userInfo: userInfo)
+            handler.handlePushOpen(userInfo: userInfo)
         }
         completionHandler()
     }

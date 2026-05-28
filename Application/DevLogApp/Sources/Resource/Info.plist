@@ -20,6 +20,8 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 	<key>GIDClientID</key>
 	<string>$(CLIENT_ID)</string>
 	<key>GITHUB_CLIENT_ID</key>

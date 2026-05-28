@@ -41,7 +41,8 @@ final class HomeViewCoordinator {
             upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
             fetchTodosUseCase: fetchTodosUseCase,
             fetchWebPagesUseCase: fetchWebPagesUseCase,
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self)
+            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
+            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self)
         )
     }
 

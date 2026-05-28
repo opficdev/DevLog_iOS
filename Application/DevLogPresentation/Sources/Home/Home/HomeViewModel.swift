@@ -110,6 +110,7 @@ final class HomeViewModel: Store {
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let loadingState = LoadingState()
     private var deletedWebPageURLString: String?
     private var cancellables = Set<AnyCancellable>()
@@ -123,7 +124,8 @@ final class HomeViewModel: Store {
         upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase,
-        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
+        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.updatePreferencesUseCase = updatePreferencesUseCase
@@ -134,6 +136,7 @@ final class HomeViewModel: Store {
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
         self.networkConnectivityUseCase = networkConnectivityUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
 
         setupNetworkObserving()
     }
@@ -186,6 +189,7 @@ final class HomeViewModel: Store {
                 do {
                     defer { endLoading(for: .overlay, mode: .delayed) }
                     try await upsertTodoUseCase.execute(todo)
+                    trackAnalyticsEventUseCase.execute(.todoCreate)
                     let page = try await fetchRecentTodos()
                     let items = page.items
                         .filter { $0.createdAt != $0.updatedAt }
@@ -217,6 +221,7 @@ final class HomeViewModel: Store {
                 do {
                     defer { endLoading(for: .overlay, mode: .delayed) }
                     try await addWebPageUseCase.execute(urlString)
+                    trackAnalyticsEventUseCase.execute(.webPageCreate)
                     let pages = try await fetchWebPagesUseCase.execute("")
                     send(.updateWebPages(pages.map { WebPageItem(from: $0) }))
                 } catch {

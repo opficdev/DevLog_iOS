@@ -11,6 +11,7 @@ public final class DomainAssembler: Assembler {
     public init() { }
 
     public func assemble(_ container: any DIContainer) {
+        registerAnalyticsUseCases(container)
         registerAuthUseCases(container)
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
@@ -24,6 +25,12 @@ public final class DomainAssembler: Assembler {
 }
 
 private extension DomainAssembler {
+    func registerAnalyticsUseCases(_ container: any DIContainer) {
+        container.register(TrackAnalyticsEventUseCase.self) {
+            TrackAnalyticsEventUseCaseImpl(container.resolve(AnalyticsRepository.self))
+        }
+    }
+
     func registerAuthUseCases(_ container: any DIContainer) {
         container.register(SignInUseCase.self) {
             SignInUseCaseImpl(container.resolve(AuthenticationRepository.self))

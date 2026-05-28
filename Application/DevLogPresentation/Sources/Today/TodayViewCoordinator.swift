@@ -21,7 +21,8 @@ final class TodayViewCoordinator {
             fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
             upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
             fetchTodayDisplayOptionsUseCase: container.resolve(FetchTodayDisplayOptionsUseCase.self),
-            updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self)
+            updateTodayDisplayOptionsUseCase: container.resolve(UpdateTodayDisplayOptionsUseCase.self),
+            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self)
         )
     }
 

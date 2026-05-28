@@ -24,6 +24,7 @@ final class MainViewCoordinator {
     init(container: DIContainer) {
         self.diContainer = container
         self.mainViewModel = MainViewModel(
+            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
             unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
         )
         self.pushNotificationListViewModel = PushNotificationListViewModel(
@@ -48,6 +49,7 @@ final class MainViewCoordinator {
             upsertTodoUseCase: diContainer.resolve(UpsertTodoUseCase.self),
             deleteTodoUseCase: diContainer.resolve(DeleteTodoUseCase.self),
             undoDeleteTodoUseCase: diContainer.resolve(UndoDeleteTodoUseCase.self),
+            trackAnalyticsEventUseCase: diContainer.resolve(TrackAnalyticsEventUseCase.self),
             category: category
         )
         self.todoListViewModel = todoListViewModel

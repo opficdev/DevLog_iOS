@@ -22,12 +22,14 @@ final class MainViewModel: Store {
 
     enum Action {
         case onAppear
+        case selectedTabChanged(MainTab)
         case setUnreadPushCount(Int)
         case setAlert(Bool)
     }
 
     enum SideEffect {
         case observeUnreadPushCount
+        case trackScreenView(MainTab)
         case updateBadgeCount(Int)
     }
 
@@ -35,11 +37,14 @@ final class MainViewModel: Store {
     private let logger = Logger(category: "MainViewModel")
     private var cancellables = Set<AnyCancellable>()
     private var isObservingUnreadPushCount = false
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let unreadPushCountUseCase: ObserveUnreadPushCountUseCase
 
     init(
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
         unreadPushCountUseCase: ObserveUnreadPushCountUseCase
     ) {
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         self.unreadPushCountUseCase = unreadPushCountUseCase
     }
 
@@ -52,6 +57,10 @@ final class MainViewModel: Store {
             if !isObservingUnreadPushCount {
                 isObservingUnreadPushCount = true
                 sideEffects = [.observeUnreadPushCount]
+            }
+        case .selectedTabChanged(let tab):
+            if tab.analyticsScreenName != nil {
+                sideEffects = [.trackScreenView(tab)]
             }
         case .setUnreadPushCount(let count):
             state.unreadPushCount = count
@@ -68,6 +77,8 @@ final class MainViewModel: Store {
         switch effect {
         case .observeUnreadPushCount:
             observeUnreadPushCount()
+        case .trackScreenView(let tab):
+            trackScreenView(tab)
         case .updateBadgeCount(let count):
             updateBadgeCount(count)
         }
@@ -114,6 +125,26 @@ private extension MainViewModel {
                     self?.logger.error("Failed to update application badge count", error: error)
                 }
             }
+        }
+    }
+
+    func trackScreenView(_ tab: MainTab) {
+        guard let screenName = tab.analyticsScreenName else { return }
+        trackAnalyticsEventUseCase.execute(.screenView(screenName))
+    }
+}
+
+private extension MainTab {
+    var analyticsScreenName: String? {
+        switch self {
+        case .home:
+            return "home"
+        case .today:
+            return "today"
+        case .notification:
+            return nil
+        case .profile:
+            return "profile"
         }
     }
 }

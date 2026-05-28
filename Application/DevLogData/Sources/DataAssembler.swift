@@ -79,6 +79,12 @@ public final class DataAssembler: Assembler {
             UserDataRepositoryImpl(userService: container.resolve(UserService.self))
         }
 
+        container.register(AnalyticsRepository.self) {
+            AnalyticsRepositoryImpl(
+                analyticsService: container.resolve(AnalyticsService.self)
+            )
+        }
+
         container.register(PushNotificationRepository.self) {
             PushNotificationRepositoryImpl(
                 pushNotificationService: container.resolve(PushNotificationService.self),

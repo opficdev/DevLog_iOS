@@ -89,6 +89,7 @@ final class TodoListViewModel: Store {
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let deleteTodoUseCase: DeleteTodoUseCase
     private let undoDeleteTodoUseCase: UndoDeleteTodoUseCase
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let loadingState = LoadingState()
     private var undoTodoId: String?
     private var nextCursor: TodoCursor?
@@ -101,6 +102,7 @@ final class TodoListViewModel: Store {
         upsertTodoUseCase: UpsertTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
         undoDeleteTodoUseCase: UndoDeleteTodoUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
         category: TodoCategory
     ) {
         self.fetchTodosUseCase = fetchTodosUseCase
@@ -108,6 +110,7 @@ final class TodoListViewModel: Store {
         self.upsertTodoUseCase = upsertTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
         self.undoDeleteTodoUseCase = undoDeleteTodoUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         self.category = category
         self.state = State(
             query: TodoQuery(categoryId: category.storageValue)
@@ -209,6 +212,7 @@ final class TodoListViewModel: Store {
                 do {
                     defer { endLoading(.delayed) }
                     try await upsertTodoUseCase.execute(item)
+                    trackAnalyticsEventUseCase.execute(.todoCreate)
                     send(.refresh)
                 } catch {
                     send(.setAlert(true))
@@ -225,6 +229,9 @@ final class TodoListViewModel: Store {
                     todo.completedAt = todo.isCompleted ? now : nil
                     todo.updatedAt = now
                     try await upsertTodoUseCase.execute(todo)
+                    if todo.isCompleted {
+                        trackAnalyticsEventUseCase.execute(.todoComplete)
+                    }
                     guard let todoListItem = TodoListItem(from: todo) else {
                         send(.setAlert(true))
                         return
