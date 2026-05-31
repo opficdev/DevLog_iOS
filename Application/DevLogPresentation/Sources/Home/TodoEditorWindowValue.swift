@@ -147,7 +147,8 @@ extension TodoEditorWindowValue {
         category: TodoCategory? = nil,
         source: TodoEditorWindowSource
     ) -> Bool {
-        guard case .create(let windowCategory, source) = self else { return false }
+        guard case .create(let windowCategory, let windowSource) = self,
+              windowSource == source else { return false }
         if let category {
             return windowCategory.todoCategory == category
         }
