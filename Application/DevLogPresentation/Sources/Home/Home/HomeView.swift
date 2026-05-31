@@ -278,6 +278,7 @@ struct HomeView: View {
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(.rect)
             }
             .buttonStyle(.plain)
         }
@@ -296,6 +297,7 @@ struct HomeView: View {
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
