@@ -1,5 +1,5 @@
 //
-//  TodoSceneCoordinator.swift
+//  TodoWindowCoordinator.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 5/31/26.
@@ -11,7 +11,7 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class TodoSceneCoordinator {
+final class TodoWindowCoordinator {
     private let diContainer: DIContainer
     @ObservationIgnored
     private var listViewModel: TodoListViewModel?
