@@ -12,6 +12,7 @@ import DevLogDomain
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var coordinator: MainViewCoordinator
+    @State private var todoWindowCoordinator: TodoWindowCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
@@ -23,6 +24,7 @@ struct MainView: View {
         selectedTab: Binding<MainTab?>
     ) {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
         self._pushNotificationListViewCoordinator = State(
@@ -43,11 +45,11 @@ struct MainView: View {
             }
         }
         .onAppear {
-            coordinator.mainViewModel.send(.onAppear)
+            coordinator.viewModel.send(.onAppear)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
             guard let newValue else { return }
-            coordinator.mainViewModel.send(.selectedTabChanged(newValue))
+            coordinator.viewModel.send(.selectedTabChanged(newValue))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
@@ -59,12 +61,12 @@ struct MainView: View {
             }
         }
         .alert(
-            coordinator.mainViewModel.state.alertTitle,
+            coordinator.viewModel.state.alertTitle,
             isPresented: mainAlertPresented
         ) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
-            Text(coordinator.mainViewModel.state.alertMessage)
+            Text(coordinator.viewModel.state.alertMessage)
         }
     }
 
@@ -86,7 +88,7 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.notification)
                 }
-                .badge(coordinator.mainViewModel.state.unreadPushCount)
+                .badge(coordinator.viewModel.state.unreadPushCount)
                 .tag(MainTab.notification as MainTab?)
 
             profileView
@@ -189,7 +191,7 @@ struct MainView: View {
     private func sidebarRow(_ tab: MainTab) -> some View {
         if tab == .notification {
             tabLabel(tab)
-                .badge(coordinator.mainViewModel.state.unreadPushCount)
+                .badge(coordinator.viewModel.state.unreadPushCount)
                 .tag(tab)
         } else {
             tabLabel(tab)
@@ -254,11 +256,11 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                viewModel: coordinator.todoListViewModel(category: item.todoCategory)
+                viewModel: todoWindowCoordinator.makeListViewModel(category: item.todoCategory)
             )
             .id(item.id)
         case .todo(let item):
-            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
             .id(item.id)
         case .webPage(let item):
             WebView(url: item.url)
@@ -321,7 +323,7 @@ struct MainView: View {
     private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
         switch todayRoute {
         case .todo(let item):
-            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
                 .id(item.id)
         }
     }
@@ -345,8 +347,8 @@ private extension MainView {
 
     var mainAlertPresented: Binding<Bool> {
         Binding(
-            get: { coordinator.mainViewModel.state.showAlert },
-            set: { coordinator.mainViewModel.send(.setAlert($0)) }
+            get: { coordinator.viewModel.state.showAlert },
+            set: { coordinator.viewModel.send(.setAlert($0)) }
         )
     }
 
