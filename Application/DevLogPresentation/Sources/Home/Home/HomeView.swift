@@ -9,6 +9,8 @@ import SwiftUI
 import DevLogDomain
 
 struct HomeView: View {
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
@@ -86,6 +88,9 @@ struct HomeView: View {
             if coordinator.viewModel.state.isAppending {
                 LoadingView()
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .todoEditorDidSubmit)) { notification in
+            handleTodoEditorSubmit(notification)
         }
     }
 
@@ -314,7 +319,7 @@ struct HomeView: View {
                         ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
-                                    coordinator.viewModel.send(.tapTodoCategory(item.category))
+                                    openTodoEditor(for: item.category)
                                 }
                             } label: {
                                 labelImage(
@@ -382,6 +387,24 @@ struct HomeView: View {
         }
         .padding(.vertical, -6)
         .contentShape(.rect)
+    }
+
+    private func openTodoEditor(for todoCategory: TodoCategory) {
+        if isiOSAppOnMac {
+            coordinator.viewModel.send(.setPresentation(.contentPicker, false))
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
+            )
+        } else {
+            coordinator.viewModel.send(.tapTodoCategory(todoCategory))
+        }
+    }
+
+    private func handleTodoEditorSubmit(_ notification: Notification) {
+        guard let submit = notification.object as? TodoEditorWindowSubmit,
+              submit.value.matchesCreate(source: .home) else { return }
+        coordinator.viewModel.send(.addTodo(submit.todo))
     }
 
 }

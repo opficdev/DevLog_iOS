@@ -18,6 +18,7 @@ struct TodoEditorView: View {
     @FocusState private var field: Field?
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
+    var onClose: (() -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -74,7 +75,7 @@ struct TodoEditorView: View {
                 .presentationDragIndicator(.visible)
             }
             .toolbar {
-                ToolbarLeadingButton { dismiss() }
+                ToolbarLeadingButton { close() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.send(.setShowInfo(true))
@@ -180,7 +181,15 @@ struct TodoEditorView: View {
     private func submit() {
         let todo = viewModel.makeTodo()
         onSubmit?(todo)
-        dismiss()
+        close()
+    }
+
+    private func close() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
+        }
     }
 
     private func transitionToPreview() {

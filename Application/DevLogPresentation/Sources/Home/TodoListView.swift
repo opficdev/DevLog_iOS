@@ -13,6 +13,8 @@ struct TodoListView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
@@ -90,7 +92,7 @@ struct TodoListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.send(.setShowEditor(true))
+                    openTodoEditor()
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -110,6 +112,9 @@ struct TodoListView: View {
         }
         .background(NavigationBarConfigurator())
         .task { viewModel.send(.onAppear) }
+        .onReceive(NotificationCenter.default.publisher(for: .todoEditorDidSubmit)) { notification in
+            handleTodoEditorSubmit(notification)
+        }
     }
 
     @ViewBuilder
@@ -228,6 +233,23 @@ struct TodoListView: View {
                     )
                 )
             )
+    }
+
+    private func openTodoEditor() {
+        if isiOSAppOnMac {
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todoCategory: viewModel.category, source: .list)
+            )
+        } else {
+            viewModel.send(.setShowEditor(true))
+        }
+    }
+
+    private func handleTodoEditorSubmit(_ notification: Notification) {
+        guard let submit = notification.object as? TodoEditorWindowSubmit,
+              submit.value.matchesCreate(category: viewModel.category, source: .list) else { return }
+        viewModel.send(.upsertTodo(submit.todo))
     }
 
     @ViewBuilder

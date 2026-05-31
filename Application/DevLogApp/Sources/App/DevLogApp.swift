@@ -38,5 +38,16 @@ struct DevLogApp: App {
                 container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
             }
         }
+        WindowGroup(id: TodoEditorWindowValue.sceneId, for: TodoEditorWindowValue.self) { value in
+            if let value = value.wrappedValue {
+                TodoEditorWindowView(value: value)
+                .autocorrectionDisabled()
+            } else {
+                ContentUnavailableView(
+                    String(localized: "todo_edit"),
+                    systemImage: "square.and.pencil"
+                )
+            }
+        }
     }
 }

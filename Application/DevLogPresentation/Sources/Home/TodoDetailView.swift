@@ -11,6 +11,8 @@ import DevLogDomain
 
 struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State var viewModel: TodoDetailViewModel
 
     var body: some View {
@@ -29,6 +31,9 @@ struct TodoDetailView: View {
             }
         }
         .onAppear { viewModel.send(.onAppear) }
+        .onReceive(NotificationCenter.default.publisher(for: .todoEditorDidSubmit)) { notification in
+            handleTodoEditorSubmit(notification)
+        }
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: Binding(
             get: { viewModel.state.showInfo },
@@ -90,12 +95,30 @@ struct TodoDetailView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.send(.setShowEditor(true))
+                    openTodoEditor()
                 } label: {
                     Text(String(localized: "todo_edit"))
                 }
             }
         }
+    }
+
+    private func openTodoEditor() {
+        if isiOSAppOnMac {
+            guard let todo = viewModel.state.todo else { return }
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todo: todo)
+            )
+        } else {
+            viewModel.send(.setShowEditor(true))
+        }
+    }
+
+    private func handleTodoEditorSubmit(_ notification: Notification) {
+        guard let submit = notification.object as? TodoEditorWindowSubmit,
+              submit.value.matchesEdit(todoId: viewModel.todoId) else { return }
+        viewModel.send(.upsertTodo(submit.todo))
     }
 
     @ViewBuilder
