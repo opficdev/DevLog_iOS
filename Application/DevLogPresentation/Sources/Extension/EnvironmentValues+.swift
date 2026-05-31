@@ -21,6 +21,10 @@ extension EnvironmentValues {
         self[SceneHeightKey.self]
     }
 
+    var isiOSAppOnMac: Bool {
+        self[IOSAppOnMacKey.self]
+    }
+
     private struct SafeAreaInsetsKey: EnvironmentKey {
         static var defaultValue: EdgeInsets {
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -46,6 +50,12 @@ extension EnvironmentValues {
                 return UIScreen.main.bounds.height
             }
             return windowScene.screen.bounds.height
+        }
+    }
+
+    private struct IOSAppOnMacKey: EnvironmentKey {
+        static var defaultValue: Bool {
+            ProcessInfo.processInfo.isiOSAppOnMac
         }
     }
 }
