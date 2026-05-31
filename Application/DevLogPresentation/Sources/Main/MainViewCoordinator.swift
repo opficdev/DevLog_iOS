@@ -12,10 +12,10 @@ import DevLogDomain
 @MainActor
 @Observable
 final class MainViewCoordinator {
-    let mainViewModel: MainViewModel
+    let viewModel: MainViewModel
 
     init(container: DIContainer) {
-        self.mainViewModel = MainViewModel(
+        self.viewModel = MainViewModel(
             trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
             unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
         )

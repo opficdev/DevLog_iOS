@@ -45,11 +45,11 @@ struct MainView: View {
             }
         }
         .onAppear {
-            coordinator.mainViewModel.send(.onAppear)
+            coordinator.viewModel.send(.onAppear)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
             guard let newValue else { return }
-            coordinator.mainViewModel.send(.selectedTabChanged(newValue))
+            coordinator.viewModel.send(.selectedTabChanged(newValue))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
@@ -61,12 +61,12 @@ struct MainView: View {
             }
         }
         .alert(
-            coordinator.mainViewModel.state.alertTitle,
+            coordinator.viewModel.state.alertTitle,
             isPresented: mainAlertPresented
         ) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
-            Text(coordinator.mainViewModel.state.alertMessage)
+            Text(coordinator.viewModel.state.alertMessage)
         }
     }
 
@@ -88,7 +88,7 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.notification)
                 }
-                .badge(coordinator.mainViewModel.state.unreadPushCount)
+                .badge(coordinator.viewModel.state.unreadPushCount)
                 .tag(MainTab.notification as MainTab?)
 
             profileView
@@ -191,7 +191,7 @@ struct MainView: View {
     private func sidebarRow(_ tab: MainTab) -> some View {
         if tab == .notification {
             tabLabel(tab)
-                .badge(coordinator.mainViewModel.state.unreadPushCount)
+                .badge(coordinator.viewModel.state.unreadPushCount)
                 .tag(tab)
         } else {
             tabLabel(tab)
@@ -347,8 +347,8 @@ private extension MainView {
 
     var mainAlertPresented: Binding<Bool> {
         Binding(
-            get: { coordinator.mainViewModel.state.showAlert },
-            set: { coordinator.mainViewModel.send(.setAlert($0)) }
+            get: { coordinator.viewModel.state.showAlert },
+            set: { coordinator.viewModel.send(.setAlert($0)) }
         )
     }
 
