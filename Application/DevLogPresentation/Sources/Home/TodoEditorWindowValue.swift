@@ -136,7 +136,8 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
     }
 }
 
-struct TodoEditorWindowSubmit {
+struct TodoEditorWindowSubmit: Equatable {
+    let id = UUID()
     let value: TodoEditorWindowValue
     let todo: Todo
 }
@@ -157,8 +158,4 @@ extension TodoEditorWindowValue {
         guard case .edit(let windowTodo) = self else { return false }
         return windowTodo.todo.id == todoId
     }
-}
-
-extension Notification.Name {
-    static let todoEditorDidSubmit = Notification.Name("DevLogPresentation.todoEditorDidSubmit")
 }

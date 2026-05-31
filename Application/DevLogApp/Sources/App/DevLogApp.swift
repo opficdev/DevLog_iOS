@@ -16,6 +16,7 @@ struct DevLogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.scenePhase) var scenePhase
+    @State private var windowEvent = TodoEditorWindowEvent()
 
     init() {
         AppAssembler().assemble(AppDIContainer.shared)
@@ -33,6 +34,7 @@ struct DevLogApp: App {
                 clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }
             )
             .autocorrectionDisabled()
+            .environment(windowEvent)
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .background else { return }
                 container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
@@ -42,6 +44,7 @@ struct DevLogApp: App {
             if let value = value.wrappedValue {
                 TodoEditorWindowView(value: value)
                 .autocorrectionDisabled()
+                .environment(windowEvent)
             } else {
                 ContentUnavailableView(
                     String(localized: "todo_edit"),

@@ -11,6 +11,7 @@ import DevLogDomain
 
 struct TodoListView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
+    @Environment(TodoEditorWindowEvent.self) private var windowEvent
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openWindow) private var openWindow
@@ -112,8 +113,8 @@ struct TodoListView: View {
         }
         .background(NavigationBarConfigurator())
         .task { viewModel.send(.onAppear) }
-        .onReceive(NotificationCenter.default.publisher(for: .todoEditorDidSubmit)) { notification in
-            handleTodoEditorSubmit(notification)
+        .onChange(of: windowEvent.submitted) { _, submitted in
+            handleTodoEditorSubmit(submitted)
         }
     }
 
@@ -246,8 +247,8 @@ struct TodoListView: View {
         }
     }
 
-    private func handleTodoEditorSubmit(_ notification: Notification) {
-        guard let submit = notification.object as? TodoEditorWindowSubmit,
+    private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit?) {
+        guard let submit,
               submit.value.matchesCreate(category: viewModel.category, source: .list) else { return }
         viewModel.send(.upsertTodo(submit.todo))
     }

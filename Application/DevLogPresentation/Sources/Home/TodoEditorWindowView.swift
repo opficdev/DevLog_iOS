@@ -12,6 +12,7 @@ import DevLogDomain
 public struct TodoEditorWindowView: View {
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(TodoEditorWindowEvent.self) private var windowEvent
     private let value: TodoEditorWindowValue
 
     public init(value: TodoEditorWindowValue) {
@@ -48,9 +49,6 @@ public struct TodoEditorWindowView: View {
     }
 
     private func submit(_ todo: Todo) {
-        NotificationCenter.default.post(
-            name: .todoEditorDidSubmit,
-            object: TodoEditorWindowSubmit(value: value, todo: todo)
-        )
+        windowEvent.submit(value: value, todo: todo)
     }
 }
