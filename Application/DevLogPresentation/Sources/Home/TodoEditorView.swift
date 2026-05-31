@@ -15,6 +15,7 @@ struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @FocusState private var field: Field?
     private let calendar = Calendar.current
     var onSubmit: ((Todo) -> Void)?
@@ -24,7 +25,7 @@ struct TodoEditorView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 10) {
-                    titleField
+                    titleSection
                     LazyVStack(
                         alignment: .leading,
                         spacing: 0,
@@ -33,7 +34,10 @@ struct TodoEditorView: View {
                         Section {
                             tabView
                         } header: {
-                            tabViewSelector
+                            if !isiOSAppOnMac {
+                                tabPicker
+                                    .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -75,7 +79,9 @@ struct TodoEditorView: View {
                 .presentationDragIndicator(.visible)
             }
             .toolbar {
-                ToolbarLeadingButton { close() }
+                if !isiOSAppOnMac {
+                    ToolbarLeadingButton { close() }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.send(.setShowInfo(true))
@@ -91,6 +97,22 @@ struct TodoEditorView: View {
         }
     }
 
+    @ViewBuilder
+    private var titleSection: some View {
+        Group {
+            if isiOSAppOnMac {
+                HStack(spacing: 12) {
+                    titleField
+                    tabPicker
+                        .frame(width: 180)
+                }
+            } else {
+                titleField
+            }
+        }
+        .padding(.horizontal)
+    }
+
     private var titleField: some View {
         TextField(
             "",
@@ -103,10 +125,9 @@ struct TodoEditorView: View {
         .font(.title2)
         .frame(height: 30)
         .focused($field, equals: .title)
-        .padding(.horizontal)
     }
 
-    private var tabViewSelector: some View {
+    private var tabPicker: some View {
         Picker(
             "",
             selection: Binding(
@@ -127,7 +148,6 @@ struct TodoEditorView: View {
                 .tag(TodoEditorViewModel.Tag.preview)
         }
         .pickerStyle(.segmented)
-        .padding(.horizontal)
     }
 
     private var tabView: some View {
