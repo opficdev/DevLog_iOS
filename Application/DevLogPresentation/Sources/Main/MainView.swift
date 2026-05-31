@@ -12,6 +12,7 @@ import DevLogDomain
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var coordinator: MainViewCoordinator
+    @State private var todoSceneCoordinator: TodoSceneCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
@@ -23,6 +24,7 @@ struct MainView: View {
         selectedTab: Binding<MainTab?>
     ) {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        self._todoSceneCoordinator = State(initialValue: TodoSceneCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
         self._pushNotificationListViewCoordinator = State(
@@ -254,11 +256,11 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                viewModel: coordinator.todoListViewModel(category: item.todoCategory)
+                viewModel: todoSceneCoordinator.makeListViewModel(category: item.todoCategory)
             )
             .id(item.id)
         case .todo(let item):
-            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: todoSceneCoordinator.makeDetailViewModel(todoId: item.id))
             .id(item.id)
         case .webPage(let item):
             WebView(url: item.url)
@@ -321,7 +323,7 @@ struct MainView: View {
     private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
         switch todayRoute {
         case .todo(let item):
-            TodoDetailView(viewModel: coordinator.todoDetailViewModel(todoId: item.id))
+            TodoDetailView(viewModel: todoSceneCoordinator.makeDetailViewModel(todoId: item.id))
                 .id(item.id)
         }
     }
