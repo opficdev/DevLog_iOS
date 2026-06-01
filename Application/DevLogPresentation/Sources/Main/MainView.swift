@@ -106,64 +106,57 @@ struct MainView: View {
 
     @ViewBuilder
     private func sidebarView(for selectedTab: MainTab) -> some View {
-        switch selectedTab.mainTabSplitStyle {
-        case .detailOnly:
+        switch selectedTab {
+        case .home:
             NavigationSplitView {
                 mainSidebar
+            } content: {
+                homeView
             } detail: {
-                selectedTabView(for: selectedTab)
+                homeRegularDetailView
             }
-        case .contentDetail:
-            switch selectedTab {
-            case .home:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    homeView
-                } detail: {
-                    homeRegularDetailView
-                }
-                .environment(homeViewCoordinator.router)
-            case .today:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    todayView
-                } detail: {
-                    todayRegularDetailView
-                }
-            case .notification:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    PushNotificationListView(
-                        coordinator: pushNotificationListViewCoordinator,
-                        isCompactLayout: isCompactLayout
-                    )
-                } detail: {
-                    Group {
-                        if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
-                            TodoDetailView(
-                                viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
-                                    todoId: todoId
-                                )
+            .environment(homeViewCoordinator.router)
+        case .today:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                todayView
+            } detail: {
+                todayRegularDetailView
+            }
+        case .notification:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                PushNotificationListView(
+                    coordinator: pushNotificationListViewCoordinator,
+                    isCompactLayout: isCompactLayout
+                )
+            } detail: {
+                Group {
+                    if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
+                        TodoDetailView(
+                            viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
+                                todoId: todoId
                             )
-                            .id(todoId)
-                        } else {
-                            ContentUnavailableView(
-                                String(localized: "push_notifications_select_detail"),
-                                systemImage: "bell.badge"
-                            )
-                        }
+                        )
+                        .id(todoId)
+                    } else {
+                        ContentUnavailableView(
+                            String(localized: "push_notifications_select_detail"),
+                            systemImage: "bell.badge"
+                        )
                     }
-                    .background(Color(.secondarySystemBackground).ignoresSafeArea())
                 }
-            case .profile:
-                NavigationSplitView {
-                    mainSidebar
-                } detail: {
-                    selectedTabView(for: selectedTab)
-                }
+            }
+            .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        case .profile:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                profileView
+            } detail: {
+                profileRegularDetailView
             }
         }
     }
@@ -176,20 +169,6 @@ struct MainView: View {
             sidebarRow(.profile)
         }
         .listStyle(.sidebar)
-    }
-
-    @ViewBuilder
-    private func selectedTabView(for selectedTab: MainTab) -> some View {
-        switch selectedTab {
-        case .home:
-            homeView
-        case .today:
-            todayView
-        case .notification:
-            notificationView
-        case .profile:
-            profileView
-        }
     }
 
     @ViewBuilder
@@ -341,7 +320,25 @@ struct MainView: View {
     }
 
     private var profileView: some View {
-        ProfileView(coordinator: profileViewCoordinator)
+        ProfileView(
+            coordinator: profileViewCoordinator,
+            isCompactLayout: isCompactLayout
+        )
+    }
+
+    private var profileRegularDetailView: some View {
+        Group {
+            if let todoId = profileSelectedTodoId {
+                TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+                    .id(todoId)
+            } else {
+                ContentUnavailableView(
+                    String(localized: "profile_select_detail"),
+                    systemImage: "person.crop.circle"
+                )
+            }
+        }
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
     }
 }
 
@@ -396,23 +393,17 @@ private extension MainView {
         )
     }
 
-}
-
-private enum MainTabSplitStyle {
-    case detailOnly
-    case contentDetail
-}
-
-private extension MainTab {
-    var mainTabSplitStyle: MainTabSplitStyle {
-        switch self {
-        case .home, .today, .notification:
-            .contentDetail
-        case .profile:
-            .detailOnly
+    var profileSelectedTodoId: String? {
+        for route in profileViewCoordinator.router.path.reversed() {
+            if case let .activity(todoId) = route {
+                return todoId
+            }
         }
+        return nil
     }
 
+}
+private extension MainTab {
     var title: String {
         switch self {
         case .home:

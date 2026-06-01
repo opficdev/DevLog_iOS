@@ -11,137 +11,151 @@ import DevLogDomain
 
 struct ProfileView: View {
     let coordinator: ProfileViewCoordinator
+    let isCompactLayout: Bool
     @FocusState private var focused: Bool
 
     var body: some View {
-        NavigationStack(path: navigationPath) {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        CacheableImage(url: coordinator.viewModel.state.avatarURL) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .resizable()
-                                .scaledToFill()
-                                .foregroundStyle(Color(.systemGray2))
-                        }
-                        .frame(width: 60, height: 60)
-                        .cornerRadius(30)
-                        .foregroundStyle(Color.gray)
-
-                        VStack(alignment: .leading) {
-                            Text(coordinator.viewModel.state.name)
-                                .font(.title2)
-                                .bold()
-                            Text(coordinator.viewModel.state.email)
-                                .font(.caption2)
-                                .foregroundStyle(Color.gray)
-                        }
-                    }
-                    let connected = coordinator.viewModel.state.isNetworkConnected
-                    HStack {
-                        HStack {
-                            Image(systemName: "face.smiling")
-                            TextField(
-                                text: Binding(
-                                    get: { coordinator.viewModel.state.statusMessage },
-                                    set: { coordinator.viewModel.send(.updateStatusMessage($0)) }
-                                )
-                            ) {
-                                Text(String(localized: "profile_status_placeholder"))
-                            }
-                            .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
-                            .focused($focused)
-                            .disabled(!connected)
-
-                            if !coordinator.viewModel.state.statusMessage.isEmpty,
-                               coordinator.viewModel.state.showDoneButton {
-                                Button(action: {
-                                    coordinator.viewModel.send(.tapResetStatusMessageButton)
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
+        Group {
+            if isCompactLayout {
+                NavigationStack(path: navigationPath) {
+                    profileContentView
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button {
+                                    coordinator.router.push(.settings)
+                                } label: {
+                                    Image(systemName: "gearshape")
                                 }
-                                .transition(.move(edge: .trailing).combined(with: .opacity))
                             }
                         }
-                        .foregroundStyle(Color.gray)
-                        .padding(8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(.secondarySystemGroupedBackground))
-                        )
-                        if coordinator.viewModel.state.showDoneButton {
+                        .navigationDestination(for: ProfileRoute.self) { route in
+                            profileDestinationView(route)
+                        }
+                }
+            } else {
+                profileContentView
+            }
+        }
+        .onChange(of: focused) { _, newValue in
+            withAnimation {
+                coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
+            }
+        }
+        .alert(
+            "",
+            isPresented: Binding(
+                get: { coordinator.viewModel.state.showAlert },
+                set: { coordinator.viewModel.send(.setAlert($0)) }
+            )
+        ) {
+            Button(String(localized: "common_close"), role: .cancel) { }
+        } message: {
+            Text(coordinator.viewModel.state.alertMessage)
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { coordinator.viewModel.state.showQuarterPicker },
+                set: { coordinator.viewModel.send(.setQuarterPickerPresented($0)) }
+            )
+        ) {
+            quarterPickerSheet
+        }
+    }
+
+    private var profileContentView: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    CacheableImage(url: coordinator.viewModel.state.avatarURL) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .foregroundStyle(Color(.systemGray2))
+                    }
+                    .frame(width: 60, height: 60)
+                    .cornerRadius(30)
+                    .foregroundStyle(Color.gray)
+
+                    VStack(alignment: .leading) {
+                        Text(coordinator.viewModel.state.name)
+                            .font(.title2)
+                            .bold()
+                        Text(coordinator.viewModel.state.email)
+                            .font(.caption2)
+                            .foregroundStyle(Color.gray)
+                    }
+                }
+                let connected = coordinator.viewModel.state.isNetworkConnected
+                HStack {
+                    HStack {
+                        Image(systemName: "face.smiling")
+                        TextField(
+                            text: Binding(
+                                get: { coordinator.viewModel.state.statusMessage },
+                                set: { coordinator.viewModel.send(.updateStatusMessage($0)) }
+                            )
+                        ) {
+                            Text(String(localized: "profile_status_placeholder"))
+                        }
+                        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
+                        .focused($focused)
+                        .disabled(!connected)
+
+                        if !coordinator.viewModel.state.statusMessage.isEmpty,
+                           coordinator.viewModel.state.showDoneButton {
                             Button(action: {
-                                focused = false
-                                coordinator.viewModel.send(.willUpdateStatusMessage)
+                                coordinator.viewModel.send(.tapResetStatusMessageButton)
                             }) {
-                                Text(String(localized: "profile_done"))
+                                Image(systemName: "xmark.circle.fill")
                             }
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                     }
-                    .opacity(connected ? 1 : 0.7)
-                    activityHeatmapSection
-                }
-                .padding(.horizontal, 16)
-            }
-            .refreshable { coordinator.viewModel.send(.refresh) }
-            .frame(maxWidth: .infinity)
-            .background(Color(.systemGroupedBackground))
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 0) {
-                        Button {
-                            coordinator.router.push(.settings)
-                        } label: {
-                            Image(systemName: "gearshape")
+                    .foregroundStyle(Color.gray)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.secondarySystemGroupedBackground))
+                    )
+                    if coordinator.viewModel.state.showDoneButton {
+                        Button(action: {
+                            focused = false
+                            coordinator.viewModel.send(.willUpdateStatusMessage)
+                        }) {
+                            Text(String(localized: "profile_done"))
                         }
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
                 }
+                .opacity(connected ? 1 : 0.7)
+                activityHeatmapSection
             }
-            .navigationDestination(for: ProfileRoute.self) { route in
-                switch route {
-                case .settings:
-                    SettingView(viewModel: coordinator.settingViewModel)
-                        .environment(coordinator.router)
-                case .activity(let todoId):
-                    TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
-                case .theme:
-                    ThemeView(
-                        theme: Binding(
-                            get: { coordinator.settingViewModel.state.theme },
-                            set: { coordinator.settingViewModel.send(.setTheme($0)) }
-                        )
-                    )
-                case .pushNotification:
-                    PushNotificationSettingsView(viewModel: coordinator.makePushNotificationSettingsViewModel())
-                case .account:
-                    AccountView(viewModel: coordinator.makeAccountViewModel())
-                }
-            }
-            .onChange(of: focused) { _, newValue in
-                withAnimation {
-                    coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
-                }
-            }
-            .alert(
-                "",
-                isPresented: Binding(
-                    get: { coordinator.viewModel.state.showAlert },
-                    set: { coordinator.viewModel.send(.setAlert($0)) }
+            .padding(.horizontal, 16)
+        }
+        .refreshable { coordinator.viewModel.send(.refresh) }
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemGroupedBackground))
+    }
+
+    @ViewBuilder
+    private func profileDestinationView(_ route: ProfileRoute) -> some View {
+        switch route {
+        case .settings:
+            SettingView(viewModel: coordinator.settingViewModel)
+                .environment(coordinator.router)
+        case .activity(let todoId):
+            TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
+        case .theme:
+            ThemeView(
+                theme: Binding(
+                    get: { coordinator.settingViewModel.state.theme },
+                    set: { coordinator.settingViewModel.send(.setTheme($0)) }
                 )
-            ) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(coordinator.viewModel.state.alertMessage)
-            }
-            .sheet(
-                isPresented: Binding(
-                    get: { coordinator.viewModel.state.showQuarterPicker },
-                    set: { coordinator.viewModel.send(.setQuarterPickerPresented($0)) }
-                )
-            ) {
-                quarterPickerSheet
-            }
+            )
+        case .pushNotification:
+            PushNotificationSettingsView(viewModel: coordinator.makePushNotificationSettingsViewModel())
+        case .account:
+            AccountView(viewModel: coordinator.makeAccountViewModel())
         }
     }
 
