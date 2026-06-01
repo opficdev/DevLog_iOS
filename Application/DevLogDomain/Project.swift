@@ -5,6 +5,7 @@ let project = Project.devlogFramework(
     name: "DevLogDomain",
     bundleId: "com.opfic.DevLog.DevLogDomain",
     versionXcconfigPath: "../Shared/Version.xcconfig",
+    packages: DevLogPackages.lintOnlyPackages,
     dependencies: [
         .project(target: "DevLogCore", path: "../DevLogCore"),
     ],

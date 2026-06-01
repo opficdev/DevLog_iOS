@@ -3,6 +3,10 @@ import ProjectDescriptionHelpers
 
 let project = Project(
     name: "DevLogWidgetExtension",
+    options: .options(
+        disableBundleAccessors: true,
+        disableSynthesizedResourceAccessors: true
+    ),
     targets: [
         .target(
             name: "DevLogWidgetExtension",
@@ -10,14 +14,56 @@ let project = Project(
             product: .appExtension,
             bundleId: "opfic.DevLog.DevLogWidget",
             deploymentTargets: .iOS("17.0"),
-            infoPlist: .file(path: "Resource/Info.plist"),
-            sources: ["**/*.swift"],
+            infoPlist: .extendingDefault(
+                with: [
+                    "NSExtension": [
+                        "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                    ],
+                ]
+            ),
+            sources: [
+                .glob(
+                    "**/*.swift",
+                    excluding: [
+                        "Project.swift",
+                    ]
+                ),
+            ],
             resources: [
-                "Resource/**",
-                "!Resource/Info.plist",
-                "!Resource/*.entitlements",
+                .glob(
+                    pattern: "Resource/**",
+                    excluding: [
+                        "Resource/Info.plist",
+                        "Resource/*.entitlements",
+                    ]
+                ),
             ],
             entitlements: .file(path: "Resource/DevLogWidget.entitlements"),
+            scripts: [
+                .pre(
+                    script: """
+                    mkdir -p "$SRCROOT/Derived/Sources"
+                    cat <<'EOF' > "$SRCROOT/Derived/Sources/TuistAssets+DevLogWidgetExtension.swift"
+                    // swiftlint:disable:this file_name
+                    // Generated workaround for Tuist 4.194.4 widget extension source reference.
+
+                    import Foundation
+                    EOF
+                    cat <<'EOF' > "$SRCROOT/Derived/Sources/TuistBundle+DevLogWidgetExtension.swift"
+                    // swiftlint:disable:this file_name
+                    // Generated workaround for Tuist 4.194.4 widget extension source reference.
+
+                    import Foundation
+                    EOF
+                    """,
+                    name: "Generate Widget Accessors",
+                    outputPaths: [
+                        "Derived/Sources/TuistAssets+DevLogWidgetExtension.swift",
+                        "Derived/Sources/TuistBundle+DevLogWidgetExtension.swift",
+                    ],
+                    basedOnDependencyAnalysis: false
+                ),
+            ],
             dependencies: [
                 .project(target: "DevLogWidgetCore", path: "../DevLogWidgetCore"),
             ],

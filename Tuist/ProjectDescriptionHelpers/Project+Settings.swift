@@ -1,7 +1,7 @@
 import ProjectDescription
 
 public enum DevLogSigning {
-    public static let teamID = "4CPC6N38WA"
+    public static let teamID: SettingValue = "4CPC6N38WA"
 }
 
 public extension Settings {
@@ -14,6 +14,8 @@ public extension Settings {
     ) -> Settings {
         var commonBase: SettingsDictionary = [
             "CURRENT_PROJECT_VERSION": "1",
+            "INFOPLIST_KEY_CFBundleShortVersionString": "$(MARKETING_VERSION)",
+            "INFOPLIST_KEY_CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
             "SWIFT_VERSION": "5.0",
             "TARGETED_DEVICE_FAMILY": "1,2",
         ]

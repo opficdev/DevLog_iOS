@@ -5,10 +5,11 @@ let project = Project.devlogFramework(
     name: "DevLogInfra",
     bundleId: "com.opfic.DevLog.DevLogInfra",
     versionXcconfigPath: "../Shared/Version.xcconfig",
+    packages: DevLogPackages.infraPackages,
     dependencies: [
         .project(target: "DevLogData", path: "../DevLogData"),
         .project(target: "DevLogDomain", path: "../DevLogDomain"),
         .project(target: "DevLogCore", path: "../DevLogCore"),
-    ] + DevLogPackages.infraPackages,
+    ] + DevLogPackages.infraPackageDependencies,
     hasTests: true
 )

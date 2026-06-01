@@ -5,6 +5,7 @@ public extension Project {
         name: String,
         bundleId: String,
         versionXcconfigPath: Path,
+        packages: [Package] = DevLogPackages.lintOnlyPackages,
         dependencies: [TargetDependency] = [],
         hasTests: Bool
     ) -> Project {
@@ -29,7 +30,7 @@ public extension Project {
 
         if hasTests {
             targets.append(
-                .testTarget(
+                .target(
                     name: "\(name)Tests",
                     destinations: .iOS,
                     product: .unitTests,
@@ -42,7 +43,7 @@ public extension Project {
                     settings: .devlog(
                         base: [
                             "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
-                            "TEST_TARGET_NAME": name,
+                            "TEST_TARGET_NAME": SettingValue(stringLiteral: name),
                         ]
                     )
                 )
@@ -51,6 +52,11 @@ public extension Project {
 
         return Project(
             name: name,
+            options: .options(
+                disableBundleAccessors: true,
+                disableSynthesizedResourceAccessors: true
+            ),
+            packages: packages,
             targets: targets
         )
     }

@@ -3,6 +3,11 @@ import ProjectDescriptionHelpers
 
 let project = Project(
     name: "DevLogApp",
+    options: .options(
+        disableBundleAccessors: true,
+        disableSynthesizedResourceAccessors: true
+    ),
+    packages: DevLogPackages.lintOnlyPackages,
     targets: [
         .target(
             name: "DevLog",
@@ -13,10 +18,14 @@ let project = Project(
             infoPlist: .file(path: "Sources/Resource/Info.plist"),
             sources: ["Sources/**"],
             resources: [
-                "Sources/Resource/**",
-                "!Sources/Resource/Info.plist",
-                "!Sources/Resource/*.entitlements",
-                "!Sources/Resource/*.xcconfig",
+                .glob(
+                    pattern: "Sources/Resource/**",
+                    excluding: [
+                        "Sources/Resource/Info.plist",
+                        "Sources/Resource/*.entitlements",
+                        "Sources/Resource/*.xcconfig",
+                    ]
+                ),
             ],
             entitlements: .file(path: "Sources/Resource/DevLog.entitlements"),
             dependencies: [
@@ -40,7 +49,7 @@ let project = Project(
                 ]
             )
         ),
-        .testTarget(
+        .target(
             name: "DevLogAppTests",
             destinations: .iOS,
             product: .unitTests,

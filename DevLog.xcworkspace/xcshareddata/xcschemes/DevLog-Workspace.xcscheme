@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1010"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9DF0AAB57363C7EC1CED166E"
+               BuildableName = "DevLog.app"
+               BlueprintName = "DevLog"
+               ReferencedContainer = "container:Application/DevLogApp/DevLogApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0EDF4BB78A091D2F550FEB0C"
+               BuildableName = "DevLogAppTests.xctest"
+               BlueprintName = "DevLogAppTests"
+               ReferencedContainer = "container:Application/DevLogApp/DevLogApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "961DBFB591D8903EB536915E"
+               BuildableName = "DevLogCore.framework"
+               BlueprintName = "DevLogCore"
+               ReferencedContainer = "container:Application/DevLogCore/DevLogCore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3DB5E4ACD082C2AF9C3A8902"
+               BuildableName = "DevLogData.framework"
+               BlueprintName = "DevLogData"
+               ReferencedContainer = "container:Application/DevLogData/DevLogData.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FF909B6D82202CDD05FB947C"
+               BuildableName = "DevLogDataTests.xctest"
+               BlueprintName = "DevLogDataTests"
+               ReferencedContainer = "container:Application/DevLogData/DevLogData.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2DFC48D2CFED434F4CCFA5E1"
+               BuildableName = "DevLogDomain.framework"
+               BlueprintName = "DevLogDomain"
+               ReferencedContainer = "container:Application/DevLogDomain/DevLogDomain.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "85ABE8D4D05ACDCEBC89B35D"
+               BuildableName = "DevLogDomainTests.xctest"
+               BlueprintName = "DevLogDomainTests"
+               ReferencedContainer = "container:Application/DevLogDomain/DevLogDomain.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "EEE7652D5B89545FD94F2CFD"
+               BuildableName = "DevLogInfra.framework"
+               BlueprintName = "DevLogInfra"
+               ReferencedContainer = "container:Application/DevLogInfra/DevLogInfra.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0FBC1F108A46DCC21C9C4167"
+               BuildableName = "DevLogInfraTests.xctest"
+               BlueprintName = "DevLogInfraTests"
+               ReferencedContainer = "container:Application/DevLogInfra/DevLogInfra.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5C2A22BFF862D640BD73F7D3"
+               BuildableName = "DevLogPersistence.framework"
+               BlueprintName = "DevLogPersistence"
+               ReferencedContainer = "container:Application/DevLogPersistence/DevLogPersistence.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "017D717EF7879F6B2BF5AF36"
+               BuildableName = "DevLogPersistenceTests.xctest"
+               BlueprintName = "DevLogPersistenceTests"
+               ReferencedContainer = "container:Application/DevLogPersistence/DevLogPersistence.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4F2CC603A237969770D8B717"
+               BuildableName = "DevLogPresentation.framework"
+               BlueprintName = "DevLogPresentation"
+               ReferencedContainer = "container:Application/DevLogPresentation/DevLogPresentation.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E7D63062773489D672FB1AA8"
+               BuildableName = "DevLogPresentationTests.xctest"
+               BlueprintName = "DevLogPresentationTests"
+               ReferencedContainer = "container:Application/DevLogPresentation/DevLogPresentation.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4800CC537F288EEB89F075B5"
+               BuildableName = "DevLogWidgetCore.framework"
+               BlueprintName = "DevLogWidgetCore"
+               ReferencedContainer = "container:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4254D09F6A0B3E0118929085"
+               BuildableName = "DevLogWidgetCoreTests.xctest"
+               BlueprintName = "DevLogWidgetCoreTests"
+               ReferencedContainer = "container:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C93F97B7D0E07D11E5BF809"
+               BuildableName = "DevLogWidgetExtension.appex"
+               BlueprintName = "DevLogWidgetExtension"
+               ReferencedContainer = "container:Widget/DevLogWidgetExtension/DevLogWidgetExtension.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0EDF4BB78A091D2F550FEB0C"
+               BuildableName = "DevLogAppTests.xctest"
+               BlueprintName = "DevLogAppTests"
+               ReferencedContainer = "container:Application/DevLogApp/DevLogApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FF909B6D82202CDD05FB947C"
+               BuildableName = "DevLogDataTests.xctest"
+               BlueprintName = "DevLogDataTests"
+               ReferencedContainer = "container:Application/DevLogData/DevLogData.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "85ABE8D4D05ACDCEBC89B35D"
+               BuildableName = "DevLogDomainTests.xctest"
+               BlueprintName = "DevLogDomainTests"
+               ReferencedContainer = "container:Application/DevLogDomain/DevLogDomain.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0FBC1F108A46DCC21C9C4167"
+               BuildableName = "DevLogInfraTests.xctest"
+               BlueprintName = "DevLogInfraTests"
+               ReferencedContainer = "container:Application/DevLogInfra/DevLogInfra.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "017D717EF7879F6B2BF5AF36"
+               BuildableName = "DevLogPersistenceTests.xctest"
+               BlueprintName = "DevLogPersistenceTests"
+               ReferencedContainer = "container:Application/DevLogPersistence/DevLogPersistence.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E7D63062773489D672FB1AA8"
+               BuildableName = "DevLogPresentationTests.xctest"
+               BlueprintName = "DevLogPresentationTests"
+               ReferencedContainer = "container:Application/DevLogPresentation/DevLogPresentation.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4254D09F6A0B3E0118929085"
+               BuildableName = "DevLogWidgetCoreTests.xctest"
+               BlueprintName = "DevLogWidgetCoreTests"
+               ReferencedContainer = "container:Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "9DF0AAB57363C7EC1CED166E"
+            BuildableName = "DevLog.app"
+            BlueprintName = "DevLog"
+            ReferencedContainer = "container:Application/DevLogApp/DevLogApp.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "9DF0AAB57363C7EC1CED166E"
+            BuildableName = "DevLog.app"
+            BlueprintName = "DevLog"
+            ReferencedContainer = "container:Application/DevLogApp/DevLogApp.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
