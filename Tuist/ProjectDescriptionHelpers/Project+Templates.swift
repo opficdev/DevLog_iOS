@@ -57,6 +57,7 @@ public extension Project {
                 disableSynthesizedResourceAccessors: true
             ),
             packages: packages,
+            settings: .devlogProject(versionXcconfigPath: versionXcconfigPath),
             targets: targets
         )
     }

@@ -12,5 +12,8 @@ let workspace = Workspace(
         "Application/DevLogPresentation",
         "Widget/DevLogWidgetCore",
         "Widget/DevLogWidgetExtension",
-    ]
+    ],
+    generationOptions: .options(
+        lastXcodeUpgradeCheck: "26.5.0"
+    )
 )

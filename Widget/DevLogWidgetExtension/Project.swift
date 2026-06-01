@@ -7,6 +7,7 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
+    settings: .devlogProject(versionXcconfigPath: "../../Application/Shared/Version.xcconfig"),
     targets: [
         .target(
             name: "DevLogWidgetExtension",
@@ -16,6 +17,8 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
+                    "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                    "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                     "NSExtension": [
                         "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
                     ],
@@ -71,7 +74,6 @@ let project = Project(
                 versionXcconfigPath: "../../Application/Shared/Version.xcconfig",
                 base: [
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": DevLogSigning.teamID,
                     "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                 ]
             )

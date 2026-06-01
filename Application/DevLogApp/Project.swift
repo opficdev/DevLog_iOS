@@ -8,6 +8,7 @@ let project = Project(
         disableSynthesizedResourceAccessors: true
     ),
     packages: DevLogPackages.lintOnlyPackages,
+    settings: .devlogProject(versionXcconfigPath: "../Shared/Version.xcconfig"),
     targets: [
         .target(
             name: "DevLog",
@@ -44,7 +45,6 @@ let project = Project(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": DevLogSigning.teamID,
                     "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                 ]
             )
@@ -63,7 +63,6 @@ let project = Project(
                 base: [
                     "BUNDLE_LOADER": "$(TEST_HOST)",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": DevLogSigning.teamID,
                     "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                     "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog",
                     "TEST_TARGET_NAME": "DevLog",

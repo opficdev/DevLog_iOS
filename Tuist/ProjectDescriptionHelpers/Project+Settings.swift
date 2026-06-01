@@ -41,4 +41,18 @@ public extension Settings {
             defaultSettings: defaultSettings
         )
     }
+
+    static func devlogProject(
+        versionXcconfigPath: Path? = nil,
+        additionalBase: SettingsDictionary = [:]
+    ) -> Settings {
+        var base: SettingsDictionary = [
+            "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
+            "DEVELOPMENT_TEAM": DevLogSigning.teamID,
+            "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
+            "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+        ]
+        base.merge(additionalBase) { _, new in new }
+        return .devlog(versionXcconfigPath: versionXcconfigPath, base: base)
+    }
 }
