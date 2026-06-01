@@ -331,28 +331,22 @@ struct MainView: View {
     }
 
     private var profileRegularDetailView: some View {
-        Group {
-            if let profileRoute = profileViewCoordinator.router.root {
-                switch profileRoute {
-                case .activity(let todoId):
-                    TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
-                        .id(todoId)
-                case .settings, .theme, .pushNotification, .account:
-                    NavigationStack(path: Binding(
-                        get: { profileViewCoordinator.router.detailPath },
-                        set: { profileViewCoordinator.router.detailPath = $0 }
-                    )) {
-                        profileRegularDestinationView(profileRoute)
-                            .navigationDestination(for: ProfileRoute.self) { route in
-                                profileRegularDestinationView(route)
-                            }
-                    }
+        NavigationStack(path: Binding(
+            get: { profileViewCoordinator.router.detailPath },
+            set: { profileViewCoordinator.router.detailPath = $0 }
+        )) {
+            Group {
+                if let profileRoute = profileViewCoordinator.router.root {
+                    profileRegularDestinationView(profileRoute)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "profile_select_detail"),
+                        systemImage: "person.crop.circle"
+                    )
                 }
-            } else {
-                ContentUnavailableView(
-                    String(localized: "profile_select_detail"),
-                    systemImage: "person.crop.circle"
-                )
+            }
+            .navigationDestination(for: ProfileRoute.self) { route in
+                profileRegularDestinationView(route)
             }
         }
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
