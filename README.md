@@ -150,7 +150,18 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 | Backend | FirebaseAuth, FirebaseFirestore, Firebase Cloud Functions, FirebaseMessaging |
 | Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network |
 | Utility | GoogleSignIn, OrderedCollections |
-| Tooling | Xcode, Swift Package Manager, SwiftLint, Fastlane |
+| Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
+
+## 개발 도구
+
+- Xcode 프로젝트와 워크스페이스는 Tuist manifest를 기준으로 생성
+- `.mise.toml`에서 Tuist 버전을 고정
+- `Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers` 변경 후 아래 명령으로 Xcode 프로젝트 재생성
+
+```bash
+mise install
+tuist generate --no-open
+```
 
 
 ## 프로젝트 구조
@@ -158,6 +169,11 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 ```text
 SwiftUI_DevLog/
 ├── DevLog.xcworkspace
+├── Tuist.swift
+├── Workspace.swift
+├── .mise.toml
+├── Tuist/
+│	└── ProjectDescriptionHelpers/ # Tuist 공통 패키지, 설정, 타깃 템플릿
 ├── Application/
 │	├── DevLogApp/             # 앱 진입점, 앱 생명주기, 라우팅, Assembler 구성
 │	├── DevLogCore/            # DI, Logger, Query, 공통 값 타입
