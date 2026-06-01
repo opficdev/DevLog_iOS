@@ -15,12 +15,12 @@ import DevLogDomain
 final class HomeViewCoordinator {
     let viewModel: HomeViewModel
     let router = NavigationRouter<HomeRoute>()
-    private let diContainer: DIContainer
+    private let container: DIContainer
     @ObservationIgnored
     private var cancellable: AnyCancellable?
 
     init(container: DIContainer) {
-        self.diContainer = container
+        self.container = container
         self.viewModel = HomeViewModel(
             fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
             updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
@@ -55,10 +55,10 @@ final class HomeViewCoordinator {
     func makeTodoEditorViewModel(category: TodoCategory) -> TodoEditorViewModel {
         TodoEditorViewModel(
             category: category,
-            fetchPreferencesUseCase: diContainer.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
-            upsertTodoUseCase: diContainer.resolve(UpsertTodoUseCase.self),
-            trackAnalyticsEventUseCase: diContainer.resolve(TrackAnalyticsEventUseCase.self),
+            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
             onUpsertSuccess: { [weak self] _ in
                 self?.viewModel.send(.setPresentation(.todoEditor, false))
                 self?.viewModel.send(.fetchData)
@@ -68,10 +68,10 @@ final class HomeViewCoordinator {
 
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(
-            fetchWebPagesUseCase: diContainer.resolve(FetchWebPagesUseCase.self),
-            fetchTodosUseCase: diContainer.resolve(FetchTodosUseCase.self),
-            fetchRecentSearchQueriesUseCase: diContainer.resolve(FetchRecentSearchQueriesUseCase.self),
-            updateRecentSearchQueriesUseCase: diContainer.resolve(UpdateRecentSearchQueriesUseCase.self)
+            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
+            updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
         )
     }
 }

@@ -13,7 +13,7 @@ import DevLogDomain
 @MainActor
 @Observable
 final class TodoWindowCoordinator {
-    private let diContainer: DIContainer
+    private let container: DIContainer
     @ObservationIgnored
     private var listViewModel: TodoListViewModel?
     @ObservationIgnored
@@ -22,7 +22,7 @@ final class TodoWindowCoordinator {
     private var cancellable: AnyCancellable?
 
     init(container: DIContainer) {
-        self.diContainer = container
+        self.container = container
     }
 
     func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
@@ -41,12 +41,12 @@ final class TodoWindowCoordinator {
         }
 
         let listViewModel = TodoListViewModel(
-            fetchTodosUseCase: diContainer.resolve(FetchTodosUseCase.self),
-            fetchTodoByIdUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
-            upsertTodoUseCase: diContainer.resolve(UpsertTodoUseCase.self),
-            deleteTodoUseCase: diContainer.resolve(DeleteTodoUseCase.self),
-            undoDeleteTodoUseCase: diContainer.resolve(UndoDeleteTodoUseCase.self),
-            trackAnalyticsEventUseCase: diContainer.resolve(TrackAnalyticsEventUseCase.self),
+            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
+            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
+            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
+            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
             category: category
         )
         self.listViewModel = listViewModel
@@ -64,8 +64,8 @@ final class TodoWindowCoordinator {
         }
 
         let detailViewModel = TodoDetailViewModel(
-            fetchTodoUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
+            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
             todoId: todoId,
             showEditButton: showEditButton
         )

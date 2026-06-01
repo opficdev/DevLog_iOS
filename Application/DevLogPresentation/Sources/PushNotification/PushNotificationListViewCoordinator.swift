@@ -14,12 +14,12 @@ import DevLogDomain
 final class PushNotificationListViewCoordinator {
     let viewModel: PushNotificationListViewModel
     var todoIdToPresent: TodoIdItem?
-    private let diContainer: DIContainer
+    private let container: DIContainer
     @ObservationIgnored
     private var todoDetailViewModel: TodoDetailViewModel?
 
     init(container: DIContainer) {
-        self.diContainer = container
+        self.container = container
         self.viewModel = PushNotificationListViewModel(
             fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
             deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
@@ -42,8 +42,8 @@ final class PushNotificationListViewCoordinator {
         }
 
         let todoDetailViewModel = TodoDetailViewModel(
-            fetchTodoUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
+            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
             todoId: todoId,
             showEditButton: false
         )
