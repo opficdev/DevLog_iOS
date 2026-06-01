@@ -110,7 +110,8 @@ public final class DataAssembler: Assembler {
             UserPreferencesRepositoryImpl(
                 store: container.resolve(UserDefaultsStore.self),
                 themeStore: container.resolve(ThemeStore.self),
-                widgetSnapshotPreferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
+                widgetSnapshotPreferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self),
+                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
             )
         }
     }
