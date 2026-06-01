@@ -11,7 +11,6 @@ import DevLogDomain
 
 struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
-    @Environment(TodoEditorWindowEvent.self) private var windowEvent
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State var viewModel: TodoDetailViewModel
@@ -32,9 +31,6 @@ struct TodoDetailView: View {
             }
         }
         .onAppear { viewModel.send(.onAppear) }
-        .onChange(of: windowEvent.submitted) { _, submitted in
-            handleTodoEditorSubmit(submitted)
-        }
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: Binding(
             get: { viewModel.state.showInfo },
@@ -117,12 +113,6 @@ struct TodoDetailView: View {
         } else {
             viewModel.send(.setShowEditor(true))
         }
-    }
-
-    private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit?) {
-        guard let submit,
-              submit.value.matchesEdit(todoId: viewModel.todoId) else { return }
-        viewModel.send(.setTodo(submit.todo))
     }
 
     @ViewBuilder

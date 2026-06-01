@@ -30,11 +30,11 @@ struct DevLogApp: App {
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                 trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
                 widgetURLTab: { MainTab(widgetURL: $0) },
+                windowEvent: windowEvent,
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
                 clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }
             )
             .autocorrectionDisabled()
-            .environment(windowEvent)
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .background else { return }
                 container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
@@ -42,9 +42,11 @@ struct DevLogApp: App {
         }
         WindowGroup(id: TodoEditorWindowValue.sceneId, for: TodoEditorWindowValue.self) { value in
             if let value = value.wrappedValue {
-                TodoEditorWindowView(value: value)
+                TodoEditorWindowView(
+                    value: value,
+                    windowEvent: windowEvent
+                )
                 .autocorrectionDisabled()
-                .environment(windowEvent)
             } else {
                 ContentUnavailableView(
                     String(localized: "todo_edit"),

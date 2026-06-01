@@ -5,6 +5,7 @@
 //  Created by opfic on 5/31/26.
 //
 
+import Combine
 import Foundation
 import DevLogCore
 import DevLogDomain
@@ -17,9 +18,20 @@ final class TodoWindowCoordinator {
     private var listViewModel: TodoListViewModel?
     @ObservationIgnored
     private var detailViewModel: TodoDetailViewModel?
+    @ObservationIgnored
+    private var cancellable: AnyCancellable?
 
     init(container: DIContainer) {
         self.diContainer = container
+    }
+
+    func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
+        guard cancellable == nil else { return }
+
+        cancellable = windowEvent.submits
+            .sink { [weak self] submit in
+                self?.handleTodoEditorSubmit(submit)
+            }
     }
 
     func makeListViewModel(category: TodoCategory) -> TodoListViewModel {
@@ -59,5 +71,17 @@ final class TodoWindowCoordinator {
         )
         self.detailViewModel = detailViewModel
         return detailViewModel
+    }
+
+    private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit) {
+        if let listViewModel,
+           submit.value.matchesCreate(category: listViewModel.category, source: .list) {
+            listViewModel.send(.refresh)
+        }
+
+        if let detailViewModel,
+           submit.value.matchesEdit(todoId: detailViewModel.todoId) {
+            detailViewModel.send(.setTodo(submit.todo))
+        }
     }
 }

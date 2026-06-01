@@ -11,12 +11,16 @@ import DevLogDomain
 
 public struct TodoEditorWindowView: View {
     @Environment(\.diContainer) private var container: DIContainer
-    @Environment(TodoEditorWindowEvent.self) private var windowEvent
     @State private var windowScene: UIWindowScene?
     private let value: TodoEditorWindowValue
+    private let windowEvent: TodoEditorWindowEvent
 
-    public init(value: TodoEditorWindowValue) {
+    public init(
+        value: TodoEditorWindowValue,
+        windowEvent: TodoEditorWindowEvent
+    ) {
         self.value = value
+        self.windowEvent = windowEvent
     }
 
     public var body: some View {

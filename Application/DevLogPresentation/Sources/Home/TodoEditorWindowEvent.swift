@@ -5,13 +5,15 @@
 //  Created by opfic on 5/31/26.
 //
 
-import Foundation
+import Combine
 import DevLogDomain
 
-@MainActor
-@Observable
 public final class TodoEditorWindowEvent {
-    var submitted: TodoEditorWindowSubmit?
+    private let subject = PassthroughSubject<TodoEditorWindowSubmit, Never>()
+
+    var submits: AnyPublisher<TodoEditorWindowSubmit, Never> {
+        subject.eraseToAnyPublisher()
+    }
 
     public init() { }
 
@@ -19,6 +21,6 @@ public final class TodoEditorWindowEvent {
         value: TodoEditorWindowValue,
         todo: Todo
     ) {
-        submitted = TodoEditorWindowSubmit(value: value, todo: todo)
+        subject.send(TodoEditorWindowSubmit(value: value, todo: todo))
     }
 }

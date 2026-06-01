@@ -16,6 +16,7 @@ public struct RootView: View {
     @State private var selectedRoute: Route?
     @State private var selectedMainTab: MainTab?
     private let widgetURLTab: (URL) -> MainTab?
+    private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
     private let clearPushNotificationRoute: () -> Void
 
@@ -25,6 +26,7 @@ public struct RootView: View {
         systemThemeUseCase: ObserveSystemThemeUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
         widgetURLTab: @escaping (URL) -> MainTab?,
+        windowEvent: TodoEditorWindowEvent,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
     ) {
@@ -35,6 +37,7 @@ public struct RootView: View {
             trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
         ))
         self.widgetURLTab = widgetURLTab
+        self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
         self.clearPushNotificationRoute = clearPushNotificationRoute
     }
@@ -46,6 +49,7 @@ public struct RootView: View {
                 if signIn {
                     MainView(
                         container: container,
+                        windowEvent: windowEvent,
                         selectedTab: $selectedMainTab
                     )
                 } else {

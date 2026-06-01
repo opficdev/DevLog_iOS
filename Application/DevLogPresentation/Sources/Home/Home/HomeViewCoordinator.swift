@@ -5,6 +5,7 @@
 //  Created by opfic on 5/10/26.
 //
 
+import Combine
 import Foundation
 import DevLogCore
 import DevLogDomain
@@ -15,6 +16,8 @@ final class HomeViewCoordinator {
     let viewModel: HomeViewModel
     let router = NavigationRouter<HomeRoute>()
     private let diContainer: DIContainer
+    @ObservationIgnored
+    private var cancellable: AnyCancellable?
 
     init(container: DIContainer) {
         self.diContainer = container
@@ -33,6 +36,16 @@ final class HomeViewCoordinator {
 
     func fetchData() {
         viewModel.send(.fetchData)
+    }
+
+    func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
+        guard cancellable == nil else { return }
+
+        cancellable = windowEvent.submits
+            .sink { [weak self] submit in
+                guard submit.value.matchesCreate(source: .home) else { return }
+                self?.viewModel.send(.fetchData)
+            }
     }
 
     func makeTodoManageViewModel() -> TodoManageViewModel {

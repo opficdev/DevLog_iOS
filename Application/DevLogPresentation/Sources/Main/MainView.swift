@@ -18,9 +18,11 @@ struct MainView: View {
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
     @Binding var selectedTab: MainTab?
+    private let windowEvent: TodoEditorWindowEvent
 
     init(
         container: DIContainer,
+        windowEvent: TodoEditorWindowEvent,
         selectedTab: Binding<MainTab?>
     ) {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
@@ -31,6 +33,7 @@ struct MainView: View {
             initialValue: PushNotificationListViewCoordinator(container: container)
         )
         self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
+        self.windowEvent = windowEvent
         self._selectedTab = selectedTab
     }
 
@@ -46,6 +49,8 @@ struct MainView: View {
         }
         .onAppear {
             coordinator.viewModel.send(.onAppear)
+            homeViewCoordinator.bindWindowEvent(windowEvent)
+            todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
             guard let newValue else { return }

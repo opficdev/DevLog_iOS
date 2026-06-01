@@ -9,7 +9,6 @@ import SwiftUI
 import DevLogDomain
 
 struct HomeView: View {
-    @Environment(TodoEditorWindowEvent.self) private var windowEvent
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
@@ -88,9 +87,6 @@ struct HomeView: View {
             if coordinator.viewModel.state.isAppending {
                 LoadingView()
             }
-        }
-        .onChange(of: windowEvent.submitted) { _, submitted in
-            handleTodoEditorSubmit(submitted)
         }
     }
 
@@ -401,11 +397,6 @@ struct HomeView: View {
         } else {
             coordinator.viewModel.send(.tapTodoCategory(todoCategory))
         }
-    }
-
-    private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit?) {
-        guard let submit, submit.value.matchesCreate(source: .home) else { return }
-        coordinator.viewModel.send(.fetchData)
     }
 
 }
