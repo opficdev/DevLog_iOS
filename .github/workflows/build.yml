@@ -5,7 +5,7 @@ on:
 
 env:
   WORKSPACE: DevLog.xcworkspace
-  SCHEME: DevLog
+  SCHEME: DevLogApp
   XCODE_VERSION: "26.3"
   MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}

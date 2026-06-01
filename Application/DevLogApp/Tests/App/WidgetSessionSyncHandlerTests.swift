@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import Testing
 import DevLogData
-@testable import DevLog
+@testable import DevLogApp
 
 struct WidgetSessionSyncHandlerTests {
     @Test("로그인 세션 true 첫 진입에서만 위젯 초기 동기화를 요청한다")
