@@ -966,6 +966,23 @@
         }
       }
     },
+    "profile_select_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select an activity."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활동을 선택해주세요."
+          }
+        }
+      }
+    },
     "profile_select_quarter" : {
       "extractionState" : "manual",
       "localizations" : {

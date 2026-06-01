@@ -106,64 +106,61 @@ struct MainView: View {
 
     @ViewBuilder
     private func sidebarView(for selectedTab: MainTab) -> some View {
-        switch selectedTab.mainTabSplitStyle {
-        case .detailOnly:
+        switch selectedTab {
+        case .home:
             NavigationSplitView {
                 mainSidebar
+            } content: {
+                homeView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
-                selectedTabView(for: selectedTab)
+                homeRegularDetailView
             }
-        case .contentDetail:
-            switch selectedTab {
-            case .home:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    homeView
-                } detail: {
-                    homeRegularDetailView
-                }
-                .environment(homeViewCoordinator.router)
-            case .today:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    todayView
-                } detail: {
-                    todayRegularDetailView
-                }
-            case .notification:
-                NavigationSplitView {
-                    mainSidebar
-                } content: {
-                    PushNotificationListView(
-                        coordinator: pushNotificationListViewCoordinator,
-                        isCompactLayout: isCompactLayout
-                    )
-                } detail: {
-                    Group {
-                        if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
-                            TodoDetailView(
-                                viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
-                                    todoId: todoId
-                                )
+            .environment(homeViewCoordinator.router)
+        case .today:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                todayView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
+            } detail: {
+                todayRegularDetailView
+            }
+        case .notification:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                PushNotificationListView(
+                    coordinator: pushNotificationListViewCoordinator,
+                    isCompactLayout: isCompactLayout
+                )
+                .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
+            } detail: {
+                Group {
+                    if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
+                        TodoDetailView(
+                            viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
+                                todoId: todoId
                             )
-                            .id(todoId)
-                        } else {
-                            ContentUnavailableView(
-                                String(localized: "push_notifications_select_detail"),
-                                systemImage: "bell.badge"
-                            )
-                        }
+                        )
+                        .id(todoId)
+                    } else {
+                        ContentUnavailableView(
+                            String(localized: "push_notifications_select_detail"),
+                            systemImage: "bell.badge"
+                        )
                     }
-                    .background(Color(.secondarySystemBackground).ignoresSafeArea())
                 }
-            case .profile:
-                NavigationSplitView {
-                    mainSidebar
-                } detail: {
-                    selectedTabView(for: selectedTab)
-                }
+            }
+            .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        case .profile:
+            NavigationSplitView {
+                mainSidebar
+            } content: {
+                profileView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
+            } detail: {
+                profileRegularDetailView
             }
         }
     }
@@ -176,20 +173,6 @@ struct MainView: View {
             sidebarRow(.profile)
         }
         .listStyle(.sidebar)
-    }
-
-    @ViewBuilder
-    private func selectedTabView(for selectedTab: MainTab) -> some View {
-        switch selectedTab {
-        case .home:
-            homeView
-        case .today:
-            todayView
-        case .notification:
-            notificationView
-        case .profile:
-            profileView
-        }
     }
 
     @ViewBuilder
@@ -341,7 +324,57 @@ struct MainView: View {
     }
 
     private var profileView: some View {
-        ProfileView(coordinator: profileViewCoordinator)
+        ProfileView(
+            coordinator: profileViewCoordinator,
+            isCompactLayout: isCompactLayout
+        )
+    }
+
+    private var profileRegularDetailView: some View {
+        NavigationStack(path: Binding(
+            get: { profileViewCoordinator.router.detailPath },
+            set: { profileViewCoordinator.router.detailPath = $0 }
+        )) {
+            Group {
+                if let profileRoute = profileViewCoordinator.router.root {
+                    profileRegularDestinationView(profileRoute)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "profile_select_detail"),
+                        systemImage: "person.crop.circle"
+                    )
+                }
+            }
+            .navigationDestination(for: ProfileRoute.self) { route in
+                profileRegularDestinationView(route)
+            }
+        }
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private func profileRegularDestinationView(_ route: ProfileRoute) -> some View {
+        switch route {
+        case .activity(let todoId):
+            TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+                .id(todoId)
+        case .settings:
+            SettingView(viewModel: profileViewCoordinator.settingViewModel)
+                .environment(profileViewCoordinator.router)
+        case .theme:
+            ThemeView(
+                theme: Binding(
+                    get: { profileViewCoordinator.settingViewModel.state.theme },
+                    set: { profileViewCoordinator.settingViewModel.send(.setTheme($0)) }
+                )
+            )
+        case .pushNotification:
+            PushNotificationSettingsView(
+                viewModel: profileViewCoordinator.makePushNotificationSettingsViewModel()
+            )
+        case .account:
+            AccountView(viewModel: profileViewCoordinator.makeAccountViewModel())
+        }
     }
 }
 
@@ -397,22 +430,7 @@ private extension MainView {
     }
 
 }
-
-private enum MainTabSplitStyle {
-    case detailOnly
-    case contentDetail
-}
-
 private extension MainTab {
-    var mainTabSplitStyle: MainTabSplitStyle {
-        switch self {
-        case .home, .today, .notification:
-            .contentDetail
-        case .profile:
-            .detailOnly
-        }
-    }
-
     var title: String {
         switch self {
         case .home:
