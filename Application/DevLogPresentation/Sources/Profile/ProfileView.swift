@@ -19,15 +19,6 @@ struct ProfileView: View {
             if isCompactLayout {
                 NavigationStack(path: navigationPath) {
                     profileContentView
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button {
-                                    coordinator.router.push(.settings)
-                                } label: {
-                                    Image(systemName: "gearshape")
-                                }
-                            }
-                        }
                         .navigationDestination(for: ProfileRoute.self) { route in
                             profileDestinationView(route)
                         }
@@ -36,6 +27,7 @@ struct ProfileView: View {
                 profileContentView
             }
         }
+        .toolbar { profileToolbarContent }
         .onChange(of: focused) { _, newValue in
             withAnimation {
                 coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
@@ -135,6 +127,21 @@ struct ProfileView: View {
         .refreshable { coordinator.viewModel.send(.refresh) }
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
+    }
+
+    @ToolbarContentBuilder
+    private var profileToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                if isCompactLayout {
+                    coordinator.router.push(.settings)
+                } else {
+                    coordinator.router.replace(with: .settings)
+                }
+            } label: {
+                Image(systemName: "gearshape")
+            }
+        }
     }
 
     @ViewBuilder
@@ -368,7 +375,11 @@ struct ProfileView: View {
                 ForEach(activities) { activity in
                     Button {
                         if !activity.isDeleted {
-                            coordinator.router.push(.activity(activity.todoId))
+                            if isCompactLayout {
+                                coordinator.router.push(.activity(activity.todoId))
+                            } else {
+                                coordinator.router.replace(with: .activity(activity.todoId))
+                            }
                         }
                     } label: {
                         let item = TodoCategoryItem(from: activity.category)

@@ -328,9 +328,22 @@ struct MainView: View {
 
     private var profileRegularDetailView: some View {
         Group {
-            if let todoId = profileSelectedTodoId {
-                TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
-                    .id(todoId)
+            if let profileRoute = profileViewCoordinator.router.root {
+                switch profileRoute {
+                case .activity(let todoId):
+                    TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+                        .id(todoId)
+                case .settings, .theme, .pushNotification, .account:
+                    NavigationStack(path: Binding(
+                        get: { profileViewCoordinator.router.detailPath },
+                        set: { profileViewCoordinator.router.detailPath = $0 }
+                    )) {
+                        profileRegularDestinationView(profileRoute)
+                            .navigationDestination(for: ProfileRoute.self) { route in
+                                profileRegularDestinationView(route)
+                            }
+                    }
+                }
             } else {
                 ContentUnavailableView(
                     String(localized: "profile_select_detail"),
@@ -339,6 +352,31 @@ struct MainView: View {
             }
         }
         .background(Color(.secondarySystemBackground).ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private func profileRegularDestinationView(_ route: ProfileRoute) -> some View {
+        switch route {
+        case .activity(let todoId):
+            TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+                .id(todoId)
+        case .settings:
+            SettingView(viewModel: profileViewCoordinator.settingViewModel)
+                .environment(profileViewCoordinator.router)
+        case .theme:
+            ThemeView(
+                theme: Binding(
+                    get: { profileViewCoordinator.settingViewModel.state.theme },
+                    set: { profileViewCoordinator.settingViewModel.send(.setTheme($0)) }
+                )
+            )
+        case .pushNotification:
+            PushNotificationSettingsView(
+                viewModel: profileViewCoordinator.makePushNotificationSettingsViewModel()
+            )
+        case .account:
+            AccountView(viewModel: profileViewCoordinator.makeAccountViewModel())
+        }
     }
 }
 
@@ -391,15 +429,6 @@ private extension MainView {
             get: { todayViewCoordinator.router.detailPath },
             set: { todayViewCoordinator.router.detailPath = $0 }
         )
-    }
-
-    var profileSelectedTodoId: String? {
-        for route in profileViewCoordinator.router.path.reversed() {
-            if case let .activity(todoId) = route {
-                return todoId
-            }
-        }
-        return nil
     }
 
 }
