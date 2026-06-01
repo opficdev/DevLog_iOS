@@ -3,27 +3,27 @@ import ProjectDescription
 public enum DevLogPackages {
     public static let swiftLintPackage: Package = .package(
         url: "https://github.com/realm/SwiftLint",
-        from: "0.62.1"
+        .upToNextMajor(from: "0.62.1")
     )
     public static let markdownUIPackage: Package = .package(
         url: "https://github.com/gonzalezreal/swift-markdown-ui.git",
-        from: "2.4.1"
+        .upToNextMajor(from: "2.4.1")
     )
     public static let swiftCollectionsPackage: Package = .package(
         url: "https://github.com/apple/swift-collections.git",
-        from: "1.3.0"
+        .upToNextMajor(from: "1.3.0")
     )
     public static let firebasePackage: Package = .package(
         url: "https://github.com/firebase/firebase-ios-sdk",
-        from: "11.15.0"
+        .upToNextMajor(from: "11.15.0")
     )
     public static let googleSignInPackage: Package = .package(
         url: "https://github.com/google/GoogleSignIn-iOS",
-        from: "9.0.0"
+        .revision("02616ac6b469e8f00212436d2cac16e6efad7954")
     )
     public static let nexaPackage: Package = .package(
         url: "https://github.com/opficdev/Nexa",
-        from: "1.1.0"
+        .upToNextMajor(from: "1.1.0")
     )
 
     public static let swiftLintPlugin: TargetDependency = .package(
