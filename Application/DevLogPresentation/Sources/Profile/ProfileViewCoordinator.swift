@@ -61,7 +61,6 @@ final class ProfileViewCoordinator {
         TodoDetailViewModel(
             fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
             todoId: todoId,
             showEditButton: false
         )

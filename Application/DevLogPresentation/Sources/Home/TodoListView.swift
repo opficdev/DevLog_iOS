@@ -13,6 +13,8 @@ struct TodoListView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
@@ -82,15 +84,20 @@ struct TodoListView: View {
                 viewModel: TodoEditorViewModel(
                     category: viewModel.category,
                     fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
-                ),
-                onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
+                    onUpsertSuccess: { _ in
+                        viewModel.send(.setShowEditor(false))
+                        viewModel.send(.refresh)
+                    }
+                )
             )
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.send(.setShowEditor(true))
+                    openTodoEditor()
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -228,6 +235,17 @@ struct TodoListView: View {
                     )
                 )
             )
+    }
+
+    private func openTodoEditor() {
+        if isiOSAppOnMac {
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todoCategory: viewModel.category, source: .list)
+            )
+        } else {
+            viewModel.send(.setShowEditor(true))
+        }
     }
 
     @ViewBuilder

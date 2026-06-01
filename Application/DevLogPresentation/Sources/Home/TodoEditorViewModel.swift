@@ -54,6 +54,10 @@ final class TodoEditorViewModel: Store {
         var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertMessage: String = ""
+        var isLoading: Bool = false
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
@@ -77,6 +81,8 @@ final class TodoEditorViewModel: Store {
         case setCompleted(Bool)
         case setDueDate(Date?)
         case setCategory(TodoCategoryItem)
+        case setAlert(Bool)
+        case setLoading(Bool)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
@@ -85,17 +91,22 @@ final class TodoEditorViewModel: Store {
         case setTitle(String)
         case setCategories([TodoCategoryItem])
         case setReferenceItems([Int: TodoReferenceItem])
+        case upsertTodo(Todo)
     }
 
     enum SideEffect {
         case fetchCategories
         case resolveMarkdown(String)
+        case upsertTodo(Todo)
     }
 
     private(set) var state = State()
     private let calendar = Calendar.current
     private let fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
+    private let upsertTodoUseCase: UpsertTodoUseCase
+    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase?
+    private let onUpsertSuccess: ((Todo) -> Void)?
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
@@ -128,10 +139,16 @@ final class TodoEditorViewModel: Store {
     init(
         category: TodoCategory,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
-        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
+        upsertTodoUseCase: UpsertTodoUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
+        onUpsertSuccess: ((Todo) -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
+        self.upsertTodoUseCase = upsertTodoUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+        self.onUpsertSuccess = onUpsertSuccess
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
@@ -147,10 +164,16 @@ final class TodoEditorViewModel: Store {
     init(
         todo: Todo,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
-        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
+        upsertTodoUseCase: UpsertTodoUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
+        onUpsertSuccess: ((Todo) -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
+        self.upsertTodoUseCase = upsertTodoUseCase
+        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+        self.onUpsertSuccess = onUpsertSuccess
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -201,6 +224,10 @@ final class TodoEditorViewModel: Store {
             state.isCompleted = isCompleted
         case .setCategory(let todoCategoryItem):
             state.category = todoCategoryItem
+        case .setAlert(let isPresented):
+            setAlert(&state, isPresented: isPresented)
+        case .setLoading(let value):
+            state.isLoading = value
         case .setPinned(let isPinned):
             state.isPinned = isPinned
         case .setShowInfo(let isPresented):
@@ -216,6 +243,8 @@ final class TodoEditorViewModel: Store {
             state.categories = categories
         case .setReferenceItems(let items):
             state.referenceItems = items
+        case .upsertTodo(let todo):
+            effects = [.upsertTodo(todo)]
         }
 
         if self.state != state { self.state = state }
@@ -247,6 +276,20 @@ final class TodoEditorViewModel: Store {
 
                 send(.setReferenceItems(referenceItems))
             }
+        case .upsertTodo(let todo):
+            send(.setLoading(true))
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    try await upsertTodoUseCase.execute(todo)
+                    if originalDraft == nil {
+                        trackAnalyticsEventUseCase?.execute(.todoCreate)
+                    }
+                    onUpsertSuccess?(todo)
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
         }
     }
 }
@@ -267,6 +310,15 @@ extension TodoEditorViewModel {
         default:
             break
         }
+    }
+
+    private func setAlert(
+        _ state: inout State,
+        isPresented: Bool
+    ) {
+        state.alertTitle = String(localized: "common_error_title")
+        state.alertMessage = String(localized: "common_error_message")
+        state.showAlert = isPresented
     }
 
     func makeTodo() -> Todo {

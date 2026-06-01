@@ -50,7 +50,6 @@ final class TodoListViewModel: Store {
         case loadNextPage
         case setSearchText(String)
         case setToast(isPresented: Bool)
-        case upsertTodo(Todo)
 
         // Run
         case applySearchQuery(String)
@@ -70,7 +69,6 @@ final class TodoListViewModel: Store {
         case fetch
         case loadNextPage
         case search(String)
-        case upsert(Todo)
         case delete(TodoListItem)
         case undoDelete(String)
         case toggleCompleted(TodoListItem)
@@ -138,7 +136,7 @@ final class TodoListViewModel: Store {
                 .setShowAllSearchResults, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .loadNextPage, .setSearchText, .setToast, .upsertTodo:
+        case .onAppear, .loadNextPage, .setSearchText, .setToast:
             effects = reduceByView(action, state: &state)
 
         case .applySearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
@@ -206,18 +204,6 @@ final class TodoListViewModel: Store {
                 }
             }
             searchTasks[.request] = requestTask
-        case .upsert(let item):
-            beginLoading(.delayed)
-            Task {
-                do {
-                    defer { endLoading(.delayed) }
-                    try await upsertTodoUseCase.execute(item)
-                    trackAnalyticsEventUseCase.execute(.todoCreate)
-                    send(.refresh)
-                } catch {
-                    send(.setAlert(true))
-                }
-            }
         case .toggleCompleted(let item):
             beginLoading(.delayed)
             Task {
@@ -369,8 +355,6 @@ private extension TodoListViewModel {
                 state.searchResults.removeAll { $0.isHidden }
                 self.undoTodoId = nil
             }
-        case .upsertTodo(let todo):
-            return [.upsert(todo)]
         default:
             break
         }

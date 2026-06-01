@@ -11,6 +11,8 @@ import DevLogDomain
 
 struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State var viewModel: TodoDetailViewModel
 
     var body: some View {
@@ -44,7 +46,6 @@ struct TodoDetailView: View {
                 TodoDetailView(viewModel: TodoDetailViewModel(
                     fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                     fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                     todoId: item.id,
                     showEditButton: false
                 ))
@@ -66,9 +67,13 @@ struct TodoDetailView: View {
                     viewModel: TodoEditorViewModel(
                         todo: todo,
                         fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
-                    ),
-                    onSubmit: { viewModel.send(.upsertTodo($0)) }
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        onUpsertSuccess: { todo in
+                            viewModel.send(.setShowEditor(false))
+                            viewModel.send(.setTodo(todo))
+                        }
+                    )
                 )
             }
         }
@@ -90,11 +95,23 @@ struct TodoDetailView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.send(.setShowEditor(true))
+                    openTodoEditor()
                 } label: {
                     Text(String(localized: "todo_edit"))
                 }
             }
+        }
+    }
+
+    private func openTodoEditor() {
+        if isiOSAppOnMac {
+            guard let todo = viewModel.state.todo else { return }
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todo: todo)
+            )
+        } else {
+            viewModel.send(.setShowEditor(true))
         }
     }
 

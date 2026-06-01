@@ -24,7 +24,6 @@ struct SearchView: View {
                         TodoDetailView(viewModel: TodoDetailViewModel(
                             fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                            upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                             todoId: todoId
                         ))
                     case .web(let page):

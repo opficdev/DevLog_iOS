@@ -15,15 +15,16 @@ struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @FocusState private var field: Field?
     private let calendar = Calendar.current
-    var onSubmit: ((Todo) -> Void)?
+    var onClose: (() -> Void)?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 10) {
-                    titleField
+                    titleSection
                     LazyVStack(
                         alignment: .leading,
                         spacing: 0,
@@ -32,7 +33,10 @@ struct TodoEditorView: View {
                         Section {
                             tabView
                         } header: {
-                            tabViewSelector
+                            if !isiOSAppOnMac {
+                                tabPicker
+                                    .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -60,7 +64,6 @@ struct TodoEditorView: View {
                     TodoDetailView(viewModel: TodoDetailViewModel(
                         fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: item.id,
                         showEditButton: false
                     ))
@@ -74,7 +77,9 @@ struct TodoEditorView: View {
                 .presentationDragIndicator(.visible)
             }
             .toolbar {
-                ToolbarLeadingButton { dismiss() }
+                if !isiOSAppOnMac {
+                    ToolbarLeadingButton { close() }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.send(.setShowInfo(true))
@@ -85,9 +90,36 @@ struct TodoEditorView: View {
                 ToolbarTrailingButton {
                     submit()
                 }
-                .disabled(!viewModel.isReadyToSubmit)
+                .disabled(!viewModel.isReadyToSubmit || viewModel.state.isLoading)
+            }
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
+            ) {
+                Button(String(localized: "common_close"), role: .cancel) { }
+            } message: {
+                Text(viewModel.state.alertMessage)
             }
         }
+    }
+
+    @ViewBuilder
+    private var titleSection: some View {
+        Group {
+            if isiOSAppOnMac {
+                HStack(spacing: 12) {
+                    titleField
+                    tabPicker
+                        .frame(width: 180)
+                }
+            } else {
+                titleField
+            }
+        }
+        .padding(.horizontal)
     }
 
     private var titleField: some View {
@@ -102,10 +134,9 @@ struct TodoEditorView: View {
         .font(.title2)
         .frame(height: 30)
         .focused($field, equals: .title)
-        .padding(.horizontal)
     }
 
-    private var tabViewSelector: some View {
+    private var tabPicker: some View {
         Picker(
             "",
             selection: Binding(
@@ -126,7 +157,6 @@ struct TodoEditorView: View {
                 .tag(TodoEditorViewModel.Tag.preview)
         }
         .pickerStyle(.segmented)
-        .padding(.horizontal)
     }
 
     private var tabView: some View {
@@ -179,8 +209,15 @@ struct TodoEditorView: View {
 
     private func submit() {
         let todo = viewModel.makeTodo()
-        onSubmit?(todo)
-        dismiss()
+        viewModel.send(.upsertTodo(todo))
+    }
+
+    private func close() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
+        }
     }
 
     private func transitionToPreview() {

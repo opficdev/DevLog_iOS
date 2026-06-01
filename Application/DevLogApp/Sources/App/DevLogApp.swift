@@ -16,6 +16,7 @@ struct DevLogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @Environment(\.diContainer) var container: DIContainer
     @Environment(\.scenePhase) var scenePhase
+    @State private var windowEvent = TodoEditorWindowEvent()
 
     init() {
         AppAssembler().assemble(AppDIContainer.shared)
@@ -29,6 +30,7 @@ struct DevLogApp: App {
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                 trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
                 widgetURLTab: { MainTab(widgetURL: $0) },
+                windowEvent: windowEvent,
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
                 clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }
             )
@@ -36,6 +38,20 @@ struct DevLogApp: App {
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .background else { return }
                 container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
+            }
+        }
+        WindowGroup(id: TodoEditorWindowValue.sceneId, for: TodoEditorWindowValue.self) { value in
+            if let value = value.wrappedValue {
+                TodoEditorWindowView(
+                    value: value,
+                    windowEvent: windowEvent
+                )
+                .autocorrectionDisabled()
+            } else {
+                ContentUnavailableView(
+                    String(localized: "todo_edit"),
+                    systemImage: "square.and.pencil"
+                )
             }
         }
     }

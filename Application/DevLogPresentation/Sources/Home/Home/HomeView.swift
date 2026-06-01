@@ -9,6 +9,8 @@ import SwiftUI
 import DevLogDomain
 
 struct HomeView: View {
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
@@ -48,8 +50,7 @@ struct HomeView: View {
         )) {
             if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
                 TodoEditorView(
-                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory),
-                    onSubmit: { coordinator.viewModel.send(.addTodo($0)) }
+                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory)
                 )
             }
         }
@@ -272,6 +273,7 @@ struct HomeView: View {
             } label: {
                 RecentTodoRow(todo: item)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(.rect)
             }
             .buttonStyle(.plain)
         }
@@ -290,6 +292,7 @@ struct HomeView: View {
                 } label: {
                     WebItemRow(item: item, showsChevron: false)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
@@ -314,7 +317,7 @@ struct HomeView: View {
                         ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
-                                    coordinator.viewModel.send(.tapTodoCategory(item.category))
+                                    openTodoEditor(for: item.category)
                                 }
                             } label: {
                                 labelImage(
@@ -382,6 +385,18 @@ struct HomeView: View {
         }
         .padding(.vertical, -6)
         .contentShape(.rect)
+    }
+
+    private func openTodoEditor(for todoCategory: TodoCategory) {
+        if isiOSAppOnMac {
+            coordinator.viewModel.send(.setPresentation(.contentPicker, false))
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
+            )
+        } else {
+            coordinator.viewModel.send(.tapTodoCategory(todoCategory))
+        }
     }
 
 }
