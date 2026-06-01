@@ -11,8 +11,8 @@ import DevLogDomain
 
 public struct TodoEditorWindowView: View {
     @Environment(\.diContainer) private var container: DIContainer
-    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(TodoEditorWindowEvent.self) private var windowEvent
+    @State private var windowScene: UIWindowScene?
     private let value: TodoEditorWindowValue
 
     public init(value: TodoEditorWindowValue) {
@@ -20,39 +20,69 @@ public struct TodoEditorWindowView: View {
     }
 
     public var body: some View {
-        switch value {
-        case .create(let windowCategory, _):
-            TodoEditorView(
-                viewModel: TodoEditorViewModel(
-                    category: windowCategory.todoCategory,
-                    fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                    onUpsertSuccess: upsert
-                ),
-                onClose: closeWindow
-            )
-        case .edit(let windowTodo):
-            TodoEditorView(
-                viewModel: TodoEditorViewModel(
-                    todo: windowTodo.todo,
-                    fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                    onUpsertSuccess: upsert
-                ),
-                onClose: closeWindow
-            )
+        Group {
+            switch value {
+            case .create(let windowCategory, _):
+                TodoEditorView(
+                    viewModel: TodoEditorViewModel(
+                        category: windowCategory.todoCategory,
+                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
+                        onUpsertSuccess: upsert
+                    ),
+                    onClose: closeWindow
+                )
+            case .edit(let windowTodo):
+                TodoEditorView(
+                    viewModel: TodoEditorViewModel(
+                        todo: windowTodo.todo,
+                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        onUpsertSuccess: upsert
+                    ),
+                    onClose: closeWindow
+                )
+            }
         }
-    }
-
-    private func closeWindow() {
-        dismissWindow(id: TodoEditorWindowValue.sceneId, value: value)
+        .background {
+            WindowSceneReader { windowScene = $0 }
+        }
     }
 
     private func upsert(_ todo: Todo) {
         windowEvent.submit(value: value, todo: todo)
         closeWindow()
+    }
+
+    private func closeWindow() {
+        guard let windowScene else { return }
+        UIApplication.shared.requestSceneSessionDestruction(
+            windowScene.session,
+            options: nil,
+            errorHandler: nil
+        )
+    }
+}
+
+private struct WindowSceneReader: UIViewRepresentable {
+    let onResolve: (UIWindowScene?) -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        resolve(from: view)
+        return view
+    }
+
+    func updateUIView(_ view: UIView, context: Context) {
+        resolve(from: view)
+    }
+
+    private func resolve(from view: UIView) {
+        DispatchQueue.main.async {
+            onResolve(view.window?.windowScene)
+        }
     }
 }
