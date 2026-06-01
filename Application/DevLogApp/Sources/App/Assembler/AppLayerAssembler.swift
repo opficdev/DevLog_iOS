@@ -21,6 +21,12 @@ final class AppLayerAssembler: Assembler {
                 snapshotUpdater: container.resolve(WidgetSnapshotUpdater.self)
             )
         }
+        container.register(WidgetSessionSyncHandler.self) {
+            WidgetSessionSyncHandler(
+                authService: container.resolve(AuthService.self),
+                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
+            )
+        }
         container.register(FCMTokenSyncHandler.self) {
             FCMTokenSyncHandler(
                 userService: container.resolve(UserService.self)

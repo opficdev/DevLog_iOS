@@ -30,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = container.resolve(FCMTokenSyncHandler.self)
         _ = container.resolve(UserTimeZoneSyncHandler.self)
         _ = container.resolve(WidgetSyncEventHandler.self)
+        _ = container.resolve(WidgetSessionSyncHandler.self)
 
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self
