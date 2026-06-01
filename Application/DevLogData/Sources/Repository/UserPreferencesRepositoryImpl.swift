@@ -22,15 +22,18 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
     private let store: UserDefaultsStore
     private let themeStore: ThemeStore
     private let widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore
+    private let widgetSyncEventBus: WidgetSyncEventBus
 
     init(
         store: UserDefaultsStore,
         themeStore: ThemeStore,
-        widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore
+        widgetSnapshotPreferenceStore: WidgetSnapshotPreferenceStore,
+        widgetSyncEventBus: WidgetSyncEventBus
     ) {
         self.store = store
         self.themeStore = themeStore
         self.widgetSnapshotPreferenceStore = widgetSnapshotPreferenceStore
+        self.widgetSyncEventBus = widgetSyncEventBus
         themeStore.send(systemTheme())
     }
 
@@ -92,6 +95,7 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setHeatmapActivityTypes(_ activityTypes: [String]) {
         widgetSnapshotPreferenceStore.setHeatmapActivityTypes(activityTypes)
+        widgetSyncEventBus.publish(.syncRequested)
     }
 
     func todayDisplayOptions() -> TodayDisplayOptions {
@@ -100,5 +104,6 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setTodayDisplayOptions(_ options: TodayDisplayOptions) {
         widgetSnapshotPreferenceStore.setTodayDisplayOptions(options)
+        widgetSyncEventBus.publish(.syncRequested)
     }
 }

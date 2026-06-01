@@ -6,17 +6,17 @@
 //
 
 import Foundation
-import DevLogDomain
+import DevLogData
 
 final class PushNotificationOpenHandler {
-    private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
+    private let analyticsService: AnalyticsService
 
-    init(trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase) {
-        self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+    init(analyticsService: AnalyticsService) {
+        self.analyticsService = analyticsService
     }
 
     func handlePushOpen(userInfo: [AnyHashable: Any]) {
-        trackAnalyticsEventUseCase.execute(.pushOpen)
+        analyticsService.trackPushOpen()
         PushNotificationRoute.shared.handlePushTap(userInfo: userInfo)
     }
 }

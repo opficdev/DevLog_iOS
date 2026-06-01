@@ -12,13 +12,16 @@ import DevLogDomain
 final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
+    private let widgetSyncEventBus: WidgetSyncEventBus
 
     init(
         todoService: TodoService,
-        todoCategoryService: TodoCategoryService
+        todoCategoryService: TodoCategoryService,
+        widgetSyncEventBus: WidgetSyncEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
+        self.widgetSyncEventBus = widgetSyncEventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -105,6 +108,7 @@ final class TodoRepositoryImpl: TodoRepository {
         let request = TodoRequest.fromDomain(todo)
         do {
             try await todoService.upsertTodo(request: request)
+            widgetSyncEventBus.publish(.syncRequested)
         } catch {
             throw error.toDomain()
         }
@@ -113,6 +117,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func deleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.deleteTodo(todoId: todoId)
+            widgetSyncEventBus.publish(.syncRequested)
         } catch {
             throw error.toDomain()
         }
@@ -121,6 +126,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func undoDeleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
+            widgetSyncEventBus.publish(.syncRequested)
         } catch {
             throw error.toDomain()
         }
