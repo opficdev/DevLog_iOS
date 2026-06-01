@@ -112,6 +112,7 @@ struct MainView: View {
                 mainSidebar
             } content: {
                 homeView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
                 homeRegularDetailView
             }
@@ -121,6 +122,7 @@ struct MainView: View {
                 mainSidebar
             } content: {
                 todayView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
                 todayRegularDetailView
             }
@@ -132,6 +134,7 @@ struct MainView: View {
                     coordinator: pushNotificationListViewCoordinator,
                     isCompactLayout: isCompactLayout
                 )
+                .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
                 Group {
                     if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
@@ -155,6 +158,7 @@ struct MainView: View {
                 mainSidebar
             } content: {
                 profileView
+                    .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
                 profileRegularDetailView
             }
