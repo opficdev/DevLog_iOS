@@ -85,9 +85,14 @@ struct TodoListView: View {
                 viewModel: TodoEditorViewModel(
                     category: viewModel.category,
                     fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
-                ),
-                onSubmit: { viewModel.send(.upsertTodo($0)) }
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
+                    onUpsertSuccess: { _ in
+                        viewModel.send(.setShowEditor(false))
+                        viewModel.send(.refresh)
+                    }
+                )
             )
         }
         .toolbar {
@@ -250,7 +255,7 @@ struct TodoListView: View {
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit?) {
         guard let submit,
               submit.value.matchesCreate(category: viewModel.category, source: .list) else { return }
-        viewModel.send(.upsertTodo(submit.todo))
+        viewModel.send(.refresh)
     }
 
     @ViewBuilder

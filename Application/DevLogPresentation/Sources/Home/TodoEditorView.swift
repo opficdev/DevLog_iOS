@@ -18,7 +18,6 @@ struct TodoEditorView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @FocusState private var field: Field?
     private let calendar = Calendar.current
-    var onSubmit: ((Todo) -> Void)?
     var onClose: (() -> Void)?
 
     var body: some View {
@@ -65,7 +64,6 @@ struct TodoEditorView: View {
                     TodoDetailView(viewModel: TodoDetailViewModel(
                         fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertUseCase: container.resolve(UpsertTodoUseCase.self),
                         todoId: item.id,
                         showEditButton: false
                     ))
@@ -92,7 +90,18 @@ struct TodoEditorView: View {
                 ToolbarTrailingButton {
                     submit()
                 }
-                .disabled(!viewModel.isReadyToSubmit)
+                .disabled(!viewModel.isReadyToSubmit || viewModel.state.isLoading)
+            }
+            .alert(
+                viewModel.state.alertTitle,
+                isPresented: Binding(
+                    get: { viewModel.state.showAlert },
+                    set: { viewModel.send(.setAlert($0)) }
+                )
+            ) {
+                Button(String(localized: "common_close"), role: .cancel) { }
+            } message: {
+                Text(viewModel.state.alertMessage)
             }
         }
     }
@@ -200,8 +209,7 @@ struct TodoEditorView: View {
 
     private func submit() {
         let todo = viewModel.makeTodo()
-        onSubmit?(todo)
-        close()
+        viewModel.send(.upsertTodo(todo))
     }
 
     private func close() {

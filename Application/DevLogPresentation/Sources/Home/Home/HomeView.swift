@@ -51,8 +51,7 @@ struct HomeView: View {
         )) {
             if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
                 TodoEditorView(
-                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory),
-                    onSubmit: { coordinator.viewModel.send(.addTodo($0)) }
+                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory)
                 )
             }
         }
@@ -405,9 +404,8 @@ struct HomeView: View {
     }
 
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit?) {
-        guard let submit,
-              submit.value.matchesCreate(source: .home) else { return }
-        coordinator.viewModel.send(.addTodo(submit.todo))
+        guard let submit, submit.value.matchesCreate(source: .home) else { return }
+        coordinator.viewModel.send(.fetchData)
     }
 
 }

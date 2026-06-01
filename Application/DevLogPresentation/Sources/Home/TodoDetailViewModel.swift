@@ -31,13 +31,11 @@ final class TodoDetailViewModel: Store {
         case setTodo(Todo)
         case setReferenceItems([Int: TodoReferenceItem])
         case setLoading(Bool)
-        case upsertTodo(Todo)
     }
 
     enum SideEffect {
         case fetchTodo
         case resolveMarkdown(String)
-        case upsertTodo(Todo)
     }
 
     private(set) var state: State = .init()
@@ -45,19 +43,16 @@ final class TodoDetailViewModel: Store {
     let showEditButton: Bool
     private let fetchTodoUseCase: FetchTodoByIdUseCase
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
-    private let upsertUseCase: UpsertTodoUseCase
     private let loadingState = LoadingState()
 
     init(
         fetchTodoUseCase: FetchTodoByIdUseCase,
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
-        upsertUseCase: UpsertTodoUseCase,
         todoId: String,
         showEditButton: Bool = true
     ) {
         self.fetchTodoUseCase = fetchTodoUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
-        self.upsertUseCase = upsertUseCase
         self.todoId = todoId
         self.showEditButton = showEditButton
     }
@@ -85,8 +80,6 @@ final class TodoDetailViewModel: Store {
             state.referenceItems = items
         case .setLoading(let value):
             state.isLoading = value
-        case .upsertTodo(let todo):
-            effects = [.upsertTodo(todo)]
         }
 
         if self.state != state { self.state = state }
@@ -121,17 +114,6 @@ final class TodoDetailViewModel: Store {
                 }
 
                 send(.setReferenceItems(referenceItems))
-            }
-        case .upsertTodo(let todo):
-            beginLoading(.delayed)
-            Task {
-                do {
-                    defer { endLoading(.delayed) }
-                    try await upsertUseCase.execute(todo)
-                    send(.setTodo(todo))
-                } catch {
-                    send(.setAlert(true))
-                }
             }
         }
     }

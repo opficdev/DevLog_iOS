@@ -54,7 +54,6 @@ final class TodoWindowCoordinator {
         let detailViewModel = TodoDetailViewModel(
             fetchTodoUseCase: diContainer.resolve(FetchTodoByIdUseCase.self),
             fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
-            upsertUseCase: diContainer.resolve(UpsertTodoUseCase.self),
             todoId: todoId,
             showEditButton: showEditButton
         )

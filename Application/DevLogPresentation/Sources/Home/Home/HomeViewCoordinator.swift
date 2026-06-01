@@ -24,7 +24,6 @@ final class HomeViewCoordinator {
             addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
             deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
             undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
             fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
             networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
@@ -44,7 +43,13 @@ final class HomeViewCoordinator {
         TodoEditorViewModel(
             category: category,
             fetchPreferencesUseCase: diContainer.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self)
+            fetchReferenceItemsUseCase: diContainer.resolve(FetchReferenceItemsUseCase.self),
+            upsertTodoUseCase: diContainer.resolve(UpsertTodoUseCase.self),
+            trackAnalyticsEventUseCase: diContainer.resolve(TrackAnalyticsEventUseCase.self),
+            onUpsertSuccess: { [weak self] _ in
+                self?.viewModel.send(.setPresentation(.todoEditor, false))
+                self?.viewModel.send(.fetchData)
+            }
         )
     }
 

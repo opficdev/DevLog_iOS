@@ -26,9 +26,11 @@ public struct TodoEditorWindowView: View {
                 viewModel: TodoEditorViewModel(
                     category: windowCategory.todoCategory,
                     fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
+                    onUpsertSuccess: upsert
                 ),
-                onSubmit: submit,
                 onClose: closeWindow
             )
         case .edit(let windowTodo):
@@ -36,9 +38,10 @@ public struct TodoEditorWindowView: View {
                 viewModel: TodoEditorViewModel(
                     todo: windowTodo.todo,
                     fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self)
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                    onUpsertSuccess: upsert
                 ),
-                onSubmit: submit,
                 onClose: closeWindow
             )
         }
@@ -48,7 +51,8 @@ public struct TodoEditorWindowView: View {
         dismissWindow(id: TodoEditorWindowValue.sceneId, value: value)
     }
 
-    private func submit(_ todo: Todo) {
+    private func upsert(_ todo: Todo) {
         windowEvent.submit(value: value, todo: todo)
+        closeWindow()
     }
 }

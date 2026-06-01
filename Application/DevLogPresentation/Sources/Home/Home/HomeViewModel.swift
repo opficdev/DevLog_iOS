@@ -50,7 +50,6 @@ final class HomeViewModel: Store {
         case tapTodoCategory(TodoCategory)
         case orderTodoCategory([TodoCategoryItem])
         case setTodoCategory([TodoCategoryItem])
-        case addTodo(Todo)
         case updateRecentTodos([RecentTodoItem])
         case updateWebPageURLInput(String)
         case addWebPage
@@ -60,7 +59,6 @@ final class HomeViewModel: Store {
     }
 
     enum SideEffect {
-        case addTodo(Todo)
         case addWebPage(String)
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage(String)
@@ -103,7 +101,6 @@ final class HomeViewModel: Store {
     private(set) var state = State()
     private let fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
     private let updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase
-    private let upsertTodoUseCase: UpsertTodoUseCase
     private let addWebPageUseCase: AddWebPageUseCase
     private let deleteWebPageUseCase: DeleteWebPageUseCase
     private let undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase
@@ -121,7 +118,6 @@ final class HomeViewModel: Store {
         addWebPageUseCase: AddWebPageUseCase,
         deleteWebPageUseCase: DeleteWebPageUseCase,
         undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase,
-        upsertTodoUseCase: UpsertTodoUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         fetchWebPagesUseCase: FetchWebPagesUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
@@ -132,7 +128,6 @@ final class HomeViewModel: Store {
         self.addWebPageUseCase = addWebPageUseCase
         self.deleteWebPageUseCase = deleteWebPageUseCase
         self.undoDeleteWebPageUseCase = undoDeleteWebPageUseCase
-        self.upsertTodoUseCase = upsertTodoUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
         self.fetchWebPagesUseCase = fetchWebPagesUseCase
         self.networkConnectivityUseCase = networkConnectivityUseCase
@@ -149,7 +144,7 @@ final class HomeViewModel: Store {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
         case .fetchData, .setPresentation, .setAlert, .setToast, .refreshWebPages,
-                .tapTodoCategory, .orderTodoCategory, .addTodo, .updateWebPageURLInput,
+                .tapTodoCategory, .orderTodoCategory, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage:
             effects = reduceByView(action, state: &state)
 
@@ -179,23 +174,6 @@ final class HomeViewModel: Store {
             Task {
                 do {
                     try await updatePreferencesUseCase.execute(items.map(\.preference))
-                } catch {
-                    send(.setAlert(isPresented: true, type: .error))
-                }
-            }
-        case .addTodo(let todo):
-            beginLoading(for: .overlay, mode: .delayed)
-            Task {
-                do {
-                    defer { endLoading(for: .overlay, mode: .delayed) }
-                    try await upsertTodoUseCase.execute(todo)
-                    trackAnalyticsEventUseCase.execute(.todoCreate)
-                    let page = try await fetchRecentTodos()
-                    let items = page.items
-                        .filter { $0.createdAt != $0.updatedAt }
-                        .prefix(5)
-                        .compactMap { RecentTodoItem(from: $0) }
-                    send(.updateRecentTodos(items))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
                 }
@@ -305,8 +283,6 @@ private extension HomeViewModel {
             state.preferences = preferences
             state.recentTodos = syncRecentTodos(state.recentTodos, preferences: preferences)
             return [.updateTodoCategoryPreferences(preferences)]
-        case .addTodo(let todo):
-            return [.addTodo(todo)]
         case .updateWebPageURLInput(let text):
             state.webPageURLInput = text
         case .addWebPage:
