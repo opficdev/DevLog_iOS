@@ -39,7 +39,7 @@ final class AppLayerAssembler: Assembler {
         }
         container.register(PushNotificationOpenHandler.self) {
             PushNotificationOpenHandler(
-                trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self)
+                analyticsService: container.resolve(AnalyticsService.self)
             )
         }
     }
