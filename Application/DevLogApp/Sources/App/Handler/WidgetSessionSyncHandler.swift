@@ -6,6 +6,7 @@
 //
 
 import Combine
+import Foundation
 import DevLogData
 
 final class WidgetSessionSyncHandler {
@@ -23,6 +24,7 @@ final class WidgetSessionSyncHandler {
 
         authService.observeSignedIn()
             .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] isSignedIn in
                 self?.handleSessionUpdate(isSignedIn: isSignedIn)
             }

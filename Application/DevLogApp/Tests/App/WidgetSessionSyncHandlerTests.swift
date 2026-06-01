@@ -6,13 +6,14 @@
 //
 
 import Combine
+import Foundation
 import Testing
 import DevLogData
 @testable import DevLog
 
 struct WidgetSessionSyncHandlerTests {
     @Test("로그인 세션 true 첫 진입에서만 위젯 초기 동기화를 요청한다")
-    func 로그인_세션_true_첫_진입에서만_위젯_초기_동기화를_요청한다() {
+    func 로그인_세션_true_첫_진입에서만_위젯_초기_동기화를_요청한다() async {
         let authServiceSpy = AuthServiceSpy()
         let widgetSyncEventBusSpy = WidgetSyncEventBusSpy()
         let widgetSessionSyncHandler = WidgetSessionSyncHandler(
@@ -23,12 +24,17 @@ struct WidgetSessionSyncHandlerTests {
         authServiceSpy.send(true)
         authServiceSpy.send(true)
 
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
+        }
         #expect(widgetSyncEventBusSpy.events == [.syncRequested])
         _ = widgetSessionSyncHandler
     }
 
     @Test("로그아웃 이후 재로그인 시 위젯 초기 동기화를 다시 요청한다")
-    func 로그아웃_이후_재로그인_시_위젯_초기_동기화를_다시_요청한다() {
+    func 로그아웃_이후_재로그인_시_위젯_초기_동기화를_다시_요청한다() async {
         let authServiceSpy = AuthServiceSpy()
         let widgetSyncEventBusSpy = WidgetSyncEventBusSpy()
         let widgetSessionSyncHandler = WidgetSessionSyncHandler(
@@ -40,6 +46,11 @@ struct WidgetSessionSyncHandlerTests {
         authServiceSpy.send(false)
         authServiceSpy.send(true)
 
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
+        }
         #expect(widgetSyncEventBusSpy.events == [.syncRequested, .syncRequested])
         _ = widgetSessionSyncHandler
     }
