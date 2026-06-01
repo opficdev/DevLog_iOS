@@ -17,16 +17,11 @@ let project = Project(
             bundleId: "opfic.DevLog",
             deploymentTargets: .iOS("17.0"),
             infoPlist: .file(path: "Sources/Resource/Info.plist"),
-            sources: ["Sources/**"],
+            sources: ["Sources/**/*.swift"],
             resources: [
-                .glob(
-                    pattern: "Sources/Resource/**",
-                    excluding: [
-                        "Sources/Resource/Info.plist",
-                        "Sources/Resource/*.entitlements",
-                        "Sources/Resource/*.xcconfig",
-                    ]
-                ),
+                "Sources/Resource/Assets.xcassets",
+                "Sources/Resource/GoogleService-Info.plist",
+                "Sources/Resource/Localizable.xcstrings",
             ],
             entitlements: .file(path: "Sources/Resource/DevLog.entitlements"),
             dependencies: [
@@ -55,7 +50,7 @@ let project = Project(
             product: .unitTests,
             bundleId: "opfic.DevLogAppTests",
             infoPlist: .default,
-            sources: ["Tests/**"],
+            sources: ["Tests/**/*.swift"],
             dependencies: [
                 .target(name: "DevLog"),
             ],

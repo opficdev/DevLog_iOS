@@ -28,18 +28,16 @@ let project = Project(
                 .glob(
                     "**/*.swift",
                     excluding: [
+                        "Derived/**",
                         "Project.swift",
                     ]
                 ),
+                .generated("Derived/Sources/TuistAssets+DevLogWidgetExtension.swift"),
+                .generated("Derived/Sources/TuistBundle+DevLogWidgetExtension.swift"),
             ],
             resources: [
-                .glob(
-                    pattern: "Resource/**",
-                    excluding: [
-                        "Resource/Info.plist",
-                        "Resource/*.entitlements",
-                    ]
-                ),
+                "Resource/Assets.xcassets",
+                "Resource/Localizable.xcstrings",
             ],
             entitlements: .file(path: "Resource/DevLogWidget.entitlements"),
             scripts: [

@@ -17,7 +17,7 @@ public extension Project {
                 bundleId: bundleId,
                 deploymentTargets: .iOS("17.0"),
                 infoPlist: .default,
-                sources: ["Sources/**"],
+                sources: ["Sources/**/*.swift"],
                 dependencies: dependencies + [DevLogPackages.swiftLintPlugin],
                 settings: .devlog(
                     versionXcconfigPath: versionXcconfigPath,
@@ -36,7 +36,7 @@ public extension Project {
                     product: .unitTests,
                     bundleId: "\(bundleId)Tests",
                     infoPlist: .default,
-                    sources: ["Tests/**"],
+                    sources: ["Tests/**/*.swift"],
                     dependencies: [
                         .target(name: name),
                     ],
