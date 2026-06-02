@@ -1,64 +1,41 @@
 //
 //  TodoEditorWindowView.swift
-//  DevLogPresentation
+//  DevLog
 //
 //  Created by opfic on 5/31/26.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
+import DevLogUI
 
-public struct TodoEditorWindowView: View {
-    @Environment(\.diContainer) private var container: DIContainer
+struct TodoEditorWindowView: View {
     @State private var windowScene: UIWindowScene?
     private let value: TodoEditorWindowValue
-    private let windowEvent: TodoEditorWindowEvent
+    private let dependencies: TodoEditorWindowDependencies
 
-    public init(
+    init(
         value: TodoEditorWindowValue,
-        windowEvent: TodoEditorWindowEvent
+        dependencies: TodoEditorWindowDependencies
     ) {
         self.value = value
-        self.windowEvent = windowEvent
+        self.dependencies = dependencies
     }
 
-    public var body: some View {
+    var body: some View {
         Group {
-            switch value {
-            case .create(let windowCategory, _):
-                TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        category: windowCategory.todoCategory,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                        onUpsertSuccess: upsert
-                    ),
+            TodoEditorView(
+                viewModel: dependencies.makeEditorViewModel(
+                    value: value,
                     onClose: closeWindow
-                )
-            case .edit(let windowTodo):
-                TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        todo: windowTodo.todo,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpsertSuccess: upsert
-                    ),
-                    onClose: closeWindow
-                )
-            }
+                ),
+                todoViewModelFactory: dependencies.todoViewModelFactory,
+                onClose: closeWindow
+            )
         }
         .background {
             WindowSceneReader { windowScene = $0 }
         }
-    }
-
-    private func upsert(_ todo: Todo) {
-        windowEvent.submit(value: value, todo: todo)
-        closeWindow()
     }
 
     private func closeWindow() {

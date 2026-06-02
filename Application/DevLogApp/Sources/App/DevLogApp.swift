@@ -10,6 +10,7 @@ import DevLogCore
 import DevLogData
 import DevLogDomain
 import DevLogPresentation
+import DevLogUI
 
 @main
 struct DevLogApp: App {
@@ -25,10 +26,7 @@ struct DevLogApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(
-                sessionUseCase: container.resolve(ObserveAuthSessionUseCase.self),
-                networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-                systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-                trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
+                dependencies: RootViewDependencies(container: container),
                 widgetURLTab: { MainTab(widgetURL: $0) },
                 windowEvent: windowEvent,
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
@@ -44,7 +42,10 @@ struct DevLogApp: App {
             if let value = value.wrappedValue {
                 TodoEditorWindowView(
                     value: value,
-                    windowEvent: windowEvent
+                    dependencies: TodoEditorWindowDependencies(
+                        container: container,
+                        windowEvent: windowEvent
+                    )
                 )
                 .autocorrectionDisabled()
             } else {

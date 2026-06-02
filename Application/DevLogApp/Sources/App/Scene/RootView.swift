@@ -1,18 +1,17 @@
 //
 //  RootView.swift
-//  DevLogPresentation
+//  DevLog
 //
 //  Created by opfic on 5/2/25.
 //
 
 import SwiftUI
+import DevLogPresentation
+import DevLogUI
 import Combine
-import DevLogCore
-import DevLogDomain
 
-public struct RootView: View {
-    @Environment(\.diContainer) var container: DIContainer
-    @State var viewModel: RootViewModel
+struct RootView: View {
+    @State private var dependencies: RootViewDependencies
     @State private var selectedRoute: Route?
     @State private var selectedMainTab: MainTab?
     private let widgetURLTab: (URL) -> MainTab?
@@ -20,48 +19,38 @@ public struct RootView: View {
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
     private let clearPushNotificationRoute: () -> Void
 
-    public init(
-        sessionUseCase: ObserveAuthSessionUseCase,
-        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
-        systemThemeUseCase: ObserveSystemThemeUseCase,
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
+    init(
+        dependencies: RootViewDependencies,
         widgetURLTab: @escaping (URL) -> MainTab?,
         windowEvent: TodoEditorWindowEvent,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
     ) {
-        self._viewModel = State(initialValue: RootViewModel(
-            sessionUseCase: sessionUseCase,
-            networkConnectivityUseCase: networkConnectivityUseCase,
-            systemThemeUseCase: systemThemeUseCase,
-            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
-        ))
+        self._dependencies = State(initialValue: dependencies)
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
         self.clearPushNotificationRoute = clearPushNotificationRoute
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
-            if let signIn = viewModel.state.signIn {
+            if let signIn = dependencies.viewModel.state.signIn {
                 if signIn {
                     MainView(
-                        container: container,
+                        dependencies: dependencies.mainViewDependencies,
                         windowEvent: windowEvent,
                         selectedTab: $selectedMainTab
                     )
                 } else {
-                    LoginView(viewModel: LoginViewModel(
-                        signInUseCase: container.resolve(SignInUseCase.self))
-                    )
+                    LoginView(viewModel: dependencies.makeLoginViewModel())
                 }
             }
         }
-        .preferredColorScheme(viewModel.state.theme.colorScheme)
-        .onAppear { viewModel.send(.onAppear) }
-        .onChange(of: viewModel.state.signIn) { _, value in
+        .preferredColorScheme(dependencies.viewModel.state.theme.colorScheme)
+        .onAppear { dependencies.viewModel.send(.onAppear) }
+        .onChange(of: dependencies.viewModel.state.signIn) { _, value in
             guard let value else { return }
             if value {
                 selectedMainTab = .home
@@ -71,7 +60,7 @@ public struct RootView: View {
         }
         .onOpenURL { url in
             guard let mainTab = widgetURLTab(url) else { return }
-            switch viewModel.state.signIn {
+            switch dependencies.viewModel.state.signIn {
             case .some(false):
                 break
             case .some(true):
@@ -80,24 +69,22 @@ public struct RootView: View {
                 break
             }
         }
-        .alert(viewModel.state.alertTitle, isPresented: Binding(
-            get: { viewModel.state.showAlert },
-            set: { viewModel.send(.setAlert($0)) }
+        .alert(dependencies.viewModel.state.alertTitle, isPresented: Binding(
+            get: { dependencies.viewModel.state.showAlert },
+            set: { dependencies.viewModel.send(.setAlert($0)) }
         )) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
-            Text(viewModel.state.alertMessage)
+            Text(dependencies.viewModel.state.alertMessage)
         }
         .sheet(item: $selectedRoute) { route in
             switch route {
             case .todoDetail(let todoId):
                 NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        todoId: todoId,
-                        showEditButton: false
-                    ))
+                    TodoDetailView(
+                        viewModel: dependencies.makeTodoDetailViewModel(todoId),
+                        todoViewModelFactory: dependencies.mainViewDependencies.todoViewModelFactory
+                    )
                     .toolbar {
                         ToolbarLeadingButton {
                             selectedRoute = nil
