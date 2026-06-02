@@ -10,7 +10,7 @@ import OrderedCollections
 import DevLogDomain
 
 @Observable
-final class TodoEditorViewModel: Store {
+public final class TodoEditorViewModel: Store {
     private struct Draft: Equatable {
         let isCompleted: Bool
         let completedAt: Date?
@@ -44,36 +44,36 @@ final class TodoEditorViewModel: Store {
         }
     }
 
-    struct State: Equatable {
-        var isCompleted: Bool = false
-        var completedAt: Date?
-        var isPinned: Bool = false
-        var selectedTodoId: TodoIdItem?
-        var title: String = ""
-        var content: String = ""
-        var referenceItems: [Int: TodoReferenceItem] = [:]
-        var dueDate: Date?
-        var showInfo: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var isLoading: Bool = false
-        var tags: OrderedSet<String> = []
-        var tagText: String = ""
-        var focusOnEditor: Bool = false
-        var tabViewTag: Tag = .editor
-        var categories: [TodoCategoryItem] = []
-        var category = TodoCategoryItem(from: .system(.etc))
-        var isValidToSave: Bool {
+    public struct State: Equatable {
+        public var isCompleted: Bool = false
+        public var completedAt: Date?
+        public var isPinned: Bool = false
+        public var selectedTodoId: TodoIdItem?
+        public var title: String = ""
+        public var content: String = ""
+        public var referenceItems: [Int: TodoReferenceItem] = [:]
+        public var dueDate: Date?
+        public var showInfo: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var isLoading: Bool = false
+        public var tags: OrderedSet<String> = []
+        public var tagText: String = ""
+        public var focusOnEditor: Bool = false
+        public var tabViewTag: Tag = .editor
+        public var categories: [TodoCategoryItem] = []
+        public var category = TodoCategoryItem(from: .system(.etc))
+        public var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
 
-    enum Tag {
+    public enum Tag {
         case editor, preview
     }
 
-    enum Action {
+    public enum Action {
         case onAppear
         case addTag(String)
         case removeTag(String)
@@ -94,13 +94,13 @@ final class TodoEditorViewModel: Store {
         case upsertTodo(Todo)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchCategories
         case resolveMarkdown(String)
         case upsertTodo(Todo)
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
     private let calendar = Calendar.current
     private let fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
@@ -115,7 +115,7 @@ final class TodoEditorViewModel: Store {
     private let deletedAt: Date?
     private let originalDraft: Draft?
 
-    var navigationTitle: String {
+    public var navigationTitle: String {
         if originalDraft == nil {
             return String.localizedStringWithFormat(
                 String(localized: "todo_editor_new_format"),
@@ -126,17 +126,17 @@ final class TodoEditorViewModel: Store {
         return String(localized: "todo_edit")
     }
 
-    var hasChanges: Bool {
+    public var hasChanges: Bool {
         guard let originalDraft else { return true }
         return originalDraft != Draft(state: state)
     }
 
-    var isReadyToSubmit: Bool {
+    public var isReadyToSubmit: Bool {
         state.isValidToSave && hasChanges
     }
 
     // 새로운 Todo 생성용 생성자
-    init(
+    public init(
         category: TodoCategory,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
@@ -161,7 +161,7 @@ final class TodoEditorViewModel: Store {
     }
 
     // 기존 Todo 편집용 생성자
-    init(
+    public init(
         todo: Todo,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
@@ -191,7 +191,7 @@ final class TodoEditorViewModel: Store {
         state.category = TodoCategoryItem(from: todo.category)
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -251,7 +251,7 @@ final class TodoEditorViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchCategories:
             Task {
@@ -294,7 +294,7 @@ final class TodoEditorViewModel: Store {
     }
 }
 
-extension TodoEditorViewModel {
+public extension TodoEditorViewModel {
     private func handleStringAction(
         _ action: Action,
         stringValue: String,

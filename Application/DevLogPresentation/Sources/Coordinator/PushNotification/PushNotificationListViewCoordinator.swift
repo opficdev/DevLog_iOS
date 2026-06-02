@@ -11,14 +11,14 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class PushNotificationListViewCoordinator {
-    let viewModel: PushNotificationListViewModel
-    var todoIdToPresent: TodoIdItem?
+public final class PushNotificationListViewCoordinator {
+    public let viewModel: PushNotificationListViewModel
+    public var todoIdToPresent: TodoIdItem?
     private let container: DIContainer
     @ObservationIgnored
     private var todoDetailViewModel: TodoDetailViewModel?
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         self.viewModel = PushNotificationListViewModel(
             fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
@@ -30,11 +30,11 @@ final class PushNotificationListViewCoordinator {
         )
     }
 
-    func fetchData() {
+    public func fetchData() {
         viewModel.send(.fetchNotifications)
     }
 
-    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
+    public func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
         if let todoDetailViewModel,
            todoDetailViewModel.todoId == todoId,
            !todoDetailViewModel.showEditButton {

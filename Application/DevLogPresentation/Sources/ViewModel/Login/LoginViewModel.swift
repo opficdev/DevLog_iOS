@@ -9,26 +9,26 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class LoginViewModel: Store {
-    struct State: Equatable {
-        var isLoading = false
-        var showAlert: Bool = false
-        var alertType: AlertType?
-        var alertTitle: String = ""
-        var alertMessage: String = ""
+public final class LoginViewModel: Store {
+    public struct State: Equatable {
+        public var isLoading = false
+        public var showAlert: Bool = false
+        public var alertType: AlertType?
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
     }
 
-    enum Action {
+    public enum Action {
         case setAlert(Bool, AlertType? = nil)
         case tapSignInButton(AuthProvider)
         case setLoading(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case signIn(AuthProvider)
     }
 
-    enum AlertType {
+    public enum AlertType {
         case emailUnavailable
         case error
     }
@@ -36,15 +36,15 @@ final class LoginViewModel: Store {
     private let signInUseCase: SignInUseCase
     private let loadingState = LoadingState()
 
-    private(set) var state = State()
+    public private(set) var state = State()
 
-    init(
+    public init(
         signInUseCase: SignInUseCase
     ) {
         self.signInUseCase = signInUseCase
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
         
@@ -61,7 +61,7 @@ final class LoginViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .signIn(let authProvider):
             beginLoading(.immediate)

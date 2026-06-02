@@ -12,12 +12,12 @@ public struct TodoCategoryItem: Identifiable, Hashable {
     public var category: TodoCategory
     public var isVisible: Bool
 
-    init(from preference: TodoCategoryPreference) {
+    public init(from preference: TodoCategoryPreference) {
         self.category = preference.category
         self.isVisible = preference.isVisible
     }
 
-    init(
+    public init(
         from category: TodoCategory,
         isVisible: Bool = true
     ) {

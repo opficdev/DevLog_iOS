@@ -12,35 +12,35 @@ import DevLogDomain
 import DevLogCore
 
 @Observable
-final class MainViewModel: Store {
-    struct State: Equatable {
-        var unreadPushCount = 0
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
+public final class MainViewModel: Store {
+    public struct State: Equatable {
+        public var unreadPushCount = 0
+        public var showAlert = false
+        public var alertTitle = ""
+        public var alertMessage = ""
     }
 
-    enum Action {
+    public enum Action {
         case onAppear
         case selectedTabChanged(MainTab)
         case setUnreadPushCount(Int)
         case setAlert(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case observeUnreadPushCount
         case trackScreenView(MainTab)
         case updateBadgeCount(Int)
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
     private let logger = Logger(category: "MainViewModel")
     private var cancellables = Set<AnyCancellable>()
     private var isObservingUnreadPushCount = false
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let unreadPushCountUseCase: ObserveUnreadPushCountUseCase
 
-    init(
+    public init(
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
         unreadPushCountUseCase: ObserveUnreadPushCountUseCase
     ) {
@@ -48,7 +48,7 @@ final class MainViewModel: Store {
         self.unreadPushCountUseCase = unreadPushCountUseCase
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var sideEffects: [SideEffect] = []
 
@@ -73,7 +73,7 @@ final class MainViewModel: Store {
         return sideEffects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .observeUnreadPushCount:
             observeUnreadPushCount()

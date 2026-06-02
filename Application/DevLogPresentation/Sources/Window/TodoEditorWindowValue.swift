@@ -21,7 +21,7 @@ public enum TodoEditorWindowValue: Codable, Hashable {
         self = .create(TodoEditorWindowCategory(todoCategory: todoCategory), source)
     }
 
-    init(todo: Todo) {
+    public init(todo: Todo) {
         self = .edit(TodoEditorWindowTodo(todo: todo))
     }
 }
@@ -42,7 +42,7 @@ public struct TodoEditorWindowCategory: Codable, Hashable {
     private let name: String
     private let colorHex: String
 
-    init(todoCategory: TodoCategory) {
+    public init(todoCategory: TodoCategory) {
         switch todoCategory {
         case .system(let systemTodoCategory):
             self.kind = .system
@@ -57,7 +57,7 @@ public struct TodoEditorWindowCategory: Codable, Hashable {
         }
     }
 
-    var todoCategory: TodoCategory {
+    public var todoCategory: TodoCategory {
         switch kind {
         case .system:
             let systemTodoCategory = SystemTodoCategory(rawValue: id) ?? .etc
@@ -88,7 +88,7 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
     private let tags: [String]
     private let category: TodoEditorWindowCategory
 
-    init(todo: Todo) {
+    public init(todo: Todo) {
         self.id = todo.id
         self.isPinned = todo.isPinned
         self.isCompleted = todo.isCompleted
@@ -116,7 +116,7 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
         hasher.combine(id)
     }
 
-    var todo: Todo {
+    public var todo: Todo {
         Todo(
             id: id,
             isPinned: isPinned,
@@ -136,13 +136,13 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
     }
 }
 
-struct TodoEditorWindowSubmit: Equatable {
-    let id = UUID()
-    let value: TodoEditorWindowValue
-    let todo: Todo
+public struct TodoEditorWindowSubmit: Equatable {
+    public let id = UUID()
+    public let value: TodoEditorWindowValue
+    public let todo: Todo
 }
 
-extension TodoEditorWindowValue {
+public extension TodoEditorWindowValue {
     func matchesCreate(
         category: TodoCategory? = nil,
         source: TodoEditorWindowSource

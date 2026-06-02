@@ -10,9 +10,12 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class TodayViewModel: Store {
+public final class TodayViewModel: Store {
+    public typealias DueDateVisibility = TodayDisplayOptions.DueDateVisibility
+    public typealias FocusVisibility = TodayDisplayOptions.FocusVisibility
+
     // TodayView 상단에서 사용자가 선택하는 요약 탭 범위.
-    enum SectionScope: Hashable, CaseIterable {
+    public enum SectionScope: Hashable, CaseIterable {
         case all
         case focused
         case overdue
@@ -20,7 +23,7 @@ final class TodayViewModel: Store {
     }
 
     // 요약 탭 아래 실제 리스트에 렌더링되는 섹션 분류.
-    enum SectionCategory: Hashable {
+    public enum SectionCategory: Hashable {
         case later
         case unscheduled
         case focused
@@ -28,32 +31,32 @@ final class TodayViewModel: Store {
         case dueSoon
     }
 
-    struct SectionContent: Identifiable, Equatable {
-        var id: SectionCategory { category }
-        let category: SectionCategory
-        let title: String
-        let items: [TodayTodoItem]
+    public struct SectionContent: Identifiable, Equatable {
+        public var id: SectionCategory { category }
+        public let category: SectionCategory
+        public let title: String
+        public let items: [TodayTodoItem]
     }
 
-    struct SectionCollection {
-        var focused: [TodayTodoItem] = []
-        var overdue: [TodayTodoItem] = []
-        var dueSoon: [TodayTodoItem] = []
-        var later: [TodayTodoItem] = []
-        var unscheduled: [TodayTodoItem] = []
+    public struct SectionCollection {
+        public var focused: [TodayTodoItem] = []
+        public var overdue: [TodayTodoItem] = []
+        public var dueSoon: [TodayTodoItem] = []
+        public var later: [TodayTodoItem] = []
+        public var unscheduled: [TodayTodoItem] = []
     }
 
-    struct State: Equatable {
-        var todos: [TodayTodoItem] = []
-        var isLoading: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var selectedSectionScope: SectionScope = .all
-        var displayOptions: TodayDisplayOptions = .default
+    public struct State: Equatable {
+        public var todos: [TodayTodoItem] = []
+        public var isLoading: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var selectedSectionScope: SectionScope = .all
+        public var displayOptions: TodayDisplayOptions = .default
     }
 
-    enum Action {
+    public enum Action {
         case refresh
         case setAlert(Bool)
         case setSectionScope(SectionScope)
@@ -69,13 +72,13 @@ final class TodayViewModel: Store {
         case removeTodo(String)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchTodos
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
     private let calendar = Calendar.current
     private let pageSize = 20
     private let upcomingWindowDays = 7
@@ -86,7 +89,7 @@ final class TodayViewModel: Store {
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     private let loadingState = LoadingState()
 
-    init(
+    public init(
         fetchTodosUseCase: FetchTodosUseCase,
         fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
@@ -102,7 +105,7 @@ final class TodayViewModel: Store {
         self.state.displayOptions = fetchTodayDisplayOptionsUseCase.execute()
     }
 
-    var sections: [SectionContent] {
+    public var sections: [SectionContent] {
         let items = groupedSectionItems(from: displayedTodos)
 
         switch state.selectedSectionScope {
@@ -160,7 +163,7 @@ final class TodayViewModel: Store {
         }
     }
 
-    func summaryValue(for scope: SectionScope) -> Int {
+    public func summaryValue(for scope: SectionScope) -> Int {
         switch scope {
         case .all:
             return displayedTodos.count
@@ -173,7 +176,7 @@ final class TodayViewModel: Store {
         }
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -191,7 +194,7 @@ final class TodayViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodos:
             beginLoading(.delayed)

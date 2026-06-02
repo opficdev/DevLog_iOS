@@ -12,17 +12,17 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class RootViewModel: Store {
-    struct State: Equatable {
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var isNetworkConnected: Bool = true
-        var signIn: Bool?
-        var theme: SystemTheme = .automatic
+public final class RootViewModel: Store {
+    public struct State: Equatable {
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var isNetworkConnected: Bool = true
+        public var signIn: Bool?
+        public var theme: SystemTheme = .automatic
     }
     
-    enum Action {
+    public enum Action {
         case onAppear
         case setAlert(Bool)
         case networkStatusChanged(Bool)
@@ -30,19 +30,19 @@ final class RootViewModel: Store {
         case didLogined(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case clearApplicationBadgeCount
         case trackLoginScreen
     }
 
-    private(set) var state: State
+    public private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
     private let sessionUseCase: ObserveAuthSessionUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
     
-    init(
+    public init(
         sessionUseCase: ObserveAuthSessionUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
@@ -59,7 +59,7 @@ final class RootViewModel: Store {
         setupThemeObserving()
     }
     
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
         
@@ -87,7 +87,7 @@ final class RootViewModel: Store {
         return effects
     }
     
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .clearApplicationBadgeCount:
             UNUserNotificationCenter.current().setBadgeCount(0) { _ in }

@@ -11,33 +11,33 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class HomeViewModel: Store {
-    struct State: Equatable {
-        var preferences: [TodoCategoryItem] = []
-        var recentTodos: [RecentTodoItem] = []
-        var webPages: [WebPageItem] = []
-        var needsWebPageRefresh = false
-        var isNetworkConnected: Bool = true
-        var showContentPicker: Bool = false
-        var showTodoEditor: Bool = false
-        var showSearchView: Bool = false
-        var webPageURLInput: String = "https://"
-        var selectedTodoCategory: TodoCategory?
-        var reorderTodo: Bool = false
-        var isPreferencesLoading: Bool = false
-        var isRecentTodosLoading: Bool = false
-        var isWebPageLoading: Bool = false
-        var isAppending: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertType: AlertType?
-        var alertMessage: String = ""
-        var showToast: Bool = false
-        var toastType: ToastType?
-        var toastMessage: String = ""
+public final class HomeViewModel: Store {
+    public struct State: Equatable {
+        public var preferences: [TodoCategoryItem] = []
+        public var recentTodos: [RecentTodoItem] = []
+        public var webPages: [WebPageItem] = []
+        public var needsWebPageRefresh = false
+        public var isNetworkConnected: Bool = true
+        public var showContentPicker: Bool = false
+        public var showTodoEditor: Bool = false
+        public var showSearchView: Bool = false
+        public var webPageURLInput: String = "https://"
+        public var selectedTodoCategory: TodoCategory?
+        public var reorderTodo: Bool = false
+        public var isPreferencesLoading: Bool = false
+        public var isRecentTodosLoading: Bool = false
+        public var isWebPageLoading: Bool = false
+        public var isAppending: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertType: AlertType?
+        public var alertMessage: String = ""
+        public var showToast: Bool = false
+        public var toastType: ToastType?
+        public var toastMessage: String = ""
     }
 
-    enum Action {
+    public enum Action {
         case fetchData
         case networkStatusChanged(Bool)
         case setPresentation(Presentation, Bool)
@@ -58,7 +58,7 @@ final class HomeViewModel: Store {
         case updateWebPages([WebPageItem])
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case addWebPage(String)
         case deleteWebPage(WebPageItem)
         case undoDeleteWebPage(String)
@@ -69,36 +69,36 @@ final class HomeViewModel: Store {
         case showModalAfterDelay(ModalType)
     }
 
-    enum AlertType {
+    public enum AlertType {
         case webPageInput
         case invalidURL
         case error
     }
 
-    enum ToastType {
+    public enum ToastType {
         case deleteWebPage
     }
 
-    enum ModalType {
+    public enum ModalType {
         case todoEditor
         case urlInputAlert
     }
 
-    enum Presentation {
+    public enum Presentation {
         case reorderTodo
         case todoEditor
         case contentPicker
         case searchView
     }
 
-    enum LoadingTarget: Hashable {
+    public enum LoadingTarget: Hashable {
         case preferences
         case recentTodos
         case webPage
         case overlay
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
     private let fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
     private let updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase
     private let addWebPageUseCase: AddWebPageUseCase
@@ -112,7 +112,7 @@ final class HomeViewModel: Store {
     private var deletedWebPageURLString: String?
     private var cancellables = Set<AnyCancellable>()
 
-    init(
+    public init(
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase,
         updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase,
         addWebPageUseCase: AddWebPageUseCase,
@@ -136,7 +136,7 @@ final class HomeViewModel: Store {
         setupNetworkObserving()
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -157,7 +157,7 @@ final class HomeViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodoCategoryPreferences:
             beginLoading(for: .preferences, mode: .immediate)

@@ -12,7 +12,7 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class TodoWindowCoordinator {
+public final class TodoWindowCoordinator {
     private let container: DIContainer
     @ObservationIgnored
     private var listViewModel: TodoListViewModel?
@@ -21,11 +21,11 @@ final class TodoWindowCoordinator {
     @ObservationIgnored
     private var cancellable: AnyCancellable?
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
     }
 
-    func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
+    public func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
         guard cancellable == nil else { return }
 
         cancellable = windowEvent.submits
@@ -34,7 +34,7 @@ final class TodoWindowCoordinator {
             }
     }
 
-    func makeListViewModel(category: TodoCategory) -> TodoListViewModel {
+    public func makeListViewModel(category: TodoCategory) -> TodoListViewModel {
         if let listViewModel,
            listViewModel.category == category {
             return listViewModel
@@ -53,7 +53,7 @@ final class TodoWindowCoordinator {
         return listViewModel
     }
 
-    func makeDetailViewModel(
+    public func makeDetailViewModel(
         todoId: String,
         showEditButton: Bool = true
     ) -> TodoDetailViewModel {

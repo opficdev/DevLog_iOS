@@ -10,4 +10,8 @@ import DevLogDomain
 
 public struct TodoIdItem: Identifiable, Hashable {
     public let id: String
+
+    public init(id: String) {
+        self.id = id
+    }
 }

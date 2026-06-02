@@ -9,20 +9,20 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class TodoDetailViewModel: Store {
-    struct State: Equatable {
-        var todo: Todo?
-        var selectedTodoId: TodoIdItem?
-        var referenceItems: [Int: TodoReferenceItem] = [:]
-        var isLoading: Bool  = false
-        var showAlert: Bool  = false
-        var showEditor: Bool  = false
-        var showInfo: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
+public final class TodoDetailViewModel: Store {
+    public struct State: Equatable {
+        public var todo: Todo?
+        public var selectedTodoId: TodoIdItem?
+        public var referenceItems: [Int: TodoReferenceItem] = [:]
+        public var isLoading: Bool  = false
+        public var showAlert: Bool  = false
+        public var showEditor: Bool  = false
+        public var showInfo: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
     }
 
-    enum Action {
+    public enum Action {
         case onAppear
         case setAlert(Bool)
         case setShowEditor(Bool)
@@ -33,19 +33,19 @@ final class TodoDetailViewModel: Store {
         case setLoading(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchTodo
         case resolveMarkdown(String)
     }
 
-    private(set) var state: State = .init()
-    let todoId: String
-    let showEditButton: Bool
+    public private(set) var state: State = .init()
+    public let todoId: String
+    public let showEditButton: Bool
     private let fetchTodoUseCase: FetchTodoByIdUseCase
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let loadingState = LoadingState()
 
-    init(
+    public init(
         fetchTodoUseCase: FetchTodoByIdUseCase,
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         todoId: String,
@@ -57,7 +57,7 @@ final class TodoDetailViewModel: Store {
         self.showEditButton = showEditButton
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -86,7 +86,7 @@ final class TodoDetailViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchTodo:
             beginLoading(.delayed)

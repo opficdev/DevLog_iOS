@@ -11,23 +11,25 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class PushNotificationListViewModel: Store {
-    struct State: Equatable {
-        var notifications: [PushNotificationItem] = []
-        var showAlert: Bool = false
-        var showToast: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var toastMessage: String = ""
-        var isLoading: Bool = false
-        var hasMore: Bool = false
-        var nextCursor: PushNotificationCursor?
-        var query: PushNotificationQuery
-        var selectedNotificationId: String?
-        var selectedTodoId: TodoIdItem?
+public final class PushNotificationListViewModel: Store {
+    public typealias TimeFilter = PushNotificationQuery.TimeFilter
+
+    public struct State: Equatable {
+        public var notifications: [PushNotificationItem] = []
+        public var showAlert: Bool = false
+        public var showToast: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var toastMessage: String = ""
+        public var isLoading: Bool = false
+        public var hasMore: Bool = false
+        public var nextCursor: PushNotificationCursor?
+        public var query: PushNotificationQuery
+        public var selectedNotificationId: String?
+        public var selectedTodoId: TodoIdItem?
     }
 
-    enum Action {
+    public enum Action {
         case fetchNotifications
         case loadNextPage
         case deleteNotification(PushNotificationItem)
@@ -48,14 +50,14 @@ final class PushNotificationListViewModel: Store {
         case selectNotification(String?)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchNotifications(PushNotificationQuery, cursor: PushNotificationCursor?)
         case delete(PushNotificationItem)
         case undoDelete(String)
         case toggleRead(String)
     }
 
-    private(set) var state: State
+    public private(set) var state: State
     private let fetchUseCase: FetchPushNotificationsUseCase
     private let deleteUseCase: DeletePushNotificationUseCase
     private let undoDeleteUseCase: UndoDeletePushNotificationUseCase
@@ -66,7 +68,7 @@ final class PushNotificationListViewModel: Store {
     private var undoNotificationId: String?
     private var cancellable: AnyCancellable?
 
-    init(
+    public init(
         fetchUseCase: FetchPushNotificationsUseCase,
         deleteUseCase: DeletePushNotificationUseCase,
         undoDeleteUseCase: UndoDeletePushNotificationUseCase,
@@ -85,7 +87,7 @@ final class PushNotificationListViewModel: Store {
         )
     }
 
-    var appliedFilterCount: Int {
+    public var appliedFilterCount: Int {
         var count = 0
         if state.query.sortOrder != .latest { count += 1 }
         if state.query.timeFilter != .none { count += 1 }
@@ -93,7 +95,7 @@ final class PushNotificationListViewModel: Store {
         return count
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -114,7 +116,7 @@ final class PushNotificationListViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchNotifications(let query, let cursor):
             if cursor == nil {
@@ -386,7 +388,7 @@ private extension PushNotificationListViewModel {
     }
 }
 
-extension PushNotificationQuery.SortOrder {
+public extension PushNotificationQuery.SortOrder {
     var title: String {
         switch self {
         case .latest: return String(localized: "push_sort_latest")
@@ -395,7 +397,7 @@ extension PushNotificationQuery.SortOrder {
     }
 }
 
-extension PushNotificationQuery.TimeFilter {
+public extension PushNotificationQuery.TimeFilter {
     var title: String {
         switch self {
         case .none:

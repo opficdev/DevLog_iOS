@@ -11,7 +11,7 @@ import DevLogDomain
 public struct SystemTodoCategoryItem: Identifiable, Hashable {
     public let systemTodoCategory: SystemTodoCategory
 
-    init(from systemTodoCategory: SystemTodoCategory) {
+    public init(from systemTodoCategory: SystemTodoCategory) {
         self.systemTodoCategory = systemTodoCategory
     }
 

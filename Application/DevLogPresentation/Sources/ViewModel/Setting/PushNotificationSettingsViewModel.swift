@@ -9,27 +9,27 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class PushNotificationSettingsViewModel: Store {
-    struct State: Equatable {
-        var pushNotificationEnable: Bool = false
-        var viewPushNotificationTime: Date = .init()
-        var sheetPushNotificationTime: Date = .init()
-        var showTimePicker: Bool = false
-        var isLoading: Bool = false
-        var sheetHeight: CGFloat = .pi
-        var showSheet: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var pushNotificationHour: Int {
+public final class PushNotificationSettingsViewModel: Store {
+    public struct State: Equatable {
+        public var pushNotificationEnable: Bool = false
+        public var viewPushNotificationTime: Date = .init()
+        public var sheetPushNotificationTime: Date = .init()
+        public var showTimePicker: Bool = false
+        public var isLoading: Bool = false
+        public var sheetHeight: CGFloat = .pi
+        public var showSheet: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var pushNotificationHour: Int {
             Calendar.current.component(.hour, from: viewPushNotificationTime)
         }
-        var pushNotificationMinute: Int {
+        public var pushNotificationMinute: Int {
             Calendar.current.component(.minute, from: viewPushNotificationTime)
         }
     }
 
-    enum Action {
+    public enum Action {
         case fetchSettings
         case setAlert(Bool)
         case setLoading(Bool)
@@ -42,18 +42,18 @@ final class PushNotificationSettingsViewModel: Store {
         case rollbackUpdate
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchPushNotificationSettings
         case updatePushNotificationSettings
     }
 
-    private(set) var state: State = .init()
+    public private(set) var state: State = .init()
     private let calendar = Calendar.current
     private let fetchPushSettingsUseCase: FetchPushSettingsUseCase
     private let updatePushSettingsUseCase: UpdatePushSettingsUseCase
     private let loadingState = LoadingState()
 
-    init(
+    public init(
         fetchPushSettingsUseCase: FetchPushSettingsUseCase,
         updatePushSettingsUseCase: UpdatePushSettingsUseCase
     ) {
@@ -61,7 +61,7 @@ final class PushNotificationSettingsViewModel: Store {
         self.updatePushSettingsUseCase = updatePushSettingsUseCase
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -105,7 +105,7 @@ final class PushNotificationSettingsViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchPushNotificationSettings:
             beginLoading(.delayed)
@@ -146,7 +146,7 @@ final class PushNotificationSettingsViewModel: Store {
     }
 }
 
-extension PushNotificationSettingsViewModel {
+public extension PushNotificationSettingsViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool

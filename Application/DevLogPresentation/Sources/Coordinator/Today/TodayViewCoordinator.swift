@@ -11,11 +11,11 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class TodayViewCoordinator {
-    let viewModel: TodayViewModel
-    let router = NavigationRouter<TodayRoute>()
+public final class TodayViewCoordinator {
+    public let viewModel: TodayViewModel
+    public let router = NavigationRouter<TodayRoute>()
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.viewModel = TodayViewModel(
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
             fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
@@ -26,7 +26,7 @@ final class TodayViewCoordinator {
         )
     }
 
-    func fetchData() {
+    public func fetchData() {
         viewModel.send(.fetchData)
     }
 }

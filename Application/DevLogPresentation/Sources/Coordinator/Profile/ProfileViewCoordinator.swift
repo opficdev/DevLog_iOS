@@ -11,13 +11,13 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class ProfileViewCoordinator {
-    let viewModel: ProfileViewModel
-    let settingViewModel: SettingViewModel
-    var router = NavigationRouter<ProfileRoute>()
+public final class ProfileViewCoordinator {
+    public let viewModel: ProfileViewModel
+    public let settingViewModel: SettingViewModel
+    public var router = NavigationRouter<ProfileRoute>()
     private let container: DIContainer
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         self.viewModel = ProfileViewModel(
             fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
@@ -38,11 +38,11 @@ final class ProfileViewCoordinator {
         )
     }
 
-    func fetchData() {
+    public func fetchData() {
         viewModel.send(.fetchData)
     }
 
-    func makeAccountViewModel() -> AccountViewModel {
+    public func makeAccountViewModel() -> AccountViewModel {
         AccountViewModel(
             fetchProvidersUseCase: container.resolve(FetchAuthProvidersUseCase.self),
             linkProviderUseCase: container.resolve(LinkAuthProviderUseCase.self),
@@ -50,14 +50,14 @@ final class ProfileViewCoordinator {
         )
     }
 
-    func makePushNotificationSettingsViewModel() -> PushNotificationSettingsViewModel {
+    public func makePushNotificationSettingsViewModel() -> PushNotificationSettingsViewModel {
         PushNotificationSettingsViewModel(
             fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self),
             updatePushSettingsUseCase: container.resolve(UpdatePushSettingsUseCase.self)
         )
     }
 
-    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
+    public func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
         TodoDetailViewModel(
             fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),

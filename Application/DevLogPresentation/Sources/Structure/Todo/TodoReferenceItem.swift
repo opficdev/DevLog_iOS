@@ -13,7 +13,7 @@ public struct TodoReferenceItem: Equatable {
     public let title: String
     public let category: TodoCategoryItem
 
-    init(from todoReference: TodoReference) {
+    public init(from todoReference: TodoReference) {
         self.id = todoReference.id
         self.title = todoReference.title
         self.category = TodoCategoryItem(from: todoReference.category)

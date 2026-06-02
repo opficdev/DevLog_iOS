@@ -6,9 +6,8 @@
 //
 
 import SwiftUI
-import DevLogDomain
 
-extension Color {
+public extension Color {
     static var randomValue: Color {
         Color(
             red: Double(Int.random(in: 0...255)) / 255,

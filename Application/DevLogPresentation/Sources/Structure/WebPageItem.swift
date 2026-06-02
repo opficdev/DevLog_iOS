@@ -12,7 +12,7 @@ public struct WebPageItem: Identifiable, Hashable {
     private let metadata: WebPage
     public var isHidden = false
 
-    init(from metadata: WebPage) {
+    public init(from metadata: WebPage) {
         self.metadata = metadata
     }
 

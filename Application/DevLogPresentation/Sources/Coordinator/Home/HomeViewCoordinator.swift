@@ -12,14 +12,14 @@ import DevLogDomain
 
 @MainActor
 @Observable
-final class HomeViewCoordinator {
-    let viewModel: HomeViewModel
-    let router = NavigationRouter<HomeRoute>()
+public final class HomeViewCoordinator {
+    public let viewModel: HomeViewModel
+    public let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
     private var cancellable: AnyCancellable?
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         self.viewModel = HomeViewModel(
             fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
@@ -34,11 +34,11 @@ final class HomeViewCoordinator {
         )
     }
 
-    func fetchData() {
+    public func fetchData() {
         viewModel.send(.fetchData)
     }
 
-    func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
+    public func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
         guard cancellable == nil else { return }
 
         cancellable = windowEvent.submits
@@ -48,11 +48,11 @@ final class HomeViewCoordinator {
             }
     }
 
-    func makeTodoManageViewModel() -> TodoManageViewModel {
+    public func makeTodoManageViewModel() -> TodoManageViewModel {
         TodoManageViewModel(viewModel.state.preferences)
     }
 
-    func makeTodoEditorViewModel(category: TodoCategory) -> TodoEditorViewModel {
+    public func makeTodoEditorViewModel(category: TodoCategory) -> TodoEditorViewModel {
         TodoEditorViewModel(
             category: category,
             fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
@@ -66,7 +66,7 @@ final class HomeViewCoordinator {
         )
     }
 
-    func makeSearchViewModel() -> SearchViewModel {
+    public func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(
             fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),

@@ -11,13 +11,13 @@ import DevLogDomain
 public final class TodoEditorWindowEvent {
     private let subject = PassthroughSubject<TodoEditorWindowSubmit, Never>()
 
-    var submits: AnyPublisher<TodoEditorWindowSubmit, Never> {
+    public var submits: AnyPublisher<TodoEditorWindowSubmit, Never> {
         subject.eraseToAnyPublisher()
     }
 
     public init() { }
 
-    func submit(
+    public func submit(
         value: TodoEditorWindowValue,
         todo: Todo
     ) {

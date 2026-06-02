@@ -11,12 +11,16 @@ import DevLogCore
 public struct ActivityKindItem: Identifiable, Hashable {
     private let activityKind: ActivityKind
 
-    init(from activityKind: ActivityKind) {
+    public init(from activityKind: ActivityKind) {
         self.activityKind = activityKind
     }
 
+    public static let created = ActivityKindItem(from: .created)
+    public static let completed = ActivityKindItem(from: .completed)
+    public static let deleted = ActivityKindItem(from: .deleted)
+
     public static var selectableItems: [ActivityKindItem] {[
-        .init(from: .created), .init(from: .completed), .init(from: .deleted) ]
+        .created, .completed, .deleted ]
     }
 
     public var id: String { activityKind.rawValue }

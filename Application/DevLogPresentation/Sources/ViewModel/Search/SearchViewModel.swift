@@ -11,22 +11,22 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class SearchViewModel: Store {
-    struct State: Equatable {
-        var isLoading: Bool = false
-        var isSearching: Bool = false
-        var searchQuery: String = ""
-        var webPages: [WebPageItem] = []
-        var todos: [TodoListItem] = []
-        var recentQueries: OrderedSet<String> = []
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var showAllTodos: Bool = false
-        var showAllWebPages: Bool = false
+public final class SearchViewModel: Store {
+    public struct State: Equatable {
+        public var isLoading: Bool = false
+        public var isSearching: Bool = false
+        public var searchQuery: String = ""
+        public var webPages: [WebPageItem] = []
+        public var todos: [TodoListItem] = []
+        public var recentQueries: OrderedSet<String> = []
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var showAllTodos: Bool = false
+        public var showAllWebPages: Bool = false
     }
 
-    enum Action {
+    public enum Action {
         case fetchWebPage([WebPageItem])
         case fetchTodos([TodoListItem])
         case addRecentQuery(String)
@@ -41,7 +41,7 @@ final class SearchViewModel: Store {
         case setShowAllWebPages(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case cancelSearch
         case debounceFetch(String)
         case fetch(String)
@@ -52,19 +52,19 @@ final class SearchViewModel: Store {
         case request
     }
 
-    private(set) var state: State = .init()
+    public private(set) var state: State = .init()
     private let fetchWebPagesUseCase: FetchWebPagesUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase
     private let updateRecentSearchQueriesUseCase: UpdateRecentSearchQueriesUseCase
     private let loadingState = LoadingState()
-    let contentsLimit: Int = 5
+    public let contentsLimit: Int = 5
 
     private let maxRecentQueries = 20
     private let searchDebounceDelay: Double = 0.4
     private var searchTasks: [SearchTaskKind: Task<Void, Never>] = [:]
 
-    init(
+    public init(
         fetchWebPagesUseCase: FetchWebPagesUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase,
@@ -77,7 +77,7 @@ final class SearchViewModel: Store {
         self.state.recentQueries = OrderedSet(fetchRecentSearchQueriesUseCase.execute())
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -142,7 +142,7 @@ final class SearchViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .cancelSearch:
             cancelSearch()

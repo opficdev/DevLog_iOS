@@ -9,22 +9,24 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class AccountViewModel: Store {
-    struct State: Equatable {
-        var currentProvider: AuthProvider?
-        var connectedProviders: [AuthProvider] = []
-        var disconnectedProviders: [AuthProvider] = []
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertType: AlertType?
-        var alertMessage: String = ""
-        var showToast: Bool = false
-        var toastType: ToastType?
-        var toastMessage: String = ""
-        var isLoading: Bool = false
+public final class AccountViewModel: Store {
+    public typealias Provider = AuthProvider
+
+    public struct State: Equatable {
+        public var currentProvider: AuthProvider?
+        public var connectedProviders: [AuthProvider] = []
+        public var disconnectedProviders: [AuthProvider] = []
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertType: AlertType?
+        public var alertMessage: String = ""
+        public var showToast: Bool = false
+        public var toastType: ToastType?
+        public var toastMessage: String = ""
+        public var isLoading: Bool = false
     }
 
-    enum Action {
+    public enum Action {
         case onAppear
         case linkWithProvider(AuthProvider)
         case unlinkFromProvider(AuthProvider)
@@ -34,31 +36,31 @@ final class AccountViewModel: Store {
         case updateProviders(currentProvider: AuthProvider?, allProviders: [AuthProvider])
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetch
         case link(AuthProvider)
         case unlink(AuthProvider)
     }
 
-    enum AlertType {
+    public enum AlertType {
         case linkEmailNotFound
         case linkEmailMismatch
         case linkCredentialAlreadyInUse
         case error
     }
 
-    enum ToastType {
+    public enum ToastType {
         case linkSuccess
         case unlinkSuccess
     }
 
-    private(set) var state: State = .init()
+    public private(set) var state: State = .init()
     private let fetchProvidersUseCase: FetchAuthProvidersUseCase
     private let linkProviderUseCase: LinkAuthProviderUseCase
     private let unlinkProviderUseCase: UnlinkAuthProviderUseCase
     private let loadingState = LoadingState()
 
-    init(
+    public init(
         fetchProvidersUseCase: FetchAuthProvidersUseCase,
         linkProviderUseCase: LinkAuthProviderUseCase,
         unlinkProviderUseCase: UnlinkAuthProviderUseCase
@@ -68,7 +70,7 @@ final class AccountViewModel: Store {
         self.unlinkProviderUseCase = unlinkProviderUseCase
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -96,12 +98,12 @@ final class AccountViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetch:
             Task {
                 do {
-                    let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
+                    let(currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))
@@ -115,7 +117,7 @@ final class AccountViewModel: Store {
                     try await linkProviderUseCase.execute(provider)
                     send(.setToast(isPresented: true, type: .linkSuccess))
 
-                    let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
+                    let(currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
                 } catch {
                     if error.isSocialLoginCancelled { return }
@@ -130,7 +132,7 @@ final class AccountViewModel: Store {
                     try await unlinkProviderUseCase.execute(provider)
                     send(.setToast(isPresented: true, type: .unlinkSuccess))
                     
-                    let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
+                    let(currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
                 } catch {
                     send(.setAlert(isPresented: true, type: .error))

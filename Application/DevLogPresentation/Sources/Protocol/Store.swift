@@ -20,7 +20,7 @@ public protocol Store: AnyObject {
     func run(_ effect: SideEffect)
 }
 
-extension Store {
+public extension Store {
     func send(_ action: Action) {
         let sideEffects = reduce(with: action)
         sideEffects.forEach(run)

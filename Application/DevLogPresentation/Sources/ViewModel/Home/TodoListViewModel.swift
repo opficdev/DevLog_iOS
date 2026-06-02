@@ -10,25 +10,29 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class TodoListViewModel: Store {
-    struct State: Equatable {
-        var todos: [TodoListItem] = []
-        var searchText: String = ""
-        var searchResults: [TodoListItem] = []
-        var showEditor: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
-        var isSearching: Bool = false
-        var showAllSearchResults: Bool = false
-        var query: TodoQuery
-        var isLoading: Bool = false
-        var showToast: Bool = false
-        var toastMessage: String = ""
-        var hasMore: Bool = false
+public final class TodoListViewModel: Store {
+    public typealias SortTarget = TodoQuery.SortTarget
+    public typealias SortOrder = TodoQuery.SortOrder
+    public typealias CompletionFilter = TodoQuery.CompletionFilter
+
+    public struct State: Equatable {
+        public var todos: [TodoListItem] = []
+        public var searchText: String = ""
+        public var searchResults: [TodoListItem] = []
+        public var showEditor: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
+        public var isSearching: Bool = false
+        public var showAllSearchResults: Bool = false
+        public var query: TodoQuery
+        public var isLoading: Bool = false
+        public var showToast: Bool = false
+        public var toastMessage: String = ""
+        public var hasMore: Bool = false
     }
 
-    enum Action {
+    public enum Action {
         // User
         case refresh
         case setAlert(Bool)
@@ -63,7 +67,7 @@ final class TodoListViewModel: Store {
         case setHasMore(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case cancelSearch
         case debounceSearch(String)
         case fetch
@@ -80,8 +84,8 @@ final class TodoListViewModel: Store {
         case request
     }
 
-    let category: TodoCategory
-    private(set) var state: State
+    public let category: TodoCategory
+    public private(set) var state: State
     private let fetchTodosUseCase: FetchTodosUseCase
     private let fetchTodoByIdUseCase: FetchTodoByIdUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
@@ -94,7 +98,7 @@ final class TodoListViewModel: Store {
     private var searchTasks: [SearchTaskKind: Task<Void, Never>] = [:]
     private let searchDebounceDelay: Double = 0.4
 
-    init(
+    public init(
         fetchTodosUseCase: FetchTodosUseCase,
         fetchTodoByIdUseCase: FetchTodoByIdUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
@@ -115,9 +119,9 @@ final class TodoListViewModel: Store {
         )
     }
 
-    let searchResultsLimit = 5
+    public let searchResultsLimit = 5
 
-    var appliedFilterCount: Int {
+    public var appliedFilterCount: Int {
         var count = 0
         if state.query.sortTarget != .createdAt { count += 1 }
         if state.query.sortOrder != .latest { count += 1 }
@@ -126,7 +130,7 @@ final class TodoListViewModel: Store {
         return count
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -149,7 +153,7 @@ final class TodoListViewModel: Store {
     }
 
     // swiftlint:disable function_body_length
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .cancelSearch:
             cancelSearch()
@@ -467,7 +471,7 @@ private extension TodoListViewModel {
     }
 }
 
-extension TodoQuery.SortTarget {
+public extension TodoQuery.SortTarget {
     var title: String {
         switch self {
         case .createdAt:
@@ -484,7 +488,7 @@ extension TodoQuery.SortTarget {
     }
 }
 
-extension TodoQuery.SortOrder {
+public extension TodoQuery.SortOrder {
     var title: String {
         switch self {
         case .latest:
@@ -495,7 +499,7 @@ extension TodoQuery.SortOrder {
     }
 }
 
-extension TodoQuery.CompletionFilter {
+public extension TodoQuery.CompletionFilter {
     var title: String {
         switch self {
         case .all:

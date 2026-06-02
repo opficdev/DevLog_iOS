@@ -11,7 +11,7 @@ import DevLogDomain
 public struct UserTodoCategoryItem: Identifiable, Hashable {
     public let userTodoCategory: UserTodoCategory
 
-    init(from userTodoCategory: UserTodoCategory) {
+    public init(from userTodoCategory: UserTodoCategory) {
         self.userTodoCategory = userTodoCategory
     }
 

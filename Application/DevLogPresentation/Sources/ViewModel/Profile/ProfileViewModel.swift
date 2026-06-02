@@ -11,29 +11,29 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class ProfileViewModel: Store {
-    struct State: Equatable {
-        var name: String = ""
-        var email: String = ""
-        var isNetworkConnected: Bool = true
-        var isLoading: Bool = false
-        var statusMessage: String = ""
-        var avatarURL: URL?
-        var earliestQuarterStart: Date?
-        var selectedQuarterStart: Date?
-        var showQuarterPicker: Bool = false
-        var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
-        var activityQuarter: HeatmapQuarter?
-        var dayActivitiesByDate: [Date: [HeatmapActivityItem]] = [:]
-        var selectedActivityKinds: Set<ActivityKind> = [.created, .completed, .deleted]
-        var selectedDay: HeatmapDay?
-        var showDoneButton: Bool = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertMessage: String = ""
+public final class ProfileViewModel: Store {
+    public struct State: Equatable {
+        public var name: String = ""
+        public var email: String = ""
+        public var isNetworkConnected: Bool = true
+        public var isLoading: Bool = false
+        public var statusMessage: String = ""
+        public var avatarURL: URL?
+        public var earliestQuarterStart: Date?
+        public var selectedQuarterStart: Date?
+        public var showQuarterPicker: Bool = false
+        public var selectedQuarterPickerYear = Calendar.current.component(.year, from: Date())
+        public var activityQuarter: HeatmapQuarter?
+        public var dayActivitiesByDate: [Date: [HeatmapActivityItem]] = [:]
+        public var selectedActivityKinds: Set<ActivityKind> = [.created, .completed, .deleted]
+        public var selectedDay: HeatmapDay?
+        public var showDoneButton: Bool = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertMessage: String = ""
     }
 
-    enum Action {
+    public enum Action {
         case fetchData, refresh
         case networkStatusChanged(Bool)
         case setLoading(Bool)
@@ -58,14 +58,18 @@ final class ProfileViewModel: Store {
         case updateStatusTextFieldFocus(Bool)
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case fetchUserData
         case fetchActivityQuarter(Date)
         case updateStatusMessage(String)
         case updateHeatmapActivityKinds(Set<ActivityKind>)
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
+    public var selectedActivityKindItems: Set<ActivityKindItem> {
+        Set(state.selectedActivityKinds.map(ActivityKindItem.init(from:)))
+    }
+
     private let fetchUserDataUseCase: FetchUserDataUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
@@ -76,7 +80,7 @@ final class ProfileViewModel: Store {
     private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
 
-    init(
+    public init(
         fetchUserDataUseCase: FetchUserDataUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
@@ -93,8 +97,33 @@ final class ProfileViewModel: Store {
         setupNetworkObserving()
     }
 
+    public func isSelected(_ activityKindItem: ActivityKindItem) -> Bool {
+        guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+            return false
+        }
+
+        return state.selectedActivityKinds.contains(activityKind)
+    }
+
+    public func isOnlySelected(_ activityKindItem: ActivityKindItem) -> Bool {
+        guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+            return false
+        }
+
+        return state.selectedActivityKinds.count == 1
+            && state.selectedActivityKinds.contains(activityKind)
+    }
+
+    public func toggle(_ activityKindItem: ActivityKindItem) {
+        guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+            return
+        }
+
+        send(.toggleActivityKind(activityKind))
+    }
+
     // swiftlint:disable cyclomatic_complexity
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
         switch action {
@@ -191,7 +220,7 @@ final class ProfileViewModel: Store {
     }
     // swiftlint:enable cyclomatic_complexity
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .fetchUserData:
             Task {
@@ -263,7 +292,7 @@ private struct HeatmapActivityEntry {
     var activityKinds: Set<ActivityKind>
 }
 
-extension ProfileViewModel {
+public extension ProfileViewModel {
     private func setupNetworkObserving() {
         networkConnectivityUseCase.observe()
             .receive(on: DispatchQueue.main)

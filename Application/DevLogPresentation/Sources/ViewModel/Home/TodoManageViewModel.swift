@@ -9,15 +9,15 @@ import SwiftUI
 import DevLogDomain
 
 @Observable
-final class TodoManageViewModel: Store {
-    struct State: Equatable {
-        var preferences: [TodoCategoryItem]
-        var category: TodoCategoryItem?
-        var showSheet: Bool = false
-        var showAlert: Bool = false
+public final class TodoManageViewModel: Store {
+    public struct State: Equatable {
+        public var preferences: [TodoCategoryItem]
+        public var category: TodoCategoryItem?
+        public var showSheet: Bool = false
+        public var showAlert: Bool = false
     }
 
-    enum Action {
+    public enum Action {
         case tapAddUserCategory
         case moveItem(from: IndexSet, target: Int)
         case tapItem(TodoCategoryItem)
@@ -32,11 +32,11 @@ final class TodoManageViewModel: Store {
         case saveUserCategory
     }
 
-    enum SideEffect { }
+    public enum SideEffect { }
 
-    private(set) var state: State
+    public private(set) var state: State
 
-    var isEditing: Bool {
+    public var isEditing: Bool {
         guard let categoryItem = state.category else {
             return false
         }
@@ -44,19 +44,19 @@ final class TodoManageViewModel: Store {
         return state.preferences.contains { $0.id == categoryItem.id }
     }
 
-    var navigationTitle: String {
+    public var navigationTitle: String {
         isEditing
             ? String(localized: "todo_manage_edit_category_title")
             : String(localized: "todo_manage_add_category_title")
     }
 
-    var submitTitle: String {
+    public var submitTitle: String {
         isEditing
             ? String(localized: "todo_manage_save")
             : String(localized: "todo_add")
     }
 
-    var placeholder: String {
+    public var placeholder: String {
         guard
             let item = state.category,
             case .user(let category) = item.category
@@ -67,7 +67,7 @@ final class TodoManageViewModel: Store {
         return category.name
     }
 
-    var categoryNameCountText: String {
+    public var categoryNameCountText: String {
         guard
             let item = state.category,
             case .user(let category) = item.category
@@ -78,7 +78,7 @@ final class TodoManageViewModel: Store {
         return "\(category.name.count)/20"
     }
 
-    var canSubmitUserCategory: Bool {
+    public var canSubmitUserCategory: Bool {
         guard
             let item = state.category,
             case .user(let category) = item.category
@@ -119,11 +119,11 @@ final class TodoManageViewModel: Store {
         return true
     }
 
-    init(_ preferences: [TodoCategoryItem]) {
+    public init(_ preferences: [TodoCategoryItem]) {
         self.state = State(preferences: preferences)
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
 
         switch action {

@@ -8,7 +8,7 @@
 import AuthenticationServices
 import Foundation
 
-extension Error {
+public extension Error {
     var isSocialLoginCancelled: Bool {
         switch self {
         case let authError as ASAuthorizationError:

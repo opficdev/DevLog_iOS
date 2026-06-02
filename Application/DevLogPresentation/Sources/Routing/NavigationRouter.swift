@@ -9,14 +9,16 @@ import SwiftUI
 import DevLogDomain
 
 @Observable
-final class NavigationRouter<Route: Hashable> {
-    var path: [Route] = []
+public final class NavigationRouter<Route: Hashable> {
+    public var path: [Route] = []
 
-    var root: Route? {
+    public init() { }
+
+    public var root: Route? {
         path.first
     }
 
-    var detailPath: [Route] {
+    public var detailPath: [Route] {
         get {
             Array(path.dropFirst())
         }
@@ -29,11 +31,11 @@ final class NavigationRouter<Route: Hashable> {
         }
     }
 
-    func replace(with route: Route) {
+    public func replace(with route: Route) {
         path = [route]
     }
 
-    func push(_ route: Route) {
+    public func push(_ route: Route) {
         path.append(route)
     }
 }

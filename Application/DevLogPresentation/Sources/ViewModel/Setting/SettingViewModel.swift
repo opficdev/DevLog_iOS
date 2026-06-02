@@ -11,19 +11,21 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class SettingViewModel: Store {
-    struct State: Equatable {
-        var theme: SystemTheme = .automatic
-        var dirSize: Int64 = 0
-        var isNetworkConnected = true
-        var isLoading = false
-        var showAlert: Bool = false
-        var alertTitle: String = ""
-        var alertType: AlertType?
-        var alertMessage: String = ""
+public final class SettingViewModel: Store {
+    public typealias Theme = SystemTheme
+
+    public struct State: Equatable {
+        public var theme: SystemTheme = .automatic
+        public var dirSize: Int64 = 0
+        public var isNetworkConnected = true
+        public var isLoading = false
+        public var showAlert: Bool = false
+        public var alertTitle: String = ""
+        public var alertType: AlertType?
+        public var alertMessage: String = ""
     }
 
-    enum Action {
+    public enum Action {
         case networkStatusChanged(Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case setDirSize(Int64)
@@ -36,18 +38,18 @@ final class SettingViewModel: Store {
         case confirmRemoveCache
     }
 
-    enum SideEffect {
+    public enum SideEffect {
         case clearWebPageImageDirectory
         case deleteAuth
         case fetchWebPageImageDirSize
         case signOut
     }
 
-    enum AlertType {
+    public enum AlertType {
         case signOut, deleteAuth, error, removeCache
     }
 
-    private(set) var state = State()
+    public private(set) var state = State()
     private let deleteAuthuseCase: DeleteAuthUseCase
     private let signOutUseCase: SignOutUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
@@ -58,11 +60,11 @@ final class SettingViewModel: Store {
     private let loadingState = LoadingState()
     private var cancellables = Set<AnyCancellable>()
 
-    let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    let appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "APPSTORE_URL") as? String
-    let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
+    public let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    public let appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "APPSTORE_URL") as? String
+    public let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
 
-    init(
+    public init(
         deleteAuthUseCase: DeleteAuthUseCase,
         signOutUseCase: SignOutUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
@@ -82,7 +84,7 @@ final class SettingViewModel: Store {
         setupThemeMonitoring()
     }
 
-    func reduce(with action: Action) -> [SideEffect] {
+    public func reduce(with action: Action) -> [SideEffect] {
         var state = self.state
         var effects: [SideEffect] = []
 
@@ -115,7 +117,7 @@ final class SettingViewModel: Store {
         return effects
     }
 
-    func run(_ effect: SideEffect) {
+    public func run(_ effect: SideEffect) {
         switch effect {
         case .clearWebPageImageDirectory:
             Task {
