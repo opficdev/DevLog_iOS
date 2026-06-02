@@ -4,8 +4,8 @@ import ProjectDescriptionHelpers
 let project = Project(
     name: "DevLogWidgetExtension",
     options: .options(
-        disableBundleAccessors: false,
-        disableSynthesizedResourceAccessors: false
+        disableBundleAccessors: true,
+        disableSynthesizedResourceAccessors: true
     ),
     settings: .devlogProject(versionXcconfigPath: "../../Application/Shared/Version.xcconfig"),
     targets: [
@@ -14,15 +14,7 @@ let project = Project(
             destinations: .iOS,
             product: .appExtension,
             bundleId: "opfic.DevLog.DevLogWidget",
-            infoPlist: .extendingDefault(
-                with: [
-                    "CFBundleShortVersionString": "$(MARKETING_VERSION)",
-                    "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
-                    "NSExtension": [
-                        "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
-                    ],
-                ]
-            ),
+            infoPlist: .file(path: "Resource/Info.plist"),
             sources: [
                 .glob(
                     "**/*.swift",

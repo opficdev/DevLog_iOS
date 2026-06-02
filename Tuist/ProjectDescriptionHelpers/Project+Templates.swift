@@ -5,6 +5,8 @@ public extension Project {
         name: String,
         bundleId: String,
         versionXcconfigPath: Path,
+        frameworkInfoPlistPath: Path,
+        testsInfoPlistPath: Path,
         packages: [Package] = DevLogPackages.lintOnlyPackages,
         dependencies: [TargetDependency] = [],
         hasTests: Bool
@@ -15,7 +17,7 @@ public extension Project {
                 destinations: .iOS,
                 product: .framework,
                 bundleId: bundleId,
-                infoPlist: .default,
+                infoPlist: .file(path: frameworkInfoPlistPath),
                 sources: ["Sources/**/*.swift"],
                 dependencies: dependencies + [DevLogPackages.swiftLintPlugin],
                 settings: .devlog(versionXcconfigPath: versionXcconfigPath)
@@ -29,7 +31,7 @@ public extension Project {
                     destinations: .iOS,
                     product: .unitTests,
                     bundleId: "\(bundleId)Tests",
-                    infoPlist: .default,
+                    infoPlist: .file(path: testsInfoPlistPath),
                     sources: ["Tests/**/*.swift"],
                     dependencies: [
                         .target(name: name),

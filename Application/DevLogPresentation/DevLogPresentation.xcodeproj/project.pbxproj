@@ -138,7 +138,6 @@
 		0EB658B8B1246F4399493FE3 /* TodoListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListItem.swift; sourceTree = "<group>"; };
 		10169ED43745C8286BAA560A /* UserTodoCategoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTodoCategoryItem.swift; sourceTree = "<group>"; };
 		14DA5CF22287DA889A033F8E /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
-		160AF2C6625745DEFB4DB23C /* DevLogPresentationTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogPresentationTests-Info.plist"; sourceTree = "<group>"; };
 		1B6F1C309AC57614AD630F79 /* Error+SocialLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+SocialLogin.swift"; sourceTree = "<group>"; };
 		2195BF2BC362FB4BD570C915 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		252057C930A70DC1D5674EE5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -174,6 +173,7 @@
 		70A888BE16FA57ED1309E014 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		70B652BF58D45805A57ECCE0 /* HeatmapDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapDay.swift; sourceTree = "<group>"; };
 		7236EA0D4F011DB8D2922A65 /* HomeViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewCoordinator.swift; sourceTree = "<group>"; };
+		75082DF809488C7ACB3D75BD /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Framework-Info.plist"; sourceTree = "<group>"; };
 		79043B9D995BD5D987320FE6 /* EnvironmentValues+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+.swift"; sourceTree = "<group>"; };
 		7DDABB53271F38BCC892B6DD /* TodoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewModel.swift; sourceTree = "<group>"; };
 		7FA597F8A6C68F9460DE11FC /* TodoEditorWindowValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEditorWindowValue.swift; sourceTree = "<group>"; };
@@ -196,7 +196,6 @@
 		B81F9AF1E3CEC36D194A916C /* SettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewModel.swift; sourceTree = "<group>"; };
 		B8C462E5D83C6B639A66ED26 /* LoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginButton.swift; sourceTree = "<group>"; };
 		BA1D8AFC51309CDFB5962985 /* WebItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebItemRow.swift; sourceTree = "<group>"; };
-		BAD66EB3834CFD3D64831511 /* DevLogPresentation-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogPresentation-Info.plist"; sourceTree = "<group>"; };
 		BF0435F01417FE17DE757ADB /* TodoWindowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoWindowCoordinator.swift; sourceTree = "<group>"; };
 		C0CBB0EEB3B15A4BE2EF9641 /* SystemTodoCategoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemTodoCategoryItem.swift; sourceTree = "<group>"; };
 		C25193961AAF03B736D8BA4D /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -219,6 +218,7 @@
 		F6D5BDBC6990696C3FA5B22A /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		FB82F4B31B49736F70F50EE7 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		FCFF8EE1B8855BA6B7BC315F /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		FE61399BC82A4181913F8586 /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
 		FE62ED6DF757AF15ACBB2E07 /* PushNotificationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationListView.swift; sourceTree = "<group>"; };
 		FF52D6EE30673D682147FAFE /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -331,6 +331,15 @@
 			path = Todo;
 			sourceTree = "<group>";
 		};
+		498AD95ACEF0FEDDF6247FA2 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				75082DF809488C7ACB3D75BD /* Framework-Info.plist */,
+				FE61399BC82A4181913F8586 /* UnitTests-Info.plist */,
+			);
+			path = InfoPlists;
+			sourceTree = "<group>";
+		};
 		4D616118490727A8BF1F8245 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -380,14 +389,6 @@
 				BF0435F01417FE17DE757ADB /* TodoWindowCoordinator.swift */,
 			);
 			path = Home;
-			sourceTree = "<group>";
-		};
-		662F424B1BAF5366B2AE858C /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				9105D8FAAC29C3CC853C4FFB /* InfoPlists */,
-			);
-			path = Derived;
 			sourceTree = "<group>";
 		};
 		7530E5897034E53A8917ABEF /* Search */ = {
@@ -444,15 +445,6 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
-		9105D8FAAC29C3CC853C4FFB /* InfoPlists */ = {
-			isa = PBXGroup;
-			children = (
-				BAD66EB3834CFD3D64831511 /* DevLogPresentation-Info.plist */,
-				160AF2C6625745DEFB4DB23C /* DevLogPresentationTests-Info.plist */,
-			);
-			path = InfoPlists;
-			sourceTree = "<group>";
-		};
 		9304DF6054A93BFD4F17E794 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -504,7 +496,6 @@
 		D68750D8827585A7F938F99E /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				662F424B1BAF5366B2AE858C /* Derived */,
 				FF7A52F8B2FCBBE98267FD8D /* Shared */,
 				4D616118490727A8BF1F8245 /* Sources */,
 				BF5F3862615F56298F9D9B7B /* Tests */,
@@ -561,6 +552,7 @@
 		FF7A52F8B2FCBBE98267FD8D /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				498AD95ACEF0FEDDF6247FA2 /* InfoPlists */,
 				ACA48428342FE3040FE708BE /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -793,7 +785,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPresentation-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -896,7 +888,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPresentationTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -931,7 +923,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPresentationTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -967,7 +959,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPresentation-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

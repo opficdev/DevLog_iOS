@@ -56,16 +56,16 @@
 
 /* Begin PBXFileReference section */
 		0864EAB48EFDCECD09BA9AFA /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		33C87ABA4DFD7BDFF54D9FBC /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
 		36E1B7DD130F0182BB92F551 /* DevLogPersistenceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogPersistenceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3DCA6F3509EB1DBCB1DEB2FA /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		61609BCD51A06D5B6369EEFF /* WebPageImageStoreImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPageImageStoreImpl.swift; sourceTree = "<group>"; };
 		67E63EE51A2809585706E7C8 /* UserDefaultsStoreImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStoreImpl.swift; sourceTree = "<group>"; };
 		681B0BDCB9C473C2336AE4B7 /* ThemeStoreImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStoreImpl.swift; sourceTree = "<group>"; };
-		6DA4FDF2D82CA9A9D5DD4A5D /* DevLogPersistence-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogPersistence-Info.plist"; sourceTree = "<group>"; };
 		73BB1CA638149B5B718B9AE4 /* WidgetSnapshotPreferenceStoreImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotPreferenceStoreImpl.swift; sourceTree = "<group>"; };
 		83A8962496BF1CA78D4ABE2A /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
-		934C769B9A40787A8D555F86 /* DevLogPersistenceTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogPersistenceTests-Info.plist"; sourceTree = "<group>"; };
 		A4FBDCAD4BC18FBB17A64116 /* PersistenceAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceAssembler.swift; sourceTree = "<group>"; };
+		AFBD36ED3CDDCF138DEBFDC2 /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Framework-Info.plist"; sourceTree = "<group>"; };
 		B41E73CA1D51BCBE701B60ED /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC85B2119462F59387CFA027 /* WidgetSnapshotPreferenceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotPreferenceStoreTests.swift; sourceTree = "<group>"; };
 		CB91A62281A05241CCE70F0F /* WidgetSnapshotUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotUpdaterTests.swift; sourceTree = "<group>"; };
@@ -95,11 +95,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		19D33E2832184C60B063D358 /* InfoPlists */ = {
+		0762FD8344B47602C2BD8302 /* InfoPlists */ = {
 			isa = PBXGroup;
 			children = (
-				6DA4FDF2D82CA9A9D5DD4A5D /* DevLogPersistence-Info.plist */,
-				934C769B9A40787A8D555F86 /* DevLogPersistenceTests-Info.plist */,
+				AFBD36ED3CDDCF138DEBFDC2 /* Framework-Info.plist */,
+				33C87ABA4DFD7BDFF54D9FBC /* UnitTests-Info.plist */,
 			);
 			path = InfoPlists;
 			sourceTree = "<group>";
@@ -123,18 +123,9 @@
 			path = Persistence;
 			sourceTree = "<group>";
 		};
-		438538490731340CEE8ADF07 /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				19D33E2832184C60B063D358 /* InfoPlists */,
-			);
-			path = Derived;
-			sourceTree = "<group>";
-		};
 		46CEBA7CE03919D86A1B7BF5 /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				438538490731340CEE8ADF07 /* Derived */,
 				C0AA61EC9CD835C0115AFC98 /* Shared */,
 				971C392A1B5366C2448F0DE8 /* Sources */,
 				8952496A5234B356E0680EB5 /* Tests */,
@@ -192,6 +183,7 @@
 		C0AA61EC9CD835C0115AFC98 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				0762FD8344B47602C2BD8302 /* InfoPlists */,
 				83A8962496BF1CA78D4ABE2A /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -345,7 +337,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPersistence-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -379,7 +371,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPersistenceTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -551,7 +543,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPersistence-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -589,7 +581,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogPersistenceTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
