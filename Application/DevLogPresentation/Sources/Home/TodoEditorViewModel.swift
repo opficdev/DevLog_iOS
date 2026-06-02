@@ -91,13 +91,14 @@ final class TodoEditorViewModel: Store {
         case setTitle(String)
         case setCategories([TodoCategoryItem])
         case setReferenceItems([Int: TodoReferenceItem])
-        case upsertTodo(Todo)
+        case upsertTodo
     }
 
     enum SideEffect {
         case fetchCategories
         case resolveMarkdown(String)
-        case upsertTodo(Todo)
+        case createTodo(TodoDraft)
+        case updateTodo(Todo)
     }
 
     private(set) var state = State()
@@ -106,7 +107,8 @@ final class TodoEditorViewModel: Store {
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase?
-    private let onUpsertSuccess: ((Todo) -> Void)?
+    private let onCreateSuccess: (() -> Void)?
+    private let onUpdateSuccess: ((Todo) -> Void)?
     private let id: String
     private let isCompleted: Bool
     private let isChecked: Bool
@@ -142,13 +144,14 @@ final class TodoEditorViewModel: Store {
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
-        onUpsertSuccess: ((Todo) -> Void)? = nil
+        onCreateSuccess: (() -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-        self.onUpsertSuccess = onUpsertSuccess
+        self.onCreateSuccess = onCreateSuccess
+        self.onUpdateSuccess = nil
         self.id = UUID().uuidString
         self.isCompleted = false
         self.isChecked = false
@@ -167,13 +170,14 @@ final class TodoEditorViewModel: Store {
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
-        onUpsertSuccess: ((Todo) -> Void)? = nil
+        onUpdateSuccess: ((Todo) -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-        self.onUpsertSuccess = onUpsertSuccess
+        self.onCreateSuccess = nil
+        self.onUpdateSuccess = onUpdateSuccess
         self.id = todo.id
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -243,8 +247,12 @@ final class TodoEditorViewModel: Store {
             state.categories = categories
         case .setReferenceItems(let items):
             state.referenceItems = items
-        case .upsertTodo(let todo):
-            effects = [.upsertTodo(todo)]
+        case .upsertTodo:
+            if originalDraft == nil {
+                effects = [.createTodo(makeTodoDraft())]
+            } else if let todo = makeTodo() {
+                effects = [.updateTodo(todo)]
+            }
         }
 
         if self.state != state { self.state = state }
@@ -276,16 +284,25 @@ final class TodoEditorViewModel: Store {
 
                 send(.setReferenceItems(referenceItems))
             }
-        case .upsertTodo(let todo):
+        case .createTodo(let todoDraft):
+            send(.setLoading(true))
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    try await upsertTodoUseCase.execute(todoDraft)
+                    trackAnalyticsEventUseCase?.execute(.todoCreate)
+                    onCreateSuccess?()
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .updateTodo(let todo):
             send(.setLoading(true))
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     try await upsertTodoUseCase.execute(todo)
-                    if originalDraft == nil {
-                        trackAnalyticsEventUseCase?.execute(.todoCreate)
-                    }
-                    onUpsertSuccess?(todo)
+                    onUpdateSuccess?(todo)
                 } catch {
                     send(.setAlert(true))
                 }
@@ -321,17 +338,36 @@ extension TodoEditorViewModel {
         state.showAlert = isPresented
     }
 
-    func makeTodo() -> Todo {
+    private func makeTodoDraft() -> TodoDraft {
+        let date = Date()
+        return TodoDraft(
+            id: self.id,
+            isPinned: state.isPinned,
+            isCompleted: state.isCompleted,
+            isChecked: self.isChecked,
+            title: state.title,
+            content: state.content,
+            createdAt: date,
+            updatedAt: date,
+            completedAt: state.completedAt,
+            dueDate: state.dueDate,
+            tags: state.tags.map { $0 },
+            category: state.category.category
+        )
+    }
+
+    private func makeTodo() -> Todo? {
+        guard let number, let createdAt else { return nil }
         let date = Date()
         return Todo(
             id: self.id,
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
-            number: self.number,
+            number: number,
             title: state.title,
             content: state.content,
-            createdAt: self.createdAt ?? date,
+            createdAt: createdAt,
             updatedAt: date,
             completedAt: state.completedAt,
             deletedAt: self.deletedAt,

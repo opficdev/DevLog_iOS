@@ -43,7 +43,8 @@ final class HomeViewCoordinator {
 
         cancellable = windowEvent.submits
             .sink { [weak self] submit in
-                guard submit.value.matchesCreate(source: .home) else { return }
+                guard case .create(let value) = submit,
+                      value.matchesCreate(source: .home) else { return }
                 self?.viewModel.send(.fetchData)
             }
     }
@@ -59,7 +60,7 @@ final class HomeViewCoordinator {
             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
             upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
             trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-            onUpsertSuccess: { [weak self] _ in
+            onCreateSuccess: { [weak self] in
                 self?.viewModel.send(.setPresentation(.todoEditor, false))
                 self?.viewModel.send(.fetchData)
             }

@@ -87,7 +87,7 @@ struct TodoListView: View {
                     fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                     upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                     trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                    onUpsertSuccess: { _ in
+                    onCreateSuccess: {
                         viewModel.send(.setShowEditor(false))
                         viewModel.send(.refresh)
                     }

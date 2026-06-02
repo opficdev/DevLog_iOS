@@ -18,12 +18,12 @@ struct TodoDetailView: View {
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
-            if let todo = viewModel.state.todo, let number = todo.number {
+            if let todo = viewModel.state.todo {
                 TodoDetailContentView(
                     title: todo.title,
                     content: todo.content,
                     referenceItems: viewModel.state.referenceItems,
-                    number: number,
+                    number: todo.number,
                     onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                 )
             } else if viewModel.state.isLoading {
@@ -69,7 +69,7 @@ struct TodoDetailView: View {
                         fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpsertSuccess: { todo in
+                        onUpdateSuccess: { todo in
                             viewModel.send(.setShowEditor(false))
                             viewModel.send(.setTodo(todo))
                         }

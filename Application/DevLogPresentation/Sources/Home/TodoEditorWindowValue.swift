@@ -77,7 +77,7 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
     private let isPinned: Bool
     private let isCompleted: Bool
     private let isChecked: Bool
-    private let number: Int?
+    private let number: Int
     private let title: String
     private let content: String
     private let createdAt: Date
@@ -136,10 +136,9 @@ public struct TodoEditorWindowTodo: Codable, Hashable {
     }
 }
 
-struct TodoEditorWindowSubmit: Equatable {
-    let id = UUID()
-    let value: TodoEditorWindowValue
-    let todo: Todo
+enum TodoEditorWindowSubmit: Equatable {
+    case create(TodoEditorWindowValue)
+    case update(TodoEditorWindowValue, Todo)
 }
 
 extension TodoEditorWindowValue {
