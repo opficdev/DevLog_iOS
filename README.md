@@ -59,7 +59,7 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 <table>
   <tr>
     <td align="center">
-      <img alt="App Architecture" src="./docs/App.png" />
+      <img alt="App Architecture" src="./docs/graph.png" />
     </td>
   </tr>
   <tr>
