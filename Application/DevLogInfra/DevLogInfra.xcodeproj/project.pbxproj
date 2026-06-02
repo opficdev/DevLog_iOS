@@ -89,10 +89,9 @@
 		391C037941B9566A1A06BD71 /* InfraLayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfraLayerError.swift; sourceTree = "<group>"; };
 		42C2266B98E4E0E4794D0FB6 /* GoogleAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
 		4F9DAE0DF4CFCCB45ED78C3B /* FirebaseAnalyticsServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAnalyticsServiceImpl.swift; sourceTree = "<group>"; };
+		509C78A2A30A17A92C4D4B52 /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Framework-Info.plist"; sourceTree = "<group>"; };
 		5287082C7DD223F75C2096AA /* FirebaseAuthUser+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FirebaseAuthUser+.swift"; sourceTree = "<group>"; };
-		5523A73C1408F0589CAD56E5 /* DevLogInfra-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogInfra-Info.plist"; sourceTree = "<group>"; };
 		60FACB11A58A248F2A8ACBFA /* AppleAuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthResponse.swift; sourceTree = "<group>"; };
-		6767A842281FFB48E84E4477 /* DevLogInfraTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogInfraTests-Info.plist"; sourceTree = "<group>"; };
 		7397B6D565BFD4F478C9A0F1 /* PushNotificationServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationServiceImpl.swift; sourceTree = "<group>"; };
 		8C19216926B23327988E800C /* AppleAuthenticationServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthenticationServiceImpl.swift; sourceTree = "<group>"; };
 		911C5B4FDB03FA96CF490F75 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,6 +101,7 @@
 		B46C79C081261CD04F022CD3 /* AuthServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceImpl.swift; sourceTree = "<group>"; };
 		B58AF419649E8A0DA6FD4F1B /* WebPageServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPageServiceImpl.swift; sourceTree = "<group>"; };
 		C914173D4BA608F536B60E67 /* NWPathConnectivityProviderImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NWPathConnectivityProviderImpl.swift; sourceTree = "<group>"; };
+		D8929D3952D15EF92AA1A14C /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
 		DC5336AF5B66270AEA3DD14B /* FirebaseFunctions+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FirebaseFunctions+.swift"; sourceTree = "<group>"; };
 		E17E8E43BF39FC2AFC63EBD1 /* PushMessagingServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushMessagingServiceImpl.swift; sourceTree = "<group>"; };
 		EF4875B9D9967FAA393674EA /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,19 +150,9 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
-		0E57DEFE359015144E7A6399 /* InfoPlists */ = {
-			isa = PBXGroup;
-			children = (
-				5523A73C1408F0589CAD56E5 /* DevLogInfra-Info.plist */,
-				6767A842281FFB48E84E4477 /* DevLogInfraTests-Info.plist */,
-			);
-			path = InfoPlists;
-			sourceTree = "<group>";
-		};
 		28E23892AA91FF8556788ED0 /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				38B36204AD866BD829DF7B15 /* Derived */,
 				67934A4943C3545E22BFFDD6 /* Shared */,
 				7BD7A682F58CD1772921A25B /* Sources */,
 			);
@@ -177,17 +167,10 @@
 			);
 			sourceTree = "<group>";
 		};
-		38B36204AD866BD829DF7B15 /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				0E57DEFE359015144E7A6399 /* InfoPlists */,
-			);
-			path = Derived;
-			sourceTree = "<group>";
-		};
 		67934A4943C3545E22BFFDD6 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F4CA7CA990820D5928A5E011 /* InfoPlists */,
 				A2D88B6129964F1719A14917 /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -245,6 +228,15 @@
 				B58AF419649E8A0DA6FD4F1B /* WebPageServiceImpl.swift */,
 			);
 			path = Service;
+			sourceTree = "<group>";
+		};
+		F4CA7CA990820D5928A5E011 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				509C78A2A30A17A92C4D4B52 /* Framework-Info.plist */,
+				D8929D3952D15EF92AA1A14C /* UnitTests-Info.plist */,
+			);
+			path = InfoPlists;
 			sourceTree = "<group>";
 		};
 		FBC6782C578B7835F9A0E0D2 /* Products */ = {
@@ -427,7 +419,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogInfraTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -467,7 +459,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogInfra-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -573,7 +565,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogInfra-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -676,7 +668,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogInfraTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -49,7 +49,7 @@ let project = Project(
             destinations: .iOS,
             product: .unitTests,
             bundleId: "opfic.DevLogAppTests",
-            infoPlist: .default,
+            infoPlist: .file(path: "../Shared/InfoPlists/UnitTests-Info.plist"),
             sources: ["Tests/**/*.swift"],
             dependencies: [
                 .target(name: "DevLogApp"),

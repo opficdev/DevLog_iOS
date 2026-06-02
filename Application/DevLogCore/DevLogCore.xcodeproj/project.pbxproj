@@ -42,10 +42,10 @@
 		7E1439EDF75977AE379F076D /* PushNotificationQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationQuery.swift; sourceTree = "<group>"; };
 		858BAFA1A55F74A8B4F7347D /* ActivityKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityKind.swift; sourceTree = "<group>"; };
 		9BB8F354E9137D253A489F1A /* TodoQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoQuery.swift; sourceTree = "<group>"; };
+		A2FE45360391B5FC6507D122 /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Framework-Info.plist"; sourceTree = "<group>"; };
 		BED429545213969E5D9E8F0C /* WidgetTodoSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetTodoSnapshot.swift; sourceTree = "<group>"; };
 		C532C71BD62DF500DC86772E /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		C5C98D8733B9DAD3033E8EE4 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EAC049AFC1FF824FA25456CD /* DevLogCore-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogCore-Info.plist"; sourceTree = "<group>"; };
 		F8F6B8781A629983E05833E3 /* Assembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembler.swift; sourceTree = "<group>"; };
 		FFC29B53B4EC380EB2FD9933 /* DIContainerKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainerKey.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -90,32 +90,24 @@
 		4CA20564D210295B92BFAADE /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				BFDBAB21C2E19AD1DD116F1D /* Derived */,
 				CB7BF94122488E7FFA8C3A60 /* Shared */,
 				407D1BC54FEA47F991D2CF92 /* Sources */,
 			);
 			name = Project;
 			sourceTree = "<group>";
 		};
-		8B7A85A075850DD8E25126DA /* InfoPlists */ = {
+		4F8D665D200FA33FCBCBBD56 /* InfoPlists */ = {
 			isa = PBXGroup;
 			children = (
-				EAC049AFC1FF824FA25456CD /* DevLogCore-Info.plist */,
+				A2FE45360391B5FC6507D122 /* Framework-Info.plist */,
 			);
 			path = InfoPlists;
-			sourceTree = "<group>";
-		};
-		BFDBAB21C2E19AD1DD116F1D /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				8B7A85A075850DD8E25126DA /* InfoPlists */,
-			);
-			path = Derived;
 			sourceTree = "<group>";
 		};
 		CB7BF94122488E7FFA8C3A60 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				4F8D665D200FA33FCBCBBD56 /* InfoPlists */,
 				2250B6ED63E0398484C1E019 /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -304,7 +296,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogCore-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -406,7 +398,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogCore-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

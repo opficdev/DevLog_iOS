@@ -113,6 +113,7 @@
 		0DB0EF9420637563E4608D82 /* TodoReferenceResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoReferenceResponse.swift; sourceTree = "<group>"; };
 		0E5D3E31AD1E8B7CE04D4ACD /* UserPreferencesRepositoryImplTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesRepositoryImplTests.swift; sourceTree = "<group>"; };
 		13196553E95A4457076017F7 /* TodoPageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoPageResponse.swift; sourceTree = "<group>"; };
+		172ECD791E7439EF818A8B6C /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
 		1753CF1357FCECF1C08BF516 /* WidgetSyncEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncEventHandler.swift; sourceTree = "<group>"; };
 		1CC4FAF80149828CE4DD965E /* PushNotificationResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationResponse.swift; sourceTree = "<group>"; };
 		1DCE41E91372D51D7ED06A1B /* WidgetSyncEventBusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncEventBusTests.swift; sourceTree = "<group>"; };
@@ -129,6 +130,7 @@
 		44D8E28151D4ACD689D20CA4 /* TodoCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategoryService.swift; sourceTree = "<group>"; };
 		46CDEBB619995D2FAFE246DC /* TodoCategoryPreferenceResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategoryPreferenceResponse.swift; sourceTree = "<group>"; };
 		475F578F7B5D79DE12864D0F /* NetworkConnectivityRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectivityRepositoryImpl.swift; sourceTree = "<group>"; };
+		4B0C831B507031CCA7E97067 /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Framework-Info.plist"; sourceTree = "<group>"; };
 		4B0D536ED65FF0568D75B5A7 /* AuthDataResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthDataResponse.swift; sourceTree = "<group>"; };
 		5770DD42523D93F4AB839D66 /* TodoDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDTO.swift; sourceTree = "<group>"; };
 		59CEE04ACC0B3172214095E2 /* UserProfileMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileMapping.swift; sourceTree = "<group>"; };
@@ -151,7 +153,6 @@
 		9B7B242B75300BEFE39185F7 /* TodoCategoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategoryResponse.swift; sourceTree = "<group>"; };
 		9CB48D91C8EF2DBC52476A36 /* AuthDataRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthDataRepositoryImpl.swift; sourceTree = "<group>"; };
 		9E1C9616F8398F1C2A11B3E8 /* AuthenticationRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationRepositoryImpl.swift; sourceTree = "<group>"; };
-		9FA7E683DA10F820DE3FEB02 /* DevLogData-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogData-Info.plist"; sourceTree = "<group>"; };
 		A24E7646031B3F49A361B271 /* TodoRepositoryImplTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepositoryImplTests.swift; sourceTree = "<group>"; };
 		A29C910FFD87F558526C0008 /* WidgetSyncEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncEvent.swift; sourceTree = "<group>"; };
 		A460ED05FBC68418D31FF3E6 /* PushMessagingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushMessagingService.swift; sourceTree = "<group>"; };
@@ -171,7 +172,6 @@
 		F398BF7F2B4457A83FC9D853 /* TodoRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepositoryImpl.swift; sourceTree = "<group>"; };
 		FAA5CCDA41641E01694E29C6 /* WidgetSyncEventBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncEventBus.swift; sourceTree = "<group>"; };
 		FB0152B2261416B944A9EB9D /* PushNotificationMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationMapping.swift; sourceTree = "<group>"; };
-		FBFBA0307CCB614F70F13A54 /* DevLogDataTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogDataTests-Info.plist"; sourceTree = "<group>"; };
 		FCEF33A1976C86AFE87F32DA /* UserDefaultsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -227,18 +227,18 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		3009D76FFD9BC0F7216D873B /* Derived */ = {
+		2118E3A720544C3E7793C528 /* InfoPlists */ = {
 			isa = PBXGroup;
 			children = (
-				47D74BB51491EC04558C65E9 /* InfoPlists */,
+				4B0C831B507031CCA7E97067 /* Framework-Info.plist */,
+				172ECD791E7439EF818A8B6C /* UnitTests-Info.plist */,
 			);
-			path = Derived;
+			path = InfoPlists;
 			sourceTree = "<group>";
 		};
 		3DB77CA26B141A5930A6DAC8 /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				3009D76FFD9BC0F7216D873B /* Derived */,
 				C8D902130F1B575C6B4A4F0F /* Shared */,
 				114A48F28014D99C30CA3B1C /* Sources */,
 				02B682D08AA4968B501E9987 /* Tests */,
@@ -254,15 +254,6 @@
 				2A24F41BA271A76492C7C784 /* WidgetSyncEventTests.swift */,
 			);
 			path = Widget;
-			sourceTree = "<group>";
-		};
-		47D74BB51491EC04558C65E9 /* InfoPlists */ = {
-			isa = PBXGroup;
-			children = (
-				9FA7E683DA10F820DE3FEB02 /* DevLogData-Info.plist */,
-				FBFBA0307CCB614F70F13A54 /* DevLogDataTests-Info.plist */,
-			);
-			path = InfoPlists;
 			sourceTree = "<group>";
 		};
 		4D310A185DAC92A76849442A /* Repository */ = {
@@ -384,6 +375,7 @@
 		C8D902130F1B575C6B4A4F0F /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				2118E3A720544C3E7793C528 /* InfoPlists */,
 				2726E65D4893C8BE8739FD9F /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -584,7 +576,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogDataTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -624,7 +616,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogData-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -794,7 +786,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogDataTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -830,7 +822,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogData-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/Framework-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

@@ -111,6 +111,7 @@
 		2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteWebPageIntegrationTests.swift; sourceTree = "<group>"; };
+		2DA024CEC167F3E73260E675 /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
 		346173767E6ED68E9DFDA51C /* FCMTokenSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMTokenSyncHandler.swift; sourceTree = "<group>"; };
 		3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC12B5E227050E4BAEF315D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -131,7 +132,6 @@
 		B1F60100641A6FBC29ED402D /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B347482071F5035929CB7CFB /* TempView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempView.swift; sourceTree = "<group>"; };
 		B967FCB16D2F91F183A858E7 /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C362AF15094D8F5E93617B0E /* DevLogAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogAppTests-Info.plist"; sourceTree = "<group>"; };
 		C44AFCDB8890714D634C4536 /* DevLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLogApp.swift; sourceTree = "<group>"; };
 		CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainTab+WidgetDeepLink.swift"; sourceTree = "<group>"; };
 		D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -230,17 +230,10 @@
 			path = Integration;
 			sourceTree = "<group>";
 		};
-		60097CE5D1DA42FC84930179 /* InfoPlists */ = {
-			isa = PBXGroup;
-			children = (
-				C362AF15094D8F5E93617B0E /* DevLogAppTests-Info.plist */,
-			);
-			path = InfoPlists;
-			sourceTree = "<group>";
-		};
 		627EA6CB7079FEF3EAA0919A /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B83508A381C872901D29B6E9 /* InfoPlists */,
 				4635BA36DE82C73A105E7157 /* Version.xcconfig */,
 			);
 			name = Shared;
@@ -281,20 +274,11 @@
 		9E8EF4194ED8097ED76A15CB /* Project */ = {
 			isa = PBXGroup;
 			children = (
-				A921B89C54E83E78FB2AC773 /* Derived */,
 				627EA6CB7079FEF3EAA0919A /* Shared */,
 				486F3A456A292E22151A8E00 /* Sources */,
 				1A3B968711187139DE60604C /* Tests */,
 			);
 			name = Project;
-			sourceTree = "<group>";
-		};
-		A921B89C54E83E78FB2AC773 /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				60097CE5D1DA42FC84930179 /* InfoPlists */,
-			);
-			path = Derived;
 			sourceTree = "<group>";
 		};
 		B010DBB3FAA011D8422A374B /* PushNotification */ = {
@@ -320,6 +304,14 @@
 				1D8FB7D923F9E7606A3B8672 /* Products */,
 				9E8EF4194ED8097ED76A15CB /* Project */,
 			);
+			sourceTree = "<group>";
+		};
+		B83508A381C872901D29B6E9 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				2DA024CEC167F3E73260E675 /* UnitTests-Info.plist */,
+			);
+			path = InfoPlists;
 			sourceTree = "<group>";
 		};
 		BD7D139B00B80391043465AA /* Support */ = {
@@ -558,7 +550,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogAppTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -596,7 +588,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogAppTests-Info.plist";
+				INFOPLIST_FILE = "../Shared/InfoPlists/UnitTests-Info.plist";
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (

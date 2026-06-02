@@ -15,12 +15,10 @@
 		37E3C6E74530428015955EF7 /* HeatmapWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C63EB0866E0F461576A797E /* HeatmapWidgetEntry.swift */; };
 		5F7E11ECDFC37228EC3439D7 /* HeatmapWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C767D7ABD31D2292F579468C /* HeatmapWidgetSnapshot.swift */; };
 		6FAE62111C10881C9CE0BBDC /* HeatmapWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0315B1E52E66C3F64C76749 /* HeatmapWidget.swift */; };
-		832DD99138202C34E026F64E /* TuistBundle+DevLogWidgetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7768B3FB60D3CFC62FB55046 /* TuistBundle+DevLogWidgetExtension.swift */; };
 		8B6FD2EED33A6F24C066E72C /* WidgetPlaceholderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2B50B274B1C22A4ABA8FCB /* WidgetPlaceholderCard.swift */; };
 		8E92F12CC884AD108747309F /* HeatmapWidgetConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B39856A2E8750D45139C03C /* HeatmapWidgetConfigurationIntent.swift */; };
 		9CE95F0C72D62ADED106E45B /* TodayTodoWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7DAD785EC0C8A04516D292 /* TodayTodoWidgetEntry.swift */; };
 		A859CEEC1DEA45B114348C8A /* TodayWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C486CDFEB8F12FDACAB34DF3 /* TodayWidgetSnapshot.swift */; };
-		B26C1DD779606C03CFE9165E /* TuistAssets+DevLogWidgetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C75BF5BC326ECEB538079CC /* TuistAssets+DevLogWidgetExtension.swift */; };
 		B615669DA5B79B9E9B8C8E73 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D9F255A8F63C0FA8A4B8BA4 /* DevLogWidgetCore.framework */; };
 		B9B04BF9C0C7CFFD32F0A01A /* TodayTodoWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FF92DB8155A7AB1FB2208E /* TodayTodoWidgetEntryView.swift */; };
 		BBA8368E97685C969ACFB1C4 /* WidgetHeatmapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810827E0FF4659B548BA1189 /* WidgetHeatmapGrid.swift */; };
@@ -49,17 +47,16 @@
 		0C63EB0866E0F461576A797E /* HeatmapWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapWidgetEntry.swift; sourceTree = "<group>"; };
 		13AC26AC485116B3F2A78F68 /* DevLogWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DevLogWidget.entitlements; sourceTree = "<group>"; };
 		14125274A6EB7399B87CCB63 /* WidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotStore.swift; sourceTree = "<group>"; };
-		1C75BF5BC326ECEB538079CC /* TuistAssets+DevLogWidgetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TuistAssets+DevLogWidgetExtension.swift"; sourceTree = "<group>"; };
 		1D9F255A8F63C0FA8A4B8BA4 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		25FFDCC8525136F6CC7EC98F /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		32B7C10CE588EDB63FA1C59A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3BEE66D14A497723133C26B0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3EAF4DC09E98176B9F89BB6A /* TodayTodoWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTodoWidget.swift; sourceTree = "<group>"; };
 		40CEE9690896811CC43E9C71 /* TodayTodoWidgetConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTodoWidgetConfigurationIntent.swift; sourceTree = "<group>"; };
 		44FF92DB8155A7AB1FB2208E /* TodayTodoWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTodoWidgetEntryView.swift; sourceTree = "<group>"; };
 		4E2B50B274B1C22A4ABA8FCB /* WidgetPlaceholderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPlaceholderCard.swift; sourceTree = "<group>"; };
 		5CFBD6E83B5166362F500A00 /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		64C2CACF1270870F3D8BA217 /* DevLogWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLogWidgetBundle.swift; sourceTree = "<group>"; };
-		7768B3FB60D3CFC62FB55046 /* TuistBundle+DevLogWidgetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TuistBundle+DevLogWidgetExtension.swift"; sourceTree = "<group>"; };
 		810827E0FF4659B548BA1189 /* WidgetHeatmapGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHeatmapGrid.swift; sourceTree = "<group>"; };
 		81EB573652A465C67708ECC2 /* Localizable.xcstrings */ = {isa = PBXFileReference; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		8B39856A2E8750D45139C03C /* HeatmapWidgetConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapWidgetConfigurationIntent.swift; sourceTree = "<group>"; };
@@ -71,7 +68,6 @@
 		C486CDFEB8F12FDACAB34DF3 /* TodayWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetSnapshot.swift; sourceTree = "<group>"; };
 		C767D7ABD31D2292F579468C /* HeatmapWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapWidgetSnapshot.swift; sourceTree = "<group>"; };
 		CE7DAD785EC0C8A04516D292 /* TodayTodoWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTodoWidgetEntry.swift; sourceTree = "<group>"; };
-		F2D76C2F7A06ADF85225D55E /* DevLogWidgetExtension-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogWidgetExtension-Info.plist"; sourceTree = "<group>"; };
 		FAB2D036D1E68DC1E6A61969 /* TodayTodoWidgetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTodoWidgetProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -87,14 +83,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		14B95495A6E85FDF6536EF38 /* InfoPlists */ = {
-			isa = PBXGroup;
-			children = (
-				F2D76C2F7A06ADF85225D55E /* DevLogWidgetExtension-Info.plist */,
-			);
-			path = InfoPlists;
-			sourceTree = "<group>";
-		};
 		1838F0FDDD2C069B9F497092 /* Heatmap */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,29 +98,12 @@
 			path = Heatmap;
 			sourceTree = "<group>";
 		};
-		2053AFEFA0975EB5B8AB483B /* Derived */ = {
-			isa = PBXGroup;
-			children = (
-				14B95495A6E85FDF6536EF38 /* InfoPlists */,
-				3C7E4F54283A2003E56E9694 /* Sources */,
-			);
-			path = Derived;
-			sourceTree = "<group>";
-		};
-		3C7E4F54283A2003E56E9694 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				1C75BF5BC326ECEB538079CC /* TuistAssets+DevLogWidgetExtension.swift */,
-				7768B3FB60D3CFC62FB55046 /* TuistBundle+DevLogWidgetExtension.swift */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
 		6E112C56584884031FD3D652 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
 				32B7C10CE588EDB63FA1C59A /* Assets.xcassets */,
 				13AC26AC485116B3F2A78F68 /* DevLogWidget.entitlements */,
+				3BEE66D14A497723133C26B0 /* Info.plist */,
 				81EB573652A465C67708ECC2 /* Localizable.xcstrings */,
 			);
 			path = Resource;
@@ -143,7 +114,6 @@
 			children = (
 				C9A70630D3F4CC07D9F99F70 /* Application */,
 				C696BB6A953AA245F803F47D /* Common */,
-				2053AFEFA0975EB5B8AB483B /* Derived */,
 				1838F0FDDD2C069B9F497092 /* Heatmap */,
 				6E112C56584884031FD3D652 /* Resource */,
 				7D84E907853E8F89712C773E /* Today */,
@@ -281,8 +251,6 @@
 				8B6FD2EED33A6F24C066E72C /* WidgetPlaceholderCard.swift in Sources */,
 				E2711AB58FD4E477EF73BC65 /* WidgetSharedDefaultsStore.swift in Sources */,
 				DBDFD568B7756227C1310D28 /* WidgetSnapshotStore.swift in Sources */,
-				B26C1DD779606C03CFE9165E /* TuistAssets+DevLogWidgetExtension.swift in Sources */,
-				832DD99138202C34E026F64E /* TuistBundle+DevLogWidgetExtension.swift in Sources */,
 				020D76A320A0CAF1BC9AA506 /* DevLogWidgetBundle.swift in Sources */,
 				6FAE62111C10881C9CE0BBDC /* HeatmapWidget.swift in Sources */,
 				8E92F12CC884AD108747309F /* HeatmapWidgetConfigurationIntent.swift in Sources */,
@@ -312,7 +280,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogWidgetExtension-Info.plist";
+				INFOPLIST_FILE = Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -481,7 +449,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = "Derived/InfoPlists/DevLogWidgetExtension-Info.plist";
+				INFOPLIST_FILE = Resource/Info.plist;
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
