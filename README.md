@@ -181,7 +181,8 @@ SwiftUI_DevLog/
 │	├── DevLogData/            # Repository 구현, DTO, Mapper, Data 계층 Protocol
 │	├── DevLogInfra/           # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
 │	├── DevLogPersistence/     # UserDefaults, 이미지 저장소, 위젯 스냅샷 영속성 처리
-│	└── DevLogPresentation/    # SwiftUI 화면, ViewModel, Store, Coordinator
+│	├── DevLogPresentation/    # ViewModel, Store, Coordinator, 화면 상태
+│	└── DevLogUI/              # SwiftUI 화면, 재사용 UI 컴포넌트
 ├── Widget/
 │	├── DevLogWidgetCore/      # 위젯 스냅샷 모델, Factory, App Group 상수
 │	└── DevLogWidgetExtension/ # WidgetKit UI, Provider, Timeline

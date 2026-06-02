@@ -74,8 +74,9 @@ Ask the user before editing when:
 - Core vs Domain ownership is unclear.
 - A shared type is being moved only because multiple modules need access.
 - Firebase/Auth/Firestore/Functions/Messaging-specific logic would leave Infra.
-- WidgetCore would depend on Domain, Data, Infra, Persistence, Presentation, or App.
-- Presentation would depend on Data, Infra, Persistence, or App.
+- WidgetCore would depend on Domain, Data, Infra, Persistence, Presentation, UI, or App.
+- Presentation would depend on UI, Data, Infra, Persistence, or App.
+- UI would depend on Domain, Core, Data, Infra, Persistence, or App.
 - Data would gain concrete SDK or storage implementation details.
 - The Presentation `Store` flow or reducer responsibility would change.
 - A compile fix requires relaxing the intended architecture.

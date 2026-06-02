@@ -73,7 +73,8 @@ flowchart TD
 ```mermaid
 flowchart TD
 	App["DevLogApp\nComposition root\nApp lifecycle\nAssembler wiring"]
-	Presentation["DevLogPresentation\nSwiftUI views\nViewModels\nCoordinators\nUI state"]
+	UI["DevLogUI\nSwiftUI views\nReusable components\nView composition"]
+	Presentation["DevLogPresentation\nStore\nViewModels\nCoordinators\nUI state"]
 	Domain["DevLogDomain\nEntities\nRepository protocols\nUse cases"]
 	Data["DevLogData\nRepository implementations\nDTOs\nMappers\nService/store protocols"]
 	Infra["DevLogInfra\nFirebase\nSocial login\nNetwork\nLink metadata\nMessaging"]
@@ -83,12 +84,15 @@ flowchart TD
 	WidgetExtension["DevLogWidgetExtension\nWidgetKit UI\nProviders\nTimelines"]
 
 	App --> Presentation
+	App --> UI
 	App --> Domain
 	App --> Data
 	App --> Infra
 	App --> Persistence
 	App --> Core
 	App --> WidgetCore
+
+	UI --> Presentation
 
 	Presentation --> Domain
 	Presentation --> Core
@@ -114,13 +118,14 @@ flowchart TD
 | Layer | Owns | Allowed direction | Ask before |
 | --- | --- | --- | --- |
 | `DevLogCore` | DI primitives, logger, shared value/query types, widget snapshot values | No DevLog layer dependency | Moving domain entities into Core |
-| `DevLogDomain` | entities, repository protocols, use cases | Core only | Adding Data, Infra, Persistence, Presentation, App, Widget UI, or SDK dependency |
+| `DevLogDomain` | entities, repository protocols, use cases | Core only | Adding Data, Infra, Persistence, Presentation, UI, App, Widget UI, or SDK dependency |
 | `DevLogData` | repository implementations, DTOs, mappers, data protocols | Domain, Core | Adding concrete Firebase, WidgetKit, storage, or platform implementation details |
 | `DevLogInfra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra |
 | `DevLogPersistence` | local stores, image cache, widget snapshot persistence | Data, Core, WidgetCore | Moving domain logic or remote SDK behavior into Persistence |
-| `DevLogPresentation` | UI, view models, coordinators, presentation state | Domain, Core | Adding Data, Infra, Persistence, or App dependency |
+| `DevLogPresentation` | Store, view models, coordinators, presentation state | Domain, Core | Adding UI, Data, Infra, Persistence, or App dependency |
+| `DevLogUI` | SwiftUI views, reusable UI components, view composition | Presentation | Adding Domain, Core, Data, Infra, Persistence, or App dependency |
 | `DevLogApp` | composition root, lifecycle, assembler wiring | Concrete app layers | Moving feature logic into App |
-| `DevLogWidgetCore` | widget data contracts and pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, or App dependency |
+| `DevLogWidgetCore` | widget data contracts and pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, UI, or App dependency |
 | `DevLogWidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
 
 ## Presentation Store flow
@@ -159,6 +164,7 @@ flowchart TD
 	Shared{"Moved only because shared?"}
 	NewDependency{"New module dependency?"}
 	ExternalSDK{"External SDK crosses layer?"}
+	UIBoundary{"UI sees Domain/Core/Data/Infra/Persistence/App?"}
 	WidgetBoundary{"WidgetCore sees app/domain/data?"}
 	BuildShortcut{"Build fix relaxes boundary?"}
 	ScopeDrift{"Outside current task scope?"}
@@ -173,7 +179,9 @@ flowchart TD
 	NewDependency -->|Yes| Ask
 	NewDependency -->|No| ExternalSDK
 	ExternalSDK -->|Yes| Ask
-	ExternalSDK -->|No| WidgetBoundary
+	ExternalSDK -->|No| UIBoundary
+	UIBoundary -->|Yes| Ask
+	UIBoundary -->|No| WidgetBoundary
 	WidgetBoundary -->|Yes| Ask
 	WidgetBoundary -->|No| BuildShortcut
 	BuildShortcut -->|Yes| Ask
