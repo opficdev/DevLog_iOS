@@ -73,7 +73,7 @@ struct TodoEditorView: View {
                         }
                     }
                 }
-                .background(Color(.secondarySystemBackground))
+                .background(Color(.systemGroupedBackground))
                 .presentationDragIndicator(.visible)
             }
             .toolbar {
