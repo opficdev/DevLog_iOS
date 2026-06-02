@@ -201,7 +201,7 @@ struct TodoListView: View {
                     if #available(iOS 26.0, *) {
                         Color.clear
                     } else {
-                        Color(.systemBackground)
+                        Color(.systemGroupedBackground)
                     }
                 }
                 .offset(y: headerOffset)
