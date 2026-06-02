@@ -104,7 +104,7 @@ public struct RootView: View {
                         }
                     }
                 }
-                .background(Color(.secondarySystemBackground))
+                .background(Color(.systemGroupedBackground))
                 .presentationDragIndicator(.visible)
             }
         }
