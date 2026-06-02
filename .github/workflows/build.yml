@@ -85,6 +85,7 @@ jobs:
             Application/DevLogInfra/DevLogInfra.xcodeproj \
             Application/DevLogPersistence/DevLogPersistence.xcodeproj \
             Application/DevLogPresentation/DevLogPresentation.xcodeproj \
+            Application/DevLogUI/DevLogUI.xcodeproj \
             Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj \
             Widget/DevLogWidgetExtension/DevLogWidgetExtension.xcodeproj
 
