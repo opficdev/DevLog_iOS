@@ -17,13 +17,13 @@ struct MainView: View {
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
-    @Binding var selectedTab: MainTab?
+    @Binding var selectedTab: MainTab
     private let windowEvent: TodoEditorWindowEvent
 
     init(
         container: DIContainer,
         windowEvent: TodoEditorWindowEvent,
-        selectedTab: Binding<MainTab?>
+        selectedTab: Binding<MainTab>
     ) {
         self._coordinator = State(initialValue: MainViewCoordinator(container: container))
         self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
@@ -39,12 +39,10 @@ struct MainView: View {
 
     var body: some View {
         Group {
-            if let selectedTab {
-                if isCompactLayout {
-                    tabView
-                } else {
-                    sidebarView(for: selectedTab)
-                }
+            if isCompactLayout {
+                tabView
+            } else {
+                sidebarView(for: selectedTab)
             }
         }
         .onAppear {
@@ -53,7 +51,6 @@ struct MainView: View {
             todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
-            guard let newValue else { return }
             coordinator.viewModel.send(.selectedTabChanged(newValue))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
@@ -81,26 +78,26 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.home)
                 }
-                .tag(MainTab.home as MainTab?)
+                .tag(MainTab.home)
 
             todayView
                 .tabItem {
                     tabLabel(.today)
                 }
-                .tag(MainTab.today as MainTab?)
+                .tag(MainTab.today)
 
             notificationView
                 .tabItem {
                     tabLabel(.notification)
                 }
                 .badge(coordinator.viewModel.state.unreadPushCount)
-                .tag(MainTab.notification as MainTab?)
+                .tag(MainTab.notification)
 
             profileView
                 .tabItem {
                     tabLabel(.profile)
                 }
-                .tag(MainTab.profile as MainTab?)
+                .tag(MainTab.profile)
         }
     }
 
