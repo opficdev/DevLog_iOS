@@ -152,7 +152,7 @@ struct MainView: View {
                     }
                 }
             }
-            .background(Color(.secondarySystemBackground).ignoresSafeArea())
+            .background(Color(.systemGroupedBackground).ignoresSafeArea())
         case .profile:
             NavigationSplitView {
                 mainSidebar
@@ -236,7 +236,7 @@ struct MainView: View {
                 homeDestinationView(homeRoute)
             }
         }
-        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 
     @ViewBuilder
@@ -304,7 +304,7 @@ struct MainView: View {
                 todayDestinationView(todayRoute)
             }
         }
-        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 
     @ViewBuilder
@@ -349,7 +349,7 @@ struct MainView: View {
                 profileRegularDestinationView(route)
             }
         }
-        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 
     @ViewBuilder
