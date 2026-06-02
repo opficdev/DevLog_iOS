@@ -138,6 +138,7 @@
 		DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F078E79DE65AE8D92F556B27 /* DeletePushNotificationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletePushNotificationIntegrationTests.swift; sourceTree = "<group>"; };
+		FA3AC9C61067B0FBDE869711 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +207,7 @@
 			children = (
 				6F190E03DDAFD11C50FF6510 /* App */,
 				514423F7A59AD057AC7310CA /* Resource */,
+				FA3AC9C61067B0FBDE869711 /* App.xcconfig */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -509,7 +511,7 @@
 /* Begin XCBuildConfiguration section */
 		31AC08F8A6DA3854B3A6B6AC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
+			baseConfigurationReference = FA3AC9C61067B0FBDE869711 /* App.xcconfig */;
 			buildSettings = {
 				APS_ENVIRONMENT = production;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -618,7 +620,7 @@
 		};
 		8D758741AE117AED0462B9E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
+			baseConfigurationReference = FA3AC9C61067B0FBDE869711 /* App.xcconfig */;
 			buildSettings = {
 				APS_ENVIRONMENT = development;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
