@@ -16,7 +16,6 @@ let project = Project(
             product: .app,
             productName: "DevLog",
             bundleId: "opfic.DevLog",
-            deploymentTargets: .iOS("17.0"),
             infoPlist: .file(path: "Sources/Resource/Info.plist"),
             sources: ["Sources/**/*.swift"],
             resources: [
@@ -41,7 +40,6 @@ let project = Project(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                     "PRODUCT_MODULE_NAME": "DevLogApp",
                 ]
             )
@@ -60,7 +58,6 @@ let project = Project(
                 base: [
                     "BUNDLE_LOADER": "$(TEST_HOST)",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                     "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog",
                     "TEST_TARGET_NAME": "DevLogApp",
                 ]

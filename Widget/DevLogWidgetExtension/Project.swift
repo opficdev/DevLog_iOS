@@ -14,7 +14,6 @@ let project = Project(
             destinations: .iOS,
             product: .appExtension,
             bundleId: "opfic.DevLog.DevLogWidget",
-            deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleShortVersionString": "$(MARKETING_VERSION)",
@@ -72,7 +71,6 @@ let project = Project(
                 versionXcconfigPath: "../../Application/Shared/Version.xcconfig",
                 base: [
                     "CODE_SIGN_STYLE": "Automatic",
-                    "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                 ]
             )
         ),

@@ -15,16 +15,10 @@ public extension Project {
                 destinations: .iOS,
                 product: .framework,
                 bundleId: bundleId,
-                deploymentTargets: .iOS("17.0"),
                 infoPlist: .default,
                 sources: ["Sources/**/*.swift"],
                 dependencies: dependencies + [DevLogPackages.swiftLintPlugin],
-                settings: .devlog(
-                    versionXcconfigPath: versionXcconfigPath,
-                    base: [
-                        "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
-                    ]
-                )
+                settings: .devlog(versionXcconfigPath: versionXcconfigPath)
             ),
         ]
 
@@ -42,7 +36,6 @@ public extension Project {
                     ],
                     settings: .devlog(
                         base: [
-                            "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
                             "TEST_TARGET_NAME": SettingValue(stringLiteral: name),
                         ]
                     )
