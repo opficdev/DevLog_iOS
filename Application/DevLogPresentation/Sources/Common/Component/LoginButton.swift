@@ -31,6 +31,7 @@ struct LoginButton: View {
             Text(text)
                 .foregroundStyle(Color.primary)
                 .font(.system(.body))
+                .contentShape(.capsule)
                 .frame(width: 300, height: height + 16)
                 .overlay {
                     ZStack(alignment: .leading) {
@@ -46,6 +47,5 @@ struct LoginButton: View {
                     }
                 }
         }
-        .contentShape(.capsule)
     }
 }
