@@ -18,7 +18,7 @@ on:
       - develop
 
 env:
-  SCHEME: DevLog
+  SCHEME: DevLogApp
   RUBY_VERSION: "3.2"
   XCODE_VERSION: latest
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}

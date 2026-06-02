@@ -13,7 +13,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Prefer Xcode Local MCP for iOS project code changes.
 - If Xcode Local MCP is unavailable or fails because of session transport, state that explicitly before using a fallback.
 - This repository is workspace-based. Prefer workspace/scheme context over standalone project builds when dependencies cross module projects.
-- CI truth lives in `.github/workflows/build.yml`: `DevLog.xcworkspace`, scheme `DevLog`, simulator build, `-resolvePackageDependencies`, `-skipPackagePluginValidation`, and `-skipMacroValidation`.
+- CI truth lives in `.github/workflows/build.yml`: select Xcode 26.3, install Tuist with mise, run `tuist generate --no-open`, assert generated Xcode files are clean with `git diff --exit-code`, then build `DevLog.xcworkspace` scheme `DevLog` with `-resolvePackageDependencies`, `-skipPackagePluginValidation`, and `-skipMacroValidation`.
 - CI is build validation, not a full test run, unless the workflow changes.
 - Avoid unrelated `Package.resolved` churn. Keep lockfile changes only when dependency resolution is the task.
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1600"
+   LastUpgradeVersion = "2650"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "687DD42230CC25053ABB5FB8"
+               BlueprintIdentifier = "4800CC537F288EEB89F075B5"
                BuildableName = "DevLogWidgetCore.framework"
                BlueprintName = "DevLogWidgetCore"
                ReferencedContainer = "container:DevLogWidgetCore.xcodeproj">
@@ -28,6 +28,17 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4254D09F6A0B3E0118929085"
+               BuildableName = "DevLogWidgetCoreTests.xctest"
+               BlueprintName = "DevLogWidgetCoreTests"
+               ReferencedContainer = "container:DevLogWidgetCore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -40,6 +51,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4800CC537F288EEB89F075B5"
+            BuildableName = "DevLogWidgetCore.framework"
+            BlueprintName = "DevLogWidgetCore"
+            ReferencedContainer = "container:DevLogWidgetCore.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -47,6 +67,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4800CC537F288EEB89F075B5"
+            BuildableName = "DevLogWidgetCore.framework"
+            BlueprintName = "DevLogWidgetCore"
+            ReferencedContainer = "container:DevLogWidgetCore.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

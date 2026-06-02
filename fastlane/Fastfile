@@ -3,10 +3,11 @@ XCODE_PROJ = "Application/DevLogApp/DevLogApp.xcodeproj"
 APP_IDENTIFIER = "opfic.DevLog"
 WIDGET_IDENTIFIER = "opfic.DevLog.DevLogWidget"
 APP_IDENTIFIERS = [APP_IDENTIFIER, WIDGET_IDENTIFIER]
-TARGET_NAME = "DevLog"
+TARGET_NAME = "DevLogApp"
 WIDGET_TARGET_NAME = "DevLogWidgetExtension"
+APP_PRODUCT_NAME = "DevLog"
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
-TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{TARGET_NAME}.ipa")
+TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 
 default_platform(:ios)
 
@@ -113,7 +114,7 @@ platform :ios do
       scheme: TARGET_NAME,
       export_method: "app-store",
       output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
-      output_name: "#{TARGET_NAME}.ipa",
+      output_name: "#{APP_PRODUCT_NAME}.ipa",
       xcargs: "-skipPackagePluginValidation"
     )
 

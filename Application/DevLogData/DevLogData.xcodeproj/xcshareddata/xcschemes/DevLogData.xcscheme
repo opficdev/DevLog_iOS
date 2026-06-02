@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1600"
+   LastUpgradeVersion = "2650"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D9D76C33D8B4790694BD3488"
+               BlueprintIdentifier = "3DB5E4ACD082C2AF9C3A8902"
                BuildableName = "DevLogData.framework"
                BlueprintName = "DevLogData"
                ReferencedContainer = "container:DevLogData.xcodeproj">
@@ -28,6 +28,17 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FF909B6D82202CDD05FB947C"
+               BuildableName = "DevLogDataTests.xctest"
+               BlueprintName = "DevLogDataTests"
+               ReferencedContainer = "container:DevLogData.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -40,6 +51,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3DB5E4ACD082C2AF9C3A8902"
+            BuildableName = "DevLogData.framework"
+            BlueprintName = "DevLogData"
+            ReferencedContainer = "container:DevLogData.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -47,6 +67,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3DB5E4ACD082C2AF9C3A8902"
+            BuildableName = "DevLogData.framework"
+            BlueprintName = "DevLogData"
+            ReferencedContainer = "container:DevLogData.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

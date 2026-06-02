@@ -3,72 +3,101 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
-		160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1B97007E09855108A99428B /* DevLogData.framework */; };
-		186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; };
-		1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA49949C677DDE083F7DE29E /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; };
-		393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 67918B544432C45E63273D84 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		618B54224ACD6B35D9A8F841 /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */; };
-		7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; };
-		79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; };
-		AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; };
-		B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AE11B22C33D44E55F6677889 /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */; };
-		DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */; };
-		DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		014266F6F7BFECD66B6DFFAE /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		088CF111FEB9773D36BFDAFB /* LocalFirebaseRESTSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6750095BE316E855E5B6DFFB /* LocalFirebaseRESTSupport.swift */; };
+		0B79D44CFEC6A20F873CF3A9 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1F60100641A6FBC29ED402D /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1056A18C4306853A83487239 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53D7AC935B97855AA743EFC0 /* Assets.xcassets */; };
+		1FF94A7355AB32086A27E3F8 /* WidgetSessionSyncHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617DE060FF8750F5A41BBFCC /* WidgetSessionSyncHandler.swift */; };
+		23B23964D44D78E8CFF0D97C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC12B5E227050E4BAEF315D /* AppDelegate.swift */; };
+		25E825500273F1F887CCC6DC /* NotificationName+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EADB630F7E3DEFAA6A8DEF4 /* NotificationName+.swift */; };
+		2C2180289EEF65F3CF5C1273 /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3BFF117D0E2682ECB0044884 /* MainTab+WidgetDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */; };
+		3CC295543F33CF6BE9560AE0 /* WidgetSessionSyncHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462271192C47C593C36AC403 /* WidgetSessionSyncHandlerTests.swift */; };
+		423070F73AE0E059BC417D30 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */; };
+		47A3EA049D3AF319B62853ED /* TempView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B347482071F5035929CB7CFB /* TempView.swift */; };
+		537BE6B60AE563DC6CF45701 /* DevLogData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 544C918C2E050DFD80C83157 /* DevLogData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		597D86067427D93D540F946B /* FCMTokenSyncHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346173767E6ED68E9DFDA51C /* FCMTokenSyncHandler.swift */; };
+		5B1CB12023BE41B32EA64B95 /* PushNotificationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534E5D11EAA2E34D71F066DB /* PushNotificationRoute.swift */; };
+		5B6D5DE4224933CF17CE1763 /* DevLogDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		639B4FC200C1DBE419A0D045 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 54FB37FD7BD35DD865B28A9E /* Localizable.xcstrings */; };
+		6E8FD8D6B04CC7B5E4C6DC72 /* AppLayerAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E342C6FE37BD9A01BF6F35 /* AppLayerAssembler.swift */; };
+		79C163716D66A55453576FB5 /* PushNotificationOpenHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C28911459A3AA1DD0A7B1AA /* PushNotificationOpenHandler.swift */; };
+		838CE33AAE5E70622E178AE8 /* DevLogCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1F60100641A6FBC29ED402D /* DevLogCore.framework */; };
+		8D0BCF8A2A4BB24AFDD2BEC8 /* DevLogDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */; };
+		A7400D2F56E0FF551F88D28F /* AppAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92978D304EA6E7E31E52FCA5 /* AppAssembler.swift */; };
+		A93F228DD04515584B150BCE /* DevLogWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */; };
+		AA5C5ACB75796DECF2BE6939 /* DevLogInfra.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */; };
+		AD703265E206D6B4B17BD56D /* DevLogData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 544C918C2E050DFD80C83157 /* DevLogData.framework */; };
+		AE8FAFB84865A9798429346B /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */; };
+		B154A155136A179166B00EAC /* DevLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44AFCDB8890714D634C4536 /* DevLogApp.swift */; };
+		CED2148B1FA2117B58665B63 /* DevLogWidgetExtension.appex in Dependencies */ = {isa = PBXBuildFile; fileRef = D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */; };
+		D892FE40671E7C165DBE4E4D /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DF971A154668D99F2A646957 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 026FE38633FEFB0DD0575244 /* GoogleService-Info.plist */; };
+		E312AB98EB0B33141E499A04 /* DeleteWebPageIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */; };
+		EDE9714BCCC50B8950F0E911 /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F2F380C38E8953DB78F85FC2 /* DevLogWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F616FED4E3CB9E7EB40E22FD /* UserTimeZoneSyncHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EB652940B16E87B8DA8683 /* UserTimeZoneSyncHandler.swift */; };
+		FF064556C84609C21C1F2682 /* DeletePushNotificationIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F078E79DE65AE8D92F556B27 /* DeletePushNotificationIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		DF34164B2E45F67C00F9312B /* PBXContainerItemProxy */ = {
+		67951051414B4FDA396E9D72 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = DFD48AF82DC4D6E2005905C5 /* Project object */;
+			containerPortal = D484D63AA014569C134A5726 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DFD48AFF2DC4D6E2005905C5;
-			remoteInfo = DevLog;
-		};
-		DFD3A97D2F8E89DF001DA7CD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFD48AF82DC4D6E2005905C5 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DFD3A96F2F8E89DD001DA7CD;
-			remoteInfo = DevLogWidgetExtension;
+			remoteGlobalIDString = B9946B184E6A28C345727743;
+			remoteInfo = DevLogApp;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		D8D4472904EC49ABB6712905 /* Embed Frameworks */ = {
+		3913A993FDF971B5EF3D08B6 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DA205F52B7C54C2C99671D50 /* DevLogCore.framework in Embed Frameworks */,
-				1E452BFF04594187A06AED58 /* DevLogDomain.framework in Embed Frameworks */,
-				020DFF50F37E47DF86BC155D /* DevLogData.framework in Embed Frameworks */,
-				B9409E4F83EB4B0A9049D245 /* DevLogInfra.framework in Embed Frameworks */,
-				B38B9C91AECB49BA9C7CB8DC /* DevLogPersistence.framework in Embed Frameworks */,
-				393544DD58D941B69760727E /* DevLogPresentation.framework in Embed Frameworks */,
-				0B50A22827B641AEBCC033D4 /* DevLogWidgetCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */ = {
+		3EFD9912043B4750986720C7 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0B79D44CFEC6A20F873CF3A9 /* DevLogCore.framework in Embed Frameworks */,
+				537BE6B60AE563DC6CF45701 /* DevLogData.framework in Embed Frameworks */,
+				5B6D5DE4224933CF17CE1763 /* DevLogDomain.framework in Embed Frameworks */,
+				D892FE40671E7C165DBE4E4D /* DevLogInfra.framework in Embed Frameworks */,
+				014266F6F7BFECD66B6DFFAE /* DevLogPersistence.framework in Embed Frameworks */,
+				EDE9714BCCC50B8950F0E911 /* DevLogPresentation.framework in Embed Frameworks */,
+				F2F380C38E8953DB78F85FC2 /* DevLogWidgetCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F6617D938EF8B5675B63F6F /* Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstSubfolderSpec = 16;
+			files = (
+				CED2148B1FA2117B58665B63 /* DevLogWidgetExtension.appex in Dependencies */,
+			);
+			name = Dependencies;
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		EE6E8FD0A6B1576EFDD670D7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
 			dstSubfolderSpec = 13;
 			files = (
-				DFD3A97F2F8E89DF001DA7CD /* DevLogWidgetExtension.appex in Embed Foundation Extensions */,
+				2C2180289EEF65F3CF5C1273 /* DevLogWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -76,549 +105,575 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		67918B544432C45E63273D84 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE11B22C33D44E55F6677889 /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B1B97007E09855108A99428B /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DA49949C677DDE083F7DE29E /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		DFD48B002DC4D6E2005905C5 /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		00187924A3AB799477E05E5F /* DevLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		026FE38633FEFB0DD0575244 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		07E342C6FE37BD9A01BF6F35 /* AppLayerAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLayerAssembler.swift; sourceTree = "<group>"; };
+		2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteWebPageIntegrationTests.swift; sourceTree = "<group>"; };
+		346173767E6ED68E9DFDA51C /* FCMTokenSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMTokenSyncHandler.swift; sourceTree = "<group>"; };
+		3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AC12B5E227050E4BAEF315D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		462271192C47C593C36AC403 /* WidgetSessionSyncHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSessionSyncHandlerTests.swift; sourceTree = "<group>"; };
+		4635BA36DE82C73A105E7157 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		534E5D11EAA2E34D71F066DB /* PushNotificationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationRoute.swift; sourceTree = "<group>"; };
+		53D7AC935B97855AA743EFC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		544C918C2E050DFD80C83157 /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		54FB37FD7BD35DD865B28A9E /* Localizable.xcstrings */ = {isa = PBXFileReference; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		617DE060FF8750F5A41BBFCC /* WidgetSessionSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSessionSyncHandler.swift; sourceTree = "<group>"; };
+		6750095BE316E855E5B6DFFB /* LocalFirebaseRESTSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFirebaseRESTSupport.swift; sourceTree = "<group>"; };
+		72F6B2AFFF8470CC39B8712C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		75EB652940B16E87B8DA8683 /* UserTimeZoneSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTimeZoneSyncHandler.swift; sourceTree = "<group>"; };
+		7EADB630F7E3DEFAA6A8DEF4 /* NotificationName+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationName+.swift"; sourceTree = "<group>"; };
+		92978D304EA6E7E31E52FCA5 /* AppAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAssembler.swift; sourceTree = "<group>"; };
+		9788BB12D5D5BDB067367F5A /* DevLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DevLog.entitlements; sourceTree = "<group>"; };
+		9C28911459A3AA1DD0A7B1AA /* PushNotificationOpenHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationOpenHandler.swift; sourceTree = "<group>"; };
+		B1F60100641A6FBC29ED402D /* DevLogCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B347482071F5035929CB7CFB /* TempView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempView.swift; sourceTree = "<group>"; };
+		B967FCB16D2F91F183A858E7 /* DevLogAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevLogAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C362AF15094D8F5E93617B0E /* DevLogAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "DevLogAppTests-Info.plist"; sourceTree = "<group>"; };
+		C44AFCDB8890714D634C4536 /* DevLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLogApp.swift; sourceTree = "<group>"; };
+		CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainTab+WidgetDeepLink.swift"; sourceTree = "<group>"; };
+		D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F078E79DE65AE8D92F556B27 /* DeletePushNotificationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletePushNotificationIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		673A0C8CF8DB5C6AD6614292 /* Exceptions for "Sources" folder in "DevLog" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Resource/Config.xcconfig,
-				Resource/Info.plist,
-			);
-			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
-		};
-		6D865D5656AAAB2BB495EB93 /* Exceptions for "../../Widget/DevLogWidgetExtension" folder in "DevLogWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Resource/Info.plist,
-			);
-			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		DF34164A2E45F67C00F9312B /* Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		DF8AB7982E938B0B00E50BBF /* Sources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				673A0C8CF8DB5C6AD6614292 /* Exceptions for "Sources" folder in "DevLog" target */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		DFD3A9752F8E89DD001DA7CD /* ../../Widget/DevLogWidgetExtension */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				6D865D5656AAAB2BB495EB93 /* Exceptions for "../../Widget/DevLogWidgetExtension" folder in "DevLogWidgetExtension" target */,
-			);
-			path = ../../Widget/DevLogWidgetExtension;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
-		DF3416472E45F67C00F9312B /* Frameworks */ = {
+		57FC25B11FAD3FA717E335BD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				838CE33AAE5E70622E178AE8 /* DevLogCore.framework in Frameworks */,
+				AD703265E206D6B4B17BD56D /* DevLogData.framework in Frameworks */,
+				8D0BCF8A2A4BB24AFDD2BEC8 /* DevLogDomain.framework in Frameworks */,
+				AA5C5ACB75796DECF2BE6939 /* DevLogInfra.framework in Frameworks */,
+				AE8FAFB84865A9798429346B /* DevLogPersistence.framework in Frameworks */,
+				423070F73AE0E059BC417D30 /* DevLogPresentation.framework in Frameworks */,
+				A93F228DD04515584B150BCE /* DevLogWidgetCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DFD3A96D2F8E89DD001DA7CD /* Frameworks */ = {
+		B8B8EE21C630BB5CF7E48CAC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFD3A9742F8E89DD001DA7CD /* SwiftUI.framework in Frameworks */,
-				DFD3A9722F8E89DD001DA7CD /* WidgetKit.framework in Frameworks */,
-				618B54224ACD6B35D9A8F841 /* DevLogWidgetCore.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DFD48AFD2DC4D6E2005905C5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB11B22C33D44E55F6677889 /* DevLogCore.framework in Frameworks */,
-				186E9AB4F0A79C50FE853607 /* DevLogDomain.framework in Frameworks */,
-				7188DA2B6DFD13F7FF73069E /* DevLogInfra.framework in Frameworks */,
-				79134AD67952720CCC5069EA /* DevLogPersistence.framework in Frameworks */,
-				26C3DC51F23F9C590FDB282D /* DevLogPresentation.framework in Frameworks */,
-				1589C1EF4029ECBF15A842F0 /* DevLogWidgetCore.framework in Frameworks */,
-				160E41BDADA3136CD58BE0B4 /* DevLogData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4B47FFC0E73415A65560089A /* Products */ = {
+		05C6EC8107AEECFD42CBEBBB /* Integration */ = {
 			isa = PBXGroup;
 			children = (
-				DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */,
-				DFD48B002DC4D6E2005905C5 /* DevLog.app */,
-				DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */,
-				AE11B22C33D44E55F6677889 /* DevLogCore.framework */,
-				DA49949C677DDE083F7DE29E /* DevLogDomain.framework */,
-				9A6AEE3AFC586C92F1643282 /* DevLogInfra.framework */,
-				6FFA0A819CB16649AC35CCE6 /* DevLogPersistence.framework */,
-				67918B544432C45E63273D84 /* DevLogPresentation.framework */,
-				EBFCE939492CAE5AB44E6B81 /* DevLogWidgetCore.framework */,
-				B1B97007E09855108A99428B /* DevLogData.framework */,
+				2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */,
+			);
+			path = Integration;
+			sourceTree = "<group>";
+		};
+		1A3B968711187139DE60604C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C79EBF98E65C2ED9DC4E090C /* App */,
+				B010DBB3FAA011D8422A374B /* PushNotification */,
+				BD7D139B00B80391043465AA /* Support */,
+				974D86C4CA452189FAC270EA /* WebPage */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		1D8FB7D923F9E7606A3B8672 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00187924A3AB799477E05E5F /* DevLog.app */,
+				B967FCB16D2F91F183A858E7 /* DevLogAppTests.xctest */,
+				B1F60100641A6FBC29ED402D /* DevLogCore.framework */,
+				544C918C2E050DFD80C83157 /* DevLogData.framework */,
+				3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */,
+				28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */,
+				2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */,
+				ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */,
+				DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */,
+				D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DFD48AF72DC4D6E2005905C5 = {
+		486F3A456A292E22151A8E00 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				DF8AB7982E938B0B00E50BBF /* Sources */,
-				DF34164A2E45F67C00F9312B /* Tests */,
-				DFD3A9752F8E89DD001DA7CD /* ../../Widget/DevLogWidgetExtension */,
-				DFE28EB62DCCF26300B28FE5 /* Frameworks */,
-				4B47FFC0E73415A65560089A /* Products */,
+				6F190E03DDAFD11C50FF6510 /* App */,
+				514423F7A59AD057AC7310CA /* Resource */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		514423F7A59AD057AC7310CA /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				53D7AC935B97855AA743EFC0 /* Assets.xcassets */,
+				9788BB12D5D5BDB067367F5A /* DevLog.entitlements */,
+				026FE38633FEFB0DD0575244 /* GoogleService-Info.plist */,
+				72F6B2AFFF8470CC39B8712C /* Info.plist */,
+				54FB37FD7BD35DD865B28A9E /* Localizable.xcstrings */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		5E30A3E56E88D96BC7C53DF0 /* Integration */ = {
+			isa = PBXGroup;
+			children = (
+				F078E79DE65AE8D92F556B27 /* DeletePushNotificationIntegrationTests.swift */,
+			);
+			path = Integration;
+			sourceTree = "<group>";
+		};
+		60097CE5D1DA42FC84930179 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				C362AF15094D8F5E93617B0E /* DevLogAppTests-Info.plist */,
+			);
+			path = InfoPlists;
+			sourceTree = "<group>";
+		};
+		627EA6CB7079FEF3EAA0919A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				4635BA36DE82C73A105E7157 /* Version.xcconfig */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = "<group>";
+		};
+		6F190E03DDAFD11C50FF6510 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B3BD0A17E2D7079B71E5851D /* Assembler */,
+				C3803B7EE8DAC37B9E1C4C4C /* Delegate */,
+				FC39B353F5CB051101B824C1 /* Handler */,
+				D4C5B7F48B3861AC6A9E4972 /* Notification */,
+				8B85D312D1D8054055A7F251 /* Routing */,
+				C44AFCDB8890714D634C4536 /* DevLogApp.swift */,
+				B347482071F5035929CB7CFB /* TempView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		8B85D312D1D8054055A7F251 /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+				CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */,
+				534E5D11EAA2E34D71F066DB /* PushNotificationRoute.swift */,
+			);
+			path = Routing;
+			sourceTree = "<group>";
+		};
+		974D86C4CA452189FAC270EA /* WebPage */ = {
+			isa = PBXGroup;
+			children = (
+				05C6EC8107AEECFD42CBEBBB /* Integration */,
+			);
+			path = WebPage;
+			sourceTree = "<group>";
+		};
+		9E8EF4194ED8097ED76A15CB /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				A921B89C54E83E78FB2AC773 /* Derived */,
+				627EA6CB7079FEF3EAA0919A /* Shared */,
+				486F3A456A292E22151A8E00 /* Sources */,
+				1A3B968711187139DE60604C /* Tests */,
+			);
+			name = Project;
+			sourceTree = "<group>";
+		};
+		A921B89C54E83E78FB2AC773 /* Derived */ = {
+			isa = PBXGroup;
+			children = (
+				60097CE5D1DA42FC84930179 /* InfoPlists */,
+			);
+			path = Derived;
+			sourceTree = "<group>";
+		};
+		B010DBB3FAA011D8422A374B /* PushNotification */ = {
+			isa = PBXGroup;
+			children = (
+				5E30A3E56E88D96BC7C53DF0 /* Integration */,
+			);
+			path = PushNotification;
+			sourceTree = "<group>";
+		};
+		B3BD0A17E2D7079B71E5851D /* Assembler */ = {
+			isa = PBXGroup;
+			children = (
+				92978D304EA6E7E31E52FCA5 /* AppAssembler.swift */,
+				07E342C6FE37BD9A01BF6F35 /* AppLayerAssembler.swift */,
+			);
+			path = Assembler;
+			sourceTree = "<group>";
+		};
+		B6ED5DFFCF03124251DDFEB1 = {
+			isa = PBXGroup;
+			children = (
+				1D8FB7D923F9E7606A3B8672 /* Products */,
+				9E8EF4194ED8097ED76A15CB /* Project */,
 			);
 			sourceTree = "<group>";
 		};
-		DFE28EB62DCCF26300B28FE5 /* Frameworks */ = {
+		BD7D139B00B80391043465AA /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				DFD3A9712F8E89DD001DA7CD /* WidgetKit.framework */,
-				DFD3A9732F8E89DD001DA7CD /* SwiftUI.framework */,
+				6750095BE316E855E5B6DFFB /* LocalFirebaseRESTSupport.swift */,
 			);
-			name = Frameworks;
+			path = Support;
+			sourceTree = "<group>";
+		};
+		C3803B7EE8DAC37B9E1C4C4C /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				3AC12B5E227050E4BAEF315D /* AppDelegate.swift */,
+			);
+			path = Delegate;
+			sourceTree = "<group>";
+		};
+		C79EBF98E65C2ED9DC4E090C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				462271192C47C593C36AC403 /* WidgetSessionSyncHandlerTests.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D4C5B7F48B3861AC6A9E4972 /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				7EADB630F7E3DEFAA6A8DEF4 /* NotificationName+.swift */,
+			);
+			path = Notification;
+			sourceTree = "<group>";
+		};
+		FC39B353F5CB051101B824C1 /* Handler */ = {
+			isa = PBXGroup;
+			children = (
+				346173767E6ED68E9DFDA51C /* FCMTokenSyncHandler.swift */,
+				9C28911459A3AA1DD0A7B1AA /* PushNotificationOpenHandler.swift */,
+				75EB652940B16E87B8DA8683 /* UserTimeZoneSyncHandler.swift */,
+				617DE060FF8750F5A41BBFCC /* WidgetSessionSyncHandler.swift */,
+			);
+			path = Handler;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DF3416442E45F67C00F9312B /* DevLogAppTests */ = {
+		0EDF4BB78A091D2F550FEB0C /* DevLogAppTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLogAppTests" */;
+			buildConfigurationList = 837CA5DFC79DAA1FC7061C1E /* Build configuration list for PBXNativeTarget "DevLogAppTests" */;
 			buildPhases = (
-				DF3416462E45F67C00F9312B /* Sources */,
-				DF3416472E45F67C00F9312B /* Frameworks */,
-				DF3416482E45F67C00F9312B /* Resources */,
+				E2FB1D14D10050DE3A20A51E /* Sources */,
+				3A616538DE2979AE9870163E /* Resources */,
+				B8B8EE21C630BB5CF7E48CAC /* Frameworks */,
+				3913A993FDF971B5EF3D08B6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DF66A07E2EA52E9F0098E643 /* PBXTargetDependency */,
-				DF34164C2E45F67C00F9312B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DF34164A2E45F67C00F9312B /* Tests */,
+				8FF0E528E39F808C9B104B3A /* PBXTargetDependency */,
 			);
 			name = DevLogAppTests;
-			productName = DevLogAppTests;
-			productReference = DF3416492E45F67C00F9312B /* DevLogAppTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DFD3A9832F8E89DF001DA7CD /* Build configuration list for PBXNativeTarget "DevLogWidgetExtension" */;
-			buildPhases = (
-				DFD3A96C2F8E89DD001DA7CD /* Sources */,
-				DFD3A96D2F8E89DD001DA7CD /* Frameworks */,
-				DFD3A96E2F8E89DD001DA7CD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				DFD3A9752F8E89DD001DA7CD /* ../../Widget/DevLogWidgetExtension */,
-			);
-			name = DevLogWidgetExtension;
-			productName = DevLogWidgetExtension;
-			productReference = DFD3A9702F8E89DD001DA7CD /* DevLogWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		DFD48AFF2DC4D6E2005905C5 /* DevLog */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DFD48B112DC4D6E4005905C5 /* Build configuration list for PBXNativeTarget "DevLog" */;
-			buildPhases = (
-				DFD48AFC2DC4D6E2005905C5 /* Sources */,
-				DFD48AFD2DC4D6E2005905C5 /* Frameworks */,
-				DFD48AFE2DC4D6E2005905C5 /* Resources */,
-				D8D4472904EC49ABB6712905 /* Embed Frameworks */,
-				DFD3A9802F8E89DF001DA7CD /* Embed Foundation Extensions */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */,
-				DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DF8AB7982E938B0B00E50BBF /* Sources */,
-			);
-			name = DevLog;
 			packageProductDependencies = (
 			);
-			productName = SwiftUI_DevLog;
-			productReference = DFD48B002DC4D6E2005905C5 /* DevLog.app */;
+			productName = DevLogAppTests;
+			productReference = B967FCB16D2F91F183A858E7 /* DevLogAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B9946B184E6A28C345727743 /* DevLogApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8FC710CBE7E4D44F118AB966 /* Build configuration list for PBXNativeTarget "DevLogApp" */;
+			buildPhases = (
+				4410266F84DFEDF1AD384E70 /* Sources */,
+				F59796CE910393CEA4425551 /* Resources */,
+				EE6E8FD0A6B1576EFDD670D7 /* Embed Foundation Extensions */,
+				57FC25B11FAD3FA717E335BD /* Frameworks */,
+				3EFD9912043B4750986720C7 /* Embed Frameworks */,
+				6F6617D938EF8B5675B63F6F /* Dependencies */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F1C606EFA5987958B7E6931 /* PBXTargetDependency */,
+			);
+			name = DevLogApp;
+			packageProductDependencies = (
+			);
+			productName = DevLog;
+			productReference = 00187924A3AB799477E05E5F /* DevLog.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		DFD48AF82DC4D6E2005905C5 /* Project object */ = {
+		D484D63AA014569C134A5726 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
-				LastUpgradeCheck = 2640;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
-					DF3416442E45F67C00F9312B = {
-						CreatedOnToolsVersion = 16.3;
-						TestTargetID = DFD48AFF2DC4D6E2005905C5;
-					};
-					DFD3A96F2F8E89DD001DA7CD = {
-						CreatedOnToolsVersion = 26.4;
-					};
-					DFD48AFF2DC4D6E2005905C5 = {
-						CreatedOnToolsVersion = 16.3;
+					0EDF4BB78A091D2F550FEB0C = {
+						TestTargetID = B9946B184E6A28C345727743;
 					};
 				};
 			};
-			buildConfigurationList = DFD48AFB2DC4D6E2005905C5 /* Build configuration list for PBXProject "DevLogApp" */;
-			developmentRegion = ko;
+			buildConfigurationList = C63FA42A758CBEDBE26D74D9 /* Build configuration list for PBXProject "DevLogApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				ko,
-				en,
 				Base,
+				en,
 			);
-			mainGroup = DFD48AF72DC4D6E2005905C5;
-			minimizedProjectReferenceProxies = 1;
+			mainGroup = B6ED5DFFCF03124251DDFEB1;
 			packageReferences = (
-				DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */,
+				F486D2C2F7C0C1136BD9434E /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
-			preferredProjectObjectVersion = 77;
-			productRefGroup = 4B47FFC0E73415A65560089A /* Products */;
+			productRefGroup = 1D8FB7D923F9E7606A3B8672 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DF3416442E45F67C00F9312B /* DevLogAppTests */,
-				DFD48AFF2DC4D6E2005905C5 /* DevLog */,
-				DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */,
+				B9946B184E6A28C345727743 /* DevLogApp */,
+				0EDF4BB78A091D2F550FEB0C /* DevLogAppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		DF3416482E45F67C00F9312B /* Resources */ = {
+		3A616538DE2979AE9870163E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DFD3A96E2F8E89DD001DA7CD /* Resources */ = {
+		F59796CE910393CEA4425551 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DFD48AFE2DC4D6E2005905C5 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				1056A18C4306853A83487239 /* Assets.xcassets in Resources */,
+				DF971A154668D99F2A646957 /* GoogleService-Info.plist in Resources */,
+				639B4FC200C1DBE419A0D045 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		DF3416462E45F67C00F9312B /* Sources */ = {
+		4410266F84DFEDF1AD384E70 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7400D2F56E0FF551F88D28F /* AppAssembler.swift in Sources */,
+				6E8FD8D6B04CC7B5E4C6DC72 /* AppLayerAssembler.swift in Sources */,
+				23B23964D44D78E8CFF0D97C /* AppDelegate.swift in Sources */,
+				B154A155136A179166B00EAC /* DevLogApp.swift in Sources */,
+				597D86067427D93D540F946B /* FCMTokenSyncHandler.swift in Sources */,
+				79C163716D66A55453576FB5 /* PushNotificationOpenHandler.swift in Sources */,
+				F616FED4E3CB9E7EB40E22FD /* UserTimeZoneSyncHandler.swift in Sources */,
+				1FF94A7355AB32086A27E3F8 /* WidgetSessionSyncHandler.swift in Sources */,
+				25E825500273F1F887CCC6DC /* NotificationName+.swift in Sources */,
+				3BFF117D0E2682ECB0044884 /* MainTab+WidgetDeepLink.swift in Sources */,
+				5B1CB12023BE41B32EA64B95 /* PushNotificationRoute.swift in Sources */,
+				47A3EA049D3AF319B62853ED /* TempView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DFD3A96C2F8E89DD001DA7CD /* Sources */ = {
+		E2FB1D14D10050DE3A20A51E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DFD48AFC2DC4D6E2005905C5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				3CC295543F33CF6BE9560AE0 /* WidgetSessionSyncHandlerTests.swift in Sources */,
+				FF064556C84609C21C1F2682 /* DeletePushNotificationIntegrationTests.swift in Sources */,
+				088CF111FEB9773D36BFDAFB /* LocalFirebaseRESTSupport.swift in Sources */,
+				E312AB98EB0B33141E499A04 /* DeleteWebPageIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DF34164C2E45F67C00F9312B /* PBXTargetDependency */ = {
+		6F1C606EFA5987958B7E6931 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DFD48AFF2DC4D6E2005905C5 /* DevLog */;
-			targetProxy = DF34164B2E45F67C00F9312B /* PBXContainerItemProxy */;
+			productRef = 74C13978F4555F45534C7D61 /* SwiftLintBuildToolPlugin */;
 		};
-		DF66A07D2EA52E9F0098E643 /* PBXTargetDependency */ = {
+		8FF0E528E39F808C9B104B3A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
-		};
-		DF66A07E2EA52E9F0098E643 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */;
-		};
-		DFD3A97E2F8E89DF001DA7CD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DFD3A96F2F8E89DD001DA7CD /* DevLogWidgetExtension */;
-			targetProxy = DFD3A97D2F8E89DF001DA7CD /* PBXContainerItemProxy */;
+			name = DevLogApp;
+			target = B9946B184E6A28C345727743 /* DevLogApp */;
+			targetProxy = 67951051414B4FDA396E9D72 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		DF34164D2E45F67C00F9312B /* Debug */ = {
+		31AC08F8A6DA3854B3A6B6AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resource/DevLog.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Sources/Resource/Info.plist;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog;
+				PRODUCT_MODULE_NAME = DevLogApp;
+				PRODUCT_NAME = DevLog;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7E9F2E18FAE5F78B95978DD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
-				MARKETING_VERSION = 1.2;
+				INFOPLIST_FILE = "Derived/InfoPlists/DevLogAppTests-Info.plist";
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLogAppTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				PRODUCT_NAME = DevLogAppTests;
+				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					"$(inherited)",
+					DEBUG,
+				);
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog";
-				TEST_TARGET_NAME = DevLog;
+				TEST_TARGET_NAME = DevLogApp;
 			};
 			name = Debug;
 		};
-		DF34164E2E45F67C00F9312B /* Release */ = {
+		823CD3D8BED42B7CD7AC5B6B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
-				MARKETING_VERSION = 1.2;
+				INFOPLIST_FILE = "Derived/InfoPlists/DevLogAppTests-Info.plist";
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLogAppTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				PRODUCT_NAME = DevLogAppTests;
+				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog";
-				TEST_TARGET_NAME = DevLog;
+				TEST_TARGET_NAME = DevLogApp;
 			};
 			name = Release;
 		};
-		DFD3A9812F8E89DF001DA7CD /* Debug */ = {
+		8D758741AE117AED0462B9E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = ../../Widget/DevLogWidgetExtension/Resource/DevLogWidget.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = Sources/Resource/DevLog.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ../../Widget/DevLogWidgetExtension/Resource/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Sources/Resource/Info.plist;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog.DevLogWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog;
+				PRODUCT_MODULE_NAME = DevLogApp;
+				PRODUCT_NAME = DevLog;
+				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					"$(inherited)",
+					DEBUG,
+				);
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		DFD3A9822F8E89DF001DA7CD /* Release */ = {
+		EA1DB0FAD4DA791F30BFE94A /* Release */ = {
 			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = ../../Widget/DevLogWidgetExtension/Resource/DevLogWidget.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ../../Widget/DevLogWidgetExtension/Resource/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DevLogWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog.DevLogWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		DFD48B122DC4D6E4005905C5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* Sources */;
-			baseConfigurationReferenceRelativePath = Resource/Config.xcconfig;
-			buildSettings = {
-				APS_ENVIRONMENT = development;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Sources/Resource/DevLog.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Sources/Resource/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DevLog;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZED_STRING_SWIFTUI_SUPPORT = YES;
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		DFD48B132DC4D6E4005905C5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* Sources */;
-			baseConfigurationReferenceRelativePath = Resource/Config.xcconfig;
-			buildSettings = {
-				APS_ENVIRONMENT = production;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Sources/Resource/DevLog.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Sources/Resource/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DevLog;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZED_STRING_SWIFTUI_SUPPORT = YES;
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = opfic.DevLog;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		DFD48B142DC4D6E4005905C5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* Sources */;
-			baseConfigurationReferenceRelativePath = Resource/Config.xcconfig;
+			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -645,12 +700,77 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4CPC6N38WA;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FEDAC787FBC054E2059B2641 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4635BA36DE82C73A105E7157 /* Version.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4CPC6N38WA;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -664,116 +784,43 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
-		};
-		DFD48B152DC4D6E4005905C5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = DF8AB7982E938B0B00E50BBF /* Sources */;
-			baseConfigurationReferenceRelativePath = Resource/Config.xcconfig;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 4CPC6N38WA;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DF3416452E45F67C00F9312B /* Build configuration list for PBXNativeTarget "DevLogAppTests" */ = {
+		837CA5DFC79DAA1FC7061C1E /* Build configuration list for PBXNativeTarget "DevLogAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DF34164D2E45F67C00F9312B /* Debug */,
-				DF34164E2E45F67C00F9312B /* Release */,
+				7E9F2E18FAE5F78B95978DD3 /* Debug */,
+				823CD3D8BED42B7CD7AC5B6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DFD3A9832F8E89DF001DA7CD /* Build configuration list for PBXNativeTarget "DevLogWidgetExtension" */ = {
+		8FC710CBE7E4D44F118AB966 /* Build configuration list for PBXNativeTarget "DevLogApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DFD3A9812F8E89DF001DA7CD /* Debug */,
-				DFD3A9822F8E89DF001DA7CD /* Release */,
+				8D758741AE117AED0462B9E4 /* Debug */,
+				31AC08F8A6DA3854B3A6B6AC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DFD48AFB2DC4D6E2005905C5 /* Build configuration list for PBXProject "DevLogApp" */ = {
+		C63FA42A758CBEDBE26D74D9 /* Build configuration list for PBXProject "DevLogApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DFD48B142DC4D6E4005905C5 /* Debug */,
-				DFD48B152DC4D6E4005905C5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DFD48B112DC4D6E4005905C5 /* Build configuration list for PBXNativeTarget "DevLog" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DFD48B122DC4D6E4005905C5 /* Debug */,
-				DFD48B132DC4D6E4005905C5 /* Release */,
+				FEDAC787FBC054E2059B2641 /* Debug */,
+				EA1DB0FAD4DA791F30BFE94A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -781,7 +828,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+		F486D2C2F7C0C1136BD9434E /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint";
 			requirement = {
@@ -792,12 +839,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DF66A07C2EA52E9F0098E643 /* SwiftLintBuildToolPlugin */ = {
+		74C13978F4555F45534C7D61 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DF66A07B2EA52E970098E643 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = DFD48AF82DC4D6E2005905C5 /* Project object */;
+	rootObject = D484D63AA014569C134A5726 /* Project object */;
 }

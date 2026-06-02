@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1600"
+   LastUpgradeVersion = "2650"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0C205A501EF8E79FA9A73C4B"
+               BlueprintIdentifier = "5C2A22BFF862D640BD73F7D3"
                BuildableName = "DevLogPersistence.framework"
                BlueprintName = "DevLogPersistence"
                ReferencedContainer = "container:DevLogPersistence.xcodeproj">
@@ -28,6 +28,17 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "017D717EF7879F6B2BF5AF36"
+               BuildableName = "DevLogPersistenceTests.xctest"
+               BlueprintName = "DevLogPersistenceTests"
+               ReferencedContainer = "container:DevLogPersistence.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -40,6 +51,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5C2A22BFF862D640BD73F7D3"
+            BuildableName = "DevLogPersistence.framework"
+            BlueprintName = "DevLogPersistence"
+            ReferencedContainer = "container:DevLogPersistence.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -47,6 +67,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5C2A22BFF862D640BD73F7D3"
+            BuildableName = "DevLogPersistence.framework"
+            BlueprintName = "DevLogPersistence"
+            ReferencedContainer = "container:DevLogPersistence.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

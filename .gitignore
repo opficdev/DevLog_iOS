@@ -13,6 +13,7 @@ xcuserdata/
 GoogleService-Info.plist
 UserInterfaceState.xcuserstate
 Breakpoints_v2.xcbkptlist
+**/Derived/
 **/build/
 **/xcuserdata/
 ContentView.swift
@@ -36,6 +37,14 @@ fastlane/logs/
 # Build Artifacts
 *.ipa
 *.dSYM.zip
+.package.resolved
+.home/
+.module-cache/
+.swift-module-cache/
+.tmp/
+.spm/
+Tuist/.build/
+DevLog.xcworkspace/.tuist-generated
 
 # drawio
 *.drawio.bkp
