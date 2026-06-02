@@ -25,6 +25,7 @@ struct PushNotificationListView: View {
     var body: some View {
         NavigationStack {
             notificationList
+                .background(Color(.systemGroupedBackground))
                 .background(NavigationBarConfigurator(alwaysVisible: true))
                 .onScrollOffsetChange { offset in
                     guard isScrollTrackingEnabled else { return }

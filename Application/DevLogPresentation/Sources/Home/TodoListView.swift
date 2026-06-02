@@ -116,6 +116,7 @@ struct TodoListView: View {
             }
         }
         .background(NavigationBarConfigurator())
+        .background(Color(.systemGroupedBackground))
         .task { viewModel.send(.onAppear) }
     }
 
