@@ -359,13 +359,13 @@ struct MainView: View {
             TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
                 .id(todoId)
         case .settings:
-            SettingView(viewModel: profileViewCoordinator.settingViewModel)
+            SettingsView(viewModel: profileViewCoordinator.settingsViewModel)
                 .environment(profileViewCoordinator.router)
         case .theme:
             ThemeView(
                 theme: Binding(
-                    get: { profileViewCoordinator.settingViewModel.state.theme },
-                    set: { profileViewCoordinator.settingViewModel.send(.setTheme($0)) }
+                    get: { profileViewCoordinator.settingsViewModel.state.theme },
+                    set: { profileViewCoordinator.settingsViewModel.send(.setTheme($0)) }
                 )
             )
         case .pushNotification:

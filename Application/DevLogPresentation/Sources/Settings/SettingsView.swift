@@ -1,5 +1,5 @@
 //
-//  SettingView.swift
+//  SettingsView.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 5/6/25.
@@ -8,9 +8,9 @@
 import SwiftUI
 import DevLogDomain
 
-struct SettingView: View {
+struct SettingsView: View {
     @Environment(NavigationRouter<ProfileRoute>.self) private var router
-    @State var viewModel: SettingViewModel
+    @State var viewModel: SettingsViewModel
 
     var body: some View {
         let connected = viewModel.state.isNetworkConnected

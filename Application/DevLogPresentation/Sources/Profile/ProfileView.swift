@@ -27,7 +27,6 @@ struct ProfileView: View {
                 profileContentView
             }
         }
-        .toolbar { profileToolbarContent }
         .onChange(of: focused) { _, newValue in
             withAnimation {
                 coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
@@ -127,6 +126,7 @@ struct ProfileView: View {
         .refreshable { coordinator.viewModel.send(.refresh) }
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
+        .toolbar { profileToolbarContent }
     }
 
     @ToolbarContentBuilder
@@ -148,15 +148,15 @@ struct ProfileView: View {
     private func profileDestinationView(_ route: ProfileRoute) -> some View {
         switch route {
         case .settings:
-            SettingView(viewModel: coordinator.settingViewModel)
+            SettingsView(viewModel: coordinator.settingsViewModel)
                 .environment(coordinator.router)
         case .activity(let todoId):
             TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
         case .theme:
             ThemeView(
                 theme: Binding(
-                    get: { coordinator.settingViewModel.state.theme },
-                    set: { coordinator.settingViewModel.send(.setTheme($0)) }
+                    get: { coordinator.settingsViewModel.state.theme },
+                    set: { coordinator.settingsViewModel.send(.setTheme($0)) }
                 )
             )
         case .pushNotification:
