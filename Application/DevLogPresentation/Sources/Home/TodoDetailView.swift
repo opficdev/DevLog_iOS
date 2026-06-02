@@ -17,7 +17,7 @@ struct TodoDetailView: View {
 
     var body: some View {
         ZStack {
-            Color(.secondarySystemBackground).ignoresSafeArea()
+            Color(.systemGroupedBackground).ignoresSafeArea()
             if let todo = viewModel.state.todo, let number = todo.number {
                 TodoDetailContentView(
                     title: todo.title,
@@ -55,7 +55,7 @@ struct TodoDetailView: View {
                     }
                 }
             }
-            .background(Color(.secondarySystemBackground))
+            .background(Color(.systemGroupedBackground))
             .presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: Binding(
