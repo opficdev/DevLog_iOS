@@ -26,6 +26,7 @@ let project = Project(
             entitlements: .file(path: "Sources/Resource/DevLog.entitlements"),
             dependencies: [
                 .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
+                .project(target: "DevLogUI", path: "../DevLogUI"),
                 .project(target: "DevLogPersistence", path: "../DevLogPersistence"),
                 .project(target: "DevLogInfra", path: "../DevLogInfra"),
                 .project(target: "DevLogData", path: "../DevLogData"),

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		014266F6F7BFECD66B6DFFAE /* DevLogPersistence.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0839F65046F9E9A7CD41A531 /* DevLogUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B1D82B3A3D99364567064B1 /* DevLogUI.framework */; };
 		088CF111FEB9773D36BFDAFB /* LocalFirebaseRESTSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6750095BE316E855E5B6DFFB /* LocalFirebaseRESTSupport.swift */; };
 		0B79D44CFEC6A20F873CF3A9 /* DevLogCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1F60100641A6FBC29ED402D /* DevLogCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1056A18C4306853A83487239 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53D7AC935B97855AA743EFC0 /* Assets.xcassets */; };
@@ -15,6 +16,7 @@
 		23B23964D44D78E8CFF0D97C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC12B5E227050E4BAEF315D /* AppDelegate.swift */; };
 		25E825500273F1F887CCC6DC /* NotificationName+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EADB630F7E3DEFAA6A8DEF4 /* NotificationName+.swift */; };
 		2C2180289EEF65F3CF5C1273 /* DevLogWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37996815654B34E69C60877B /* DevLogUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4B1D82B3A3D99364567064B1 /* DevLogUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3BFF117D0E2682ECB0044884 /* MainTab+WidgetDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */; };
 		3CC295543F33CF6BE9560AE0 /* WidgetSessionSyncHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462271192C47C593C36AC403 /* WidgetSessionSyncHandlerTests.swift */; };
 		423070F73AE0E059BC417D30 /* DevLogPresentation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */; };
@@ -35,7 +37,9 @@
 		AE8FAFB84865A9798429346B /* DevLogPersistence.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */; };
 		B154A155136A179166B00EAC /* DevLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44AFCDB8890714D634C4536 /* DevLogApp.swift */; };
 		CED2148B1FA2117B58665B63 /* DevLogWidgetExtension.appex in Dependencies */ = {isa = PBXBuildFile; fileRef = D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */; };
+		CF9A2B14D691948BA64EAF7D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8713EA9CC7AFF3F0A584863 /* RootView.swift */; };
 		D892FE40671E7C165DBE4E4D /* DevLogInfra.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DAA07C6782ECCD9D9047D56D /* TodoEditorWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CC786C01FCD38075E60D0 /* TodoEditorWindowView.swift */; };
 		DF971A154668D99F2A646957 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 026FE38633FEFB0DD0575244 /* GoogleService-Info.plist */; };
 		E312AB98EB0B33141E499A04 /* DeleteWebPageIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */; };
 		EDE9714BCCC50B8950F0E911 /* DevLogPresentation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -77,6 +81,7 @@
 				D892FE40671E7C165DBE4E4D /* DevLogInfra.framework in Embed Frameworks */,
 				014266F6F7BFECD66B6DFFAE /* DevLogPersistence.framework in Embed Frameworks */,
 				EDE9714BCCC50B8950F0E911 /* DevLogPresentation.framework in Embed Frameworks */,
+				37996815654B34E69C60877B /* DevLogUI.framework in Embed Frameworks */,
 				F2F380C38E8953DB78F85FC2 /* DevLogWidgetCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -111,11 +116,13 @@
 		2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPersistence.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogInfra.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B937350A0682E6F1CD20536 /* DeleteWebPageIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteWebPageIntegrationTests.swift; sourceTree = "<group>"; };
+		2C4CC786C01FCD38075E60D0 /* TodoEditorWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEditorWindowView.swift; sourceTree = "<group>"; };
 		346173767E6ED68E9DFDA51C /* FCMTokenSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMTokenSyncHandler.swift; sourceTree = "<group>"; };
 		3494F50D6E7BC9510DE43F65 /* DevLogDomain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogDomain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC12B5E227050E4BAEF315D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		462271192C47C593C36AC403 /* WidgetSessionSyncHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSessionSyncHandlerTests.swift; sourceTree = "<group>"; };
 		4635BA36DE82C73A105E7157 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		4B1D82B3A3D99364567064B1 /* DevLogUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		534E5D11EAA2E34D71F066DB /* PushNotificationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationRoute.swift; sourceTree = "<group>"; };
 		53D7AC935B97855AA743EFC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		544C918C2E050DFD80C83157 /* DevLogData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,6 +142,7 @@
 		C44AFCDB8890714D634C4536 /* DevLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLogApp.swift; sourceTree = "<group>"; };
 		CAEEC97A4EC302C6974E1A4E /* MainTab+WidgetDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainTab+WidgetDeepLink.swift"; sourceTree = "<group>"; };
 		D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DevLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8713EA9CC7AFF3F0A584863 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DevLogPresentation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F078E79DE65AE8D92F556B27 /* DeletePushNotificationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletePushNotificationIntegrationTests.swift; sourceTree = "<group>"; };
@@ -151,6 +159,7 @@
 				AA5C5ACB75796DECF2BE6939 /* DevLogInfra.framework in Frameworks */,
 				AE8FAFB84865A9798429346B /* DevLogPersistence.framework in Frameworks */,
 				423070F73AE0E059BC417D30 /* DevLogPresentation.framework in Frameworks */,
+				0839F65046F9E9A7CD41A531 /* DevLogUI.framework in Frameworks */,
 				A93F228DD04515584B150BCE /* DevLogWidgetCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -195,6 +204,7 @@
 				28ECC31B0B7F9C0A9BB4F55C /* DevLogInfra.framework */,
 				2242DBABD8ABF11A23160669 /* DevLogPersistence.framework */,
 				ECA33E1403AF8BDB84D46C01 /* DevLogPresentation.framework */,
+				4B1D82B3A3D99364567064B1 /* DevLogUI.framework */,
 				DCC05042BEB7C047BE4DB7E9 /* DevLogWidgetCore.framework */,
 				D0044D9310C29492954FD1F7 /* DevLogWidgetExtension.appex */,
 			);
@@ -255,6 +265,7 @@
 				FC39B353F5CB051101B824C1 /* Handler */,
 				D4C5B7F48B3861AC6A9E4972 /* Notification */,
 				8B85D312D1D8054055A7F251 /* Routing */,
+				A3B5438D0D9EDCCCA37FEB88 /* Scene */,
 				C44AFCDB8890714D634C4536 /* DevLogApp.swift */,
 				B347482071F5035929CB7CFB /* TempView.swift */,
 			);
@@ -287,6 +298,15 @@
 				1A3B968711187139DE60604C /* Tests */,
 			);
 			name = Project;
+			sourceTree = "<group>";
+		};
+		A3B5438D0D9EDCCCA37FEB88 /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				D8713EA9CC7AFF3F0A584863 /* RootView.swift */,
+				2C4CC786C01FCD38075E60D0 /* TodoEditorWindowView.swift */,
+			);
+			path = Scene;
 			sourceTree = "<group>";
 		};
 		A921B89C54E83E78FB2AC773 /* Derived */ = {
@@ -484,6 +504,8 @@
 				25E825500273F1F887CCC6DC /* NotificationName+.swift in Sources */,
 				3BFF117D0E2682ECB0044884 /* MainTab+WidgetDeepLink.swift in Sources */,
 				5B1CB12023BE41B32EA64B95 /* PushNotificationRoute.swift in Sources */,
+				CF9A2B14D691948BA64EAF7D /* RootView.swift in Sources */,
+				DAA07C6782ECCD9D9047D56D /* TodoEditorWindowView.swift in Sources */,
 				47A3EA049D3AF319B62853ED /* TempView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
