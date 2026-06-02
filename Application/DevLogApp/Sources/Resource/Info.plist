@@ -65,8 +65,6 @@
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>UIStatusBarStyle</key>
-	<string></string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
