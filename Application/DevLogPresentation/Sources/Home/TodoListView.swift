@@ -116,6 +116,7 @@ struct TodoListView: View {
             }
         }
         .background(NavigationBarConfigurator())
+        .background(Color(.systemGroupedBackground))
         .task { viewModel.send(.onAppear) }
     }
 
@@ -201,7 +202,7 @@ struct TodoListView: View {
                     if #available(iOS 26.0, *) {
                         Color.clear
                     } else {
-                        Color(.systemBackground)
+                        Color(.systemGroupedBackground)
                     }
                 }
                 .offset(y: headerOffset)

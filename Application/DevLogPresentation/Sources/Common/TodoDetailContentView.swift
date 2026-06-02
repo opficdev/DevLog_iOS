@@ -18,7 +18,7 @@ struct TodoDetailContentView: View {
 
     var body: some View {
         ZStack {
-            Color(.secondarySystemBackground).ignoresSafeArea()
+            Color(.systemGroupedBackground).ignoresSafeArea()
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {

@@ -10,7 +10,7 @@ import DevLogDomain
 
 /// NavigationBar의 배경색을 지정하고 shadowColor를 제거하는 구조체
 ///
-/// 기본적으로 ``UIColor/systemBackground``를 배경색으로 사용하며,
+/// 기본적으로 ``UIColor/systemGroupedBackground``를 배경색으로 사용하며,
 /// 자체 `NavigationStack`을 가진 뷰에서는 `alwaysVisible`을 `true`로 설정하여
 /// 스크롤 위치와 관계없이 배경색이 항상 표시되도록 할 수 있다.
 struct NavigationBarConfigurator: UIViewControllerRepresentable {
@@ -20,7 +20,7 @@ struct NavigationBarConfigurator: UIViewControllerRepresentable {
     /// 지정된 배경색으로 Configurator를 생성한다.
     ///
     /// - Parameter backgroundColor: NavigationBar에 적용할 배경색.
-    init(_ backgroundColor: UIColor = .systemBackground) {
+    init(_ backgroundColor: UIColor = .systemGroupedBackground) {
         self.backgroundColor = backgroundColor
         self.alwaysVisible = false
     }
@@ -32,7 +32,7 @@ struct NavigationBarConfigurator: UIViewControllerRepresentable {
     ///   - alwaysVisible: `true`이면 스크롤 위치와 관계없이 배경색이 항상 표시된다.
     ///     자체 `NavigationStack`을 가진 뷰에서 사용한다.
     @available(iOS, deprecated: 18, message: "iOS 18 이상에서는 alwaysVisible 파라미터가 없는 생성자를 사용한다.")
-    init(_ backgroundColor: UIColor = .systemBackground, alwaysVisible: Bool) {
+    init(_ backgroundColor: UIColor = .systemGroupedBackground, alwaysVisible: Bool) {
         self.backgroundColor = backgroundColor
         if #available(iOS 18.0, *) {
             self.alwaysVisible = false
