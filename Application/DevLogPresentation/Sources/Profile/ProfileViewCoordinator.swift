@@ -13,7 +13,7 @@ import DevLogDomain
 @Observable
 final class ProfileViewCoordinator {
     let viewModel: ProfileViewModel
-    let settingViewModel: SettingViewModel
+    let settingsViewModel: SettingsViewModel
     var router = NavigationRouter<ProfileRoute>()
     private let container: DIContainer
 
@@ -27,7 +27,7 @@ final class ProfileViewCoordinator {
             fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
             updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
         )
-        self.settingViewModel = SettingViewModel(
+        self.settingsViewModel = SettingsViewModel(
             deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
             signOutUseCase: container.resolve(SignOutUseCase.self),
             networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),

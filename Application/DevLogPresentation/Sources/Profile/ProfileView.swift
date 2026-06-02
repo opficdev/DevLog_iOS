@@ -148,15 +148,15 @@ struct ProfileView: View {
     private func profileDestinationView(_ route: ProfileRoute) -> some View {
         switch route {
         case .settings:
-            SettingView(viewModel: coordinator.settingViewModel)
+            SettingsView(viewModel: coordinator.settingsViewModel)
                 .environment(coordinator.router)
         case .activity(let todoId):
             TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
         case .theme:
             ThemeView(
                 theme: Binding(
-                    get: { coordinator.settingViewModel.state.theme },
-                    set: { coordinator.settingViewModel.send(.setTheme($0)) }
+                    get: { coordinator.settingsViewModel.state.theme },
+                    set: { coordinator.settingsViewModel.send(.setTheme($0)) }
                 )
             )
         case .pushNotification:

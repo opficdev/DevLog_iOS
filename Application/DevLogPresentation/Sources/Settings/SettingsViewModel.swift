@@ -1,5 +1,5 @@
 //
-//  SettingViewModel.swift
+//  SettingsViewModel.swift
 //  DevLogPresentation
 //
 //  Created by 최윤진 on 11/22/25.
@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class SettingViewModel: Store {
+final class SettingsViewModel: Store {
     struct State: Equatable {
         var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0
@@ -158,7 +158,7 @@ final class SettingViewModel: Store {
     }
 }
 
-private extension SettingViewModel {
+private extension SettingsViewModel {
     func setAlert(
         _ state: inout State,
         isPresented: Bool,
