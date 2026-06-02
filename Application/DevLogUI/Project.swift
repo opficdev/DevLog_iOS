@@ -7,6 +7,7 @@ let project = Project.devlogFramework(
     versionXcconfigPath: "../Shared/Version.xcconfig",
     packages: DevLogPackages.presentationPackages,
     dependencies: [
+        .project(target: "DevLogCore", path: "../DevLogCore"),
         .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
     ] + DevLogPackages.presentationPackageDependencies,
     hasTests: false

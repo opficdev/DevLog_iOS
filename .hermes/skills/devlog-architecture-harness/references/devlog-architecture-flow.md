@@ -93,6 +93,7 @@ flowchart TD
 	App --> WidgetCore
 
 	UI --> Presentation
+	UI --> Core
 
 	Presentation --> Domain
 	Presentation --> Core
@@ -123,7 +124,7 @@ flowchart TD
 | `DevLogInfra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra |
 | `DevLogPersistence` | local stores, image cache, widget snapshot persistence | Data, Core, WidgetCore | Moving domain logic or remote SDK behavior into Persistence |
 | `DevLogPresentation` | Store, view models, coordinators, presentation state | Domain, Core | Adding UI, Data, Infra, Persistence, or App dependency |
-| `DevLogUI` | SwiftUI views, reusable UI components, view composition | Presentation | Adding Domain, Core, Data, Infra, Persistence, or App dependency |
+| `DevLogUI` | SwiftUI views, reusable UI components, view composition | Presentation, Core | Adding Domain, Data, Infra, Persistence, or App dependency |
 | `DevLogApp` | composition root, lifecycle, assembler wiring | Concrete app layers | Moving feature logic into App |
 | `DevLogWidgetCore` | widget data contracts and pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, UI, or App dependency |
 | `DevLogWidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
@@ -164,7 +165,7 @@ flowchart TD
 	Shared{"Moved only because shared?"}
 	NewDependency{"New module dependency?"}
 	ExternalSDK{"External SDK crosses layer?"}
-	UIBoundary{"UI sees Domain/Core/Data/Infra/Persistence/App?"}
+	UIBoundary{"UI sees Domain/Data/Infra/Persistence/App?"}
 	WidgetBoundary{"WidgetCore sees app/domain/data?"}
 	BuildShortcut{"Build fix relaxes boundary?"}
 	ScopeDrift{"Outside current task scope?"}

@@ -48,7 +48,7 @@ Treat this repository as an Xcode workspace-based modular iOS app. There is no r
 - `Application/DevLogInfra`: Firebase, social login, network, link metadata, messaging, and platform service implementations. Infra may depend on Data and Core. Firebase/Auth/Firestore/Functions/Messaging-specific behavior belongs here unless the user approves another boundary.
 - `Application/DevLogPersistence`: local persistence, user defaults, image store, and widget snapshot persistence/updating. Persistence may depend on Data, Core, and WidgetCore when needed for snapshot persistence.
 - `Application/DevLogPresentation`: Store, view models, coordinators, UI state structures, and presentation-only helpers. Presentation may depend on Domain and Core. It must not depend on UI, Data, Infra, Persistence, or App.
-- `Application/DevLogUI`: SwiftUI views, reusable UI components, and view composition. UI may depend on Presentation. It must not depend on Domain, Core, Data, Infra, Persistence, or App.
+- `Application/DevLogUI`: SwiftUI views, reusable UI components, and view composition. UI may depend on Presentation and Core. It must not depend on Domain, Data, Infra, Persistence, or App.
 - `Application/DevLogApp`: composition root, app lifecycle, app delegate, app-level routing, and assembler wiring. App may import concrete layers to assemble the dependency graph.
 - `Widget/DevLogWidgetCore`: widget snapshot models, factories, keys, app-group constants, and widget-only pure helpers. WidgetCore may depend on Core. It must not depend on Domain, Data, Infra, Persistence, Presentation, UI, or App without explicit user approval.
 - `Widget/DevLogWidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
@@ -69,7 +69,7 @@ Ask the user before editing when any of these are true:
 - A type could plausibly live in both Core and Domain.
 - A shared type is being moved only because multiple modules need access to it.
 - A new target dependency would make a lower-level module know a higher-level module.
-- UI would start depending on Domain, Core, Data, Infra, Persistence, or App.
+- UI would start depending on Domain, Data, Infra, Persistence, or App.
 - A build fix would be achieved by loosening an architecture boundary.
 - Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, WidgetKit, or storage implementation details would move to another layer.
 - A repository protocol, service protocol, assembler, or DI ownership boundary would change.
