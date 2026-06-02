@@ -27,7 +27,6 @@ struct ProfileView: View {
                 profileContentView
             }
         }
-        .toolbar { profileToolbarContent }
         .onChange(of: focused) { _, newValue in
             withAnimation {
                 coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
@@ -127,6 +126,7 @@ struct ProfileView: View {
         .refreshable { coordinator.viewModel.send(.refresh) }
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
+        .toolbar { profileToolbarContent }
     }
 
     @ToolbarContentBuilder
