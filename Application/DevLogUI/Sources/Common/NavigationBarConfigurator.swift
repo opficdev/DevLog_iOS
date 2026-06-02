@@ -1,12 +1,12 @@
 //
 //  NavigationBarConfigurator.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 3/5/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 /// NavigationBar의 배경색을 지정하고 shadowColor를 제거하는 구조체
 ///

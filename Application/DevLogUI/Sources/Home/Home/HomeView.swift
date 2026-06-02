@@ -1,12 +1,12 @@
 //
 //  HomeView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/7/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
@@ -14,6 +14,7 @@ struct HomeView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
+    let todoViewModelFactory: TodoViewModelFactory
 
     var body: some View {
         List {
@@ -50,7 +51,8 @@ struct HomeView: View {
         )) {
             if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
                 TodoEditorView(
-                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory)
+                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory),
+                    todoViewModelFactory: todoViewModelFactory
                 )
             }
         }
@@ -58,7 +60,10 @@ struct HomeView: View {
             get: { coordinator.viewModel.state.showSearchView },
             set: { coordinator.viewModel.send(.setPresentation(.searchView, $0)) }
         )) {
-            SearchView(viewModel: coordinator.makeSearchViewModel())
+            SearchView(
+                viewModel: coordinator.makeSearchViewModel(),
+                todoViewModelFactory: todoViewModelFactory
+            )
         }
         .alert(
             coordinator.viewModel.state.alertTitle,
@@ -317,7 +322,7 @@ struct HomeView: View {
                         ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
-                                    openTodoEditor(for: item.category)
+                                    openTodoEditor(for: item)
                                 }
                             } label: {
                                 labelImage(
@@ -387,24 +392,18 @@ struct HomeView: View {
         .contentShape(.rect)
     }
 
-    private func openTodoEditor(for todoCategory: TodoCategory) {
+    private func openTodoEditor(for item: TodoCategoryItem) {
         if isiOSAppOnMac {
             coordinator.viewModel.send(.setPresentation(.contentPicker, false))
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
-                value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
+                value: TodoEditorWindowValue(todoCategory: item.category, source: .home)
             )
         } else {
-            coordinator.viewModel.send(.tapTodoCategory(todoCategory))
+            coordinator.viewModel.send(.tapTodoCategory(item.category))
         }
     }
 
-}
-
-enum HomeRoute: Hashable {
-    case category(TodoCategoryItem)
-    case todo(TodoIdItem)
-    case webPage(WebPageItem)
 }
 
 private struct RecentTodoRow: View {

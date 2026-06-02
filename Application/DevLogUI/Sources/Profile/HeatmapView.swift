@@ -1,17 +1,17 @@
 //
 //  HeatmapView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 3/2/26.
 //
 
 import SwiftUI
-import DevLogCore
+import DevLogPresentation
 
 struct HeatmapView: View {
     @State private var availableWidth = CGFloat.zero
     let quarter: HeatmapQuarter
-    let selectedActivityKinds: Set<ActivityKind>
+    let selectedActivityKindItems: Set<ActivityKindItem>
     let selectedDay: HeatmapDay?
     let onSelectDay: (HeatmapDay) -> Void
 
@@ -28,7 +28,7 @@ struct HeatmapView: View {
                         month: month,
                         maxCount: maxCount,
                         layout: layout,
-                        selectedActivityKinds: selectedActivityKinds,
+                        selectedActivityKindItems: selectedActivityKindItems,
                         selectedDay: selectedDay,
                         onSelectDay: onSelectDay
                     )
@@ -60,13 +60,13 @@ struct HeatmapView: View {
 
     private func dayCount(for day: HeatmapDay) -> Int {
         var value = 0
-        if selectedActivityKinds.contains(.created) {
+        if selectedActivityKindItems.contains(.created) {
             value += day.createdCount
         }
-        if selectedActivityKinds.contains(.completed) {
+        if selectedActivityKindItems.contains(.completed) {
             value += day.completedCount
         }
-        if selectedActivityKinds.contains(.deleted) {
+        if selectedActivityKindItems.contains(.deleted) {
             value += day.deletedCount
         }
         return value
@@ -114,7 +114,7 @@ private struct MonthCompactHeatmapView: View {
     let month: HeatmapMonth
     let maxCount: Int
     let layout: HeatmapLayout
-    let selectedActivityKinds: Set<ActivityKind>
+    let selectedActivityKindItems: Set<ActivityKindItem>
     let selectedDay: HeatmapDay?
     let onSelectDay: (HeatmapDay) -> Void
     private let orderedWeekdays = Array(1...7)
@@ -185,13 +185,13 @@ private struct MonthCompactHeatmapView: View {
 
     private func dayCount(for day: HeatmapDay) -> Int {
         var value = 0
-        if selectedActivityKinds.contains(.created) {
+        if selectedActivityKindItems.contains(.created) {
             value += day.createdCount
         }
-        if selectedActivityKinds.contains(.completed) {
+        if selectedActivityKindItems.contains(.completed) {
             value += day.completedCount
         }
-        if selectedActivityKinds.contains(.deleted) {
+        if selectedActivityKindItems.contains(.deleted) {
             value += day.deletedCount
         }
         return value

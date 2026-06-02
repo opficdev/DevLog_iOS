@@ -1,12 +1,12 @@
 //
 //  PushNotificationSettingsView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/14/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct PushNotificationSettingsView: View {
     @State var viewModel: PushNotificationSettingsViewModel

@@ -1,12 +1,12 @@
 //
 //  AccountView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/14/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct AccountView: View {
     @State var viewModel: AccountViewModel
@@ -21,7 +21,7 @@ struct AccountView: View {
                 }
             }
             Section(String(localized: "account_social_section")) {
-                let providers = AuthProvider.allCases.filter { $0 != viewModel.state.currentProvider }
+                let providers = AccountViewModel.Provider.allCases.filter { $0 != viewModel.state.currentProvider }
                 ForEach(providers, id: \.self) { provider in
                     let isConnected = viewModel.state.connectedProviders.contains(provider)
                     HStack {
@@ -76,7 +76,7 @@ struct AccountView: View {
         }
     }
     
-    private func formattedProviderName(_ provider: AuthProvider) -> String {
+    private func formattedProviderName(_ provider: AccountViewModel.Provider) -> String {
         let rawValue = provider.rawValue
         let providerPrefix = rawValue.prefix(1).uppercased()
         let providerSuffix = rawValue.dropFirst().prefix(while: { $0 != "." })
@@ -84,7 +84,7 @@ struct AccountView: View {
     }
 
     @ViewBuilder
-    private func providerContent(_ provider: AuthProvider) -> some View {
+    private func providerContent(_ provider: AccountViewModel.Provider) -> some View {
         Image(formattedProviderName(provider))
             .resizable()
             .scaledToFit()

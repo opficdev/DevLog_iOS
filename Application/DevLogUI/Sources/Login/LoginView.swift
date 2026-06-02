@@ -1,19 +1,23 @@
 //
 //  LoginView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 12/30/24.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
-struct LoginView: View {
+public struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
     @State var viewModel: LoginViewModel
 
-    var body: some View {
+    public init(viewModel: LoginViewModel) {
+        self.viewModel = viewModel
+    }
+
+    public var body: some View {
         ZStack {
             VStack {
                 Spacer()

@@ -1,12 +1,12 @@
 //
 //  TodoManageView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 6/16/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct TodoManageView: View {
     @State var viewModel: TodoManageViewModel

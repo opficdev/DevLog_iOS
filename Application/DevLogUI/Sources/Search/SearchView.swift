@@ -1,19 +1,18 @@
 //
 //  SearchView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/12/26.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.diContainer) private var container: DIContainer
     @State private var router = NavigationRouter<Path>()
     @State var viewModel: SearchViewModel
+    let todoViewModelFactory: TodoViewModelFactory
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -21,11 +20,10 @@ struct SearchView: View {
                 .navigationDestination(for: Path.self) { path in
                     switch path {
                     case .todo(let todoId):
-                        TodoDetailView(viewModel: TodoDetailViewModel(
-                            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                            todoId: todoId
-                        ))
+                        TodoDetailView(
+                            viewModel: todoViewModelFactory.makeDetailViewModel(todoId: todoId),
+                            todoViewModelFactory: todoViewModelFactory
+                        )
                     case .web(let page):
                         WebView(url: page.url)
                             .ignoresSafeArea()

@@ -1,13 +1,13 @@
 //
 //  UIKitTextEditor.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 3/18/26.
 //
 
 import SwiftUI
+import DevLogPresentation
 import UIKit
-import DevLogDomain
 
 struct UIKitTextEditor: View {
     @Binding var text: String

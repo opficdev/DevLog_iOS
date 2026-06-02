@@ -1,12 +1,12 @@
 //
 //  EnvironmentValues+.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/6/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 extension EnvironmentValues {
     var safeAreaInsets: EdgeInsets {

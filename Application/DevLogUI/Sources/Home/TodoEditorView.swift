@@ -1,6 +1,6 @@
 //
 //  TodoEditorView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/31/25.
 //
@@ -8,19 +8,28 @@
 import MarkdownUI
 import OrderedCollections
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
-struct TodoEditorView: View {
+public struct TodoEditorView: View {
     @State var viewModel: TodoEditorViewModel
-    @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @FocusState private var field: Field?
     private let calendar = Calendar.current
+    let todoViewModelFactory: TodoViewModelFactory
     var onClose: (() -> Void)?
 
-    var body: some View {
+    public init(
+        viewModel: TodoEditorViewModel,
+        todoViewModelFactory: TodoViewModelFactory,
+        onClose: (() -> Void)? = nil
+    ) {
+        self.viewModel = viewModel
+        self.todoViewModelFactory = todoViewModelFactory
+        self.onClose = onClose
+    }
+
+    public var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 10) {
@@ -61,12 +70,13 @@ struct TodoEditorView: View {
                 set: { viewModel.send(.setSelectedTodoId($0)) }
             )) { item in
                 NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        todoId: item.id,
-                        showEditButton: false
-                    ))
+                    TodoDetailView(
+                        viewModel: todoViewModelFactory.makeDetailViewModel(
+                            todoId: item.id,
+                            showEditButton: false
+                        ),
+                        todoViewModelFactory: todoViewModelFactory
+                    )
                     .toolbar {
                         ToolbarLeadingButton {
                             viewModel.send(.setSelectedTodoId(nil))

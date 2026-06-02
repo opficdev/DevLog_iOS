@@ -1,12 +1,12 @@
 //
 //  View+.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 11/22/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 extension View {
     @ViewBuilder

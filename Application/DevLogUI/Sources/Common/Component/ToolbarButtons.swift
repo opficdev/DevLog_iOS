@@ -1,17 +1,21 @@
 //
 //  ToolbarButtons.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 3/1/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
-struct ToolbarLeadingButton: ToolbarContent {
+public struct ToolbarLeadingButton: ToolbarContent {
     var action: (() -> Void)?
 
-    var body: some ToolbarContent {
+    public init(action: (() -> Void)? = nil) {
+        self.action = action
+    }
+
+    public var body: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             if #available(iOS 26.0, *) {
                 Button(role: .cancel) {

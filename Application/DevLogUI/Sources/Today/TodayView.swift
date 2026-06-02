@@ -1,13 +1,12 @@
 //
 //  TodayView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 3/6/26.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct TodayView: View {
     let coordinator: TodayViewCoordinator
@@ -85,7 +84,7 @@ struct TodayView: View {
                         set: { coordinator.viewModel.send(.setDueDateVisibility($0)) }
                     )
                 ) {
-                    ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
+                    ForEach(TodayViewModel.DueDateVisibility.allCases, id: \.self) { option in
                         Text(option.title).tag(option)
                     }
                 }
@@ -212,11 +211,7 @@ struct TodayView: View {
     }
 }
 
-enum TodayRoute: Hashable {
-    case todo(TodoIdItem)
-}
-
-private extension TodayDisplayOptions.DueDateVisibility {
+private extension TodayViewModel.DueDateVisibility {
     var title: String {
         switch self {
         case .all:

@@ -1,12 +1,12 @@
 //
 //  LoadingView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/16/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct LoadingView: View {
     var body: some View {

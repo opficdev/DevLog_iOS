@@ -1,16 +1,15 @@
 //
 //  ThemeView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/6/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct ThemeView: View {
-    @Binding var theme: SystemTheme
+    @Binding var theme: SettingViewModel.Theme
 
     var body: some View {
         List {
@@ -18,7 +17,7 @@ struct ThemeView: View {
                 theme = .automatic
             }) {
                 HStack {
-                    Text(SystemTheme.automatic.localizedName)
+                    Text(SettingViewModel.Theme.automatic.localizedName)
                         .foregroundStyle(Color.primary)
                     Spacer()
                     if theme == .automatic {
@@ -30,7 +29,7 @@ struct ThemeView: View {
                 theme = .light
             }) {
                 HStack {
-                    Text(SystemTheme.light.localizedName)
+                    Text(SettingViewModel.Theme.light.localizedName)
                         .foregroundStyle(Color.primary)
                     Spacer()
                     if theme == .light {
@@ -42,7 +41,7 @@ struct ThemeView: View {
                 theme = .dark
             }) {
                 HStack {
-                    Text(SystemTheme.dark.localizedName)
+                    Text(SettingViewModel.Theme.dark.localizedName)
                         .foregroundStyle(Color.primary)
                     Spacer()
                     if theme == .dark {

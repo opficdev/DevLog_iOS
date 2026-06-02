@@ -1,12 +1,12 @@
 //
 //  SettingView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/6/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct SettingView: View {
     @Environment(NavigationRouter<ProfileRoute>.self) private var router

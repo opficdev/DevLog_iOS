@@ -1,12 +1,12 @@
 //
 //  Tags.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/6/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct Tag: View {
     @Environment(\.colorScheme) private var colorScheme

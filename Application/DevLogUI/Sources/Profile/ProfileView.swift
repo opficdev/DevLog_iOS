@@ -1,17 +1,17 @@
 //
 //  ProfileView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/7/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct ProfileView: View {
     let coordinator: ProfileViewCoordinator
     let isCompactLayout: Bool
+    let todoViewModelFactory: TodoViewModelFactory
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -151,7 +151,10 @@ struct ProfileView: View {
             SettingView(viewModel: coordinator.settingViewModel)
                 .environment(coordinator.router)
         case .activity(let todoId):
-            TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
+            TodoDetailView(
+                viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId),
+                todoViewModelFactory: todoViewModelFactory
+            )
         case .theme:
             ThemeView(
                 theme: Binding(
@@ -181,7 +184,7 @@ struct ProfileView: View {
             if let quarter = coordinator.viewModel.state.activityQuarter {
                 HeatmapView(
                     quarter: quarter,
-                    selectedActivityKinds: coordinator.viewModel.state.selectedActivityKinds,
+                    selectedActivityKindItems: coordinator.viewModel.selectedActivityKindItems,
                     selectedDay: coordinator.viewModel.state.selectedDay,
                     onSelectDay: { coordinator.viewModel.send(.selectDay($0)) }
                 )
@@ -223,26 +226,14 @@ struct ProfileView: View {
                     activityKindItem.title,
                     isOn: Binding(
                         get: {
-                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                                return false
-                            }
-                            return coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
+                            coordinator.viewModel.isSelected(activityKindItem)
                         },
                         set: { _ in
-                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                                return
-                            }
-                            coordinator.viewModel.send(.toggleActivityKind(activityKind))
+                            coordinator.viewModel.toggle(activityKindItem)
                         }
                     )
                 )
-                .disabled({
-                    guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                        return false
-                    }
-                    return coordinator.viewModel.state.selectedActivityKinds.count == 1
-                        && coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
-                }())
+                .disabled(coordinator.viewModel.isOnlySelected(activityKindItem))
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
@@ -430,12 +421,4 @@ struct ProfileView: View {
             set: { coordinator.router.path = $0 }
         )
     }
-}
-
-enum ProfileRoute: Hashable {
-    case settings
-    case activity(String)
-    case theme
-    case pushNotification
-    case account
 }

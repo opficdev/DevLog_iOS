@@ -1,12 +1,12 @@
 //
 //  LoginButton.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 4/25/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct LoginButton: View {
     @State private var logo: Image?

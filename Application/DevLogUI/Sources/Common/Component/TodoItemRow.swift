@@ -1,12 +1,12 @@
 //
 //  TodoItemRow.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/21/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct TodoItemRow: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)

@@ -1,12 +1,12 @@
 //
 //  RelativeTimeText.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 3/25/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct RelativeTimeText: View {
     let date: Date

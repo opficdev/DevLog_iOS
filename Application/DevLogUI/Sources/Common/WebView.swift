@@ -1,13 +1,13 @@
 //
 //  WebView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/23/25.
 //
 
 import SwiftUI
+import DevLogPresentation
 import WebKit
-import DevLogDomain
 
 struct WebView: UIViewRepresentable {
     let url: URL

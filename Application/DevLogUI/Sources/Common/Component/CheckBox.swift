@@ -1,12 +1,12 @@
 //
 //  CheckBox.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 6/17/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct CheckBox: View {
     private let isChecked: Bool

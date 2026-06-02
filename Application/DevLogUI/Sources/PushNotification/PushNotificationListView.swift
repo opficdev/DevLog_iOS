@@ -1,13 +1,12 @@
 //
 //  PushNotificationListView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/14/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -17,6 +16,7 @@ struct PushNotificationListView: View {
     @State private var isScrollTrackingEnabled = false
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
+    let todoViewModelFactory: TodoViewModelFactory
 
     private var viewModel: PushNotificationListViewModel {
         coordinator.viewModel
@@ -67,7 +67,10 @@ struct PushNotificationListView: View {
             }
         )) { item in
             NavigationStack {
-                TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: item.id))
+                TodoDetailView(
+                    viewModel: coordinator.makeTodoDetailViewModel(todoId: item.id),
+                    todoViewModelFactory: todoViewModelFactory
+                )
                 .id(item.id)
                 .toolbar {
                     ToolbarLeadingButton {
@@ -241,7 +244,7 @@ struct PushNotificationListView: View {
                     get: { viewModel.state.query.timeFilter },
                     set: { viewModel.send(.setTimeFilter($0)) }
                 )) {
-                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                    ForEach(PushNotificationListViewModel.TimeFilter.availableOptions, id: \.self) { option in
                         Text(option.title).tag(option)
                     }
                 } label: {

@@ -1,15 +1,14 @@
 //
 //  MainView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/8/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
-struct MainView: View {
+public struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var coordinator: MainViewCoordinator
     @State private var todoWindowCoordinator: TodoWindowCoordinator
@@ -18,26 +17,28 @@ struct MainView: View {
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
     @Binding var selectedTab: MainTab?
+    private let todoViewModelFactory: TodoViewModelFactory
     private let windowEvent: TodoEditorWindowEvent
 
-    init(
-        container: DIContainer,
+    public init(
+        dependencies: MainViewDependencies,
         windowEvent: TodoEditorWindowEvent,
         selectedTab: Binding<MainTab?>
     ) {
-        self._coordinator = State(initialValue: MainViewCoordinator(container: container))
-        self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
-        self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
-        self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
+        self._coordinator = State(initialValue: dependencies.coordinator)
+        self._todoWindowCoordinator = State(initialValue: dependencies.todoWindowCoordinator)
+        self._homeViewCoordinator = State(initialValue: dependencies.homeViewCoordinator)
+        self._todayViewCoordinator = State(initialValue: dependencies.todayViewCoordinator)
         self._pushNotificationListViewCoordinator = State(
-            initialValue: PushNotificationListViewCoordinator(container: container)
+            initialValue: dependencies.pushNotificationListViewCoordinator
         )
-        self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
+        self._profileViewCoordinator = State(initialValue: dependencies.profileViewCoordinator)
+        self.todoViewModelFactory = dependencies.todoViewModelFactory
         self.windowEvent = windowEvent
         self._selectedTab = selectedTab
     }
 
-    var body: some View {
+    public var body: some View {
         Group {
             if let selectedTab {
                 if isCompactLayout {
@@ -132,7 +133,8 @@ struct MainView: View {
             } content: {
                 PushNotificationListView(
                     coordinator: pushNotificationListViewCoordinator,
-                    isCompactLayout: isCompactLayout
+                    isCompactLayout: isCompactLayout,
+                    todoViewModelFactory: todoViewModelFactory
                 )
                 .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
@@ -141,7 +143,8 @@ struct MainView: View {
                         TodoDetailView(
                             viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
                                 todoId: todoId
-                            )
+                            ),
+                            todoViewModelFactory: todoViewModelFactory
                         )
                         .id(todoId)
                     } else {
@@ -215,7 +218,8 @@ struct MainView: View {
     private var homeContentView: some View {
         HomeView(
             coordinator: homeViewCoordinator,
-            isCompactLayout: isCompactLayout
+            isCompactLayout: isCompactLayout,
+            todoViewModelFactory: todoViewModelFactory
         )
     }
 
@@ -244,11 +248,15 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                viewModel: todoWindowCoordinator.makeListViewModel(category: item.todoCategory)
+                viewModel: todoWindowCoordinator.makeListViewModel(category: item.todoCategory),
+                todoViewModelFactory: todoViewModelFactory
             )
             .id(item.id)
         case .todo(let item):
-            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
+            TodoDetailView(
+                viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id),
+                todoViewModelFactory: todoViewModelFactory
+            )
             .id(item.id)
         case .webPage(let item):
             WebView(url: item.url)
@@ -311,7 +319,10 @@ struct MainView: View {
     private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
         switch todayRoute {
         case .todo(let item):
-            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
+            TodoDetailView(
+                viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id),
+                todoViewModelFactory: todoViewModelFactory
+            )
                 .id(item.id)
         }
     }
@@ -319,14 +330,16 @@ struct MainView: View {
     private var notificationView: some View {
         PushNotificationListView(
             coordinator: pushNotificationListViewCoordinator,
-            isCompactLayout: isCompactLayout
+            isCompactLayout: isCompactLayout,
+            todoViewModelFactory: todoViewModelFactory
         )
     }
 
     private var profileView: some View {
         ProfileView(
             coordinator: profileViewCoordinator,
-            isCompactLayout: isCompactLayout
+            isCompactLayout: isCompactLayout,
+            todoViewModelFactory: todoViewModelFactory
         )
     }
 
@@ -356,7 +369,10 @@ struct MainView: View {
     private func profileRegularDestinationView(_ route: ProfileRoute) -> some View {
         switch route {
         case .activity(let todoId):
-            TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+            TodoDetailView(
+                viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId),
+                todoViewModelFactory: todoViewModelFactory
+            )
                 .id(todoId)
         case .settings:
             SettingView(viewModel: profileViewCoordinator.settingViewModel)

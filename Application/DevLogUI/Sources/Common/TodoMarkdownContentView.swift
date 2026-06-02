@@ -1,13 +1,13 @@
 //
 //  TodoMarkdownContentView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 3/25/26.
 //
 
 import MarkdownUI
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 private enum TodoMarkdownSection: Equatable {
     case markdown(String)

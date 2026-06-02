@@ -1,12 +1,12 @@
 //
 //  Toast.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/10/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 extension View {
     func toast<Label: View>(

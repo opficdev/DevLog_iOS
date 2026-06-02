@@ -1,17 +1,15 @@
 //
 //  TodoListView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 5/30/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
 struct TodoListView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
-    @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
@@ -19,6 +17,7 @@ struct TodoListView: View {
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
     @State var viewModel: TodoListViewModel
+    let todoViewModelFactory: TodoViewModelFactory
 
     var body: some View {
         Group {
@@ -81,17 +80,14 @@ struct TodoListView: View {
             set: { viewModel.send(.setShowEditor($0)) }
         )) {
             TodoEditorView(
-                viewModel: TodoEditorViewModel(
+                viewModel: todoViewModelFactory.makeEditorViewModel(
                     category: viewModel.category,
-                    fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
                     onUpsertSuccess: { _ in
                         viewModel.send(.setShowEditor(false))
                         viewModel.send(.refresh)
                     }
-                )
+                ),
+                todoViewModelFactory: todoViewModelFactory
             )
         }
         .toolbar {
@@ -350,7 +346,7 @@ struct TodoListView: View {
                 get: { viewModel.state.query.sortTarget },
                 set: { viewModel.send(.setSortTarget($0)) }
             )) {
-                ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
+                ForEach([TodoListViewModel.SortTarget.createdAt, .updatedAt], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
             } label: {
@@ -360,7 +356,7 @@ struct TodoListView: View {
                 get: { viewModel.state.query.sortOrder },
                 set: { viewModel.send(.setSortOrder($0)) }
             )) {
-                ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
+                ForEach([TodoListViewModel.SortOrder.latest, .oldest], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
             } label: {
@@ -396,7 +392,7 @@ struct TodoListView: View {
                 get: { viewModel.state.query.completionFilter },
                 set: { viewModel.send(.setCompletionFilter($0)) }
             )) {
-                ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
+                ForEach([TodoListViewModel.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
             } label: {

@@ -1,13 +1,13 @@
 //
 //  TodoDetailContentView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 3/2/26.
 //
 
 import SwiftUI
+import DevLogPresentation
 import MarkdownUI
-import DevLogDomain
 
 struct TodoDetailContentView: View {
     let title: String

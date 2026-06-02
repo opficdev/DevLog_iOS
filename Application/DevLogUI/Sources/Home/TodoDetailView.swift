@@ -1,21 +1,28 @@
 //
 //  TodoDetailView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by opfic on 6/12/25.
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogDomain
+import DevLogPresentation
 
-struct TodoDetailView: View {
-    @Environment(\.diContainer) private var container: DIContainer
+public struct TodoDetailView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State var viewModel: TodoDetailViewModel
+    let todoViewModelFactory: TodoViewModelFactory
 
-    var body: some View {
+    public init(
+        viewModel: TodoDetailViewModel,
+        todoViewModelFactory: TodoViewModelFactory
+    ) {
+        self.viewModel = viewModel
+        self.todoViewModelFactory = todoViewModelFactory
+    }
+
+    public var body: some View {
         ZStack {
             Color(.secondarySystemBackground).ignoresSafeArea()
             if let todo = viewModel.state.todo, let number = todo.number {
@@ -43,12 +50,13 @@ struct TodoDetailView: View {
             set: { viewModel.send(.setSelectedTodoId($0)) }
         )) { item in
             NavigationStack {
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    todoId: item.id,
-                    showEditButton: false
-                ))
+                TodoDetailView(
+                    viewModel: todoViewModelFactory.makeDetailViewModel(
+                        todoId: item.id,
+                        showEditButton: false
+                    ),
+                    todoViewModelFactory: todoViewModelFactory
+                )
                 .toolbar {
                     ToolbarLeadingButton {
                         viewModel.send(.setSelectedTodoId(nil))
@@ -64,16 +72,14 @@ struct TodoDetailView: View {
         )) {
             if let todo = viewModel.state.todo {
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(
+                    viewModel: todoViewModelFactory.makeEditorViewModel(
                         todo: todo,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         onUpsertSuccess: { todo in
                             viewModel.send(.setShowEditor(false))
                             viewModel.send(.setTodo(todo))
                         }
-                    )
+                    ),
+                    todoViewModelFactory: todoViewModelFactory
                 )
             }
         }
@@ -118,7 +124,13 @@ struct TodoDetailView: View {
     @ViewBuilder
     private var sheetContent: some View {
         if let todo = viewModel.state.todo {
-            TodoDetailInfoSheetView(todo: todo) {
+            TodoDetailInfoSheetView(
+                categoryName: TodoCategoryItem(from: todo.category).localizedName,
+                isCompleted: todo.isCompleted,
+                isPinned: todo.isPinned,
+                dueDate: todo.dueDate,
+                tags: todo.tags
+            ) {
                 viewModel.send(.setShowInfo(false))
             }
         }
@@ -126,7 +138,11 @@ struct TodoDetailView: View {
 }
 
 private struct TodoDetailInfoSheetView: View {
-    let todo: Todo
+    let categoryName: String
+    let isCompleted: Bool
+    let isPinned: Bool
+    let dueDate: Date?
+    let tags: [String]
     let onClose: () -> Void
     private let calendar = Calendar.current
 
@@ -137,20 +153,20 @@ private struct TodoDetailInfoSheetView: View {
                     HStack {
                         Text(String(localized: "todo_category"))
                         Spacer()
-                        Text(TodoCategoryItem(from: todo.category).localizedName)
+                        Text(categoryName)
                             .foregroundStyle(.secondary)
                     }
 
                     statusRow(
                         title: String(localized: "todo_completed"),
-                        systemImage: todo.isCompleted ? "checkmark.circle.fill" : "circle",
-                        color: todo.isCompleted ? .green : .secondary
+                        systemImage: isCompleted ? "checkmark.circle.fill" : "circle",
+                        color: isCompleted ? .green : .secondary
                     )
 
                     statusRow(
                         title: String(localized: "todo_pinned"),
-                        systemImage: todo.isPinned ? "star.fill" : "star",
-                        color: todo.isPinned ? .orange : .secondary
+                        systemImage: isPinned ? "star.fill" : "star",
+                        color: isPinned ? .orange : .secondary
                     )
 
                     HStack {
@@ -158,7 +174,7 @@ private struct TodoDetailInfoSheetView: View {
 
                         Spacer()
 
-                        if let dueDate = todo.dueDate {
+                        if let dueDate {
                             Tag(dueDateText(for: dueDate), isEditing: false)
                                 .padding(.vertical, -4)
                         } else {
@@ -169,12 +185,12 @@ private struct TodoDetailInfoSheetView: View {
                 }
 
                 Section(String(localized: "todo_tags")) {
-                    if todo.tags.isEmpty {
+                    if tags.isEmpty {
                         Text(String(localized: "todo_no_tags"))
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 4)
                     } else {
-                        TagList(todo.tags)
+                        TagList(tags)
                     }
                 }
             }

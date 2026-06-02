@@ -1,12 +1,12 @@
 //
 //  CacheableImage.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 11/30/25.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct CacheableImage<Content: View>: View {
     @State private var loadedUIImage: UIImage?

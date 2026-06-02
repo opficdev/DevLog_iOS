@@ -1,12 +1,12 @@
 //
 //  WebItemRow.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 2/24/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct WebItemRow: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)

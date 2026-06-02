@@ -1,12 +1,12 @@
 //
 //  TodoInfoSheetView.swift
-//  DevLogPresentation
+//  DevLogUI
 //
 //  Created by 최윤진 on 3/2/26.
 //
 
 import SwiftUI
-import DevLogDomain
+import DevLogPresentation
 
 struct TodoInfoSheetView: View {
     let createdAt: Date
