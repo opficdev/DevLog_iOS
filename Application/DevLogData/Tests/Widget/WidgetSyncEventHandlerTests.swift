@@ -232,6 +232,10 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
         throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }
 
+    func upsertTodo(_ todoDraft: TodoDraft) async throws {
+        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
+    }
+
     func deleteTodo(_ todoId: String) async throws {
         throw WidgetSyncTodoRepositorySpyError.unexpectedCall
     }

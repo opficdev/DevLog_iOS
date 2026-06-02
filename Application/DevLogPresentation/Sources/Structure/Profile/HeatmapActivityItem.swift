@@ -29,10 +29,9 @@ public struct HeatmapActivityItem: Identifiable, Hashable, Comparable {
     }
 
     init?(todo: Todo, activityKinds: [ActivityKind]) {
-        guard let number = todo.number else { return nil }
         self.todoId = todo.id
         self.title = todo.title
-        self.number = number
+        self.number = todo.number
         self.category = todo.category
         self.activityKinds = activityKinds
         self.isDeleted = todo.deletedAt != nil

@@ -20,9 +20,8 @@ public struct TodoListItem: Identifiable, Hashable {
     public let updatedAt: Date
 
     init?(from todo: Todo) {
-        guard let number = todo.number else { return nil }
         self.id = todo.id
-        self.number = number
+        self.number = todo.number
         self.title = todo.title
         self.tags = todo.tags
         self.isPinned = todo.isPinned

@@ -12,7 +12,7 @@ public struct Todo: Hashable {
     public var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     public var isCompleted: Bool   //  해당 할 일의 완료 여부
     public var isChecked: Bool     //  해당 할 일의 체크 여부
-    public var number: Int?        //  사용자에게 노출되는 Todo 번호
+    public var number: Int         //  사용자에게 노출되는 Todo 번호
     public var title: String       //  할 일의 제목
     public var content: String //  할 일의 설명
     public var createdAt: Date     //  할 일 생성 날짜
@@ -28,7 +28,7 @@ public struct Todo: Hashable {
         isPinned: Bool,
         isCompleted: Bool,
         isChecked: Bool,
-        number: Int?,
+        number: Int,
         title: String,
         content: String,
         createdAt: Date,
