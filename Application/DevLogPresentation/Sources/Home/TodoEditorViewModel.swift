@@ -315,7 +315,7 @@ extension TodoEditorViewModel {
             updatedAt: date,
             completedAt: state.completedAt,
             dueDate: state.dueDate,
-            tags: state.tags.map { $0 },
+            tags: Array(state.tags),
             category: state.category.category
         )
     }
@@ -336,7 +336,7 @@ extension TodoEditorViewModel {
             completedAt: state.completedAt,
             deletedAt: self.deletedAt,
             dueDate: state.dueDate,
-            tags: state.tags.map { $0 },
+            tags: Array(state.tags),
             category: state.category.category
         )
     }
