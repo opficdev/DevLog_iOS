@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TodoDraft: Hashable {
+public struct TodoDraft: Equatable {
     public var id: String
     public var isPinned: Bool
     public var isCompleted: Bool
@@ -47,5 +47,33 @@ public struct TodoDraft: Hashable {
         self.dueDate = dueDate
         self.tags = tags
         self.category = category
+    }
+
+    public init(todo: Todo) {
+        self.id = todo.id
+        self.isPinned = todo.isPinned
+        self.isCompleted = todo.isCompleted
+        self.isChecked = todo.isChecked
+        self.title = todo.title
+        self.content = todo.content
+        self.createdAt = todo.createdAt
+        self.updatedAt = todo.updatedAt
+        self.completedAt = todo.completedAt
+        self.dueDate = todo.dueDate
+        self.tags = todo.tags
+        self.category = todo.category
+    }
+
+    public static func == (lhs: TodoDraft, rhs: TodoDraft) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.isPinned == rhs.isPinned &&
+        lhs.isCompleted == rhs.isCompleted &&
+        lhs.isChecked == rhs.isChecked &&
+        lhs.title == rhs.title &&
+        lhs.content == rhs.content &&
+        lhs.completedAt == rhs.completedAt &&
+        lhs.dueDate == rhs.dueDate &&
+        lhs.tags == rhs.tags &&
+        lhs.category == rhs.category
     }
 }
