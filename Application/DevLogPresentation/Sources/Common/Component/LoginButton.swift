@@ -25,27 +25,27 @@ struct LoginButton: View {
     }
     
     var body: some View {
-        Button(action: {
+        Button {
             action()
-        }) {
+        } label: {
             Text(text)
                 .foregroundStyle(Color.primary)
                 .font(.system(.body))
-        }
-        .frame(width: 300, height: height + 16)
-        .contentShape(.capsule)
-        .overlay {
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .stroke(Color.gray, lineWidth: 1)
-                if let logo = logo {
-                    logo
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: height, height: height)
-                        .padding(.leading)
+                .contentShape(.capsule)
+                .frame(width: 300, height: height + 16)
+                .overlay {
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .stroke(Color.gray, lineWidth: 1)
+                        if let logo = logo {
+                            logo
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: height, height: height)
+                                .padding(.leading)
+                        }
+                    }
                 }
-            }
         }
     }
 }
