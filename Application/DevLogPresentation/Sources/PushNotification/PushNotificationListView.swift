@@ -25,7 +25,7 @@ struct PushNotificationListView: View {
     var body: some View {
         NavigationStack {
             notificationList
-                .background(NavigationBarConfigurator(.secondarySystemBackground, alwaysVisible: true))
+                .background(NavigationBarConfigurator(alwaysVisible: true))
                 .onScrollOffsetChange { offset in
                     guard isScrollTrackingEnabled else { return }
                     headerOffset = max(0, -offset)
@@ -35,7 +35,7 @@ struct PushNotificationListView: View {
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .alert(
             "",
             isPresented: Binding(
@@ -75,7 +75,7 @@ struct PushNotificationListView: View {
                     }
                 }
             }
-            .background(Color(.secondarySystemBackground))
+            .background(Color(.systemGroupedBackground))
             .presentationDragIndicator(.visible)
         }
         .overlay {
@@ -167,7 +167,7 @@ struct PushNotificationListView: View {
             if #available(iOS 26.0, *) {
                 Color.clear
             } else {
-                Color(.secondarySystemBackground)
+                Color(.systemGroupedBackground)
             }
         }
         .offset(y: headerOffset)
