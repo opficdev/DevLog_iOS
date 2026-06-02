@@ -132,9 +132,14 @@ final class UndoDeleteWebPageUseCaseSpy: UndoDeleteWebPageUseCase {
 
 final class UpsertTodoUseCaseSpy: UpsertTodoUseCase {
     private(set) var todos: [Todo] = []
+    private(set) var todoDrafts: [TodoDraft] = []
 
     func execute(_ todo: Todo) async throws {
         todos.append(todo)
+    }
+
+    func execute(_ todoDraft: TodoDraft) async throws {
+        todoDrafts.append(todoDraft)
     }
 }
 

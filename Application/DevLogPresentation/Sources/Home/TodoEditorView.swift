@@ -208,8 +208,7 @@ struct TodoEditorView: View {
     }
 
     private func submit() {
-        let todo = viewModel.makeTodo()
-        viewModel.send(.upsertTodo(todo))
+        viewModel.send(.upsertTodo)
     }
 
     private func close() {

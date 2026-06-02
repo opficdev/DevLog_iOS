@@ -74,14 +74,17 @@ final class TodoWindowCoordinator {
     }
 
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit) {
-        if let listViewModel,
-           submit.value.matchesCreate(category: listViewModel.category, source: .list) {
-            listViewModel.send(.refresh)
-        }
-
-        if let detailViewModel,
-           submit.value.matchesEdit(todoId: detailViewModel.todoId) {
-            detailViewModel.send(.setTodo(submit.todo))
+        switch submit {
+        case .create(let value):
+            if let listViewModel,
+               value.matchesCreate(category: listViewModel.category, source: .list) {
+                listViewModel.send(.refresh)
+            }
+        case .update(let value, let todo):
+            if let detailViewModel,
+               value.matchesEdit(todoId: detailViewModel.todoId) {
+                detailViewModel.send(.setTodo(todo))
+            }
         }
     }
 }

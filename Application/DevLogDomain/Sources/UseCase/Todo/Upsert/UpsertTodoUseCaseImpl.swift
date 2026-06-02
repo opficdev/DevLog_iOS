@@ -15,4 +15,8 @@ public final class UpsertTodoUseCaseImpl: UpsertTodoUseCase {
     public func execute(_ todo: Todo) async throws {
         try await repository.upsertTodo(todo)
     }
+
+    public func execute(_ todoDraft: TodoDraft) async throws {
+        try await repository.upsertTodo(todoDraft)
+    }
 }

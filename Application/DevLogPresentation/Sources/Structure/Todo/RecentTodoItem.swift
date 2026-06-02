@@ -18,9 +18,8 @@ public struct RecentTodoItem: Identifiable, Hashable {
     public var category: TodoCategory
 
     init?(from todo: Todo) {
-        guard let number = todo.number else { return nil }
         self.id = todo.id
-        self.number = number
+        self.number = todo.number
         self.title = todo.title
         self.isPinned = todo.isPinned
         self.updatedAt = todo.updatedAt

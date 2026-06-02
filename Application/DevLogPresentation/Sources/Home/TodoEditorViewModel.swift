@@ -11,39 +11,6 @@ import DevLogDomain
 
 @Observable
 final class TodoEditorViewModel: Store {
-    private struct Draft: Equatable {
-        let isCompleted: Bool
-        let completedAt: Date?
-        let isPinned: Bool
-        let title: String
-        let content: String
-        let dueDate: Date?
-        let tags: [String]
-        let category: TodoCategory
-
-        init(todo: Todo) {
-            self.isCompleted = todo.isCompleted
-            self.completedAt = todo.completedAt
-            self.isPinned = todo.isPinned
-            self.title = todo.title
-            self.content = todo.content
-            self.dueDate = todo.dueDate
-            self.tags = todo.tags
-            self.category = todo.category
-        }
-
-        init(state: State) {
-            self.isCompleted = state.isCompleted
-            self.completedAt = state.completedAt
-            self.isPinned = state.isPinned
-            self.title = state.title
-            self.content = state.content
-            self.dueDate = state.dueDate
-            self.tags = Array(state.tags)
-            self.category = state.category.category
-        }
-    }
-
     struct State: Equatable {
         var isCompleted: Bool = false
         var completedAt: Date?
@@ -91,13 +58,14 @@ final class TodoEditorViewModel: Store {
         case setTitle(String)
         case setCategories([TodoCategoryItem])
         case setReferenceItems([Int: TodoReferenceItem])
-        case upsertTodo(Todo)
+        case upsertTodo
     }
 
     enum SideEffect {
         case fetchCategories
         case resolveMarkdown(String)
-        case upsertTodo(Todo)
+        case createTodo(TodoDraft)
+        case updateTodo(Todo)
     }
 
     private(set) var state = State()
@@ -106,14 +74,14 @@ final class TodoEditorViewModel: Store {
     private let fetchReferenceItemsUseCase: FetchReferenceItemsUseCase
     private let upsertTodoUseCase: UpsertTodoUseCase
     private let trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase?
-    private let onUpsertSuccess: ((Todo) -> Void)?
+    private let onCreateSuccess: (() -> Void)?
+    private let onUpdateSuccess: ((Todo) -> Void)?
     private let id: String
-    private let isCompleted: Bool
     private let isChecked: Bool
     private let number: Int?
     private let createdAt: Date?
     private let deletedAt: Date?
-    private let originalDraft: Draft?
+    private let originalDraft: TodoDraft?
 
     var navigationTitle: String {
         if originalDraft == nil {
@@ -128,7 +96,7 @@ final class TodoEditorViewModel: Store {
 
     var hasChanges: Bool {
         guard let originalDraft else { return true }
-        return originalDraft != Draft(state: state)
+        return originalDraft != makeTodoDraft()
     }
 
     var isReadyToSubmit: Bool {
@@ -142,15 +110,15 @@ final class TodoEditorViewModel: Store {
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
-        onUpsertSuccess: ((Todo) -> Void)? = nil
+        onCreateSuccess: (() -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-        self.onUpsertSuccess = onUpsertSuccess
+        self.onCreateSuccess = onCreateSuccess
+        self.onUpdateSuccess = nil
         self.id = UUID().uuidString
-        self.isCompleted = false
         self.isChecked = false
         self.number = nil
         self.createdAt = nil
@@ -167,20 +135,20 @@ final class TodoEditorViewModel: Store {
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
         upsertTodoUseCase: UpsertTodoUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil,
-        onUpsertSuccess: ((Todo) -> Void)? = nil
+        onUpdateSuccess: ((Todo) -> Void)? = nil
     ) {
         self.fetchPreferencesUseCase = fetchPreferencesUseCase
         self.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
         self.upsertTodoUseCase = upsertTodoUseCase
         self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-        self.onUpsertSuccess = onUpsertSuccess
+        self.onCreateSuccess = nil
+        self.onUpdateSuccess = onUpdateSuccess
         self.id = todo.id
-        self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
         self.number = todo.number
         self.createdAt = todo.createdAt
         self.deletedAt = todo.deletedAt
-        self.originalDraft = Draft(todo: todo)
+        self.originalDraft = TodoDraft(todo: todo)
         state.isCompleted = todo.isCompleted
         state.completedAt = todo.completedAt
         state.isPinned = todo.isPinned
@@ -243,8 +211,12 @@ final class TodoEditorViewModel: Store {
             state.categories = categories
         case .setReferenceItems(let items):
             state.referenceItems = items
-        case .upsertTodo(let todo):
-            effects = [.upsertTodo(todo)]
+        case .upsertTodo:
+            if originalDraft == nil {
+                effects = [.createTodo(makeTodoDraft())]
+            } else if let todo = makeTodo() {
+                effects = [.updateTodo(todo)]
+            }
         }
 
         if self.state != state { self.state = state }
@@ -276,16 +248,25 @@ final class TodoEditorViewModel: Store {
 
                 send(.setReferenceItems(referenceItems))
             }
-        case .upsertTodo(let todo):
+        case .createTodo(let todoDraft):
+            send(.setLoading(true))
+            Task {
+                do {
+                    defer { send(.setLoading(false)) }
+                    try await upsertTodoUseCase.execute(todoDraft)
+                    trackAnalyticsEventUseCase?.execute(.todoCreate)
+                    onCreateSuccess?()
+                } catch {
+                    send(.setAlert(true))
+                }
+            }
+        case .updateTodo(let todo):
             send(.setLoading(true))
             Task {
                 do {
                     defer { send(.setLoading(false)) }
                     try await upsertTodoUseCase.execute(todo)
-                    if originalDraft == nil {
-                        trackAnalyticsEventUseCase?.execute(.todoCreate)
-                    }
-                    onUpsertSuccess?(todo)
+                    onUpdateSuccess?(todo)
                 } catch {
                     send(.setAlert(true))
                 }
@@ -321,22 +302,41 @@ extension TodoEditorViewModel {
         state.showAlert = isPresented
     }
 
-    func makeTodo() -> Todo {
+    private func makeTodoDraft() -> TodoDraft {
+        let date = Date()
+        return TodoDraft(
+            id: self.id,
+            isPinned: state.isPinned,
+            isCompleted: state.isCompleted,
+            isChecked: self.isChecked,
+            title: state.title,
+            content: state.content,
+            createdAt: date,
+            updatedAt: date,
+            completedAt: state.completedAt,
+            dueDate: state.dueDate,
+            tags: Array(state.tags),
+            category: state.category.category
+        )
+    }
+
+    private func makeTodo() -> Todo? {
+        guard let number, let createdAt else { return nil }
         let date = Date()
         return Todo(
             id: self.id,
             isPinned: state.isPinned,
             isCompleted: state.isCompleted,
             isChecked: self.isChecked,
-            number: self.number,
+            number: number,
             title: state.title,
             content: state.content,
-            createdAt: self.createdAt ?? date,
+            createdAt: createdAt,
             updatedAt: date,
             completedAt: state.completedAt,
             deletedAt: self.deletedAt,
             dueDate: state.dueDate,
-            tags: state.tags.map { $0 },
+            tags: Array(state.tags),
             category: state.category.category
         )
     }

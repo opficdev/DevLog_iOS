@@ -7,4 +7,5 @@
 
 public protocol UpsertTodoUseCase {
     func execute(_ todo: Todo) async throws
+    func execute(_ todoDraft: TodoDraft) async throws
 }

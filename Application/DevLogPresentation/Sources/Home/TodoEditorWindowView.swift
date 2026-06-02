@@ -34,7 +34,7 @@ public struct TodoEditorWindowView: View {
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
                         trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                        onUpsertSuccess: upsert
+                        onCreateSuccess: create
                     ),
                     onClose: closeWindow
                 )
@@ -45,7 +45,7 @@ public struct TodoEditorWindowView: View {
                         fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpsertSuccess: upsert
+                        onUpdateSuccess: update
                     ),
                     onClose: closeWindow
                 )
@@ -56,8 +56,13 @@ public struct TodoEditorWindowView: View {
         }
     }
 
-    private func upsert(_ todo: Todo) {
-        windowEvent.submit(value: value, todo: todo)
+    private func create() {
+        windowEvent.submitCreate(value: value)
+        closeWindow()
+    }
+
+    private func update(_ todo: Todo) {
+        windowEvent.submitUpdate(value: value, todo: todo)
         closeWindow()
     }
 

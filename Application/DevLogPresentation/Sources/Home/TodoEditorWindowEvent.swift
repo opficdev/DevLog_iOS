@@ -17,10 +17,14 @@ public final class TodoEditorWindowEvent {
 
     public init() { }
 
-    func submit(
+    func submitCreate(value: TodoEditorWindowValue) {
+        subject.send(.create(value))
+    }
+
+    func submitUpdate(
         value: TodoEditorWindowValue,
         todo: Todo
     ) {
-        subject.send(TodoEditorWindowSubmit(value: value, todo: todo))
+        subject.send(.update(value, todo))
     }
 }

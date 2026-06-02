@@ -9,21 +9,39 @@ import DevLogCore
 import DevLogDomain
 
 public extension TodoRequest {
-    static func fromDomain(_ entity: Todo) -> Self {
+    static func fromDomain(_ todo: Todo) -> Self {
         TodoRequest(
-            id: entity.id,
-            isPinned: entity.isPinned,
-            isCompleted: entity.isCompleted,
-            isChecked: entity.isChecked,
-            title: entity.title,
-            content: entity.content,
-            createdAt: entity.createdAt,
-            updatedAt: entity.updatedAt,
-            completedAt: entity.completedAt,
-            deletedAt: entity.deletedAt,
-            dueDate: entity.dueDate,
-            tags: entity.tags,
-            category: entity.category.storageValue
+            id: todo.id,
+            isPinned: todo.isPinned,
+            isCompleted: todo.isCompleted,
+            isChecked: todo.isChecked,
+            title: todo.title,
+            content: todo.content,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt,
+            completedAt: todo.completedAt,
+            deletedAt: todo.deletedAt,
+            dueDate: todo.dueDate,
+            tags: todo.tags,
+            category: todo.category.storageValue
+        )
+    }
+
+    static func fromDomain(_ todoDraft: TodoDraft) -> Self {
+        TodoRequest(
+            id: todoDraft.id,
+            isPinned: todoDraft.isPinned,
+            isCompleted: todoDraft.isCompleted,
+            isChecked: todoDraft.isChecked,
+            title: todoDraft.title,
+            content: todoDraft.content,
+            createdAt: todoDraft.createdAt,
+            updatedAt: todoDraft.updatedAt,
+            completedAt: todoDraft.completedAt,
+            deletedAt: nil,
+            dueDate: todoDraft.dueDate,
+            tags: todoDraft.tags,
+            category: todoDraft.category.storageValue
         )
     }
 }

@@ -105,9 +105,18 @@ final class TodoRepositoryImpl: TodoRepository {
     }
     
     func upsertTodo(_ todo: Todo) async throws {
-        let request = TodoRequest.fromDomain(todo)
+        let todoRequest = TodoRequest.fromDomain(todo)
+        try await upsertTodo(todoRequest)
+    }
+
+    func upsertTodo(_ todoDraft: TodoDraft) async throws {
+        let todoRequest = TodoRequest.fromDomain(todoDraft)
+        try await upsertTodo(todoRequest)
+    }
+
+    private func upsertTodo(_ todoRequest: TodoRequest) async throws {
         do {
-            try await todoService.upsertTodo(request: request)
+            try await todoService.upsertTodo(request: todoRequest)
             widgetSyncEventBus.publish(.syncRequested)
         } catch {
             throw error.toDomain()

@@ -13,6 +13,7 @@ public protocol TodoRepository {
     func fetchTodo(_ todoId: String) async throws -> Todo
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference]
     func upsertTodo(_ todo: Todo) async throws
+    func upsertTodo(_ todoDraft: TodoDraft) async throws
     func deleteTodo(_ todoId: String) async throws
     func undoDeleteTodo(_ todoId: String) async throws
 }
