@@ -41,6 +41,12 @@ let project = Project(
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
                     "PRODUCT_MODULE_NAME": "DevLogApp",
+                ],
+                debug: [
+                    "APS_ENVIRONMENT": "development",
+                ],
+                release: [
+                    "APS_ENVIRONMENT": "production",
                 ]
             )
         ),
