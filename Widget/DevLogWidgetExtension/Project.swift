@@ -4,8 +4,8 @@ import ProjectDescriptionHelpers
 let project = Project(
     name: "DevLogWidgetExtension",
     options: .options(
-        disableBundleAccessors: true,
-        disableSynthesizedResourceAccessors: true
+        disableBundleAccessors: false,
+        disableSynthesizedResourceAccessors: false
     ),
     settings: .devlogProject(versionXcconfigPath: "../../Application/Shared/Version.xcconfig"),
     targets: [
@@ -31,39 +31,12 @@ let project = Project(
                         "Project.swift",
                     ]
                 ),
-                .generated("Derived/Sources/TuistAssets+DevLogWidgetExtension.swift"),
-                .generated("Derived/Sources/TuistBundle+DevLogWidgetExtension.swift"),
             ],
             resources: [
                 "Resource/Assets.xcassets",
                 "Resource/Localizable.xcstrings",
             ],
             entitlements: .file(path: "Resource/DevLogWidget.entitlements"),
-            scripts: [
-                .pre(
-                    script: """
-                    mkdir -p "$SRCROOT/Derived/Sources"
-                    cat <<'EOF' > "$SRCROOT/Derived/Sources/TuistAssets+DevLogWidgetExtension.swift"
-                    // swiftlint:disable:this file_name
-                    // Generated workaround for Tuist 4.194.4 widget extension source reference.
-
-                    import Foundation
-                    EOF
-                    cat <<'EOF' > "$SRCROOT/Derived/Sources/TuistBundle+DevLogWidgetExtension.swift"
-                    // swiftlint:disable:this file_name
-                    // Generated workaround for Tuist 4.194.4 widget extension source reference.
-
-                    import Foundation
-                    EOF
-                    """,
-                    name: "Generate Widget Accessors",
-                    outputPaths: [
-                        "Derived/Sources/TuistAssets+DevLogWidgetExtension.swift",
-                        "Derived/Sources/TuistBundle+DevLogWidgetExtension.swift",
-                    ],
-                    basedOnDependencyAnalysis: false
-                ),
-            ],
             dependencies: [
                 .project(target: "DevLogWidgetCore", path: "../DevLogWidgetCore"),
             ],

@@ -216,7 +216,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 946E336F4DA3C764C4BB78B8 /* Build configuration list for PBXNativeTarget "DevLogWidgetExtension" */;
 			buildPhases = (
-				76E9AA9432A2E71A5FCBEDF0 /* Generate Widget Accessors */,
 				ECDE64D61EC995391A3390C9 /* Sources */,
 				F851AE38CC6DC956738736DA /* Resources */,
 				8A6B2FC04294EE93066976F5 /* Frameworks */,
@@ -273,30 +272,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		76E9AA9432A2E71A5FCBEDF0 /* Generate Widget Accessors */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Generate Widget Accessors";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"Derived/Sources/TuistAssets+DevLogWidgetExtension.swift",
-				"Derived/Sources/TuistBundle+DevLogWidgetExtension.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$SRCROOT/Derived/Sources\"\ncat <<'EOF' > \"$SRCROOT/Derived/Sources/TuistAssets+DevLogWidgetExtension.swift\"\n// swiftlint:disable:this file_name\n// Generated workaround for Tuist 4.194.4 widget extension source reference.\n\nimport Foundation\nEOF\ncat <<'EOF' > \"$SRCROOT/Derived/Sources/TuistBundle+DevLogWidgetExtension.swift\"\n// swiftlint:disable:this file_name\n// Generated workaround for Tuist 4.194.4 widget extension source reference.\n\nimport Foundation\nEOF";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		ECDE64D61EC995391A3390C9 /* Sources */ = {
