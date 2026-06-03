@@ -269,8 +269,63 @@ jobs:
               });
             }
 
+            function cleanLine(line) {
+              return line
+                .replace(/\u001b\[[0-9;]*m/g, '')
+                .trim()
+                .slice(0, 300);
+            }
+
+            function extractFailureSnippet(logPath) {
+              if (!fs.existsSync(logPath)) return '';
+
+              const lines = fs.readFileSync(logPath, 'utf8').split(/\r?\n/);
+              const importantPatterns = [
+                /\.swift:\d+:\d+:\s+error:/,
+                /Testing failed:/,
+                /\*\* TEST FAILED \*\*/,
+                /The following build commands failed:/,
+                /Issue recorded:/,
+                /Expectation failed:/,
+                /✘/,
+              ];
+              const indexes = [];
+
+              lines.forEach((line, index) => {
+                if (importantPatterns.some((pattern) => pattern.test(line))) {
+                  indexes.push(index);
+                }
+              });
+
+              const selectedLines = [];
+              const seenLines = new Set();
+
+              for (const index of indexes.slice(0, 5)) {
+                const start = Math.max(0, index - 2);
+                const end = Math.min(lines.length, index + 9);
+                for (const line of lines.slice(start, end)) {
+                  const cleanedLine = cleanLine(line);
+                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
+                  seenLines.add(cleanedLine);
+                  selectedLines.push(cleanedLine);
+                }
+              }
+
+              if (selectedLines.length <= 0) {
+                for (const line of lines.slice(-25)) {
+                  const cleanedLine = cleanLine(line);
+                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
+                  seenLines.add(cleanedLine);
+                  selectedLines.push(cleanedLine);
+                }
+              }
+
+              return selectedLines.slice(0, 30).join('\n');
+            }
+
             for (const summaryPath of walk(root).filter((filePath) => path.basename(filePath) === 'summary.txt')) {
               const artifactName = summaryPath.split(path.sep)[1] || 'unknown';
+              const artifactDirectory = path.dirname(summaryPath);
               const text = fs.readFileSync(summaryPath, 'utf8');
               const records = text
                 .trim()
@@ -287,25 +342,31 @@ jobs:
 
               for (const record of records) {
                 if (record.status && record.status !== '0') {
+                  const scheme = record.scheme || 'unknown';
+                  const logPath = path.join(artifactDirectory, `${scheme}.log`);
                   summaries.push({
                     artifactName,
-                    scheme: record.scheme || 'unknown',
+                    scheme,
                     status: record.status,
+                    snippet: extractFailureSnippet(logPath),
                   });
                 }
               }
             }
 
-            let body = '❌ iOS tests failed.\n\n';
+            let body = '❌ iOS CI tests failed.\n\n';
 
             if (summaries.length <= 0) {
               body += 'No failed scheme summary was found. Check the uploaded test log artifacts.';
             } else {
               body += 'Failed schemes:\n\n';
-              body += summaries
-                .map((summary) => `- ${summary.scheme} (${summary.artifactName}, exit ${summary.status})`)
-                .join('\n');
-              body += '\n\nCheck the uploaded test log artifacts for full diagnostics.';
+              for (const summary of summaries) {
+                body += `- ${summary.scheme} (${summary.artifactName})\n`;
+                if (summary.snippet) {
+                  body += '\n```text\n' + summary.snippet + '\n```\n\n';
+                }
+              }
+              body += '\nCheck the uploaded test log artifacts for full diagnostics.';
             }
 
             if (!context.payload.pull_request) {
