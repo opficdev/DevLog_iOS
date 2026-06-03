@@ -185,8 +185,24 @@ jobs:
 
           for TEST_SCHEME in $TEST_SCHEMES; do
             LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
+            if [ "$TEST_SCHEME" = "DevLogWidgetCore" ]; then
+              TEST_SOURCE_DIR="Widget/DevLogWidgetCore/Tests"
+            else
+              TEST_SOURCE_DIR="Application/${TEST_SCHEME}/Tests"
+            fi
+
             echo "== Starting xcodebuild test: ${TEST_SCHEME} =="
             echo "scheme=${TEST_SCHEME}" >> "$SUMMARY"
+
+            if [ -z "$(find "$TEST_SOURCE_DIR" -name '*.swift' -print -quit 2>/dev/null)" ]; then
+              echo "No Swift test sources found in ${TEST_SOURCE_DIR}. Skipping ${TEST_SCHEME}."
+              echo "No Swift test sources found in ${TEST_SOURCE_DIR}. Skipping ${TEST_SCHEME}." > "$LOG_PATH"
+              echo "status=0" >> "$SUMMARY"
+              echo "result=skipped" >> "$SUMMARY"
+              echo "" >> "$SUMMARY"
+              echo "== Finished xcodebuild test: ${TEST_SCHEME} (skipped) =="
+              continue
+            fi
 
             set +e
             xcodebuild \
