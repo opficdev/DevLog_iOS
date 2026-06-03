@@ -65,28 +65,16 @@ jobs:
             ~/Library/Caches/org.swift.swiftpm
             ~/Library/Developer/Xcode/SourcePackages
             .spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Widget/**/Project.swift') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Generate Xcode project with Tuist
+      - name: Generate Xcode workspace with Tuist
         shell: bash
         run: |
           set -euo pipefail
 
           tuist generate --no-open
-
-          git diff --exit-code -- \
-            DevLog.xcworkspace \
-            Application/DevLogApp/DevLogApp.xcodeproj \
-            Application/DevLogCore/DevLogCore.xcodeproj \
-            Application/DevLogData/DevLogData.xcodeproj \
-            Application/DevLogDomain/DevLogDomain.xcodeproj \
-            Application/DevLogInfra/DevLogInfra.xcodeproj \
-            Application/DevLogPersistence/DevLogPersistence.xcodeproj \
-            Application/DevLogPresentation/DevLogPresentation.xcodeproj \
-            Widget/DevLogWidgetCore/DevLogWidgetCore.xcodeproj \
-            Widget/DevLogWidgetExtension/DevLogWidgetExtension.xcodeproj
 
       - name: Select iOS Simulator Runtime (installed)
         id: pick_ios

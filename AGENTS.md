@@ -27,7 +27,7 @@ These instructions apply only to the repository root.
 
 Use this harness before any task that changes module boundaries, file ownership, layer dependencies, DI assembly, repository/service contracts, widget data flow, Firebase dependency placement, or architecture documentation.
 
-Treat this repository as an Xcode workspace-based modular iOS app. There is no root `Package.swift`; modules are separate `.xcodeproj` entries under `DevLog.xcworkspace`.
+Treat this repository as a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
 
 ### Mandatory flow
 
@@ -89,7 +89,7 @@ These may proceed after inspection when they do not change architecture meaning:
 - If iOS project code changes, test build with Xcode Local MCP.
 - If Xcode Local MCP is unavailable, state that explicitly before using a fallback.
 - Do not claim architecture work is complete without checking the diff scope.
-- Do not spend time on unrelated lockfile churn. Keep `Package.resolved` changes only when they are part of the requested task.
+- Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
 - For Firebase Cloud Functions, deploy updated functions one by one separately.
 
 ## Canonical project rules
