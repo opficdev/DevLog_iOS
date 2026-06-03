@@ -198,7 +198,7 @@ jobs:
 
       - name: Comment build failure on PR
         if: failure() && github.event.pull_request.head.repo.fork == false
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -470,7 +470,7 @@ jobs:
 
       - name: Upload test logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ios-test-${{ matrix.name }}
           path: test-results/${{ matrix.name }}
@@ -483,12 +483,12 @@ jobs:
     if: always() && needs.test.result == 'failure' && github.event.pull_request.head.repo.fork == false
     steps:
       - name: Download test logs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: test-artifacts
 
       - name: Comment test failure on PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
