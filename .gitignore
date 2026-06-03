@@ -17,6 +17,9 @@ Breakpoints_v2.xcbkptlist
 **/build/
 **/xcuserdata/
 ContentView.swift
+DevLog.xcworkspace/
+Application/**/*.xcodeproj/
+Widget/**/*.xcodeproj/
 
 # NPM
 node_modules/
@@ -44,7 +47,6 @@ fastlane/logs/
 .tmp/
 .spm/
 Tuist/.build/
-DevLog.xcworkspace/.tuist-generated
 
 # drawio
 *.drawio.bkp
