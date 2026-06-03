@@ -196,62 +196,13 @@ jobs:
 
           exit $XC_STATUS
 
-      - name: Comment build failure on PR
-        if: failure() && github.event.pull_request.head.repo.fork == false
-        uses: actions/github-script@v8
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v6
         with:
-          script: |
-            const fs = require('fs');
-            const path = 'build.log';
-            let body = '❌ iOS CI build failed.\n\n';
-            if (fs.existsSync(path)) {
-              const log = fs.readFileSync(path, 'utf8');
-              const lines = log.split(/\r?\n/);
-              const errorLines = lines.filter((line) => /^(.*?):(\d+):(\d+):\s+error:/i.test(line));
-              if (errorLines.length > 0) {
-                body += "Compiler error lines:\n\n```\n" + errorLines.join('\n') + '\n```\n';
-
-                const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
-                const pathMod = require('path');
-                const snippets = [];
-                for (const line of errorLines) {
-                  const match = line.match(/^(.*?):(\d+):(\d+):\s+error:/);
-                  if (!match) continue;
-                  const filePath = match[1];
-                  const lineNum = parseInt(match[2], 10);
-                  const absPath = filePath.startsWith('/') ? filePath : pathMod.join(repoRoot, filePath);
-                  if (!fs.existsSync(absPath)) continue;
-                  const fileLines = fs.readFileSync(absPath, 'utf8').split(/\r?\n/);
-                  const start = Math.max(0, lineNum - 3);
-                  const end = Math.min(fileLines.length, lineNum + 2);
-                  const snippet = fileLines
-                    .slice(start, end)
-                    .map((l, idx) => {
-                      const ln = start + idx + 1;
-                      return `${ln.toString().padStart(4, ' ')}| ${l}`;
-                    })
-                    .join('\n');
-                  snippets.push(`File: ${filePath}:${lineNum}\n${snippet}`);
-                }
-                if (snippets.length > 0) {
-                  body += "\nCode excerpts:\n\n```\n" + snippets.join('\n\n') + "\n```\n";
-                }
-              } else {
-                body += "No compiler-style error diagnostics were found in build.log.";
-              }
-            } else {
-              body += 'build.log not found.';
-            }
-            if (!context.payload.pull_request) {
-              core.info('No PR context; skipping comment.');
-              return;
-            }
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body
-            });
+          name: ios-build
+          path: build.log
+          if-no-files-found: ignore
 
   test:
     name: Test (${{ matrix.name }})
@@ -476,26 +427,31 @@ jobs:
           path: test-results/${{ matrix.name }}
           if-no-files-found: ignore
 
-  test-report:
-    name: Test Report
+  report:
+    name: Report
     runs-on: ubuntu-latest
-    needs: test
-    if: always() && needs.test.result == 'failure' && github.event.pull_request.head.repo.fork == false
+    needs: [build, test]
+    if: always() && (needs.build.result == 'failure' || needs.test.result == 'failure') && github.event.pull_request.head.repo.fork == false
     steps:
-      - name: Download test logs
+      - uses: actions/checkout@v5
+
+      - name: Download CI logs
         uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
           path: test-artifacts
 
-      - name: Comment test failure on PR
+      - name: Comment CI failure on PR
         uses: actions/github-script@v8
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          TEST_RESULT: ${{ needs.test.result }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
 
             const root = 'test-artifacts';
-            const summaries = [];
 
             function walk(directory) {
               if (!fs.existsSync(directory)) return [];
@@ -560,6 +516,64 @@ jobs:
               return selectedLines.slice(0, 30).join('\n');
             }
 
+            function extractBuildSection() {
+              if (process.env.BUILD_RESULT !== 'failure') return '';
+
+              const logPath = path.join(root, 'ios-build', 'build.log');
+              let section = '## Build failed\n\n';
+
+              if (!fs.existsSync(logPath)) {
+                return section + 'No build log artifact was found. The build likely failed before xcodebuild started.\n\n';
+              }
+
+              const log = fs.readFileSync(logPath, 'utf8');
+              const lines = log.split(/\r?\n/);
+              const errorLines = lines
+                .filter((line) => /^(.*?):(\d+):(\d+):\s+error:/i.test(line))
+                .map(cleanLine)
+                .filter(Boolean);
+
+              if (errorLines.length <= 0) {
+                return section + 'No compiler-style error diagnostics were found in build.log.\n\n';
+              }
+
+              section += 'Compiler error lines:\n\n```text\n' + errorLines.join('\n') + '\n```\n\n';
+
+              const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+              const snippets = [];
+
+              for (const line of errorLines) {
+                const match = line.match(/^(.*?):(\d+):(\d+):\s+error:/);
+                if (!match) continue;
+
+                const filePath = match[1];
+                const lineNum = parseInt(match[2], 10);
+                const absPath = filePath.startsWith('/') ? filePath : path.join(repoRoot, filePath);
+                if (!fs.existsSync(absPath)) continue;
+
+                const fileLines = fs.readFileSync(absPath, 'utf8').split(/\r?\n/);
+                const start = Math.max(0, lineNum - 3);
+                const end = Math.min(fileLines.length, lineNum + 2);
+                const snippet = fileLines
+                  .slice(start, end)
+                  .map((sourceLine, index) => {
+                    const currentLine = start + index + 1;
+                    return `${currentLine.toString().padStart(4, ' ')}| ${sourceLine}`;
+                  })
+                  .join('\n');
+                snippets.push(`File: ${filePath}:${lineNum}\n${snippet}`);
+              }
+
+              if (snippets.length <= 0) return section;
+
+              return section + 'Code excerpts:\n\n```text\n' + snippets.join('\n\n') + '\n```\n\n';
+            }
+
+            function extractTestSection() {
+              if (process.env.TEST_RESULT !== 'failure') return '';
+
+              const summaries = [];
+
             for (const summaryPath of walk(root).filter((filePath) => path.basename(filePath) === 'summary.txt')) {
               const artifactName = summaryPath.split(path.sep)[1] || 'unknown';
               const artifactDirectory = path.dirname(summaryPath);
@@ -591,20 +605,24 @@ jobs:
               }
             }
 
-            let body = '❌ iOS CI tests failed.\n\n';
+              let section = '## Tests failed\n\n';
 
-            if (summaries.length <= 0) {
-              body += 'No failed scheme summary was found. Check the uploaded test log artifacts.';
-            } else {
-              body += 'Failed schemes:\n\n';
+              if (summaries.length <= 0) {
+                return section + 'No failed scheme summary was found. Check the uploaded test log artifacts.\n\n';
+              }
+
+              section += 'Failed schemes:\n\n';
               for (const summary of summaries) {
-                body += `- ${summary.scheme} (${summary.artifactName})\n`;
+                section += `- ${summary.scheme} (${summary.artifactName})\n`;
                 if (summary.snippet) {
-                  body += '\n```text\n' + summary.snippet + '\n```\n\n';
+                  section += '\n```text\n' + summary.snippet + '\n```\n\n';
                 }
               }
-              body += '\nCheck the uploaded test log artifacts for full diagnostics.';
+
+              return section + 'Check the uploaded test log artifacts for full diagnostics.\n\n';
             }
+
+            const body = '❌ iOS CI failed.\n\n' + extractBuildSection() + extractTestSection();
 
             if (!context.payload.pull_request) {
               core.info('No PR context; skipping comment.');
