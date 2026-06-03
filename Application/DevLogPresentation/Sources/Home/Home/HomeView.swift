@@ -124,6 +124,7 @@ struct HomeView: View {
                 let preferences = coordinator.viewModel.state.preferences
                 ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
                     todoCategoryRow(item)
+                        .listRowInsets((EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)))
                 }
             }
         }, header: {
@@ -383,7 +384,6 @@ struct HomeView: View {
                 .foregroundStyle(Color.primary)
             Spacer()
         }
-        .padding(.vertical, -6)
         .contentShape(.rect)
     }
 
