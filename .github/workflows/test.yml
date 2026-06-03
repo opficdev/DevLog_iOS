@@ -24,11 +24,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: core-data
+          - name: Domain-Data
             schemes: "DevLogDomain DevLogData"
-          - name: app-layer
+          - name: Persistence-Presentation
             schemes: "DevLogPersistence DevLogPresentation"
-          - name: widget
+          - name: WidgetCore
             schemes: "DevLogWidgetCore"
     steps:
       - uses: actions/checkout@v5
