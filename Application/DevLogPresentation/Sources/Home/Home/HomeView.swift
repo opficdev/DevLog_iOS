@@ -383,8 +383,8 @@ struct HomeView: View {
                 .foregroundStyle(Color.primary)
             Spacer()
         }
-        .padding(.vertical, -6)
         .contentShape(.rect)
+        .padding(.vertical, -6)
     }
 
     private func openTodoEditor(for todoCategory: TodoCategory) {
