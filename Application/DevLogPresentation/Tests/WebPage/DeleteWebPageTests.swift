@@ -19,7 +19,6 @@ struct DeleteWebPageTests {
         let addWebPageUseCaseSpy = AddWebPageUseCaseSpy()
         let deleteWebPageUseCaseSpy = DeleteWebPageUseCaseSpy()
         let undoDeleteWebPageUseCaseSpy = UndoDeleteWebPageUseCaseSpy()
-        let upsertTodoUseCaseSpy = UpsertTodoUseCaseSpy()
         let fetchTodosUseCaseSpy = FetchTodosUseCaseSpy()
         let fetchWebPagesUseCaseSpy = FetchWebPagesUseCaseSpy(
             webPages: [
@@ -40,7 +39,6 @@ struct DeleteWebPageTests {
             addWebPageUseCase: addWebPageUseCaseSpy,
             deleteWebPageUseCase: deleteWebPageUseCaseSpy,
             undoDeleteWebPageUseCase: undoDeleteWebPageUseCaseSpy,
-            upsertTodoUseCase: upsertTodoUseCaseSpy,
             fetchTodosUseCase: fetchTodosUseCaseSpy,
             fetchWebPagesUseCase: fetchWebPagesUseCaseSpy,
             networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy,
@@ -73,7 +71,6 @@ struct DeleteWebPageTests {
         let addWebPageUseCaseSpy = AddWebPageUseCaseSpy()
         let deleteWebPageUseCaseSpy = DeleteWebPageUseCaseSpy()
         let undoDeleteWebPageUseCaseSpy = UndoDeleteWebPageUseCaseSpy()
-        let upsertTodoUseCaseSpy = UpsertTodoUseCaseSpy()
         let fetchTodosUseCaseSpy = FetchTodosUseCaseSpy()
         let fetchWebPagesUseCaseSpy = FetchWebPagesUseCaseSpy(
             webPages: [
@@ -94,7 +91,6 @@ struct DeleteWebPageTests {
             addWebPageUseCase: addWebPageUseCaseSpy,
             deleteWebPageUseCase: deleteWebPageUseCaseSpy,
             undoDeleteWebPageUseCase: undoDeleteWebPageUseCaseSpy,
-            upsertTodoUseCase: upsertTodoUseCaseSpy,
             fetchTodosUseCase: fetchTodosUseCaseSpy,
             fetchWebPagesUseCase: fetchWebPagesUseCaseSpy,
             networkConnectivityUseCase: observeNetworkConnectivityUseCaseSpy,

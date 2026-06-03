@@ -1,0 +1,637 @@
+name: iOS CI
+
+on:
+  pull_request:
+
+env:
+  WORKSPACE: DevLog.xcworkspace
+  SCHEME: DevLogApp
+  XCODE_VERSION: "26.3"
+  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install private config files
+        uses: ./.github/actions/install-private-config
+        with:
+          git_url: ${{ env.MATCH_GIT_URL }}
+          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$XCODE_VERSION" = "latest" ]; then
+            XCODE_APP="$(find /Applications -maxdepth 1 -name 'Xcode*.app' -type d | sort -V | tail -n 1)"
+          else
+            XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
+            if [ ! -d "$XCODE_APP" ]; then
+              XCODE_APP="/Applications/Xcode-${XCODE_VERSION}.app"
+            fi
+          fi
+
+          if [ ! -d "${XCODE_APP:-}" ]; then
+            echo "Requested Xcode not found for version: $XCODE_VERSION" >&2
+            exit 1
+          fi
+
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+
+      - name: Set up Tuist
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/SourcePackages
+            .spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Widget/**/Project.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Generate Xcode workspace with Tuist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tuist generate --no-open
+
+      - name: Select iOS Simulator Runtime (installed)
+        id: pick_ios
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RESULT=$(python3 - <<'PY'
+          import re, subprocess, sys
+
+          def ver_key(version):
+            return tuple(int(part) for part in version.split('.'))
+
+          text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+          lines = text.splitlines()
+          current_ver = None
+          candidates = []
+
+          for line in lines:
+            header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+            if header:
+              current_ver = header.group(1)
+              continue
+            if current_ver is None:
+              continue
+            if "(unavailable)" in line:
+              continue
+            if "iPhone" not in line:
+              continue
+
+            raw = line.strip()
+            if "platform:" in raw and "name:" in raw and "OS:" in raw:
+              kv = {}
+              for part in raw.split(","):
+                if ":" not in part:
+                  continue
+                k, v = part.split(":", 1)
+                kv[k.strip()] = v.strip()
+              name = kv.get("name", raw)
+            else:
+              name = raw
+              name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
+
+            candidates.append((current_ver, name))
+
+          if len(candidates) <= 0:
+            print("No available iPhone simulators found", file=sys.stderr)
+            sys.exit(1)
+
+          latest_version = max((candidate[0] for candidate in candidates), key=ver_key)
+          latest_candidates = [
+            candidate for candidate in candidates
+            if candidate[0] == latest_version
+          ]
+          chosen_version, chosen_device_name = min(
+            latest_candidates,
+            key=lambda candidate: candidate[1]
+          )
+
+          print(f"{chosen_version}|{chosen_device_name}")
+          sys.exit(0)
+          PY
+          )
+
+          if [ -z "${RESULT:-}" ]; then
+            echo "No iPhone simulator devices detected." >&2
+            exit 1
+          fi
+
+          IFS='|' read -r IOS_VER DEVICE_NAME <<< "$RESULT"
+
+          echo "Chosen iOS runtime version (iPhone): $IOS_VER"
+          echo "Chosen simulator: $DEVICE_NAME"
+
+          echo "ios_version=$IOS_VER" >> "$GITHUB_OUTPUT"
+          echo "device_name=$DEVICE_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        shell: bash
+        env:
+          IOS_VER: ${{ steps.pick_ios.outputs.ios_version }}
+          DEVICE_NAME: ${{ steps.pick_ios.outputs.device_name }}
+        run: |
+          set -euo pipefail
+          set -x
+          SPM_DIR="$GITHUB_WORKSPACE/.spm"
+          mkdir -p "$SPM_DIR"
+
+          xcodebuild -version
+
+          echo "Using scheme: $SCHEME"
+          echo "Using simulator: $DEVICE_NAME (iOS ${IOS_VER})"
+
+          set -o pipefail
+          set +e
+          echo "== Resolving Swift Package dependencies =="
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -resolvePackageDependencies
+          echo "== Starting xcodebuild build =="
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -showBuildTimingSummary \
+            build \
+            | tee build.log
+          XC_STATUS=${PIPESTATUS[0]}
+          echo "== xcodebuild finished =="
+          set -e
+
+          exit $XC_STATUS
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ios-build
+          path: build.log
+          if-no-files-found: ignore
+
+  test:
+    name: Test (${{ matrix.name }})
+    runs-on: macos-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Domain-Data
+            schemes: "DevLogDomain DevLogData"
+          - name: Persistence-Presentation
+            schemes: "DevLogPersistence DevLogPresentation"
+          - name: WidgetCore
+            schemes: "DevLogWidgetCore"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install private config files
+        uses: ./.github/actions/install-private-config
+        with:
+          git_url: ${{ env.MATCH_GIT_URL }}
+          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$XCODE_VERSION" = "latest" ]; then
+            XCODE_APP="$(find /Applications -maxdepth 1 -name 'Xcode*.app' -type d | sort -V | tail -n 1)"
+          else
+            XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
+            if [ ! -d "$XCODE_APP" ]; then
+              XCODE_APP="/Applications/Xcode-${XCODE_VERSION}.app"
+            fi
+          fi
+
+          if [ ! -d "${XCODE_APP:-}" ]; then
+            echo "Requested Xcode not found for version: $XCODE_VERSION" >&2
+            exit 1
+          fi
+
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+
+      - name: Set up Tuist
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/SourcePackages
+            .spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Widget/**/Project.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Generate Xcode workspace with Tuist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tuist generate --no-open
+
+      - name: Select iOS Simulator Runtime (installed)
+        id: pick_ios
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RESULT=$(python3 - <<'PY'
+          import re, subprocess, sys
+
+          def ver_key(version):
+            return tuple(int(part) for part in version.split('.'))
+
+          text = subprocess.check_output(["xcrun", "simctl", "list", "devices"], text=True)
+          lines = text.splitlines()
+          current_ver = None
+          candidates = []
+
+          for line in lines:
+            header = re.match(r"^-- iOS ([0-9]+(?:\.[0-9]+)*) --$", line.strip())
+            if header:
+              current_ver = header.group(1)
+              continue
+            if current_ver is None:
+              continue
+            if "(unavailable)" in line:
+              continue
+            if "iPhone" not in line:
+              continue
+
+            raw = line.strip()
+            if "platform:" in raw and "name:" in raw and "OS:" in raw:
+              kv = {}
+              for part in raw.split(","):
+                if ":" not in part:
+                  continue
+                k, v = part.split(":", 1)
+                kv[k.strip()] = v.strip()
+              name = kv.get("name", raw)
+            else:
+              name = raw
+              name = re.sub(r"\s+\([0-9A-Fa-f-]{36}\)\s+\(.*\)$", "", name)
+
+            candidates.append((current_ver, name))
+
+          if len(candidates) <= 0:
+            print("No available iPhone simulators found", file=sys.stderr)
+            sys.exit(1)
+
+          latest_version = max((candidate[0] for candidate in candidates), key=ver_key)
+          latest_candidates = [
+            candidate for candidate in candidates
+            if candidate[0] == latest_version
+          ]
+          chosen_version, chosen_device_name = min(
+            latest_candidates,
+            key=lambda candidate: candidate[1]
+          )
+
+          print(f"{chosen_version}|{chosen_device_name}")
+          sys.exit(0)
+          PY
+          )
+
+          if [ -z "${RESULT:-}" ]; then
+            echo "No iPhone simulator devices detected." >&2
+            exit 1
+          fi
+
+          IFS='|' read -r IOS_VER DEVICE_NAME <<< "$RESULT"
+
+          echo "Chosen iOS runtime version (iPhone): $IOS_VER"
+          echo "Chosen simulator: $DEVICE_NAME"
+
+          echo "ios_version=$IOS_VER" >> "$GITHUB_OUTPUT"
+          echo "device_name=$DEVICE_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Test
+        shell: bash
+        env:
+          IOS_VER: ${{ steps.pick_ios.outputs.ios_version }}
+          DEVICE_NAME: ${{ steps.pick_ios.outputs.device_name }}
+          TEST_SCHEMES: ${{ matrix.schemes }}
+          TEST_GROUP: ${{ matrix.name }}
+        run: |
+          set -uo pipefail
+          set -x
+
+          SPM_DIR="$GITHUB_WORKSPACE/.spm"
+          RESULT_DIR="$GITHUB_WORKSPACE/test-results/$TEST_GROUP"
+          mkdir -p "$SPM_DIR" "$RESULT_DIR"
+
+          xcodebuild -version
+
+          STATUS=0
+          SUMMARY="$RESULT_DIR/summary.txt"
+          : > "$SUMMARY"
+
+          for TEST_SCHEME in $TEST_SCHEMES; do
+            LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
+            if [ "$TEST_SCHEME" = "DevLogWidgetCore" ]; then
+              TEST_SOURCE_DIR="Widget/DevLogWidgetCore/Tests"
+            else
+              TEST_SOURCE_DIR="Application/${TEST_SCHEME}/Tests"
+            fi
+
+            echo "== Starting xcodebuild test: ${TEST_SCHEME} =="
+            echo "scheme=${TEST_SCHEME}" >> "$SUMMARY"
+
+            if [ -z "$(find "$TEST_SOURCE_DIR" -name '*.swift' -print -quit 2>/dev/null)" ]; then
+              echo "No Swift test sources found in ${TEST_SOURCE_DIR}. Skipping ${TEST_SCHEME}."
+              echo "No Swift test sources found in ${TEST_SOURCE_DIR}. Skipping ${TEST_SCHEME}." > "$LOG_PATH"
+              echo "status=0" >> "$SUMMARY"
+              echo "result=skipped" >> "$SUMMARY"
+              echo "" >> "$SUMMARY"
+              echo "== Finished xcodebuild test: ${TEST_SCHEME} (skipped) =="
+              continue
+            fi
+
+            set +e
+            xcodebuild \
+              -workspace "$WORKSPACE" \
+              -scheme "$TEST_SCHEME" \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,OS=${IOS_VER},name=${DEVICE_NAME}" \
+              -clonedSourcePackagesDirPath "$SPM_DIR" \
+              -skipPackagePluginValidation \
+              -skipMacroValidation \
+              -showBuildTimingSummary \
+              test \
+              | tee "$LOG_PATH"
+            XC_STATUS=${PIPESTATUS[0]}
+            set -e
+
+            echo "status=${XC_STATUS}" >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+
+            if [ "$XC_STATUS" -ne 0 ]; then
+              STATUS="$XC_STATUS"
+            fi
+
+            echo "== Finished xcodebuild test: ${TEST_SCHEME} (${XC_STATUS}) =="
+          done
+
+          exit "$STATUS"
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ios-test-${{ matrix.name }}
+          path: test-results/${{ matrix.name }}
+          if-no-files-found: ignore
+
+  report:
+    name: Report
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: always() && (needs.build.result == 'failure' || needs.test.result == 'failure') && github.event.pull_request.head.repo.fork == false
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download CI logs
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          path: test-artifacts
+
+      - name: Comment CI failure on PR
+        uses: actions/github-script@v8
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const root = 'test-artifacts';
+
+            function walk(directory) {
+              if (!fs.existsSync(directory)) return [];
+              const entries = fs.readdirSync(directory, { withFileTypes: true });
+              return entries.flatMap((entry) => {
+                const fullPath = path.join(directory, entry.name);
+                return entry.isDirectory() ? walk(fullPath) : [fullPath];
+              });
+            }
+
+            function cleanLine(line) {
+              return line
+                .replace(/\u001b\[[0-9;]*m/g, '')
+                .trim()
+                .slice(0, 300);
+            }
+
+            function extractFailureSnippet(logPath) {
+              if (!fs.existsSync(logPath)) return '';
+
+              const lines = fs.readFileSync(logPath, 'utf8').split(/\r?\n/);
+              const importantPatterns = [
+                /\.swift:\d+:\d+:\s+error:/,
+                /Testing failed:/,
+                /\*\* TEST FAILED \*\*/,
+                /The following build commands failed:/,
+                /Issue recorded:/,
+                /Expectation failed:/,
+                /✘/,
+              ];
+              const indexes = [];
+
+              lines.forEach((line, index) => {
+                if (importantPatterns.some((pattern) => pattern.test(line))) {
+                  indexes.push(index);
+                }
+              });
+
+              const selectedLines = [];
+              const seenLines = new Set();
+
+              for (const index of indexes.slice(0, 5)) {
+                const start = Math.max(0, index - 2);
+                const end = Math.min(lines.length, index + 9);
+                for (const line of lines.slice(start, end)) {
+                  const cleanedLine = cleanLine(line);
+                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
+                  seenLines.add(cleanedLine);
+                  selectedLines.push(cleanedLine);
+                }
+              }
+
+              if (selectedLines.length <= 0) {
+                for (const line of lines.slice(-25)) {
+                  const cleanedLine = cleanLine(line);
+                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
+                  seenLines.add(cleanedLine);
+                  selectedLines.push(cleanedLine);
+                }
+              }
+
+              return selectedLines.slice(0, 30).join('\n');
+            }
+
+            function extractBuildSection() {
+              if (process.env.BUILD_RESULT !== 'failure') return '';
+
+              const logPath = path.join(root, 'ios-build', 'build.log');
+              let section = '## Build failed\n\n';
+
+              if (!fs.existsSync(logPath)) {
+                return section + 'No build log artifact was found. The build likely failed before xcodebuild started.\n\n';
+              }
+
+              const log = fs.readFileSync(logPath, 'utf8');
+              const lines = log.split(/\r?\n/);
+              const errorLines = lines
+                .filter((line) => /^(.*?):(\d+):(\d+):\s+error:/i.test(line))
+                .map(cleanLine)
+                .filter(Boolean);
+
+              if (errorLines.length <= 0) {
+                return section + 'No compiler-style error diagnostics were found in build.log.\n\n';
+              }
+
+              section += 'Compiler error lines:\n\n```text\n' + errorLines.join('\n') + '\n```\n\n';
+
+              const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+              const snippets = [];
+
+              for (const line of errorLines) {
+                const match = line.match(/^(.*?):(\d+):(\d+):\s+error:/);
+                if (!match) continue;
+
+                const filePath = match[1];
+                const lineNum = parseInt(match[2], 10);
+                const absPath = filePath.startsWith('/') ? filePath : path.join(repoRoot, filePath);
+                if (!fs.existsSync(absPath)) continue;
+
+                const fileLines = fs.readFileSync(absPath, 'utf8').split(/\r?\n/);
+                const start = Math.max(0, lineNum - 3);
+                const end = Math.min(fileLines.length, lineNum + 2);
+                const snippet = fileLines
+                  .slice(start, end)
+                  .map((sourceLine, index) => {
+                    const currentLine = start + index + 1;
+                    return `${currentLine.toString().padStart(4, ' ')}| ${sourceLine}`;
+                  })
+                  .join('\n');
+                snippets.push(`File: ${filePath}:${lineNum}\n${snippet}`);
+              }
+
+              if (snippets.length <= 0) return section;
+
+              return section + 'Code excerpts:\n\n```text\n' + snippets.join('\n\n') + '\n```\n\n';
+            }
+
+            function extractTestSection() {
+              if (process.env.TEST_RESULT !== 'failure') return '';
+
+              const summaries = [];
+
+            for (const summaryPath of walk(root).filter((filePath) => path.basename(filePath) === 'summary.txt')) {
+              const artifactName = summaryPath.split(path.sep)[1] || 'unknown';
+              const artifactDirectory = path.dirname(summaryPath);
+              const text = fs.readFileSync(summaryPath, 'utf8');
+              const records = text
+                .trim()
+                .split(/\n\n+/)
+                .map((record) => Object.fromEntries(
+                  record
+                    .split(/\r?\n/)
+                    .filter(Boolean)
+                    .map((line) => {
+                      const index = line.indexOf('=');
+                      return index < 0 ? [line, ''] : [line.slice(0, index), line.slice(index + 1)];
+                    })
+                ));
+
+              for (const record of records) {
+                if (record.status && record.status !== '0') {
+                  const scheme = record.scheme || 'unknown';
+                  const logPath = path.join(artifactDirectory, `${scheme}.log`);
+                  summaries.push({
+                    artifactName,
+                    scheme,
+                    status: record.status,
+                    snippet: extractFailureSnippet(logPath),
+                  });
+                }
+              }
+            }
+
+              let section = '## Tests failed\n\n';
+
+              if (summaries.length <= 0) {
+                return section + 'No failed scheme summary was found. Check the uploaded test log artifacts.\n\n';
+              }
+
+              section += 'Failed schemes:\n\n';
+              for (const summary of summaries) {
+                section += `- ${summary.scheme} (${summary.artifactName})\n`;
+                if (summary.snippet) {
+                  section += '\n```text\n' + summary.snippet + '\n```\n\n';
+                }
+              }
+
+              return section + 'Check the uploaded test log artifacts for full diagnostics.\n\n';
+            }
+
+            const body = '❌ iOS CI failed.\n\n' + extractBuildSection() + extractTestSection();
+
+            if (!context.payload.pull_request) {
+              core.info('No PR context; skipping comment.');
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
