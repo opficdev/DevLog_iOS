@@ -14,7 +14,7 @@ public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State var viewModel: RootViewModel
     @State private var selectedRoute: Route?
-    @State private var selectedMainTab: MainTab?
+    @State private var selectedMainTab = MainTab.home
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -65,8 +65,6 @@ public struct RootView: View {
             guard let value else { return }
             if value {
                 selectedMainTab = .home
-            } else {
-                selectedMainTab = nil
             }
         }
         .onOpenURL { url in
