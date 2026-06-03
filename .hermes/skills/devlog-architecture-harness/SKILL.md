@@ -28,7 +28,7 @@ Use this skill in the repository root when the task touches any of these areas:
 - Widget snapshot, App Group, or widget deep-link data flow.
 - Architecture diagrams, README architecture text, or PR architecture explanation.
 
-This repository is an Xcode workspace-based modular iOS app. There is no root `Package.swift`; modules are separate `.xcodeproj` entries under `DevLog.xcworkspace`.
+This repository is a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
 
 ## Required project context
 

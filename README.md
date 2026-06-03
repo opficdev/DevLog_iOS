@@ -154,7 +154,7 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 
 ## 개발 도구
 
-- Xcode 프로젝트와 워크스페이스는 Tuist manifest를 기준으로 생성
+- Xcode 프로젝트와 워크스페이스는 Tuist manifest를 기준으로 생성하며 Git은 생성물을 추적하지 않음
 - `.mise.toml`에서 Tuist 버전을 고정
 - `Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers` 변경 후 아래 명령으로 Xcode 프로젝트 재생성
 
@@ -168,7 +168,6 @@ tuist generate --no-open
 
 ```text
 SwiftUI_DevLog/
-├── DevLog.xcworkspace
 ├── Tuist.swift
 ├── Workspace.swift
 ├── .mise.toml

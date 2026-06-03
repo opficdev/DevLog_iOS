@@ -8,7 +8,7 @@ The goal is not to make the AI decide more architecture policy. The goal is to m
 
 Use this reference with `AGENTS.md` and `.hermes/skills/devlog-architecture-harness/SKILL.md`.
 
-This repository is an Xcode workspace-based modular iOS app. There is no root `Package.swift`; modules are separate `.xcodeproj` entries under `DevLog.xcworkspace`.
+This repository is a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
 
 ## High-level harness flow
 
