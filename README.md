@@ -152,16 +152,56 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 | Utility | GoogleSignIn, OrderedCollections |
 | Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
 
-## 개발 도구
+## 개발 환경 구성
 
 - Xcode 프로젝트와 워크스페이스는 Tuist manifest를 기준으로 생성하며 Git은 생성물을 추적하지 않음
 - `.mise.toml`에서 Tuist 버전을 고정
-- `Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers` 변경 후 아래 명령으로 Xcode 프로젝트 재생성
+- `Workspace.swift`, 각 모듈의 `Project.swift`, `Tuist/ProjectDescriptionHelpers`가 Xcode 프로젝트 생성 기준
+- Swift Package 의존성은 Tuist 생성 과정에서 `.spm/` 아래로 resolve
+
+### 환경 버전
+
+| 항목 | 버전 |
+| --- | --- |
+| Xcode | 26.3 |
+| iOS Deployment Target | 17.0 |
+| Swift | 5.0 |
+| Tuist | 4.194.4 |
+| Ruby | 3.2 |
+| Fastlane | 2.232.2 |
+| Node.js | 22 |
+| TypeScript | 4.9.5 |
+
+### 1. 도구 설치
 
 ```bash
+brew install mise
 mise install
-tuist generate --no-open
 ```
+
+### 2. 비공개 설정 파일 준비
+
+앱 실행에 필요한 비공개 설정 파일은 리포지토리에 포함되지 않음
+
+```text
+Application/DevLogApp/Sources/Resource/
+├── Config.xcconfig
+└── GoogleService-Info.plist
+```
+
+### 3. Xcode 워크스페이스 생성
+
+```bash
+mise exec -- tuist generate --no-open
+```
+
+### 4. 빌드 확인
+
+- Xcode에서 `DevLog.xcworkspace` 열기
+- `DevLogApp` 스킴 선택
+- iOS Simulator 선택 후 Build 실행
+
+`Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers`를 수정한 경우 다시 워크스페이스 생성 명령 실행.
 
 
 ## 프로젝트 구조
