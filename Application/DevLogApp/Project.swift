@@ -25,7 +25,10 @@ let project = Project(
             ],
             entitlements: .file(path: "Sources/Resource/DevLog.entitlements"),
             scripts: [
-                DevLogScripts.swiftLint(sourcePath: "Sources"),
+                DevLogScripts.swiftLint(
+                    sourcePath: "Sources",
+                    configPath: "Sources/.swiftlint.yml"
+                ),
             ],
             dependencies: [
                 .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
@@ -60,6 +63,12 @@ let project = Project(
             bundleId: "opfic.DevLogAppTests",
             infoPlist: .file(path: "../Shared/InfoPlists/UnitTests-Info.plist"),
             sources: ["Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Tests",
+                    configPath: "Tests/.swiftlint.yml"
+                ),
+            ],
             dependencies: [
                 .target(name: "DevLogApp"),
             ],
@@ -67,6 +76,7 @@ let project = Project(
                 base: [
                     "BUNDLE_LOADER": "$(TEST_HOST)",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                     "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog",
                     "TEST_TARGET_NAME": "DevLogApp",
                 ]

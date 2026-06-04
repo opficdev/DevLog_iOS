@@ -59,7 +59,10 @@ public enum DevLogPackages {
 }
 
 public enum DevLogScripts {
-    public static func swiftLint(sourcePath: String) -> TargetScript {
+    public static func swiftLint(
+        sourcePath: String,
+        configPath: String = "../../.swiftlint.yml"
+    ) -> TargetScript {
         TargetScript.pre(
         script: """
         export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -70,7 +73,7 @@ public enum DevLogScripts {
             exit 1
         fi
 
-        configPath="${SRCROOT}/../../.swiftlint.yml"
+        configPath="${SRCROOT}/\(configPath)"
         sourcePathName="\(sourcePath)"
         lintSourcePath="${SRCROOT}/${sourcePathName}"
 
@@ -86,7 +89,7 @@ public enum DevLogScripts {
         """,
         name: "SwiftLint",
         inputPaths: [
-            "$(SRCROOT)/../../.swiftlint.yml",
+            "$(SRCROOT)/\(configPath)",
             "$(SRCROOT)/\(sourcePath)",
         ],
         basedOnDependencyAnalysis: false,

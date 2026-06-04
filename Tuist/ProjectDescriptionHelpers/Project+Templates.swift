@@ -20,7 +20,10 @@ public extension Project {
                 infoPlist: .file(path: frameworkInfoPlistPath),
                 sources: ["Sources/**/*.swift"],
                 scripts: [
-                    DevLogScripts.swiftLint(sourcePath: "Sources"),
+                    DevLogScripts.swiftLint(
+                        sourcePath: "Sources",
+                        configPath: "Sources/.swiftlint.yml"
+                    ),
                 ],
                 dependencies: dependencies,
                 settings: .devlog(
@@ -41,11 +44,18 @@ public extension Project {
                     bundleId: "\(bundleId)Tests",
                     infoPlist: .file(path: testsInfoPlistPath),
                     sources: ["Tests/**/*.swift"],
+                    scripts: [
+                        DevLogScripts.swiftLint(
+                            sourcePath: "Tests",
+                            configPath: "Tests/.swiftlint.yml"
+                        ),
+                    ],
                     dependencies: [
                         .target(name: name),
                     ],
                     settings: .devlog(
                         base: [
+                            "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                             "TEST_TARGET_NAME": SettingValue(stringLiteral: name),
                         ]
                     )
