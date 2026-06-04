@@ -71,18 +71,6 @@ struct HomeView: View {
         } message: {
             Text(coordinator.viewModel.state.alertMessage)
         }
-        .toast(
-            isPresented: Binding(
-                get: { coordinator.viewModel.state.showToast },
-                set: { coordinator.viewModel.send(.setToast(isPresented: $0)) }
-            ),
-            duration: 5,
-            action: { coordinator.viewModel.send(.undoDeleteWebPage) }
-        ) {
-            Label(coordinator.viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-                .font(.caption)
-                .multilineTextAlignment(.center)
-        }
         .overlay {
             if coordinator.viewModel.state.isAppending {
                 LoadingView()

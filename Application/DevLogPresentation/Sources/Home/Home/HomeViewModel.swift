@@ -32,9 +32,6 @@ final class HomeViewModel: Store {
         var alertTitle: String = ""
         var alertType: AlertType?
         var alertMessage: String = ""
-        var showToast: Bool = false
-        var toastType: ToastType?
-        var toastMessage: String = ""
     }
 
     enum Action {
@@ -42,11 +39,11 @@ final class HomeViewModel: Store {
         case networkStatusChanged(Bool)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
-        case setToast(isPresented: Bool, type: ToastType? = nil)
         case refreshWebPages
         case setLoading(LoadingTarget, Bool)
         case setWebPageHidden(URL, Bool)
         case handleWebPageDeleteFailure(URL)
+        case finishDeleteWebPageToast(String)
         case tapTodoCategory(TodoCategory)
         case orderTodoCategory([TodoCategoryItem])
         case setTodoCategory([TodoCategoryItem])
@@ -73,10 +70,6 @@ final class HomeViewModel: Store {
         case webPageInput
         case invalidURL
         case error
-    }
-
-    enum ToastType {
-        case deleteWebPage
     }
 
     enum ModalType {
@@ -143,9 +136,9 @@ final class HomeViewModel: Store {
         switch action {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
-        case .fetchData, .setPresentation, .setAlert, .setToast, .refreshWebPages,
+        case .fetchData, .setPresentation, .setAlert, .refreshWebPages,
                 .tapTodoCategory, .orderTodoCategory, .updateWebPageURLInput,
-                .addWebPage, .deleteWebPage, .undoDeleteWebPage:
+                .addWebPage, .deleteWebPage, .undoDeleteWebPage, .finishDeleteWebPageToast:
             effects = reduceByView(action, state: &state)
 
         case .setLoading, .setWebPageHidden, .handleWebPageDeleteFailure, .setTodoCategory,
@@ -269,12 +262,6 @@ private extension HomeViewModel {
                 return [.showModalAfterDelay(.urlInputAlert)]
             }
             setAlert(&state, isPresented: presented, type: type)
-        case .setToast(let isPresented, let type):
-            setToast(&state, isPresented: isPresented, for: type)
-            if !isPresented {
-                state.webPages.removeAll { $0.isHidden }
-                deletedWebPageURLString = nil
-            }
         case .tapTodoCategory(let category):
             state.selectedTodoCategory = category
             state.showContentPicker = false
@@ -294,9 +281,10 @@ private extension HomeViewModel {
             return [.addWebPage(normalizedURL)]
         case .deleteWebPage(let page):
             if let index = state.webPages.firstIndex(where: { $0.id == page.id }) {
-                deletedWebPageURLString = page.url.absoluteString
+                let urlString = page.url.absoluteString
+                deletedWebPageURLString = urlString
                 state.webPages[index].isHidden = true
-                setToast(&state, isPresented: true, for: .deleteWebPage)
+                presentDeleteWebPageToast(urlString)
                 return [.deleteWebPage(page)]
             }
         case .undoDeleteWebPage:
@@ -308,6 +296,11 @@ private extension HomeViewModel {
             }
             self.deletedWebPageURLString = nil
             return [.undoDeleteWebPage(deletedWebPageURLString)]
+        case .finishDeleteWebPageToast(let urlString):
+            state.webPages.removeAll { $0.url.absoluteString == urlString && $0.isHidden }
+            if deletedWebPageURLString == urlString {
+                deletedWebPageURLString = nil
+            }
         default:
             break
         }
@@ -388,19 +381,20 @@ private extension HomeViewModel {
         state.alertType = type
     }
 
-    func setToast(
-        _ state: inout State,
-        isPresented: Bool,
-        for type: ToastType?
-    ) {
-        switch type {
-        case .deleteWebPage:
-            state.toastMessage = String(localized: "common_undo")
-        case .none:
-            state.toastMessage = ""
-        }
-        state.showToast = isPresented
-        state.toastType = type
+    func presentDeleteWebPageToast(_ urlString: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            action: { [weak self] in
+                self?.send(.undoDeleteWebPage)
+            },
+            onDismiss: { [weak self] in
+                self?.send(.finishDeleteWebPageToast(urlString))
+            }
+        )
     }
 
     func setLoading(

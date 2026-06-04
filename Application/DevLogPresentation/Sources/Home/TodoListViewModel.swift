@@ -23,8 +23,6 @@ final class TodoListViewModel: Store {
         var showAllSearchResults: Bool = false
         var query: TodoQuery
         var isLoading: Bool = false
-        var showToast: Bool = false
-        var toastMessage: String = ""
         var hasMore: Bool = false
     }
 
@@ -41,6 +39,7 @@ final class TodoListViewModel: Store {
         case resetFilters
         case setIsSearching(Bool)
         case setShowAllSearchResults(Bool)
+        case finishDeleteToast(String)
         case tapToggleCompleted(TodoListItem)
         case tapTogglePinned(TodoListItem)
         case undoDelete
@@ -49,7 +48,6 @@ final class TodoListViewModel: Store {
         case onAppear
         case loadNextPage
         case setSearchText(String)
-        case setToast(isPresented: Bool)
 
         // Run
         case applySearchQuery(String)
@@ -133,10 +131,10 @@ final class TodoListViewModel: Store {
         switch action {
         case .refresh, .setAlert, .setShowEditor, .swipeTodo, .setSortTarget, .setSortOrder,
                 .togglePinnedOnly, .setCompletionFilter, .resetFilters, .setIsSearching,
-                .setShowAllSearchResults, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
+                .setShowAllSearchResults, .finishDeleteToast, .tapToggleCompleted, .tapTogglePinned, .undoDelete:
             effects = reduceByUser(action, state: &state)
 
-        case .onAppear, .loadNextPage, .setSearchText, .setToast:
+        case .onAppear, .loadNextPage, .setSearchText:
             effects = reduceByView(action, state: &state)
 
         case .applySearchQuery, .fetchSearchResults, .didToggleCompleted, .didTogglePinned,
@@ -282,7 +280,7 @@ private extension TodoListViewModel {
             if state.todos.contains(where: { $0.id == todo.id }) {
                 self.undoTodoId = todo.id
                 setTodoHidden(&state, todoId: todo.id, isHidden: true)
-                setToast(&state, isPresented: true)
+                presentDeleteTodoToast(todo.id)
                 return [.delete(todo)]
             }
         case .setSortTarget(let target):
@@ -324,6 +322,12 @@ private extension TodoListViewModel {
             setTodoHidden(&state, todoId: undoTodoId, isHidden: false)
             self.undoTodoId = nil
             return [.undoDelete(undoTodoId)]
+        case .finishDeleteToast(let todoId):
+            state.todos.removeAll { $0.id == todoId && $0.isHidden }
+            state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
+            if self.undoTodoId == todoId {
+                self.undoTodoId = nil
+            }
         default:
             break
         }
@@ -347,13 +351,6 @@ private extension TodoListViewModel {
                 return [.cancelSearch]
             } else {
                 return [.cancelSearch, .debounceSearch(trimmed)]
-            }
-        case .setToast(let isPresented):
-            setToast(&state, isPresented: isPresented)
-            if !isPresented {
-                state.todos.removeAll { $0.isHidden }
-                state.searchResults.removeAll { $0.isHidden }
-                self.undoTodoId = nil
             }
         default:
             break
@@ -412,12 +409,18 @@ private extension TodoListViewModel {
         state.showAlert = isPresented
     }
 
-    func setToast(
-        _ state: inout State,
-        isPresented: Bool
-    ) {
-        state.toastMessage = String(localized: "common_undo")
-        state.showToast = isPresented
+    func presentDeleteTodoToast(_ todoId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            action: { [weak self] in
+                self?.send(.undoDelete)
+            },
+            onDismiss: { [weak self] in
+                self?.send(.finishDeleteToast(todoId))
+            }
+        )
     }
 
     func setTodoHidden(
