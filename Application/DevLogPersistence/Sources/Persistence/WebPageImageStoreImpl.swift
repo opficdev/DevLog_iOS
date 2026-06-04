@@ -9,43 +9,60 @@ import CryptoKit
 import Foundation
 import DevLogData
 
-actor WebPageImageStoreImpl: WebPageImageStore {
+final class WebPageImageStoreImpl: WebPageImageStore {
+    private let queue = DispatchQueue(
+        label: "devlog.web-page-image-store",
+        qos: .utility
+    )
+
     func cachedImageURL(for url: URL) async throws -> URL {
-        return try await Task.detached(priority: .utility) {
-            return try Self.cachedImageURL(for: url)
-        }.value
+        return try await perform {
+            try Self.cachedImageURL(for: url)
+        }
     }
 
     func saveImage(_ data: Data, for url: URL) async throws -> URL {
-        return try await Task.detached(priority: .utility) {
-            return try Self.saveImage(data, for: url)
-        }.value
+        return try await perform {
+            try Self.saveImage(data, for: url)
+        }
     }
 
     func dirSizeInBytes() async -> Int64 {
         do {
-            return try await Task.detached(priority: .utility) {
-                return try Self.dirSizeInBytes()
-            }.value
+            return try await perform {
+                try Self.dirSizeInBytes()
+            }
         } catch {
             return 0
         }
     }
 
     func clearDirectory() async throws {
-        try await Task.detached(priority: .utility) {
+        try await perform {
             try Self.clearDirectory()
-        }.value
+        }
     }
 
     func removeImage(for url: URL) async throws -> Bool {
-        return try await Task.detached(priority: .utility) {
-            return try Self.removeImage(for: url)
-        }.value
+        return try await perform {
+            try Self.removeImage(for: url)
+        }
     }
 }
 
 private extension WebPageImageStoreImpl {
+    func perform<T: Sendable>(_ operation: @escaping @Sendable () throws -> T) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                do {
+                    continuation.resume(returning: try operation())
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
     static func hashedFileName(for url: URL) -> String {
         let hashValue = SHA256.hash(data: Data(url.absoluteString.utf8))
         return hashValue.map { String(format: "%02x", $0) }.joined()
