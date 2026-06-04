@@ -63,12 +63,6 @@ struct AccountView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
-        .toast(isPresented: Binding(
-            get: { viewModel.state.showToast },
-            set: { viewModel.send(.setToast(isPresented: $0)) }
-        )) {
-            Text(viewModel.state.toastMessage)
-        }
         .overlay {
             if viewModel.state.isLoading {
                 LoadingView()

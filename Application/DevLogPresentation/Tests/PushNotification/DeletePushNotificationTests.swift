@@ -15,6 +15,8 @@ import DevLogDomain
 struct DeletePushNotificationTests {
     @Test("삭제하면 항목이 즉시 숨겨지고 되돌리기 토스트가 표시되며 삭제 유스케이스가 호출된다")
     func 삭제하면_항목이_즉시_숨겨지고_되돌리기_토스트가_표시되며_삭제_유스케이스가_호출된다() async throws {
+        ToastPresenter.reset()
+
         let fetchPushNotificationsUseCaseSpy = FetchPushNotificationsUseCaseSpy(
             pushNotificationPage: PushNotificationPage(
                 items: [
@@ -56,7 +58,7 @@ struct DeletePushNotificationTests {
         pushNotificationListViewModel.send(.deleteNotification(pushNotificationItem))
 
         #expect(pushNotificationListViewModel.state.notifications.filter { !$0.isHidden }.isEmpty)
-        #expect(pushNotificationListViewModel.state.showToast)
+        #expect(ToastPresenter.item?.message == String(localized: "common_undo"))
 
         await waitUntil {
             deletePushNotificationUseCaseSpy.calledNotificationIds == ["notification-1"]
@@ -67,6 +69,8 @@ struct DeletePushNotificationTests {
 
     @Test("삭제를 되돌리면 되돌리기 유스케이스가 호출되고 숨김 상태가 해제된다")
     func 삭제를_되돌리면_되돌리기_유스케이스가_호출되고_숨김_상태가_해제된다() async throws {
+        ToastPresenter.reset()
+
         let fetchPushNotificationsUseCaseSpy = FetchPushNotificationsUseCaseSpy(
             pushNotificationPage: PushNotificationPage(
                 items: [

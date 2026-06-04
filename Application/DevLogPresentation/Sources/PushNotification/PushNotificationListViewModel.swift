@@ -15,10 +15,8 @@ final class PushNotificationListViewModel: Store {
     struct State: Equatable {
         var notifications: [PushNotificationItem] = []
         var showAlert: Bool = false
-        var showToast: Bool = false
         var alertTitle: String = ""
         var alertMessage: String = ""
-        var toastMessage: String = ""
         var isLoading: Bool = false
         var hasMore: Bool = false
         var nextCursor: PushNotificationCursor?
@@ -33,8 +31,8 @@ final class PushNotificationListViewModel: Store {
         case deleteNotification(PushNotificationItem)
         case toggleRead(PushNotificationItem)
         case undoDelete
+        case finishDeleteToast(String)
         case setAlert(isPresented: Bool)
-        case setToast(isPresented: Bool)
         case setLoading(Bool)
         case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
         case resetPagination
@@ -98,11 +96,11 @@ final class PushNotificationListViewModel: Store {
         var effects: [SideEffect] = []
 
         switch action {
-        case .deleteNotification, .toggleRead, .undoDelete, .setAlert, .toggleSortOption,
+        case .deleteNotification, .toggleRead, .undoDelete, .finishDeleteToast, .setAlert, .toggleSortOption,
                 .setTimeFilter, .toggleUnreadOnly, .resetFilters, .selectNotification:
             effects = reduceByUser(action, state: &state)
 
-        case .fetchNotifications, .setToast, .loadNextPage:
+        case .fetchNotifications, .loadNextPage:
             effects = reduceByView(action, state: &state)
 
         case .setLoading, .appendNotifications, .resetPagination, .setHasMore,
@@ -187,7 +185,7 @@ private extension PushNotificationListViewModel {
             if state.notifications.contains(where: { $0.id == item.id }) {
                 self.undoNotificationId = item.id
                 setNotificationHidden(&state, notificationId: item.id, isHidden: true)
-                setToast(&state, isPresented: true)
+                presentDeleteNotificationToast(item.id)
                 return [.delete(item)]
             }
             return []
@@ -201,6 +199,11 @@ private extension PushNotificationListViewModel {
             setNotificationHidden(&state, notificationId: undoNotificationId, isHidden: false)
             self.undoNotificationId = nil
             return [.undoDelete(undoNotificationId)]
+        case .finishDeleteToast(let notificationId):
+            state.notifications.removeAll { $0.id == notificationId && $0.isHidden }
+            if self.undoNotificationId == notificationId {
+                self.undoNotificationId = nil
+            }
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .toggleSortOption:
@@ -253,12 +256,6 @@ private extension PushNotificationListViewModel {
         case .loadNextPage:
             guard state.hasMore, !state.isLoading else { return [] }
             return [.fetchNotifications(state.query, cursor: state.nextCursor)]
-        case .setToast(let isPresented):
-            setToast(&state, isPresented: isPresented)
-            if !isPresented {
-                state.notifications.removeAll { $0.isHidden }
-                self.undoNotificationId = nil
-            }
         default:
             break
         }
@@ -306,12 +303,21 @@ private extension PushNotificationListViewModel {
         state.showAlert = isPresented
     }
 
-    func setToast(
-        _ state: inout State,
-        isPresented: Bool
-    ) {
-        state.toastMessage = String(localized: "common_undo")
-        state.showToast = isPresented
+    func presentDeleteNotificationToast(_ notificationId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            lineLimit: 3,
+            action: { [weak self] in
+                self?.send(.undoDelete)
+            },
+            onDismiss: { [weak self] in
+                self?.send(.finishDeleteToast(notificationId))
+            }
+        )
     }
 
     func setNotificationHidden(

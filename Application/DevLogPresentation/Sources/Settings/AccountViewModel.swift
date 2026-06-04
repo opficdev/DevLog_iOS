@@ -18,9 +18,6 @@ final class AccountViewModel: Store {
         var alertTitle: String = ""
         var alertType: AlertType?
         var alertMessage: String = ""
-        var showToast: Bool = false
-        var toastType: ToastType?
-        var toastMessage: String = ""
         var isLoading: Bool = false
     }
 
@@ -29,7 +26,6 @@ final class AccountViewModel: Store {
         case linkWithProvider(AuthProvider)
         case unlinkFromProvider(AuthProvider)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
-        case setToast(isPresented: Bool, type: ToastType? = nil)
         case setLoading(Bool)
         case updateProviders(currentProvider: AuthProvider?, allProviders: [AuthProvider])
     }
@@ -45,11 +41,6 @@ final class AccountViewModel: Store {
         case linkEmailMismatch
         case linkCredentialAlreadyInUse
         case error
-    }
-
-    enum ToastType {
-        case linkSuccess
-        case unlinkSuccess
     }
 
     private(set) var state: State = .init()
@@ -81,8 +72,6 @@ final class AccountViewModel: Store {
             effects = [.unlink(value)]
         case .setAlert(let presented, let type):
             setAlert(&state, isPresented: presented, type: type)
-        case .setToast(let presented, let type):
-            setToast(&state, isPresented: presented, type: type)
         case .setLoading(let value):
             state.isLoading = value
         case .updateProviders(let currentProvider, let allProviders):
@@ -113,7 +102,7 @@ final class AccountViewModel: Store {
                 do {
                     defer { endLoading(.delayed) }
                     try await linkProviderUseCase.execute(provider)
-                    send(.setToast(isPresented: true, type: .linkSuccess))
+                    ToastPresenter.present(message: String(localized: "account_toast_link_success"))
 
                     let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
@@ -128,7 +117,7 @@ final class AccountViewModel: Store {
                 do {
                     defer { endLoading(.delayed) }
                     try await unlinkProviderUseCase.execute(provider)
-                    send(.setToast(isPresented: true, type: .unlinkSuccess))
+                    ToastPresenter.present(message: String(localized: "account_toast_unlink_success"))
                     
                     let (currentProvider, allProviders) = try await fetchProvidersUseCase.execute()
                     send(.updateProviders(currentProvider: currentProvider, allProviders: allProviders))
@@ -178,19 +167,6 @@ private extension AccountViewModel {
         }
         state.showAlert = isPresented
         state.alertType = type
-    }
-
-    func setToast(_ state: inout State, isPresented: Bool, type: ToastType?) {
-        switch type {
-        case .linkSuccess:
-            state.toastMessage = String(localized: "account_toast_link_success")
-        case .unlinkSuccess:
-            state.toastMessage = String(localized: "account_toast_unlink_success")
-        case .none:
-            state.toastMessage = ""
-        }
-        state.showToast = isPresented
-        state.toastType = type
     }
 
     private func beginLoading(_ mode: LoadingState.Mode) {
