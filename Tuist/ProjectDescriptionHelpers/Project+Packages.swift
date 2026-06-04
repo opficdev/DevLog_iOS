@@ -9,6 +9,10 @@ public enum DevLogPackages {
         url: "https://github.com/apple/swift-collections.git",
         .upToNextMajor(from: "1.3.0")
     )
+    public static let composableArchitecturePackage: Package = .package(
+        url: "https://github.com/pointfreeco/swift-composable-architecture",
+        .upToNextMajor(from: "1.25.5")
+    )
     public static let firebasePackage: Package = .package(
         url: "https://github.com/firebase/firebase-ios-sdk",
         .upToNextMajor(from: "11.15.0")
@@ -23,6 +27,7 @@ public enum DevLogPackages {
     )
 
     public static let presentationPackageDependencies: [TargetDependency] = [
+        .package(product: "ComposableArchitecture"),
         .package(product: "MarkdownUI"),
         .package(product: "OrderedCollections"),
     ]
@@ -41,6 +46,7 @@ public enum DevLogPackages {
     public static let defaultPackages: [Package] = []
 
     public static let presentationPackages: [Package] = [
+        composableArchitecturePackage,
         markdownUIPackage,
         swiftCollectionsPackage,
     ]
