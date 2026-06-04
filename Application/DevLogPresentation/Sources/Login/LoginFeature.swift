@@ -81,9 +81,8 @@ extension SignInUseCaseDependency: DependencyKey {
     static let testValue = liveValue
 
     static func live(_ signInUseCase: SignInUseCase) -> SignInUseCaseDependency {
-        let dependency = SendableSignInUseCaseDependency(signInUseCase: signInUseCase)
-        return Self {
-            try await dependency.signInUseCase.execute($0)
+        Self {
+            try await signInUseCase.execute($0)
         }
     }
 }
@@ -93,10 +92,6 @@ extension DependencyValues {
         get { self[SignInUseCaseDependency.self] }
         set { self[SignInUseCaseDependency.self] = newValue }
     }
-}
-
-private struct SendableSignInUseCaseDependency: @unchecked Sendable {
-    let signInUseCase: SignInUseCase
 }
 
 private extension LoginFeature {
