@@ -50,6 +50,42 @@ final class FetchPushNotificationsUseCaseSpy: FetchPushNotificationsUseCase {
     }
 }
 
+final class SignInUseCaseSpy: SignInUseCase {
+    var error: Error?
+    var shouldSuspend = false
+    private(set) var calledProviders: [AuthProvider] = []
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var shouldResume = false
+
+    func execute(_ provider: AuthProvider) async throws {
+        calledProviders.append(provider)
+
+        if shouldSuspend {
+            await withCheckedContinuation { continuation in
+                if shouldResume {
+                    shouldResume = false
+                    continuation.resume()
+                } else {
+                    self.continuation = continuation
+                }
+            }
+        }
+
+        if let error {
+            throw error
+        }
+    }
+
+    func resume() {
+        guard let continuation else {
+            shouldResume = true
+            return
+        }
+        self.continuation = nil
+        continuation.resume()
+    }
+}
+
 final class DeletePushNotificationUseCaseSpy: DeletePushNotificationUseCase {
     private(set) var calledNotificationIds: [String] = []
 
