@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class SettingsViewModel: Store {
+final class SettingsViewModel: StorePattern {
     struct State: Equatable {
         var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0

@@ -10,7 +10,7 @@ import OrderedCollections
 import DevLogDomain
 
 @Observable
-final class TodoEditorViewModel: Store {
+final class TodoEditorViewModel: StorePattern {
     struct State: Equatable {
         var isCompleted: Bool = false
         var completedAt: Date?

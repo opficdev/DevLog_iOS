@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class PushNotificationListViewModel: Store {
+final class PushNotificationListViewModel: StorePattern {
     struct State: Equatable {
         var notifications: [PushNotificationItem] = []
         var showAlert: Bool = false

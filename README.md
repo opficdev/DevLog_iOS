@@ -67,11 +67,11 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
   </tr>
   <tr>
     <td align="center">
-      <img alt="Store Protocol" src="./docs/store-protocol.png" />
+      <img alt="StorePattern Protocol" src="./docs/store-protocol.png" />
     </td>
   </tr>
   <tr>
-    <td align="center">Store 프로토콜</td>
+    <td align="center">StorePattern 프로토콜</td>
   </tr>
   <tr>
     <td align="center">

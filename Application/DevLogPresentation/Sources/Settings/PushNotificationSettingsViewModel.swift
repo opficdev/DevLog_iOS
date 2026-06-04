@@ -9,7 +9,7 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class PushNotificationSettingsViewModel: Store {
+final class PushNotificationSettingsViewModel: StorePattern {
     struct State: Equatable {
         var pushNotificationEnable: Bool = false
         var viewPushNotificationTime: Date = .init()

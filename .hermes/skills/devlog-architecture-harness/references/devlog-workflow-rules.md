@@ -61,9 +61,9 @@ This reference holds DevLog-specific working rules that should live with the pro
 - For example, keep the app-facing Domain query separate from an Infra-facing Data query when that avoids Domain coupling in service protocols.
 - Firebase-specific error detection belongs in Infra; Data should handle domain-level errors after mapping.
 
-## Presentation Store
+## Presentation StorePattern
 
-- Preserve the existing `Store` shape: `@MainActor`, `State`, `Action`, `SideEffect`, `send -> reduce -> run`.
+- Preserve the existing `StorePattern` shape: `@MainActor`, `State`, `Action`, `SideEffect`, `send -> reduce -> run`.
 - Reducers compute state and return side effects.
 - I/O belongs in `run` or injected services.
 - Do not leave reducer-era helper methods behind after moving work into `run`.

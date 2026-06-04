@@ -10,7 +10,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class TodayViewModel: Store {
+final class TodayViewModel: StorePattern {
     // TodayView 상단에서 사용자가 선택하는 요약 탭 범위.
     enum SectionScope: Hashable, CaseIterable {
         case all

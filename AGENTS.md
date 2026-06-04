@@ -53,10 +53,10 @@ Treat this repository as a Tuist-generated, workspace-based modular iOS app. The
 - `Widget/DevLogWidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
 - `Firebase/functions`: TypeScript Cloud Functions. Deploy updated functions one by one separately.
 
-### Store flow
+### StorePattern flow
 
-- Preserve the existing Presentation `Store` pattern.
-- `Store` is `@MainActor` and uses `State`, `Action`, `SideEffect`, and the `send -> reduce -> run` flow.
+- Preserve the existing Presentation `StorePattern`.
+- `StorePattern` is `@MainActor` and uses `State`, `Action`, `SideEffect`, and the `send -> reduce -> run` flow.
 - Reducers should compute state and return side effects.
 - I/O belongs in `run` or injected services, not in reducer state computation.
 - Ask before changing reducer, side-effect, or ViewModel responsibility boundaries.

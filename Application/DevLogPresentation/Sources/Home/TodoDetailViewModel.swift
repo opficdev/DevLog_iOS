@@ -9,7 +9,7 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class TodoDetailViewModel: Store {
+final class TodoDetailViewModel: StorePattern {
     struct State: Equatable {
         var todo: Todo?
         var selectedTodoId: TodoIdItem?

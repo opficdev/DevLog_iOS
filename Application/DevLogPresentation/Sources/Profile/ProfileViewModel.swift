@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class ProfileViewModel: Store {
+final class ProfileViewModel: StorePattern {
     struct State: Equatable {
         var name: String = ""
         var email: String = ""

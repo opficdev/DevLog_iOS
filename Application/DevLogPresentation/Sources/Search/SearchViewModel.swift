@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class SearchViewModel: Store {
+final class SearchViewModel: StorePattern {
     struct State: Equatable {
         var isLoading: Bool = false
         var isSearching: Bool = false
