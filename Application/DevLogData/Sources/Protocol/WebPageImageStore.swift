@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol WebPageImageStore {
+public protocol WebPageImageStore: Sendable {
     func cachedImageURL(for url: URL) async throws -> URL
     func saveImage(_ data: Data, for url: URL) async throws -> URL
     func dirSizeInBytes() async -> Int64
