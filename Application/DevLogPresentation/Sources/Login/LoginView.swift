@@ -11,15 +11,7 @@ import ComposableArchitecture
 struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
-    @State var store: StoreOf<LoginFeature>
-
-    init() {
-        self._store = State(initialValue: Store(
-            initialState: LoginFeature.State()
-        ) {
-            LoginFeature()
-        })
-    }
+    let store: StoreOf<LoginFeature>
 
     var body: some View {
         ZStack {

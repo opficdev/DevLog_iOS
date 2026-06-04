@@ -16,6 +16,7 @@ public struct RootView: View {
     @State var viewModel: RootViewModel
     @State private var selectedRoute: Route?
     @State private var selectedMainTab = MainTab.home
+    @State private var loginStore: StoreOf<LoginFeature>
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -26,6 +27,7 @@ public struct RootView: View {
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
+        signInUseCase: SignInUseCase,
         widgetURLTab: @escaping (URL) -> MainTab?,
         windowEvent: TodoEditorWindowEvent,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
@@ -37,6 +39,13 @@ public struct RootView: View {
             systemThemeUseCase: systemThemeUseCase,
             trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
         ))
+        self._loginStore = State(initialValue: Store(
+            initialState: LoginFeature.State()
+        ) {
+            LoginFeature()
+        } withDependencies: {
+            $0.signInUseCase = .live(signInUseCase)
+        })
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
@@ -54,11 +63,7 @@ public struct RootView: View {
                         selectedTab: $selectedMainTab
                     )
                 } else {
-                    withDependencies {
-                        $0.signInUseCase = .live(container.resolve(SignInUseCase.self))
-                    } operation: {
-                        LoginView()
-                    }
+                    LoginView(store: loginStore)
                 }
             }
         }
