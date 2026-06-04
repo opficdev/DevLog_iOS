@@ -1,2 +1,0 @@
-#include "../../Shared/Version.xcconfig"
-#include? "Resource/Config.xcconfig"
