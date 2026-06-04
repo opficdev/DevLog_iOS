@@ -47,18 +47,6 @@ struct PushNotificationListView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
-        .toast(
-            isPresented: Binding(
-                get: { viewModel.state.showToast },
-                set: { viewModel.send(.setToast(isPresented: $0)) }),
-            duration: 5,
-            action: { viewModel.send(.undoDelete) }
-        ) {
-            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-                .font(.caption)
-                .multilineTextAlignment(.center)
-                .lineLimit(3)
-        }
         .sheet(item: Binding(
             get: { isCompactLayout ? coordinator.todoIdToPresent : nil },
             set: { item in

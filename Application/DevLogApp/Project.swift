@@ -36,7 +36,7 @@ let project = Project(
                 DevLogPackages.swiftLintPlugin,
             ],
             settings: .devlog(
-                versionXcconfigPath: "Sources/App.xcconfig",
+                versionXcconfigPath: "Sources/Resource/App.xcconfig",
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",

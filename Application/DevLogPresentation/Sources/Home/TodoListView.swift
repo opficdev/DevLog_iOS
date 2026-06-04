@@ -65,16 +65,6 @@ struct TodoListView: View {
         } message: {
             Text(viewModel.state.alertMessage)
         }
-        .toast(
-            isPresented: Binding(
-                get: { viewModel.state.showToast },
-                set: { viewModel.send(.setToast(isPresented: $0)) }
-            ),
-            duration: 5,
-            action: { viewModel.send(.undoDelete) }
-        ) {
-            Label(viewModel.state.toastMessage, systemImage: "arrow.uturn.left")
-        }
         .navigationTitle(TodoCategoryItem(from: viewModel.category).localizedName)
         .fullScreenCover(isPresented: Binding(
             get: { viewModel.state.showEditor },

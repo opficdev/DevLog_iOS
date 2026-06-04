@@ -70,6 +70,7 @@ struct MainView: View {
         } message: {
             Text(coordinator.viewModel.state.alertMessage)
         }
+        .toastHost()
     }
 
     private var tabView: some View {

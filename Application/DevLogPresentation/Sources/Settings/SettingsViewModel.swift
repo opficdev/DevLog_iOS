@@ -59,7 +59,7 @@ final class SettingsViewModel: Store {
     private var cancellables = Set<AnyCancellable>()
 
     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    let appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "APPSTORE_URL") as? String
+    let appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
     let policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
 
     init(
