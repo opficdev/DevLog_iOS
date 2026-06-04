@@ -176,6 +176,7 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 
 ```bash
 brew install mise
+brew install swiftlint
 mise install
 ```
 

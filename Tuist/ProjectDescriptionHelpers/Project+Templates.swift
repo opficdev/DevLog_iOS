@@ -7,7 +7,7 @@ public extension Project {
         versionXcconfigPath: Path,
         frameworkInfoPlistPath: Path,
         testsInfoPlistPath: Path,
-        packages: [Package] = DevLogPackages.lintOnlyPackages,
+        packages: [Package] = DevLogPackages.defaultPackages,
         dependencies: [TargetDependency] = [],
         hasTests: Bool
     ) -> Project {
@@ -19,8 +19,19 @@ public extension Project {
                 bundleId: bundleId,
                 infoPlist: .file(path: frameworkInfoPlistPath),
                 sources: ["Sources/**/*.swift"],
-                dependencies: dependencies + [DevLogPackages.swiftLintPlugin],
-                settings: .devlog(versionXcconfigPath: versionXcconfigPath)
+                scripts: [
+                    DevLogScripts.swiftLint(
+                        sourcePath: "Sources",
+                        configPath: "Sources/.swiftlint.yml"
+                    ),
+                ],
+                dependencies: dependencies,
+                settings: .devlog(
+                    versionXcconfigPath: versionXcconfigPath,
+                    base: [
+                        "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    ]
+                )
             ),
         ]
 
@@ -33,11 +44,18 @@ public extension Project {
                     bundleId: "\(bundleId)Tests",
                     infoPlist: .file(path: testsInfoPlistPath),
                     sources: ["Tests/**/*.swift"],
+                    scripts: [
+                        DevLogScripts.swiftLint(
+                            sourcePath: "Tests",
+                            configPath: "Tests/.swiftlint.yml"
+                        ),
+                    ],
                     dependencies: [
                         .target(name: name),
                     ],
                     settings: .devlog(
                         base: [
+                            "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                             "TEST_TARGET_NAME": SettingValue(stringLiteral: name),
                         ]
                     )

@@ -7,7 +7,7 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
-    packages: DevLogPackages.lintOnlyPackages,
+    packages: DevLogPackages.defaultPackages,
     settings: .devlogProject(versionXcconfigPath: "../Shared/Version.xcconfig"),
     targets: [
         .target(
@@ -24,6 +24,12 @@ let project = Project(
                 "Sources/Resource/Localizable.xcstrings",
             ],
             entitlements: .file(path: "Sources/Resource/DevLog.entitlements"),
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Sources",
+                    configPath: "Sources/.swiftlint.yml"
+                ),
+            ],
             dependencies: [
                 .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
                 .project(target: "DevLogPersistence", path: "../DevLogPersistence"),
@@ -33,13 +39,13 @@ let project = Project(
                 .project(target: "DevLogCore", path: "../DevLogCore"),
                 .project(target: "DevLogWidgetCore", path: "../../Widget/DevLogWidgetCore"),
                 .project(target: "DevLogWidgetExtension", path: "../../Widget/DevLogWidgetExtension"),
-                DevLogPackages.swiftLintPlugin,
             ],
             settings: .devlog(
                 versionXcconfigPath: "Sources/Resource/App.xcconfig",
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                     "PRODUCT_MODULE_NAME": "DevLogApp",
                 ],
                 debug: [
@@ -57,6 +63,12 @@ let project = Project(
             bundleId: "opfic.DevLogAppTests",
             infoPlist: .file(path: "../Shared/InfoPlists/UnitTests-Info.plist"),
             sources: ["Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Tests",
+                    configPath: "Tests/.swiftlint.yml"
+                ),
+            ],
             dependencies: [
                 .target(name: "DevLogApp"),
             ],
@@ -64,6 +76,7 @@ let project = Project(
                 base: [
                     "BUNDLE_LOADER": "$(TEST_HOST)",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                     "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog",
                     "TEST_TARGET_NAME": "DevLogApp",
                 ]

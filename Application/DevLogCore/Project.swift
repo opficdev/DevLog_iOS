@@ -7,6 +7,6 @@ let project = Project.devlogFramework(
     versionXcconfigPath: "../Shared/Version.xcconfig",
     frameworkInfoPlistPath: "../Shared/InfoPlists/Framework-Info.plist",
     testsInfoPlistPath: "../Shared/InfoPlists/UnitTests-Info.plist",
-    packages: DevLogPackages.lintOnlyPackages,
+    packages: DevLogPackages.defaultPackages,
     hasTests: false
 )
