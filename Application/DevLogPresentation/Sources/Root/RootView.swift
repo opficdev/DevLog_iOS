@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -53,9 +54,11 @@ public struct RootView: View {
                         selectedTab: $selectedMainTab
                     )
                 } else {
-                    LoginView(viewModel: LoginViewModel(
-                        signInUseCase: container.resolve(SignInUseCase.self))
-                    )
+                    withDependencies {
+                        $0.signInUseCase = .live(container.resolve(SignInUseCase.self))
+                    } operation: {
+                        LoginView()
+                    }
                 }
             }
         }

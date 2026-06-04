@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
-import DevLogDomain
+import ComposableArchitecture
 
 struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
-    @State var viewModel: LoginViewModel
+    @State var store: StoreOf<LoginFeature>
+
+    init() {
+        self._store = State(initialValue: Store(
+            initialState: LoginFeature.State()
+        ) {
+            LoginFeature()
+        })
+    }
 
     var body: some View {
         ZStack {
@@ -24,15 +32,15 @@ struct LoginView: View {
                 Spacer()
                 VStack(spacing: 20) {
                     LoginButton(logo: Image("Google"), text: String(localized: "login_google_sign_in")) {
-                        viewModel.send(.tapSignInButton(.google))
+                        store.send(.tapSignInButton(.google))
                     }
                     
                     LoginButton(logo: Image("Github"), text: String(localized: "login_github_sign_in")) {
-                        viewModel.send(.tapSignInButton(.github))
+                        store.send(.tapSignInButton(.github))
                     }
                         
                     LoginButton(logo: Image("Apple"), text: String(localized: "login_apple_sign_in")) {
-                        viewModel.send(.tapSignInButton(.apple))
+                        store.send(.tapSignInButton(.apple))
                     }
                 }
                 .padding(.bottom, 30)
@@ -42,17 +50,17 @@ struct LoginView: View {
                     .multilineTextAlignment(.center)
                     .padding(.vertical)
             }
-            if viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
-        .alert(viewModel.state.alertTitle, isPresented: Binding(
-            get: { viewModel.state.showAlert },
-            set: { viewModel.send(.setAlert($0)) }
+        .alert(store.alertTitle, isPresented: Binding(
+            get: { store.showAlert },
+            set: { store.send(.setAlert($0)) }
         )) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
-            Text(viewModel.state.alertMessage)
+            Text(store.alertMessage)
         }
     }
 }
