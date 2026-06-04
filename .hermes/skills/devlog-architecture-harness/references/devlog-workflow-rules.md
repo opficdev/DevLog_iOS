@@ -10,6 +10,10 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 ## Verification
 
+- Follow `AGENTS.md` for the canonical lint and build verification policy.
+- Run Homebrew SwiftLint (`swiftlint`) on changed Swift files.
+- Lint production Swift files with the applicable source `.swiftlint.yml` config.
+- Lint test Swift files with `.swiftlint-tests.yml` or the module `Tests/.swiftlint.yml` that inherits from it. Do not use the root production config for tests.
 - Prefer Xcode Local MCP for iOS project code changes.
 - If Xcode Local MCP is unavailable or fails because of session transport, state that explicitly before using a fallback.
 - This repository is workspace-based. Prefer workspace/scheme context over standalone project builds when dependencies cross module projects.

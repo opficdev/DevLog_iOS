@@ -96,8 +96,7 @@ When the boundary is clear:
 
 For Swift/iOS code changes:
 
-- Use Xcode Local MCP for the build.
-- If Xcode Local MCP is unavailable, say so and ask before using another path unless the user already approved a fallback.
+- Follow the repository `AGENTS.md` Verification section.
 - Inspect the final diff for architecture-scope drift.
 
 For docs-only or harness-only changes:

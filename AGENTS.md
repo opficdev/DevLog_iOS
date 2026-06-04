@@ -18,7 +18,6 @@ These instructions apply only to the repository root.
 
 ## Naming and Swift style
 
-- Set variables named after a type using the type's full name in camel case.
 - In Swift, do not write explicit type annotations unless required.
 - Use `opfic` in new Swift file headers.
 - Prefer `<` and `<=` over `>` and `>=` when writing comparisons, if the condition can be expressed clearly that way.
@@ -37,7 +36,7 @@ Treat this repository as a Tuist-generated, workspace-based modular iOS app. The
 4. Classify the change as mechanical, architectural, or ambiguous.
 5. For ambiguous architecture changes, stop and ask the user before editing.
 6. Keep the diff limited to the requested architecture scope.
-7. After Swift/iOS code changes, verify with Xcode Local MCP.
+7. After Swift/iOS code changes, follow the Verification section.
 8. Report the changed files, architecture decision, and verification result.
 
 ### Current layer map
@@ -86,7 +85,10 @@ These may proceed after inspection when they do not change architecture meaning:
 
 ## Verification
 
-- If iOS project code changes, test build with Xcode Local MCP.
+- If Swift files change, run Homebrew SwiftLint (`swiftlint`) on the changed Swift files.
+- For production Swift files, use the applicable source `.swiftlint.yml` config.
+- For test Swift files, use `.swiftlint-tests.yml` or the module `Tests/.swiftlint.yml` that inherits from it. Do not lint tests with the root production config.
+- If iOS project code changes, verify with Xcode Local MCP when it is available.
 - If Xcode Local MCP is unavailable, state that explicitly before using a fallback.
 - Do not claim architecture work is complete without checking the diff scope.
 - Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
@@ -98,10 +100,3 @@ These may proceed after inspection when they do not change architecture meaning:
 - Treat `AGENTS.md` and `.hermes/skills/devlog-architecture-harness` as the canonical DevLog AI working rules.
 - If global memory conflicts with this repository, follow this repository.
 - For PR, commit, Xcode project, CI, widget, Store, localization, or release workflow details, read `.hermes/skills/devlog-architecture-harness/references/devlog-workflow-rules.md`.
-
-## Sub-agent use
-
-- Consider sub-agent use on every non-trivial task.
-- Use sub-agents only for independent research, verification, or disjoint implementation work.
-- Do not use sub-agents for sequential steps, overlapping file edits, or tightly coupled refactors.
-- The main agent remains responsible for planning, integration, final verification, and user communication.
