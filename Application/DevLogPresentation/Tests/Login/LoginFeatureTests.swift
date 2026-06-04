@@ -6,6 +6,7 @@
 //
 
 import Testing
+import ComposableArchitecture
 import Foundation
 import DevLogDomain
 @testable import DevLogPresentation
@@ -153,7 +154,7 @@ private enum LoginAlertKind: Equatable {
 
 @MainActor
 private struct LoginTestDriver {
-    private let feature: LoginViewModel
+    private let feature: StoreOf<LoginFeature>
 
     var isLoading: Bool {
         feature.state.isLoading
@@ -183,7 +184,13 @@ private struct LoginTestDriver {
     }
 
     init(useCase: SignInUseCase) {
-        feature = LoginViewModel(signInUseCase: useCase)
+        feature = ComposableArchitecture.Store(
+            initialState: LoginFeature.State()
+        ) {
+            LoginFeature()
+        } withDependencies: {
+            $0.signInUseCase = .live(useCase)
+        }
     }
 
     func tapSignInButton(_ provider: AuthProvider) {
