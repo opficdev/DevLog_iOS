@@ -7,29 +7,6 @@
 
 import SwiftUI
 
-extension View {
-    func toast<Label: View>(
-        isPresented: Binding<Bool>,
-        duration: TimeInterval = 2,
-        action: (() -> Void)? = nil,
-        onDismiss: (() -> Void)? = nil,
-        @ViewBuilder label: @escaping () -> Label
-    ) -> some View {
-        self
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .bottom) {
-                ToastOverlayView(
-                    isPresented: isPresented,
-                    duration: duration,
-                    action: action,
-                    onDismiss: onDismiss,
-                    label: label
-                )
-                .padding(.horizontal, 12)
-            }
-    }
-}
-
 @Observable
 final class ToastPresenter {
     fileprivate static let presenter = ToastPresenter()
