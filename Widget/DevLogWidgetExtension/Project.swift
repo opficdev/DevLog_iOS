@@ -29,6 +29,9 @@ let project = Project(
                 "Resource/Localizable.xcstrings",
             ],
             entitlements: .file(path: "Resource/DevLogWidget.entitlements"),
+            scripts: [
+                DevLogScripts.swiftLint(sourcePath: "."),
+            ],
             dependencies: [
                 .project(target: "DevLogWidgetCore", path: "../DevLogWidgetCore"),
             ],
@@ -36,6 +39,7 @@ let project = Project(
                 versionXcconfigPath: "../../Application/Shared/Version.xcconfig",
                 base: [
                     "CODE_SIGN_STYLE": "Automatic",
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                 ]
             )
         ),

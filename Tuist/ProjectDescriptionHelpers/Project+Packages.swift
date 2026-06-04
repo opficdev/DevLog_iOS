@@ -1,10 +1,6 @@
 import ProjectDescription
 
 public enum DevLogPackages {
-    public static let swiftLintPackage: Package = .package(
-        url: "https://github.com/realm/SwiftLint",
-        .upToNextMajor(from: "0.62.1")
-    )
     public static let markdownUIPackage: Package = .package(
         url: "https://github.com/gonzalezreal/swift-markdown-ui.git",
         .upToNextMajor(from: "2.4.1")
@@ -26,11 +22,6 @@ public enum DevLogPackages {
         .upToNextMajor(from: "1.1.0")
     )
 
-    public static let swiftLintPlugin: TargetDependency = .package(
-        product: "SwiftLintBuildToolPlugin",
-        type: .plugin
-    )
-
     public static let presentationPackageDependencies: [TargetDependency] = [
         .package(product: "MarkdownUI"),
         .package(product: "OrderedCollections"),
@@ -47,20 +38,53 @@ public enum DevLogPackages {
         .package(product: "Nexa"),
     ]
 
-    public static let lintOnlyPackages: [Package] = [
-        swiftLintPackage,
-    ]
+    public static let defaultPackages: [Package] = []
 
     public static let presentationPackages: [Package] = [
-        swiftLintPackage,
         markdownUIPackage,
         swiftCollectionsPackage,
     ]
 
     public static let infraPackages: [Package] = [
-        swiftLintPackage,
         firebasePackage,
         googleSignInPackage,
         nexaPackage,
     ]
+}
+
+public enum DevLogScripts {
+    public static func swiftLint(sourcePath: String) -> TargetScript {
+        TargetScript.pre(
+        script: """
+        export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+        swiftLintPath="$(command -v swiftlint || true)"
+        if [ -z "$swiftLintPath" ]; then
+            echo "error: SwiftLint is not installed. Run 'brew install swiftlint'."
+            exit 1
+        fi
+
+        configPath="${SRCROOT}/../../.swiftlint.yml"
+        sourcePathName="\(sourcePath)"
+        lintSourcePath="${SRCROOT}/${sourcePathName}"
+
+        if [ "$sourcePathName" != "." ]; then
+            "$swiftLintPath" lint --config "$configPath" "$lintSourcePath"
+        else
+            status=0
+            while IFS= read -r swiftFilePath; do
+                "$swiftLintPath" lint --config "$configPath" "$swiftFilePath" || status=$?
+            done < <(find "$lintSourcePath" -name "*.swift" -not -path "*/Derived/*" -not -name "Project.swift")
+            exit "$status"
+        fi
+        """,
+        name: "SwiftLint",
+        inputPaths: [
+            "$(SRCROOT)/../../.swiftlint.yml",
+            "$(SRCROOT)/\(sourcePath)",
+        ],
+        basedOnDependencyAnalysis: false,
+        shellPath: "/bin/bash"
+        )
+    }
 }

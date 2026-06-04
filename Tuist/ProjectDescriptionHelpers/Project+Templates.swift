@@ -7,7 +7,7 @@ public extension Project {
         versionXcconfigPath: Path,
         frameworkInfoPlistPath: Path,
         testsInfoPlistPath: Path,
-        packages: [Package] = DevLogPackages.lintOnlyPackages,
+        packages: [Package] = DevLogPackages.defaultPackages,
         dependencies: [TargetDependency] = [],
         hasTests: Bool
     ) -> Project {
@@ -19,8 +19,16 @@ public extension Project {
                 bundleId: bundleId,
                 infoPlist: .file(path: frameworkInfoPlistPath),
                 sources: ["Sources/**/*.swift"],
-                dependencies: dependencies + [DevLogPackages.swiftLintPlugin],
-                settings: .devlog(versionXcconfigPath: versionXcconfigPath)
+                scripts: [
+                    DevLogScripts.swiftLint(sourcePath: "Sources"),
+                ],
+                dependencies: dependencies,
+                settings: .devlog(
+                    versionXcconfigPath: versionXcconfigPath,
+                    base: [
+                        "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    ]
+                )
             ),
         ]
 

@@ -90,6 +90,14 @@ jobs:
           install: true
           cache: true
 
+      - name: Install SwiftLint
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+          swiftlint version
+
       - name: Generate Xcode workspace with Tuist
         shell: bash
         run: |
