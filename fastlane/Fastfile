@@ -1,5 +1,6 @@
 XCODE_WORKSPACE = "DevLog.xcworkspace"
 XCODE_PROJ = "Application/DevLogApp/DevLogApp.xcodeproj"
+WIDGET_XCODE_PROJ = "Widget/DevLogWidgetExtension/DevLogWidgetExtension.xcodeproj"
 APP_IDENTIFIER = "opfic.DevLog"
 WIDGET_IDENTIFIER = "opfic.DevLog.DevLogWidget"
 APP_IDENTIFIERS = [APP_IDENTIFIER, WIDGET_IDENTIFIER]
@@ -73,9 +74,16 @@ platform :ios do
 
     setup_ci if ENV["CI"]
 
+    testflight_build_number = latest_testflight_build_number + 1
+
     increment_build_number(
       xcodeproj: XCODE_PROJ,
-      build_number: latest_testflight_build_number + 1
+      build_number: testflight_build_number
+    )
+
+    increment_build_number(
+      xcodeproj: WIDGET_XCODE_PROJ,
+      build_number: testflight_build_number
     )
 
     match(
@@ -88,17 +96,25 @@ platform :ios do
     if ENV["CI"] == "true"
       profile_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
       signing_targets = {
-        TARGET_NAME => APP_IDENTIFIER,
-        WIDGET_TARGET_NAME => WIDGET_IDENTIFIER
+        TARGET_NAME => {
+          identifier: APP_IDENTIFIER,
+          xcodeproj: XCODE_PROJ
+        },
+        WIDGET_TARGET_NAME => {
+          identifier: WIDGET_IDENTIFIER,
+          xcodeproj: WIDGET_XCODE_PROJ
+        }
       }
 
-      signing_targets.each do |target_name, app_identifier|
+      signing_targets.each do |target_name, signing_target|
+        app_identifier = signing_target[:identifier]
+        xcodeproj = signing_target[:xcodeproj]
         provisioning_profile_specifier = profile_mapping[app_identifier].to_s
         UI.user_error!("Missing App Store provisioning profile mapping for #{app_identifier}") if provisioning_profile_specifier.empty?
 
         update_code_signing_settings(
           use_automatic_signing: false,
-          path: XCODE_PROJ,
+          path: xcodeproj,
           sdk: "iphoneos*",
           team_id: ENV["APP_STORE_TEAM_ID"],
           targets: [target_name],
