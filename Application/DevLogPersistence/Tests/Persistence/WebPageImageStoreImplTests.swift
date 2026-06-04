@@ -52,28 +52,74 @@ struct WebPageImageStoreImplTests {
         #expect(directorySize == 0)
     }
 
-    @Test("동시 저장 요청은 요청 순서대로 같은 파일을 갱신한다")
-    func 동시_저장_요청은_요청_순서대로_같은_파일을_갱신한다() async throws {
+    @Test("같은 store를 공유하는 객체의 저장은 트랜잭션 단위로 반영된다")
+    func 같은_store를_공유하는_객체의_저장은_트랜잭션_단위로_반영된다() async throws {
         let store = WebPageImageStoreImpl()
+        let firstClient = WebPageImageStoreClient(store: store)
+        let secondClient = WebPageImageStoreClient(store: store)
         try await store.clearDirectory()
         let url = try #require(URL(string: "https://example.com/\(UUID().uuidString)"))
-        let firstData = Data(repeating: 1, count: 64 * 1024 * 1024)
-        let secondData = Data("latest".utf8)
+        let largeData = Data(repeating: 1, count: 64 * 1024 * 1024)
+        let smallData = Data("latest".utf8)
+        let startedAt = ContinuousClock.now
 
-        let firstSaveTask = Task {
-            try await store.saveImage(firstData, for: url)
+        // 동일한 Impl 인스턴스를 공유하는 두 객체가 접근하는 형태의 결과 기반 테스트다.
+        // 첫 번째 큰 저장 작업이 먼저 큐에 들어갈 시간을 준 뒤 두 번째 작은 저장을 요청하고,
+        // 최종 파일이 작은 데이터라면 앞 작업 전체가 끝난 뒤 뒤 작업이 반영된 것으로 본다.
+        // 각 작업의 완료 시점은 호출자 관점에서 saveImage await가 반환된 시점으로 기록한다.
+        let largeSaveTask = Task {
+            try await firstClient.saveImage(largeData, for: url, name: "large", since: startedAt)
         }
         try await Task.sleep(nanoseconds: 10_000_000)
-        let secondSaveTask = Task {
-            try await store.saveImage(secondData, for: url)
-        }
 
-        _ = try await firstSaveTask.value
-        let fileURL = try await secondSaveTask.value
-        let savedData = try Data(contentsOf: fileURL)
+        let smallSaveMeasurement = try await secondClient.saveImage(smallData, for: url, name: "small", since: startedAt)
+        let largeSaveMeasurement = try await largeSaveTask.value
+        let savedData = try Data(contentsOf: smallSaveMeasurement.fileURL)
 
-        #expect(savedData == secondData)
+        print(saveSummary(largeSaveMeasurement))
+        print(saveSummary(smallSaveMeasurement))
+
+        #expect(savedData == smallData)
 
         try await store.clearDirectory()
     }
+}
+
+private struct WebPageImageStoreClient {
+    let store: WebPageImageStoreImpl
+
+    func saveImage(
+        _ data: Data,
+        for url: URL,
+        name: String,
+        since startedAt: ContinuousClock.Instant
+    ) async throws -> WebPageImageStoreSaveMeasurement {
+        let requestedAt = startedAt.duration(to: .now)
+        let fileURL = try await store.saveImage(data, for: url)
+        let finishedAt = startedAt.duration(to: .now)
+
+        return WebPageImageStoreSaveMeasurement(
+            name: name,
+            fileURL: fileURL,
+            requestedAt: requestedAt,
+            finishedAt: finishedAt
+        )
+    }
+}
+
+private struct WebPageImageStoreSaveMeasurement {
+    let name: String
+    let fileURL: URL
+    let requestedAt: Duration
+    let finishedAt: Duration
+}
+
+private func saveSummary(_ measurement: WebPageImageStoreSaveMeasurement) -> String {
+    "\(measurement.name) save requested: \(millisecondsString(measurement.requestedAt))ms, finished: \(millisecondsString(measurement.finishedAt))ms"
+}
+
+private func millisecondsString(_ duration: Duration) -> String {
+    let components = duration.components
+    let milliseconds = Double(components.seconds) * 1_000 + Double(components.attoseconds) / 1_000_000_000_000_000
+    return String(format: "%.3f", milliseconds)
 }
