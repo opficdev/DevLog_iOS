@@ -80,11 +80,16 @@ public enum DevLogScripts {
         if [ "$sourcePathName" != "." ]; then
             "$swiftLintPath" lint --config "$configPath" "$lintSourcePath"
         else
-            status=0
-            while IFS= read -r swiftFilePath; do
-                "$swiftLintPath" lint --config "$configPath" "$swiftFilePath" || status=$?
-            done < <(find "$lintSourcePath" -name "*.swift" -not -path "*/Derived/*" -not -name "Project.swift")
-            exit "$status"
+            swiftFilePaths=()
+            while IFS= read -r -d '' swiftFilePath; do
+                swiftFilePaths+=("$swiftFilePath")
+            done < <(find "$lintSourcePath" -name "*.swift" -not -path "*/Derived/*" -not -name "Project.swift" -print0)
+
+            if [ ${#swiftFilePaths[@]} -lt 1 ]; then
+                exit 0
+            fi
+
+            "$swiftLintPath" lint --config "$configPath" "${swiftFilePaths[@]}"
         fi
         """,
         name: "SwiftLint",
