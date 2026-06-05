@@ -8,7 +8,7 @@
 import Foundation
 import os.log
 
-public final class Logger: Sendable {
+public final class Logger {
     private let subsystem: String
     private let category: String
     private let osLog: OSLog

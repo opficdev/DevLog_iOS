@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseMessaging
 
-struct FirebaseDependency<Value>: @unchecked Sendable {
+struct FirebaseDependency<Value> {
     private let value: Value
 
     init(value: Value) {

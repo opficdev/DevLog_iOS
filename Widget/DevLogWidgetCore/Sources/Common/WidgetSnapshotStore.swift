@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class WidgetSnapshotStore: Sendable {
+public final class WidgetSnapshotStore {
     private let store: WidgetSharedDefaultsStore
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()

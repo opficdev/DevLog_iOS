@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import DevLogDomain
+@preconcurrency import DevLogDomain
 import Foundation
 
 @Reducer
@@ -20,7 +20,7 @@ struct LoginFeature {
         var alertMessage = ""
     }
 
-    enum Action {
+    enum Action: Sendable {
         case setAlert(Bool, AlertType? = nil)
         case tapSignInButton(AuthProvider)
         case signInSucceeded
@@ -28,12 +28,12 @@ struct LoginFeature {
         case signInCancelled
     }
 
-    enum AlertType: Equatable {
+    enum AlertType: Equatable, Sendable {
         case emailUnavailable
         case error
     }
 
-    @Dependency(\.signInUseCase) var signInUseCase
+    @Dependency(SignInUseCaseDependency.self) var signInUseCase
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in

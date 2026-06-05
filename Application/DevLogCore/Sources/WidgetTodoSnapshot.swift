@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct WidgetTodoSnapshot: Equatable, Sendable {
+public struct WidgetTodoSnapshot: Equatable {
     public let id: String
     public let number: Int?
     public let title: String

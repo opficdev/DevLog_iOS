@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserDefaultsDependency: @unchecked Sendable {
+struct UserDefaultsDependency {
     private let value: UserDefaults
 
     init(value: UserDefaults) {
