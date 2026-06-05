@@ -13,12 +13,10 @@ import DevLogCore
 import DevLogData
 
 final class AuthServiceImpl: AuthService {
-    private let store = Firestore.firestore()
-    private let messaging = Messaging.messaging()
+    private let store = FirebaseDependency(value: Firestore.firestore())
+    private let messaging = FirebaseDependency(value: Messaging.messaging())
     private let logger = Logger(category: "AuthServiceImpl")
-    private let subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)
-    private var handler: AuthStateDidChangeListenerHandle?
-    private var isCompletingSignIn = false
+    private let authStatePublisher: AuthStatePublisher
 
     var uid: String? {
         Auth.auth().currentUser?.uid
@@ -37,45 +35,26 @@ final class AuthServiceImpl: AuthService {
     }
 
     init() {
-        handler = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            guard let self else { return }
-            let signedIn = user != nil
-            self.logger.info("Firebase auth state changed. signedIn: \(signedIn)")
-
-            if signedIn && self.isCompletingSignIn {
-                self.logger.info("Delaying signed-in publication until user bootstrap finishes")
-                return
-            }
-
-            self.subject.send(signedIn)
-        }
-    }
-
-    deinit {
-        guard let handler else { return }
-        Auth.auth().removeStateDidChangeListener(handler)
+        authStatePublisher = AuthStatePublisher(logger: logger)
     }
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
-        subject.eraseToAnyPublisher()
+        authStatePublisher.observeSignedIn()
     }
 
     func beginSignIn() {
         logger.info("Beginning sign-in bootstrap")
-        isCompletingSignIn = true
-        subject.send(false)
+        authStatePublisher.beginSignIn()
     }
 
     func completeSignIn() {
         logger.info("Completing sign-in bootstrap")
-        isCompletingSignIn = false
-        subject.send(Auth.auth().currentUser != nil)
+        authStatePublisher.completeSignIn()
     }
 
     func cancelSignIn() {
         logger.info("Cancelling sign-in bootstrap")
-        isCompletingSignIn = false
-        subject.send(Auth.auth().currentUser != nil)
+        authStatePublisher.cancelSignIn()
     }
 
     func getProviderID() async throws -> String? {
@@ -133,4 +112,69 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
+}
+
+private final class AuthStatePublisher: @unchecked Sendable {
+    private let logger: Logger
+    private let subject: CurrentValueSubject<Bool, Never>
+    private let lock = NSLock()
+    private var handler: FirebaseDependency<AuthStateDidChangeListenerHandle>?
+    private var isCompletingSignIn = false
+
+    init(logger: Logger) {
+        self.logger = logger
+        self.subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)
+        self.handler = FirebaseDependency(
+            value: Auth.auth().addStateDidChangeListener { [weak self] _, user in
+                self?.handleAuthStateChange(user)
+            }
+        )
+    }
+
+    deinit {
+        guard let handler else { return }
+        handler.removeAuthStateDidChangeListener()
+    }
+
+    func observeSignedIn() -> AnyPublisher<Bool, Never> {
+        lock.lock()
+        defer { lock.unlock() }
+        return subject.eraseToAnyPublisher()
+    }
+
+    func beginSignIn() {
+        lock.lock()
+        isCompletingSignIn = true
+        subject.send(false)
+        lock.unlock()
+    }
+
+    func completeSignIn() {
+        lock.lock()
+        isCompletingSignIn = false
+        subject.send(Auth.auth().currentUser != nil)
+        lock.unlock()
+    }
+
+    func cancelSignIn() {
+        lock.lock()
+        isCompletingSignIn = false
+        subject.send(Auth.auth().currentUser != nil)
+        lock.unlock()
+    }
+
+    private func handleAuthStateChange(_ user: User?) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let signedIn = user != nil
+        logger.info("Firebase auth state changed. signedIn: \(signedIn)")
+
+        if signedIn && isCompletingSignIn {
+            logger.info("Delaying signed-in publication until user bootstrap finishes")
+            return
+        }
+
+        subject.send(signedIn)
+    }
 }

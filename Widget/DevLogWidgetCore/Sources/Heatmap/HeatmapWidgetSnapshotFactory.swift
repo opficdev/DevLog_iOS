@@ -8,8 +8,8 @@
 import Foundation
 import DevLogCore
 
-public struct HeatmapWidgetSnapshotFactory {
-    fileprivate struct DailyCounts {
+public struct HeatmapWidgetSnapshotFactory: Sendable {
+    fileprivate struct DailyCounts: Sendable {
         var createdCount = 0
         var completedCount = 0
         var deletedCount = 0

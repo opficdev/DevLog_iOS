@@ -20,7 +20,7 @@ final class FirebaseAnalyticsServiceImpl: AnalyticsService {
         Analytics.logEvent(
             AnalyticsEventScreenView,
             parameters: [
-                AnalyticsParameterScreenName: name,
+                AnalyticsParameterScreenName: name
             ]
         )
     }

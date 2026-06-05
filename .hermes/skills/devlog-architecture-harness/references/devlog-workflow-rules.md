@@ -10,6 +10,10 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 ## Verification
 
+- Follow `AGENTS.md` for the canonical lint and build verification policy.
+- Run Homebrew SwiftLint (`swiftlint`) on changed Swift files.
+- Lint production Swift files with the applicable source `.swiftlint.yml` config.
+- Lint test Swift files with `.swiftlint-tests.yml` or the module `Tests/.swiftlint.yml` that inherits from it. Do not use the root production config for tests.
 - Prefer Xcode Local MCP for iOS project code changes.
 - If Xcode Local MCP is unavailable or fails because of session transport, state that explicitly before using a fallback.
 - This repository is workspace-based. Prefer workspace/scheme context over standalone project builds when dependencies cross module projects.
@@ -61,9 +65,9 @@ This reference holds DevLog-specific working rules that should live with the pro
 - For example, keep the app-facing Domain query separate from an Infra-facing Data query when that avoids Domain coupling in service protocols.
 - Firebase-specific error detection belongs in Infra; Data should handle domain-level errors after mapping.
 
-## Presentation Store
+## Presentation StorePattern
 
-- Preserve the existing `Store` shape: `@MainActor`, `State`, `Action`, `SideEffect`, `send -> reduce -> run`.
+- Preserve the existing `StorePattern` shape: `@MainActor`, `State`, `Action`, `SideEffect`, `send -> reduce -> run`.
 - Reducers compute state and return side effects.
 - I/O belongs in `run` or injected services.
 - Do not leave reducer-era helper methods behind after moving work into `run`.

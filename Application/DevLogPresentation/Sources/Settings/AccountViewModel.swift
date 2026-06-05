@@ -9,7 +9,7 @@ import Foundation
 import DevLogDomain
 
 @Observable
-final class AccountViewModel: Store {
+final class AccountViewModel: StorePattern {
     struct State: Equatable {
         var currentProvider: AuthProvider?
         var connectedProviders: [AuthProvider] = []

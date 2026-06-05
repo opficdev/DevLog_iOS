@@ -123,12 +123,12 @@ flowchart TD
 | `DevLogWidgetCore` | widget data contracts and pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, or App dependency |
 | `DevLogWidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
 
-## Presentation Store flow
+## Presentation StorePattern flow
 
 ```mermaid
 flowchart LR
 	View["SwiftUI View"]
-	ViewModel["ViewModel / Store"]
+	ViewModel["ViewModel / StorePattern"]
 	Send["send(Action)"]
 	Reduce["reduce(with:)"]
 	State["State update"]

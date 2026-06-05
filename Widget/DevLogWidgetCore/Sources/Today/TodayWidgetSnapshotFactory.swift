@@ -8,8 +8,8 @@
 import Foundation
 import DevLogCore
 
-public struct TodayWidgetSnapshotFactory {
-    private enum SectionCategory: String, CaseIterable {
+public struct TodayWidgetSnapshotFactory: Sendable {
+    private enum SectionCategory: String, CaseIterable, Sendable {
         case focused
         case overdue
         case dueSoon
@@ -17,7 +17,7 @@ public struct TodayWidgetSnapshotFactory {
         case unscheduled
     }
 
-    private struct SectionCollection {
+    private struct SectionCollection: Sendable {
         var focused = [TodayWidgetTodoItem]()
         var overdue = [TodayWidgetTodoItem]()
         var dueSoon = [TodayWidgetTodoItem]()
@@ -40,7 +40,7 @@ public struct TodayWidgetSnapshotFactory {
         }
     }
 
-    private struct TodayWidgetTodoItem {
+    private struct TodayWidgetTodoItem: Sendable {
         let id: String
         let number: Int
         let title: String

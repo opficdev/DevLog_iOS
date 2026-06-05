@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class HomeViewModel: Store {
+final class HomeViewModel: StorePattern {
     struct State: Equatable {
         var preferences: [TodoCategoryItem] = []
         var recentTodos: [RecentTodoItem] = []

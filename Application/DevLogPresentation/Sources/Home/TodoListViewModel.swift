@@ -10,7 +10,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class TodoListViewModel: Store {
+final class TodoListViewModel: StorePattern {
     struct State: Equatable {
         var todos: [TodoListItem] = []
         var searchText: String = ""

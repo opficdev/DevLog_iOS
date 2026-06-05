@@ -7,11 +7,11 @@
 
 import Foundation
 
-public final class WidgetSharedDefaultsStore {
-    private let userDefaults: UserDefaults
+public final class WidgetSharedDefaultsStore: Sendable {
+    private let userDefaults: UserDefaultsDependency
 
     public init(userDefaults: UserDefaults = UserDefaults(suiteName: WidgetAppGroup.identifier) ?? .standard) {
-        self.userDefaults = userDefaults
+        self.userDefaults = UserDefaultsDependency(value: userDefaults)
     }
 
     func data(forKey key: String) -> Data? {

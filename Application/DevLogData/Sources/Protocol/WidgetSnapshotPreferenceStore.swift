@@ -8,7 +8,7 @@
 import Foundation
 import DevLogCore
 
-public protocol WidgetSnapshotPreferenceStore {
+public protocol WidgetSnapshotPreferenceStore: Sendable {
     func heatmapActivityTypes() -> [String]
     func setHeatmapActivityTypes(_ activityTypes: [String])
     func selectedActivityKinds() -> Set<ActivityKind>

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol AuthenticationService {
+public protocol AuthenticationService: Sendable {
     func signIn() async throws -> AuthDataResponse
     func signOut(_ uid: String) async throws
     func deleteAuth(_ uid: String) async throws

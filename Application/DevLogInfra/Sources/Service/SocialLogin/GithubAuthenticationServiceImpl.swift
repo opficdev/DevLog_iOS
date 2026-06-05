@@ -26,11 +26,10 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         static let acceptHeader = "application/vnd.github.v3+json"
     }
 
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
-    private let messaging = Messaging.messaging()
+    private let store = FirebaseDependency(value: Firestore.firestore())
+    private let functions = FirebaseDependency(value: Functions.functions(region: "asia-northeast3"))
+    private let messaging = FirebaseDependency(value: Messaging.messaging())
     private var user: User? { Auth.auth().currentUser }
-    private let providerID = AuthProviderID.gitHub
     private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GithubAuthService")
     private let gitHubApiClient = NXAPIClient(
@@ -161,7 +160,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
 
             logger.info("Starting Firebase GitHub provider unlink. uid: \(uid)")
-            _ = try await user?.unlink(fromProvider: providerID.rawValue)
+            _ = try await user?.unlink(fromProvider: AuthProviderID.gitHub.rawValue)
         } catch {
             logger.error("Failed to unlink GitHub account", error: error)
             throw error

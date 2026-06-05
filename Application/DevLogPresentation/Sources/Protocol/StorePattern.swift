@@ -1,5 +1,5 @@
 //
-//  Store.swift
+//  StorePattern.swift
 //  DevLogPresentation
 //
 //  Created by 최윤진 on 11/22/25.
@@ -9,7 +9,7 @@ import Foundation
 import DevLogDomain
 
 @MainActor
-public protocol Store: AnyObject {
+public protocol StorePattern: AnyObject {
     associatedtype State
     associatedtype Action
     associatedtype SideEffect
@@ -20,7 +20,7 @@ public protocol Store: AnyObject {
     func run(_ effect: SideEffect)
 }
 
-extension Store {
+extension StorePattern {
     func send(_ action: Action) {
         let sideEffects = reduce(with: action)
         sideEffects.forEach(run)

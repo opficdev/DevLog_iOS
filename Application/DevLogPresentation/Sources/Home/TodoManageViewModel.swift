@@ -9,7 +9,7 @@ import SwiftUI
 import DevLogDomain
 
 @Observable
-final class TodoManageViewModel: Store {
+final class TodoManageViewModel: StorePattern {
     struct State: Equatable {
         var preferences: [TodoCategoryItem]
         var category: TodoCategoryItem?

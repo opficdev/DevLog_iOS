@@ -12,7 +12,7 @@ import DevLogDomain
 import DevLogCore
 
 @Observable
-final class MainViewModel: Store {
+final class MainViewModel: StorePattern {
     struct State: Equatable {
         var unreadPushCount = 0
         var showAlert = false

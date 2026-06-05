@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol UserService {
+public protocol UserService: Sendable {
     func upsertUser(_ response: AuthDataResponse) async throws
     func fetchUserProfile() async throws -> UserProfileResponse
     func upsertStatusMessage(_ message: String) async throws

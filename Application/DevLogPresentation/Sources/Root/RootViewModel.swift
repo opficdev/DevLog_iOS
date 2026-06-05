@@ -12,7 +12,7 @@ import DevLogCore
 import DevLogDomain
 
 @Observable
-final class RootViewModel: Store {
+final class RootViewModel: StorePattern {
     struct State: Equatable {
         var showAlert: Bool = false
         var alertTitle: String = ""
