@@ -1,3 +1,17 @@
+excluded:
+  - Tuist
+  - Tuist.swift
+  - Workspace.swift
+  - Application/DevLogApp/Project.swift
+  - Application/DevLogCore/Project.swift
+  - Application/DevLogData/Project.swift
+  - Application/DevLogDomain/Project.swift
+  - Application/DevLogInfra/Project.swift
+  - Application/DevLogPersistence/Project.swift
+  - Application/DevLogPresentation/Project.swift
+  - Widget/DevLogWidgetCore/Project.swift
+  - Widget/DevLogWidgetExtension/Project.swift
+
 disabled_rules:
   - nesting
   - multiple_closures_with_trailing_closure
