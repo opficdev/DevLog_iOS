@@ -5,7 +5,7 @@
 //  Created by opfic on 6/5/26.
 //
 
-@preconcurrency import ComposableArchitecture
+import ComposableArchitecture
 @preconcurrency import DevLogDomain
 import Foundation
 
@@ -33,7 +33,7 @@ struct LoginFeature {
         case error
     }
 
-    @Dependency(\.signInUseCase) var signInUseCase
+    @Dependency(SignInUseCaseDependency.self) var signInUseCase
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
