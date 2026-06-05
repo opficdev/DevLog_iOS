@@ -65,10 +65,10 @@ struct LoginFeature {
     }
 }
 
-struct SignInUseCaseDependency {
-    var execute: (AuthProvider) async throws -> Void
+struct SignInUseCaseDependency: Sendable {
+    var execute: @Sendable (AuthProvider) async throws -> Void
 
-    init(execute: @escaping (AuthProvider) async throws -> Void) {
+    init(execute: @escaping @Sendable (AuthProvider) async throws -> Void) {
         self.execute = execute
     }
 }
