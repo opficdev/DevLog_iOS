@@ -5,8 +5,8 @@
 //  Created by opfic on 6/5/26.
 //
 
-import ComposableArchitecture
-import DevLogDomain
+@preconcurrency import ComposableArchitecture
+@preconcurrency import DevLogDomain
 import Foundation
 
 @Reducer
@@ -20,7 +20,7 @@ struct LoginFeature {
         var alertMessage = ""
     }
 
-    enum Action {
+    enum Action: Sendable {
         case setAlert(Bool, AlertType? = nil)
         case tapSignInButton(AuthProvider)
         case signInSucceeded
@@ -28,7 +28,7 @@ struct LoginFeature {
         case signInCancelled
     }
 
-    enum AlertType: Equatable {
+    enum AlertType: Equatable, Sendable {
         case emailUnavailable
         case error
     }
