@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct PushNotificationQuery: Equatable {
-    public enum SortOrder: Equatable {
+public struct PushNotificationQuery: Equatable, Sendable {
+    public enum SortOrder: Equatable, Sendable {
         case latest
         case oldest
     }
 
-    public enum TimeFilter: Equatable, Hashable {
+    public enum TimeFilter: Equatable, Hashable, Sendable {
         case none
         case hours(Int)
         case days(Int)
