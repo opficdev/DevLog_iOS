@@ -16,6 +16,7 @@ public extension Settings {
             "CURRENT_PROJECT_VERSION": "1",
             "INFOPLIST_KEY_CFBundleShortVersionString": "$(MARKETING_VERSION)",
             "INFOPLIST_KEY_CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
+            "SWIFT_STRICT_CONCURRENCY": "complete",
             "SWIFT_VERSION": "5.0",
             "TARGETED_DEVICE_FAMILY": "1,2",
         ]
