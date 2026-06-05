@@ -24,7 +24,7 @@ public enum DependencyScope {
     case transient
 }
 
-public protocol DIContainer {
+public protocol DIContainer: Sendable {
     func register<T>(
         _ type: T.Type,
         name: DependencyName?,
@@ -50,8 +50,8 @@ public extension DIContainer {
     }
 }
 
-public final class AppDIContainer: DIContainer {
-    public static let shared = AppDIContainer()
+public final class AppDIContainer: DIContainer, @unchecked Sendable {
+    public static let `default` = AppDIContainer()
 
     private let lock = NSRecursiveLock()
 

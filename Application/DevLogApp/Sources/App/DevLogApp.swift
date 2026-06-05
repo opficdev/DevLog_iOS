@@ -19,7 +19,7 @@ struct DevLogApp: App {
     @State private var windowEvent = TodoEditorWindowEvent()
 
     init() {
-        AppAssembler().assemble(AppDIContainer.shared)
+        AppAssembler().assemble(AppDIContainer.default)
     }
 
     var body: some Scene {

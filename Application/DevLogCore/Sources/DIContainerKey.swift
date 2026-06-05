@@ -8,7 +8,7 @@
 import SwiftUI
 
 private struct DIContainerKey: EnvironmentKey {
-    static let defaultValue: any DIContainer = AppDIContainer.shared
+    static let defaultValue: any DIContainer = AppDIContainer.default
 }
 
 public extension EnvironmentValues {

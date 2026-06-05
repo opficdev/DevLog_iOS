@@ -12,7 +12,7 @@ import DevLogInfra
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let logger = Logger(category: "AppDelegate")
-    private let container = AppDIContainer.shared
+    private let container = AppDIContainer.default
 
     func application(
         _ app: UIApplication,
