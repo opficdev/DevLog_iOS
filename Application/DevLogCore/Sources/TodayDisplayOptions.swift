@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct TodayDisplayOptions: Equatable, Sendable {
-    public enum DueDateVisibility: String, CaseIterable, Equatable, Sendable {
+public struct TodayDisplayOptions: Equatable {
+    public enum DueDateVisibility: String, CaseIterable, Equatable {
         case all
         case withDueDateOnly
         case withoutDueDateOnly
     }
 
-    public enum FocusVisibility: String, CaseIterable, Equatable, Sendable {
+    public enum FocusVisibility: String, CaseIterable, Equatable {
         case all
         case focusedOnly
     }

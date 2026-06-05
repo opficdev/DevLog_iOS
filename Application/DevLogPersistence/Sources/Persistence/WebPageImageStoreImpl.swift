@@ -51,7 +51,7 @@ final class WebPageImageStoreImpl: WebPageImageStore {
 }
 
 private extension WebPageImageStoreImpl {
-    func perform<T: Sendable>(_ operation: @escaping @Sendable () throws -> T) async throws -> T {
+    func perform<T>(_ operation: @escaping () throws -> T) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
             queue.async {
                 do {

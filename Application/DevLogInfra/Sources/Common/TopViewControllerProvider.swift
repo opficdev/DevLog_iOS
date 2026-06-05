@@ -8,7 +8,7 @@
 import UIKit
 import DevLogData
 
-final class TopViewControllerProvider: Sendable {
+final class TopViewControllerProvider {
     @MainActor
     func topViewController() -> UIViewController? {
         guard let keyWindow = keyWindow() else {

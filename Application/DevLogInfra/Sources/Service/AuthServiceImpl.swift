@@ -114,7 +114,7 @@ final class AuthServiceImpl: AuthService {
 
 }
 
-private final class AuthStatePublisher: @unchecked Sendable {
+private final class AuthStatePublisher {
     private let logger: Logger
     private let subject: CurrentValueSubject<Bool, Never>
     private let lock = NSLock()

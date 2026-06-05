@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class WidgetSharedDefaultsStore: Sendable {
+public final class WidgetSharedDefaultsStore {
     private let userDefaults: UserDefaultsDependency
 
     public init(userDefaults: UserDefaults = UserDefaults(suiteName: WidgetAppGroup.identifier) ?? .standard) {

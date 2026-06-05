@@ -300,7 +300,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     }
 }
 
-private final class AppleSignInSession: @unchecked Sendable {
+private final class AppleSignInSession {
     @MainActor
     private var delegate: AppleSignInDelegate?
     @MainActor

@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-public protocol AuthService: Sendable {
+public protocol AuthService {
     var uid: String? { get }
     var providerIDs: [String] { get }
     var currentUserEmail: String? { get }

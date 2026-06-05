@@ -8,7 +8,7 @@
 import Foundation
 import DevLogCore
 
-public protocol WidgetSnapshotUpdater: Sendable {
+public protocol WidgetSnapshotUpdater {
     func updateTodaySnapshot(
         todos: [WidgetTodoSnapshot],
         now: Date
