@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ActivityKind: String, Hashable {
+public enum ActivityKind: String, Hashable, Sendable {
     case created
     case completed
     case deleted
