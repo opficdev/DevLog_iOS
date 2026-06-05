@@ -16,8 +16,8 @@ public extension Settings {
             "CURRENT_PROJECT_VERSION": "1",
             "INFOPLIST_KEY_CFBundleShortVersionString": "$(MARKETING_VERSION)",
             "INFOPLIST_KEY_CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
-            "TARGETED_DEVICE_FAMILY": "1,2",
             "SWIFT_VERSION": "6.0",
+            "TARGETED_DEVICE_FAMILY": "1,2"
         ]
         commonBase.merge(base) { _, new in new }
 
@@ -26,7 +26,7 @@ public extension Settings {
                 base: commonBase,
                 configurations: [
                     .debug(name: "Debug", settings: debug, xcconfig: versionXcconfigPath),
-                    .release(name: "Release", settings: release, xcconfig: versionXcconfigPath),
+                    .release(name: "Release", settings: release, xcconfig: versionXcconfigPath)
                 ],
                 defaultSettings: defaultSettings
             )
@@ -36,7 +36,7 @@ public extension Settings {
             base: commonBase,
             configurations: [
                 .debug(name: "Debug", settings: debug),
-                .release(name: "Release", settings: release),
+                .release(name: "Release", settings: release)
             ],
             defaultSettings: defaultSettings
         )
@@ -50,7 +50,7 @@ public extension Settings {
             "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
             "DEVELOPMENT_TEAM": DevLogSigning.teamID,
             "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
-            "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+            "STRING_CATALOG_GENERATE_SYMBOLS": "YES"
         ]
         base.merge(additionalBase) { _, new in new }
         return .devlog(versionXcconfigPath: versionXcconfigPath, base: base)
