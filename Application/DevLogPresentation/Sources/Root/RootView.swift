@@ -16,7 +16,7 @@ public struct RootView: View {
     @State var viewModel: RootViewModel
     @State private var selectedRoute: Route?
     @State private var selectedMainTab = MainTab.home
-    @State private var loginStore: StoreOf<LoginFeature>
+    private let loginStore: StoreOf<LoginFeature>
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -39,13 +39,13 @@ public struct RootView: View {
             systemThemeUseCase: systemThemeUseCase,
             trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
         ))
-        self._loginStore = State(initialValue: Store(
+        self.loginStore = Store(
             initialState: LoginFeature.State()
         ) {
             LoginFeature()
         } withDependencies: {
             $0.signInUseCase = .live(signInUseCase)
-        })
+        }
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
