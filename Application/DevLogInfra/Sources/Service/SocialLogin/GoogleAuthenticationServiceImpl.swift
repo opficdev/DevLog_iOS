@@ -14,8 +14,8 @@ import DevLogCore
 import DevLogData
 
 final class GoogleAuthenticationServiceImpl: AuthenticationService {
-    private let store = Firestore.firestore()
-    private let messaging = Messaging.messaging()
+    private let store = FirebaseDependency(value: Firestore.firestore())
+    private let messaging = FirebaseDependency(value: Messaging.messaging())
     private var user: User? { Auth.auth().currentUser }
     private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GoogleAuthService")

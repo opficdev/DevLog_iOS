@@ -23,13 +23,11 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         case revokeAppleAccessToken
     }
 
-    private var appleSignInDelegate: AppleSignInDelegate?
-    private var appleSignInContinuation: CheckedContinuation<ASAuthorization, Error>?
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
-    private let messaging = Messaging.messaging()
+    private let session = AppleSignInSession()
+    private let store = FirebaseDependency(value: Firestore.firestore())
+    private let functions = FirebaseDependency(value: Functions.functions(region: "asia-northeast3"))
+    private let messaging = FirebaseDependency(value: Messaging.messaging())
     private var user: User? { Auth.auth().currentUser }
-    private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
     func signIn() async throws -> AuthDataResponse {
@@ -81,9 +79,9 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             try await changeRequest.commitChanges()
         
             // FirebaseAuth 계정에 Apple ID 연결
-            if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
+            if !result.user.providerData.contains(where: { $0.providerID == AuthProviderID.apple.rawValue }) {
                 let appleCredential = OAuthProvider.credential(
-                    providerID: providerID,
+                    providerID: AuthProviderID.apple,
                     idToken: idTokenString,
                     rawNonce: nonce
                 )
@@ -151,7 +149,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             }
 
             let appleCredential = OAuthProvider.credential(
-                providerID: providerID,
+                providerID: AuthProviderID.apple,
                 idToken: idTokenString,
                 rawNonce: nonce
             )
@@ -187,7 +185,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             }
 
             logger.info("Starting Firebase Apple provider unlink. uid: \(uid)")
-            _ = try await user?.unlink(fromProvider: providerID.rawValue)
+            _ = try await user?.unlink(fromProvider: AuthProviderID.apple.rawValue)
         } catch {
             logger.error("Failed to unlink Apple account", error: error)
             throw error
@@ -197,7 +195,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     // Apple 인증 메서드
     @MainActor
     func authenticateWithAppleAsync() async throws -> AppleAuthResponse {
-        guard appleSignInDelegate == nil, appleSignInContinuation == nil else {
+        guard session.canStartSignIn else {
             throw SocialLoginError.authenticationAlreadyInProgress
         }
 
@@ -213,13 +211,11 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
         let authorization = try await withCheckedThrowingContinuation { continuation in
-            let delegate = AppleSignInDelegate { [weak self] result in
+            let delegate = session.start(continuation: continuation) { [weak self] result in
                 self?.completeAppleSignIn(with: result)
             }
-            self.appleSignInDelegate = delegate
-            self.appleSignInContinuation = continuation
-            controller.delegate = self.appleSignInDelegate
-            controller.presentationContextProvider = self.appleSignInDelegate
+            controller.delegate = delegate
+            controller.presentationContextProvider = delegate
             controller.performRequests()
         }
 
@@ -241,17 +237,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     @MainActor
     private func completeAppleSignIn(with result: Result<ASAuthorization, Error>) {
-        guard let continuation = appleSignInContinuation else { return }
-
-        appleSignInContinuation = nil
-        appleSignInDelegate = nil
-
-        switch result {
-        case .success(let authorization):
-            continuation.resume(returning: authorization)
-        case .failure(let error):
-            continuation.resume(throwing: error)
-        }
+        session.complete(with: result)
     }
     
     // Apple CustomToken 발급 메서드
@@ -311,5 +297,43 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         let revokeFunction = functions.httpsCallable(FunctionName.revokeAppleAccessToken)
         
         _ = try await revokeFunction.call(["token": token])
+    }
+}
+
+private final class AppleSignInSession: @unchecked Sendable {
+    @MainActor
+    private var delegate: AppleSignInDelegate?
+    @MainActor
+    private var continuation: CheckedContinuation<ASAuthorization, Error>?
+
+    @MainActor
+    var canStartSignIn: Bool {
+        delegate == nil && continuation == nil
+    }
+
+    @MainActor
+    func start(
+        continuation: CheckedContinuation<ASAuthorization, Error>,
+        completion: @escaping @MainActor (Result<ASAuthorization, Error>) -> Void
+    ) -> AppleSignInDelegate {
+        let delegate = AppleSignInDelegate(finish: completion)
+        self.delegate = delegate
+        self.continuation = continuation
+        return delegate
+    }
+
+    @MainActor
+    func complete(with result: Result<ASAuthorization, Error>) {
+        guard let continuation else { return }
+
+        self.continuation = nil
+        self.delegate = nil
+
+        switch result {
+        case .success(let authorization):
+            continuation.resume(returning: authorization)
+        case .failure(let error):
+            continuation.resume(throwing: error)
+        }
     }
 }
