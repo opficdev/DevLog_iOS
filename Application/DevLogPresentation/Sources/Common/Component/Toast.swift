@@ -310,20 +310,17 @@ private struct ToastCardView<Label: View>: View {
 @MainActor
 private extension UIViewController {
     var visibleTabBarHeight: CGFloat {
-        if let tabBarController = self as? UITabBarController {
+        var topViewController = self
+
+        while let presentedViewController = topViewController.presentedViewController {
+            topViewController = presentedViewController
+        }
+
+        if let tabBarController = (topViewController as? UITabBarController) ?? topViewController.tabBarController {
             return tabBarController.tabBar.isHidden ? .zero : tabBarController.tabBar.frame.height
         }
 
-        if let tabBarController {
-            return tabBarController.tabBar.isHidden ? .zero : tabBarController.tabBar.frame.height
-        }
-
-        if let presentedViewController,
-           0 < presentedViewController.visibleTabBarHeight {
-            return presentedViewController.visibleTabBarHeight
-        }
-
-        for child in children {
+        for child in topViewController.children {
             let childHeight = child.visibleTabBarHeight
             if 0 < childHeight {
                 return childHeight
