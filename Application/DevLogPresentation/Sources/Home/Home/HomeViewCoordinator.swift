@@ -59,9 +59,10 @@ final class HomeViewCoordinator {
         streamTasks[.todoMutationEvent] = Task { [weak self] in
             let events = await bus.events()
             for await event in events {
+                guard let self else { break }
                 switch event {
                 case .updated, .deleted, .restored:
-                    self?.refreshRecentTodos()
+                    self.refreshRecentTodos()
                 }
             }
         }
