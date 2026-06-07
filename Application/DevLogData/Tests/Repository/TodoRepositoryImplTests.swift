@@ -10,11 +10,11 @@ import Foundation
 import Testing
 import DevLogCore
 import DevLogDomain
-@testable import DevLogData
+@testable @preconcurrency import DevLogData
 
 struct TodoRepositoryImplTests {
-    @Test("Todo 변경 성공 시 위젯 동기화 이벤트를 발행한다")
-    func todo_변경_성공_시_위젯_동기화_이벤트를_발행한다() async throws {
+    @Test("Todo 변경 성공 시 위젯 동기화와 mutation 이벤트를 발행한다")
+    func todo_변경_성공_시_위젯_동기화와_mutation_이벤트를_발행한다() async throws {
         let fixture = makeFixture()
         let todo = makeTodo()
 
@@ -24,10 +24,13 @@ struct TodoRepositoryImplTests {
 
         let events = fixture.widgetSyncEventBus.events
         #expect(events == [.syncRequested, .syncRequested, .syncRequested])
+
+        let mutationEvents = await fixture.todoMutationEventBus.publishedEvents()
+        #expect(mutationEvents == [.updated(todo.id), .deleted(todo.id), .restored(todo.id)])
     }
 
-    @Test("Todo 변경 실패 시 위젯 동기화 이벤트를 발행하지 않는다")
-    func todo_변경_실패_시_위젯_동기화_이벤트를_발행하지_않는다() async throws {
+    @Test("Todo 변경 실패 시 위젯 동기화와 mutation 이벤트를 발행하지 않는다")
+    func todo_변경_실패_시_위젯_동기화와_mutation_이벤트를_발행하지_않는다() async throws {
         let fixture = makeFixture()
         let todo = makeTodo()
 
@@ -52,24 +55,30 @@ struct TodoRepositoryImplTests {
             #expect(error as? TodoRepositoryImplTestsError == .serviceFailed)
         }
 
-        let events = fixture.widgetSyncEventBus.events
-        #expect(events.isEmpty)
+        let syncEvents = fixture.widgetSyncEventBus.events
+        #expect(syncEvents.isEmpty)
+
+        let mutationEvents = await fixture.todoMutationEventBus.publishedEvents()
+        #expect(mutationEvents.isEmpty)
     }
 
     private func makeFixture() -> Fixture {
         let todoService = TodoServiceSpy()
         let todoCategoryService = TodoCategoryServiceSpy()
         let widgetSyncEventBus = WidgetSyncEventBusSpy()
+        let todoMutationEventBus = TodoMutationEventBusSpy()
         let repository = TodoRepositoryImpl(
             todoService: todoService,
             todoCategoryService: todoCategoryService,
-            widgetSyncEventBus: widgetSyncEventBus
+            widgetSyncEventBus: widgetSyncEventBus,
+            todoMutationEventBus: todoMutationEventBus
         )
 
         return Fixture(
             repository: repository,
             todoService: todoService,
-            widgetSyncEventBus: widgetSyncEventBus
+            widgetSyncEventBus: widgetSyncEventBus,
+            todoMutationEventBus: todoMutationEventBus
         )
     }
 
@@ -97,6 +106,7 @@ private struct Fixture {
     let repository: TodoRepositoryImpl
     let todoService: TodoServiceSpy
     let widgetSyncEventBus: WidgetSyncEventBusSpy
+    let todoMutationEventBus: TodoMutationEventBusSpy
 }
 
 private actor TodoServiceSpy: TodoService {
@@ -156,6 +166,24 @@ private final class WidgetSyncEventBusSpy: WidgetSyncEventBus {
 
     func publish(_ event: WidgetSyncEvent) {
         events.append(event)
+    }
+}
+
+private actor TodoMutationEventBusSpy: TodoMutationEventBus {
+    private var capturedEvents = [TodoMutationEvent]()
+
+    func publish(_ event: TodoMutationEvent) async {
+        capturedEvents.append(event)
+    }
+
+    func publishedEvents() -> [TodoMutationEvent] {
+        capturedEvents
+    }
+
+    func events() async -> AsyncStream<TodoMutationEvent> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
     }
 }
 

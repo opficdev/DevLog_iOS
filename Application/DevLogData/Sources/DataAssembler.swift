@@ -32,11 +32,16 @@ public final class DataAssembler: Assembler {
             )
         }
 
+        container.register(TodoMutationEventBus.self) {
+            TodoMutationEventBusImpl()
+        }
+
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
+                widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self),
+                todoMutationEventBus: container.resolve(TodoMutationEventBus.self)
             )
         }
 

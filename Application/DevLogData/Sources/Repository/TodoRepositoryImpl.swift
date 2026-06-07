@@ -13,15 +13,18 @@ final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
     private let widgetSyncEventBus: WidgetSyncEventBus
+    private let todoMutationEventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
-        widgetSyncEventBus: WidgetSyncEventBus
+        widgetSyncEventBus: WidgetSyncEventBus,
+        todoMutationEventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
         self.widgetSyncEventBus = widgetSyncEventBus
+        self.todoMutationEventBus = todoMutationEventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -107,6 +110,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let todoRequest = TodoRequest.fromDomain(todo)
         try await upsertTodo(todoRequest)
+        await todoMutationEventBus.publish(.updated(todo.id))
     }
 
     func upsertTodo(_ todoDraft: TodoDraft) async throws {
@@ -127,6 +131,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.deleteTodo(todoId: todoId)
             widgetSyncEventBus.publish(.syncRequested)
+            await todoMutationEventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
         }
@@ -136,6 +141,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
             widgetSyncEventBus.publish(.syncRequested)
+            await todoMutationEventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()
         }
