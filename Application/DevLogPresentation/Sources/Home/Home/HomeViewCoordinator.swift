@@ -13,13 +13,17 @@ import DevLogDomain
 @MainActor
 @Observable
 final class HomeViewCoordinator {
+    private enum AsyncStreamTaskID {
+        case todoMutationEvent
+    }
+
     let viewModel: HomeViewModel
     let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
     private var cancellable: AnyCancellable?
     @ObservationIgnored
-    private var mutationTask: Task<Void, Never>?
+    private var streamTasks = [AsyncStreamTaskID: Task<Void, Never>]()
 
     init(container: DIContainer) {
         self.container = container
@@ -37,7 +41,7 @@ final class HomeViewCoordinator {
     }
 
     deinit {
-        mutationTask?.cancel()
+        streamTasks.values.forEach { $0.cancel() }
     }
 
     func fetchData() {
@@ -49,10 +53,10 @@ final class HomeViewCoordinator {
     }
 
     func bindTodoMutationEvent() {
-        guard mutationTask == nil else { return }
+        guard streamTasks[.todoMutationEvent] == nil else { return }
 
         let bus = container.resolve(TodoMutationEventBus.self)
-        mutationTask = Task { [weak self] in
+        streamTasks[.todoMutationEvent] = Task { [weak self] in
             let events = await bus.events()
             for await event in events {
                 switch event {
