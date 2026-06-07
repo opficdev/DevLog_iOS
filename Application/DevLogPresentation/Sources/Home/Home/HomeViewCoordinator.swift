@@ -18,6 +18,8 @@ final class HomeViewCoordinator {
     private let container: DIContainer
     @ObservationIgnored
     private var cancellable: AnyCancellable?
+    @ObservationIgnored
+    private var mutationTask: Task<Void, Never>?
 
     init(container: DIContainer) {
         self.container = container
@@ -34,8 +36,31 @@ final class HomeViewCoordinator {
         )
     }
 
+    deinit {
+        mutationTask?.cancel()
+    }
+
     func fetchData() {
         viewModel.send(.fetchData)
+    }
+
+    func refreshRecentTodos() {
+        viewModel.send(.refreshRecentTodos)
+    }
+
+    func bindTodoMutationEvent() {
+        guard mutationTask == nil else { return }
+
+        let bus = container.resolve(TodoMutationEventBus.self)
+        mutationTask = Task { [weak self] in
+            let events = await bus.events()
+            for await event in events {
+                switch event {
+                case .updated, .deleted, .restored:
+                    self?.refreshRecentTodos()
+                }
+            }
+        }
     }
 
     func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
