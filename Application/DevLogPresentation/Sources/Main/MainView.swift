@@ -48,6 +48,7 @@ struct MainView: View {
         .onAppear {
             coordinator.viewModel.send(.onAppear)
             homeViewCoordinator.bindWindowEvent(windowEvent)
+            homeViewCoordinator.bindTodoMutationEvent()
             todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in

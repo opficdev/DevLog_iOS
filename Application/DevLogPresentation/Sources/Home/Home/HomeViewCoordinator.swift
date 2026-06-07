@@ -13,11 +13,17 @@ import DevLogDomain
 @MainActor
 @Observable
 final class HomeViewCoordinator {
+    private enum AsyncStreamTaskID {
+        case todoMutationEvent
+    }
+
     let viewModel: HomeViewModel
     let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
     private var cancellable: AnyCancellable?
+    @ObservationIgnored
+    private var streamTasks = [AsyncStreamTaskID: Task<Void, Never>]()
 
     init(container: DIContainer) {
         self.container = container
@@ -34,8 +40,32 @@ final class HomeViewCoordinator {
         )
     }
 
+    deinit {
+        streamTasks.values.forEach { $0.cancel() }
+    }
+
     func fetchData() {
         viewModel.send(.fetchData)
+    }
+
+    func refreshRecentTodos() {
+        viewModel.send(.refreshRecentTodos)
+    }
+
+    func bindTodoMutationEvent() {
+        guard streamTasks[.todoMutationEvent] == nil else { return }
+
+        let bus = container.resolve(TodoMutationEventBus.self)
+        streamTasks[.todoMutationEvent] = Task { [weak self] in
+            let events = await bus.events()
+            for await event in events {
+                guard let self else { break }
+                switch event {
+                case .updated, .deleted, .restored:
+                    self.refreshRecentTodos()
+                }
+            }
+        }
     }
 
     func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {

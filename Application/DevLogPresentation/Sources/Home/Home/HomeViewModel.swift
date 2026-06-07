@@ -36,6 +36,7 @@ final class HomeViewModel: StorePattern {
 
     enum Action {
         case fetchData
+        case refreshRecentTodos
         case networkStatusChanged(Bool)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
@@ -136,7 +137,7 @@ final class HomeViewModel: StorePattern {
         switch action {
         case .networkStatusChanged(let isConnected):
             state.isNetworkConnected = isConnected
-        case .fetchData, .setPresentation, .setAlert, .refreshWebPages,
+        case .fetchData, .refreshRecentTodos, .setPresentation, .setAlert, .refreshWebPages,
                 .tapTodoCategory, .orderTodoCategory, .updateWebPageURLInput,
                 .addWebPage, .deleteWebPage, .undoDeleteWebPage, .finishDeleteWebPageToast:
             effects = reduceByView(action, state: &state)
@@ -252,6 +253,8 @@ private extension HomeViewModel {
         switch action {
         case .fetchData:
             return [.fetchTodoCategoryPreferences, .fetchRecentTodos, .fetchWebPages]
+        case .refreshRecentTodos:
+            return [.fetchRecentTodos]
         case .refreshWebPages:
             return [.fetchWebPages]
         case .setPresentation(let presentation, let isPresented):
