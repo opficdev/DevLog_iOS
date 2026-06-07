@@ -85,11 +85,19 @@ extension View {
 }
 
 private struct ToastHostModifier: ViewModifier {
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @State private var tabBarHeight = CGFloat.zero
     private let toastPresenter = ToastPresenter.presenter
 
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+                updateTabBarHeight()
+            }
+            .onChange(of: toastPresenter.item?.id) { _, _ in
+                updateTabBarHeight()
+            }
             .overlay(alignment: .bottom) {
                 if let item = toastPresenter.item {
                     ToastOverlayView(
@@ -109,8 +117,27 @@ private struct ToastHostModifier: ViewModifier {
                     }
                     .id(item.id)
                     .padding(.horizontal, 12)
+                    .padding(.bottom, toastBottomInset)
                 }
             }
+    }
+
+    private var toastBottomInset: CGFloat {
+        max(0, tabBarHeight - safeAreaInsets.bottom)
+    }
+
+    @MainActor
+    private func updateTabBarHeight() {
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0.isKeyWindow }
+
+        guard let window else {
+            tabBarHeight = .zero
+            return
+        }
+        tabBarHeight = window.rootViewController?.visibleTabBarHeight ?? .zero
     }
 }
 
@@ -277,5 +304,29 @@ private struct ToastCardView<Label: View>: View {
                 }
             }
             .shadow(color: Color(.systemGray2).opacity(0.4), radius: 18, x: 0, y: 10)
+    }
+}
+
+@MainActor
+private extension UIViewController {
+    var visibleTabBarHeight: CGFloat {
+        var topViewController = self
+
+        while let presentedViewController = topViewController.presentedViewController {
+            topViewController = presentedViewController
+        }
+
+        if let tabBarController = (topViewController as? UITabBarController) ?? topViewController.tabBarController {
+            return tabBarController.tabBar.isHidden ? .zero : tabBarController.tabBar.frame.height
+        }
+
+        for child in topViewController.children {
+            let childHeight = child.visibleTabBarHeight
+            if 0 < childHeight {
+                return childHeight
+            }
+        }
+
+        return .zero
     }
 }
