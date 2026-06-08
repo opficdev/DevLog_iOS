@@ -10,6 +10,7 @@ let workspace = Workspace(
         "Application/DevLogInfra",
         "Application/DevLogPersistence",
         "Application/DevLogPresentation",
+        "Application/DevLogWidget",
         "Widget/DevLogWidgetCore",
         "Widget/DevLogWidgetExtension",
     ],
