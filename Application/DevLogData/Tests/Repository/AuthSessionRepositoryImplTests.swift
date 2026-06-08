@@ -21,10 +21,12 @@ struct AuthSessionRepositoryImplTests {
         let authService = AuthSessionAuthServiceSpy()
         let todoCategoryService = AuthSessionTodoCategoryServiceSpy(preferences: [preference])
         let store = AuthSessionUserDefaultsStoreSpy()
+        let provider = AuthSessionStateProviderSpy()
         let repository = AuthSessionRepositoryImpl(
             authService: authService,
             todoCategoryService: todoCategoryService,
-            store: store
+            store: store,
+            provider: provider
         )
         let valueTask = Task {
             for await value in repository.observeSignedIn().values where value {
@@ -38,6 +40,7 @@ struct AuthSessionRepositoryImplTests {
         #expect(await valueTask.value)
         #expect(store.value(forKey: Key.preferences) == [preference])
         #expect(await todoCategoryService.fetchCategoryPreferencesCallCount() == 1)
+        #expect(provider.events == [true])
     }
 
     @Test("로그아웃 세션은 category preference 캐시를 제거한다")
@@ -46,11 +49,13 @@ struct AuthSessionRepositoryImplTests {
         let authService = AuthSessionAuthServiceSpy(isSignedIn: true)
         let todoCategoryService = AuthSessionTodoCategoryServiceSpy(preferences: [preference])
         let store = AuthSessionUserDefaultsStoreSpy()
+        let provider = AuthSessionStateProviderSpy()
         store.setValue([preference], forKey: Key.preferences)
         let repository = AuthSessionRepositoryImpl(
             authService: authService,
             todoCategoryService: todoCategoryService,
-            store: store
+            store: store,
+            provider: provider
         )
         let valueTask = Task {
             for await value in repository.observeSignedIn().values where value == false {
@@ -63,6 +68,7 @@ struct AuthSessionRepositoryImplTests {
 
         #expect(await valueTask.value == false)
         #expect(store.value(forKey: Key.preferences) == Optional<[TodoCategoryPreferenceResponse]>.none)
+        #expect(provider.events == [false])
     }
 
     private func makePreferenceResponse() -> TodoCategoryPreferenceResponse {
@@ -76,6 +82,18 @@ struct AuthSessionRepositoryImplTests {
             ),
             isVisible: true
         )
+    }
+}
+
+private final class AuthSessionStateProviderSpy: AuthSessionStateProvider {
+    private(set) var events = [Bool]()
+
+    func publish(_ isSignedIn: Bool) {
+        events.append(isSignedIn)
+    }
+
+    func observeSignedIn() -> AnyPublisher<Bool, Never> {
+        Empty().eraseToAnyPublisher()
     }
 }
 

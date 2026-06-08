@@ -12,6 +12,10 @@ public final class WidgetAssembler: Assembler {
     public init() { }
 
     public func assemble(_ container: any DIContainer) {
+        container.register(AuthSessionStateProvider.self) {
+            AuthSessionStateProviderImpl()
+        }
+
         container.register(WidgetSyncEventBus.self) {
             WidgetSyncEventBusImpl()
         }

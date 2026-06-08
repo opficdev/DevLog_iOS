@@ -16,15 +16,18 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
     private let authService: AuthService
     private let todoCategoryService: TodoCategoryService
     private let store: UserDefaultsStore
+    private let provider: AuthSessionStateProvider
 
     init(
         authService: AuthService,
         todoCategoryService: TodoCategoryService,
-        store: UserDefaultsStore
+        store: UserDefaultsStore,
+        provider: AuthSessionStateProvider
     ) {
         self.authService = authService
         self.todoCategoryService = todoCategoryService
         self.store = store
+        self.provider = provider
     }
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
@@ -37,6 +40,7 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
                         } else {
                             self.clearPreferencesCache()
                         }
+                        self.provider.publish(isSignedIn)
                         promise(.success(isSignedIn))
                     }
                 }
