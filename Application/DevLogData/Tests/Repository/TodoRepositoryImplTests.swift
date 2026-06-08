@@ -148,11 +148,11 @@ private actor TodoServiceSpy: TodoService {
 }
 
 private struct TodoCategoryServiceSpy: TodoCategoryService {
-    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse] {
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreferenceResponse] {
         []
     }
 
-    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
         throw TodoRepositoryImplTestsError.unexpectedCall
     }
 }

@@ -6,6 +6,6 @@
 //
 
 public protocol TodoCategoryRepository {
-    func fetchPreferences() async throws -> [TodoCategoryPreference]
-    func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreference]
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreference]) async throws
 }

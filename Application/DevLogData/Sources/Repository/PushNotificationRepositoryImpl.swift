@@ -59,7 +59,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         do {
             let cursorDTO = cursor.map { PushNotificationCursorDTO.fromDomain($0) }
             async let responseTask = pushNotificationService.requestNotifications(query, cursor: cursorDTO)
-            async let preferencesTask = todoCategoryService.fetchPreferences()
+            async let preferencesTask = todoCategoryService.fetchCategoryPreferences()
 
             let (response, preferenceResponses) = try await (responseTask, preferencesTask)
             return try resolvePage(from: response, with: preferenceResponses.toDomain())
@@ -91,7 +91,9 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 
                         Task {
                             do {
-                                let preferences = try await self.todoCategoryService.fetchPreferences().toDomain()
+                                let preferences = try await self.todoCategoryService
+                                    .fetchCategoryPreferences()
+                                    .toDomain()
                                 let page = try self.resolvePage(from: response, with: preferences)
                                 subject.send(page)
                             } catch {

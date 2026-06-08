@@ -13,6 +13,6 @@ public final class FetchTodoCategoryPreferencesUseCaseImpl: FetchTodoCategoryPre
     }
 
     public func execute() async throws -> [TodoCategoryPreference] {
-        try await todoCategoryRepository.fetchPreferences()
+        try await todoCategoryRepository.fetchCategoryPreferences()
     }
 }

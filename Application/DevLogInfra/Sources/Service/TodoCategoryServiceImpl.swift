@@ -29,7 +29,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
     private let store = Firestore.firestore()
     private let logger = Logger(category: "TodoCategoryServiceImpl")
 
-    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse] {
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreferenceResponse] {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
             throw DataLayerError.notAuthenticated
@@ -61,7 +61,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
         }
     }
 
-    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.error("User not authenticated")
             throw DataLayerError.notAuthenticated

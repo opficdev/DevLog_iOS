@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol TodoCategoryService {
-    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse]
-    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreferenceResponse]
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws
 }
