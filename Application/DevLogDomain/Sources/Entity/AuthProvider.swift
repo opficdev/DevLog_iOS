@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum AuthProvider: String, CaseIterable, Sendable {
+public enum AuthProvider: String, CaseIterable {
     case apple = "apple.com"
     case google = "google.com"
     case github = "github.com"

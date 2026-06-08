@@ -5,7 +5,7 @@
 //  Created by opfic on 6/6/26.
 //
 
-public enum TodoMutationEvent: Equatable, Sendable {
+public enum TodoMutationEvent: Equatable {
     case updated(String)
     case deleted(String)
     case restored(String)

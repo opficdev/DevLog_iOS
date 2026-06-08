@@ -5,33 +5,17 @@
 //  Created by opfic on 6/6/26.
 //
 
-import Foundation
+import Combine
 import DevLogDomain
 
-actor TodoMutationEventBusImpl: TodoMutationEventBus {
-    private var continuations = [UUID: AsyncStream<TodoMutationEvent>.Continuation]()
+final class TodoMutationEventBusImpl: TodoMutationEventBus {
+    private let subject = PassthroughSubject<TodoMutationEvent, Never>()
 
-    func publish(_ event: TodoMutationEvent) async {
-        continuations.values.forEach { $0.yield(event) }
+    func publish(_ event: TodoMutationEvent) {
+        subject.send(event)
     }
 
-    func events() -> AsyncStream<TodoMutationEvent> {
-        let id = UUID()
-        let (stream, continuation) = AsyncStream.makeStream(of: TodoMutationEvent.self)
-
-        continuations[id] = continuation
-        continuation.onTermination = { [weak self] _ in
-            Task {
-                await self?.removeContinuation(id: id)
-            }
-        }
-
-        return stream
-    }
-}
-
-private extension TodoMutationEventBusImpl {
-    func removeContinuation(id: UUID) {
-        continuations[id] = nil
+    func observe() -> AnyPublisher<TodoMutationEvent, Never> {
+        subject.eraseToAnyPublisher()
     }
 }

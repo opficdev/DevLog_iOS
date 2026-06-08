@@ -13,17 +13,15 @@ import DevLogDomain
 @MainActor
 @Observable
 final class HomeViewCoordinator {
-    private enum AsyncStreamTaskID {
-        case todoMutationEvent
-    }
-
     let viewModel: HomeViewModel
     let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
-    private var cancellable: AnyCancellable?
+    private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
-    private var streamTasks = [AsyncStreamTaskID: Task<Void, Never>]()
+    private var isTodoMutationEventBound = false
+    @ObservationIgnored
+    private var isWindowEventBound = false
 
     init(container: DIContainer) {
         self.container = container
@@ -40,10 +38,6 @@ final class HomeViewCoordinator {
         )
     }
 
-    deinit {
-        streamTasks.values.forEach { $0.cancel() }
-    }
-
     func fetchData() {
         viewModel.send(.fetchData)
     }
@@ -53,30 +47,33 @@ final class HomeViewCoordinator {
     }
 
     func bindTodoMutationEvent() {
-        guard streamTasks[.todoMutationEvent] == nil else { return }
+        guard isTodoMutationEventBound == false else { return }
+        isTodoMutationEventBound = true
 
         let bus = container.resolve(TodoMutationEventBus.self)
-        streamTasks[.todoMutationEvent] = Task { [weak self] in
-            let events = await bus.events()
-            for await event in events {
-                guard let self else { break }
+        bus.observe()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] event in
+                guard let self else { return }
                 switch event {
                 case .updated, .deleted, .restored:
                     self.refreshRecentTodos()
                 }
             }
-        }
+            .store(in: &cancellables)
     }
 
     func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
-        guard cancellable == nil else { return }
+        guard isWindowEventBound == false else { return }
+        isWindowEventBound = true
 
-        cancellable = windowEvent.submits
+        windowEvent.submits
             .sink { [weak self] submit in
                 guard case .create(let value) = submit,
                       value.matchesCreate(source: .home) else { return }
                 self?.viewModel.send(.fetchData)
             }
+            .store(in: &cancellables)
     }
 
     func makeTodoManageViewModel() -> TodoManageViewModel {

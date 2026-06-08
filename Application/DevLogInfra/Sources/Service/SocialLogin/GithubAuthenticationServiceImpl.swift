@@ -26,10 +26,11 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         static let acceptHeader = "application/vnd.github.v3+json"
     }
 
-    private let store = FirebaseDependency(value: Firestore.firestore())
-    private let functions = FirebaseDependency(value: Functions.functions(region: "asia-northeast3"))
-    private let messaging = FirebaseDependency(value: Messaging.messaging())
+    private let store = Firestore.firestore()
+    private let functions = Functions.functions(region: "asia-northeast3")
+    private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
+    private let providerID = AuthProviderID.gitHub
     private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GithubAuthService")
     private let gitHubApiClient = NXAPIClient(
@@ -66,8 +67,8 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             }
         
             // 5. GitHub 계정과 Firebase Auth 계정 연결
-            if !result.user.providerData.contains(where: { $0.providerID == "github.com" }) {
-                let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
+            if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
+                let credential = OAuthProvider.credential(providerID: providerID, accessToken: accessToken)
                 try await result.user.link(with: credential)
             }
 
@@ -136,7 +137,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
 
             try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
 
-            let credential = OAuthProvider.credential(providerID: AuthProviderID.gitHub, accessToken: accessToken)
+            let credential = OAuthProvider.credential(providerID: providerID, accessToken: accessToken)
             try await user?.link(with: credential)
             
             logger.info("Successfully linked GitHub account")
@@ -160,7 +161,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             try await tokensRef.updateData(["githubAccessToken": FieldValue.delete()])
 
             logger.info("Starting Firebase GitHub provider unlink. uid: \(uid)")
-            _ = try await user?.unlink(fromProvider: AuthProviderID.gitHub.rawValue)
+            _ = try await user?.unlink(fromProvider: providerID.rawValue)
         } catch {
             logger.error("Failed to unlink GitHub account", error: error)
             throw error
