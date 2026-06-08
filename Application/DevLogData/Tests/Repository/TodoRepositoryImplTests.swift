@@ -10,7 +10,7 @@ import Foundation
 import Testing
 import DevLogCore
 import DevLogDomain
-@testable @preconcurrency import DevLogData
+@testable import DevLogData
 
 struct TodoRepositoryImplTests {
     @Test("Todo 변경 성공 시 위젯 동기화와 mutation 이벤트를 발행한다")

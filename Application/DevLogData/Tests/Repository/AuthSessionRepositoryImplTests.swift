@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 import Testing
-@testable @preconcurrency import DevLogData
+@testable import DevLogData
 
 struct AuthSessionRepositoryImplTests {
     private enum Key {

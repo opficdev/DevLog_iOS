@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-@preconcurrency import DevLogDomain
+import DevLogDomain
 import Foundation
 
 @Reducer
