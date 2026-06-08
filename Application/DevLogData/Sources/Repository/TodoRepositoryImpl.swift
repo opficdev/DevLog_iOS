@@ -71,7 +71,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func fetchTodo(_ todoId: String) async throws -> Todo {
         do {
             async let response = todoService.fetchTodo(todoId: todoId)
-            async let preferences = todoCategoryService.fetchCategoryPreferences()
+            async let preferences = todoCategoryPreferenceResponses()
 
             let (todoResponse, todoPreferenceResponses) = try await (
                 response,
@@ -96,7 +96,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
         do {
             async let responseTask = todoService.fetchReferences(numbers)
-            async let preferencesTask = todoCategoryService.fetchCategoryPreferences()
+            async let preferencesTask = todoCategoryPreferenceResponses()
 
             let (responses, preferenceResponses) = try await (
                 responseTask,

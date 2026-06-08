@@ -65,11 +65,13 @@ struct TodoRepositoryImplTests {
     private func makeFixture() -> Fixture {
         let todoService = TodoServiceSpy()
         let todoCategoryService = TodoCategoryServiceSpy()
+        let store = TodoRepositoryUserDefaultsStoreSpy()
         let widgetSyncEventBus = WidgetSyncEventBusSpy()
         let todoMutationEventBus = TodoMutationEventBusSpy()
         let repository = TodoRepositoryImpl(
             todoService: todoService,
             todoCategoryService: todoCategoryService,
+            store: store,
             widgetSyncEventBus: widgetSyncEventBus,
             todoMutationEventBus: todoMutationEventBus
         )
@@ -155,6 +157,47 @@ private struct TodoCategoryServiceSpy: TodoCategoryService {
     func updateCategoryPreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
         throw TodoRepositoryImplTestsError.unexpectedCall
     }
+}
+
+private final class TodoRepositoryUserDefaultsStoreSpy: UserDefaultsStore {
+    private var values = [String: Any]()
+
+    func value<T: Codable>(forKey key: String) -> T? {
+        values[key] as? T
+    }
+
+    func setValue<T: Codable>(_ value: T?, forKey key: String) {
+        guard let value else {
+            values.removeValue(forKey: key)
+            return
+        }
+
+        values[key] = value
+    }
+
+    func removeValues(withPrefix prefix: String) {
+        values.keys
+            .filter { $0.hasPrefix(prefix) }
+            .forEach { values.removeValue(forKey: $0) }
+    }
+
+    func string(forKey key: String) -> String? {
+        nil
+    }
+
+    func setString(_ value: String?, forKey key: String) { }
+
+    func stringArray(forKey key: String) -> [String] {
+        []
+    }
+
+    func setStringArray(_ value: [String], forKey key: String) { }
+
+    func bool(forKey key: String) -> Bool {
+        false
+    }
+
+    func setBool(_ value: Bool, forKey key: String) { }
 }
 
 private final class WidgetSyncEventBusSpy: WidgetSyncEventBus {

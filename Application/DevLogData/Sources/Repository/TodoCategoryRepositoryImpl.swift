@@ -25,6 +25,10 @@ final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
 
     func fetchCategoryPreferences() async throws -> [TodoCategoryPreference] {
         do {
+            if let preferences: [TodoCategoryPreferenceResponse] = store.value(forKey: Key.preferences) {
+                return preferences.toDomain()
+            }
+
             let responses = try await todoCategoryService.fetchCategoryPreferences()
             store.setValue(responses, forKey: Key.preferences)
             return responses.toDomain()

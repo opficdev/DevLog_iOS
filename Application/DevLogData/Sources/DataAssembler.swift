@@ -61,7 +61,9 @@ public final class DataAssembler: Assembler {
 
         container.register(AuthSessionRepository.self) {
             AuthSessionRepositoryImpl(
-                authService: container.resolve(AuthService.self)
+                authService: container.resolve(AuthService.self),
+                todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(UserDefaultsStore.self)
             )
         }
 
