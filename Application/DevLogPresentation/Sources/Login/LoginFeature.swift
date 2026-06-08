@@ -20,7 +20,7 @@ struct LoginFeature {
         var alertMessage = ""
     }
 
-    enum Action: Sendable {
+    enum Action {
         case setAlert(Bool, AlertType? = nil)
         case tapSignInButton(AuthProvider)
         case signInSucceeded
@@ -28,7 +28,7 @@ struct LoginFeature {
         case signInCancelled
     }
 
-    enum AlertType: Equatable, Sendable {
+    enum AlertType: Equatable {
         case emailUnavailable
         case error
     }
@@ -65,10 +65,10 @@ struct LoginFeature {
     }
 }
 
-struct SignInUseCaseDependency: Sendable {
-    var execute: @Sendable (AuthProvider) async throws -> Void
+struct SignInUseCaseDependency {
+    var execute: (AuthProvider) async throws -> Void
 
-    init(execute: @escaping @Sendable (AuthProvider) async throws -> Void) {
+    init(execute: @escaping (AuthProvider) async throws -> Void) {
         self.execute = execute
     }
 }
