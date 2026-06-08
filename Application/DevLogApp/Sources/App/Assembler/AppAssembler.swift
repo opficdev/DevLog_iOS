@@ -10,11 +10,13 @@ import DevLogData
 import DevLogDomain
 import DevLogInfra
 import DevLogPersistence
+import DevLogWidget
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [
         PersistenceAssembler(),
         InfraAssembler(),
+        WidgetAssembler(),
         DataAssembler(),
         DomainAssembler(),
         AppLayerAssembler()

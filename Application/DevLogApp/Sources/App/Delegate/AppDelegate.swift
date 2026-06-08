@@ -9,6 +9,7 @@ import UIKit
 import DevLogCore
 import DevLogData
 import DevLogInfra
+import DevLogWidget
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let logger = Logger(category: "AppDelegate")

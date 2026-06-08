@@ -9,6 +9,7 @@ excluded:
   - Application/DevLogInfra/Project.swift
   - Application/DevLogPersistence/Project.swift
   - Application/DevLogPresentation/Project.swift
+  - Application/DevLogWidget/Project.swift
   - Widget/DevLogWidgetCore/Project.swift
   - Widget/DevLogWidgetExtension/Project.swift
 

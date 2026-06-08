@@ -1,13 +1,14 @@
 //
 //  WidgetSyncEventBusTests.swift
-//  DevLogDataTests
+//  DevLogWidgetTests
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Combine
 import Testing
-@testable import DevLogData
+import DevLogData
+@testable import DevLogWidget
 
 struct WidgetSyncEventBusTests {
     @Test("WidgetSyncEventBus는 발행된 이벤트를 관찰자에게 전달한다")

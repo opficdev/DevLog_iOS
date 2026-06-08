@@ -10,6 +10,7 @@ import DevLogCore
 import DevLogData
 import DevLogDomain
 import DevLogPresentation
+import DevLogWidget
 
 @main
 struct DevLogApp: App {

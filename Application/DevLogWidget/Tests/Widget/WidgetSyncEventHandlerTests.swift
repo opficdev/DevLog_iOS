@@ -1,6 +1,6 @@
 //
 //  WidgetSyncEventHandlerTests.swift
-//  DevLogDataTests
+//  DevLogWidgetTests
 //
 //  Created by opfic on 4/30/26.
 //
@@ -8,8 +8,8 @@
 import Foundation
 import Testing
 import DevLogCore
-import DevLogDomain
-@testable import DevLogData
+import DevLogData
+@testable import DevLogWidget
 
 struct WidgetSyncEventHandlerTests {
     @Test("위젯 동기화 요청 이벤트는 Today와 Heatmap 스냅샷을 갱신한다")
@@ -17,9 +17,9 @@ struct WidgetSyncEventHandlerTests {
         let calendar = Calendar.current
         let now = Date()
         let quarterStart = calendar.startOfQuarter(for: now)
-        let fixture = makeFixture(calendar: calendar)
+        let fixture = makeFixture()
 
-        await fixture.todoRepository.setTodos(
+        await fixture.repository.setTodos(
             todayTodosWithDueDate: [
                 makeTodo(id: "today", createdAt: now, dueDate: now)
             ],
@@ -42,15 +42,15 @@ struct WidgetSyncEventHandlerTests {
 
         let todayUpdates = fixture.snapshotUpdater.todayUpdates
         let heatmapUpdates = fixture.snapshotUpdater.heatmapUpdates
-        let queries = await fixture.todoRepository.calledQueries()
+        let calls = await fixture.repository.calledCalls()
 
         #expect(todayUpdates.first?.todos.map(\.id) == ["today"])
         #expect(heatmapUpdates.first?.createdTodos.map(\.id) == ["created"])
         #expect(heatmapUpdates.first?.completedTodos.map(\.id) == ["completed"])
         #expect(heatmapUpdates.first?.deletedTodos.map(\.id) == ["deleted"])
         #expect(todayUpdates.first?.now == heatmapUpdates.first?.now)
-        #expect(queries.count == 5)
-        #expect(Set(queries.map(\.sortTarget)) == Set([
+        #expect(calls.count == 5)
+        #expect(Set(calls.map(\.sortTarget)) == Set([
             .dueDate,
             .updatedAt,
             .createdAt,
@@ -65,9 +65,9 @@ struct WidgetSyncEventHandlerTests {
         let calendar = Calendar.current
         let now = Date()
         let quarterStart = calendar.startOfQuarter(for: now)
-        let fixture = makeFixture(calendar: calendar)
+        let fixture = makeFixture()
 
-        await fixture.todoRepository.setTodos(
+        await fixture.repository.setTodos(
             createdTodos: [
                 makeTodo(id: "created", createdAt: now)
             ],
@@ -78,7 +78,7 @@ struct WidgetSyncEventHandlerTests {
                 makeTodo(id: "deleted", createdAt: quarterStart, deletedAt: now)
             ]
         )
-        await fixture.todoRepository.setFailingSortTargets([.dueDate])
+        await fixture.repository.setFailingSortTargets([.dueDate])
 
         fixture.bus.publish(.syncRequested)
 
@@ -95,16 +95,15 @@ struct WidgetSyncEventHandlerTests {
 
     @Test("Heatmap 스냅샷 조회 실패는 Today 스냅샷 갱신을 막지 않는다")
     func heatmap_스냅샷_조회_실패는_today_스냅샷_갱신을_막지_않는다() async throws {
-        let calendar = Calendar.current
         let now = Date()
-        let fixture = makeFixture(calendar: calendar)
+        let fixture = makeFixture()
 
-        await fixture.todoRepository.setTodos(
+        await fixture.repository.setTodos(
             todayTodosWithDueDate: [
                 makeTodo(id: "today", createdAt: now, dueDate: now)
             ]
         )
-        await fixture.todoRepository.setFailingSortTargets([.createdAt])
+        await fixture.repository.setFailingSortTargets([.createdAt])
 
         fixture.bus.publish(.syncRequested)
 
@@ -117,19 +116,19 @@ struct WidgetSyncEventHandlerTests {
         _ = fixture.handler
     }
 
-    private func makeFixture(calendar: Calendar) -> Fixture {
+    private func makeFixture() -> Fixture {
         let bus = WidgetSyncEventBusImpl()
-        let todoRepository = WidgetSyncTodoRepositorySpy()
+        let repository = WidgetTodoSnapshotRepositorySpy()
         let snapshotUpdater = WidgetSnapshotUpdaterSpy()
         let handler = WidgetSyncEventHandler(
             eventBus: bus,
-            repository: todoRepository,
+            repository: repository,
             snapshotUpdater: snapshotUpdater
         )
 
         return Fixture(
             bus: bus,
-            todoRepository: todoRepository,
+            repository: repository,
             snapshotUpdater: snapshotUpdater,
             handler: handler
         )
@@ -141,49 +140,46 @@ struct WidgetSyncEventHandlerTests {
         completedAt: Date? = nil,
         deletedAt: Date? = nil,
         dueDate: Date? = nil
-    ) -> Todo {
-        Todo(
+    ) -> WidgetTodoSnapshot {
+        WidgetTodoSnapshot(
             id: id,
-            isPinned: false,
-            isCompleted: completedAt != nil,
-            isChecked: false,
             number: 1,
             title: id,
-            content: "",
+            isPinned: false,
             createdAt: createdAt,
-            updatedAt: createdAt,
             completedAt: completedAt,
             deletedAt: deletedAt,
-            dueDate: dueDate,
-            tags: [],
-            category: .system(.feature)
+            dueDate: dueDate
         )
     }
-
 }
 
 private struct Fixture {
     let bus: WidgetSyncEventBusImpl
-    let todoRepository: WidgetSyncTodoRepositorySpy
+    let repository: WidgetTodoSnapshotRepositorySpy
     let snapshotUpdater: WidgetSnapshotUpdaterSpy
     let handler: WidgetSyncEventHandler
 }
 
-private actor WidgetSyncTodoRepositorySpy: TodoRepository {
-    private var queries = [TodoQuery]()
+private actor WidgetTodoSnapshotRepositorySpy: WidgetTodoSnapshotRepository {
+    struct Call {
+        let sortTarget: TodoQuery.SortTarget
+    }
+
+    private var calls = [Call]()
     private var failingSortTargets = Set<TodoQuery.SortTarget>()
-    private var todayTodosWithDueDate = [Todo]()
-    private var todayTodosWithoutDueDate = [Todo]()
-    private var createdTodos = [Todo]()
-    private var completedTodos = [Todo]()
-    private var deletedTodos = [Todo]()
+    private var todayTodosWithDueDate = [WidgetTodoSnapshot]()
+    private var todayTodosWithoutDueDate = [WidgetTodoSnapshot]()
+    private var createdTodos = [WidgetTodoSnapshot]()
+    private var completedTodos = [WidgetTodoSnapshot]()
+    private var deletedTodos = [WidgetTodoSnapshot]()
 
     func setTodos(
-        todayTodosWithDueDate: [Todo] = [],
-        todayTodosWithoutDueDate: [Todo] = [],
-        createdTodos: [Todo] = [],
-        completedTodos: [Todo] = [],
-        deletedTodos: [Todo] = []
+        todayTodosWithDueDate: [WidgetTodoSnapshot] = [],
+        todayTodosWithoutDueDate: [WidgetTodoSnapshot] = [],
+        createdTodos: [WidgetTodoSnapshot] = [],
+        completedTodos: [WidgetTodoSnapshot] = [],
+        deletedTodos: [WidgetTodoSnapshot] = []
     ) {
         self.todayTodosWithDueDate = todayTodosWithDueDate
         self.todayTodosWithoutDueDate = todayTodosWithoutDueDate
@@ -196,56 +192,54 @@ private actor WidgetSyncTodoRepositorySpy: TodoRepository {
         self.failingSortTargets = failingSortTargets
     }
 
-    func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
-        queries.append(query)
+    func fetchTodayTodos(
+        dueDateFilter: TodoQuery.DueDateFilter,
+        sortTarget: TodoQuery.SortTarget,
+        sortOrder: TodoQuery.SortOrder,
+        pageSize: Int
+    ) async throws -> [WidgetTodoSnapshot] {
+        calls.append(Call(sortTarget: sortTarget))
 
-        if failingSortTargets.contains(query.sortTarget) {
-            throw WidgetSyncTodoRepositorySpyError.fetchTodosFailed
+        if failingSortTargets.contains(sortTarget) {
+            throw WidgetTodoSnapshotRepositorySpyError.fetchTodosFailed
         }
 
-        let items: [Todo]
-        switch query.sortTarget {
+        switch sortTarget {
         case .dueDate:
-            items = todayTodosWithDueDate
+            return todayTodosWithDueDate
         case .updatedAt:
-            items = todayTodosWithoutDueDate
-        case .createdAt:
-            items = createdTodos
-        case .completedAt:
-            items = completedTodos
-        case .deletedAt:
-            items = deletedTodos
+            return todayTodosWithoutDueDate
+        case .createdAt, .completedAt, .deletedAt:
+            throw WidgetTodoSnapshotRepositorySpyError.unexpectedCall
+        }
+    }
+
+    func fetchHeatmapTodos(
+        sortTarget: TodoQuery.SortTarget,
+        quarterStart: Date,
+        nextQuarterStart: Date,
+        pageSize: Int
+    ) async throws -> [WidgetTodoSnapshot] {
+        calls.append(Call(sortTarget: sortTarget))
+
+        if failingSortTargets.contains(sortTarget) {
+            throw WidgetTodoSnapshotRepositorySpyError.fetchTodosFailed
         }
 
-        return TodoPage(items: items, nextCursor: nil)
+        switch sortTarget {
+        case .createdAt:
+            return createdTodos
+        case .completedAt:
+            return completedTodos
+        case .deletedAt:
+            return deletedTodos
+        case .dueDate, .updatedAt:
+            throw WidgetTodoSnapshotRepositorySpyError.unexpectedCall
+        }
     }
 
-    func fetchTodo(_ todoId: String) async throws -> Todo {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func upsertTodo(_ todo: Todo) async throws {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func upsertTodo(_ todoDraft: TodoDraft) async throws {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func deleteTodo(_ todoId: String) async throws {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func undoDeleteTodo(_ todoId: String) async throws {
-        throw WidgetSyncTodoRepositorySpyError.unexpectedCall
-    }
-
-    func calledQueries() -> [TodoQuery] {
-        queries
+    func calledCalls() -> [Call] {
+        calls
     }
 }
 
@@ -353,7 +347,7 @@ private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
     }
 }
 
-private enum WidgetSyncTodoRepositorySpyError: Error {
+private enum WidgetTodoSnapshotRepositorySpyError: Error {
     case fetchTodosFailed
     case unexpectedCall
 }

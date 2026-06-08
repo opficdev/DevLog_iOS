@@ -34,6 +34,7 @@ let project = Project(
                 .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
                 .project(target: "DevLogPersistence", path: "../DevLogPersistence"),
                 .project(target: "DevLogInfra", path: "../DevLogInfra"),
+                .project(target: "DevLogWidget", path: "../DevLogWidget"),
                 .project(target: "DevLogData", path: "../DevLogData"),
                 .project(target: "DevLogDomain", path: "../DevLogDomain"),
                 .project(target: "DevLogCore", path: "../DevLogCore"),
