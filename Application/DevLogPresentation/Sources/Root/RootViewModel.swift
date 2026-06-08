@@ -32,11 +32,17 @@ final class RootViewModel: StorePattern {
 
     enum SideEffect {
         case clearApplicationBadgeCount
+        case observeNetworkConnectivity
+        case observeSession
+        case observeTheme
         case trackLoginScreen
     }
 
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
+    private var isObservingNetworkConnectivity = false
+    private var isObservingSession = false
+    private var isObservingTheme = false
     private let sessionUseCase: ObserveAuthSessionUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
     private let systemThemeUseCase: ObserveSystemThemeUseCase
@@ -53,10 +59,6 @@ final class RootViewModel: StorePattern {
         self.systemThemeUseCase = systemThemeUseCase
         self.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         self.state = State()
-        
-        setupNetworkObserving()
-        setupSessionObserving()
-        setupThemeObserving()
     }
     
     func reduce(with action: Action) -> [SideEffect] {
@@ -65,7 +67,12 @@ final class RootViewModel: StorePattern {
         
         switch action {
         case .onAppear:
-            effects = [.clearApplicationBadgeCount]
+            effects = [
+                .clearApplicationBadgeCount,
+                .observeNetworkConnectivity,
+                .observeSession,
+                .observeTheme
+            ]
         case .setAlert(let isPresented):
             setAlert(&state, isPresented: isPresented)
         case .networkStatusChanged(let isConnected):
@@ -91,6 +98,12 @@ final class RootViewModel: StorePattern {
         switch effect {
         case .clearApplicationBadgeCount:
             UNUserNotificationCenter.current().setBadgeCount(0) { _ in }
+        case .observeNetworkConnectivity:
+            setupNetworkObserving()
+        case .observeSession:
+            setupSessionObserving()
+        case .observeTheme:
+            setupThemeObserving()
         case .trackLoginScreen:
             trackAnalyticsEventUseCase.execute(.screenView("login"))
         }
@@ -109,6 +122,9 @@ private extension RootViewModel {
     }
 
     func setupNetworkObserving() {
+        guard !isObservingNetworkConnectivity else { return }
+        isObservingNetworkConnectivity = true
+
         networkConnectivityUseCase.observe()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
@@ -118,6 +134,9 @@ private extension RootViewModel {
     }
 
     func setupSessionObserving() {
+        guard !isObservingSession else { return }
+        isObservingSession = true
+
         sessionUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -128,6 +147,9 @@ private extension RootViewModel {
     }
 
     func setupThemeObserving() {
+        guard !isObservingTheme else { return }
+        isObservingTheme = true
+
         systemThemeUseCase.observe()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
