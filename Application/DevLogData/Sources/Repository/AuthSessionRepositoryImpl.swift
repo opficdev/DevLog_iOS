@@ -33,9 +33,9 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
                 Future { promise in
                     Task {
                         if isSignedIn {
-                            await cachePreferencesIfNeeded()
+                            await self.cachePreferencesIfNeeded()
                         } else {
-                            clearPreferencesCache()
+                            self.clearPreferencesCache()
                         }
                         promise(.success(isSignedIn))
                     }
