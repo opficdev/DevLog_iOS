@@ -10,19 +10,26 @@ import DevLogCore
 import DevLogDomain
 
 final class TodoRepositoryImpl: TodoRepository {
+    private enum Key {
+        static let preferences = "TodoCategory.preferences"
+    }
+
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
+    private let store: UserDefaultsStore
     private let widgetSyncEventBus: WidgetSyncEventBus
     private let todoMutationEventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
+        store: UserDefaultsStore,
         widgetSyncEventBus: WidgetSyncEventBus,
         todoMutationEventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
+        self.store = store
         self.widgetSyncEventBus = widgetSyncEventBus
         self.todoMutationEventBus = todoMutationEventBus
     }
@@ -32,7 +39,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
         do {
             async let todos = todoService.fetchTodos(query, cursor: responseCursor)
-            async let preferences = todoCategoryService.fetchCategoryPreferences()
+            async let preferences = todoCategoryPreferenceResponses()
 
             let (todoResponse, todoPreferenceResponses) = try await (
                 todos,
@@ -164,6 +171,16 @@ final class TodoRepositoryImpl: TodoRepository {
 }
 
 private extension TodoRepositoryImpl {
+    func todoCategoryPreferenceResponses() async throws -> [TodoCategoryPreferenceResponse] {
+        if let preferences: [TodoCategoryPreferenceResponse] = store.value(forKey: Key.preferences) {
+            return preferences
+        }
+
+        let preferences = try await todoCategoryService.fetchCategoryPreferences()
+        store.setValue(preferences, forKey: Key.preferences)
+        return preferences
+    }
+
     func resolve(
         _ response: TodoResponse,
         userTodoCategories: [UserTodoCategory]

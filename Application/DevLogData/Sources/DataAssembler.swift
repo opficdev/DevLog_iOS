@@ -40,6 +40,7 @@ public final class DataAssembler: Assembler {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(UserDefaultsStore.self),
                 widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self),
                 todoMutationEventBus: container.resolve(TodoMutationEventBus.self)
             )
@@ -53,7 +54,8 @@ public final class DataAssembler: Assembler {
 
         container.register(TodoCategoryRepository.self) {
             TodoCategoryRepositoryImpl(
-                todoCategoryService: container.resolve(TodoCategoryService.self)
+                todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(UserDefaultsStore.self)
             )
         }
 
