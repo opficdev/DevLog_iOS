@@ -47,9 +47,7 @@ public final class DataAssembler: Assembler {
         }
 
         container.register(WidgetTodoSnapshotRepository.self) {
-            WidgetTodoSnapshotRepositoryImpl(
-                repository: container.resolve(TodoRepository.self)
-            )
+            WidgetTodoSnapshotRepositoryImpl(todoService: container.resolve(TodoService.self))
         }
 
         container.register(TodoCategoryRepository.self) {

@@ -10,10 +10,10 @@ import DevLogCore
 import DevLogDomain
 
 final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
-    private let repository: TodoRepository
+    private let todoService: TodoService
 
-    init(repository: TodoRepository) {
-        self.repository = repository
+    init(todoService: TodoService) {
+        self.todoService = todoService
     }
 
     func fetchTodayTodos(
@@ -22,19 +22,21 @@ final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
         sortOrder: TodoQuery.SortOrder,
         pageSize: Int
     ) async throws -> [WidgetTodoSnapshot] {
-        let todoPage = try await repository.fetchTodos(
-            TodoQuery(
-                completionFilter: .incomplete,
-                dueDateFilter: dueDateFilter,
-                sortTarget: sortTarget,
-                sortOrder: sortOrder,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
+        let query = TodoQuery(
+            completionFilter: .incomplete,
+            dueDateFilter: dueDateFilter,
+            sortTarget: sortTarget,
+            sortOrder: sortOrder,
+            pageSize: pageSize,
+            fetchAllPages: true
         )
 
-        return todoPage.items.map(WidgetTodoSnapshot.fromDomain)
+        do {
+            let todoPage = try await todoService.fetchTodos(query, cursor: nil)
+            return todoPage.items.map(WidgetTodoSnapshot.fromResponse)
+        } catch {
+            throw error.toDomain()
+        }
     }
 
     func fetchHeatmapTodos(
@@ -43,18 +45,35 @@ final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
         nextQuarterStart: Date,
         pageSize: Int
     ) async throws -> [WidgetTodoSnapshot] {
-        let todoPage = try await repository.fetchTodos(
-            TodoQuery(
-                sortDateFrom: quarterStart,
-                sortDateTo: nextQuarterStart,
-                includesDeleted: true,
-                sortTarget: sortTarget,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
+        let query = TodoQuery(
+            sortDateFrom: quarterStart,
+            sortDateTo: nextQuarterStart,
+            includesDeleted: true,
+            sortTarget: sortTarget,
+            pageSize: pageSize,
+            fetchAllPages: true
         )
 
-        return todoPage.items.map(WidgetTodoSnapshot.fromDomain)
+        do {
+            let todoPage = try await todoService.fetchTodos(query, cursor: nil)
+            return todoPage.items.map(WidgetTodoSnapshot.fromResponse)
+        } catch {
+            throw error.toDomain()
+        }
+    }
+}
+
+private extension WidgetTodoSnapshot {
+    static func fromResponse(_ response: TodoResponse) -> Self {
+        WidgetTodoSnapshot(
+            id: response.id,
+            number: response.number,
+            title: response.title,
+            isPinned: response.isPinned,
+            createdAt: response.createdAt,
+            completedAt: response.completedAt,
+            deletedAt: response.deletedAt,
+            dueDate: response.dueDate
+        )
     }
 }
