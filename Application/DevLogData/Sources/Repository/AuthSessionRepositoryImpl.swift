@@ -32,6 +32,7 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
         authService.observeSignedIn()
+            .removeDuplicates()
             .map { [self] isSignedIn in
                 Future { promise in
                     Task {
