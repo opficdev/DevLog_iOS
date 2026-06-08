@@ -59,11 +59,11 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
 <table>
   <tr>
     <td align="center">
-      <img alt="App Architecture" src="./docs/App.png" />
+      <img alt="Tuist Module Graph" src="./docs/graph.png" />
     </td>
   </tr>
   <tr>
-    <td align="center">앱 아키텍처</td>
+    <td align="center">Tuist 모듈 의존성 그래프</td>
   </tr>
   <tr>
     <td align="center">
@@ -72,14 +72,6 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
   </tr>
   <tr>
     <td align="center">StorePattern 프로토콜</td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img alt="Widget Architecture" src="./docs/Widget.png" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">위젯 데이터 아키텍처</td>
   </tr>
 </table>
 
