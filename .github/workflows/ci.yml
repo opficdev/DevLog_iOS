@@ -224,8 +224,8 @@ jobs:
             schemes: "DevLogDomain DevLogData"
           - name: Persistence-Presentation
             schemes: "DevLogPersistence DevLogPresentation"
-          - name: WidgetCore
-            schemes: "DevLogWidgetCore"
+          - name: Widget
+            schemes: "DevLogWidget DevLogWidgetCore"
     steps:
       - uses: actions/checkout@v5
 
