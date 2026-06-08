@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogData
 
 final class UserServiceImpl: UserService {
-    private let store = FirebaseDependency(value: Firestore.firestore())
+    private let store = Firestore.firestore()
     private let logger = Logger(category: "UserServiceImpl")
     
     // 유저를 Firestore에 저장 및 업데이트

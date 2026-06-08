@@ -8,10 +8,10 @@
 import Foundation
 
 public final class WidgetSharedDefaultsStore {
-    private let userDefaults: UserDefaultsDependency
+    private let userDefaults: UserDefaults
 
     public init(userDefaults: UserDefaults = UserDefaults(suiteName: WidgetAppGroup.identifier) ?? .standard) {
-        self.userDefaults = UserDefaultsDependency(value: userDefaults)
+        self.userDefaults = userDefaults
     }
 
     func data(forKey key: String) -> Data? {

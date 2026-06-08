@@ -16,10 +16,10 @@ final class WidgetSnapshotPreferenceStoreImpl: WidgetSnapshotPreferenceStore {
         case todayFocusVisibility = "Today.focusVisibility"
     }
 
-    private let userDefaults: UserDefaultsDependency
+    private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {
-        self.userDefaults = UserDefaultsDependency(value: userDefaults)
+        self.userDefaults = userDefaults
     }
 
     func heatmapActivityTypes() -> [String] {
