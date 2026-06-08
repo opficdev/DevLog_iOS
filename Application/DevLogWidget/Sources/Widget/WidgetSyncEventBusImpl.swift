@@ -1,11 +1,12 @@
 //
 //  WidgetSyncEventBusImpl.swift
-//  DevLogData
+//  DevLogWidget
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Combine
+import DevLogData
 
 public final class WidgetSyncEventBusImpl: WidgetSyncEventBus {
     private let subject = PassthroughSubject<WidgetSyncEvent, Never>()

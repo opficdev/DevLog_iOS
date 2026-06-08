@@ -1,6 +1,6 @@
 //
 //  WidgetSyncEventHandler.swift
-//  DevLogData
+//  DevLogWidget
 //
 //  Created by opfic on 4/30/26.
 //
@@ -8,10 +8,10 @@
 import Combine
 import Foundation
 import DevLogCore
-import DevLogDomain
+import DevLogData
 
 public final class WidgetSyncEventHandler {
-    private let repository: TodoRepository
+    private let repository: WidgetTodoSnapshotRepository
     private let snapshotUpdater: WidgetSnapshotUpdater
     private let pageSize = 100
     private let logger = Logger(category: "WidgetSyncEventHandler")
@@ -19,7 +19,7 @@ public final class WidgetSyncEventHandler {
 
     public init(
         eventBus: WidgetSyncEventBus,
-        repository: TodoRepository,
+        repository: WidgetTodoSnapshotRepository,
         snapshotUpdater: WidgetSnapshotUpdater
     ) {
         self.repository = repository
@@ -64,7 +64,7 @@ private extension WidgetSyncEventHandler {
                 todosWithoutDueDate
             )
             snapshotUpdater.updateTodaySnapshot(
-                todos: (todayTodosWithDueDate + todayTodosWithoutDueDate).map(WidgetTodoSnapshot.fromDomain),
+                todos: todayTodosWithDueDate + todayTodosWithoutDueDate,
                 now: now
             )
         } catch {
@@ -103,9 +103,9 @@ private extension WidgetSyncEventHandler {
                 deletedTodos
             )
             snapshotUpdater.updateHeatmapSnapshot(
-                createdTodos: createdTodoItems.map(WidgetTodoSnapshot.fromDomain),
-                completedTodos: completedTodoItems.map(WidgetTodoSnapshot.fromDomain),
-                deletedTodos: deletedTodoItems.map(WidgetTodoSnapshot.fromDomain),
+                createdTodos: createdTodoItems,
+                completedTodos: completedTodoItems,
+                deletedTodos: deletedTodoItems,
                 quarterStart: quarterStart,
                 now: now
             )
@@ -121,39 +121,25 @@ private extension WidgetSyncEventHandler {
         dueDateFilter: TodoQuery.DueDateFilter,
         sortTarget: TodoQuery.SortTarget,
         sortOrder: TodoQuery.SortOrder
-    ) async throws -> [Todo] {
-        let todoPage = try await repository.fetchTodos(
-            TodoQuery(
-                completionFilter: .incomplete,
-                dueDateFilter: dueDateFilter,
-                sortTarget: sortTarget,
-                sortOrder: sortOrder,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
+    ) async throws -> [WidgetTodoSnapshot] {
+        try await repository.fetchTodayTodos(
+            dueDateFilter: dueDateFilter,
+            sortTarget: sortTarget,
+            sortOrder: sortOrder,
+            pageSize: pageSize
         )
-
-        return todoPage.items
     }
 
     func fetchHeatmapTodos(
         sortTarget: TodoQuery.SortTarget,
         quarterStart: Date,
         nextQuarterStart: Date
-    ) async throws -> [Todo] {
-        let todoPage = try await repository.fetchTodos(
-            TodoQuery(
-                sortDateFrom: quarterStart,
-                sortDateTo: nextQuarterStart,
-                includesDeleted: true,
-                sortTarget: sortTarget,
-                pageSize: pageSize,
-                fetchAllPages: true
-            ),
-            cursor: nil
+    ) async throws -> [WidgetTodoSnapshot] {
+        try await repository.fetchHeatmapTodos(
+            sortTarget: sortTarget,
+            quarterStart: quarterStart,
+            nextQuarterStart: nextQuarterStart,
+            pageSize: pageSize
         )
-
-        return todoPage.items
     }
 }

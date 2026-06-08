@@ -1,6 +1,6 @@
 //
 //  WidgetSessionSyncHandler.swift
-//  DevLog
+//  DevLogWidget
 //
 //  Created by opfic on 6/1/26.
 //
@@ -9,13 +9,13 @@ import Combine
 import Foundation
 import DevLogData
 
-final class WidgetSessionSyncHandler {
+public final class WidgetSessionSyncHandler {
     private let authService: AuthService
     private let widgetSyncEventBus: WidgetSyncEventBus
     private var hasRequestedWidgetSync = false
     private var cancellables = Set<AnyCancellable>()
 
-    init(
+    public init(
         authService: AuthService,
         widgetSyncEventBus: WidgetSyncEventBus
     ) {
