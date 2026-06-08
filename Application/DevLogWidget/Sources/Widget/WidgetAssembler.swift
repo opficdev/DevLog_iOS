@@ -28,7 +28,7 @@ public final class WidgetAssembler: Assembler {
         }
         container.register(WidgetSessionSyncHandler.self) {
             WidgetSessionSyncHandler(
-                authService: container.resolve(AuthService.self),
+                provider: container.resolve(AuthSessionStateProvider.self),
                 widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self)
             )
         }

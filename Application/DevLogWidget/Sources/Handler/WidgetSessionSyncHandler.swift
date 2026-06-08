@@ -10,19 +10,19 @@ import Foundation
 import DevLogData
 
 public final class WidgetSessionSyncHandler {
-    private let authService: AuthService
+    private let provider: AuthSessionStateProvider
     private let widgetSyncEventBus: WidgetSyncEventBus
     private var hasRequestedWidgetSync = false
     private var cancellables = Set<AnyCancellable>()
 
     public init(
-        authService: AuthService,
+        provider: AuthSessionStateProvider,
         widgetSyncEventBus: WidgetSyncEventBus
     ) {
-        self.authService = authService
+        self.provider = provider
         self.widgetSyncEventBus = widgetSyncEventBus
 
-        authService.observeSignedIn()
+        provider.observeSignedIn()
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isSignedIn in
