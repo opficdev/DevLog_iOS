@@ -25,7 +25,7 @@ struct TodoRepositoryImplTests {
         let events = fixture.widgetSyncEventBus.events
         #expect(events == [.syncRequested, .syncRequested, .syncRequested])
 
-        let mutationEvents = await fixture.todoMutationEventBus.publishedEvents()
+        let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents == [.updated(todo.id), .deleted(todo.id), .restored(todo.id)])
     }
 
@@ -58,7 +58,7 @@ struct TodoRepositoryImplTests {
         let syncEvents = fixture.widgetSyncEventBus.events
         #expect(syncEvents.isEmpty)
 
-        let mutationEvents = await fixture.todoMutationEventBus.publishedEvents()
+        let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents.isEmpty)
     }
 
@@ -169,10 +169,10 @@ private final class WidgetSyncEventBusSpy: WidgetSyncEventBus {
     }
 }
 
-private actor TodoMutationEventBusSpy: TodoMutationEventBus {
+private final class TodoMutationEventBusSpy: TodoMutationEventBus {
     private var capturedEvents = [TodoMutationEvent]()
 
-    func publish(_ event: TodoMutationEvent) async {
+    func publish(_ event: TodoMutationEvent) {
         capturedEvents.append(event)
     }
 
@@ -180,10 +180,8 @@ private actor TodoMutationEventBusSpy: TodoMutationEventBus {
         capturedEvents
     }
 
-    func events() async -> AsyncStream<TodoMutationEvent> {
-        AsyncStream { continuation in
-            continuation.finish()
-        }
+    func observe() -> AnyPublisher<TodoMutationEvent, Never> {
+        Empty().eraseToAnyPublisher()
     }
 }
 

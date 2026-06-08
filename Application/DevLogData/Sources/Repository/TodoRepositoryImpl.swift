@@ -110,7 +110,7 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let todoRequest = TodoRequest.fromDomain(todo)
         try await upsertTodo(todoRequest)
-        await todoMutationEventBus.publish(.updated(todo.id))
+        todoMutationEventBus.publish(.updated(todo.id))
     }
 
     func upsertTodo(_ todoDraft: TodoDraft) async throws {
@@ -131,7 +131,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.deleteTodo(todoId: todoId)
             widgetSyncEventBus.publish(.syncRequested)
-            await todoMutationEventBus.publish(.deleted(todoId))
+            todoMutationEventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
         }
@@ -141,7 +141,7 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
             widgetSyncEventBus.publish(.syncRequested)
-            await todoMutationEventBus.publish(.restored(todoId))
+            todoMutationEventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()
         }
