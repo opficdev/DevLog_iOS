@@ -31,11 +31,11 @@ final class TodoRepositoryImpl: TodoRepository {
         let responseCursor = cursor.map { TodoCursorDTO.fromDomain($0) }
 
         do {
-            async let response = todoService.fetchTodos(query, cursor: responseCursor)
+            async let todos = todoService.fetchTodos(query, cursor: responseCursor)
             async let preferences = todoCategoryService.fetchCategoryPreferences()
 
             let (todoResponse, todoPreferenceResponses) = try await (
-                response,
+                todos,
                 preferences
             )
             let userTodoCategories: [UserTodoCategory] = todoPreferenceResponses
