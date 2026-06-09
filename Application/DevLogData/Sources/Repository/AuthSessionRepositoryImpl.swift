@@ -15,13 +15,13 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
 
     private let authService: AuthService
     private let todoCategoryService: TodoCategoryService
-    private let store: UserDefaultsStore
+    private let store: MemoryCacheStore
     private let provider: AuthSessionStateProvider
 
     init(
         authService: AuthService,
         todoCategoryService: TodoCategoryService,
-        store: UserDefaultsStore,
+        store: MemoryCacheStore,
         provider: AuthSessionStateProvider
     ) {
         self.authService = authService

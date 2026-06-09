@@ -13,11 +13,11 @@ final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
     }
 
     private let todoCategoryService: TodoCategoryService
-    private let store: UserDefaultsStore
+    private let store: MemoryCacheStore
 
     init(
         todoCategoryService: TodoCategoryService,
-        store: UserDefaultsStore
+        store: MemoryCacheStore
     ) {
         self.todoCategoryService = todoCategoryService
         self.store = store

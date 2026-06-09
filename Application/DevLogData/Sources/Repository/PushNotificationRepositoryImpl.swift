@@ -17,12 +17,12 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 
     private let pushNotificationService: PushNotificationService
     private let todoCategoryService: TodoCategoryService
-    private let store: UserDefaultsStore
+    private let store: MemoryCacheStore
 
     init(
         pushNotificationService: PushNotificationService,
         todoCategoryService: TodoCategoryService,
-        store: UserDefaultsStore
+        store: MemoryCacheStore
     ) {
         self.pushNotificationService = pushNotificationService
         self.todoCategoryService = todoCategoryService

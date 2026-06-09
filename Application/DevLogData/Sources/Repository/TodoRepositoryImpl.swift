@@ -16,14 +16,14 @@ final class TodoRepositoryImpl: TodoRepository {
 
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
-    private let store: UserDefaultsStore
+    private let store: MemoryCacheStore
     private let widgetSyncEventBus: WidgetSyncEventBus
     private let todoMutationEventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
-        store: UserDefaultsStore,
+        store: MemoryCacheStore,
         widgetSyncEventBus: WidgetSyncEventBus,
         todoMutationEventBus: TodoMutationEventBus
     ) {

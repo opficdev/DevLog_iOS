@@ -20,7 +20,7 @@ struct AuthSessionRepositoryImplTests {
         let preference = makePreferenceResponse()
         let authService = AuthSessionAuthServiceSpy()
         let todoCategoryService = AuthSessionTodoCategoryServiceSpy(preferences: [preference])
-        let store = AuthSessionUserDefaultsStoreSpy()
+        let store = AuthSessionMemoryCacheStoreSpy()
         let provider = AuthSessionStateProviderSpy()
         let repository = AuthSessionRepositoryImpl(
             authService: authService,
@@ -48,7 +48,7 @@ struct AuthSessionRepositoryImplTests {
         let preference = makePreferenceResponse()
         let authService = AuthSessionAuthServiceSpy(isSignedIn: true)
         let todoCategoryService = AuthSessionTodoCategoryServiceSpy(preferences: [preference])
-        let store = AuthSessionUserDefaultsStoreSpy()
+        let store = AuthSessionMemoryCacheStoreSpy()
         let provider = AuthSessionStateProviderSpy()
         store.setValue([preference], forKey: Key.preferences)
         let repository = AuthSessionRepositoryImpl(
@@ -153,7 +153,7 @@ private actor AuthSessionTodoCategoryServiceSpy: TodoCategoryService {
     }
 }
 
-private final class AuthSessionUserDefaultsStoreSpy: UserDefaultsStore {
+private final class AuthSessionMemoryCacheStoreSpy: MemoryCacheStore {
     private var values = [String: Data]()
 
     func value<T: Codable>(forKey key: String) -> T? {
@@ -172,28 +172,4 @@ private final class AuthSessionUserDefaultsStoreSpy: UserDefaultsStore {
 
         values[key] = try? JSONEncoder().encode(value)
     }
-
-    func removeValues(withPrefix prefix: String) {
-        values.keys
-            .filter { $0.hasPrefix(prefix) }
-            .forEach { values.removeValue(forKey: $0) }
-    }
-
-    func string(forKey key: String) -> String? {
-        nil
-    }
-
-    func setString(_ value: String?, forKey key: String) { }
-
-    func stringArray(forKey key: String) -> [String] {
-        []
-    }
-
-    func setStringArray(_ value: [String], forKey key: String) { }
-
-    func bool(forKey key: String) -> Bool {
-        false
-    }
-
-    func setBool(_ value: Bool, forKey key: String) { }
 }

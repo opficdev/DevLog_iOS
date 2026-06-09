@@ -40,7 +40,7 @@ public final class DataAssembler: Assembler {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                store: container.resolve(UserDefaultsStore.self),
+                store: container.resolve(MemoryCacheStore.self),
                 widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self),
                 todoMutationEventBus: container.resolve(TodoMutationEventBus.self)
             )
@@ -53,7 +53,7 @@ public final class DataAssembler: Assembler {
         container.register(TodoCategoryRepository.self) {
             TodoCategoryRepositoryImpl(
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                store: container.resolve(UserDefaultsStore.self)
+                store: container.resolve(MemoryCacheStore.self)
             )
         }
 
@@ -61,7 +61,7 @@ public final class DataAssembler: Assembler {
             AuthSessionRepositoryImpl(
                 authService: container.resolve(AuthService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                store: container.resolve(UserDefaultsStore.self),
+                store: container.resolve(MemoryCacheStore.self),
                 provider: container.resolve(AuthSessionStateProvider.self)
             )
         }
@@ -104,7 +104,7 @@ public final class DataAssembler: Assembler {
             PushNotificationRepositoryImpl(
                 pushNotificationService: container.resolve(PushNotificationService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
-                store: container.resolve(UserDefaultsStore.self)
+                store: container.resolve(MemoryCacheStore.self)
             )
         }
 
