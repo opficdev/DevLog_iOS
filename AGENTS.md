@@ -79,6 +79,12 @@ Ask the user before editing when any of these are true:
 - Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, WidgetKit, or storage implementation details would move to another layer.
 - A repository protocol, service protocol, assembler, or DI ownership boundary would change.
 - WidgetCore would start depending on app/domain/data implementation concepts.
+- DevLogWidget would start depending on Domain, Infra, Persistence, Presentation, or App.
+- DevLogWidget would use WidgetKit for anything beyond the app-side widget reload bridge.
+- Widget sync ownership would move away from the preferred split: Data contracts and snapshot repositories, DevLogWidget app-side bridge/snapshot update orchestration, WidgetCore snapshot models/factories/store contracts, and WidgetExtension rendering.
+- Persistence would gain widget snapshot generation, WidgetCore, WidgetKit reload, or DevLogWidget bridge ownership.
+- Data or Presentation would expand platform SDK usage beyond the existing narrow cancellation-classification or notification-badge patterns.
+- Infra would add any Domain dependency, source import, or SDK service contract coupling.
 - A same-layer dependency would be injected outside a SwiftUI `View` file in `Application/DevLogPresentation`.
 - The requested change suggests cleanup outside the current issue or PR scope.
 

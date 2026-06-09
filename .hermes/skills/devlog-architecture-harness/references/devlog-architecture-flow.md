@@ -177,7 +177,7 @@ flowchart TD
 	NewDependency{"New module dependency?"}
 	SameLayerDI{"Same-layer dependency injection?"}
 	ExternalSDK{"External SDK crosses layer?"}
-	WidgetBoundary{"WidgetCore sees app/domain/data?"}
+	WidgetBoundary{"Widget sync ownership or WidgetCore boundary changes?"}
 	BuildShortcut{"Build fix relaxes boundary?"}
 	ScopeDrift{"Outside current task scope?"}
 	Ask["Ask user before editing"]
@@ -272,16 +272,24 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-	App["App runtime\nDomain/Data/Infra/Persistence"]
-	Snapshot["Snapshot generation\nPersistence + WidgetCore"]
+	App["App runtime\nsession and mutation events"]
+	WidgetBridge["DevLogWidget\nsync bus implementation\nsync/session handlers"]
+	DataContracts["DevLogData\nwidget repository/updater contracts"]
+	SnapshotInputs["DevLogData\nsnapshot input repository"]
+	Snapshot["DevLogWidget\nsnapshot generation/persistence\nWidgetKit reload bridge"]
+	WidgetModels["DevLogWidgetCore\nsnapshot models/factories/store contracts"]
 	AppGroup["App Group storage\nShared defaults"]
-	WidgetCore["WidgetCore\nSnapshot models\nFactories"]
 	WidgetExtension["Widget extension\nWidgetKit UI"]
 
-	App --> Snapshot
-	Snapshot --> AppGroup
-	AppGroup --> WidgetCore
-	WidgetCore --> WidgetExtension
+	App --> WidgetBridge
+	WidgetBridge --> DataContracts
+	DataContracts --> SnapshotInputs
+	DataContracts --> Snapshot
+	SnapshotInputs --> WidgetBridge
+	Snapshot --> WidgetModels
+	WidgetModels --> AppGroup
+	AppGroup --> WidgetModels
+	WidgetModels --> WidgetExtension
 ```
 
 Widget UI should consume snapshot data. It should not fetch app services or domain repositories directly.

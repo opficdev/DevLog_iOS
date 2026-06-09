@@ -88,7 +88,10 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 - Widget UI should consume snapshot data, not app/domain services.
 - `DevLogWidgetCore` should stay free of Domain, Data, Infra, Persistence, Presentation, and App dependencies unless the user explicitly approves a boundary change.
-- Prefer an app-driven snapshot flow: app/runtime data fetch, snapshot generation, App Group storage, WidgetCore model/factory, WidgetExtension rendering.
+- `DevLogWidget` owns the app-side widget bridge: sync event bus implementation, sync event handlers, session sync handler, auth-session sync provider, snapshot generation/persistence orchestration, WidgetKit reload bridge, and `WidgetAssembler`.
+- `DevLogData` owns widget-related contracts and repository implementations, including `WidgetSyncEventBus`, `WidgetSnapshotUpdater`, and `WidgetTodoSnapshotRepository`. Data should not own concrete widget handlers, WidgetCore snapshot model/factory usage, or WidgetKit reload behavior.
+- `DevLogPersistence` owns local persistence, user defaults, image store, and non-widget app persistence.
+- Prefer an app-driven snapshot flow: app/runtime event, DevLogWidget sync handler, Data snapshot input fetch, DevLogWidget snapshot update, App Group storage through WidgetCore contracts, WidgetExtension rendering.
 - `WidgetTodoSnapshot` is a lightweight snapshot value, not a full domain `Todo`.
 - Do not make `Todo.number` or `WidgetTodoSnapshot.number` non-optional without a separate saved-vs-draft model decision.
 - If a widget sync flow needs one timestamp for multiple snapshots, capture `Date()` once and pass it through to avoid midnight or quarter-boundary drift.
