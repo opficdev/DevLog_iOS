@@ -54,6 +54,7 @@ final class SignInUseCaseSpy: SignInUseCase {
     var error: Error?
     var shouldSuspend = false
     private(set) var calledProviders: [AuthProvider] = []
+    private(set) var successfulProviders = [AuthProvider]()
     private var continuation: CheckedContinuation<Void, Never>?
     private var shouldResume = false
 
@@ -74,6 +75,8 @@ final class SignInUseCaseSpy: SignInUseCase {
         if let error {
             throw error
         }
+
+        successfulProviders.append(provider)
     }
 
     func resume() {

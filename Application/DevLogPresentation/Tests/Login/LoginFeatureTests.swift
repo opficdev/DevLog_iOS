@@ -27,8 +27,8 @@ struct LoginFeatureTests {
         #expect(spy.calledProviders == [.github])
     }
 
-    @Test("로그인 요청 중에는 로딩 상태가 켜지고 요청이 끝나면 꺼진다")
-    func 로그인_요청_중에는_로딩_상태가_켜지고_요청이_끝나면_꺼진다() async {
+    @Test("로그인 성공 후에도 메인 화면 전환 전까지 로딩 상태를 유지한다")
+    func 로그인_성공_후에도_메인_화면_전환_전까지_로딩_상태를_유지한다() async {
         let spy = SignInUseCaseSpy()
         spy.shouldSuspend = true
         let driver = LoginTestDriver(useCase: spy)
@@ -44,10 +44,10 @@ struct LoginFeatureTests {
         spy.resume()
 
         await waitUntil {
-            !driver.isLoading
+            spy.successfulProviders == [.google]
         }
 
-        #expect(!driver.isLoading)
+        #expect(driver.isLoading)
     }
 
     @Test("로그인 실패 후에도 로딩 상태가 꺼진다")
@@ -68,7 +68,7 @@ struct LoginFeatureTests {
         spy.resume()
 
         await waitUntil {
-            !driver.isLoading && driver.showAlert
+            !driver.isLoading && driver.hasAlert
         }
 
         #expect(!driver.isLoading)
@@ -83,12 +83,13 @@ struct LoginFeatureTests {
         driver.tapSignInButton(.google)
 
         await waitUntil {
-            driver.showAlert
+            driver.hasAlert
         }
 
-        #expect(driver.alertKind == .emailUnavailable)
-        #expect(driver.alertTitle == String(localized: "login_alert_email_unavailable_title"))
-        #expect(driver.alertMessage == String(localized: "login_alert_email_unavailable_message"))
+        #expect(driver.alert == expectedAlert(
+            title: String(localized: "login_alert_email_unavailable_title"),
+            message: String(localized: "login_alert_email_unavailable_message")
+        ))
     }
 
     @Test("일반 로그인 에러가 발생하면 공통 에러 알림을 표시한다")
@@ -100,12 +101,13 @@ struct LoginFeatureTests {
         driver.tapSignInButton(.apple)
 
         await waitUntil {
-            driver.showAlert
+            driver.hasAlert
         }
 
-        #expect(driver.alertKind == .error)
-        #expect(driver.alertTitle == String(localized: "common_error_title"))
-        #expect(driver.alertMessage == String(localized: "common_error_message"))
+        #expect(driver.alert == expectedAlert(
+            title: String(localized: "common_error_title"),
+            message: String(localized: "common_error_message")
+        ))
     }
 
     @Test("소셜 로그인 취소 에러가 발생하면 알림을 표시하지 않는다")
@@ -121,9 +123,7 @@ struct LoginFeatureTests {
         }
 
         #expect(!driver.showAlert)
-        #expect(driver.alertKind == nil)
-        #expect(driver.alertTitle.isEmpty)
-        #expect(driver.alertMessage.isEmpty)
+        #expect(driver.alert == nil)
     }
 
     @Test("알림을 닫으면 알림 상태와 문구가 초기화된다")
@@ -135,21 +135,14 @@ struct LoginFeatureTests {
         driver.tapSignInButton(.google)
 
         await waitUntil {
-            driver.showAlert
+            driver.hasAlert
         }
 
-        driver.setAlert(false)
+        driver.dismissAlert()
 
         #expect(!driver.showAlert)
-        #expect(driver.alertKind == nil)
-        #expect(driver.alertTitle.isEmpty)
-        #expect(driver.alertMessage.isEmpty)
+        #expect(driver.alert == nil)
     }
-}
-
-private enum LoginAlertKind: Equatable {
-    case emailUnavailable
-    case error
 }
 
 @MainActor
@@ -161,26 +154,15 @@ private struct LoginTestDriver {
     }
 
     var showAlert: Bool {
-        feature.state.showAlert
+        hasAlert
     }
 
-    var alertKind: LoginAlertKind? {
-        switch feature.state.alertType {
-        case .emailUnavailable:
-            return .emailUnavailable
-        case .error:
-            return .error
-        case .none:
-            return nil
-        }
+    var hasAlert: Bool {
+        alert != nil
     }
 
-    var alertTitle: String {
-        feature.state.alertTitle
-    }
-
-    var alertMessage: String {
-        feature.state.alertMessage
+    var alert: AlertState<Never>? {
+        feature.state.alert
     }
 
     init(useCase: SignInUseCase) {
@@ -197,7 +179,22 @@ private struct LoginTestDriver {
         feature.send(.tapSignInButton(provider))
     }
 
-    func setAlert(_ isPresented: Bool) {
-        feature.send(.setAlert(isPresented))
+    func dismissAlert() {
+        feature.send(.alert(.dismiss))
+    }
+}
+
+private func expectedAlert(
+    title: String,
+    message: String
+) -> AlertState<Never> {
+    AlertState {
+        TextState(title)
+    } actions: {
+        ButtonState(role: .cancel) {
+            TextState(String(localized: "common_close"))
+        }
+    } message: {
+        TextState(message)
     }
 }

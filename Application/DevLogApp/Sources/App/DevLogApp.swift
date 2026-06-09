@@ -30,7 +30,6 @@ struct DevLogApp: App {
                 networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
                 systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
                 trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                signInUseCase: container.resolve(SignInUseCase.self),
                 widgetURLTab: { MainTab(widgetURL: $0) },
                 windowEvent: windowEvent,
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
