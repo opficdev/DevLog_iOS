@@ -17,6 +17,10 @@ public final class PersistenceAssembler: Assembler {
             UserDefaultsStoreImpl()
         }
 
+        container.register(MemoryCacheStore.self) {
+            MemoryCacheStoreImpl()
+        }
+
         container.register(ThemeStore.self) {
             ThemeStoreImpl()
         }
