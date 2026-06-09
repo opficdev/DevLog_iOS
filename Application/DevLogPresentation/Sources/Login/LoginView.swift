@@ -25,8 +25,6 @@ struct LoginView: View {
     }
 
     var body: some View {
-        @Bindable var store = store
-
         ZStack {
             VStack {
                 Spacer()
