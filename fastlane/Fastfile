@@ -131,7 +131,7 @@ platform :ios do
       export_method: "app-store",
       output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
       output_name: "#{APP_PRODUCT_NAME}.ipa",
-      xcargs: "-skipPackagePluginValidation"
+      xcargs: "-skipPackagePluginValidation -skipMacroValidation"
     )
 
     next api_key
