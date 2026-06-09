@@ -114,6 +114,14 @@ jobs:
       - name: Build for TestFlight
         run: bundle exec fastlane testflight_build_only
 
+      - name: Upload TestFlight build log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: testflight-build-log
+          path: ~/Library/Logs/gym/*.log
+          if-no-files-found: ignore
+
       - name: Skip TestFlight Upload
         if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect != 'true')
         run: echo "Skipping TestFlight upload"
