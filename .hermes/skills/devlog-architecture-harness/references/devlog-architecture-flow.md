@@ -77,8 +77,9 @@ flowchart TD
 	Domain["DevLogDomain\nEntities\nRepository protocols\nUse cases"]
 	Data["DevLogData\nRepository implementations\nDTOs\nMappers\nService/store protocols"]
 	Infra["DevLogInfra\nFirebase\nSocial login\nNetwork\nLink metadata\nMessaging"]
-	Persistence["DevLogPersistence\nUserDefaults\nImage store\nWidget snapshot persistence"]
-	Core["DevLogCore\nDI\nLogger\nShared value/query types\nWidget snapshot values"]
+	Persistence["DevLogPersistence\nUserDefaults\nImage store\nNon-widget app persistence"]
+	Widget["DevLogWidget\nApp-side widget bridge\nSync/session handlers\nSnapshot update orchestration\nWidgetKit reload bridge"]
+	Core["DevLogCore\nDI\nLogger\nShared value/query types\nLightweight widget values"]
 	WidgetCore["DevLogWidgetCore\nWidget snapshot models\nFactories\nApp Group constants"]
 	WidgetExtension["DevLogWidgetExtension\nWidgetKit UI\nProviders\nTimelines"]
 
@@ -88,7 +89,9 @@ flowchart TD
 	App --> Infra
 	App --> Persistence
 	App --> Core
+	App --> Widget
 	App --> WidgetCore
+	App -.-> WidgetExtension
 
 	Presentation --> Domain
 	Presentation --> Core
@@ -103,7 +106,10 @@ flowchart TD
 
 	Persistence --> Data
 	Persistence --> Core
-	Persistence --> WidgetCore
+
+	Widget --> Data
+	Widget --> Core
+	Widget --> WidgetCore
 
 	WidgetExtension --> WidgetCore
 	WidgetCore --> Core
@@ -113,15 +119,26 @@ flowchart TD
 
 | Layer | Owns | Allowed direction | Ask before |
 | --- | --- | --- | --- |
-| `DevLogCore` | DI primitives, logger, shared value/query types, widget snapshot values | No DevLog layer dependency | Moving domain entities into Core |
+| `DevLogCore` | DI primitives, logger, shared value/query types, display options, activity kinds, lightweight widget bridge values | No DevLog layer dependency | Moving domain entities into Core |
 | `DevLogDomain` | entities, repository protocols, use cases | Core only | Adding Data, Infra, Persistence, Presentation, App, Widget UI, or SDK dependency |
-| `DevLogData` | repository implementations, DTOs, mappers, data protocols | Domain, Core | Adding concrete Firebase, WidgetKit, storage, or platform implementation details |
-| `DevLogInfra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra |
-| `DevLogPersistence` | local stores, image cache, widget snapshot persistence | Data, Core, WidgetCore | Moving domain logic or remote SDK behavior into Persistence |
-| `DevLogPresentation` | UI, view models, coordinators, presentation state | Domain, Core | Adding Data, Infra, Persistence, or App dependency |
-| `DevLogApp` | composition root, lifecycle, assembler wiring | Concrete app layers | Moving feature logic into App |
-| `DevLogWidgetCore` | widget data contracts and pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, or App dependency |
+| `DevLogData` | repository implementations, DTOs, mappers, data protocols, widget repository/updater/sync contracts | Domain, Core | Adding concrete Firebase, GoogleSignIn, WidgetKit, storage, WidgetCore snapshot model/factory usage, or platform implementation details; moving concrete widget handlers into Data |
+| `DevLogInfra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra; adding any Domain dependency, source import, or SDK service contract coupling |
+| `DevLogPersistence` | local stores, image cache, non-widget app persistence | Data, Core | Adding WidgetCore, WidgetKit reload, DevLogWidget, widget snapshot generation, or widget bridge ownership |
+| `DevLogPresentation` | UI, view models, coordinators, presentation state, narrow presentation-scoped platform side effects | Domain, Core | Adding Data, Infra, Persistence, or App dependency; expanding platform service ownership beyond UI-side effects |
+| `DevLogWidget` | app-side widget bridge, sync bus implementation, sync/session handlers, snapshot generation/persistence orchestration, WidgetKit reload bridge, widget assembler | Data, Core, WidgetCore | Adding Domain, Infra, Persistence, Presentation, or App dependency |
+| `DevLogApp` | composition root, lifecycle, assembler wiring, app target ownership for widget extension embedding | Concrete app layers | Moving feature logic into App |
+| `DevLogWidgetCore` | widget snapshot models, factories, app-group keys/defaults store, deep links, pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, App, or DevLogWidget dependency |
 | `DevLogWidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
+
+## Layer-internal dependency injection
+
+Do not inject dependencies between types that belong to the same layer.
+
+This rule covers initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
+
+The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+
+That exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
 
 ## Presentation StorePattern flow
 
@@ -158,8 +175,9 @@ flowchart TD
 	CoreDomain{"Core vs Domain ownership?"}
 	Shared{"Moved only because shared?"}
 	NewDependency{"New module dependency?"}
+	SameLayerDI{"Same-layer dependency injection?"}
 	ExternalSDK{"External SDK crosses layer?"}
-	WidgetBoundary{"WidgetCore sees app/domain/data?"}
+	WidgetBoundary{"Widget sync ownership or WidgetCore boundary changes?"}
 	BuildShortcut{"Build fix relaxes boundary?"}
 	ScopeDrift{"Outside current task scope?"}
 	Ask["Ask user before editing"]
@@ -171,7 +189,10 @@ flowchart TD
 	Shared -->|Yes| Ask
 	Shared -->|No| NewDependency
 	NewDependency -->|Yes| Ask
-	NewDependency -->|No| ExternalSDK
+	NewDependency -->|No| SameLayerDI
+	SameLayerDI -->|Presentation View file| ExternalSDK
+	SameLayerDI -->|No| ExternalSDK
+	SameLayerDI -->|Other| Ask
 	ExternalSDK -->|Yes| Ask
 	ExternalSDK -->|No| WidgetBoundary
 	WidgetBoundary -->|Yes| Ask
@@ -216,23 +237,34 @@ Use this flow before introducing or moving imports such as Firebase, GoogleSignI
 flowchart TD
 	Import["External framework import"]
 	Firebase{"Firebase/Auth/Firestore/Functions/Messaging?"}
-	SocialLogin{"GoogleSignIn or AuthenticationServices login implementation?"}
+	SocialLogin{"GoogleSignIn or AuthenticationServices?"}
+	SocialLoginClassification{"Existing presentation/data cancellation/error classification?"}
 	NetworkMeta{"Network or LinkPresentation implementation?"}
+	UserNotifications{"UserNotifications?"}
 	WidgetKit{"WidgetKit?"}
 	Infra["Prefer DevLogInfra"]
-	Persistence["Allow only for widget snapshot update/persistence if already established"]
+	ErrorClassification["Keep narrow in DevLogData or DevLogPresentation only when matching the existing cancellation-classification pattern"]
+	PresentationBadge["Allow in DevLogPresentation only for established badge/UI side effects"]
+	Widget["Allow in DevLogWidget for app-side snapshot update/reload orchestration"]
 	WidgetExtension["Allow in DevLogWidgetExtension rendering/timeline code"]
 	Ask["Ask user before crossing layer"]
 
 	Import --> Firebase
 	Firebase -->|Yes| Infra
 	Firebase -->|No| SocialLogin
-	SocialLogin -->|Yes| Infra
+	SocialLogin -->|Login implementation| Infra
+	SocialLogin -->|Presentation/data error classification| SocialLoginClassification
+	SocialLoginClassification -->|Matches existing pattern| ErrorClassification
+	SocialLoginClassification -->|New or broader behavior| Ask
 	SocialLogin -->|No| NetworkMeta
 	NetworkMeta -->|Yes| Infra
-	NetworkMeta -->|No| WidgetKit
+	NetworkMeta -->|No| UserNotifications
+	UserNotifications -->|Badge/UI side effect| PresentationBadge
+	UserNotifications -->|Push or messaging service| Infra
+	UserNotifications -->|Other| Ask
+	UserNotifications -->|No| WidgetKit
 	WidgetKit -->|Widget UI| WidgetExtension
-	WidgetKit -->|Snapshot update already established| Persistence
+	WidgetKit -->|App-side snapshot update/reload| Widget
 	WidgetKit -->|Other| Ask
 ```
 
@@ -240,16 +272,24 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-	App["App runtime\nDomain/Data/Infra/Persistence"]
-	Snapshot["Snapshot generation\nPersistence + WidgetCore"]
+	App["App runtime\nsession and mutation events"]
+	WidgetBridge["DevLogWidget\nsync bus implementation\nsync/session handlers"]
+	DataContracts["DevLogData\nwidget repository/updater contracts"]
+	SnapshotInputs["DevLogData\nsnapshot input repository"]
+	Snapshot["DevLogWidget\nsnapshot generation/persistence\nWidgetKit reload bridge"]
+	WidgetModels["DevLogWidgetCore\nsnapshot models/factories/store contracts"]
 	AppGroup["App Group storage\nShared defaults"]
-	WidgetCore["WidgetCore\nSnapshot models\nFactories"]
 	WidgetExtension["Widget extension\nWidgetKit UI"]
 
-	App --> Snapshot
-	Snapshot --> AppGroup
-	AppGroup --> WidgetCore
-	WidgetCore --> WidgetExtension
+	App --> WidgetBridge
+	WidgetBridge --> DataContracts
+	DataContracts --> SnapshotInputs
+	DataContracts --> Snapshot
+	SnapshotInputs --> WidgetBridge
+	Snapshot --> WidgetModels
+	WidgetModels --> AppGroup
+	AppGroup --> WidgetModels
+	WidgetModels --> WidgetExtension
 ```
 
 Widget UI should consume snapshot data. It should not fetch app services or domain repositories directly.

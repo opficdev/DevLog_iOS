@@ -41,16 +41,24 @@ Treat this repository as a Tuist-generated, workspace-based modular iOS app. The
 
 ### Current layer map
 
-- `Application/DevLogCore`: shared app primitives such as DI, logging, query/value types, display options, and widget snapshot value types. Core is shared, but shared access alone is not enough reason to move domain entities into Core.
+- `Application/DevLogCore`: shared app primitives such as DI, logging, query/value types, display options, activity kinds, and lightweight widget bridge values such as `WidgetTodoSnapshot`. Core is shared, but shared access alone is not enough reason to move domain entities into Core.
 - `Application/DevLogDomain`: entities, repository protocols, use case protocols, and use case implementations. Domain may depend on Core. Domain must not depend on Data, Infra, Persistence, Presentation, App, Widget extension UI, Firebase SDKs, or storage implementations.
-- `Application/DevLogData`: repository implementations, DTOs, mappers, data-layer protocols for external services/stores, and widget sync coordination. Data may depend on Domain and Core. Data should not gain direct Firebase, GoogleSignIn, WidgetKit, or concrete storage implementation details unless the user explicitly approves the boundary change.
-- `Application/DevLogInfra`: Firebase, social login, network, link metadata, messaging, and platform service implementations. Infra may depend on Data and Core. Firebase/Auth/Firestore/Functions/Messaging-specific behavior belongs here unless the user approves another boundary.
-- `Application/DevLogPersistence`: local persistence, user defaults, image store, and widget snapshot persistence/updating. Persistence may depend on Data, Core, and WidgetCore when needed for snapshot persistence.
-- `Application/DevLogPresentation`: SwiftUI views, view models, coordinators, UI state structures, and presentation-only helpers. Presentation may depend on Domain and Core. It must not depend on Data, Infra, Persistence, or App.
-- `Application/DevLogApp`: composition root, app lifecycle, app delegate, app-level routing, and assembler wiring. App may import concrete layers to assemble the dependency graph.
-- `Widget/DevLogWidgetCore`: widget snapshot models, factories, keys, app-group constants, and widget-only pure helpers. WidgetCore may depend on Core. It must not depend on Domain, Data, Infra, Persistence, Presentation, or App without explicit user approval.
+- `Application/DevLogData`: repository implementations, DTOs, mappers, data-layer protocols for external services/stores, widget snapshot repository implementations, and widget sync/updater contracts. Data may depend on Domain and Core. Data should not own concrete widget sync handlers, event bus implementations, WidgetCore snapshot model/factory usage, or WidgetKit reload behavior, and should not gain direct Firebase, GoogleSignIn, WidgetKit, or concrete storage implementation details unless the user explicitly approves the boundary change.
+- `Application/DevLogInfra`: Firebase, social login, network, link metadata, messaging, and platform service implementations. Infra may depend on Data and Core. Infra must not depend on Domain even if a manifest-only target dependency exists. Firebase/Auth/Firestore/Functions/Messaging-specific behavior belongs here unless the user approves another boundary.
+- `Application/DevLogPersistence`: local persistence, user defaults, image store, and non-widget app persistence. Persistence may depend on Data and Core. Widget snapshot generation, widget snapshot persistence orchestration, and WidgetKit reload behavior belong to DevLogWidget.
+- `Application/DevLogPresentation`: SwiftUI views, view models, coordinators, UI state structures, presentation-only helpers, and narrow presentation-scoped platform side effects such as notification badge updates. Presentation may depend on Domain and Core. It must not depend on Data, Infra, Persistence, or App.
+- `Application/DevLogWidget`: app-side bridge between the app runtime and widget system, widget sync event bus implementation, widget sync/session handlers, auth-session sync provider, widget snapshot generation/persistence orchestration, WidgetKit reload bridge, and `WidgetAssembler`. DevLogWidget may depend on Data, Core, and WidgetCore. It must not depend on Domain, Infra, Persistence, Presentation, or App without explicit user approval.
+- `Application/DevLogApp`: composition root, app lifecycle, app delegate, app-level routing, assembler wiring, and app target ownership for widget extension embedding. App may import concrete layers to assemble the dependency graph.
+- `Widget/DevLogWidgetCore`: widget snapshot models, factories, keys, app-group constants/defaults store, deep links, and widget-only pure helpers. WidgetCore may depend on Core. It must not depend on Domain, Data, Infra, Persistence, Presentation, App, or DevLogWidget without explicit user approval.
 - `Widget/DevLogWidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
 - `Firebase/functions`: TypeScript Cloud Functions. Deploy updated functions one by one separately.
+
+### Layer-internal dependency injection
+
+- Do not inject dependencies between types that belong to the same layer.
+- This applies to initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
+- The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
 
 ### StorePattern flow
 
@@ -71,6 +79,13 @@ Ask the user before editing when any of these are true:
 - Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, WidgetKit, or storage implementation details would move to another layer.
 - A repository protocol, service protocol, assembler, or DI ownership boundary would change.
 - WidgetCore would start depending on app/domain/data implementation concepts.
+- DevLogWidget would start depending on Domain, Infra, Persistence, Presentation, or App.
+- DevLogWidget would use WidgetKit for anything beyond the app-side widget reload bridge.
+- Widget sync ownership would move away from the preferred split: Data contracts and snapshot repositories, DevLogWidget app-side bridge/snapshot update orchestration, WidgetCore snapshot models/factories/store contracts, and WidgetExtension rendering.
+- Persistence would gain widget snapshot generation, WidgetCore, WidgetKit reload, or DevLogWidget bridge ownership.
+- Data or Presentation would expand platform SDK usage beyond the existing narrow cancellation-classification or notification-badge patterns.
+- Infra would add any Domain dependency, source import, or SDK service contract coupling.
+- A same-layer dependency would be injected outside a SwiftUI `View` file in `Application/DevLogPresentation`.
 - The requested change suggests cleanup outside the current issue or PR scope.
 
 ### Safe mechanical changes

@@ -10,7 +10,6 @@ let project = Project.devlogFramework(
     packages: DevLogPackages.infraPackages,
     dependencies: [
         .project(target: "DevLogData", path: "../DevLogData"),
-        .project(target: "DevLogDomain", path: "../DevLogDomain"),
         .project(target: "DevLogCore", path: "../DevLogCore"),
     ] + DevLogPackages.infraPackageDependencies,
     hasTests: true

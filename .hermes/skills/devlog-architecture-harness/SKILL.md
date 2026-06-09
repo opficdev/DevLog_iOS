@@ -75,8 +75,15 @@ Ask the user before editing when:
 - A shared type is being moved only because multiple modules need access.
 - Firebase/Auth/Firestore/Functions/Messaging-specific logic would leave Infra.
 - WidgetCore would depend on Domain, Data, Infra, Persistence, Presentation, or App.
+- DevLogWidget would depend on Domain, Infra, Persistence, Presentation, or App.
+- DevLogWidget would use WidgetKit for anything beyond the app-side widget reload bridge.
+- Widget sync ownership would move away from the preferred split: Data contracts and snapshot repositories, DevLogWidget app-side bridge/snapshot update orchestration, WidgetCore snapshot models/factories/store contracts, and WidgetExtension rendering.
+- Persistence would gain widget snapshot generation, WidgetCore, WidgetKit reload, or DevLogWidget bridge ownership.
 - Presentation would depend on Data, Infra, Persistence, or App.
 - Data would gain concrete SDK or storage implementation details.
+- Data or Presentation would expand platform SDK usage beyond the existing narrow cancellation-classification or notification-badge patterns.
+- Infra would add any Domain dependency, source import, or SDK service contract coupling.
+- A same-layer dependency would be injected outside a SwiftUI `View` file in `Application/DevLogPresentation`.
 - The Presentation `StorePattern` flow or reducer responsibility would change.
 - A compile fix requires relaxing the intended architecture.
 - The change is outside the requested issue or PR scope.
@@ -118,6 +125,9 @@ After completion, report only:
 
 - Do not infer project-specific architecture policy from generic Clean Architecture rules when DevLog already has a concrete pattern.
 - Do not move domain entities to Core just because multiple modules need them.
+- Do not inject same-layer dependencies except from SwiftUI `View` files in `Application/DevLogPresentation` into same-layer presentation objects for UI composition.
+- Do not collapse the current DevLogWidget bridge back into Data, Persistence, App, or WidgetCore without explicit boundary approval.
+- Route app-side widget bridge and snapshot update orchestration through DevLogWidget.
 - Do not hide architecture decisions inside build-fix wording.
 - Do not broaden a modularization task into unrelated Firestore, Messaging, or UI safety edits.
 - Do not mark work complete if the diff contains unrelated project-file or lockfile churn.
