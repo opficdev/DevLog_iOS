@@ -1,6 +1,6 @@
 //
 //  WidgetSnapshotPreferenceStoreTests.swift
-//  DevLogPersistenceTests
+//  DevLogWidgetTests
 //
 //  Created by opfic on 4/30/26.
 //
@@ -8,7 +8,7 @@
 import Foundation
 import DevLogCore
 import Testing
-@testable import DevLogPersistence
+@testable import DevLogWidget
 
 struct WidgetSnapshotPreferenceStoreTests {
     @Test("Heatmap activity kind 설정이 비어 있으면 전체 kind를 사용한다")

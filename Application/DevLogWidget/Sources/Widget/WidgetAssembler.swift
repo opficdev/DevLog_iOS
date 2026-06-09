@@ -7,6 +7,7 @@
 
 import DevLogCore
 import DevLogData
+import DevLogWidgetCore
 
 public final class WidgetAssembler: Assembler {
     public init() { }
@@ -18,6 +19,23 @@ public final class WidgetAssembler: Assembler {
 
         container.register(WidgetSyncEventBus.self) {
             WidgetSyncEventBusImpl()
+        }
+        container.register(WidgetSharedDefaultsStore.self) {
+            WidgetSharedDefaultsStore()
+        }
+        container.register(WidgetSnapshotStore.self) {
+            WidgetSnapshotStore(
+                store: container.resolve(WidgetSharedDefaultsStore.self)
+            )
+        }
+        container.register(WidgetSnapshotPreferenceStore.self) {
+            WidgetSnapshotPreferenceStoreImpl()
+        }
+        container.register(WidgetSnapshotUpdater.self) {
+            WidgetSnapshotUpdaterImpl(
+                snapshotStore: container.resolve(WidgetSnapshotStore.self),
+                preferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
+            )
         }
         container.register(WidgetSyncEventHandler.self) {
             WidgetSyncEventHandler(

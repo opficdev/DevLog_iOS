@@ -11,6 +11,7 @@ let project = Project.devlogFramework(
     dependencies: [
         .project(target: "DevLogData", path: "../DevLogData"),
         .project(target: "DevLogCore", path: "../DevLogCore"),
+        .project(target: "DevLogWidgetCore", path: "../../Widget/DevLogWidgetCore"),
     ],
     hasTests: true
 )

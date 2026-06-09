@@ -7,7 +7,6 @@
 
 import DevLogCore
 import DevLogData
-import DevLogWidgetCore
 
 public final class PersistenceAssembler: Assembler {
     public init() { }
@@ -27,27 +26,6 @@ public final class PersistenceAssembler: Assembler {
 
         container.register(WebPageImageStore.self) {
             WebPageImageStoreImpl()
-        }
-
-        container.register(WidgetSharedDefaultsStore.self) {
-            WidgetSharedDefaultsStore()
-        }
-
-        container.register(WidgetSnapshotStore.self) {
-            WidgetSnapshotStore(
-                store: container.resolve(WidgetSharedDefaultsStore.self)
-            )
-        }
-
-        container.register(WidgetSnapshotPreferenceStore.self) {
-            WidgetSnapshotPreferenceStoreImpl()
-        }
-
-        container.register(WidgetSnapshotUpdater.self) {
-            WidgetSnapshotUpdaterImpl(
-                snapshotStore: container.resolve(WidgetSnapshotStore.self),
-                preferenceStore: container.resolve(WidgetSnapshotPreferenceStore.self)
-            )
         }
     }
 }
