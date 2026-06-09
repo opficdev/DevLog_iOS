@@ -130,6 +130,16 @@ flowchart TD
 | `DevLogWidgetCore` | widget snapshot models, factories, app-group keys/defaults store, deep links, pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, App, or DevLogWidget dependency |
 | `DevLogWidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
 
+## Layer-internal dependency injection
+
+Do not inject dependencies between types that belong to the same layer.
+
+This rule covers initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
+
+The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+
+That exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
+
 ## Presentation StorePattern flow
 
 ```mermaid
@@ -165,6 +175,7 @@ flowchart TD
 	CoreDomain{"Core vs Domain ownership?"}
 	Shared{"Moved only because shared?"}
 	NewDependency{"New module dependency?"}
+	SameLayerDI{"Same-layer dependency injection?"}
 	ExternalSDK{"External SDK crosses layer?"}
 	WidgetBoundary{"WidgetCore sees app/domain/data?"}
 	BuildShortcut{"Build fix relaxes boundary?"}
@@ -178,7 +189,10 @@ flowchart TD
 	Shared -->|Yes| Ask
 	Shared -->|No| NewDependency
 	NewDependency -->|Yes| Ask
-	NewDependency -->|No| ExternalSDK
+	NewDependency -->|No| SameLayerDI
+	SameLayerDI -->|Presentation View file| ExternalSDK
+	SameLayerDI -->|No| ExternalSDK
+	SameLayerDI -->|Other| Ask
 	ExternalSDK -->|Yes| Ask
 	ExternalSDK -->|No| WidgetBoundary
 	WidgetBoundary -->|Yes| Ask

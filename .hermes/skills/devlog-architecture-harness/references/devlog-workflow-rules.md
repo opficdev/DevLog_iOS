@@ -57,6 +57,13 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Keep project-file, lockfile, and code changes separated when the task scope requires clean review.
 - Do not broaden architecture work into unrelated Firestore, Messaging, UI, or safety edits.
 
+## Layer-internal dependency injection
+
+- Do not inject dependencies between types that belong to the same layer.
+- This includes initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
+- The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
+
 ## Data, Domain, and Infra boundary
 
 - Do not move domain entities to Core only because multiple modules need them.

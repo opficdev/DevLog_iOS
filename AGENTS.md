@@ -53,6 +53,13 @@ Treat this repository as a Tuist-generated, workspace-based modular iOS app. The
 - `Widget/DevLogWidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
 - `Firebase/functions`: TypeScript Cloud Functions. Deploy updated functions one by one separately.
 
+### Layer-internal dependency injection
+
+- Do not inject dependencies between types that belong to the same layer.
+- This applies to initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
+- The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
+
 ### StorePattern flow
 
 - Preserve the existing Presentation `StorePattern`.
@@ -72,6 +79,7 @@ Ask the user before editing when any of these are true:
 - Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, WidgetKit, or storage implementation details would move to another layer.
 - A repository protocol, service protocol, assembler, or DI ownership boundary would change.
 - WidgetCore would start depending on app/domain/data implementation concepts.
+- A same-layer dependency would be injected outside a SwiftUI `View` file in `Application/DevLogPresentation`.
 - The requested change suggests cleanup outside the current issue or PR scope.
 
 ### Safe mechanical changes
