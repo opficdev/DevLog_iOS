@@ -20,7 +20,7 @@ on:
 env:
   SCHEME: DevLogApp
   RUBY_VERSION: "3.2"
-  XCODE_VERSION: "26.5"
+  XCODE_VERSION: latest
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
   ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
   ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -36,7 +36,7 @@ permissions:
 jobs:
   testflight:
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (contains(github.event.pull_request.labels.*.name, 'qa') || contains(github.event.pull_request.labels.*.name, 'qa-local')))
-    runs-on: macos-26
+    runs-on: macos-latest
     timeout-minutes: 45
 
     steps:
