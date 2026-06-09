@@ -7,13 +7,26 @@
 
 import SwiftUI
 import ComposableArchitecture
+import DevLogDomain
 
 struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
-    @Bindable var store: StoreOf<LoginFeature>
+    @State private var store: StoreOf<LoginFeature>
+
+    init(signInUseCase: SignInUseCase) {
+        self._store = State(initialValue: Store(
+            initialState: LoginFeature.State()
+        ) {
+            LoginFeature()
+        } withDependencies: {
+            $0.signInUseCase = .live(signInUseCase)
+        })
+    }
 
     var body: some View {
+        @Bindable var store = store
+
         ZStack {
             VStack {
                 Spacer()

@@ -23,7 +23,6 @@ struct LoginFeature {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case tapSignInButton(AuthProvider)
-        case signInSucceeded
         case signInFailed(AlertType)
         case signInCancelled
     }
@@ -50,7 +49,6 @@ struct LoginFeature {
                 return .run { [signInUseCase] send in
                     do {
                         try await signInUseCase.execute(provider)
-                        await send(.signInSucceeded)
                     } catch {
                         if error.isSocialLoginCancelled {
                             await send(.signInCancelled)
@@ -59,7 +57,7 @@ struct LoginFeature {
                         await send(.signInFailed(alertType(for: error)))
                     }
                 }
-            case .signInSucceeded, .signInCancelled:
+            case .signInCancelled:
                 state.isLoading = false
             case .signInFailed(let alertType):
                 state.isLoading = false
