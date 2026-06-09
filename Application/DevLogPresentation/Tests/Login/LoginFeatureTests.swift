@@ -198,6 +198,6 @@ private struct LoginTestDriver {
     }
 
     func setAlert(_ isPresented: Bool) {
-        feature.send(.setAlert(isPresented))
+        feature.send(.binding(.set(\.showAlert, isPresented)))
     }
 }
