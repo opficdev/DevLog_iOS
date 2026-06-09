@@ -57,10 +57,6 @@ struct LoginView: View {
                 LoadingView()
             }
         }
-        .alert(store.alertTitle, isPresented: $store.showAlert) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(store.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 }

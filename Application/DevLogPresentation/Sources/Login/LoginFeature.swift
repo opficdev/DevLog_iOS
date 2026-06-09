@@ -13,15 +13,12 @@ import Foundation
 struct LoginFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
         var isLoading = false
-        var showAlert = false
-        var alertType: AlertType?
-        var alertTitle = ""
-        var alertMessage = ""
     }
 
-    enum Action: BindableAction {
-        case binding(BindingAction<State>)
+    enum Action {
+        case alert(PresentationAction<Never>)
         case tapSignInButton(AuthProvider)
         case signInFailed(AlertType)
         case signInCancelled
@@ -35,15 +32,10 @@ struct LoginFeature {
     @Dependency(SignInUseCaseDependency.self) var signInUseCase
 
     var body: some ReducerOf<Self> {
-        BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding(\.showAlert):
-                if !state.showAlert {
-                    setAlert(&state, isPresented: false, alertType: nil)
-                }
-            case .binding:  // 다른 binding 액션들은 이쪽으로 처리됨
-                break       // 작성 필수
+            case .alert:
+                break
             case .tapSignInButton(let provider):
                 state.isLoading = true
                 return .run { [signInUseCase] send in
@@ -61,10 +53,11 @@ struct LoginFeature {
                 state.isLoading = false
             case .signInFailed(let alertType):
                 state.isLoading = false
-                setAlert(&state, isPresented: true, alertType: alertType)
+                state.alert = alertState(for: alertType)
             }
             return .none
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
@@ -98,24 +91,28 @@ extension DependencyValues {
 }
 
 private extension LoginFeature {
-    func setAlert(
-        _ state: inout State,
-        isPresented: Bool,
-        alertType: AlertType?
-    ) {
+    func alertState(for alertType: AlertType) -> AlertState<Never> {
+        let title: String
+        let message: String
+
         switch alertType {
         case .emailUnavailable:
-            state.alertTitle = String(localized: "login_alert_email_unavailable_title")
-            state.alertMessage = String(localized: "login_alert_email_unavailable_message")
+            title = String(localized: "login_alert_email_unavailable_title")
+            message = String(localized: "login_alert_email_unavailable_message")
         case .error:
-            state.alertTitle = String(localized: "common_error_title")
-            state.alertMessage = String(localized: "common_error_message")
-        case .none:
-            state.alertTitle = ""
-            state.alertMessage = ""
+            title = String(localized: "common_error_title")
+            message = String(localized: "common_error_message")
         }
-        state.showAlert = isPresented
-        state.alertType = alertType
+
+        return AlertState {
+            TextState(title)
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(message)
+        }
     }
 
     func alertType(for error: Error) -> AlertType {
