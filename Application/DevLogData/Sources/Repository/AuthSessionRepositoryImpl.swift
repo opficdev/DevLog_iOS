@@ -17,6 +17,7 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
     private let provider: AuthSessionStateProvider
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         authService: AuthService,
@@ -28,30 +29,34 @@ final class AuthSessionRepositoryImpl: AuthSessionRepository {
         self.todoCategoryService = todoCategoryService
         self.store = store
         self.provider = provider
+
+        setupObservation()
     }
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
-        authService.observeSignedIn()
-            .removeDuplicates()
-            .map { [self] isSignedIn in
-                Future { promise in
-                    Task {
-                        if isSignedIn {
-                            await self.cachePreferencesIfNeeded()
-                        } else {
-                            self.clearPreferencesCache()
-                        }
-                        self.provider.publish(isSignedIn)
-                        promise(.success(isSignedIn))
-                    }
-                }
-            }
-            .switchToLatest()
-            .eraseToAnyPublisher()
+        provider.observeSignedIn()
     }
 }
 
 private extension AuthSessionRepositoryImpl {
+    func setupObservation() {
+        authService.observeSignedIn()
+            .removeDuplicates()
+            .sink { [weak self] isSignedIn in
+                Task { [weak self] in
+                    guard let self else { return }
+
+                    if isSignedIn {
+                        await self.cachePreferencesIfNeeded()
+                    } else {
+                        self.clearPreferencesCache()
+                    }
+                    self.provider.publish(isSignedIn)
+                }
+            }
+            .store(in: &cancellables)
+    }
+
     func cachePreferencesIfNeeded() async {
         if store.value(forKey: Key.preferences) as [TodoCategoryPreferenceResponse]? != nil {
             return

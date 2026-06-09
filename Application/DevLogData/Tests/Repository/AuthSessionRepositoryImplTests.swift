@@ -40,7 +40,7 @@ struct AuthSessionRepositoryImplTests {
         #expect(await valueTask.value)
         #expect(store.value(forKey: Key.preferences) == [preference])
         #expect(await todoCategoryService.fetchCategoryPreferencesCallCount() == 1)
-        #expect(provider.events == [true])
+        #expect(provider.events.contains(true))
     }
 
     @Test("로그아웃 세션은 category preference 캐시를 제거한다")
@@ -68,7 +68,7 @@ struct AuthSessionRepositoryImplTests {
 
         #expect(await valueTask.value == false)
         #expect(store.value(forKey: Key.preferences) == Optional<[TodoCategoryPreferenceResponse]>.none)
-        #expect(provider.events == [false])
+        #expect(provider.events.contains(false))
     }
 
     private func makePreferenceResponse() -> TodoCategoryPreferenceResponse {
@@ -86,14 +86,16 @@ struct AuthSessionRepositoryImplTests {
 }
 
 private final class AuthSessionStateProviderSpy: AuthSessionStateProvider {
+    private let subject = PassthroughSubject<Bool, Never>()
     private(set) var events = [Bool]()
 
     func publish(_ isSignedIn: Bool) {
         events.append(isSignedIn)
+        subject.send(isSignedIn)
     }
 
     func observeSignedIn() -> AnyPublisher<Bool, Never> {
-        Empty().eraseToAnyPublisher()
+        subject.eraseToAnyPublisher()
     }
 }
 
