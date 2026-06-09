@@ -20,7 +20,7 @@ on:
 env:
   SCHEME: DevLogApp
   RUBY_VERSION: "3.2"
-  XCODE_VERSION: latest
+  XCODE_VERSION: "26.5"
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
   ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
   ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -36,7 +36,7 @@ permissions:
 jobs:
   testflight:
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (contains(github.event.pull_request.labels.*.name, 'qa') || contains(github.event.pull_request.labels.*.name, 'qa-local')))
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 45
 
     steps:
@@ -113,6 +113,14 @@ jobs:
 
       - name: Build for TestFlight
         run: bundle exec fastlane testflight_build_only
+
+      - name: Upload TestFlight build log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: testflight-build-log
+          path: ~/Library/Logs/gym/*.log
+          if-no-files-found: ignore
 
       - name: Skip TestFlight Upload
         if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect != 'true')
