@@ -77,6 +77,8 @@ Ask the user before editing when:
 - WidgetCore would depend on Domain, Data, Infra, Persistence, Presentation, or App.
 - Presentation would depend on Data, Infra, Persistence, or App.
 - Data would gain concrete SDK or storage implementation details.
+- Data or Presentation would expand platform SDK usage beyond the existing narrow cancellation-classification or notification-badge patterns.
+- Infra would add any Domain dependency, source import, or SDK service contract coupling.
 - The Presentation `StorePattern` flow or reducer responsibility would change.
 - A compile fix requires relaxing the intended architecture.
 - The change is outside the requested issue or PR scope.

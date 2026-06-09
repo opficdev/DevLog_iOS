@@ -29,6 +29,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Do not force a single `objectVersion` across projects. Treat Xcode's actual save output as the source of truth.
 - For synchronized-root cleanup, verify on copied files or a narrowed rule set before touching real project files.
 - When changing project structure, update the Tuist manifest first and treat generated Xcode project churn as disposable output.
+- Do not promote a manifest-only target dependency to an allowed architecture direction. Check source imports and ownership before updating the layer map.
 
 ## PR and review handling
 
@@ -61,15 +62,18 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Do not move domain entities to Core only because multiple modules need them.
 - Keep protocol location and implementation layer distinct when explaining or changing boundaries.
 - If a Data protocol is implemented by Infra, every type in that protocol signature must be visible to Infra.
+- `DevLogInfra` should depend on Data and Core, not Domain. Do not treat a manifest-only Domain target dependency as architecture permission.
 - Prefer a Data-side boundary value plus repository mapping when Infra should not import Domain.
 - For example, keep the app-facing Domain query separate from an Infra-facing Data query when that avoids Domain coupling in service protocols.
 - Firebase-specific error detection belongs in Infra; Data should handle domain-level errors after mapping.
+- Data and Presentation currently keep narrow social-login cancellation classification in `DataLayerError` and `Error+SocialLogin`. Do not expand that into concrete login implementation or broader SDK ownership without explicit approval.
 
 ## Presentation StorePattern
 
 - Preserve the existing `StorePattern` shape: `@MainActor`, `State`, `Action`, `SideEffect`, `send -> reduce -> run`.
 - Reducers compute state and return side effects.
 - I/O belongs in `run` or injected services.
+- Presentation currently owns narrow notification badge side effects through `UserNotifications`. Do not expand that into push service or messaging ownership.
 - Do not leave reducer-era helper methods behind after moving work into `run`.
 - Before adding task cancellation or async wrappers, inspect whether the underlying operation is actually async.
 
