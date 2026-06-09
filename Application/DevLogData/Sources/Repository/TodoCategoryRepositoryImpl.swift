@@ -8,25 +8,40 @@
 import DevLogDomain
 
 final class TodoCategoryRepositoryImpl: TodoCategoryRepository {
-    private let todoCategoryService: TodoCategoryService
-
-    init(todoCategoryService: TodoCategoryService) {
-        self.todoCategoryService = todoCategoryService
+    private enum Key {
+        static let preferences = "TodoCategory.preferences"
     }
 
-    func fetchPreferences() async throws -> [TodoCategoryPreference] {
+    private let todoCategoryService: TodoCategoryService
+    private let store: MemoryCacheStore
+
+    init(
+        todoCategoryService: TodoCategoryService,
+        store: MemoryCacheStore
+    ) {
+        self.todoCategoryService = todoCategoryService
+        self.store = store
+    }
+
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreference] {
         do {
-            return try await todoCategoryService.fetchPreferences().toDomain()
+            if let preferences: [TodoCategoryPreferenceResponse] = store.value(forKey: Key.preferences) {
+                return preferences.toDomain()
+            }
+
+            let responses = try await todoCategoryService.fetchCategoryPreferences()
+            store.setValue(responses, forKey: Key.preferences)
+            return responses.toDomain()
         } catch {
             throw error.toDomain()
         }
     }
 
-    func updatePreferences(_ preferences: [TodoCategoryPreference]) async throws {
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreference]) async throws {
         do {
-            try await todoCategoryService.updatePreferences(
-                preferences.map(TodoCategoryPreferenceResponse.fromDomain)
-            )
+            let responses = preferences.map(TodoCategoryPreferenceResponse.fromDomain)
+            try await todoCategoryService.updateCategoryPreferences(responses)
+            store.setValue(responses, forKey: Key.preferences)
         } catch {
             throw error.toDomain()
         }

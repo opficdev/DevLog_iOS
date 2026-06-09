@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct TodoCategoryPreferenceResponse: Equatable {
-    public enum Category: Equatable {
+public struct TodoCategoryPreferenceResponse: Equatable, Codable {
+    public enum Category: Equatable, Codable {
         case system(String)
         case user(UserCategory)
     }
 
-    public struct UserCategory: Equatable {
+    public struct UserCategory: Equatable, Codable {
         public let id: String
         public let name: String
         public let colorHex: String

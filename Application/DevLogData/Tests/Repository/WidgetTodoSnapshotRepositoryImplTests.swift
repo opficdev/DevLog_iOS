@@ -12,14 +12,14 @@ import DevLogDomain
 @testable import DevLogData
 
 struct WidgetTodoSnapshotRepositoryImplTests {
-    @Test("Today 위젯 Todo 조회는 기존 TodoRepository query와 snapshot 매핑을 사용한다")
-    func today_위젯_todo_조회는_기존_todorepository_query와_snapshot_매핑을_사용한다() async throws {
-        let repositorySpy = TodoRepositorySpy()
-        let repository = WidgetTodoSnapshotRepositoryImpl(repository: repositorySpy)
+    @Test("Today 위젯 Todo 조회는 TodoService query와 snapshot 매핑을 사용한다")
+    func today_위젯_todo_조회는_todoservice_query와_snapshot_매핑을_사용한다() async throws {
+        let todoServiceSpy = WidgetTodoSnapshotTodoServiceSpy()
+        let repository = WidgetTodoSnapshotRepositoryImpl(todoService: todoServiceSpy)
         let now = Date(timeIntervalSince1970: 100)
-        let todo = makeTodo(id: "today", createdAt: now, dueDate: now)
+        let todo = makeTodoResponse(id: "today", createdAt: now, dueDate: now)
 
-        await repositorySpy.setTodos([todo], for: .dueDate)
+        await todoServiceSpy.setTodos([todo], for: .dueDate)
 
         let snapshots = try await repository.fetchTodayTodos(
             dueDateFilter: .withDueDate,
@@ -27,7 +27,7 @@ struct WidgetTodoSnapshotRepositoryImplTests {
             sortOrder: .oldest,
             pageSize: 100
         )
-        let queries = await repositorySpy.calledQueries()
+        let queries = await todoServiceSpy.calledQueries()
 
         #expect(snapshots == [makeSnapshot(id: "today", createdAt: now, dueDate: now)])
         #expect(queries == [
@@ -42,15 +42,15 @@ struct WidgetTodoSnapshotRepositoryImplTests {
         ])
     }
 
-    @Test("Heatmap 위젯 Todo 조회는 기존 TodoRepository query와 snapshot 매핑을 사용한다")
-    func heatmap_위젯_todo_조회는_기존_todorepository_query와_snapshot_매핑을_사용한다() async throws {
-        let repositorySpy = TodoRepositorySpy()
-        let repository = WidgetTodoSnapshotRepositoryImpl(repository: repositorySpy)
+    @Test("Heatmap 위젯 Todo 조회는 TodoService query와 snapshot 매핑을 사용한다")
+    func heatmap_위젯_todo_조회는_todoservice_query와_snapshot_매핑을_사용한다() async throws {
+        let todoServiceSpy = WidgetTodoSnapshotTodoServiceSpy()
+        let repository = WidgetTodoSnapshotRepositoryImpl(todoService: todoServiceSpy)
         let quarterStart = Date(timeIntervalSince1970: 100)
         let nextQuarterStart = Date(timeIntervalSince1970: 200)
-        let todo = makeTodo(id: "created", createdAt: quarterStart)
+        let todo = makeTodoResponse(id: "created", createdAt: quarterStart)
 
-        await repositorySpy.setTodos([todo], for: .createdAt)
+        await todoServiceSpy.setTodos([todo], for: .createdAt)
 
         let snapshots = try await repository.fetchHeatmapTodos(
             sortTarget: .createdAt,
@@ -58,7 +58,7 @@ struct WidgetTodoSnapshotRepositoryImplTests {
             nextQuarterStart: nextQuarterStart,
             pageSize: 100
         )
-        let queries = await repositorySpy.calledQueries()
+        let queries = await todoServiceSpy.calledQueries()
 
         #expect(snapshots == [makeSnapshot(id: "created", createdAt: quarterStart)])
         #expect(queries == [
@@ -71,31 +71,6 @@ struct WidgetTodoSnapshotRepositoryImplTests {
                 fetchAllPages: true
             )
         ])
-    }
-
-    private func makeTodo(
-        id: String,
-        createdAt: Date,
-        completedAt: Date? = nil,
-        deletedAt: Date? = nil,
-        dueDate: Date? = nil
-    ) -> Todo {
-        Todo(
-            id: id,
-            isPinned: false,
-            isCompleted: completedAt != nil,
-            isChecked: false,
-            number: 1,
-            title: id,
-            content: "",
-            createdAt: createdAt,
-            updatedAt: createdAt,
-            completedAt: completedAt,
-            deletedAt: deletedAt,
-            dueDate: dueDate,
-            tags: [],
-            category: .system(.feature)
-        )
     }
 
     private func makeSnapshot(
@@ -116,47 +91,68 @@ struct WidgetTodoSnapshotRepositoryImplTests {
             dueDate: dueDate
         )
     }
+
+    private func makeTodoResponse(
+        id: String,
+        createdAt: Date,
+        completedAt: Date? = nil,
+        deletedAt: Date? = nil,
+        dueDate: Date? = nil
+    ) -> TodoResponse {
+        TodoResponse(
+            id: id,
+            isPinned: false,
+            isCompleted: completedAt != nil,
+            isChecked: false,
+            number: 1,
+            title: id,
+            content: "",
+            createdAt: createdAt,
+            updatedAt: createdAt,
+            completedAt: completedAt,
+            deletedAt: deletedAt,
+            dueDate: dueDate,
+            tags: [],
+            category: .raw(SystemTodoCategory.feature.rawValue)
+        )
+    }
 }
 
-private actor TodoRepositorySpy: TodoRepository {
+private actor WidgetTodoSnapshotTodoServiceSpy: TodoService {
     private var queries = [TodoQuery]()
-    private var todosBySortTarget = [TodoQuery.SortTarget: [Todo]]()
+    private var todosBySortTarget = [TodoQuery.SortTarget: [TodoResponse]]()
 
-    func setTodos(_ todos: [Todo], for sortTarget: TodoQuery.SortTarget) {
+    func setTodos(_ todos: [TodoResponse], for sortTarget: TodoQuery.SortTarget) {
         todosBySortTarget[sortTarget] = todos
     }
 
-    func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
+    func fetchTodos(_ query: TodoQuery, cursor: TodoCursorDTO?) async throws -> TodoPageResponse {
         queries.append(query)
 
-        return TodoPage(
+        return TodoPageResponse(
             items: todosBySortTarget[query.sortTarget] ?? [],
             nextCursor: nil
         )
     }
 
-    func fetchTodo(_ todoId: String) async throws -> Todo {
-        throw TodoRepositorySpyError.unexpectedCall
+    func upsertTodo(request: TodoRequest) async throws {
+        throw WidgetTodoSnapshotTodoServiceSpyError.unexpectedCall
     }
 
-    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
-        throw TodoRepositorySpyError.unexpectedCall
+    func deleteTodo(todoId: String) async throws {
+        throw WidgetTodoSnapshotTodoServiceSpyError.unexpectedCall
     }
 
-    func upsertTodo(_ todo: Todo) async throws {
-        throw TodoRepositorySpyError.unexpectedCall
+    func undoDeleteTodo(todoId: String) async throws {
+        throw WidgetTodoSnapshotTodoServiceSpyError.unexpectedCall
     }
 
-    func upsertTodo(_ todoDraft: TodoDraft) async throws {
-        throw TodoRepositorySpyError.unexpectedCall
+    func fetchTodo(todoId: String) async throws -> TodoResponse {
+        throw WidgetTodoSnapshotTodoServiceSpyError.unexpectedCall
     }
 
-    func deleteTodo(_ todoId: String) async throws {
-        throw TodoRepositorySpyError.unexpectedCall
-    }
-
-    func undoDeleteTodo(_ todoId: String) async throws {
-        throw TodoRepositorySpyError.unexpectedCall
+    func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReferenceResponse] {
+        throw WidgetTodoSnapshotTodoServiceSpyError.unexpectedCall
     }
 
     func calledQueries() -> [TodoQuery] {
@@ -164,6 +160,6 @@ private actor TodoRepositorySpy: TodoRepository {
     }
 }
 
-private enum TodoRepositorySpyError: Error {
+private enum WidgetTodoSnapshotTodoServiceSpyError: Error {
     case unexpectedCall
 }

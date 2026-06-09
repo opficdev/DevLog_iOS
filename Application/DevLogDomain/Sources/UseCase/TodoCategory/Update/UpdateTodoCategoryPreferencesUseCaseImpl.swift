@@ -13,6 +13,6 @@ public final class UpdateTodoCategoryPreferencesUseCaseImpl: UpdateTodoCategoryP
     }
 
     public func execute(_ preferences: [TodoCategoryPreference]) async throws {
-        try await todoCategoryRepository.updatePreferences(preferences)
+        try await todoCategoryRepository.updateCategoryPreferences(preferences)
     }
 }

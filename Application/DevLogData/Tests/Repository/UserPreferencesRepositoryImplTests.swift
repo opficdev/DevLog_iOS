@@ -43,6 +43,14 @@ struct UserPreferencesRepositoryImplTests {
 }
 
 private final class UserDefaultsStoreSpy: UserDefaultsStore {
+    func value<T: Codable>(forKey key: String) -> T? {
+        nil
+    }
+
+    func setValue<T: Codable>(_ value: T?, forKey key: String) { }
+
+    func removeValues(withPrefix prefix: String) { }
+
     func string(forKey key: String) -> String? {
         nil
     }

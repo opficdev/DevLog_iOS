@@ -10,7 +10,7 @@ import Foundation
 import Testing
 import DevLogCore
 import DevLogDomain
-@testable @preconcurrency import DevLogData
+@testable import DevLogData
 
 struct TodoRepositoryImplTests {
     @Test("Todo 변경 성공 시 위젯 동기화와 mutation 이벤트를 발행한다")
@@ -65,11 +65,13 @@ struct TodoRepositoryImplTests {
     private func makeFixture() -> Fixture {
         let todoService = TodoServiceSpy()
         let todoCategoryService = TodoCategoryServiceSpy()
+        let store = TodoRepositoryMemoryCacheStoreSpy()
         let widgetSyncEventBus = WidgetSyncEventBusSpy()
         let todoMutationEventBus = TodoMutationEventBusSpy()
         let repository = TodoRepositoryImpl(
             todoService: todoService,
             todoCategoryService: todoCategoryService,
+            store: store,
             widgetSyncEventBus: widgetSyncEventBus,
             todoMutationEventBus: todoMutationEventBus
         )
@@ -148,12 +150,29 @@ private actor TodoServiceSpy: TodoService {
 }
 
 private struct TodoCategoryServiceSpy: TodoCategoryService {
-    func fetchPreferences() async throws -> [TodoCategoryPreferenceResponse] {
+    func fetchCategoryPreferences() async throws -> [TodoCategoryPreferenceResponse] {
         []
     }
 
-    func updatePreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
+    func updateCategoryPreferences(_ preferences: [TodoCategoryPreferenceResponse]) async throws {
         throw TodoRepositoryImplTestsError.unexpectedCall
+    }
+}
+
+private final class TodoRepositoryMemoryCacheStoreSpy: MemoryCacheStore {
+    private var values = [String: Any]()
+
+    func value<T: Codable>(forKey key: String) -> T? {
+        values[key] as? T
+    }
+
+    func setValue<T: Codable>(_ value: T?, forKey key: String) {
+        guard let value else {
+            values.removeValue(forKey: key)
+            return
+        }
+
+        values[key] = value
     }
 }
 

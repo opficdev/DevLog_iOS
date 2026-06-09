@@ -11,15 +11,22 @@ import DevLogCore
 import DevLogDomain
 
 final class PushNotificationRepositoryImpl: PushNotificationRepository {
+    private enum Key {
+        static let preferences = "TodoCategory.preferences"
+    }
+
     private let pushNotificationService: PushNotificationService
     private let todoCategoryService: TodoCategoryService
+    private let store: MemoryCacheStore
 
     init(
         pushNotificationService: PushNotificationService,
-        todoCategoryService: TodoCategoryService
+        todoCategoryService: TodoCategoryService,
+        store: MemoryCacheStore
     ) {
         self.pushNotificationService = pushNotificationService
         self.todoCategoryService = todoCategoryService
+        self.store = store
     }
 
     /// 푸시 알림 On/Off 설정
@@ -59,7 +66,7 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
         do {
             let cursorDTO = cursor.map { PushNotificationCursorDTO.fromDomain($0) }
             async let responseTask = pushNotificationService.requestNotifications(query, cursor: cursorDTO)
-            async let preferencesTask = todoCategoryService.fetchPreferences()
+            async let preferencesTask = todoCategoryPreferenceResponses()
 
             let (response, preferenceResponses) = try await (responseTask, preferencesTask)
             return try resolvePage(from: response, with: preferenceResponses.toDomain())
@@ -91,7 +98,8 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 
                         Task {
                             do {
-                                let preferences = try await self.todoCategoryService.fetchPreferences().toDomain()
+                                let preferences = try await self.todoCategoryPreferenceResponses()
+                                    .toDomain()
                                 let page = try self.resolvePage(from: response, with: preferences)
                                 subject.send(page)
                             } catch {
@@ -147,6 +155,16 @@ final class PushNotificationRepositoryImpl: PushNotificationRepository {
 }
 
 private extension PushNotificationRepositoryImpl {
+    func todoCategoryPreferenceResponses() async throws -> [TodoCategoryPreferenceResponse] {
+        if let preferences: [TodoCategoryPreferenceResponse] = store.value(forKey: Key.preferences) {
+            return preferences
+        }
+
+        let preferences = try await todoCategoryService.fetchCategoryPreferences()
+        store.setValue(preferences, forKey: Key.preferences)
+        return preferences
+    }
+
     func resolvePage(
         from response: PushNotificationPageResponse,
         with preferences: [TodoCategoryPreference]

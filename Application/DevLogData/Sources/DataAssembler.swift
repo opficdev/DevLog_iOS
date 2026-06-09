@@ -40,26 +40,29 @@ public final class DataAssembler: Assembler {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(MemoryCacheStore.self),
                 widgetSyncEventBus: container.resolve(WidgetSyncEventBus.self),
                 todoMutationEventBus: container.resolve(TodoMutationEventBus.self)
             )
         }
 
         container.register(WidgetTodoSnapshotRepository.self) {
-            WidgetTodoSnapshotRepositoryImpl(
-                repository: container.resolve(TodoRepository.self)
-            )
+            WidgetTodoSnapshotRepositoryImpl(todoService: container.resolve(TodoService.self))
         }
 
         container.register(TodoCategoryRepository.self) {
             TodoCategoryRepositoryImpl(
-                todoCategoryService: container.resolve(TodoCategoryService.self)
+                todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(MemoryCacheStore.self)
             )
         }
 
         container.register(AuthSessionRepository.self) {
             AuthSessionRepositoryImpl(
-                authService: container.resolve(AuthService.self)
+                authService: container.resolve(AuthService.self),
+                todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(MemoryCacheStore.self),
+                provider: container.resolve(AuthSessionStateProvider.self)
             )
         }
 
@@ -100,7 +103,8 @@ public final class DataAssembler: Assembler {
         container.register(PushNotificationRepository.self) {
             PushNotificationRepositoryImpl(
                 pushNotificationService: container.resolve(PushNotificationService.self),
-                todoCategoryService: container.resolve(TodoCategoryService.self)
+                todoCategoryService: container.resolve(TodoCategoryService.self),
+                store: container.resolve(MemoryCacheStore.self)
             )
         }
 
