@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.sceneWidth) var sceneWidth
-    let store: StoreOf<LoginFeature>
+    @Bindable var store: StoreOf<LoginFeature>
 
     var body: some View {
         ZStack {
@@ -46,10 +46,7 @@ struct LoginView: View {
                 LoadingView()
             }
         }
-        .alert(store.alertTitle, isPresented: Binding(
-            get: { store.showAlert },
-            set: { store.send(.setAlert($0)) }
-        )) {
+        .alert(store.alertTitle, isPresented: $store.showAlert) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
             Text(store.alertMessage)

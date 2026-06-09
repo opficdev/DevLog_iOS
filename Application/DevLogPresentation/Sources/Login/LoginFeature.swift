@@ -20,8 +20,8 @@ struct LoginFeature {
         var alertMessage = ""
     }
 
-    enum Action {
-        case setAlert(Bool, AlertType? = nil)
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case tapSignInButton(AuthProvider)
         case signInSucceeded
         case signInFailed(AlertType)
@@ -36,10 +36,15 @@ struct LoginFeature {
     @Dependency(SignInUseCaseDependency.self) var signInUseCase
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
-            case .setAlert(let isPresented, let alertType):
-                setAlert(&state, isPresented: isPresented, alertType: alertType)
+            case .binding(\.showAlert):
+                if !state.showAlert {
+                    setAlert(&state, isPresented: false, alertType: nil)
+                }
+            case .binding:  // 다른 binding 액션들은 이쪽으로 처리됨
+                break       // 작성 필수
             case .tapSignInButton(let provider):
                 state.isLoading = true
                 return .run { [signInUseCase] send in
