@@ -27,8 +27,8 @@ struct LoginFeatureTests {
         #expect(spy.calledProviders == [.github])
     }
 
-    @Test("로그인 요청 중에는 로딩 상태가 켜지고 요청이 끝나면 꺼진다")
-    func 로그인_요청_중에는_로딩_상태가_켜지고_요청이_끝나면_꺼진다() async {
+    @Test("로그인 성공 후에도 메인 화면 전환 전까지 로딩 상태를 유지한다")
+    func 로그인_성공_후에도_메인_화면_전환_전까지_로딩_상태를_유지한다() async {
         let spy = SignInUseCaseSpy()
         spy.shouldSuspend = true
         let driver = LoginTestDriver(useCase: spy)
@@ -44,10 +44,10 @@ struct LoginFeatureTests {
         spy.resume()
 
         await waitUntil {
-            !driver.isLoading
+            spy.successfulProviders == [.google]
         }
 
-        #expect(!driver.isLoading)
+        #expect(driver.isLoading)
     }
 
     @Test("로그인 실패 후에도 로딩 상태가 꺼진다")
