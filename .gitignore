@@ -48,4 +48,5 @@ fastlane/logs/
 Tuist/.build/
 
 # drawio
+*.drawio
 *.drawio.bkp

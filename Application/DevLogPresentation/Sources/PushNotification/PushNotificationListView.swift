@@ -36,9 +36,8 @@ struct PushNotificationListView: View {
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .alert(
-            "",
+            viewModel.state.alertTitle,
             isPresented: Binding(
                 get: { viewModel.state.showAlert },
                 set: { viewModel.send(.setAlert(isPresented: $0)) }
