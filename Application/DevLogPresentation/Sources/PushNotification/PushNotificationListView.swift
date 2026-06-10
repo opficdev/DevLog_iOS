@@ -37,7 +37,7 @@ struct PushNotificationListView: View {
                 .listStyle(.plain)
         }
         .alert(
-            "",
+            viewModel.state.alertTitle,
             isPresented: Binding(
                 get: { viewModel.state.showAlert },
                 set: { viewModel.send(.setAlert(isPresented: $0)) }
