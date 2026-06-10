@@ -36,7 +36,6 @@ struct PushNotificationListView: View {
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .alert(
             "",
             isPresented: Binding(
