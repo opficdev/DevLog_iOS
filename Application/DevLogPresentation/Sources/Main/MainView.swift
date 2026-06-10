@@ -135,23 +135,8 @@ struct MainView: View {
                 )
                 .navigationSplitViewColumnWidth(min: 350, ideal: 450, max: nil)
             } detail: {
-                Group {
-                    if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
-                        TodoDetailView(
-                            viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
-                                todoId: todoId
-                            )
-                        )
-                        .id(todoId)
-                    } else {
-                        ContentUnavailableView(
-                            String(localized: "push_notifications_select_detail"),
-                            systemImage: "bell.badge"
-                        )
-                    }
-                }
+                notificationRegularDetailView
             }
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
         case .profile:
             NavigationSplitView {
                 mainSidebar
@@ -320,6 +305,24 @@ struct MainView: View {
             coordinator: pushNotificationListViewCoordinator,
             isCompactLayout: isCompactLayout
         )
+    }
+
+    @ViewBuilder
+    private var notificationRegularDetailView: some View {
+        if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
+            TodoDetailView(
+                viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
+                    todoId: todoId
+                )
+            )
+            .id(todoId)
+        } else {
+            ContentUnavailableView(
+                String(localized: "push_notifications_select_detail"),
+                systemImage: "bell.badge"
+            )
+            .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        }
     }
 
     private var profileView: some View {
