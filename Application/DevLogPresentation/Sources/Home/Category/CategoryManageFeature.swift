@@ -103,9 +103,8 @@ struct CategoryManageFeature {
             case confirmDeleteUserCategory(TodoCategoryItem)
         }
 
-        enum CategorySheet: Equatable {
-            case setCategoryName(String)
-            case setCategoryColor(String)
+        enum CategorySheet: BindableAction, Equatable {
+            case binding(BindingAction<CategorySheetState>)
             case tapCloseButton
             case tapRandomColorButton
             case tapSaveButton
@@ -185,12 +184,13 @@ private struct CategoryManageSheetFeature: Reducer {
     typealias Action = CategoryManageFeature.Action.CategorySheet
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
-            case .setCategoryName(let name):
-                state.category.name = String(name.prefix(20))
-            case .setCategoryColor(let colorHex):
-                state.category.colorHex = colorHex
+            case .binding(\.category.name):
+                state.category.name = String(state.category.name.prefix(20))
+            case .binding:
+                break
             case .tapRandomColorButton:
                 if let randomHexValue = Color.randomValue.hexValue {
                     state.category.colorHex = randomHexValue

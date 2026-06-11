@@ -219,11 +219,11 @@ private struct CategoryManageTestDriver {
     }
 
     func setCategoryName(_ name: String) {
-        feature.send(.categorySheet(.presented(.setCategoryName(name))))
+        feature.send(.categorySheet(.presented(.binding(.set(\.category.name, name)))))
     }
 
     func setCategoryColor(_ colorHex: String) {
-        feature.send(.categorySheet(.presented(.setCategoryColor(colorHex))))
+        feature.send(.categorySheet(.presented(.binding(.set(\.category.colorHex, colorHex)))))
     }
 
     func tapSaveButton() {

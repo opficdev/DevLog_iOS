@@ -101,7 +101,7 @@ struct CategoryManageView: View {
 }
 
 private struct CategoryManageSheet: View {
-    let store: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
+    @Bindable var store: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
 
     var body: some View {
         NavigationStack {
@@ -110,10 +110,7 @@ private struct CategoryManageSheet: View {
                     HStack(spacing: 8) {
                         TextField(
                             "",
-                            text: Binding(
-                                get: { store.category.name },
-                                set: { store.send(.setCategoryName($0)) }
-                            ),
+                            text: $store.category.name,
                             prompt: Text(store.placeholder).foregroundStyle(.secondary)
                         )
                         .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
@@ -126,21 +123,14 @@ private struct CategoryManageSheet: View {
                 }
 
                 Section {
-                    let color = Color(hexString: store.category.colorHex) ?? .randomValue
-                    ColorPicker(selection: Binding(
-                        get: { color },
-                        set: {
-                            guard let hexValue = $0.hexValue else { return }
-                            store.send(.setCategoryColor(hexValue))
-                        }
-                    ), supportsOpacity: false) {
+                    ColorPicker(selection: $store.category.colorHex.colorValue, supportsOpacity: false) {
                         Text(store.category.colorHex.isEmpty ? "#" : store.category.colorHex)
                             .overlay(alignment: .bottom) {
                                 Rectangle()
                                     .frame(height: 1)
                                     .offset(y: 1)
                             }
-                            .foregroundStyle(color)
+                            .foregroundStyle(store.category.colorHex.colorValue)
                             .onTapGesture {
                                 store.send(.tapRandomColorButton)
                             }
@@ -163,6 +153,17 @@ private struct CategoryManageSheet: View {
                     }
                     .disabled(!store.canSubmitUserCategory)
                 }
+            }
+        }
+    }
+}
+
+private extension String {
+    var colorValue: Color {
+        get { Color(hexString: self) ?? .randomValue }
+        set {
+            if let hexValue = newValue.hexValue {
+                self = hexValue
             }
         }
     }
