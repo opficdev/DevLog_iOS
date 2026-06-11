@@ -44,12 +44,14 @@ final class ProfileViewCoordinator {
         viewModel.send(.fetchData)
     }
 
-    func makeAccountViewModel() -> AccountViewModel {
-        AccountViewModel(
-            fetchProvidersUseCase: container.resolve(FetchAuthProvidersUseCase.self),
-            linkProviderUseCase: container.resolve(LinkAuthProviderUseCase.self),
-            unlinkProviderUseCase: container.resolve(UnlinkAuthProviderUseCase.self)
-        )
+    func makeAccountStore() -> StoreOf<AccountFeature> {
+        Store(initialState: AccountFeature.State()) {
+            AccountFeature()
+        } withDependencies: {
+            $0.fetchAuthProvidersUseCase = self.container.resolve(FetchAuthProvidersUseCase.self)
+            $0.linkAuthProviderUseCase = self.container.resolve(LinkAuthProviderUseCase.self)
+            $0.unlinkAuthProviderUseCase = self.container.resolve(UnlinkAuthProviderUseCase.self)
+        }
     }
 
     func makePushNotificationSettingsViewModel() -> PushNotificationSettingsViewModel {

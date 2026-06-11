@@ -29,7 +29,7 @@ struct LoginFeature {
         case error
     }
 
-    @Dependency(SignInUseCaseDependency.self) var signInUseCase
+    @Dependency(\.signInUseCase) var signInUseCase
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -61,32 +61,20 @@ struct LoginFeature {
     }
 }
 
-struct SignInUseCaseDependency {
-    var execute: (AuthProvider) async throws -> Void
-
-    init(execute: @escaping (AuthProvider) async throws -> Void) {
-        self.execute = execute
-    }
-}
-
-extension SignInUseCaseDependency: DependencyKey {
-    static let liveValue = Self { _ in
-        preconditionFailure("SignInUseCaseDependency must be provided.")
-    }
-
-    static let testValue = liveValue
-
-    static func live(_ signInUseCase: SignInUseCase) -> SignInUseCaseDependency {
-        Self {
-            try await signInUseCase.execute($0)
-        }
-    }
-}
-
 extension DependencyValues {
-    var signInUseCase: SignInUseCaseDependency {
-        get { self[SignInUseCaseDependency.self] }
-        set { self[SignInUseCaseDependency.self] = newValue }
+    var signInUseCase: SignInUseCase {
+        get { self[SignInUseCaseKey.self] }
+        set { self[SignInUseCaseKey.self] = newValue }
+    }
+}
+
+private enum SignInUseCaseKey: DependencyKey {
+    static var liveValue: SignInUseCase {
+        preconditionFailure("SignInUseCase must be provided.")
+    }
+
+    static var testValue: SignInUseCase {
+        liveValue
     }
 }
 

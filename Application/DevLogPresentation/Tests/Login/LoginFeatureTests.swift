@@ -171,7 +171,7 @@ private struct LoginTestDriver {
         ) {
             LoginFeature()
         } withDependencies: {
-            $0.signInUseCase = .live(useCase)
+            $0.signInUseCase = useCase
         }
     }
 

@@ -137,6 +137,33 @@ struct CategoryManageFeatureTests {
         #expect(driver.preferences == [item])
         #expect(driver.alert == nil)
     }
+
+    @Test("시트 상태를 액션에 맞게 변경한다")
+    func 시트_상태를_액션에_맞게_변경한다() {
+        let category = UserTodoCategory(
+            id: "custom",
+            name: "Custom",
+            colorHex: "#111111"
+        )
+        let sheet = CategoryManageFeature.CategorySheetState(
+            category: category,
+            preferences: []
+        )
+        let driver = CategoryManageTestDriver(preferences: [])
+
+        driver.setCategorySheet(sheet)
+
+        #expect(driver.categorySheet == sheet)
+
+        driver.dismissCategorySheet()
+
+        #expect(driver.categorySheet == nil)
+
+        driver.setCategorySheet(sheet)
+        driver.tapCloseButton()
+
+        #expect(driver.categorySheet == nil)
+    }
 }
 
 @MainActor
@@ -183,16 +210,28 @@ private struct CategoryManageTestDriver {
         feature.send(.tapDeleteUserCategory(item))
     }
 
+    func setCategorySheet(_ sheet: CategoryManageFeature.CategorySheetState?) {
+        feature.send(.setCategorySheet(sheet))
+    }
+
+    func dismissCategorySheet() {
+        feature.send(.categorySheet(.dismiss))
+    }
+
     func setCategoryName(_ name: String) {
-        feature.send(.categorySheet(.presented(.setCategoryName(name))))
+        feature.send(.categorySheet(.presented(.binding(.set(\.category.name, name)))))
     }
 
     func setCategoryColor(_ colorHex: String) {
-        feature.send(.categorySheet(.presented(.setCategoryColor(colorHex))))
+        feature.send(.categorySheet(.presented(.binding(.set(\.category.colorHex, colorHex)))))
     }
 
     func tapSaveButton() {
         feature.send(.categorySheet(.presented(.tapSaveButton)))
+    }
+
+    func tapCloseButton() {
+        feature.send(.categorySheet(.presented(.tapCloseButton)))
     }
 
     func confirmDeleteUserCategory(_ item: TodoCategoryItem) {

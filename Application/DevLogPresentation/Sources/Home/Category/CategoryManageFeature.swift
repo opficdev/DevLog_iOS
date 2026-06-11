@@ -97,14 +97,14 @@ struct CategoryManageFeature {
         case tapEditUserCategory(TodoCategoryItem)
         case tapDeleteUserCategory(TodoCategoryItem)
         case tapDoneButton
+        case setCategorySheet(CategorySheetState?)
 
         enum Alert: Equatable {
             case confirmDeleteUserCategory(TodoCategoryItem)
         }
 
-        enum CategorySheet: Equatable {
-            case setCategoryName(String)
-            case setCategoryColor(String)
+        enum CategorySheet: BindableAction, Equatable {
+            case binding(BindingAction<CategorySheetState>)
             case tapCloseButton
             case tapRandomColorButton
             case tapSaveButton
@@ -124,14 +124,6 @@ struct CategoryManageFeature {
                 state.categorySheet = nil
             case .categorySheet(.presented(.tapCloseButton)):
                 state.categorySheet = nil
-            case .categorySheet(.presented(.setCategoryName(let name))):
-                state.categorySheet?.category.name = String(name.prefix(20))
-            case .categorySheet(.presented(.setCategoryColor(let colorHex))):
-                state.categorySheet?.category.colorHex = colorHex
-            case .categorySheet(.presented(.tapRandomColorButton)):
-                if let randomHexValue = Color.randomValue.hexValue {
-                    state.categorySheet?.category.colorHex = randomHexValue
-                }
             case .categorySheet(.presented(.tapSaveButton)):
                 if var item = state.categorySheet?.todoCategoryItem {
                     if let index = state.preferences.firstIndex(where: { $0.id == item.id }) {
@@ -175,10 +167,39 @@ struct CategoryManageFeature {
                 }
             case .tapDoneButton:
                 break
+            case .setCategorySheet(let sheet):
+                state.categorySheet = sheet
             }
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$categorySheet, action: \.categorySheet) {
+            CategoryManageSheetFeature()
+        }
+    }
+}
+
+private struct CategoryManageSheetFeature: Reducer {
+    typealias State = CategoryManageFeature.CategorySheetState
+    typealias Action = CategoryManageFeature.Action.CategorySheet
+
+    var body: some ReducerOf<Self> {
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .binding(\.category.name):
+                state.category.name = String(state.category.name.prefix(20))
+            case .binding:
+                break
+            case .tapRandomColorButton:
+                if let randomHexValue = Color.randomValue.hexValue {
+                    state.category.colorHex = randomHexValue
+                }
+            case .tapCloseButton, .tapSaveButton:
+                break
+            }
+            return .none
+        }
     }
 }
 
