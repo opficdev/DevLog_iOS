@@ -375,7 +375,7 @@ struct MainView: View {
                 viewModel: profileViewCoordinator.makePushNotificationSettingsViewModel()
             )
         case .account:
-            AccountView(viewModel: profileViewCoordinator.makeAccountViewModel())
+            AccountView(store: profileViewCoordinator.makeAccountStore())
         }
     }
 }

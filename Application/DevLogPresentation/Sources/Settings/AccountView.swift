@@ -6,32 +6,33 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogDomain
 
 struct AccountView: View {
-    @State var viewModel: AccountViewModel
+    @Bindable var store: StoreOf<AccountFeature>
 
     var body: some View {
         List {
             Section(String(localized: "account_current_section")) {
                 HStack {
-                    if let provider = viewModel.state.currentProvider {
+                    if let provider = store.currentProvider {
                         providerContent(provider)
                     }
                 }
             }
             Section(String(localized: "account_social_section")) {
-                let providers = AuthProvider.allCases.filter { $0 != viewModel.state.currentProvider }
+                let providers = AuthProvider.allCases.filter { $0 != store.currentProvider }
                 ForEach(providers, id: \.self) { provider in
-                    let isConnected = viewModel.state.connectedProviders.contains(provider)
+                    let isConnected = store.connectedProviders.contains(provider)
                     HStack {
                         providerContent(provider)
                         Spacer()
                         Button {
                             if isConnected {
-                                viewModel.send(.unlinkFromProvider(provider))
+                                store.send(.unlinkFromProvider(provider))
                             } else {
-                                viewModel.send(.linkWithProvider(provider))
+                                store.send(.linkWithProvider(provider))
                             }
                         } label: {
                             Text(isConnected
@@ -52,19 +53,10 @@ struct AccountView: View {
         .scrollDisabled(true)
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_account"))
-        .onAppear {
-            viewModel.send(.onAppear)
-        }
-        .alert(viewModel.state.alertTitle, isPresented: Binding(
-            get: { viewModel.state.showAlert },
-            set: { viewModel.send(.setAlert(isPresented: $0)) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
-        }
+        .onAppear { store.send(.onAppear) }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
-            if viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
