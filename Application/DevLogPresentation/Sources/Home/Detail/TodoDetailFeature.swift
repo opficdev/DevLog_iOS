@@ -24,34 +24,27 @@ struct TodoDetailFeature {
     }
 
     @ObservableState
-    struct SheetState: Equatable {
-        var destination: Destination
+    @CasePathable
+    enum SheetState: Equatable {
+        case info
+        case todo(TodoDetailFeature.State)
 
         var todoDetail: TodoDetailFeature.State? {
             get {
-                guard case .todo(let state) = destination else { return nil }
+                guard case .todo(let state) = self else { return nil }
                 return state
             }
             set {
                 guard let newValue else { return }
-                destination = .todo(newValue)
+                self = .todo(newValue)
             }
         }
 
-        enum Destination: Equatable {
-            case info
-            case todo(TodoDetailFeature.State)
-        }
-
-        static let info = Self(destination: .info)
-
         static func todo(_ todoId: TodoIdItem) -> Self {
-            Self(
-                destination: .todo(
-                    TodoDetailFeature.State(
-                        todoId: todoId.id,
-                        showEditButton: false
-                    )
+            .todo(
+                TodoDetailFeature.State(
+                    todoId: todoId.id,
+                    showEditButton: false
                 )
             )
         }
@@ -139,7 +132,7 @@ private struct TodoDetailSheetFeature: Reducer {
 
     var body: some ReducerOf<Self> {
         EmptyReducer()
-        .ifLet(\.todoDetail, action: \.todo) {
+        .ifCaseLet(\.todo, action: \.todo) {
             TodoDetailFeature()
         }
     }

@@ -111,7 +111,7 @@ struct TodoDetailView: View {
     private func sheetContent(
         _ sheetStore: Store<TodoDetailFeature.SheetState, TodoDetailFeature.Action.Sheet>
     ) -> some View {
-        switch sheetStore.destination {
+        switch sheetStore.state {
         case .info:
             if let todo = store.todo {
                 TodoDetailInfoSheetView(todo: todo) {

@@ -141,10 +141,14 @@ struct TodoDetailFeatureTests {
 
     @Test("시트와 편집 화면 상태를 액션에 맞게 변경한다")
     func 시트와_편집_화면_상태를_액션에_맞게_변경한다() async {
-        let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo(id: "todo-2"))
+        let reference = makeTodoReference(id: "todo-7", title: "Reference 7")
+        let fetchSpy = FetchTodoByIdUseCaseSpy(
+            todo: makeTodo(id: "todo-2", content: "- refs #7")
+        )
+        let referenceSpy = FetchReferenceItemsUseCaseSpy(references: [7: reference])
         let adapter = TodoDetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
-            referenceUseCase: FetchReferenceItemsUseCaseSpy(),
+            referenceUseCase: referenceSpy,
             todoId: "todo-1",
             showEditButton: false
         )
@@ -158,16 +162,18 @@ struct TodoDetailFeatureTests {
 
         adapter.setSheet(.todo(TodoIdItem(id: "todo-2")))
 
-        #expect(adapter.sheet?.todoDetail?.todoId == "todo-2")
-        #expect(adapter.sheet?.todoDetail?.showEditButton == false)
+        #expect(todoDetailState(in: adapter.sheet)?.todoId == "todo-2")
+        #expect(todoDetailState(in: adapter.sheet)?.showEditButton == false)
 
         adapter.onSheetTodoAppear()
 
         await waitUntil {
-            adapter.sheet?.todoDetail?.todo?.id == "todo-2"
+            todoDetailState(in: adapter.sheet)?.referenceItems[7] == TodoReferenceItem(from: reference)
         }
 
         #expect(fetchSpy.todoIds == ["todo-2"])
+        #expect(referenceSpy.numbers == [[7]])
+        #expect(adapter.referenceItems.isEmpty)
 
         adapter.dismissSheet()
         adapter.dismissFullScreenCover()
@@ -202,37 +208,14 @@ private protocol TodoDetailTestAdapter {
 private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
     private let store: StoreOf<TodoDetailFeature>
 
-    var todoId: String {
-        store.todoId
-    }
-
-    var showEditButton: Bool {
-        store.showEditButton
-    }
-
-    var todo: Todo? {
-        store.todo
-    }
-
-    var referenceItems: [Int: TodoReferenceItem] {
-        store.referenceItems
-    }
-
-    var isLoading: Bool {
-        store.isLoading
-    }
-
-    var alert: AlertState<Never>? {
-        store.alert
-    }
-
-    var sheet: TodoDetailFeature.SheetState? {
-        store.sheet
-    }
-
-    var fullScreenCover: TodoDetailFeature.FullScreenCoverState? {
-        store.fullScreenCover
-    }
+    var todoId: String { store.todoId }
+    var showEditButton: Bool { store.showEditButton }
+    var todo: Todo? { store.todo }
+    var referenceItems: [Int: TodoReferenceItem] { store.referenceItems }
+    var isLoading: Bool { store.isLoading }
+    var alert: AlertState<Never>? { store.alert }
+    var sheet: TodoDetailFeature.SheetState? { store.sheet }
+    var fullScreenCover: TodoDetailFeature.FullScreenCoverState? { store.fullScreenCover }
 
     init(
         fetchUseCase: FetchTodoByIdUseCase,
@@ -282,6 +265,13 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
     func setReferenceItems(_ items: [Int: TodoReferenceItem]) {
         store.send(.setReferenceItems(items))
     }
+}
+
+private func todoDetailState(
+    in sheet: TodoDetailFeature.SheetState?
+) -> TodoDetailFeature.State? {
+    guard case .todo(let state) = sheet else { return nil }
+    return state
 }
 
 private func expectedErrorAlert() -> AlertState<Never> {
