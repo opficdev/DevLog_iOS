@@ -20,7 +20,7 @@ struct LoginView: View {
         ) {
             LoginFeature()
         } withDependencies: {
-            $0.signInUseCase = .live(signInUseCase)
+            $0.signInUseCase = signInUseCase
         })
     }
 
