@@ -57,12 +57,7 @@ struct ProfileView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 HStack {
-                    CacheableImage(url: coordinator.viewModel.state.avatarURL) {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .scaledToFill()
-                            .foregroundStyle(Color(.systemGray2))
-                    }
+                    profileAvatarImage
                     .frame(width: 60, height: 60)
                     .cornerRadius(30)
                     .foregroundStyle(Color.gray)
@@ -127,6 +122,21 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
         .toolbar { profileToolbarContent }
+    }
+
+    @ViewBuilder
+    private var profileAvatarImage: some View {
+        if let data = coordinator.viewModel.state.avatarImageData?.data,
+           let uiImage = UIImage(data: data) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image(systemName: "person.crop.circle.fill")
+                .resizable()
+                .scaledToFill()
+                .foregroundStyle(Color(.systemGray2))
+        }
     }
 
     @ToolbarContentBuilder

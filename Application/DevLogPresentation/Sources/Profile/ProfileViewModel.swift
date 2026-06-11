@@ -10,6 +10,18 @@ import Combine
 import DevLogCore
 import DevLogDomain
 
+struct ProfileAvatarImageData: Equatable {
+    let id: Int
+    let data: Data
+
+    static func == (
+        lhs: ProfileAvatarImageData,
+        rhs: ProfileAvatarImageData
+    ) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 @Observable
 final class ProfileViewModel: StorePattern {
     struct State: Equatable {
@@ -19,6 +31,7 @@ final class ProfileViewModel: StorePattern {
         var isLoading: Bool = false
         var statusMessage: String = ""
         var avatarURL: URL?
+        var avatarImageData: ProfileAvatarImageData?
         var earliestQuarterStart: Date?
         var selectedQuarterStart: Date?
         var showQuarterPicker: Bool = false
@@ -41,6 +54,7 @@ final class ProfileViewModel: StorePattern {
         case tapResetStatusMessageButton
         case willUpdateStatusMessage
         case fetchUserData(UserProfile)
+        case setAvatarImageData(URL, Data)
         case setActivityQuarter(
             quarterStart: Date,
             quarter: HeatmapQuarter,
@@ -60,6 +74,7 @@ final class ProfileViewModel: StorePattern {
 
     enum SideEffect {
         case fetchUserData
+        case fetchAvatarImageData(URL)
         case fetchActivityQuarter(Date)
         case updateStatusMessage(String)
         case updateHeatmapActivityKinds(Set<ActivityKind>)
@@ -67,6 +82,7 @@ final class ProfileViewModel: StorePattern {
 
     private(set) var state = State()
     private let fetchUserDataUseCase: FetchUserDataUseCase
+    private let fetchProfileImageDataUseCase: FetchProfileImageDataUseCase
     private let fetchTodosUseCase: FetchTodosUseCase
     private let upsertStatusMessageUseCase: UpsertStatusMessageUseCase
     private let networkConnectivityUseCase: ObserveNetworkConnectivityUseCase
@@ -78,6 +94,7 @@ final class ProfileViewModel: StorePattern {
 
     init(
         fetchUserDataUseCase: FetchUserDataUseCase,
+        fetchProfileImageDataUseCase: FetchProfileImageDataUseCase,
         fetchTodosUseCase: FetchTodosUseCase,
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase,
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
@@ -85,6 +102,7 @@ final class ProfileViewModel: StorePattern {
         updateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase
     ) {
         self.fetchUserDataUseCase = fetchUserDataUseCase
+        self.fetchProfileImageDataUseCase = fetchProfileImageDataUseCase
         self.fetchTodosUseCase = fetchTodosUseCase
         self.upsertStatusMessageUseCase = upsertStatusMessageUseCase
         self.networkConnectivityUseCase = networkConnectivityUseCase
@@ -121,14 +139,25 @@ final class ProfileViewModel: StorePattern {
         case .tapResetStatusMessageButton:
             state.statusMessage = ""
         case .fetchUserData(let profile):
+            let previousAvatarURL = state.avatarURL
             state.name = profile.name
             state.email = profile.email
             state.statusMessage = profile.statusMessage
             state.avatarURL = profile.avatarURL
+            if previousAvatarURL != profile.avatarURL {
+                state.avatarImageData = nil
+            }
+            if let avatarURL = profile.avatarURL {
+                effects = [.fetchAvatarImageData(avatarURL)]
+            }
             if state.earliestQuarterStart == nil {
                 state.earliestQuarterStart = quarterStart(for: profile.createdAt)
                     ?? calendar.startOfDay(for: profile.createdAt)
             }
+        case .setAvatarImageData(let url, let data):
+            guard state.avatarURL == url else { break }
+            let id = (state.avatarImageData?.id ?? 0) + 1
+            state.avatarImageData = ProfileAvatarImageData(id: id, data: data)
         case .setQuarterPickerPresented(let isPresented):
             state.showQuarterPicker = isPresented
         case .setQuarterPickerYear(let year):
@@ -201,6 +230,13 @@ final class ProfileViewModel: StorePattern {
                 } catch {
                     send(.setAlert(true))
                 }
+            }
+        case .fetchAvatarImageData(let url):
+            Task {
+                do {
+                    let data = try await fetchProfileImageDataUseCase.execute(from: url)
+                    send(.setAvatarImageData(url, data))
+                } catch { }
             }
         case .fetchActivityQuarter(let quarterStart):
             beginLoading(mode: .delayed)

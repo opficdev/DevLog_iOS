@@ -21,6 +21,7 @@ final class ProfileViewCoordinator {
         self.container = container
         self.viewModel = ProfileViewModel(
             fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
+            fetchProfileImageDataUseCase: container.resolve(FetchProfileImageDataUseCase.self),
             fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
             upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
             networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
