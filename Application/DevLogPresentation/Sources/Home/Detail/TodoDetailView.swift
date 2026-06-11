@@ -14,11 +14,7 @@ struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
-    @State private var store: StoreOf<TodoDetailFeature>
-
-    init(store: StoreOf<TodoDetailFeature>) {
-        self._store = State(initialValue: store)
-    }
+    @Bindable var store: StoreOf<TodoDetailFeature>
 
     var body: some View {
         ZStack {
