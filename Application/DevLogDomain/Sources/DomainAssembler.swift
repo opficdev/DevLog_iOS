@@ -116,6 +116,10 @@ private extension DomainAssembler {
             FetchUserDataUseCaseImpl(container.resolve(UserDataRepository.self))
         }
 
+        container.register(FetchProfileImageDataUseCase.self) {
+            FetchProfileImageDataUseCaseImpl(container.resolve(ProfileImageDataRepository.self))
+        }
+
         container.register(UpsertStatusMessageUseCase.self) {
             UpsertStatusMessageUseCaseImpl(container.resolve(UserDataRepository.self))
         }

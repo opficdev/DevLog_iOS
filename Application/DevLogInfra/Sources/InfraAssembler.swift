@@ -61,6 +61,10 @@ public final class InfraAssembler: Assembler {
             UserServiceImpl()
         }
 
+        container.register(ProfileImageDataService.self) {
+            ProfileImageDataServiceImpl()
+        }
+
         container.register(PushNotificationService.self) {
             PushNotificationServiceImpl()
         }

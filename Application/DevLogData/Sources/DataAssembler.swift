@@ -94,6 +94,13 @@ public final class DataAssembler: Assembler {
             UserDataRepositoryImpl(userService: container.resolve(UserService.self))
         }
 
+        container.register(ProfileImageDataRepository.self) {
+            ProfileImageDataRepositoryImpl(
+                service: container.resolve(ProfileImageDataService.self),
+                store: container.resolve(MemoryCacheStore.self)
+            )
+        }
+
         container.register(AnalyticsRepository.self) {
             AnalyticsRepositoryImpl(
                 analyticsService: container.resolve(AnalyticsService.self)
