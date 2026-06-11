@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -58,12 +59,17 @@ final class ProfileViewCoordinator {
         )
     }
 
-    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
-        TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            todoId: todoId,
-            showEditButton: false
-        )
+    func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
+        Store(
+            initialState: TodoDetailFeature.State(
+                todoId: todoId,
+                showEditButton: false
+            )
+        ) {
+            TodoDetailFeature()
+        } withDependencies: {
+            $0.fetchTodoByIdUseCase = self.container.resolve(FetchTodoByIdUseCase.self)
+            $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
+        }
     }
 }

@@ -8,6 +8,7 @@
 import MarkdownUI
 import OrderedCollections
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -61,12 +62,14 @@ struct TodoEditorView: View {
                 set: { viewModel.send(.setSelectedTodoId($0)) }
             )) { item in
                 NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
-                        fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        todoId: item.id,
-                        showEditButton: false
-                    ))
+                    TodoDetailView(store: Store(
+                        initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
+                    ) {
+                        TodoDetailFeature()
+                    } withDependencies: {
+                        $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                    })
                     .toolbar {
                         ToolbarLeadingButton {
                             viewModel.send(.setSelectedTodoId(nil))

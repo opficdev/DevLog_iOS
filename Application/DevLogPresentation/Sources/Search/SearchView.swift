@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -21,11 +22,14 @@ struct SearchView: View {
                 .navigationDestination(for: Path.self) { path in
                     switch path {
                     case .todo(let todoId):
-                        TodoDetailView(viewModel: TodoDetailViewModel(
-                            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                            todoId: todoId
-                        ))
+                        TodoDetailView(store: Store(
+                            initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: true)
+                        ) {
+                            TodoDetailFeature()
+                        } withDependencies: {
+                            $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                            $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                        })
                     case .web(let page):
                         WebView(url: page.url)
                             .ignoresSafeArea()
