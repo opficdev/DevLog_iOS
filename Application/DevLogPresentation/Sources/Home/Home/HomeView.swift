@@ -29,7 +29,7 @@ struct HomeView: View {
             set: { coordinator.viewModel.send(.setPresentation(.reorderTodo, $0)) }
         )) {
             TodoManageView(
-                viewModel: coordinator.makeTodoManageViewModel(),
+                preferences: coordinator.viewModel.state.preferences,
                 onDismiss: { array in
                     coordinator.viewModel.send(.setPresentation(.reorderTodo, false))
                     withAnimation {
