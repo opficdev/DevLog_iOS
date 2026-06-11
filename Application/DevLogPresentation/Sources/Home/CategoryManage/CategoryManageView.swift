@@ -1,34 +1,46 @@
 //
-//  TodoManageView.swift
+//  CategoryManageView.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 6/16/25.
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogDomain
 
-struct TodoManageView: View {
-    @State var viewModel: TodoManageViewModel
-    @State private var tmpText = ""
+struct CategoryManageView: View {
+    @State private var store: StoreOf<CategoryManageFeature>
     var onDismiss: (([TodoCategoryItem]) -> Void)?
+
+    init(
+        preferences: [TodoCategoryItem],
+        onDismiss: (([TodoCategoryItem]) -> Void)?
+    ) {
+        self._store = State(initialValue: Store(
+            initialState: CategoryManageFeature.State(preferences: preferences)
+        ) {
+            CategoryManageFeature()
+        })
+        self.onDismiss = onDismiss
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.state.preferences, id: \.id) { item in
+                ForEach(store.preferences, id: \.id) { item in
                     HStack(spacing: 0) {
                         CheckBox(isChecked: item.isVisible, font: .title3)
                             .padding(.horizontal)
                             .onTapGesture {
-                                viewModel.send(.tapItem(item))
+                                store.send(.tapItem(item))
                             }
                         Text(item.localizedName)
                             .lineLimit(1)
                         Spacer()
                         if item.isUserCategory {
                             Button {
-                                viewModel.send(.tapEditUserCategory(item))
+                                store.send(.tapEditUserCategory(item))
                             } label: {
                                 Image(systemName: "slider.horizontal.3")
                             }
@@ -36,7 +48,7 @@ struct TodoManageView: View {
                             .padding(.trailing, 8)
 
                             Button(role: .destructive) {
-                                viewModel.send(.tapDeleteUserCategory(item))
+                                store.send(.tapDeleteUserCategory(item))
                             } label: {
                                 Image(systemName: "trash")
                             }
@@ -46,7 +58,7 @@ struct TodoManageView: View {
                     }
                 }
                 .onMove { source, destination in
-                    viewModel.send(.moveItem(from: source, target: destination))
+                    store.send(.moveItem(from: source, target: destination))
                 }
                 .listRowInsets(EdgeInsets())
             }
@@ -54,33 +66,14 @@ struct TodoManageView: View {
             .navigationTitle(String(localized: "nav_todo_manage"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
-            .sheet(isPresented: Binding(
-                get: { viewModel.state.showSheet },
-                set: { viewModel.send(.setShowSheet($0)) }
-            )) {
-                categorySheet
+            .sheet(item: $store.scope(state: \.categorySheet, action: \.categorySheet)) { store in
+                CategoryManageSheet(store: store)
             }
-            .alert(
-                String(localized: "todo_manage_delete_category_title"),
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setShowAlert($0)) }
-                )
-            ) {
-                Button(String(localized: "common_cancel"), role: .cancel) {
-                    viewModel.send(.setShowAlert(false))
-                }
-                Button(String(localized: "common_delete"), role: .destructive) {
-                    viewModel.send(.confirmDeleteUserCategory)
-                }
-            } message: {
-                Text(String(localized: "todo_manage_delete_category_message"))
-                    .multilineTextAlignment(.leading)
-            }
+            .alert($store.scope(state: \.alert, action: \.alert))
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        viewModel.send(.tapAddUserCategory)
+                        store.send(.tapAddUserCategory)
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -88,7 +81,8 @@ struct TodoManageView: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        onDismiss?(viewModel.state.preferences)
+                        store.send(.tapDoneButton)
+                        onDismiss?(store.preferences)
                     } label: {
                         Text(String(localized: "profile_done"))
                     }
@@ -97,27 +91,27 @@ struct TodoManageView: View {
         }
         .presentationDragIndicator(.visible)
     }
+}
 
-    private var categorySheet: some View {
+private struct CategoryManageSheet: View {
+    let store: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
+
+    var body: some View {
         NavigationStack {
             Form {
                 Section {
                     HStack(spacing: 8) {
                         TextField(
                             "",
-                            text: $tmpText,
-                            prompt: Text(viewModel.placeholder).foregroundStyle(.secondary)
+                            text: Binding(
+                                get: { store.category.name },
+                                set: { store.send(.setCategoryName($0)) }
+                            ),
+                            prompt: Text(store.placeholder).foregroundStyle(.secondary)
                         )
                         .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
-                        .onAppear {
-                            tmpText = currentCategoryName
-                        }
-                        .onChange(of: tmpText) { _, value in
-                            viewModel.send(.setCategoryName(value))
-                            tmpText = currentCategoryName
-                        }
 
-                        Text(viewModel.categoryNameCountText)
+                        Text(store.categoryNameCountText)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
@@ -125,12 +119,15 @@ struct TodoManageView: View {
                 }
 
                 Section {
-                    let color = Color(hexString: currentCategoryColorHex) ?? .randomValue
+                    let color = Color(hexString: store.category.colorHex) ?? .randomValue
                     ColorPicker(selection: Binding(
                         get: { color },
-                        set: { viewModel.send(.setCategoryColor($0)) }
+                        set: {
+                            guard let hexValue = $0.hexValue else { return }
+                            store.send(.setCategoryColor(hexValue))
+                        }
                     ), supportsOpacity: false) {
-                        Text(currentCategoryColorHex.isEmpty ? "#" : currentCategoryColorHex)
+                        Text(store.category.colorHex.isEmpty ? "#" : store.category.colorHex)
                             .overlay(alignment: .bottom) {
                                 Rectangle()
                                     .frame(height: 1)
@@ -138,50 +135,28 @@ struct TodoManageView: View {
                             }
                             .foregroundStyle(color)
                             .onTapGesture {
-                                viewModel.send(.setRandomCategoryColor)
+                                store.send(.tapRandomColorButton)
                             }
                     }
                     .pickerStyle(.palette)
                 }
             }
-            .navigationTitle(viewModel.navigationTitle)
+            .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(String(localized: "common_close")) {
-                        viewModel.send(.setShowSheet(false))
+                        store.send(.tapCloseButton)
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(viewModel.submitTitle) {
-                        viewModel.send(.saveUserCategory)
+                    Button(store.submitTitle) {
+                        store.send(.tapSaveButton)
                     }
-                    .disabled(!viewModel.canSubmitUserCategory)
+                    .disabled(!store.canSubmitUserCategory)
                 }
             }
         }
-    }
-
-    private var currentCategoryName: String {
-        guard
-            let categoryItem = viewModel.state.category,
-            case .user(let userTodoCategory) = categoryItem.category
-        else {
-            return ""
-        }
-
-        return userTodoCategory.name
-    }
-
-    private var currentCategoryColorHex: String {
-        guard
-            let categoryItem = viewModel.state.category,
-            case .user(let userTodoCategory) = categoryItem.category
-        else {
-            return ""
-        }
-
-        return userTodoCategory.colorHex
     }
 }

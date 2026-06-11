@@ -76,10 +76,6 @@ final class HomeViewCoordinator {
             .store(in: &cancellables)
     }
 
-    func makeTodoManageViewModel() -> TodoManageViewModel {
-        TodoManageViewModel(viewModel.state.preferences)
-    }
-
     func makeTodoEditorViewModel(category: TodoCategory) -> TodoEditorViewModel {
         TodoEditorViewModel(
             category: category,

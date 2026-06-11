@@ -11,7 +11,7 @@ public enum DevLogPackages {
     )
     public static let composableArchitecturePackage: Package = .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
-        .upToNextMajor(from: "1.25.5")
+        .upToNextMinor(from: "1.25.5")
     )
     public static let firebasePackage: Package = .package(
         url: "https://github.com/firebase/firebase-ios-sdk",
