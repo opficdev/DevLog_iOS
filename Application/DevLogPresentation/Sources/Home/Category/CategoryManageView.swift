@@ -66,8 +66,8 @@ struct CategoryManageView: View {
             .navigationTitle(String(localized: "nav_todo_manage"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
-            .sheet(item: $store.scope(state: \.categorySheet, action: \.categorySheet)) { store in
-                CategoryManageSheet(store: store)
+            .sheet(item: $store.scope(state: \.categorySheet, action: \.categorySheet)) { sheetStore in
+                sheetContent(sheetStore)
             }
             .alert($store.scope(state: \.alert, action: \.alert))
             .toolbar {
@@ -90,6 +90,13 @@ struct CategoryManageView: View {
             }
         }
         .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func sheetContent(
+        _ sheetStore: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
+    ) -> some View {
+        CategoryManageSheet(store: sheetStore)
     }
 }
 
