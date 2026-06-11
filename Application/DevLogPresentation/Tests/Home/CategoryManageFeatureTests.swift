@@ -1,5 +1,5 @@
 //
-//  TodoManageFeatureTests.swift
+//  CategoryManageFeatureTests.swift
 //  DevLogPresentationTests
 //
 //  Created by opfic on 6/11/26.
@@ -12,11 +12,11 @@ import DevLogDomain
 @testable import DevLogPresentation
 
 @MainActor
-struct TodoManageFeatureTests {
+struct CategoryManageFeatureTests {
     @Test("항목을 누르면 표시 여부가 전환된다")
     func 항목을_누르면_표시_여부가_전환된다() {
         let item = TodoCategoryItem(from: .system(.issue))
-        let driver = TodoManageTestDriver(preferences: [item])
+        let driver = CategoryManageTestDriver(preferences: [item])
 
         driver.tapItem(item)
 
@@ -27,7 +27,7 @@ struct TodoManageFeatureTests {
     func 항목을_이동하면_preferences_순서가_변경된다() {
         let issue = TodoCategoryItem(from: .system(.issue))
         let feature = TodoCategoryItem(from: .system(.feature))
-        let driver = TodoManageTestDriver(preferences: [issue, feature])
+        let driver = CategoryManageTestDriver(preferences: [issue, feature])
 
         driver.moveItem(from: IndexSet(integer: 0), target: 2)
 
@@ -37,7 +37,7 @@ struct TodoManageFeatureTests {
     @Test("사용자 카테고리 추가를 누르면 카테고리 입력 시트 상태가 생성된다")
     func 사용자_카테고리_추가를_누르면_카테고리_입력_시트_상태가_생성된다() {
         let item = TodoCategoryItem(from: .system(.issue))
-        let driver = TodoManageTestDriver(preferences: [item])
+        let driver = CategoryManageTestDriver(preferences: [item])
 
         driver.tapAddUserCategory()
 
@@ -48,7 +48,7 @@ struct TodoManageFeatureTests {
 
     @Test("카테고리 이름은 20자로 제한된다")
     func 카테고리_이름은_20자로_제한된다() {
-        let driver = TodoManageTestDriver(preferences: [])
+        let driver = CategoryManageTestDriver(preferences: [])
 
         driver.tapAddUserCategory()
         driver.setCategoryName(String(repeating: "a", count: 25))
@@ -58,7 +58,7 @@ struct TodoManageFeatureTests {
 
     @Test("새 사용자 카테고리를 저장하면 이름을 trim한 항목이 추가되고 시트가 닫힌다")
     func 새_사용자_카테고리를_저장하면_이름을_trim한_항목이_추가되고_시트가_닫힌다() {
-        let driver = TodoManageTestDriver(preferences: [])
+        let driver = CategoryManageTestDriver(preferences: [])
 
         driver.tapAddUserCategory()
         let colorHex = driver.categorySheet?.category.colorHex
@@ -83,7 +83,7 @@ struct TodoManageFeatureTests {
             ),
             isVisible: false
         )
-        let driver = TodoManageTestDriver(preferences: [item])
+        let driver = CategoryManageTestDriver(preferences: [item])
 
         driver.tapEditUserCategory(item)
         driver.setCategoryName("New")
@@ -109,7 +109,7 @@ struct TodoManageFeatureTests {
                 )
             )
         )
-        let driver = TodoManageTestDriver(preferences: [issue, item])
+        let driver = CategoryManageTestDriver(preferences: [issue, item])
 
         driver.tapDeleteUserCategory(item)
         driver.confirmDeleteUserCategory(item)
@@ -129,7 +129,7 @@ struct TodoManageFeatureTests {
                 )
             )
         )
-        let driver = TodoManageTestDriver(preferences: [item])
+        let driver = CategoryManageTestDriver(preferences: [item])
 
         driver.tapDeleteUserCategory(item)
         driver.dismissAlert()
@@ -140,26 +140,26 @@ struct TodoManageFeatureTests {
 }
 
 @MainActor
-private struct TodoManageTestDriver {
-    private let feature: StoreOf<TodoManageFeature>
+private struct CategoryManageTestDriver {
+    private let feature: StoreOf<CategoryManageFeature>
 
     var preferences: [TodoCategoryItem] {
         feature.state.preferences
     }
 
-    var categorySheet: TodoManageFeature.CategorySheetState? {
+    var categorySheet: CategoryManageFeature.CategorySheetState? {
         feature.state.categorySheet
     }
 
-    var alert: AlertState<TodoManageFeature.Action.Alert>? {
+    var alert: AlertState<CategoryManageFeature.Action.Alert>? {
         feature.state.alert
     }
 
     init(preferences: [TodoCategoryItem]) {
         feature = Store(
-            initialState: TodoManageFeature.State(preferences: preferences)
+            initialState: CategoryManageFeature.State(preferences: preferences)
         ) {
-            TodoManageFeature()
+            CategoryManageFeature()
         }
     }
 

@@ -28,7 +28,7 @@ struct HomeView: View {
             get: { coordinator.viewModel.state.reorderTodo },
             set: { coordinator.viewModel.send(.setPresentation(.reorderTodo, $0)) }
         )) {
-            TodoManageView(
+            CategoryManageView(
                 preferences: coordinator.viewModel.state.preferences,
                 onDismiss: { array in
                     coordinator.viewModel.send(.setPresentation(.reorderTodo, false))

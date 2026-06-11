@@ -1,5 +1,5 @@
 //
-//  TodoManageFeature.swift
+//  CategoryManageFeature.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 6/11/26.
@@ -10,7 +10,7 @@ import DevLogDomain
 import SwiftUI
 
 @Reducer
-struct TodoManageFeature {
+struct CategoryManageFeature {
     @ObservableState
     struct State: Equatable {
         var preferences: [TodoCategoryItem]
@@ -182,7 +182,7 @@ struct TodoManageFeature {
     }
 }
 
-private extension TodoManageFeature {
+private extension CategoryManageFeature {
     func deleteAlertState(for item: TodoCategoryItem) -> AlertState<Action.Alert> {
         AlertState {
             TextState(String(localized: "todo_manage_delete_category_title"))

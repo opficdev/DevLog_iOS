@@ -1,5 +1,5 @@
 //
-//  TodoManageView.swift
+//  CategoryManageView.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 6/16/25.
@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 import DevLogDomain
 
-struct TodoManageView: View {
-    @State private var store: StoreOf<TodoManageFeature>
+struct CategoryManageView: View {
+    @State private var store: StoreOf<CategoryManageFeature>
     var onDismiss: (([TodoCategoryItem]) -> Void)?
 
     init(
@@ -18,9 +18,9 @@ struct TodoManageView: View {
         onDismiss: (([TodoCategoryItem]) -> Void)?
     ) {
         self._store = State(initialValue: Store(
-            initialState: TodoManageFeature.State(preferences: preferences)
+            initialState: CategoryManageFeature.State(preferences: preferences)
         ) {
-            TodoManageFeature()
+            CategoryManageFeature()
         })
         self.onDismiss = onDismiss
     }
@@ -67,7 +67,7 @@ struct TodoManageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .sheet(item: $store.scope(state: \.categorySheet, action: \.categorySheet)) { store in
-                TodoManageCategorySheet(store: store)
+                CategoryManageSheet(store: store)
             }
             .alert($store.scope(state: \.alert, action: \.alert))
             .toolbar {
@@ -93,8 +93,8 @@ struct TodoManageView: View {
     }
 }
 
-private struct TodoManageCategorySheet: View {
-    let store: Store<TodoManageFeature.CategorySheetState, TodoManageFeature.Action.CategorySheet>
+private struct CategoryManageSheet: View {
+    let store: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
 
     var body: some View {
         NavigationStack {
