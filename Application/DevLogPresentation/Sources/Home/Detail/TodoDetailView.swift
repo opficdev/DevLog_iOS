@@ -20,25 +20,6 @@ struct TodoDetailView: View {
         self._store = State(initialValue: store)
     }
 
-    init(
-        fetchTodoUseCase: FetchTodoByIdUseCase,
-        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
-        todoId: String,
-        showEditButton: Bool = true
-    ) {
-        self.init(store: Store(
-            initialState: TodoDetailFeature.State(
-                todoId: todoId,
-                showEditButton: showEditButton
-            )
-        ) {
-            TodoDetailFeature()
-        } withDependencies: {
-            $0.fetchTodoByIdUseCase = fetchTodoUseCase
-            $0.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
-        })
-    }
-
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
@@ -139,12 +120,14 @@ struct TodoDetailView: View {
             }
         case .todo(let item):
             NavigationStack {
-                TodoDetailView(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    todoId: item.id,
-                    showEditButton: false
-                )
+                TodoDetailView(store: Store(
+                    initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
+                ) {
+                    TodoDetailFeature()
+                } withDependencies: {
+                    $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                })
                 .toolbar {
                     ToolbarLeadingButton {
                         sheetStore.send(.tapCloseButton)
