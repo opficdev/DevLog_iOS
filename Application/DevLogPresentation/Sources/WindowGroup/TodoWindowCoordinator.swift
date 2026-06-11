@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -17,7 +18,7 @@ final class TodoWindowCoordinator {
     @ObservationIgnored
     private var listViewModel: TodoListViewModel?
     @ObservationIgnored
-    private var detailViewModel: TodoDetailViewModel?
+    private var detailStore: StoreOf<TodoDetailFeature>?
     @ObservationIgnored
     private var cancellable: AnyCancellable?
 
@@ -53,24 +54,28 @@ final class TodoWindowCoordinator {
         return listViewModel
     }
 
-    func makeDetailViewModel(
+    func makeDetailStore(
         todoId: String,
         showEditButton: Bool = true
-    ) -> TodoDetailViewModel {
-        if let detailViewModel,
-           detailViewModel.todoId == todoId,
-           detailViewModel.showEditButton == showEditButton {
-            return detailViewModel
+    ) -> StoreOf<TodoDetailFeature> {
+        if let detailStore,
+           detailStore.todoId == todoId,
+           detailStore.showEditButton == showEditButton {
+            return detailStore
         }
-
-        let detailViewModel = TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            todoId: todoId,
-            showEditButton: showEditButton
-        )
-        self.detailViewModel = detailViewModel
-        return detailViewModel
+        let detailStore = Store(
+            initialState: TodoDetailFeature.State(
+                todoId: todoId,
+                showEditButton: showEditButton
+            )
+        ) {
+            TodoDetailFeature()
+        } withDependencies: {
+            $0.fetchTodoByIdUseCase = self.container.resolve(FetchTodoByIdUseCase.self)
+            $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
+        }
+        self.detailStore = detailStore
+        return detailStore
     }
 
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit) {
@@ -81,9 +86,9 @@ final class TodoWindowCoordinator {
                 listViewModel.send(.refresh)
             }
         case .update(let value, let todo):
-            if let detailViewModel,
-               value.matchesEdit(todoId: detailViewModel.todoId) {
-                detailViewModel.send(.setTodo(todo))
+            if let detailStore,
+               value.matchesEdit(todoId: detailStore.todoId) {
+                detailStore.send(.setTodo(todo))
             }
         }
     }

@@ -161,7 +161,7 @@ struct ProfileView: View {
             SettingsView(viewModel: coordinator.settingsViewModel)
                 .environment(coordinator.router)
         case .activity(let todoId):
-            TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: todoId))
+            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: todoId))
         case .theme:
             ThemeView(
                 theme: Binding(

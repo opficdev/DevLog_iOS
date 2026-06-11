@@ -61,12 +61,12 @@ struct TodoEditorView: View {
                 set: { viewModel.send(.setSelectedTodoId($0)) }
             )) { item in
                 NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
+                    TodoDetailView(
                         fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         todoId: item.id,
                         showEditButton: false
-                    ))
+                    )
                     .toolbar {
                         ToolbarLeadingButton {
                             viewModel.send(.setSelectedTodoId(nil))

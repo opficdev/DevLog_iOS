@@ -21,11 +21,11 @@ struct SearchView: View {
                 .navigationDestination(for: Path.self) { path in
                     switch path {
                     case .todo(let todoId):
-                        TodoDetailView(viewModel: TodoDetailViewModel(
+                        TodoDetailView(
                             fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                             fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                             todoId: todoId
-                        ))
+                        )
                     case .web(let page):
                         WebView(url: page.url)
                             .ignoresSafeArea()

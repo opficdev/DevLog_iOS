@@ -89,12 +89,12 @@ public struct RootView: View {
             switch route {
             case .todoDetail(let todoId):
                 NavigationStack {
-                    TodoDetailView(viewModel: TodoDetailViewModel(
+                    TodoDetailView(
                         fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
                         fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
                         todoId: todoId,
                         showEditButton: false
-                    ))
+                    )
                     .toolbar {
                         ToolbarLeadingButton {
                             selectedRoute = nil

@@ -232,7 +232,7 @@ struct MainView: View {
             )
             .id(item.id)
         case .todo(let item):
-            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
+            TodoDetailView(store: todoWindowCoordinator.makeDetailStore(todoId: item.id))
             .id(item.id)
         case .webPage(let item):
             WebView(url: item.url)
@@ -295,7 +295,7 @@ struct MainView: View {
     private func todayDestinationView(_ todayRoute: TodayRoute) -> some View {
         switch todayRoute {
         case .todo(let item):
-            TodoDetailView(viewModel: todoWindowCoordinator.makeDetailViewModel(todoId: item.id))
+            TodoDetailView(store: todoWindowCoordinator.makeDetailStore(todoId: item.id))
                 .id(item.id)
         }
     }
@@ -311,7 +311,7 @@ struct MainView: View {
     private var notificationRegularDetailView: some View {
         if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
             TodoDetailView(
-                viewModel: pushNotificationListViewCoordinator.makeTodoDetailViewModel(
+                store: pushNotificationListViewCoordinator.makeTodoDetailStore(
                     todoId: todoId
                 )
             )
@@ -358,7 +358,7 @@ struct MainView: View {
     private func profileRegularDestinationView(_ route: ProfileRoute) -> some View {
         switch route {
         case .activity(let todoId):
-            TodoDetailView(viewModel: profileViewCoordinator.makeTodoDetailViewModel(todoId: todoId))
+            TodoDetailView(store: profileViewCoordinator.makeTodoDetailStore(todoId: todoId))
                 .id(todoId)
         case .settings:
             SettingsView(viewModel: profileViewCoordinator.settingsViewModel)

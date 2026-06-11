@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -16,7 +17,7 @@ final class PushNotificationListViewCoordinator {
     var todoIdToPresent: TodoIdItem?
     private let container: DIContainer
     @ObservationIgnored
-    private var todoDetailViewModel: TodoDetailViewModel?
+    private var todoDetailStore: StoreOf<TodoDetailFeature>?
 
     init(container: DIContainer) {
         self.container = container
@@ -34,20 +35,27 @@ final class PushNotificationListViewCoordinator {
         viewModel.send(.fetchNotifications)
     }
 
-    func makeTodoDetailViewModel(todoId: String) -> TodoDetailViewModel {
-        if let todoDetailViewModel,
-           todoDetailViewModel.todoId == todoId,
-           !todoDetailViewModel.showEditButton {
-            return todoDetailViewModel
+    func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
+        if let todoDetailStore,
+           todoDetailStore.todoId == todoId,
+           !todoDetailStore.showEditButton {
+            return todoDetailStore
         }
 
-        let todoDetailViewModel = TodoDetailViewModel(
-            fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            todoId: todoId,
-            showEditButton: false
-        )
-        self.todoDetailViewModel = todoDetailViewModel
-        return todoDetailViewModel
+        let fetchTodoUseCase = container.resolve(FetchTodoByIdUseCase.self)
+        let fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+        let todoDetailStore = Store(
+            initialState: TodoDetailFeature.State(
+                todoId: todoId,
+                showEditButton: false
+            )
+        ) {
+            TodoDetailFeature()
+        } withDependencies: {
+            $0.fetchTodoByIdUseCase = fetchTodoUseCase
+            $0.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
+        }
+        self.todoDetailStore = todoDetailStore
+        return todoDetailStore
     }
 }

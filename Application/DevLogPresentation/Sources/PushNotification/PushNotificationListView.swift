@@ -55,7 +55,7 @@ struct PushNotificationListView: View {
             }
         )) { item in
             NavigationStack {
-                TodoDetailView(viewModel: coordinator.makeTodoDetailViewModel(todoId: item.id))
+                TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: item.id))
                 .id(item.id)
                 .toolbar {
                     ToolbarLeadingButton {

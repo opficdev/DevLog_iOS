@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -13,69 +14,56 @@ struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
-    @State var viewModel: TodoDetailViewModel
+    @State private var store: StoreOf<TodoDetailFeature>
+
+    init(store: StoreOf<TodoDetailFeature>) {
+        self._store = State(initialValue: store)
+    }
+
+    init(
+        fetchTodoUseCase: FetchTodoByIdUseCase,
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
+        todoId: String,
+        showEditButton: Bool = true
+    ) {
+        self.init(store: Store(
+            initialState: TodoDetailFeature.State(
+                todoId: todoId,
+                showEditButton: showEditButton
+            )
+        ) {
+            TodoDetailFeature()
+        } withDependencies: {
+            $0.fetchTodoByIdUseCase = fetchTodoUseCase
+            $0.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
+        })
+    }
 
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
-            if let todo = viewModel.state.todo {
+            if let todo = store.todo {
                 TodoDetailContentView(
                     title: todo.title,
                     content: todo.content,
-                    referenceItems: viewModel.state.referenceItems,
+                    referenceItems: store.referenceItems,
                     number: todo.number,
-                    onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
+                    onOpenTodoID: { store.send(.setSheet(.todo(TodoIdItem(id: $0)))) }
                 )
-            } else if viewModel.state.isLoading {
+            } else if store.isLoading {
                 LoadingView()
             }
         }
-        .onAppear { viewModel.send(.onAppear) }
+        .onAppear { store.send(.onAppear) }
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: Binding(
-            get: { viewModel.state.showInfo },
-            set: { viewModel.send(.setShowInfo($0)) }
-        )) {
-            sheetContent
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+            sheetContent(sheetStore)
         }
-        .sheet(item: Binding(
-            get: { viewModel.state.selectedTodoId },
-            set: { viewModel.send(.setSelectedTodoId($0)) }
-        )) { item in
-            NavigationStack {
-                TodoDetailView(viewModel: TodoDetailViewModel(
-                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    todoId: item.id,
-                    showEditButton: false
-                ))
-                .toolbar {
-                    ToolbarLeadingButton {
-                        viewModel.send(.setSelectedTodoId(nil))
-                    }
-                }
-            }
-            .background(Color(.systemGroupedBackground))
-            .presentationDragIndicator(.visible)
-        }
-        .fullScreenCover(isPresented: Binding(
-            get: { viewModel.state.showEditor },
-            set: { viewModel.send(.setShowEditor($0)) }
-        )) {
-            if let todo = viewModel.state.todo {
-                TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        todo: todo,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpdateSuccess: { todo in
-                            viewModel.send(.setShowEditor(false))
-                            viewModel.send(.setTodo(todo))
-                        }
-                    )
-                )
-            }
+        .fullScreenCover(
+            item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
+        ) { coverStore in
+            fullScreenCoverContent(coverStore)
         }
         .toolbar { toolbarContent }
     }
@@ -84,12 +72,12 @@ struct TodoDetailView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.setShowInfo(true))
+                store.send(.setSheet(.info))
             } label: {
                 Image(systemName: "info.circle")
             }
         }
-        if viewModel.showEditButton {
+        if store.showEditButton {
             if #available(iOS 26.0, *) {
                 ToolbarSpacer(.fixed, placement: .topBarTrailing)
             }
@@ -105,22 +93,66 @@ struct TodoDetailView: View {
 
     private func openTodoEditor() {
         if isiOSAppOnMac {
-            guard let todo = viewModel.state.todo else { return }
+            guard let todo = store.todo else { return }
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
                 value: TodoEditorWindowValue(todo: todo)
             )
         } else {
-            viewModel.send(.setShowEditor(true))
+            store.send(.setFullScreenCover(.editor))
         }
     }
 
     @ViewBuilder
-    private var sheetContent: some View {
-        if let todo = viewModel.state.todo {
-            TodoDetailInfoSheetView(todo: todo) {
-                viewModel.send(.setShowInfo(false))
+    private func fullScreenCoverContent(
+        _ coverStore: Store<TodoDetailFeature.FullScreenCoverState, Never>
+    ) -> some View {
+        switch coverStore.destination {
+        case .editor:
+            if let todo = store.todo {
+                TodoEditorView(
+                    viewModel: TodoEditorViewModel(
+                        todo: todo,
+                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
+                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
+                        onUpdateSuccess: { todo in
+                            store.send(.setFullScreenCover(nil))
+                            store.send(.setTodo(todo))
+                        }
+                    )
+                )
             }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(
+        _ sheetStore: Store<TodoDetailFeature.SheetState, TodoDetailFeature.Action.Sheet>
+    ) -> some View {
+        switch sheetStore.destination {
+        case .info:
+            if let todo = store.todo {
+                TodoDetailInfoSheetView(todo: todo) {
+                    sheetStore.send(.tapCloseButton)
+                }
+            }
+        case .todo(let item):
+            NavigationStack {
+                TodoDetailView(
+                    fetchTodoUseCase: container.resolve(FetchTodoByIdUseCase.self),
+                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
+                    todoId: item.id,
+                    showEditButton: false
+                )
+                .toolbar {
+                    ToolbarLeadingButton {
+                        sheetStore.send(.tapCloseButton)
+                    }
+                }
+            }
+            .background(Color(.systemGroupedBackground))
+            .presentationDragIndicator(.visible)
         }
     }
 }
