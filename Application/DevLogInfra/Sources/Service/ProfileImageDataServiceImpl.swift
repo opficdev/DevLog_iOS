@@ -14,7 +14,7 @@ final class ProfileImageDataServiceImpl: ProfileImageDataService {
         try await NXAPIClient(
             configuration: NXClientConfiguration(baseURL: url)
         )
-        .get(url.absoluteString)
+        .get()
         .timeout(10)
         .intercept(ProfileImageDataCachePolicyInterceptor())
         .validate(.successStatusCode)

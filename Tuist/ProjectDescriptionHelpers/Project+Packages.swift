@@ -23,7 +23,7 @@ public enum DevLogPackages {
     )
     public static let nexaPackage: Package = .package(
         url: "https://github.com/opficdev/Nexa",
-        .upToNextMajor(from: "1.1.0")
+        .upToNextMinor(from: "1.1.1")
     )
 
     public static let presentationPackageDependencies: [TargetDependency] = [
