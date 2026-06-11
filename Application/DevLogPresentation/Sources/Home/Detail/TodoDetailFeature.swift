@@ -20,7 +20,11 @@ struct TodoDetailFeature {
         var showEditButton: Bool
         var todo: Todo?
         var referenceItems: [Int: TodoReferenceItem] = [:]
-        var isLoading = false
+        var loading = LoadingFeature.State()
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
     }
 
     @ObservableState
@@ -71,7 +75,7 @@ struct TodoDetailFeature {
         case setFullScreenCover(FullScreenCoverState?)
         case setTodo(Todo)
         case setReferenceItems([Int: TodoReferenceItem])
-        case setLoading(Bool)
+        case loading(LoadingFeature.Action)
 
         @CasePathable
         enum Sheet {
@@ -82,9 +86,11 @@ struct TodoDetailFeature {
 
     @Dependency(\.fetchTodoByIdUseCase) var fetchTodoUseCase
     @Dependency(\.fetchReferenceItemsUseCase) var fetchReferenceItemsUseCase
-    private let loadingState = LoadingState()
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
         Reduce { state, action in
             switch action {
             case .sheet(.dismiss):
@@ -113,8 +119,8 @@ struct TodoDetailFeature {
                 return resolveMarkdownEffect(content: todo.content)
             case .setReferenceItems(let items):
                 state.referenceItems = items
-            case .setLoading(let value):
-                state.isLoading = value
+            case .loading:
+                break
             }
 
             return .none
@@ -172,20 +178,14 @@ private enum FetchReferenceItemsUseCaseKey: DependencyKey {
 
 private extension TodoDetailFeature {
     func fetchTodoEffect(todoId: String) -> Effect<Action> {
-        .run { [fetchTodoUseCase, loadingState] send in
-            await loadingState.begin(mode: .delayed) { isLoading in
-                send(.setLoading(isLoading))
-            }
+        .run { [fetchTodoUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 let todo = try await fetchTodoUseCase.execute(todoId)
-                await loadingState.end(mode: .delayed) { isLoading in
-                    send(.setLoading(isLoading))
-                }
+                await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.setTodo(todo))
             } catch {
-                await loadingState.end(mode: .delayed) { isLoading in
-                    send(.setLoading(isLoading))
-                }
+                await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.fetchFailed)
             }
         }

@@ -94,15 +94,27 @@ struct TodoDetailFeatureTests {
 
     @Test("Todo 조회가 지연되면 로딩 상태를 표시하고 완료되면 해제한다")
     func Todo_조회가_지연되면_로딩_상태를_표시하고_완료되면_해제한다() async {
+        let clock = TestClock()
         let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo())
         fetchSpy.shouldSuspend = true
         let adapter = TodoDetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: FetchReferenceItemsUseCaseSpy(),
-            todoId: "todo-1"
+            todoId: "todo-1",
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
         )
 
         adapter.onAppear()
+
+        await waitUntil {
+            fetchSpy.todoIds == ["todo-1"]
+        }
+
+        #expect(!adapter.isLoading)
+
+        await clock.advance(by: .milliseconds(300))
 
         await waitUntil {
             adapter.isLoading
@@ -221,7 +233,8 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
         fetchUseCase: FetchTodoByIdUseCase,
         referenceUseCase: FetchReferenceItemsUseCase,
         todoId: String,
-        showEditButton: Bool = true
+        showEditButton: Bool = true,
+        configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
         store = Store(
             initialState: TodoDetailFeature.State(
@@ -233,6 +246,8 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
         } withDependencies: {
             $0.fetchTodoByIdUseCase = fetchUseCase
             $0.fetchReferenceItemsUseCase = referenceUseCase
+            $0.continuousClock = ContinuousClock()
+            configureDependencies?(&$0)
         }
     }
 
