@@ -140,9 +140,10 @@ struct TodoDetailFeatureTests {
     }
 
     @Test("시트와 편집 화면 상태를 액션에 맞게 변경한다")
-    func 시트와_편집_화면_상태를_액션에_맞게_변경한다() {
+    func 시트와_편집_화면_상태를_액션에_맞게_변경한다() async {
+        let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo(id: "todo-2"))
         let adapter = TodoDetailStoreTestAdapter(
-            fetchUseCase: FetchTodoByIdUseCaseSpy(todo: makeTodo()),
+            fetchUseCase: fetchSpy,
             referenceUseCase: FetchReferenceItemsUseCaseSpy(),
             todoId: "todo-1",
             showEditButton: false
@@ -157,7 +158,16 @@ struct TodoDetailFeatureTests {
 
         adapter.setSheet(.todo(TodoIdItem(id: "todo-2")))
 
-        #expect(adapter.sheet == .todo(TodoIdItem(id: "todo-2")))
+        #expect(adapter.sheet?.todoDetail?.todoId == "todo-2")
+        #expect(adapter.sheet?.todoDetail?.showEditButton == false)
+
+        adapter.onSheetTodoAppear()
+
+        await waitUntil {
+            adapter.sheet?.todoDetail?.todo?.id == "todo-2"
+        }
+
+        #expect(fetchSpy.todoIds == ["todo-2"])
 
         adapter.dismissSheet()
         adapter.dismissFullScreenCover()
@@ -179,6 +189,7 @@ private protocol TodoDetailTestAdapter {
     var fullScreenCover: TodoDetailFeature.FullScreenCoverState? { get }
 
     func onAppear()
+    func onSheetTodoAppear()
     func setSheet(_ sheet: TodoDetailFeature.SheetState?)
     func dismissSheet()
     func setFullScreenCover(_ cover: TodoDetailFeature.FullScreenCoverState?)
@@ -245,6 +256,8 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
     func onAppear() {
         store.send(.onAppear)
     }
+
+    func onSheetTodoAppear() { store.send(.sheet(.presented(.todo(.onAppear)))) }
 
     func setSheet(_ sheet: TodoDetailFeature.SheetState?) {
         store.send(.setSheet(sheet))

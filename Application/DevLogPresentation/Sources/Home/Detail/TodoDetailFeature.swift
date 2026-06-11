@@ -27,15 +27,33 @@ struct TodoDetailFeature {
     struct SheetState: Equatable {
         var destination: Destination
 
+        var todoDetail: TodoDetailFeature.State? {
+            get {
+                guard case .todo(let state) = destination else { return nil }
+                return state
+            }
+            set {
+                guard let newValue else { return }
+                destination = .todo(newValue)
+            }
+        }
+
         enum Destination: Equatable {
             case info
-            case todo(TodoIdItem)
+            case todo(TodoDetailFeature.State)
         }
 
         static let info = Self(destination: .info)
 
         static func todo(_ todoId: TodoIdItem) -> Self {
-            Self(destination: .todo(todoId))
+            Self(
+                destination: .todo(
+                    TodoDetailFeature.State(
+                        todoId: todoId.id,
+                        showEditButton: false
+                    )
+                )
+            )
         }
     }
 
@@ -62,8 +80,10 @@ struct TodoDetailFeature {
         case setReferenceItems([Int: TodoReferenceItem])
         case setLoading(Bool)
 
-        enum Sheet: Equatable {
+        @CasePathable
+        enum Sheet {
             case tapCloseButton
+            case todo(TodoDetailFeature.Action)
         }
     }
 
@@ -107,6 +127,21 @@ struct TodoDetailFeature {
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$sheet, action: \.sheet) {
+            TodoDetailSheetFeature()
+        }
+    }
+}
+
+private struct TodoDetailSheetFeature: Reducer {
+    typealias State = TodoDetailFeature.SheetState
+    typealias Action = TodoDetailFeature.Action.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
+        .ifLet(\.todoDetail, action: \.todo) {
+            TodoDetailFeature()
+        }
     }
 }
 

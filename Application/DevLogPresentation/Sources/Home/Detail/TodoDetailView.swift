@@ -118,20 +118,15 @@ struct TodoDetailView: View {
                     sheetStore.send(.tapCloseButton)
                 }
             }
-        case .todo(let item):
+        case .todo:
             NavigationStack {
-                TodoDetailView(store: Store(
-                    initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
-                ) {
-                    TodoDetailFeature()
-                } withDependencies: {
-                    $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
-                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                })
-                .toolbar {
-                    ToolbarLeadingButton {
-                        sheetStore.send(.tapCloseButton)
-                    }
+                if let todoStore = sheetStore.scope(state: \.todoDetail, action: \.todo) {
+                    TodoDetailView(store: todoStore)
+                        .toolbar {
+                            ToolbarLeadingButton {
+                                sheetStore.send(.tapCloseButton)
+                            }
+                        }
                 }
             }
             .background(Color(.systemGroupedBackground))
