@@ -15,15 +15,14 @@ struct TodoEditorFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
+        @Presents var sheet: SheetState?
         var isCompleted: Bool = false
         var completedAt: Date?
         var isPinned: Bool = false
-        var selectedTodoId: TodoIdItem?
         var title: String = ""
         var content: String = ""
         var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
-        var showInfo: Bool = false
         var loading = LoadingFeature.State()
         var tags: OrderedSet<String> = []
         var tagText: String = ""
@@ -91,6 +90,13 @@ struct TodoEditorFeature {
         }
     }
 
+    @ObservableState
+    @CasePathable
+    enum SheetState: Equatable {
+        case info
+        case todo(TodoIdItem)
+    }
+
     enum EditorTab: Equatable {
         case editor
         case preview
@@ -103,16 +109,22 @@ struct TodoEditorFeature {
 
     enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
+        case sheet(PresentationAction<Sheet>)
         case binding(BindingAction<State>)
         case onAppear
         case addTag(String)
         case removeTag(String)
         case setCompleted(Bool)
+        case setSheet(SheetState?)
         case upsertTodo
         case createSucceeded
         case saveFailed
         case updateSucceeded(Todo)
         case loading(LoadingFeature.Action)
+
+        enum Sheet: Equatable {
+            case tapCloseButton
+        }
     }
 
     @Dependency(\.date.now) var now
@@ -129,6 +141,12 @@ struct TodoEditorFeature {
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .sheet(.dismiss):
+                state.sheet = nil
+            case .sheet(.presented(.tapCloseButton)):
+                state.sheet = nil
+            case .sheet:
                 break
             case .binding(\.content):
                 if state.tabViewTag == .preview {
@@ -160,6 +178,8 @@ struct TodoEditorFeature {
                     state.completedAt = isCompleted ? now : nil
                 }
                 state.isCompleted = isCompleted
+            case .setSheet(let sheet):
+                state.sheet = sheet
             case .upsertTodo:
                 state.saveResult = nil
                 if state.originalDraft == nil {
@@ -180,6 +200,18 @@ struct TodoEditorFeature {
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$sheet, action: \.sheet) {
+            TodoEditorSheetFeature()
+        }
+    }
+}
+
+private struct TodoEditorSheetFeature: Reducer {
+    typealias State = TodoEditorFeature.SheetState
+    typealias Action = TodoEditorFeature.Action.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
     }
 }
 

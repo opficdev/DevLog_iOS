@@ -53,29 +53,8 @@ struct TodoEditorView: View {
             .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
-            .sheet(isPresented: $store.showInfo) {
-                TodoEditorInfoSheetView(store: store) {
-                    store.send(.binding(.set(\.showInfo, false)))
-                }
-            }
-            .sheet(item: $store.selectedTodoId) { item in
-                NavigationStack {
-                    TodoDetailView(store: Store(
-                        initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
-                    ) {
-                        TodoDetailFeature()
-                    } withDependencies: {
-                        $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
-                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    })
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            store.send(.binding(.set(\.selectedTodoId, nil)))
-                        }
-                    }
-                }
-                .background(Color(.systemGroupedBackground))
-                .presentationDragIndicator(.visible)
+            .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+                sheetContent(sheetStore)
             }
             .toolbar {
                 if !isiOSAppOnMac {
@@ -83,7 +62,7 @@ struct TodoEditorView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        store.send(.binding(.set(\.showInfo, true)))
+                        store.send(.setSheet(.info))
                     } label: {
                         Image(systemName: "info.circle")
                     }
@@ -165,7 +144,7 @@ struct TodoEditorView: View {
                     TodoMarkdownContentView(
                         content: store.content,
                         referenceItems: store.referenceItems,
-                        onOpenTodoID: { store.send(.binding(.set(\.selectedTodoId, TodoIdItem(id: $0)))) }
+                        onOpenTodoID: { store.send(.setSheet(.todo(TodoIdItem(id: $0)))) }
                     )
                 }
             }
@@ -220,6 +199,36 @@ struct TodoEditorView: View {
             onUpdateSuccess?(todo)
         case .none:
             break
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(
+        _ sheetStore: Store<TodoEditorFeature.SheetState, TodoEditorFeature.Action.Sheet>
+    ) -> some View {
+        switch sheetStore.state {
+        case .info:
+            TodoEditorInfoSheetView(store: store) {
+                sheetStore.send(.tapCloseButton)
+            }
+        case .todo(let item):
+            NavigationStack {
+                TodoDetailView(store: Store(
+                    initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
+                ) {
+                    TodoDetailFeature()
+                } withDependencies: {
+                    $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                })
+                .toolbar {
+                    ToolbarLeadingButton {
+                        sheetStore.send(.tapCloseButton)
+                    }
+                }
+            }
+            .background(Color(.systemGroupedBackground))
+            .presentationDragIndicator(.visible)
         }
     }
 

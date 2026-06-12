@@ -143,6 +143,28 @@ struct TodoEditorFeatureTests {
         #expect(adapter.referenceItems[5] == TodoReferenceItem(from: reference5))
     }
 
+    @Test("정보와 참조 Todo 시트 상태를 액션에 맞게 변경한다")
+    func 정보와_참조_Todo_시트_상태를_액션에_맞게_변경한다() async {
+        let adapter = TodoEditorStoreTestAdapter(category: .system(.doc))
+        let item = TodoIdItem(id: "todo-2")
+
+        await adapter.setSheet(.info)
+
+        #expect(adapter.sheet == .info)
+
+        await adapter.dismissSheet()
+
+        #expect(adapter.sheet == nil)
+
+        await adapter.setSheet(.todo(item))
+
+        #expect(adapter.sheet == .todo(item))
+
+        await adapter.tapSheetCloseButton()
+
+        #expect(adapter.sheet == nil)
+    }
+
     @Test("새 Todo 저장 성공은 draft를 저장하고 생성 완료 상태를 남긴다")
     func 새_Todo_저장_성공은_draft를_저장하고_생성_완료_상태를_남긴다() async {
         let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()

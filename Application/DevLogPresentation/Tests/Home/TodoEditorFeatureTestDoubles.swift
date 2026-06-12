@@ -25,6 +25,7 @@ final class TodoEditorStoreTestAdapter {
     var content: String { store.state.content }
     var referenceItems: [Int: TodoReferenceItem] { store.state.referenceItems }
     var dueDate: Date? { store.state.dueDate }
+    var sheet: TodoEditorFeature.SheetState? { store.state.sheet }
     var isLoading: Bool { store.state.isLoading }
     var tags: [String] { Array(store.state.tags) }
     var categories: [TodoCategoryItem] { store.state.categories }
@@ -109,6 +110,24 @@ final class TodoEditorStoreTestAdapter {
                 $0.completedAt = isCompleted ? self.now : nil
             }
             $0.isCompleted = isCompleted
+        }
+    }
+
+    func setSheet(_ sheet: TodoEditorFeature.SheetState?) async {
+        await store.send(.setSheet(sheet)) {
+            $0.sheet = sheet
+        }
+    }
+
+    func dismissSheet() async {
+        await store.send(.sheet(.dismiss)) {
+            $0.sheet = nil
+        }
+    }
+
+    func tapSheetCloseButton() async {
+        await store.send(.sheet(.presented(.tapCloseButton))) {
+            $0.sheet = nil
         }
     }
 
