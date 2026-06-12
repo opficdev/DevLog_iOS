@@ -46,7 +46,7 @@ struct LoginFeature {
             case .tapSignInButton(let provider):
                 return signInEffect(provider)
             case .signInFailed(let alertType):
-                state.alert = alertState(for: alertType)
+                state.alert = Self.alertState(for: alertType)
             case .loading:
                 break
             }
@@ -87,7 +87,7 @@ private extension LoginFeature {
         }
     }
 
-    func alertState(for alertType: AlertType) -> AlertState<Never> {
+    static func alertState(for alertType: AlertType) -> AlertState<Never> {
         let title: String
         let message: String
 

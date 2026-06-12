@@ -98,7 +98,7 @@ struct SearchFeature {
                 break
             case .binding(\.isSearching):
                 if !state.isSearching {
-                    return cancelSearchEffect(isLoading: state.isLoading)
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
                 }
             case .binding(\.searchQuery):
                 state.showAllTodos = false
@@ -107,10 +107,10 @@ struct SearchFeature {
                 if trimmed.isEmpty {
                     state.webPages = []
                     state.todos = []
-                    return cancelSearchEffect(isLoading: state.isLoading)
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
                 } else {
                     return .concatenate(
-                        cancelSearchEffect(isLoading: state.isLoading),
+                        Self.cancelSearchEffect(isLoading: state.isLoading),
                         debounceFetchEffect(trimmed)
                     )
                 }
@@ -140,12 +140,12 @@ struct SearchFeature {
                 if trimmed.isEmpty {
                     state.webPages = []
                     state.todos = []
-                    return cancelSearchEffect(isLoading: state.isLoading)
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
                 } else {
                     return fetchEffect(trimmed, isLoading: state.isLoading)
                 }
             case .setAlert(let isPresented):
-                state.alert = isPresented ? alertState() : nil
+                state.alert = isPresented ? Self.alertState() : nil
             case .setShowAllTodos(let shouldShowAll):
                 state.showAllTodos = shouldShowAll
             case .setShowAllWebPages(let shouldShowAll):
@@ -208,11 +208,11 @@ private enum SearchUpdateRecentQueriesUseCaseKey: DependencyKey {
 }
 
 private extension SearchFeature {
-    func cancelSearchEffect(isLoading: Bool) -> Effect<Action> {
+    static func cancelSearchEffect(isLoading: Bool) -> Effect<Action> {
         .merge(
             .cancel(id: CancelID.debounce),
             .cancel(id: CancelID.request),
-            endLoadingEffect(isLoading: isLoading)
+            Self.endLoadingEffect(isLoading: isLoading)
         )
     }
 
@@ -228,12 +228,12 @@ private extension SearchFeature {
     }
 
     func fetchEffect(_ query: String, isLoading: Bool) -> Effect<Action> {
-        let searchesTodoOnly = searchesTodoOnly(query)
+        let searchesTodoOnly = Self.searchesTodoOnly(query)
 
         return .run { [fetchTodosUseCase, fetchWebPagesUseCase] send in
             do {
                 async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
-                async let webPageItems = fetchWebPageItems(
+                async let webPageItems = Self.fetchWebPageItems(
                     query: query,
                     searchesTodoOnly: searchesTodoOnly,
                     fetchWebPagesUseCase: fetchWebPagesUseCase
@@ -257,7 +257,7 @@ private extension SearchFeature {
         .cancellable(id: CancelID.request, cancelInFlight: true)
     }
 
-    func endLoadingEffect(isLoading: Bool) -> Effect<Action> {
+    static func endLoadingEffect(isLoading: Bool) -> Effect<Action> {
         guard isLoading else { return .none }
         return .send(.loading(.end(target: .default, mode: .immediate)))
     }
@@ -269,11 +269,11 @@ private extension SearchFeature {
         }
     }
 
-    func searchesTodoOnly(_ query: String) -> Bool {
+    static func searchesTodoOnly(_ query: String) -> Bool {
         query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
     }
 
-    func fetchWebPageItems(
+    static func fetchWebPageItems(
         query: String,
         searchesTodoOnly: Bool,
         fetchWebPagesUseCase: FetchWebPagesUseCase
@@ -286,7 +286,7 @@ private extension SearchFeature {
         return webPages.map { WebPageItem(from: $0) }
     }
 
-    func alertState() -> AlertState<Never> {
+    static func alertState() -> AlertState<Never> {
         AlertState {
             TextState(String(localized: "common_error_title"))
         } actions: {

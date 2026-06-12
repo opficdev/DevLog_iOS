@@ -163,7 +163,7 @@ struct CategoryManageFeature {
                 }
             case .tapDeleteUserCategory(let item):
                 if item.isUserCategory {
-                    state.alert = deleteAlertState(for: item)
+                    state.alert = Self.deleteAlertState(for: item)
                 }
             case .tapDoneButton:
                 break
@@ -204,7 +204,7 @@ private struct CategoryManageSheetFeature: Reducer {
 }
 
 private extension CategoryManageFeature {
-    func deleteAlertState(for item: TodoCategoryItem) -> AlertState<Action.Alert> {
+    static func deleteAlertState(for item: TodoCategoryItem) -> AlertState<Action.Alert> {
         AlertState {
             TextState(String(localized: "todo_manage_delete_category_title"))
         } actions: {

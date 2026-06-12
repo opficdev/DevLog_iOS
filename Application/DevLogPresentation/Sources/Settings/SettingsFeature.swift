@@ -104,14 +104,14 @@ struct SettingsFeature {
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
             case .setAlert(let type):
-                state.alert = alertState(for: type)
+                state.alert = Self.alertState(for: type)
                 state.alertType = type
             case .setDirSize(let value):
                 state.dirSize = value
             case .updateDirSize:
                 return fetchWebPageImageDirSizeEffect()
             case .tapRemoveCacheButton:
-                state.alert = alertState(for: .removeCache)
+                state.alert = Self.alertState(for: .removeCache)
                 state.alertType = .removeCache
             case .loading:
                 break
@@ -301,7 +301,7 @@ private extension SettingsFeature {
         }
     }
 
-    func alertState(for type: Action.AlertType) -> AlertState<Action.Alert> {
+    static func alertState(for type: Action.AlertType) -> AlertState<Action.Alert> {
         switch type {
         case .signOut:
             return AlertState {
