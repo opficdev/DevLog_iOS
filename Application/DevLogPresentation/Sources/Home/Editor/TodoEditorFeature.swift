@@ -154,14 +154,8 @@ struct TodoEditorFeature {
                 }
             case .setTagText(let tagText):
                 state.tagText = tagText
-                if state.tabViewTag == .preview {
-                    return resolveMarkdownEffect(content: state.content)
-                }
             case .setTitle(let title):
                 state.title = title
-                if state.tabViewTag == .preview {
-                    return resolveMarkdownEffect(content: state.content)
-                }
             case .setDueDate(let dueDate):
                 if let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: now),
                    let dueDate {
