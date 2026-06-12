@@ -35,7 +35,7 @@ final class TodoServiceImpl: TodoService {
             "sortOrder=\(query.sortOrder == .latest ? "latest" : "oldest")",
             query.keyword != nil ? "keywordLength=\(trimmedKeyword.count)" : nil,
             query.categoryId != nil ? "category=\(query.categoryId!)" : nil,
-            query.isPinned != nil ? "pinned=\(query.isPinned!)" : nil,
+            query.isPinned ? "pinned=true" : nil,
             query.completionFilter.isCompletedValue != nil
                 ? "completed=\(query.completionFilter.isCompletedValue!)"
                 : nil,
@@ -58,8 +58,8 @@ final class TodoServiceImpl: TodoService {
             )
         }
 
-        if let isPinned = query.isPinned {
-            firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: isPinned)
+        if query.isPinned {
+            firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: true)
         }
 
         if let isCompleted = query.completionFilter.isCompletedValue {

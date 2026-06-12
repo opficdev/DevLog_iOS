@@ -379,7 +379,7 @@ struct TodoListView: View {
 
     private var filterMenu: some View {
         Menu {
-            Toggle(isOn: $store.isPinnedOnly) {
+            Toggle(isOn: $store.query.isPinned) {
                 Text(String(localized: "todo_pinned"))
             }
 
@@ -391,7 +391,7 @@ struct TodoListView: View {
                 Text(String(localized: "todo_list_completion_status"))
             }
         } label: {
-            let condition = store.state.query.isPinned == true || store.state.query.completionFilter != .all
+            let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
             HStack {
                 Text(String(localized: "todo_list_filter_options"))
                 Image(systemName: "chevron.down")

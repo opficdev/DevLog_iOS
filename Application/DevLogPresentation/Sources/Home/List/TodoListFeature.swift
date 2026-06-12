@@ -43,14 +43,9 @@ struct TodoListFeature {
             var count = 0
             if query.sortTarget != .createdAt { count += 1 }
             if query.sortOrder != .latest { count += 1 }
-            if query.isPinned != nil { count += 1 }
+            if query.isPinned { count += 1 }
             if query.completionFilter != .all { count += 1 }
             return count
-        }
-
-        var isPinnedOnly: Bool {
-            get { query.isPinned == true }
-            set { query.isPinned = newValue ? true : nil }
         }
 
         static func == (lhs: Self, rhs: Self) -> Bool {
@@ -202,7 +197,7 @@ private extension TodoListFeature {
             state.searchResults = []
             state.showAllSearchResults = false
             return cancelSearchEffect()
-        case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.isPinnedOnly),
+        case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.query.isPinned),
             .binding(\.query.completionFilter):
             state.nextCursor = nil
             return fetchEffect(query: state.query, cursor: nil)

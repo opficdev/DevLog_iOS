@@ -74,7 +74,7 @@ final class TodoListStoreTestAdapter {
     }
 
     func togglePinnedOnly() async {
-        await store.send(.binding(.set(\.isPinnedOnly, !store.state.isPinnedOnly)))
+        await store.send(.binding(.set(\.query.isPinned, !store.state.query.isPinned)))
         await drainReceivedActions()
     }
 
