@@ -194,6 +194,50 @@ final class TodoListFetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 }
 
+actor TodoListDelayedFirstFetchTodosUseCaseSpy: FetchTodosUseCase {
+    private let pages: [TodoPage]
+    private var queries = [TodoQuery]()
+    private var cursors = [TodoCursor?]()
+    private var cancelledCallIndices = [Int]()
+
+    init(pages: [TodoPage]) {
+        self.pages = pages
+    }
+
+    func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
+        let callIndex = queries.count
+        queries.append(query)
+        cursors.append(cursor)
+
+        if callIndex == 0 {
+            do {
+                try await Task.sleep(for: .seconds(1))
+            } catch is CancellationError {
+                cancelledCallIndices.append(callIndex)
+                throw CancellationError()
+            }
+        }
+
+        if pages.count <= callIndex {
+            return pages.last ?? TodoPage(items: [], nextCursor: nil)
+        }
+
+        return pages[callIndex]
+    }
+
+    func calledQueries() -> [TodoQuery] {
+        queries
+    }
+
+    func calledCursors() -> [TodoCursor?] {
+        cursors
+    }
+
+    func cancelledCalls() -> [Int] {
+        cancelledCallIndices
+    }
+}
+
 final class TodoListFetchTodoByIdUseCaseSpy: FetchTodoByIdUseCase {
     var todos: [Todo]
     var error: Error?

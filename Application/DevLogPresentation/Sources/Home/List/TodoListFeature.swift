@@ -89,6 +89,7 @@ struct TodoListFeature {
 
     enum CancelID: Hashable {
         case debounce
+        case fetch
         case request
     }
 
@@ -261,12 +262,15 @@ private extension TodoListFeature {
                     ))
                     await send(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil))
                     await send(.loading(.end(target: .default, mode: .delayed)))
+                } catch is CancellationError {
+                    return
                 } catch {
                     await send(.setAlert(true))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
             }
         )
+        .cancellable(id: CancelID.fetch, cancelInFlight: true)
     }
 
     func setSearchTextEffect(state: inout State) -> Effect<Action> {

@@ -63,6 +63,32 @@ struct TodoListFeatureTests {
         #expect(!adapter.hasMore)
     }
 
+    @Test("새 목록 조회는 이전 요청을 취소하고 마지막 응답만 반영한다")
+    func 새_목록_조회는_이전_요청을_취소하고_마지막_응답만_반영한다() async {
+        let firstTodo = makeTodoListTodo(id: "todo-first", number: 1)
+        let secondTodo = makeTodoListTodo(id: "todo-second", number: 2)
+        let fetchSpy = TodoListDelayedFirstFetchTodosUseCaseSpy(pages: [
+            TodoPage(items: [firstTodo], nextCursor: nil),
+            TodoPage(items: [secondTodo], nextCursor: nil)
+        ])
+        let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
+
+        await adapter.onAppear()
+        await adapter.setSortTarget(.updatedAt)
+
+        await waitUntil(timeout: .seconds(2)) {
+            adapter.todos == [TodoListItem(from: secondTodo)!]
+        }
+
+        let queries = await fetchSpy.calledQueries()
+        let cancelledCalls = await fetchSpy.cancelledCalls()
+
+        #expect(adapter.todos == [TodoListItem(from: secondTodo)!])
+        #expect(queries.map(\.sortTarget) == [.createdAt, .updatedAt])
+        #expect(cancelledCalls == [0])
+        #expect(!adapter.showAlert)
+    }
+
     @Test("필터와 정렬 액션은 query와 적용 필터 수를 갱신한다")
     func 필터와_정렬_액션은_query와_적용_필터_수를_갱신한다() async {
         let adapter = TodoListStoreTestAdapter()
