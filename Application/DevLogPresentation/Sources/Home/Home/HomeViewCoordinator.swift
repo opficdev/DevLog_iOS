@@ -6,6 +6,7 @@
 //
 
 import Combine
+import ComposableArchitecture
 import Foundation
 import DevLogCore
 import DevLogDomain
@@ -90,12 +91,17 @@ final class HomeViewCoordinator {
         )
     }
 
-    func makeSearchViewModel() -> SearchViewModel {
-        SearchViewModel(
-            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchRecentSearchQueriesUseCase: container.resolve(FetchRecentSearchQueriesUseCase.self),
-            updateRecentSearchQueriesUseCase: container.resolve(UpdateRecentSearchQueriesUseCase.self)
-        )
+    func makeSearchStore() -> StoreOf<SearchFeature> {
+        Store(
+            initialState: SearchFeature.State(
+                recentQueries: container.resolve(FetchRecentSearchQueriesUseCase.self).execute()
+            )
+        ) {
+            SearchFeature()
+        } withDependencies: {
+            $0.searchFetchWebPagesUseCase = self.container.resolve(FetchWebPagesUseCase.self)
+            $0.searchFetchTodosUseCase = self.container.resolve(FetchTodosUseCase.self)
+            $0.searchUpdateRecentQueriesUseCase = self.container.resolve(UpdateRecentSearchQueriesUseCase.self)
+        }
     }
 }

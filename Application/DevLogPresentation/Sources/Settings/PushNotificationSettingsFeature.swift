@@ -67,7 +67,7 @@ struct PushNotificationSettingsFeature {
             case .alert:
                 break
             case .binding(\.pushNotificationEnable):
-                return updatePushNotificationSettingsEffect(settings: settings(from: state))
+                return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
             case .binding(\.viewPushNotificationTime):
                 let time = state.viewPushNotificationTime
                 state.timePicker?.time = time
@@ -81,19 +81,19 @@ struct PushNotificationSettingsFeature {
                 guard let time = state.timePicker?.time else { break }
                 state.timePicker = nil
                 state.viewPushNotificationTime = time
-                return updatePushNotificationSettingsEffect(settings: settings(from: state))
+                return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
             case .timePicker:
                 break
             case .fetchSettings:
                 return fetchPushNotificationSettingsEffect()
             case .setAlert:
-                state.alert = alertState()
+                state.alert = Self.alertState()
             case .tapCustomTime:
                 state.timePicker = TimePickerState(time: state.viewPushNotificationTime)
             case .selectPresetTime(let date):
                 state.viewPushNotificationTime = date
                 state.timePicker?.time = date
-                return updatePushNotificationSettingsEffect(settings: settings(from: state))
+                return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
             case .loading:
                 break
             }
@@ -182,7 +182,7 @@ private extension PushNotificationSettingsFeature {
         }
     }
 
-    func settings(from state: State) -> PushNotificationSettings {
+    static func settings(from state: State) -> PushNotificationSettings {
         let date = state.timePicker?.time ?? state.viewPushNotificationTime
         let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: date)
         return PushNotificationSettings(
@@ -191,7 +191,7 @@ private extension PushNotificationSettingsFeature {
         )
     }
 
-    func alertState() -> AlertState<Never> {
+    static func alertState() -> AlertState<Never> {
         AlertState {
             TextState(String(localized: "common_error_title"))
         } actions: {

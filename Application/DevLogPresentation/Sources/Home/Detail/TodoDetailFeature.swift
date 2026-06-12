@@ -108,7 +108,7 @@ struct TodoDetailFeature {
             case .onAppear:
                 return fetchTodoEffect(todoId: state.todoId)
             case .fetchFailed:
-                state.alert = alertState()
+                state.alert = Self.alertState()
             case .setSheet(let sheet):
                 state.sheet = sheet
             case .setFullScreenCover(let cover):
@@ -209,7 +209,7 @@ private extension TodoDetailFeature {
         }
     }
 
-    func alertState() -> AlertState<Never> {
+    static func alertState() -> AlertState<Never> {
         AlertState {
             TextState(String(localized: "common_error_title"))
         } actions: {

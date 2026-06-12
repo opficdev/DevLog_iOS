@@ -60,7 +60,7 @@ struct AccountFeature {
             case .unlinkFromProvider(let provider):
                 return unlinkProviderEffect(provider)
             case .setAlert(let type):
-                state.alert = alertState(for: type)
+                state.alert = Self.alertState(for: type)
             case .setProviders(let currentProvider, let allProviders):
                 state.currentProvider = currentProvider
                 state.connectedProviders = allProviders.filter { $0 != currentProvider }
@@ -154,7 +154,7 @@ private extension AccountFeature {
 
                 if error.isSocialLoginCancelled { return }
 
-                await send(.setAlert(linkAlertType(for: error)))
+                await send(.setAlert(Self.linkAlertType(for: error)))
             }
         }
     }
@@ -177,51 +177,51 @@ private extension AccountFeature {
             }
         }
     }
-}
 
-private func linkAlertType(for error: Error) -> AccountFeature.AlertType {
-    guard let authError = error as? AuthError else {
-        return .error
-    }
-
-    switch authError {
-    case .linkEmailNotFound:
-        return .linkEmailNotFound
-    case .linkEmailMismatch:
-        return .linkEmailMismatch
-    case .linkCredentialAlreadyInUse:
-        return .linkCredentialAlreadyInUse
-    case .notAuthenticated, .failedToUnlinkLastProvider, .emailNotFound, .unsupportedProvider:
-        return .error
-    }
-}
-
-private func alertState(for type: AccountFeature.AlertType) -> AlertState<Never> {
-    let title: String
-    let message: String
-
-    switch type {
-    case .linkEmailNotFound:
-        title = String(localized: "account_alert_email_unavailable_title")
-        message = String(localized: "account_alert_email_unavailable_message")
-    case .linkEmailMismatch:
-        title = String(localized: "account_alert_cannot_link_title")
-        message = String(localized: "account_alert_cannot_link_message")
-    case .linkCredentialAlreadyInUse:
-        title = String(localized: "account_alert_already_linked_title")
-        message = String(localized: "account_alert_already_linked_message")
-    case .error:
-        title = String(localized: "common_error_title")
-        message = String(localized: "common_error_message")
-    }
-
-    return AlertState {
-        TextState(title)
-    } actions: {
-        ButtonState(role: .cancel) {
-            TextState(String(localized: "common_close"))
+    static func linkAlertType(for error: Error) -> AlertType {
+        guard let authError = error as? AuthError else {
+            return .error
         }
-    } message: {
-        TextState(message)
+
+        switch authError {
+        case .linkEmailNotFound:
+            return .linkEmailNotFound
+        case .linkEmailMismatch:
+            return .linkEmailMismatch
+        case .linkCredentialAlreadyInUse:
+            return .linkCredentialAlreadyInUse
+        case .notAuthenticated, .failedToUnlinkLastProvider, .emailNotFound, .unsupportedProvider:
+            return .error
+        }
+    }
+
+    static func alertState(for type: AlertType) -> AlertState<Never> {
+        let title: String
+        let message: String
+
+        switch type {
+        case .linkEmailNotFound:
+            title = String(localized: "account_alert_email_unavailable_title")
+            message = String(localized: "account_alert_email_unavailable_message")
+        case .linkEmailMismatch:
+            title = String(localized: "account_alert_cannot_link_title")
+            message = String(localized: "account_alert_cannot_link_message")
+        case .linkCredentialAlreadyInUse:
+            title = String(localized: "account_alert_already_linked_title")
+            message = String(localized: "account_alert_already_linked_message")
+        case .error:
+            title = String(localized: "common_error_title")
+            message = String(localized: "common_error_message")
+        }
+
+        return AlertState {
+            TextState(title)
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(message)
+        }
     }
 }

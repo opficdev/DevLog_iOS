@@ -1,0 +1,300 @@
+//
+//  SearchFeature.swift
+//  DevLogPresentation
+//
+//  Created by opfic on 6/12/26.
+//
+
+import ComposableArchitecture
+import Foundation
+import OrderedCollections
+import DevLogCore
+import DevLogDomain
+
+@Reducer
+struct SearchFeature {
+    @ObservableState
+    struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
+        var loading = LoadingFeature.State()
+        var isSearching = false
+        var searchQuery = ""
+        var webPages: [WebPageItem] = []
+        var todos: [TodoListItem] = []
+        var recentQueries = OrderedSet<String>()
+        var showAllTodos = false
+        var showAllWebPages = false
+        let contentsLimit = 5
+
+        init(recentQueries: [String] = []) {
+            self.recentQueries = OrderedSet(recentQueries)
+        }
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
+
+        var visibleTodos: [TodoListItem] {
+            if showAllTodos {
+                return todos
+            }
+
+            return Array(todos.prefix(contentsLimit))
+        }
+
+        var visibleWebPages: [WebPageItem] {
+            if showAllWebPages {
+                return webPages
+            }
+
+            return Array(webPages.prefix(contentsLimit))
+        }
+
+        var shouldShowMoreTodos: Bool {
+            !showAllTodos && contentsLimit < todos.count
+        }
+
+        var shouldShowMoreWebPages: Bool {
+            !showAllWebPages && contentsLimit < webPages.count
+        }
+    }
+
+    enum Action: BindableAction, Equatable {
+        case alert(PresentationAction<Never>)
+        case binding(BindingAction<State>)
+        case fetchWebPage([WebPageItem])
+        case fetchTodos([TodoListItem])
+        case addRecentQuery(String)
+        case removeRecentQuery(String)
+        case clearRecentQueries
+        case applySearchQuery(String)
+        case setAlert(Bool)
+        case setShowAllTodos(Bool)
+        case setShowAllWebPages(Bool)
+        case loading(LoadingFeature.Action)
+    }
+
+    private enum CancelID: Hashable {
+        case debounce
+        case request
+    }
+
+    @Dependency(\.continuousClock) var clock
+    @Dependency(\.searchFetchTodosUseCase) var fetchTodosUseCase
+    @Dependency(\.searchFetchWebPagesUseCase) var fetchWebPagesUseCase
+    @Dependency(\.searchUpdateRecentQueriesUseCase) var updateRecentSearchQueriesUseCase
+
+    private let maxRecentQueries = 20
+    private let searchDebounceDelay = Duration.seconds(0.4)
+
+    var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .alert:
+                break
+            case .binding(\.isSearching):
+                if !state.isSearching {
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
+                }
+            case .binding(\.searchQuery):
+                state.showAllTodos = false
+                state.showAllWebPages = false
+                let trimmed = state.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty {
+                    state.webPages = []
+                    state.todos = []
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
+                } else {
+                    return .concatenate(
+                        Self.cancelSearchEffect(isLoading: state.isLoading),
+                        debounceFetchEffect(trimmed)
+                    )
+                }
+            case .binding:
+                break
+            case .fetchWebPage(let items):
+                state.webPages = items
+            case .fetchTodos(let items):
+                state.todos = items
+            case .addRecentQuery(let query):
+                let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { break }
+                state.recentQueries.remove(trimmed)
+                state.recentQueries.insert(trimmed, at: 0)
+                if maxRecentQueries < state.recentQueries.count {
+                    state.recentQueries = OrderedSet(state.recentQueries.prefix(maxRecentQueries))
+                }
+                return saveRecentQueriesEffect(state.recentQueries)
+            case .removeRecentQuery(let query):
+                state.recentQueries.remove(query)
+                return saveRecentQueriesEffect(state.recentQueries)
+            case .clearRecentQueries:
+                state.recentQueries = []
+                return saveRecentQueriesEffect([])
+            case .applySearchQuery(let query):
+                let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty {
+                    state.webPages = []
+                    state.todos = []
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
+                } else {
+                    return fetchEffect(trimmed, isLoading: state.isLoading)
+                }
+            case .setAlert(let isPresented):
+                state.alert = isPresented ? Self.alertState() : nil
+            case .setShowAllTodos(let shouldShowAll):
+                state.showAllTodos = shouldShowAll
+            case .setShowAllWebPages(let shouldShowAll):
+                state.showAllWebPages = shouldShowAll
+            case .loading:
+                break
+            }
+
+            return .none
+        }
+        .ifLet(\.$alert, action: \.alert)
+    }
+}
+
+extension DependencyValues {
+    var searchFetchTodosUseCase: FetchTodosUseCase {
+        get { self[SearchFetchTodosUseCaseKey.self] }
+        set { self[SearchFetchTodosUseCaseKey.self] = newValue }
+    }
+
+    var searchFetchWebPagesUseCase: FetchWebPagesUseCase {
+        get { self[SearchFetchWebPagesUseCaseKey.self] }
+        set { self[SearchFetchWebPagesUseCaseKey.self] = newValue }
+    }
+
+    var searchUpdateRecentQueriesUseCase: UpdateRecentSearchQueriesUseCase {
+        get { self[SearchUpdateRecentQueriesUseCaseKey.self] }
+        set { self[SearchUpdateRecentQueriesUseCaseKey.self] = newValue }
+    }
+}
+
+private enum SearchFetchTodosUseCaseKey: DependencyKey {
+    static var liveValue: FetchTodosUseCase {
+        preconditionFailure("FetchTodosUseCase must be provided.")
+    }
+
+    static var testValue: FetchTodosUseCase {
+        liveValue
+    }
+}
+
+private enum SearchFetchWebPagesUseCaseKey: DependencyKey {
+    static var liveValue: FetchWebPagesUseCase {
+        preconditionFailure("FetchWebPagesUseCase must be provided.")
+    }
+
+    static var testValue: FetchWebPagesUseCase {
+        liveValue
+    }
+}
+
+private enum SearchUpdateRecentQueriesUseCaseKey: DependencyKey {
+    static var liveValue: UpdateRecentSearchQueriesUseCase {
+        preconditionFailure("UpdateRecentSearchQueriesUseCase must be provided.")
+    }
+
+    static var testValue: UpdateRecentSearchQueriesUseCase {
+        liveValue
+    }
+}
+
+private extension SearchFeature {
+    static func cancelSearchEffect(isLoading: Bool) -> Effect<Action> {
+        .merge(
+            .cancel(id: CancelID.debounce),
+            .cancel(id: CancelID.request),
+            Self.endLoadingEffect(isLoading: isLoading)
+        )
+    }
+
+    func debounceFetchEffect(_ query: String) -> Effect<Action> {
+        .concatenate(
+            .send(.loading(.begin(target: .default, mode: .immediate))),
+            .run { [clock, searchDebounceDelay] send in
+                try await clock.sleep(for: searchDebounceDelay)
+                await send(.applySearchQuery(query))
+            }
+            .cancellable(id: CancelID.debounce, cancelInFlight: true)
+        )
+    }
+
+    func fetchEffect(_ query: String, isLoading: Bool) -> Effect<Action> {
+        let searchesTodoOnly = Self.searchesTodoOnly(query)
+
+        return .run { [fetchTodosUseCase, fetchWebPagesUseCase] send in
+            do {
+                async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
+                async let webPageItems = Self.fetchWebPageItems(
+                    query: query,
+                    searchesTodoOnly: searchesTodoOnly,
+                    fetchWebPagesUseCase: fetchWebPagesUseCase
+                )
+                let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
+                let resolvedWebPageItems = try await webPageItems
+                await send(.fetchTodos(todoItems))
+                await send(.fetchWebPage(resolvedWebPageItems))
+                if isLoading {
+                    await send(.loading(.end(target: .default, mode: .immediate)))
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                if isLoading {
+                    await send(.loading(.end(target: .default, mode: .immediate)))
+                }
+                await send(.setAlert(true))
+            }
+        }
+        .cancellable(id: CancelID.request, cancelInFlight: true)
+    }
+
+    static func endLoadingEffect(isLoading: Bool) -> Effect<Action> {
+        guard isLoading else { return .none }
+        return .send(.loading(.end(target: .default, mode: .immediate)))
+    }
+
+    func saveRecentQueriesEffect(_ queries: OrderedSet<String>) -> Effect<Action> {
+        let values = Array(queries)
+        return .run { [updateRecentSearchQueriesUseCase] _ in
+            updateRecentSearchQueriesUseCase.execute(values)
+        }
+    }
+
+    static func searchesTodoOnly(_ query: String) -> Bool {
+        query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
+    }
+
+    static func fetchWebPageItems(
+        query: String,
+        searchesTodoOnly: Bool,
+        fetchWebPagesUseCase: FetchWebPagesUseCase
+    ) async throws -> [WebPageItem] {
+        if searchesTodoOnly {
+            return []
+        }
+
+        let webPages = try await fetchWebPagesUseCase.execute(query)
+        return webPages.map { WebPageItem(from: $0) }
+    }
+
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "common_error_message"))
+        }
+    }
+}
