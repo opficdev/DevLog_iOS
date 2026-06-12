@@ -14,14 +14,12 @@ import Foundation
 struct TodoListFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
         var category: TodoCategory
         var todos: [TodoListItem] = []
         var searchText = ""
         var searchResults: [TodoListItem] = []
         var showEditor = false
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
         var isSearching = false
         var showAllSearchResults = false
         var query: TodoQuery
@@ -61,9 +59,7 @@ struct TodoListFeature {
             lhs.searchText == rhs.searchText &&
             lhs.searchResults == rhs.searchResults &&
             lhs.showEditor == rhs.showEditor &&
-            lhs.showAlert == rhs.showAlert &&
-            lhs.alertTitle == rhs.alertTitle &&
-            lhs.alertMessage == rhs.alertMessage &&
+            lhs.alert == rhs.alert &&
             lhs.isSearching == rhs.isSearching &&
             lhs.showAllSearchResults == rhs.showAllSearchResults &&
             lhs.query == rhs.query &&
@@ -78,6 +74,7 @@ struct TodoListFeature {
     }
 
     enum Action: BindableAction {
+        case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case refresh
         case setAlert(Bool)
@@ -124,6 +121,7 @@ struct TodoListFeature {
         Reduce { state, action in
             reduce(action, state: &state)
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
@@ -177,6 +175,8 @@ private enum TodoListUndoDeleteTodoUseCaseKey: DependencyKey {
 private extension TodoListFeature {
     func reduce(_ action: Action, state: inout State) -> Effect<Action> {
         switch action {
+        case .alert:
+            break
         case .binding(\.searchText):
             return setSearchTextEffect(state: &state)
         case .binding(\.isSearching):
@@ -185,8 +185,6 @@ private extension TodoListFeature {
             state.searchResults = []
             state.showAllSearchResults = false
             return cancelSearchEffect()
-        case .binding(\.showAlert):
-            Self.setAlert(&state, isPresented: state.showAlert)
         case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.isPinnedOnly),
             .binding(\.query.completionFilter):
             state.nextCursor = nil

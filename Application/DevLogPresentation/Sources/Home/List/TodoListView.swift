@@ -50,14 +50,7 @@ struct TodoListView: View {
                 )
             }
         }
-        .alert(
-            store.state.alertTitle,
-            isPresented: $store.showAlert
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(store.state.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
         .fullScreenCover(isPresented: $store.showEditor) {
             TodoEditorView(

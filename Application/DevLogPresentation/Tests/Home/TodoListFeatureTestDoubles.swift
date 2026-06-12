@@ -23,9 +23,8 @@ final class TodoListStoreTestAdapter {
     var query: TodoQuery { store.state.query }
     var isLoading: Bool { store.state.isLoading }
     var hasMore: Bool { store.state.hasMore }
-    var showAlert: Bool { store.state.showAlert }
-    var alertTitle: String { store.state.alertTitle }
-    var alertMessage: String { store.state.alertMessage }
+    var alert: AlertState<Never>? { store.state.alert }
+    var showAlert: Bool { store.state.alert != nil }
     var appliedFilterCount: Int { store.state.appliedFilterCount }
 
     init(
@@ -145,6 +144,18 @@ final class TodoListStoreTestAdapter {
         for _ in 0..<8 {
             await store.skipReceivedActions(strict: false)
         }
+    }
+}
+
+func expectedTodoListErrorAlert() -> AlertState<Never> {
+    AlertState {
+        TextState(String(localized: "common_error_title"))
+    } actions: {
+        ButtonState(role: .cancel) {
+            TextState(String(localized: "common_close"))
+        }
+    } message: {
+        TextState(String(localized: "common_error_message"))
     }
 }
 

@@ -119,9 +119,19 @@ extension TodoListFeature {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = String(localized: "common_error_title")
-        state.alertMessage = String(localized: "common_error_message")
-        state.showAlert = isPresented
+        state.alert = isPresented ? Self.alertState() : nil
+    }
+
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "common_error_message"))
+        }
     }
 
     static func setTodoHidden(

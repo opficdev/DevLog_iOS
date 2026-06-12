@@ -7,6 +7,7 @@
 
 import Testing
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 @testable import DevLogPresentation
@@ -208,7 +209,6 @@ struct TodoListFeatureTests {
         }
 
         #expect(adapter.showAlert)
-        #expect(adapter.alertTitle == String(localized: "common_error_title"))
-        #expect(adapter.alertMessage == String(localized: "common_error_message"))
+        #expect(adapter.alert == expectedTodoListErrorAlert())
     }
 }
