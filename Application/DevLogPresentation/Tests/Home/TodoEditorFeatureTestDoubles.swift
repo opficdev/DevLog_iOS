@@ -143,9 +143,7 @@ final class TodoEditorStoreTestAdapter {
         await store.send(.upsertTodo) {
             $0.saveResult = nil
         }
-        await store.receive(\.setLoading, true) {
-            $0.isLoading = true
-        }
+        await receiveBeginLoading()
     }
 
     func drainReceivedActions() async {
@@ -161,6 +159,21 @@ final class TodoEditorStoreTestAdapter {
         }
 
         return max(dueDate, tomorrowDate)
+    }
+
+    private func receiveBeginLoading() async {
+        await store.receive(.loading(.begin(target: .default, mode: .immediate))) {
+            $0.loading.setImmediateLoading()
+        }
+    }
+}
+
+private extension LoadingFeature.State {
+    mutating func setImmediateLoading() {
+        let target = LoadingFeature.Target.default
+        immediateCountByTarget[target] = 1
+        visibleTargets.insert(target)
+        isLoading = !visibleTargets.isEmpty
     }
 }
 

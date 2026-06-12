@@ -24,7 +24,7 @@ struct TodoEditorFeature {
         var referenceItems: [Int: TodoReferenceItem] = [:]
         var dueDate: Date?
         var showInfo: Bool = false
-        var isLoading: Bool = false
+        var loading = LoadingFeature.State()
         var tags: OrderedSet<String> = []
         var tagText: String = ""
         var focusOnEditor: Bool = false
@@ -41,6 +41,9 @@ struct TodoEditorFeature {
 
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        var isLoading: Bool {
+            loading.isLoading
         }
         var navigationTitle: String {
             if originalDraft == nil {
@@ -99,7 +102,7 @@ struct TodoEditorFeature {
         case updated(Todo)
     }
 
-    enum Action {
+    enum Action: Equatable {
         case alert(PresentationAction<Never>)
         case onAppear
         case addTag(String)
@@ -109,7 +112,6 @@ struct TodoEditorFeature {
         case setDueDate(Date?)
         case setCategory(TodoCategoryItem)
         case setAlert(Bool)
-        case setLoading(Bool)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
@@ -121,6 +123,7 @@ struct TodoEditorFeature {
         case upsertTodo
         case createSucceeded
         case updateSucceeded(Todo)
+        case loading(LoadingFeature.Action)
     }
 
     @Dependency(\.date.now) var now
@@ -130,6 +133,9 @@ struct TodoEditorFeature {
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
         Reduce { state, action in
             switch action {
             case .alert:
@@ -173,8 +179,6 @@ struct TodoEditorFeature {
                 state.category = item
             case .setAlert(let isPresented):
                 state.alert = isPresented ? Self.alertState() : nil
-            case .setLoading(let value):
-                state.isLoading = value
             case .setPinned(let isPinned):
                 state.isPinned = isPinned
             case .setShowInfo(let isPresented):
@@ -201,6 +205,8 @@ struct TodoEditorFeature {
                 state.saveResult = .created
             case .updateSucceeded(let todo):
                 state.saveResult = .updated(todo)
+            case .loading:
+                break
             }
 
             return .none
@@ -280,7 +286,7 @@ private extension TodoEditorFeature {
 
     func createTodoEffect(_ draft: TodoDraft) -> Effect<Action> {
         .run { [trackAnalyticsEventUseCase, upsertTodoUseCase] send in
-            await send(.setLoading(true))
+            await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
                 try await upsertTodoUseCase.execute(draft)
                 trackAnalyticsEventUseCase?.execute(.todoCreate)
@@ -288,20 +294,20 @@ private extension TodoEditorFeature {
             } catch {
                 await send(.setAlert(true))
             }
-            await send(.setLoading(false))
+            await send(.loading(.end(target: .default, mode: .immediate)))
         }
     }
 
     func updateTodoEffect(_ todo: Todo) -> Effect<Action> {
         .run { [upsertTodoUseCase] send in
-            await send(.setLoading(true))
+            await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
                 try await upsertTodoUseCase.execute(todo)
                 await send(.updateSucceeded(todo))
             } catch {
                 await send(.setAlert(true))
             }
-            await send(.setLoading(false))
+            await send(.loading(.end(target: .default, mode: .immediate)))
         }
     }
 
