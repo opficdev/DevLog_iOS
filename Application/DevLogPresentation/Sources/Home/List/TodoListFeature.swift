@@ -1,0 +1,339 @@
+//
+//  TodoListFeature.swift
+//  DevLogPresentation
+//
+//  Created by opfic on 6/12/26.
+//
+
+import ComposableArchitecture
+import DevLogCore
+import DevLogDomain
+import Foundation
+
+@Reducer
+struct TodoListFeature {
+    @ObservableState
+    struct State: Equatable {
+        var category: TodoCategory
+        var todos: [TodoListItem] = []
+        var searchText = ""
+        var searchResults: [TodoListItem] = []
+        var showEditor = false
+        var showAlert = false
+        var alertTitle = ""
+        var alertMessage = ""
+        var isSearching = false
+        var showAllSearchResults = false
+        var query: TodoQuery
+        var hasMore = false
+        var loading = LoadingFeature.State()
+        var undoTodoId: String?
+        var nextCursor: TodoCursor?
+        var deleteToastTodoId: String?
+        let searchResultsLimit = 5
+
+        init(category: TodoCategory) {
+            self.category = category
+            self.query = TodoQuery(categoryId: category.storageValue)
+        }
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
+
+        var appliedFilterCount: Int {
+            var count = 0
+            if query.sortTarget != .createdAt { count += 1 }
+            if query.sortOrder != .latest { count += 1 }
+            if query.isPinned != nil { count += 1 }
+            if query.completionFilter != .all { count += 1 }
+            return count
+        }
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.category == rhs.category &&
+            lhs.todos == rhs.todos &&
+            lhs.searchText == rhs.searchText &&
+            lhs.searchResults == rhs.searchResults &&
+            lhs.showEditor == rhs.showEditor &&
+            lhs.showAlert == rhs.showAlert &&
+            lhs.alertTitle == rhs.alertTitle &&
+            lhs.alertMessage == rhs.alertMessage &&
+            lhs.isSearching == rhs.isSearching &&
+            lhs.showAllSearchResults == rhs.showAllSearchResults &&
+            lhs.query == rhs.query &&
+            lhs.hasMore == rhs.hasMore &&
+            lhs.loading == rhs.loading &&
+            lhs.undoTodoId == rhs.undoTodoId &&
+            lhs.deleteToastTodoId == rhs.deleteToastTodoId &&
+            lhs.nextCursor?.primarySortDate == rhs.nextCursor?.primarySortDate &&
+            lhs.nextCursor?.secondarySortDate == rhs.nextCursor?.secondarySortDate &&
+            lhs.nextCursor?.documentID == rhs.nextCursor?.documentID
+        }
+    }
+
+    enum Action {
+        case refresh
+        case setAlert(Bool)
+        case setShowEditor(Bool)
+        case swipeTodo(TodoListItem)
+        case setSortTarget(TodoQuery.SortTarget)
+        case setSortOrder(TodoQuery.SortOrder)
+        case togglePinnedOnly
+        case setCompletionFilter(TodoQuery.CompletionFilter)
+        case resetFilters
+        case setIsSearching(Bool)
+        case setShowAllSearchResults(Bool)
+        case finishDeleteToast(String)
+        case presentedDeleteToast
+        case tapToggleCompleted(TodoListItem)
+        case tapTogglePinned(TodoListItem)
+        case undoDelete
+        case onAppear
+        case loadNextPage
+        case setSearchText(String)
+        case applySearchQuery(String)
+        case fetchSearchResults([TodoListItem])
+        case didToggleCompleted(TodoListItem)
+        case didTogglePinned(TodoListItem)
+        case setTodoHidden(String, Bool)
+        case appendTodos([TodoListItem], nextCursor: TodoCursor?)
+        case resetPagination
+        case setHasMore(Bool)
+        case loading(LoadingFeature.Action)
+    }
+
+    enum CancelID: Hashable {
+        case debounce
+        case request
+    }
+
+    @Dependency(\.continuousClock) var clock
+    @Dependency(\.todoListFetchTodosUseCase) var fetchTodosUseCase
+    @Dependency(\.fetchTodoByIdUseCase) var fetchTodoByIdUseCase
+    @Dependency(\.upsertTodoUseCase) var upsertTodoUseCase
+    @Dependency(\.todoListDeleteTodoUseCase) var deleteTodoUseCase
+    @Dependency(\.todoListUndoDeleteTodoUseCase) var undoDeleteTodoUseCase
+    @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
+
+    private let searchDebounceDelay = Duration.seconds(0.4)
+
+    var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
+        Reduce { state, action in
+            reduce(action, state: &state)
+        }
+    }
+}
+
+extension DependencyValues {
+    var todoListFetchTodosUseCase: FetchTodosUseCase {
+        get { self[TodoListFetchTodosUseCaseKey.self] }
+        set { self[TodoListFetchTodosUseCaseKey.self] = newValue }
+    }
+
+    var todoListDeleteTodoUseCase: DeleteTodoUseCase {
+        get { self[TodoListDeleteTodoUseCaseKey.self] }
+        set { self[TodoListDeleteTodoUseCaseKey.self] = newValue }
+    }
+
+    var todoListUndoDeleteTodoUseCase: UndoDeleteTodoUseCase {
+        get { self[TodoListUndoDeleteTodoUseCaseKey.self] }
+        set { self[TodoListUndoDeleteTodoUseCaseKey.self] = newValue }
+    }
+}
+
+private enum TodoListFetchTodosUseCaseKey: DependencyKey {
+    static var liveValue: FetchTodosUseCase {
+        preconditionFailure("FetchTodosUseCase must be provided.")
+    }
+
+    static var testValue: FetchTodosUseCase {
+        liveValue
+    }
+}
+
+private enum TodoListDeleteTodoUseCaseKey: DependencyKey {
+    static var liveValue: DeleteTodoUseCase {
+        preconditionFailure("DeleteTodoUseCase must be provided.")
+    }
+
+    static var testValue: DeleteTodoUseCase {
+        liveValue
+    }
+}
+
+private enum TodoListUndoDeleteTodoUseCaseKey: DependencyKey {
+    static var liveValue: UndoDeleteTodoUseCase {
+        preconditionFailure("UndoDeleteTodoUseCase must be provided.")
+    }
+
+    static var testValue: UndoDeleteTodoUseCase {
+        liveValue
+    }
+}
+
+private extension TodoListFeature {
+    func reduce(_ action: Action, state: inout State) -> Effect<Action> {
+        switch action {
+        case .refresh, .onAppear:
+            return fetchEffect(query: state.query, cursor: nil)
+        case .setAlert(let value):
+            Self.setAlert(&state, isPresented: value)
+        case .setShowEditor(let value):
+            state.showEditor = value
+        case .swipeTodo(let todo):
+            return swipeTodoEffect(todo, state: &state)
+        case .setSortTarget(let target):
+            state.query.sortTarget = target
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .setSortOrder(let order):
+            state.query.sortOrder = order
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .togglePinnedOnly:
+            state.query.isPinned = state.query.isPinned == true ? nil : true
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .setCompletionFilter(let filter):
+            state.query.completionFilter = filter
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .resetFilters:
+            state.query = TodoQuery(categoryId: state.category.storageValue)
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .setIsSearching(let value):
+            state.isSearching = value
+            if !value {
+                state.searchText = ""
+                state.searchResults = []
+                state.showAllSearchResults = false
+                return cancelSearchEffect()
+            }
+        case .setShowAllSearchResults(let value):
+            state.showAllSearchResults = value
+        case .finishDeleteToast(let todoId):
+            state.todos.removeAll { $0.id == todoId && $0.isHidden }
+            state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
+            if state.undoTodoId == todoId {
+                state.undoTodoId = nil
+            }
+        case .presentedDeleteToast:
+            state.deleteToastTodoId = nil
+        case .tapToggleCompleted(let todo):
+            return toggleCompletedEffect(todo)
+        case .tapTogglePinned(let todo):
+            return togglePinnedEffect(todo)
+        case .undoDelete:
+            guard let undoTodoId = state.undoTodoId else { return .none }
+            Self.setTodoHidden(&state, todoId: undoTodoId, isHidden: false)
+            state.undoTodoId = nil
+            return undoDeleteEffect(undoTodoId)
+        case .loadNextPage:
+            guard state.hasMore, !state.isLoading else { return .none }
+            return fetchEffect(query: state.query, cursor: state.nextCursor, resetsPagination: false)
+        case .setSearchText(let text):
+            return setSearchTextEffect(text, state: &state)
+        case .applySearchQuery(let query):
+            return applySearchQueryEffect(query, state: &state)
+        case .fetchSearchResults(let items):
+            state.searchResults = items
+        case .didToggleCompleted(let todo), .didTogglePinned(let todo):
+            if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
+                state.todos[index] = todo
+            }
+        case .setTodoHidden(let todoId, let isHidden):
+            Self.setTodoHidden(&state, todoId: todoId, isHidden: isHidden)
+        case .appendTodos(let todos, let nextCursor):
+            state.todos.append(contentsOf: todos)
+            state.nextCursor = nextCursor
+        case .resetPagination:
+            state.todos = []
+            state.nextCursor = nil
+            state.hasMore = false
+        case .setHasMore(let value):
+            state.hasMore = value
+        case .loading:
+            break
+        }
+
+        return .none
+    }
+
+    func fetchEffect(
+        query: TodoQuery,
+        cursor: TodoCursor?,
+        resetsPagination: Bool = true
+    ) -> Effect<Action> {
+        .concatenate(
+            .send(.loading(.begin(target: .default, mode: .delayed))),
+            .run { [fetchTodosUseCase] send in
+                do {
+                    let page = try await fetchTodosUseCase.execute(query, cursor: cursor)
+                    if resetsPagination {
+                        await send(.resetPagination)
+                    }
+                    await send(.appendTodos(
+                        page.items.compactMap(TodoListItem.init(from:)),
+                        nextCursor: page.nextCursor
+                    ))
+                    await send(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil))
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                } catch {
+                    await send(.setAlert(true))
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
+            }
+        )
+    }
+
+    func setSearchTextEffect(_ text: String, state: inout State) -> Effect<Action> {
+        guard state.searchText != text else { return .none }
+        state.searchText = text
+        state.showAllSearchResults = false
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            state.searchResults = []
+            return cancelSearchEffect()
+        } else {
+            return .concatenate(
+                cancelSearchEffect(),
+                debounceSearchEffect(trimmed)
+            )
+        }
+    }
+
+    func applySearchQueryEffect(_ query: String, state: inout State) -> Effect<Action> {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            state.searchResults = []
+            return cancelSearchEffect()
+        } else {
+            return searchEffect(trimmed, category: state.category)
+        }
+    }
+
+    func cancelSearchEffect() -> Effect<Action> {
+        .merge(
+            .cancel(id: CancelID.debounce),
+            .cancel(id: CancelID.request),
+            .send(.loading(.end(target: .default, mode: .immediate)))
+        )
+    }
+
+    func debounceSearchEffect(_ keyword: String) -> Effect<Action> {
+        .concatenate(
+            .send(.loading(.begin(target: .default, mode: .immediate))),
+            .run { [clock, searchDebounceDelay] send in
+                try await clock.sleep(for: searchDebounceDelay)
+                await send(.applySearchQuery(keyword))
+            }
+            .cancellable(id: CancelID.debounce, cancelInFlight: true)
+        )
+    }
+}
