@@ -14,7 +14,7 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container: DIContainer
     @State private var router = NavigationRouter<Path>()
-    @State var viewModel: SearchViewModel
+    @Bindable var store: StoreOf<SearchFeature>
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -41,41 +41,30 @@ struct SearchView: View {
                             }
                     }
                 }
-                .onAppear {
-                    DispatchQueue.main.async {
-                        viewModel.send(.setSearching(true))
-                    }
-                }
-                .onChange(of: viewModel.state.isSearching) { _, isSearching in
+                .onAppear { store.send(.setSearching(true)) }
+                .onChange(of: store.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
                     }
                 }
-                .alert(viewModel.state.alertTitle, isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert($0)) }
-                )) {
-                    Button(String(localized: "common_close"), role: .cancel) { }
-                } message: {
-                    Text(viewModel.state.alertMessage)
-                }
+                .alert($store.scope(state: \.alert, action: \.alert))
         }
     }
 
     @ViewBuilder
     private var searchableContent: some View {
         Group {
-            if viewModel.state.searchQuery.isEmpty {
-                if viewModel.state.recentQueries.isEmpty {
+            if store.searchQuery.isEmpty {
+                if store.recentQueries.isEmpty {
                     searchInstruction
                 } else {
                     ScrollView {
                         recentQueries
                     }
                 }
-            } else if viewModel.state.isLoading {
+            } else if store.isLoading {
                 LoadingView()
-            } else if viewModel.state.webPages.isEmpty && viewModel.state.todos.isEmpty {
+            } else if store.webPages.isEmpty && store.todos.isEmpty {
                 emptySearchResult
             } else {
                 ScrollView {
@@ -86,18 +75,18 @@ struct SearchView: View {
         }
         .searchable(
             text: Binding(
-                get: { viewModel.state.searchQuery },
-                set: { viewModel.send(.setSearchQuery($0)) }
+                get: { store.searchQuery },
+                set: { store.send(.setSearchQuery($0)) }
             ),
             isPresented: Binding(
-                get: { viewModel.state.isSearching },
-                set: { viewModel.send(.setSearching($0)) }
+                get: { store.isSearching },
+                set: { store.send(.setSearching($0)) }
             ),
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: Text(String(localized: "search_prompt"))
         )
         .onSubmit(of: .search) {
-            viewModel.send(.addRecentQuery(viewModel.state.searchQuery))
+            store.send(.addRecentQuery(store.searchQuery))
         }
     }
 
@@ -123,10 +112,10 @@ struct SearchView: View {
 
     private var searchResults: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if !viewModel.state.todos.isEmpty {
+            if !store.todos.isEmpty {
                 todoResults
             }
-            if !viewModel.state.webPages.isEmpty {
+            if !store.webPages.isEmpty {
                 webPages
             }
         }
@@ -134,10 +123,7 @@ struct SearchView: View {
     }
 
     private var todoResults: some View {
-        let limit = viewModel.contentsLimit
-        let todos = viewModel.state.showAllTodos
-            ? viewModel.state.todos
-            : Array(viewModel.state.todos.prefix(limit))
+        let todos = store.visibleTodos
 
         return VStack(alignment: .leading, spacing: 12) {
             Text("Todos")
@@ -150,9 +136,9 @@ struct SearchView: View {
                 }
             }
             .padding(.top, -12)
-            if !viewModel.state.showAllTodos && limit < viewModel.state.todos.count {
+            if store.shouldShowMoreTodos {
                 Button(String(localized: "search_show_more")) {
-                    viewModel.send(.setShowAllTodos(true))
+                    store.send(.setShowAllTodos(true))
                 }
                 .font(.subheadline)
                 .foregroundStyle(Color.gray)
@@ -164,10 +150,7 @@ struct SearchView: View {
     }
 
     private var webPages: some View {
-        let limit = viewModel.contentsLimit
-        let pages = viewModel.state.showAllWebPages
-            ? viewModel.state.webPages
-            : Array(viewModel.state.webPages.prefix(limit))
+        let pages = store.visibleWebPages
 
         return VStack(alignment: .leading, spacing: 12) {
             Text("Web Pages")
@@ -180,9 +163,9 @@ struct SearchView: View {
                 }
             }
             .padding(.top, -12)
-            if !viewModel.state.showAllWebPages && limit < viewModel.state.webPages.count {
+            if store.shouldShowMoreWebPages {
                 Button(String(localized: "search_show_more")) {
-                    viewModel.send(.setShowAllWebPages(true))
+                    store.send(.setShowAllWebPages(true))
                 }
                 .font(.subheadline)
                 .foregroundStyle(Color.gray)
@@ -221,13 +204,13 @@ struct SearchView: View {
                     .foregroundStyle(Color(.label))
                 Spacer()
                 Button(String(localized: "search_clear_all")) {
-                    viewModel.send(.clearRecentQueries)
+                    store.send(.clearRecentQueries)
                 }
                 .font(.subheadline)
                 .foregroundStyle(Color.gray)
             }
 
-            ForEach(viewModel.state.recentQueries, id: \.self) { query in
+            ForEach(store.recentQueries, id: \.self) { query in
                 HStack {
                     Image(systemName: "clock.arrow.circlepath")
                         .foregroundStyle(Color.gray)
@@ -235,7 +218,7 @@ struct SearchView: View {
                         .foregroundStyle(Color.primary)
                     Spacer()
                     Button {
-                        viewModel.send(.removeRecentQuery(query))
+                        store.send(.removeRecentQuery(query))
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(Color.gray)
@@ -245,8 +228,8 @@ struct SearchView: View {
                 .padding(.vertical, 4)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    viewModel.send(.setSearchQuery(query))
-                    viewModel.send(.setSearching(true))
+                    store.send(.setSearchQuery(query))
+                    store.send(.setSearching(true))
                 }
             }
         }

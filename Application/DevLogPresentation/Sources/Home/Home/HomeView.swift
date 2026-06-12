@@ -58,7 +58,7 @@ struct HomeView: View {
             get: { coordinator.viewModel.state.showSearchView },
             set: { coordinator.viewModel.send(.setPresentation(.searchView, $0)) }
         )) {
-            SearchView(viewModel: coordinator.makeSearchViewModel())
+            SearchView(store: coordinator.makeSearchStore())
         }
         .alert(
             coordinator.viewModel.state.alertTitle,
