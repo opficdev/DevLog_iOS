@@ -79,6 +79,7 @@ private extension LoginFeature {
             await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
                 try await signInUseCase.execute(provider)
+                // 유스케이스 완료가 화면 전환 완료를 의미하지 않으므로 LoginView가 교체될 때까지 로딩을 유지한다.
             } catch {
                 await send(.loading(.end(target: .default, mode: .immediate)))
                 if error.isSocialLoginCancelled { return }
