@@ -127,6 +127,10 @@ struct TodoEditorFeature {
         }
     }
 
+    private enum CancelID: Hashable {
+        case resolveMarkdown
+    }
+
     @Dependency(\.date.now) var now
     @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
     @Dependency(\.fetchReferenceItemsUseCase) var fetchReferenceItemsUseCase
@@ -282,6 +286,7 @@ private extension TodoEditorFeature {
 
             await send(.binding(.set(\.referenceItems, referenceItems)))
         }
+        .cancellable(id: CancelID.resolveMarkdown, cancelInFlight: true)
     }
 
     func createTodoEffect(_ draft: TodoDraft) -> Effect<Action> {
