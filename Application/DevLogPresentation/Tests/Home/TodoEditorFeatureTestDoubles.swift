@@ -125,7 +125,7 @@ final class TodoEditorStoreTestAdapter {
         }
     }
 
-    func setTab(_ tab: TodoEditorFeature.Tag) async {
+    func setTab(_ tab: TodoEditorFeature.EditorTab) async {
         await store.send(.binding(.set(\.tabViewTag, tab))) {
             $0.tabViewTag = tab
         }

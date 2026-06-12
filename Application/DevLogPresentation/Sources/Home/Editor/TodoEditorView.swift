@@ -140,9 +140,9 @@ struct TodoEditorView: View {
             )
         ) {
             Text(String(localized: "todo_write"))
-                .tag(TodoEditorFeature.Tag.editor)
+                .tag(TodoEditorFeature.EditorTab.editor)
             Text(String(localized: "todo_preview"))
-                .tag(TodoEditorFeature.Tag.preview)
+                .tag(TodoEditorFeature.EditorTab.preview)
         }
         .pickerStyle(.segmented)
     }

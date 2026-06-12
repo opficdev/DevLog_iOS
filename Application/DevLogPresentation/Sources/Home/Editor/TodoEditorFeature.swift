@@ -27,7 +27,7 @@ struct TodoEditorFeature {
         var loading = LoadingFeature.State()
         var tags: OrderedSet<String> = []
         var tagText: String = ""
-        var tabViewTag: Tag = .editor
+        var tabViewTag: EditorTab = .editor
         var categories: [TodoCategoryItem] = []
         var category = TodoCategoryItem(from: .system(.etc))
         var saveResult: SaveResult?
@@ -91,7 +91,7 @@ struct TodoEditorFeature {
         }
     }
 
-    enum Tag: Equatable {
+    enum EditorTab: Equatable {
         case editor
         case preview
     }
