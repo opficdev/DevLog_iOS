@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -71,17 +72,18 @@ struct TodoListView: View {
             set: { viewModel.send(.setShowEditor($0)) }
         )) {
             TodoEditorView(
-                viewModel: TodoEditorViewModel(
-                    category: viewModel.category,
-                    fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                    fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                    upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                    trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                    onCreateSuccess: {
-                        viewModel.send(.setShowEditor(false))
-                        viewModel.send(.refresh)
-                    }
-                )
+                store: Store(initialState: TodoEditorFeature.State(category: viewModel.category)) {
+                    TodoEditorFeature()
+                } withDependencies: {
+                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+                },
+                onCreateSuccess: {
+                    viewModel.send(.setShowEditor(false))
+                    viewModel.send(.refresh)
+                }
             )
         }
         .toolbar {

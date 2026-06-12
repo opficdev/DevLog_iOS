@@ -6,19 +6,20 @@
 //
 
 import MarkdownUI
-import OrderedCollections
 import SwiftUI
 import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
 struct TodoEditorView: View {
-    @State var viewModel: TodoEditorViewModel
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
+    @Bindable var store: StoreOf<TodoEditorFeature>
     @FocusState private var field: Field?
     private let calendar = Calendar.current
+    var onCreateSuccess: (() -> Void)?
+    var onUpdateSuccess: ((Todo) -> Void)?
     var onClose: (() -> Void)?
 
     var body: some View {
@@ -45,21 +46,24 @@ struct TodoEditorView: View {
             .onTapGesture {
                 field = .content
             }
-            .onAppear { viewModel.send(.onAppear) }
-            .navigationTitle(viewModel.navigationTitle)
+            .onAppear { store.send(.onAppear) }
+            .onChange(of: store.saveResult) { _, result in
+                handleSaveResult(result)
+            }
+            .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
             .sheet(isPresented: Binding(
-                get: { viewModel.state.showInfo },
-                set: { viewModel.send(.setShowInfo($0)) }
+                get: { store.showInfo },
+                set: { store.send(.setShowInfo($0)) }
             )) {
-                TodoEditorInfoSheetView(viewModel: viewModel) {
-                    viewModel.send(.setShowInfo(false))
+                TodoEditorInfoSheetView(store: store) {
+                    store.send(.setShowInfo(false))
                 }
             }
             .sheet(item: Binding(
-                get: { viewModel.state.selectedTodoId },
-                set: { viewModel.send(.setSelectedTodoId($0)) }
+                get: { store.selectedTodoId },
+                set: { store.send(.setSelectedTodoId($0)) }
             )) { item in
                 NavigationStack {
                     TodoDetailView(store: Store(
@@ -72,7 +76,7 @@ struct TodoEditorView: View {
                     })
                     .toolbar {
                         ToolbarLeadingButton {
-                            viewModel.send(.setSelectedTodoId(nil))
+                            store.send(.setSelectedTodoId(nil))
                         }
                     }
                 }
@@ -85,7 +89,7 @@ struct TodoEditorView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        viewModel.send(.setShowInfo(true))
+                        store.send(.setShowInfo(true))
                     } label: {
                         Image(systemName: "info.circle")
                     }
@@ -93,19 +97,9 @@ struct TodoEditorView: View {
                 ToolbarTrailingButton {
                     submit()
                 }
-                .disabled(!viewModel.isReadyToSubmit || viewModel.state.isLoading)
+                .disabled(!store.isReadyToSubmit || store.isLoading)
             }
-            .alert(
-                viewModel.state.alertTitle,
-                isPresented: Binding(
-                    get: { viewModel.state.showAlert },
-                    set: { viewModel.send(.setAlert($0)) }
-                )
-            ) {
-                Button(String(localized: "common_close"), role: .cancel) { }
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
+            .alert($store.scope(state: \.alert, action: \.alert))
         }
     }
 
@@ -129,8 +123,8 @@ struct TodoEditorView: View {
         TextField(
             "",
             text: Binding(
-                get: { viewModel.state.title },
-                set: { viewModel.send(.setTitle($0)) }
+                get: { store.title },
+                set: { store.send(.setTitle($0)) }
             ),
             prompt: Text(String(localized: "todo_editor_title_required")).foregroundColor(Color.secondary),
         )
@@ -143,10 +137,10 @@ struct TodoEditorView: View {
         Picker(
             "",
             selection: Binding(
-                get: { viewModel.state.tabViewTag },
+                get: { store.tabViewTag },
                 set: { tag in
                     if tag == .editor {
-                        viewModel.send(.setTabViewTag(.editor))
+                        store.send(.setTabViewTag(.editor))
                         field = .content
                     } else {
                         transitionToPreview()
@@ -155,35 +149,35 @@ struct TodoEditorView: View {
             )
         ) {
             Text(String(localized: "todo_write"))
-                .tag(TodoEditorViewModel.Tag.editor)
+                .tag(TodoEditorFeature.Tag.editor)
             Text(String(localized: "todo_preview"))
-                .tag(TodoEditorViewModel.Tag.preview)
+                .tag(TodoEditorFeature.Tag.preview)
         }
         .pickerStyle(.segmented)
     }
 
     private var tabView: some View {
         Group {
-            if viewModel.state.tabViewTag == .editor {
+            if store.tabViewTag == .editor {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
                     UIKitTextEditor(
                         text: Binding(
-                            get: { viewModel.state.content },
-                            set: { viewModel.send(.setContent($0)) }
+                            get: { store.content },
+                            set: { store.send(.setContent($0)) }
                         ),
                         placeholder: String(localized: "todo_editor_description_optional")
                     )
                     .focused($field, equals: .content)
                 }
             } else {
-                if viewModel.state.content.isEmpty {
+                if store.content.isEmpty {
                     previewPlaceholder
                 } else {
                     TodoMarkdownContentView(
-                        content: viewModel.state.content,
-                        referenceItems: viewModel.state.referenceItems,
-                        onOpenTodoID: { viewModel.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
+                        content: store.content,
+                        referenceItems: store.referenceItems,
+                        onOpenTodoID: { store.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
                     )
                 }
             }
@@ -211,7 +205,7 @@ struct TodoEditorView: View {
     }
 
     private func submit() {
-        viewModel.send(.upsertTodo)
+        store.send(.upsertTodo)
     }
 
     private func close() {
@@ -226,7 +220,18 @@ struct TodoEditorView: View {
         field = nil
 
         DispatchQueue.main.async {
-            viewModel.send(.setTabViewTag(.preview))
+            store.send(.setTabViewTag(.preview))
+        }
+    }
+
+    private func handleSaveResult(_ result: TodoEditorFeature.SaveResult?) {
+        switch result {
+        case .created:
+            onCreateSuccess?()
+        case .updated(let todo):
+            onUpdateSuccess?(todo)
+        case .none:
+            break
         }
     }
 
@@ -236,7 +241,7 @@ struct TodoEditorView: View {
 }
 
 private struct TodoEditorInfoSheetView: View {
-    @Bindable var viewModel: TodoEditorViewModel
+    @Bindable var store: StoreOf<TodoEditorFeature>
     let onClose: () -> Void
     @FocusState private var isTagFieldFocused: Bool
     private let calendar = Calendar.current
@@ -248,19 +253,19 @@ private struct TodoEditorInfoSheetView: View {
                     Picker(
                         String(localized: "todo_category"),
                         selection: Binding(
-                            get: { viewModel.state.category.id },
+                            get: { store.category.id },
                             set: { categoryId in
-                                guard let item = viewModel.state.categories.first(where: {
+                                guard let item = store.categories.first(where: {
                                     $0.id == categoryId
                                 }) else {
                                     return
                                 }
 
-                                viewModel.send(.setCategory(item))
+                                store.send(.setCategory(item))
                             }
                         )
                     ) {
-                        ForEach(viewModel.state.categories, id: \.id) { item in
+                        ForEach(store.categories, id: \.id) { item in
                             Text(item.localizedName)
                                 .tag(item.id)
                         }
@@ -269,8 +274,8 @@ private struct TodoEditorInfoSheetView: View {
                     Toggle(
                         String(localized: "todo_completed"),
                         isOn: Binding(
-                            get: { viewModel.state.isCompleted },
-                            set: { viewModel.send(.setCompleted($0)) }
+                            get: { store.isCompleted },
+                            set: { store.send(.setCompleted($0)) }
                         )
                     )
                     .tint(.blue)
@@ -278,8 +283,8 @@ private struct TodoEditorInfoSheetView: View {
                     Toggle(
                         String(localized: "todo_pinned"),
                         isOn: Binding(
-                            get: { viewModel.state.isPinned },
-                            set: { viewModel.send(.setPinned($0)) }
+                            get: { store.isPinned },
+                            set: { store.send(.setPinned($0)) }
                         )
                     )
                     .tint(.blue)
@@ -292,8 +297,8 @@ private struct TodoEditorInfoSheetView: View {
                         TextField(
                             String(localized: "todo_add"),
                             text: Binding(
-                                get: { viewModel.state.tagText },
-                                set: { viewModel.send(.setTagText($0)) }
+                                get: { store.tagText },
+                                set: { store.send(.setTagText($0)) }
                             )
                         )
                         .frame(height: UIFont.preferredFont(forTextStyle: .title2).lineHeight)
@@ -315,15 +320,15 @@ private struct TodoEditorInfoSheetView: View {
                         }
                     }
 
-                    if viewModel.state.tags.isEmpty {
+                    if store.tags.isEmpty {
                         Text(String(localized: "todo_no_tags"))
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 4)
                     } else {
                         TagList(
-                            viewModel.state.tags,
+                            store.tags,
                             isEditing: isTagFieldFocused,
-                            action: { viewModel.send(.removeTag($0)) }
+                            action: { store.send(.removeTag($0)) }
                         )
                     }
                 }
@@ -340,16 +345,16 @@ private struct TodoEditorInfoSheetView: View {
 
     private var dueDateControl: some View {
         DueDatePicker(selection: Binding(
-            get: { viewModel.state.dueDate ?? Date() },
-            set: { viewModel.send(.setDueDate($0)) }
+            get: { store.dueDate ?? Date() },
+            set: { store.send(.setDueDate($0)) }
         )) {
             HStack {
                 Text(String(localized: "todo_due_date"))
                     .foregroundStyle(.primary)
                 Spacer()
-                if let dueDate = viewModel.state.dueDate {
+                if let dueDate = store.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
-                        viewModel.send(.setDueDate(nil))
+                        store.send(.setDueDate(nil))
                     }
                     .padding(.vertical, -4)
                 } else {
@@ -364,16 +369,16 @@ private struct TodoEditorInfoSheetView: View {
         guard canSubmitTag else { return }
 
         let tagText = normalizedTagText
-        viewModel.send(.addTag(tagText))
-        viewModel.send(.setTagText(""))
+        store.send(.addTag(tagText))
+        store.send(.setTagText(""))
     }
 
     private var normalizedTagText: String {
-        viewModel.state.tagText.trimmingCharacters(in: .whitespacesAndNewlines)
+        store.tagText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var canSubmitTag: Bool {
-        !normalizedTagText.isEmpty && !viewModel.state.tags.contains(normalizedTagText)
+        !normalizedTagText.isEmpty && !store.tags.contains(normalizedTagText)
     }
 
     private func dueDateText(for dueDate: Date) -> String {

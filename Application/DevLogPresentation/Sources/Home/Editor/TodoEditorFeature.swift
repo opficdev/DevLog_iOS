@@ -1,0 +1,358 @@
+//
+//  TodoEditorFeature.swift
+//  DevLogPresentation
+//
+//  Created by opfic on 6/12/26.
+//
+
+import ComposableArchitecture
+import DevLogDomain
+import Foundation
+import OrderedCollections
+
+@Reducer
+struct TodoEditorFeature {
+    @ObservableState
+    struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
+        var isCompleted: Bool = false
+        var completedAt: Date?
+        var isPinned: Bool = false
+        var selectedTodoId: TodoIdItem?
+        var title: String = ""
+        var content: String = ""
+        var referenceItems: [Int: TodoReferenceItem] = [:]
+        var dueDate: Date?
+        var showInfo: Bool = false
+        var isLoading: Bool = false
+        var tags: OrderedSet<String> = []
+        var tagText: String = ""
+        var focusOnEditor: Bool = false
+        var tabViewTag: Tag = .editor
+        var categories: [TodoCategoryItem] = []
+        var category = TodoCategoryItem(from: .system(.etc))
+        var saveResult: SaveResult?
+        var id: String
+        var isChecked: Bool
+        var number: Int?
+        var createdAt: Date?
+        var deletedAt: Date?
+        var originalDraft: TodoDraft?
+
+        var isValidToSave: Bool {
+            !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        var navigationTitle: String {
+            if originalDraft == nil {
+                return String.localizedStringWithFormat(
+                    String(localized: "todo_editor_new_format"),
+                    category.localizedName
+                )
+            }
+
+            return String(localized: "todo_edit")
+        }
+        var hasChanges: Bool {
+            guard let originalDraft else { return true }
+            return originalDraft != makeTodoDraft(now: Date())
+        }
+        var isReadyToSubmit: Bool {
+            isValidToSave && hasChanges
+        }
+
+        init(category: TodoCategory, id: String = UUID().uuidString) {
+            self.id = id
+            self.isChecked = false
+            self.number = nil
+            self.createdAt = nil
+            self.deletedAt = nil
+            self.originalDraft = nil
+            self.category = TodoCategoryItem(from: category)
+            self.categories = [TodoCategoryItem(from: category)]
+        }
+
+        init(todo: Todo) {
+            self.id = todo.id
+            self.isChecked = todo.isChecked
+            self.number = todo.number
+            self.createdAt = todo.createdAt
+            self.deletedAt = todo.deletedAt
+            self.originalDraft = TodoDraft(todo: todo)
+            self.isCompleted = todo.isCompleted
+            self.completedAt = todo.completedAt
+            self.isPinned = todo.isPinned
+            self.title = todo.title
+            self.content = todo.content
+            self.dueDate = todo.dueDate
+            self.tags = OrderedSet(todo.tags)
+            self.category = TodoCategoryItem(from: todo.category)
+        }
+    }
+
+    enum Tag: Equatable {
+        case editor
+        case preview
+    }
+
+    enum SaveResult: Equatable {
+        case created
+        case updated(Todo)
+    }
+
+    enum Action {
+        case alert(PresentationAction<Never>)
+        case onAppear
+        case addTag(String)
+        case removeTag(String)
+        case setContent(String)
+        case setCompleted(Bool)
+        case setDueDate(Date?)
+        case setCategory(TodoCategoryItem)
+        case setAlert(Bool)
+        case setLoading(Bool)
+        case setPinned(Bool)
+        case setShowInfo(Bool)
+        case setSelectedTodoId(TodoIdItem?)
+        case setTabViewTag(Tag)
+        case setTagText(String)
+        case setTitle(String)
+        case setCategories([TodoCategoryItem])
+        case setReferenceItems([Int: TodoReferenceItem])
+        case upsertTodo
+        case createSucceeded
+        case updateSucceeded(Todo)
+    }
+
+    @Dependency(\.date.now) var now
+    @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
+    @Dependency(\.fetchReferenceItemsUseCase) var fetchReferenceItemsUseCase
+    @Dependency(\.upsertTodoUseCase) var upsertTodoUseCase
+    @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .alert:
+                break
+            case .onAppear:
+                return fetchCategoriesEffect()
+            case .addTag(let tag):
+                if !tag.isEmpty {
+                    state.tags.append(tag)
+                }
+            case .removeTag(let tagText):
+                state.tags.removeAll { $0 == tagText }
+            case .setContent(let content):
+                state.content = content
+                if state.tabViewTag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .setTagText(let tagText):
+                state.tagText = tagText
+                if state.tabViewTag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .setTitle(let title):
+                state.title = title
+                if state.tabViewTag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .setDueDate(let dueDate):
+                if let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: now),
+                   let dueDate {
+                    state.dueDate = max(dueDate, tomorrowDate)
+                } else {
+                    state.dueDate = nil
+                }
+            case .setCompleted(let isCompleted):
+                if state.isCompleted != isCompleted {
+                    state.completedAt = isCompleted ? now : nil
+                }
+                state.isCompleted = isCompleted
+            case .setCategory(let item):
+                state.category = item
+            case .setAlert(let isPresented):
+                state.alert = isPresented ? Self.alertState() : nil
+            case .setLoading(let value):
+                state.isLoading = value
+            case .setPinned(let isPinned):
+                state.isPinned = isPinned
+            case .setShowInfo(let isPresented):
+                state.showInfo = isPresented
+            case .setSelectedTodoId(let todoId):
+                state.selectedTodoId = todoId
+            case .setTabViewTag(let tag):
+                state.tabViewTag = tag
+                if tag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .setCategories(let categories):
+                state.categories = categories
+            case .setReferenceItems(let items):
+                state.referenceItems = items
+            case .upsertTodo:
+                state.saveResult = nil
+                if state.originalDraft == nil {
+                    return createTodoEffect(state.makeTodoDraft(now: now))
+                } else if let todo = state.makeTodo(now: now) {
+                    return updateTodoEffect(todo)
+                }
+            case .createSucceeded:
+                state.saveResult = .created
+            case .updateSucceeded(let todo):
+                state.saveResult = .updated(todo)
+            }
+
+            return .none
+        }
+        .ifLet(\.$alert, action: \.alert)
+    }
+}
+
+extension DependencyValues {
+    var fetchTodoCategoryPreferencesUseCase: FetchTodoCategoryPreferencesUseCase {
+        get { self[FetchTodoCategoryPreferencesUseCaseKey.self] }
+        set { self[FetchTodoCategoryPreferencesUseCaseKey.self] = newValue }
+    }
+
+    var upsertTodoUseCase: UpsertTodoUseCase {
+        get { self[UpsertTodoUseCaseKey.self] }
+        set { self[UpsertTodoUseCaseKey.self] = newValue }
+    }
+
+    var trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? {
+        get { self[TrackAnalyticsEventUseCaseKey.self] }
+        set { self[TrackAnalyticsEventUseCaseKey.self] = newValue }
+    }
+}
+
+private enum FetchTodoCategoryPreferencesUseCaseKey: DependencyKey {
+    static var liveValue: FetchTodoCategoryPreferencesUseCase {
+        preconditionFailure("FetchTodoCategoryPreferencesUseCase must be provided.")
+    }
+
+    static var testValue: FetchTodoCategoryPreferencesUseCase {
+        liveValue
+    }
+}
+
+private enum UpsertTodoUseCaseKey: DependencyKey {
+    static var liveValue: UpsertTodoUseCase {
+        preconditionFailure("UpsertTodoUseCase must be provided.")
+    }
+
+    static var testValue: UpsertTodoUseCase {
+        liveValue
+    }
+}
+
+private enum TrackAnalyticsEventUseCaseKey: DependencyKey {
+    static let liveValue: TrackAnalyticsEventUseCase? = nil
+}
+
+private extension TodoEditorFeature {
+    func fetchCategoriesEffect() -> Effect<Action> {
+        .run { [fetchPreferencesUseCase] send in
+            do {
+                let preferences = try await fetchPreferencesUseCase.execute()
+                await send(.setCategories(preferences.map(TodoCategoryItem.init(from:))))
+            } catch { }
+        }
+    }
+
+    func resolveMarkdownEffect(content: String) -> Effect<Action> {
+        .run { [fetchReferenceItemsUseCase] send in
+            let numbers = content.todoReferenceNumbers
+            var referenceItems = [Int: TodoReferenceItem]()
+
+            if !numbers.isEmpty {
+                do {
+                    referenceItems = try await fetchReferenceItemsUseCase.execute(numbers)
+                        .mapValues(TodoReferenceItem.init(from:))
+                } catch {
+                    referenceItems = [:]
+                }
+            }
+
+            await send(.setReferenceItems(referenceItems))
+        }
+    }
+
+    func createTodoEffect(_ draft: TodoDraft) -> Effect<Action> {
+        .run { [trackAnalyticsEventUseCase, upsertTodoUseCase] send in
+            await send(.setLoading(true))
+            do {
+                try await upsertTodoUseCase.execute(draft)
+                trackAnalyticsEventUseCase?.execute(.todoCreate)
+                await send(.createSucceeded)
+            } catch {
+                await send(.setAlert(true))
+            }
+            await send(.setLoading(false))
+        }
+    }
+
+    func updateTodoEffect(_ todo: Todo) -> Effect<Action> {
+        .run { [upsertTodoUseCase] send in
+            await send(.setLoading(true))
+            do {
+                try await upsertTodoUseCase.execute(todo)
+                await send(.updateSucceeded(todo))
+            } catch {
+                await send(.setAlert(true))
+            }
+            await send(.setLoading(false))
+        }
+    }
+
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "common_error_message"))
+        }
+    }
+}
+
+private extension TodoEditorFeature.State {
+    func makeTodoDraft(now: Date) -> TodoDraft {
+        TodoDraft(
+            id: id,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            title: title,
+            content: content,
+            createdAt: now,
+            updatedAt: now,
+            completedAt: completedAt,
+            dueDate: dueDate,
+            tags: Array(tags),
+            category: category.category
+        )
+    }
+
+    func makeTodo(now: Date) -> Todo? {
+        guard let number, let createdAt else { return nil }
+        return Todo(
+            id: id,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            number: number,
+            title: title,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: now,
+            completedAt: completedAt,
+            deletedAt: deletedAt,
+            dueDate: dueDate,
+            tags: Array(tags),
+            category: category.category
+        )
+    }
+}

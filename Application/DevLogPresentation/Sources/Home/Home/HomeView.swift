@@ -50,7 +50,11 @@ struct HomeView: View {
         )) {
             if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
                 TodoEditorView(
-                    viewModel: coordinator.makeTodoEditorViewModel(category: selectedCategory)
+                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
+                    onCreateSuccess: {
+                        coordinator.viewModel.send(.setPresentation(.todoEditor, false))
+                        coordinator.viewModel.send(.fetchData)
+                    }
                 )
             }
         }
