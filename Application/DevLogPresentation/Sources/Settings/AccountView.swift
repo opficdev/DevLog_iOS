@@ -10,7 +10,7 @@ import ComposableArchitecture
 import DevLogDomain
 
 struct AccountView: View {
-    @Bindable var store: StoreOf<AccountFeature>
+    @State var store: StoreOf<AccountFeature>
 
     var body: some View {
         List {
