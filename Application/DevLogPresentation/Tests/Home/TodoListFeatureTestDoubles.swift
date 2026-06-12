@@ -64,22 +64,22 @@ final class TodoListStoreTestAdapter {
     }
 
     func setSortTarget(_ target: TodoQuery.SortTarget) async {
-        await store.send(.setSortTarget(target))
+        await store.send(.binding(.set(\.query.sortTarget, target)))
         await drainReceivedActions()
     }
 
     func setSortOrder(_ order: TodoQuery.SortOrder) async {
-        await store.send(.setSortOrder(order))
+        await store.send(.binding(.set(\.query.sortOrder, order)))
         await drainReceivedActions()
     }
 
     func togglePinnedOnly() async {
-        await store.send(.togglePinnedOnly)
+        await store.send(.binding(.set(\.isPinnedOnly, !store.state.isPinnedOnly)))
         await drainReceivedActions()
     }
 
     func setCompletionFilter(_ filter: TodoQuery.CompletionFilter) async {
-        await store.send(.setCompletionFilter(filter))
+        await store.send(.binding(.set(\.query.completionFilter, filter)))
         await drainReceivedActions()
     }
 
@@ -90,7 +90,7 @@ final class TodoListStoreTestAdapter {
 
     func setSearchText(_ text: String) async {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        await store.send(.setSearchText(text))
+        await store.send(.binding(.set(\.searchText, text)))
         await drainReceivedActions()
 
         if !trimmed.isEmpty {
@@ -104,12 +104,12 @@ final class TodoListStoreTestAdapter {
     }
 
     func setIsSearching(_ value: Bool) async {
-        await store.send(.setIsSearching(value))
+        await store.send(.binding(.set(\.isSearching, value)))
         await drainReceivedActions()
     }
 
     func setShowAllSearchResults(_ value: Bool) async {
-        await store.send(.setShowAllSearchResults(value))
+        await store.send(.binding(.set(\.showAllSearchResults, value)))
     }
 
     func appendTodos(_ todos: [TodoListItem]) async {

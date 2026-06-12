@@ -50,6 +50,11 @@ struct TodoListFeature {
             return count
         }
 
+        var isPinnedOnly: Bool {
+            get { query.isPinned == true }
+            set { query.isPinned = newValue ? true : nil }
+        }
+
         static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.category == rhs.category &&
             lhs.todos == rhs.todos &&
@@ -72,18 +77,12 @@ struct TodoListFeature {
         }
     }
 
-    enum Action {
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case refresh
         case setAlert(Bool)
-        case setShowEditor(Bool)
         case swipeTodo(TodoListItem)
-        case setSortTarget(TodoQuery.SortTarget)
-        case setSortOrder(TodoQuery.SortOrder)
-        case togglePinnedOnly
-        case setCompletionFilter(TodoQuery.CompletionFilter)
         case resetFilters
-        case setIsSearching(Bool)
-        case setShowAllSearchResults(Bool)
         case finishDeleteToast(String)
         case presentedDeleteToast
         case tapToggleCompleted(TodoListItem)
@@ -91,7 +90,6 @@ struct TodoListFeature {
         case undoDelete
         case onAppear
         case loadNextPage
-        case setSearchText(String)
         case applySearchQuery(String)
         case fetchSearchResults([TodoListItem])
         case didToggleCompleted(TodoListItem)
@@ -122,6 +120,7 @@ struct TodoListFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             reduce(action, state: &state)
         }
@@ -178,44 +177,32 @@ private enum TodoListUndoDeleteTodoUseCaseKey: DependencyKey {
 private extension TodoListFeature {
     func reduce(_ action: Action, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding(\.searchText):
+            return setSearchTextEffect(state: &state)
+        case .binding(\.isSearching):
+            guard !state.isSearching else { break }
+            state.searchText = ""
+            state.searchResults = []
+            state.showAllSearchResults = false
+            return cancelSearchEffect()
+        case .binding(\.showAlert):
+            Self.setAlert(&state, isPresented: state.showAlert)
+        case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.isPinnedOnly),
+            .binding(\.query.completionFilter):
+            state.nextCursor = nil
+            return fetchEffect(query: state.query, cursor: nil)
+        case .binding:
+            break
         case .refresh, .onAppear:
             return fetchEffect(query: state.query, cursor: nil)
         case .setAlert(let value):
             Self.setAlert(&state, isPresented: value)
-        case .setShowEditor(let value):
-            state.showEditor = value
         case .swipeTodo(let todo):
             return swipeTodoEffect(todo, state: &state)
-        case .setSortTarget(let target):
-            state.query.sortTarget = target
-            state.nextCursor = nil
-            return fetchEffect(query: state.query, cursor: nil)
-        case .setSortOrder(let order):
-            state.query.sortOrder = order
-            state.nextCursor = nil
-            return fetchEffect(query: state.query, cursor: nil)
-        case .togglePinnedOnly:
-            state.query.isPinned = state.query.isPinned == true ? nil : true
-            state.nextCursor = nil
-            return fetchEffect(query: state.query, cursor: nil)
-        case .setCompletionFilter(let filter):
-            state.query.completionFilter = filter
-            state.nextCursor = nil
-            return fetchEffect(query: state.query, cursor: nil)
         case .resetFilters:
             state.query = TodoQuery(categoryId: state.category.storageValue)
             state.nextCursor = nil
             return fetchEffect(query: state.query, cursor: nil)
-        case .setIsSearching(let value):
-            state.isSearching = value
-            if !value {
-                state.searchText = ""
-                state.searchResults = []
-                state.showAllSearchResults = false
-                return cancelSearchEffect()
-            }
-        case .setShowAllSearchResults(let value):
-            state.showAllSearchResults = value
         case .finishDeleteToast(let todoId):
             state.todos.removeAll { $0.id == todoId && $0.isHidden }
             state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
@@ -236,8 +223,6 @@ private extension TodoListFeature {
         case .loadNextPage:
             guard state.hasMore, !state.isLoading else { return .none }
             return fetchEffect(query: state.query, cursor: state.nextCursor, resetsPagination: false)
-        case .setSearchText(let text):
-            return setSearchTextEffect(text, state: &state)
         case .applySearchQuery(let query):
             return applySearchQueryEffect(query, state: &state)
         case .fetchSearchResults(let items):
@@ -291,11 +276,9 @@ private extension TodoListFeature {
         )
     }
 
-    func setSearchTextEffect(_ text: String, state: inout State) -> Effect<Action> {
-        guard state.searchText != text else { return .none }
-        state.searchText = text
+    func setSearchTextEffect(state: inout State) -> Effect<Action> {
         state.showAllSearchResults = false
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if trimmed.isEmpty {
             state.searchResults = []

@@ -38,14 +38,8 @@ struct TodoListView: View {
                     }
                 }
                 .searchable(
-                    text: Binding(
-                        get: { store.state.searchText },
-                        set: { store.send(.setSearchText($0)) }
-                    ),
-                    isPresented: Binding(
-                        get: { store.state.isSearching },
-                        set: { store.send(.setIsSearching($0)) }
-                    ),
+                    text: $store.searchText,
+                    isPresented: $store.isSearching,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Text(
                         String.localizedStringWithFormat(
@@ -58,19 +52,14 @@ struct TodoListView: View {
         }
         .alert(
             store.state.alertTitle,
-            isPresented: Binding(
-                get: { store.state.showAlert },
-                set: { store.send(.setAlert($0)) }
-        )) {
+            isPresented: $store.showAlert
+        ) {
             Button(String(localized: "common_close"), role: .cancel) { }
         } message: {
             Text(store.state.alertMessage)
         }
         .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
-        .fullScreenCover(isPresented: Binding(
-            get: { store.state.showEditor },
-            set: { store.send(.setShowEditor($0)) }
-        )) {
+        .fullScreenCover(isPresented: $store.showEditor) {
             TodoEditorView(
                 store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
                     TodoEditorFeature()
@@ -81,7 +70,7 @@ struct TodoListView: View {
                     $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
                 },
                 onCreateSuccess: {
-                    store.send(.setShowEditor(false))
+                    store.send(.binding(.set(\.showEditor, false)))
                     store.send(.refresh)
                 }
             )
@@ -100,7 +89,7 @@ struct TodoListView: View {
             if #available(iOS 18, *) {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        store.send(.setIsSearching(true))
+                        store.send(.binding(.set(\.isSearching, true)))
                     } label: {
                         Image(systemName: "magnifyingglass")
                     }
@@ -217,14 +206,8 @@ struct TodoListView: View {
     private var todoSearchContent: some View {
         searchResultsContent
             .searchable(
-                text: Binding(
-                    get: { store.state.searchText },
-                    set: { store.send(.setSearchText($0)) }
-                ),
-                isPresented: Binding(
-                    get: { store.state.isSearching },
-                    set: { store.send(.setIsSearching($0)) }
-                ),
+                text: $store.searchText,
+                isPresented: $store.isSearching,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Text(
                     String.localizedStringWithFormat(
@@ -242,7 +225,7 @@ struct TodoListView: View {
                 value: TodoEditorWindowValue(todoCategory: store.category, source: .list)
             )
         } else {
-            store.send(.setShowEditor(true))
+            store.send(.binding(.set(\.showEditor, true)))
         }
     }
 
@@ -302,7 +285,7 @@ struct TodoListView: View {
 
                     if !store.state.showAllSearchResults, limit < searchResults.count {
                         Button(String(localized: "todo_list_show_more")) {
-                            store.send(.setShowAllSearchResults(true))
+                            store.send(.binding(.set(\.showAllSearchResults, true)))
                         }
                         .font(.subheadline)
                         .foregroundStyle(Color.gray)
@@ -358,20 +341,14 @@ struct TodoListView: View {
 
     private var sortMenu: some View {
         Menu {
-            Picker(selection: Binding(
-                get: { store.state.query.sortTarget },
-                set: { store.send(.setSortTarget($0)) }
-            )) {
+            Picker(selection: $store.query.sortTarget) {
                 ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
             } label: {
                 Text(String(localized: "todo_list_sort_by"))
             }
-            Picker(selection: Binding(
-                get: { store.state.query.sortOrder },
-                set: { store.send(.setSortOrder($0)) }
-            )) {
+            Picker(selection: $store.query.sortOrder) {
                 ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
@@ -397,17 +374,11 @@ struct TodoListView: View {
 
     private var filterMenu: some View {
         Menu {
-            Toggle(isOn: Binding(
-                get: { store.state.query.isPinned == true },
-                set: { _ in store.send(.togglePinnedOnly) }
-            )) {
+            Toggle(isOn: $store.isPinnedOnly) {
                 Text(String(localized: "todo_pinned"))
             }
 
-            Picker(selection: Binding(
-                get: { store.state.query.completionFilter },
-                set: { store.send(.setCompletionFilter($0)) }
-            )) {
+            Picker(selection: $store.query.completionFilter) {
                 ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
                     Text(option.title).tag(option)
                 }

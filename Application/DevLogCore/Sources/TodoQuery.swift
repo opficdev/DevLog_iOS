@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct TodoQuery: Equatable {
-    public enum SortTarget: Equatable, Hashable {
+public struct TodoQuery: Equatable, Sendable {
+    public enum SortTarget: Equatable, Hashable, Sendable {
         case createdAt
         case completedAt
         case deletedAt
@@ -16,18 +16,18 @@ public struct TodoQuery: Equatable {
         case dueDate
     }
 
-    public enum SortOrder: Equatable, Hashable {
+    public enum SortOrder: Equatable, Hashable, Sendable {
         case latest
         case oldest
     }
 
-    public enum CompletionFilter: Equatable, Hashable {
+    public enum CompletionFilter: Equatable, Hashable, Sendable {
         case all
         case incomplete
         case completed
     }
 
-    public enum DueDateFilter: Equatable, Hashable {
+    public enum DueDateFilter: Equatable, Hashable, Sendable {
         case all
         case withDueDate
         case withoutDueDate
