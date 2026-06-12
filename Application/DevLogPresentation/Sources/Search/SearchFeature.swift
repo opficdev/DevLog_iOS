@@ -16,7 +16,7 @@ struct SearchFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
-        var isLoading = false
+        var loading = LoadingFeature.State()
         var isSearching = false
         var searchQuery = ""
         var webPages: [WebPageItem] = []
@@ -28,6 +28,10 @@ struct SearchFeature {
 
         init(recentQueries: [String] = []) {
             self.recentQueries = OrderedSet(recentQueries)
+        }
+
+        var isLoading: Bool {
+            loading.isLoading
         }
 
         var visibleTodos: [TodoListItem] {
@@ -65,9 +69,9 @@ struct SearchFeature {
         case clearRecentQueries
         case applySearchQuery(String)
         case setAlert(Bool)
-        case setLoading(Bool)
         case setShowAllTodos(Bool)
         case setShowAllWebPages(Bool)
+        case loading(LoadingFeature.Action)
     }
 
     private enum CancelID: Hashable {
@@ -84,6 +88,9 @@ struct SearchFeature {
     private let searchDebounceDelay = Duration.seconds(0.4)
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
         BindingReducer()
         Reduce { state, action in
             switch action {
@@ -91,7 +98,7 @@ struct SearchFeature {
                 break
             case .binding(\.isSearching):
                 if !state.isSearching {
-                    return cancelSearchEffect()
+                    return cancelSearchEffect(isLoading: state.isLoading)
                 }
             case .binding(\.searchQuery):
                 state.showAllTodos = false
@@ -100,10 +107,10 @@ struct SearchFeature {
                 if trimmed.isEmpty {
                     state.webPages = []
                     state.todos = []
-                    return cancelSearchEffect()
+                    return cancelSearchEffect(isLoading: state.isLoading)
                 } else {
                     return .concatenate(
-                        cancelSearchEffect(),
+                        cancelSearchEffect(isLoading: state.isLoading),
                         debounceFetchEffect(trimmed)
                     )
                 }
@@ -133,18 +140,18 @@ struct SearchFeature {
                 if trimmed.isEmpty {
                     state.webPages = []
                     state.todos = []
-                    return cancelSearchEffect()
+                    return cancelSearchEffect(isLoading: state.isLoading)
                 } else {
-                    return fetchEffect(trimmed)
+                    return fetchEffect(trimmed, isLoading: state.isLoading)
                 }
             case .setAlert(let isPresented):
                 state.alert = isPresented ? alertState() : nil
-            case .setLoading(let isLoading):
-                state.isLoading = isLoading
             case .setShowAllTodos(let shouldShowAll):
                 state.showAllTodos = shouldShowAll
             case .setShowAllWebPages(let shouldShowAll):
                 state.showAllWebPages = shouldShowAll
+            case .loading:
+                break
             }
 
             return .none
@@ -201,17 +208,17 @@ private enum SearchUpdateRecentQueriesUseCaseKey: DependencyKey {
 }
 
 private extension SearchFeature {
-    func cancelSearchEffect() -> Effect<Action> {
+    func cancelSearchEffect(isLoading: Bool) -> Effect<Action> {
         .merge(
             .cancel(id: CancelID.debounce),
             .cancel(id: CancelID.request),
-            .send(.setLoading(false))
+            endLoadingEffect(isLoading: isLoading)
         )
     }
 
     func debounceFetchEffect(_ query: String) -> Effect<Action> {
         .concatenate(
-            .send(.setLoading(true)),
+            .send(.loading(.begin(target: .default, mode: .immediate))),
             .run { [clock, searchDebounceDelay] send in
                 try await clock.sleep(for: searchDebounceDelay)
                 await send(.applySearchQuery(query))
@@ -220,7 +227,7 @@ private extension SearchFeature {
         )
     }
 
-    func fetchEffect(_ query: String) -> Effect<Action> {
+    func fetchEffect(_ query: String, isLoading: Bool) -> Effect<Action> {
         let searchesTodoOnly = searchesTodoOnly(query)
 
         return .run { [fetchTodosUseCase, fetchWebPagesUseCase] send in
@@ -235,15 +242,24 @@ private extension SearchFeature {
                 let resolvedWebPageItems = try await webPageItems
                 await send(.fetchTodos(todoItems))
                 await send(.fetchWebPage(resolvedWebPageItems))
-                await send(.setLoading(false))
+                if isLoading {
+                    await send(.loading(.end(target: .default, mode: .immediate)))
+                }
             } catch is CancellationError {
                 return
             } catch {
-                await send(.setLoading(false))
+                if isLoading {
+                    await send(.loading(.end(target: .default, mode: .immediate)))
+                }
                 await send(.setAlert(true))
             }
         }
         .cancellable(id: CancelID.request, cancelInFlight: true)
+    }
+
+    func endLoadingEffect(isLoading: Bool) -> Effect<Action> {
+        guard isLoading else { return .none }
+        return .send(.loading(.end(target: .default, mode: .immediate)))
     }
 
     func saveRecentQueriesEffect(_ queries: OrderedSet<String>) -> Effect<Action> {

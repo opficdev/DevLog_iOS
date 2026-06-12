@@ -41,7 +41,9 @@ struct SearchStoreTestAdapter {
         state.todos = initialTodos
         state.webPages = initialWebPages
         state.isSearching = isSearching
-        state.isLoading = isLoading
+        if isLoading {
+            state.loading.setImmediateLoading()
+        }
         store = TestStore(initialState: state) {
             SearchFeature()
         } withDependencies: {
@@ -93,6 +95,7 @@ struct SearchStoreTestAdapter {
 
     func setSearchQuery(_ query: String) async {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let wasLoading = store.state.isLoading
         await store.send(.binding(.set(\.searchQuery, query))) {
             $0.searchQuery = query
             $0.showAllTodos = false
@@ -102,13 +105,11 @@ struct SearchStoreTestAdapter {
                 $0.webPages = []
             }
         }
-        await store.receive(.setLoading(false)) {
-            $0.isLoading = false
+        if wasLoading {
+            await receiveEndLoading()
         }
         if !trimmed.isEmpty {
-            await store.receive(.setLoading(true)) {
-                $0.isLoading = true
-            }
+            await receiveBeginLoading()
         }
     }
 
@@ -117,13 +118,12 @@ struct SearchStoreTestAdapter {
     }
 
     func setSearching(_ value: Bool) async {
+        let wasLoading = store.state.isLoading
         await store.send(.binding(.set(\.isSearching, value))) {
             $0.isSearching = value
         }
-        if !value {
-            await store.receive(.setLoading(false)) {
-                $0.isLoading = false
-            }
+        if !value, wasLoading {
+            await receiveEndLoading()
         }
     }
 
@@ -135,24 +135,54 @@ struct SearchStoreTestAdapter {
         todos: [TodoListItem],
         webPages: [WebPageItem]
     ) async {
+        let wasLoading = store.state.isLoading
         await store.receive(.fetchTodos(todos)) {
             $0.todos = todos
         }
         await store.receive(.fetchWebPage(webPages)) {
             $0.webPages = webPages
         }
-        await store.receive(.setLoading(false)) {
-            $0.isLoading = false
+        if wasLoading {
+            await receiveEndLoading()
         }
     }
 
     func receiveSearchFailure() async {
-        await store.receive(.setLoading(false)) {
-            $0.isLoading = false
+        let wasLoading = store.state.isLoading
+        if wasLoading {
+            await receiveEndLoading()
         }
         await store.receive(.setAlert(true)) {
             $0.alert = expectedSearchErrorAlert()
         }
+    }
+
+    private func receiveBeginLoading() async {
+        await store.receive(.loading(.begin(target: .default, mode: .immediate))) {
+            $0.loading.setImmediateLoading()
+        }
+    }
+
+    private func receiveEndLoading() async {
+        await store.receive(.loading(.end(target: .default, mode: .immediate))) {
+            $0.loading.setImmediateLoadingFinished()
+        }
+    }
+}
+
+private extension LoadingFeature.State {
+    mutating func setImmediateLoading() {
+        let target = LoadingFeature.Target.default
+        immediateCountByTarget[target] = 1
+        visibleTargets.insert(target)
+        isLoading = !visibleTargets.isEmpty
+    }
+
+    mutating func setImmediateLoadingFinished() {
+        let target = LoadingFeature.Target.default
+        immediateCountByTarget[target] = 0
+        visibleTargets.remove(target)
+        isLoading = !visibleTargets.isEmpty
     }
 }
 
