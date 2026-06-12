@@ -47,25 +47,6 @@ struct TodoListFeature {
             if query.completionFilter != .all { count += 1 }
             return count
         }
-
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            lhs.category == rhs.category &&
-            lhs.todos == rhs.todos &&
-            lhs.searchText == rhs.searchText &&
-            lhs.searchResults == rhs.searchResults &&
-            lhs.alert == rhs.alert &&
-            lhs.fullScreenCover == rhs.fullScreenCover &&
-            lhs.isSearching == rhs.isSearching &&
-            lhs.showAllSearchResults == rhs.showAllSearchResults &&
-            lhs.query == rhs.query &&
-            lhs.hasMore == rhs.hasMore &&
-            lhs.loading == rhs.loading &&
-            lhs.undoTodoId == rhs.undoTodoId &&
-            lhs.deleteToastTodoId == rhs.deleteToastTodoId &&
-            lhs.nextCursor?.primarySortDate == rhs.nextCursor?.primarySortDate &&
-            lhs.nextCursor?.secondarySortDate == rhs.nextCursor?.secondarySortDate &&
-            lhs.nextCursor?.documentID == rhs.nextCursor?.documentID
-        }
     }
 
     @ObservableState
