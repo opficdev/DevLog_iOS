@@ -41,7 +41,7 @@ struct SearchView: View {
                             }
                     }
                 }
-                .onAppear { store.send(.setSearching(true)) }
+                .onAppear { store.send(.binding(.set(\.isSearching, true))) }
                 .onChange(of: store.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
@@ -74,14 +74,8 @@ struct SearchView: View {
             }
         }
         .searchable(
-            text: Binding(
-                get: { store.searchQuery },
-                set: { store.send(.setSearchQuery($0)) }
-            ),
-            isPresented: Binding(
-                get: { store.isSearching },
-                set: { store.send(.setSearching($0)) }
-            ),
+            text: $store.searchQuery,
+            isPresented: $store.isSearching,
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: Text(String(localized: "search_prompt"))
         )
@@ -228,8 +222,8 @@ struct SearchView: View {
                 .padding(.vertical, 4)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    store.send(.setSearchQuery(query))
-                    store.send(.setSearching(true))
+                    store.send(.binding(.set(\.searchQuery, query)))
+                    store.send(.binding(.set(\.isSearching, true)))
                 }
             }
         }

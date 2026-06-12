@@ -93,7 +93,7 @@ struct SearchStoreTestAdapter {
 
     func setSearchQuery(_ query: String) async {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        await store.send(.setSearchQuery(query)) {
+        await store.send(.binding(.set(\.searchQuery, query))) {
             $0.searchQuery = query
             $0.showAllTodos = false
             $0.showAllWebPages = false
@@ -117,7 +117,7 @@ struct SearchStoreTestAdapter {
     }
 
     func setSearching(_ value: Bool) async {
-        await store.send(.setSearching(value)) {
+        await store.send(.binding(.set(\.isSearching, value))) {
             $0.isSearching = value
         }
         if !value {

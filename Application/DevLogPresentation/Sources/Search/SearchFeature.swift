@@ -55,8 +55,9 @@ struct SearchFeature {
         }
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
+        case binding(BindingAction<State>)
         case fetchWebPage([WebPageItem])
         case fetchTodos([TodoListItem])
         case addRecentQuery(String)
@@ -65,8 +66,6 @@ struct SearchFeature {
         case applySearchQuery(String)
         case setAlert(Bool)
         case setLoading(Bool)
-        case setSearching(Bool)
-        case setSearchQuery(String)
         case setShowAllTodos(Bool)
         case setShowAllWebPages(Bool)
     }
@@ -85,9 +84,30 @@ struct SearchFeature {
     private let searchDebounceDelay = Duration.seconds(0.4)
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .binding(\.isSearching):
+                if !state.isSearching {
+                    return cancelSearchEffect()
+                }
+            case .binding(\.searchQuery):
+                state.showAllTodos = false
+                state.showAllWebPages = false
+                let trimmed = state.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty {
+                    state.webPages = []
+                    state.todos = []
+                    return cancelSearchEffect()
+                } else {
+                    return .concatenate(
+                        cancelSearchEffect(),
+                        debounceFetchEffect(trimmed)
+                    )
+                }
+            case .binding:
                 break
             case .fetchWebPage(let items):
                 state.webPages = items
@@ -121,27 +141,6 @@ struct SearchFeature {
                 state.alert = isPresented ? alertState() : nil
             case .setLoading(let isLoading):
                 state.isLoading = isLoading
-            case .setSearching(let isSearching):
-                state.isSearching = isSearching
-                if !isSearching {
-                    return cancelSearchEffect()
-                }
-            case .setSearchQuery(let query):
-                guard state.searchQuery != query else { return .none }
-                state.searchQuery = query
-                state.showAllTodos = false
-                state.showAllWebPages = false
-                let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-                if trimmed.isEmpty {
-                    state.webPages = []
-                    state.todos = []
-                    return cancelSearchEffect()
-                } else {
-                    return .concatenate(
-                        cancelSearchEffect(),
-                        debounceFetchEffect(trimmed)
-                    )
-                }
             case .setShowAllTodos(let shouldShowAll):
                 state.showAllTodos = shouldShowAll
             case .setShowAllWebPages(let shouldShowAll):
@@ -152,7 +151,6 @@ struct SearchFeature {
         }
         .ifLet(\.$alert, action: \.alert)
     }
-
 }
 
 extension DependencyValues {
