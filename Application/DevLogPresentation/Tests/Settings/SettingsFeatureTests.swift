@@ -98,6 +98,7 @@ struct SettingsFeatureTests {
         clearSpy.error = SettingsTestError.failure
         let adapter = SettingsStoreTestAdapter(clearDirectoryUseCase: clearSpy)
 
+        await adapter.tapRemoveCacheButton()
         await adapter.confirmRemoveCache()
 
         #expect(adapter.showAlert)
@@ -217,7 +218,7 @@ private struct SettingsStoreTestAdapter {
     }
 
     func confirmRemoveCache() async {
-        await store.send(.confirmRemoveCache) {
+        await store.send(.alert(.presented(.confirmRemoveCache))) {
             $0.alert = nil
             $0.alertType = nil
         }
@@ -225,7 +226,11 @@ private struct SettingsStoreTestAdapter {
     }
 
     func tapSignOutButton() async {
-        await store.send(.tapSignOutButton) {
+        await store.send(.setAlert(.signOut)) {
+            $0.alert = expectedSettingsAlert(for: .signOut)
+            $0.alertType = .signOut
+        }
+        await store.send(.alert(.presented(.tapSignOutButton))) {
             $0.alert = nil
             $0.alertType = nil
         }
@@ -233,7 +238,11 @@ private struct SettingsStoreTestAdapter {
     }
 
     func tapDeleteAuthButton() async {
-        await store.send(.tapDeleteAuthButton) {
+        await store.send(.setAlert(.deleteAuth)) {
+            $0.alert = expectedSettingsAlert(for: .deleteAuth)
+            $0.alertType = .deleteAuth
+        }
+        await store.send(.alert(.presented(.tapDeleteAuthButton))) {
             $0.alert = nil
             $0.alertType = nil
         }
