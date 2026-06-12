@@ -31,12 +31,12 @@ struct TodoEditorFeature {
         var categories: [TodoCategoryItem] = []
         var category = TodoCategoryItem(from: .system(.etc))
         var saveResult: SaveResult?
-        var id: String
-        var isChecked: Bool
-        var number: Int?
-        var createdAt: Date?
-        var deletedAt: Date?
-        var originalDraft: TodoDraft?
+        let id: String
+        let isChecked: Bool
+        let number: Int?
+        let createdAt: Date?
+        let deletedAt: Date?
+        let originalDraft: TodoDraft?
 
         var isValidToSave: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
