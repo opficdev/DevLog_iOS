@@ -13,6 +13,11 @@ import Foundation
 
 @Reducer
 struct SettingsFeature {
+    private enum CancelID: Hashable {
+        case networkConnectivity
+        case systemTheme
+    }
+
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
@@ -247,6 +252,7 @@ private extension SettingsFeature {
                 .receive(on: DispatchQueue.main)
                 .map(Action.networkStatusChanged)
         }
+        .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
     }
 
     func monitorSystemThemeEffect() -> Effect<Action> {
@@ -256,6 +262,7 @@ private extension SettingsFeature {
                 .receive(on: DispatchQueue.main)
                 .map { .binding(.set(\.theme, $0)) }
         }
+        .cancellable(id: CancelID.systemTheme, cancelInFlight: true)
     }
 
     func updateSystemThemeEffect(_ theme: SystemTheme) -> Effect<Action> {
