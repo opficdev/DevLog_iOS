@@ -54,11 +54,13 @@ final class ProfileViewCoordinator {
         }
     }
 
-    func makePushNotificationSettingsViewModel() -> PushNotificationSettingsViewModel {
-        PushNotificationSettingsViewModel(
-            fetchPushSettingsUseCase: container.resolve(FetchPushSettingsUseCase.self),
-            updatePushSettingsUseCase: container.resolve(UpdatePushSettingsUseCase.self)
-        )
+    func makePushNotificationSettingsStore() -> StoreOf<PushNotificationSettingsFeature> {
+        Store(initialState: PushNotificationSettingsFeature.State()) {
+            PushNotificationSettingsFeature()
+        } withDependencies: {
+            $0.fetchPushSettingsUseCase = self.container.resolve(FetchPushSettingsUseCase.self)
+            $0.updatePushSettingsUseCase = self.container.resolve(UpdatePushSettingsUseCase.self)
+        }
     }
 
     func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
