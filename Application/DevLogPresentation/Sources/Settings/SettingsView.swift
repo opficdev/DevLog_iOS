@@ -6,14 +6,14 @@
 //
 
 import SwiftUI
-import DevLogDomain
+import ComposableArchitecture
 
 struct SettingsView: View {
     @Environment(NavigationRouter<ProfileRoute>.self) private var router
-    @State var viewModel: SettingsViewModel
+    @Bindable var store: StoreOf<SettingsFeature>
 
     var body: some View {
-        let connected = viewModel.state.isNetworkConnected
+        let connected = store.isNetworkConnected
         Form {
             Section {
                 Button {
@@ -23,7 +23,7 @@ struct SettingsView: View {
                         Text(String(localized: "settings_theme"))
                             .foregroundStyle(Color.primary)
                         Spacer()
-                        Text(viewModel.state.theme.localizedName)
+                        Text(store.theme.localizedName)
                             .foregroundStyle(Color.gray)
                     }
                 }
@@ -36,9 +36,9 @@ struct SettingsView: View {
                 }
                 .disabled(!connected)
 
-                let dirSize = viewModel.state.dirSize
+                let dirSize = store.dirSize
                 Button {
-                    viewModel.send(.tapRemoveCacheButton)
+                    store.send(.tapRemoveCacheButton)
                 } label: {
                     HStack {
                         Text(String(localized: "settings_clear_temp_data"))
@@ -52,14 +52,14 @@ struct SettingsView: View {
             }
             
             Section {
-                if let appVersion = viewModel.appVersion {
+                if let appVersion = store.appVersion {
                     HStack {
                         Text(String(localized: "settings_version"))
                         Spacer()
                         Text(appVersion)
                     }
                 }
-                if let policyString = viewModel.policyURL,
+                if let policyString = store.policyURL,
                    let url = URL(string: policyString) {
                     Link(destination: url) {
                         Text(String(localized: "settings_privacy_policy"))
@@ -67,7 +67,7 @@ struct SettingsView: View {
                     }
                 }
                 Button(action: {
-                    if let appStoreString = viewModel.appstoreUrl,
+                    if let appStoreString = store.appstoreUrl,
                        let url = URL(string: appStoreString) {
                         UIApplication.shared.open(url)
                     }
@@ -89,7 +89,7 @@ struct SettingsView: View {
                 }
                 .disabled(!connected)
                 Button(role: .destructive, action: {
-                    viewModel.send(.setAlert(isPresented: true, type: .signOut))
+                    store.send(.setAlert(.signOut))
                 }) {
                     Text(String(localized: "settings_sign_out"))
                 }
@@ -99,7 +99,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 Button(role: .destructive, action: {
-                    viewModel.send(.setAlert(isPresented: true, type: .deleteAuth))
+                    store.send(.setAlert(.deleteAuth))
                 }) {
                     Text(String(localized: "settings_delete_account"))
                         .font(.headline)
@@ -110,54 +110,14 @@ struct SettingsView: View {
         }
         .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert(isPresented: $0)) }
-            )) {
-                alertButtons
-            } message: {
-                Text(viewModel.state.alertMessage)
-            }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
-            if viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
         .onAppear {
-            viewModel.send(.updateDirSize)
-        }
-    }
-
-    @ViewBuilder
-    private var alertButtons: some View {
-        switch viewModel.state.alertType {
-        case .signOut:
-            Button(String(localized: "common_cancel"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
-            }
-            Button(String(localized: "common_confirm"), role: .destructive) {
-                viewModel.send(.tapSignOutButton)
-            }
-        case .deleteAuth:
-            Button(String(localized: "common_cancel"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
-            }
-            Button(String(localized: "settings_delete_account_action"), role: .destructive) {
-                viewModel.send(.tapDeleteAuthButton)
-            }
-        case .removeCache:
-            Button(String(localized: "common_cancel"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
-            }
-            Button(String(localized: "common_confirm"), role: .destructive) {
-                viewModel.send(.confirmRemoveCache)
-            }
-        case .error, .none:
-            Button(String(localized: "common_close"), role: .cancel) {
-                viewModel.send(.setAlert(isPresented: false))
-            }
+            store.send(.updateDirSize)
         }
     }
 

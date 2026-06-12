@@ -361,15 +361,11 @@ struct MainView: View {
             TodoDetailView(store: profileViewCoordinator.makeTodoDetailStore(todoId: todoId))
                 .id(todoId)
         case .settings:
-            SettingsView(viewModel: profileViewCoordinator.settingsViewModel)
+            SettingsView(store: profileViewCoordinator.settingsStore)
                 .environment(profileViewCoordinator.router)
         case .theme:
-            ThemeView(
-                theme: Binding(
-                    get: { profileViewCoordinator.settingsViewModel.state.theme },
-                    set: { profileViewCoordinator.settingsViewModel.send(.setTheme($0)) }
-                )
-            )
+            @Bindable var settingsStore = profileViewCoordinator.settingsStore
+            ThemeView(theme: $settingsStore.theme)
         case .pushNotification:
             PushNotificationSettingsView(
                 store: profileViewCoordinator.makePushNotificationSettingsStore()
