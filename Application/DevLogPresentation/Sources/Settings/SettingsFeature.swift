@@ -43,10 +43,7 @@ struct SettingsFeature {
         case setAlert(AlertType)
         case setDirSize(Int64)
         case updateDirSize
-        case tapDeleteAuthButton
-        case tapSignOutButton
         case tapRemoveCacheButton
-        case confirmRemoveCache
         case loading(LoadingFeature.Action)
 
         enum Alert: Equatable {
@@ -113,21 +110,9 @@ struct SettingsFeature {
                 state.dirSize = value
             case .updateDirSize:
                 return fetchWebPageImageDirSizeEffect()
-            case .tapDeleteAuthButton:
-                state.alert = nil
-                state.alertType = nil
-                return deleteAuthEffect()
-            case .tapSignOutButton:
-                state.alert = nil
-                state.alertType = nil
-                return signOutEffect()
             case .tapRemoveCacheButton:
                 state.alert = alertState(for: .removeCache)
                 state.alertType = .removeCache
-            case .confirmRemoveCache:
-                state.alert = nil
-                state.alertType = nil
-                return clearWebPageImageDirectoryEffect()
             case .loading:
                 break
             }
