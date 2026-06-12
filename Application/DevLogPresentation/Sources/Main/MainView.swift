@@ -228,7 +228,7 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                viewModel: todoWindowCoordinator.makeListViewModel(category: item.todoCategory)
+                store: todoWindowCoordinator.makeListStore(category: item.todoCategory)
             )
             .id(item.id)
         case .todo(let item):

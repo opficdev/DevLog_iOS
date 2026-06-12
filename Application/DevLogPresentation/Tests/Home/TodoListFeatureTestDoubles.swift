@@ -6,26 +6,27 @@
 //
 
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 @testable import DevLogPresentation
 
 @MainActor
 final class TodoListStoreTestAdapter {
-    private let viewModel: TodoListViewModel
+    private let store: TestStoreOf<TodoListFeature>
 
-    var todos: [TodoListItem] { viewModel.state.todos }
-    var searchText: String { viewModel.state.searchText }
-    var searchResults: [TodoListItem] { viewModel.state.searchResults }
-    var isSearching: Bool { viewModel.state.isSearching }
-    var showAllSearchResults: Bool { viewModel.state.showAllSearchResults }
-    var query: TodoQuery { viewModel.state.query }
-    var isLoading: Bool { viewModel.state.isLoading }
-    var hasMore: Bool { viewModel.state.hasMore }
-    var showAlert: Bool { viewModel.state.showAlert }
-    var alertTitle: String { viewModel.state.alertTitle }
-    var alertMessage: String { viewModel.state.alertMessage }
-    var appliedFilterCount: Int { viewModel.appliedFilterCount }
+    var todos: [TodoListItem] { store.state.todos }
+    var searchText: String { store.state.searchText }
+    var searchResults: [TodoListItem] { store.state.searchResults }
+    var isSearching: Bool { store.state.isSearching }
+    var showAllSearchResults: Bool { store.state.showAllSearchResults }
+    var query: TodoQuery { store.state.query }
+    var isLoading: Bool { store.state.isLoading }
+    var hasMore: Bool { store.state.hasMore }
+    var showAlert: Bool { store.state.showAlert }
+    var alertTitle: String { store.state.alertTitle }
+    var alertMessage: String { store.state.alertMessage }
+    var appliedFilterCount: Int { store.state.appliedFilterCount }
 
     init(
         fetchUseCase: FetchTodosUseCase = TodoListFetchTodosUseCaseSpy(),
@@ -34,85 +35,116 @@ final class TodoListStoreTestAdapter {
         deleteUseCase: DeleteTodoUseCase = TodoListDeleteTodoUseCaseSpy(),
         undoDeleteUseCase: UndoDeleteTodoUseCase = TodoListUndoDeleteTodoUseCaseSpy(),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TodoListTrackAnalyticsEventUseCaseSpy(),
-        category: TodoCategory = .system(.feature)
+        category: TodoCategory = .system(.feature),
+        configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
-        viewModel = TodoListViewModel(
-            fetchTodosUseCase: fetchUseCase,
-            fetchTodoByIdUseCase: fetchTodoByIdUseCase,
-            upsertTodoUseCase: upsertUseCase,
-            deleteTodoUseCase: deleteUseCase,
-            undoDeleteTodoUseCase: undoDeleteUseCase,
-            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase,
-            category: category
-        )
+        store = TestStore(initialState: TodoListFeature.State(category: category)) {
+            TodoListFeature()
+        } withDependencies: {
+            $0.todoListFetchTodosUseCase = fetchUseCase
+            $0.fetchTodoByIdUseCase = fetchTodoByIdUseCase
+            $0.upsertTodoUseCase = upsertUseCase
+            $0.todoListDeleteTodoUseCase = deleteUseCase
+            $0.todoListUndoDeleteTodoUseCase = undoDeleteUseCase
+            $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+            $0.continuousClock = ContinuousClock()
+            configureDependencies?(&$0)
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
     }
 
     func onAppear() async {
-        viewModel.send(.onAppear)
+        await store.send(.onAppear)
+        await drainReceivedActions()
     }
 
     func loadNextPage() async {
-        viewModel.send(.loadNextPage)
+        await store.send(.loadNextPage)
+        await drainReceivedActions()
     }
 
     func setSortTarget(_ target: TodoQuery.SortTarget) async {
-        viewModel.send(.setSortTarget(target))
+        await store.send(.setSortTarget(target))
+        await drainReceivedActions()
     }
 
     func setSortOrder(_ order: TodoQuery.SortOrder) async {
-        viewModel.send(.setSortOrder(order))
+        await store.send(.setSortOrder(order))
+        await drainReceivedActions()
     }
 
     func togglePinnedOnly() async {
-        viewModel.send(.togglePinnedOnly)
+        await store.send(.togglePinnedOnly)
+        await drainReceivedActions()
     }
 
     func setCompletionFilter(_ filter: TodoQuery.CompletionFilter) async {
-        viewModel.send(.setCompletionFilter(filter))
+        await store.send(.setCompletionFilter(filter))
+        await drainReceivedActions()
     }
 
     func resetFilters() async {
-        viewModel.send(.resetFilters)
+        await store.send(.resetFilters)
+        await drainReceivedActions()
     }
 
     func setSearchText(_ text: String) async {
-        viewModel.send(.setSearchText(text))
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        await store.send(.setSearchText(text))
+        await drainReceivedActions()
+
+        if !trimmed.isEmpty {
+            try? await Task.sleep(for: .milliseconds(450))
+            await drainReceivedActions()
+        }
     }
 
     func setSearchResults(_ results: [TodoListItem]) async {
-        viewModel.send(.fetchSearchResults(results))
+        await store.send(.fetchSearchResults(results))
     }
 
     func setIsSearching(_ value: Bool) async {
-        viewModel.send(.setIsSearching(value))
+        await store.send(.setIsSearching(value))
+        await drainReceivedActions()
     }
 
     func setShowAllSearchResults(_ value: Bool) async {
-        viewModel.send(.setShowAllSearchResults(value))
+        await store.send(.setShowAllSearchResults(value))
     }
 
     func appendTodos(_ todos: [TodoListItem]) async {
-        viewModel.send(.appendTodos(todos, nextCursor: nil))
+        await store.send(.appendTodos(todos, nextCursor: nil))
     }
 
     func swipeTodo(_ todo: TodoListItem) async {
-        viewModel.send(.swipeTodo(todo))
+        await store.send(.swipeTodo(todo))
+        await store.send(.presentedDeleteToast)
+        await drainReceivedActions()
     }
 
     func undoDelete() async {
-        viewModel.send(.undoDelete)
+        await store.send(.undoDelete)
+        await drainReceivedActions()
     }
 
     func finishDeleteToast(_ todoId: String) async {
-        viewModel.send(.finishDeleteToast(todoId))
+        await store.send(.finishDeleteToast(todoId))
     }
 
     func tapToggleCompleted(_ todo: TodoListItem) async {
-        viewModel.send(.tapToggleCompleted(todo))
+        await store.send(.tapToggleCompleted(todo))
+        await drainReceivedActions()
     }
 
     func tapTogglePinned(_ todo: TodoListItem) async {
-        viewModel.send(.tapTogglePinned(todo))
+        await store.send(.tapTogglePinned(todo))
+        await drainReceivedActions()
+    }
+
+    private func drainReceivedActions() async {
+        for _ in 0..<8 {
+            await store.skipReceivedActions(strict: false)
+        }
     }
 }
 
