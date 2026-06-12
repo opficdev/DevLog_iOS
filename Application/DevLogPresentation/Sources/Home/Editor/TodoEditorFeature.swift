@@ -27,7 +27,6 @@ struct TodoEditorFeature {
         var loading = LoadingFeature.State()
         var tags: OrderedSet<String> = []
         var tagText: String = ""
-        var focusOnEditor: Bool = false
         var tabViewTag: Tag = .editor
         var categories: [TodoCategoryItem] = []
         var category = TodoCategoryItem(from: .system(.etc))
@@ -111,7 +110,6 @@ struct TodoEditorFeature {
         case setCompleted(Bool)
         case setDueDate(Date?)
         case setCategory(TodoCategoryItem)
-        case setAlert(Bool)
         case setPinned(Bool)
         case setShowInfo(Bool)
         case setSelectedTodoId(TodoIdItem?)
@@ -122,6 +120,7 @@ struct TodoEditorFeature {
         case setReferenceItems([Int: TodoReferenceItem])
         case upsertTodo
         case createSucceeded
+        case saveFailed
         case updateSucceeded(Todo)
         case loading(LoadingFeature.Action)
     }
@@ -177,8 +176,6 @@ struct TodoEditorFeature {
                 state.isCompleted = isCompleted
             case .setCategory(let item):
                 state.category = item
-            case .setAlert(let isPresented):
-                state.alert = isPresented ? Self.alertState() : nil
             case .setPinned(let isPinned):
                 state.isPinned = isPinned
             case .setShowInfo(let isPresented):
@@ -203,6 +200,8 @@ struct TodoEditorFeature {
                 }
             case .createSucceeded:
                 state.saveResult = .created
+            case .saveFailed:
+                state.alert = Self.alertState()
             case .updateSucceeded(let todo):
                 state.saveResult = .updated(todo)
             case .loading:
@@ -292,7 +291,7 @@ private extension TodoEditorFeature {
                 trackAnalyticsEventUseCase?.execute(.todoCreate)
                 await send(.createSucceeded)
             } catch {
-                await send(.setAlert(true))
+                await send(.saveFailed)
             }
             await send(.loading(.end(target: .default, mode: .immediate)))
         }
@@ -305,7 +304,7 @@ private extension TodoEditorFeature {
                 try await upsertTodoUseCase.execute(todo)
                 await send(.updateSucceeded(todo))
             } catch {
-                await send(.setAlert(true))
+                await send(.saveFailed)
             }
             await send(.loading(.end(target: .default, mode: .immediate)))
         }
