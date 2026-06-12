@@ -1,0 +1,331 @@
+//
+//  SettingsFeatureTests.swift
+//  DevLogPresentationTests
+//
+//  Created by opfic on 6/12/26.
+//
+
+import Testing
+import ComposableArchitecture
+import DevLogCore
+import DevLogDomain
+@testable import DevLogPresentation
+
+@MainActor
+struct SettingsFeatureTests {
+    @Test("네트워크 상태 관찰 결과를 상태에 반영한다")
+    func 네트워크_상태_관찰_결과를_상태에_반영한다() async {
+        let networkSpy = ObserveNetworkConnectivityUseCaseSpy()
+        let adapter = SettingsStoreTestAdapter(networkUseCase: networkSpy)
+
+        await adapter.startObserving()
+        networkSpy.currentValueSubject.send(false)
+        await adapter.drainReceivedActions()
+
+        #expect(!adapter.isNetworkConnected)
+    }
+
+    @Test("테마를 변경하면 상태를 갱신하고 설정 저장을 요청한다")
+    func 테마를_변경하면_상태를_갱신하고_설정_저장을_요청한다() async {
+        let updateSpy = UpdateSystemThemeUseCaseSpy()
+        let adapter = SettingsStoreTestAdapter(updateThemeUseCase: updateSpy)
+
+        await adapter.setTheme(.dark)
+
+        #expect(adapter.theme == .dark)
+        #expect(updateSpy.themes == [.dark])
+    }
+
+    @Test("테마 관찰 결과를 상태에 반영한다")
+    func 테마_관찰_결과를_상태에_반영한다() async {
+        let themeSpy = ObserveSystemThemeUseCaseSpy()
+        let updateSpy = UpdateSystemThemeUseCaseSpy()
+        let adapter = SettingsStoreTestAdapter(
+            themeUseCase: themeSpy,
+            updateThemeUseCase: updateSpy
+        )
+
+        await adapter.startObserving()
+        themeSpy.subject.send(.light)
+        await adapter.drainReceivedActions()
+
+        #expect(adapter.theme == .light)
+        #expect(updateSpy.themes == [.light])
+    }
+
+    @Test("캐시 크기 조회 결과를 상태에 반영한다")
+    func 캐시_크기_조회_결과를_상태에_반영한다() async {
+        let fetchSpy = FetchWebPageImageDirSizeUseCaseSpy(dirSize: 2_048)
+        let adapter = SettingsStoreTestAdapter(fetchDirSizeUseCase: fetchSpy)
+
+        await adapter.updateDirSize()
+
+        #expect(fetchSpy.executeCallCount == 1)
+        #expect(adapter.dirSize == 2_048)
+    }
+
+    @Test("캐시 삭제를 누르면 삭제 확인 알림을 표시한다")
+    func 캐시_삭제를_누르면_삭제_확인_알림을_표시한다() async {
+        let adapter = SettingsStoreTestAdapter()
+
+        await adapter.tapRemoveCacheButton()
+
+        #expect(adapter.showAlert)
+        #expect(adapter.alertType == .removeCache)
+        #expect(adapter.alertTitle == String(localized: "settings_alert_clear_temp_title"))
+        #expect(adapter.alertMessage == String(localized: "settings_alert_clear_temp_message"))
+    }
+
+    @Test("캐시 삭제 확인에 성공하면 캐시를 비우고 크기를 다시 조회한다")
+    func 캐시_삭제_확인에_성공하면_캐시를_비우고_크기를_다시_조회한다() async {
+        let clearSpy = ClearWebPageImageDirectoryUseCaseSpy()
+        let fetchSpy = FetchWebPageImageDirSizeUseCaseSpy(dirSize: 0)
+        let adapter = SettingsStoreTestAdapter(
+            fetchDirSizeUseCase: fetchSpy,
+            clearDirectoryUseCase: clearSpy
+        )
+
+        await adapter.tapRemoveCacheButton()
+        await adapter.confirmRemoveCache()
+
+        #expect(!adapter.showAlert)
+        #expect(adapter.dirSize == 0)
+    }
+
+    @Test("캐시 삭제에 실패하면 공통 에러 알림을 표시한다")
+    func 캐시_삭제에_실패하면_공통_에러_알림을_표시한다() async {
+        let clearSpy = ClearWebPageImageDirectoryUseCaseSpy()
+        clearSpy.error = SettingsTestError.failure
+        let adapter = SettingsStoreTestAdapter(clearDirectoryUseCase: clearSpy)
+
+        await adapter.confirmRemoveCache()
+
+        #expect(adapter.showAlert)
+        #expect(adapter.alertTitle == String(localized: "common_error_title"))
+        #expect(adapter.alertMessage == String(localized: "common_error_message"))
+    }
+
+    @Test("로그아웃 작업이 지연되면 로딩 상태를 표시하고 완료되면 해제한다")
+    func 로그아웃_작업이_지연되면_로딩_상태를_표시하고_완료되면_해제한다() async {
+        let signOutSpy = SignOutUseCaseSpy()
+        signOutSpy.shouldSuspend = true
+        let adapter = SettingsStoreTestAdapter(signOutUseCase: signOutSpy)
+
+        await adapter.tapSignOutButton()
+
+        #expect(!adapter.isLoading)
+
+        await adapter.advanceDelayedLoading()
+
+        #expect(adapter.isLoading)
+
+        signOutSpy.resume()
+        await adapter.drainReceivedActions()
+
+        #expect(!adapter.isLoading)
+    }
+
+    @Test("회원 탈퇴 실패 시 공통 에러 알림을 표시한다")
+    func 회원_탈퇴_실패_시_공통_에러_알림을_표시한다() async {
+        let deleteSpy = DeleteAuthUseCaseSpy()
+        deleteSpy.error = SettingsTestError.failure
+        let adapter = SettingsStoreTestAdapter(deleteAuthUseCase: deleteSpy)
+
+        await adapter.tapDeleteAuthButton()
+
+        #expect(deleteSpy.executeCallCount == 1)
+        #expect(adapter.showAlert)
+        #expect(adapter.alertTitle == String(localized: "common_error_title"))
+    }
+}
+
+private enum SettingsAlertType {
+    case signOut
+    case deleteAuth
+    case error
+    case removeCache
+}
+
+@MainActor
+private struct SettingsStoreTestAdapter {
+    private let store: TestStoreOf<SettingsFeature>
+    private let clock: TestClock<Duration>
+
+    var theme: SystemTheme { store.state.theme }
+    var dirSize: Int64 { store.state.dirSize }
+    var isNetworkConnected: Bool { store.state.isNetworkConnected }
+    var isLoading: Bool { store.state.isLoading }
+    var showAlert: Bool { store.state.alert != nil }
+    var alertTitle: String {
+        guard let alert = store.state.alert else { return "" }
+        return String(state: alert.title)
+    }
+    var alertMessage: String {
+        store.state.alert?.message.map { String(state: $0) } ?? ""
+    }
+    var alertType: SettingsAlertType? {
+        guard let type = store.state.alertType else { return nil }
+        return SettingsAlertType(type)
+    }
+
+    init(
+        deleteAuthUseCase: DeleteAuthUseCase = DeleteAuthUseCaseSpy(),
+        signOutUseCase: SignOutUseCase = SignOutUseCaseSpy(),
+        networkUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
+        themeUseCase: ObserveSystemThemeUseCase = ObserveSystemThemeUseCaseSpy(),
+        updateThemeUseCase: UpdateSystemThemeUseCase = UpdateSystemThemeUseCaseSpy(),
+        fetchDirSizeUseCase: FetchWebPageImageDirSizeUseCase = FetchWebPageImageDirSizeUseCaseSpy(),
+        clearDirectoryUseCase: ClearWebPageImageDirectoryUseCase = ClearWebPageImageDirectoryUseCaseSpy()
+    ) {
+        let clock = TestClock()
+        self.clock = clock
+        store = TestStore(initialState: SettingsFeature.State()) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.deleteAuthUseCase = deleteAuthUseCase
+            $0.signOutUseCase = signOutUseCase
+            $0.networkConnectivityUseCase = networkUseCase
+            $0.systemThemeUseCase = themeUseCase
+            $0.updateSystemThemeUseCase = updateThemeUseCase
+            $0.fetchWebPageImageDirSizeUseCase = fetchDirSizeUseCase
+            $0.clearWebPageImageDirectoryUseCase = clearDirectoryUseCase
+            $0.continuousClock = clock
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+    }
+
+    func startObserving() async {
+        await store.send(.startObserving)
+    }
+
+    func setTheme(_ theme: SystemTheme) async {
+        await store.send(.binding(.set(\.theme, theme))) {
+            $0.theme = theme
+        }
+    }
+
+    func updateDirSize() async {
+        await store.send(.updateDirSize)
+        await drainReceivedActions()
+    }
+
+    func tapRemoveCacheButton() async {
+        await store.send(.tapRemoveCacheButton) {
+            $0.alert = expectedSettingsAlert(for: .removeCache)
+            $0.alertType = .removeCache
+        }
+    }
+
+    func confirmRemoveCache() async {
+        await store.send(.confirmRemoveCache) {
+            $0.alert = nil
+            $0.alertType = nil
+        }
+        await drainReceivedActions()
+    }
+
+    func tapSignOutButton() async {
+        await store.send(.tapSignOutButton) {
+            $0.alert = nil
+            $0.alertType = nil
+        }
+        await drainReceivedActions()
+    }
+
+    func tapDeleteAuthButton() async {
+        await store.send(.tapDeleteAuthButton) {
+            $0.alert = nil
+            $0.alertType = nil
+        }
+        await drainReceivedActions()
+    }
+
+    func advanceDelayedLoading() async {
+        let target = LoadingFeature.Target.default
+        await clock.advance(by: .milliseconds(300))
+        await store.receive(\.loading.delayedLoadingDidBecomeVisible, target) {
+            $0.loading.scheduledDelayedTargets = []
+            $0.loading.visibleDelayedTargets = [target]
+            $0.loading.visibleTargets = [target]
+            $0.loading.isLoading = true
+        }
+    }
+
+    func drainReceivedActions() async {
+        await store.skipReceivedActions(strict: false)
+        await store.skipReceivedActions(strict: false)
+        await store.skipReceivedActions(strict: false)
+        await store.skipReceivedActions(strict: false)
+    }
+}
+
+private extension SettingsAlertType {
+    init(_ type: SettingsFeature.Action.AlertType) {
+        switch type {
+        case .signOut:
+            self = .signOut
+        case .deleteAuth:
+            self = .deleteAuth
+        case .error:
+            self = .error
+        case .removeCache:
+            self = .removeCache
+        }
+    }
+}
+
+private func expectedSettingsAlert(
+    for type: SettingsFeature.Action.AlertType
+) -> AlertState<SettingsFeature.Action.Alert> {
+    switch type {
+    case .signOut:
+        return AlertState {
+            TextState(String(localized: "settings_alert_sign_out_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_cancel"))
+            }
+            ButtonState(role: .destructive, action: .tapSignOutButton) {
+                TextState(String(localized: "common_confirm"))
+            }
+        } message: {
+            TextState(String(localized: "settings_alert_sign_out_message"))
+        }
+    case .deleteAuth:
+        return AlertState {
+            TextState(String(localized: "settings_alert_delete_account_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_cancel"))
+            }
+            ButtonState(role: .destructive, action: .tapDeleteAuthButton) {
+                TextState(String(localized: "settings_delete_account_action"))
+            }
+        } message: {
+            TextState(String(localized: "settings_alert_delete_account_message"))
+        }
+    case .error:
+        return AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "common_error_message"))
+        }
+    case .removeCache:
+        return AlertState {
+            TextState(String(localized: "settings_alert_clear_temp_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_cancel"))
+            }
+            ButtonState(role: .destructive, action: .confirmRemoveCache) {
+                TextState(String(localized: "common_confirm"))
+            }
+        } message: {
+            TextState(String(localized: "settings_alert_clear_temp_message"))
+        }
+    }
+}
