@@ -14,14 +14,18 @@ struct LoginFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
-        var isLoading = false
+        var loading = LoadingFeature.State()
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
     }
 
     enum Action {
         case alert(PresentationAction<Never>)
         case tapSignInButton(AuthProvider)
         case signInFailed(AlertType)
-        case signInCancelled
+        case loading(LoadingFeature.Action)
     }
 
     enum AlertType: Equatable {
@@ -32,28 +36,19 @@ struct LoginFeature {
     @Dependency(\.signInUseCase) var signInUseCase
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
         Reduce { state, action in
             switch action {
             case .alert:
                 break
             case .tapSignInButton(let provider):
-                state.isLoading = true
-                return .run { [signInUseCase] send in
-                    do {
-                        try await signInUseCase.execute(provider)
-                    } catch {
-                        if error.isSocialLoginCancelled {
-                            await send(.signInCancelled)
-                            return
-                        }
-                        await send(.signInFailed(alertType(for: error)))
-                    }
-                }
-            case .signInCancelled:
-                state.isLoading = false
+                return signInEffect(provider)
             case .signInFailed(let alertType):
-                state.isLoading = false
                 state.alert = alertState(for: alertType)
+            case .loading:
+                break
             }
             return .none
         }
@@ -79,6 +74,19 @@ private enum SignInUseCaseKey: DependencyKey {
 }
 
 private extension LoginFeature {
+    func signInEffect(_ provider: AuthProvider) -> Effect<Action> {
+        .run { [signInUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .immediate)))
+            do {
+                try await signInUseCase.execute(provider)
+            } catch {
+                await send(.loading(.end(target: .default, mode: .immediate)))
+                if error.isSocialLoginCancelled { return }
+                await send(.signInFailed(Self.alertType(for: error)))
+            }
+        }
+    }
+
     func alertState(for alertType: AlertType) -> AlertState<Never> {
         let title: String
         let message: String
@@ -103,7 +111,7 @@ private extension LoginFeature {
         }
     }
 
-    func alertType(for error: Error) -> AlertType {
+    static func alertType(for error: Error) -> AlertType {
         if case AuthError.emailNotFound = error {
             return .emailUnavailable
         }
