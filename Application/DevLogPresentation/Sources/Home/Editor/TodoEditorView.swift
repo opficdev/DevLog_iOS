@@ -53,18 +53,12 @@ struct TodoEditorView: View {
             .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
-            .sheet(isPresented: Binding(
-                get: { store.showInfo },
-                set: { store.send(.setShowInfo($0)) }
-            )) {
+            .sheet(isPresented: $store.showInfo) {
                 TodoEditorInfoSheetView(store: store) {
-                    store.send(.setShowInfo(false))
+                    store.send(.binding(.set(\.showInfo, false)))
                 }
             }
-            .sheet(item: Binding(
-                get: { store.selectedTodoId },
-                set: { store.send(.setSelectedTodoId($0)) }
-            )) { item in
+            .sheet(item: $store.selectedTodoId) { item in
                 NavigationStack {
                     TodoDetailView(store: Store(
                         initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
@@ -76,7 +70,7 @@ struct TodoEditorView: View {
                     })
                     .toolbar {
                         ToolbarLeadingButton {
-                            store.send(.setSelectedTodoId(nil))
+                            store.send(.binding(.set(\.selectedTodoId, nil)))
                         }
                     }
                 }
@@ -89,7 +83,7 @@ struct TodoEditorView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        store.send(.setShowInfo(true))
+                        store.send(.binding(.set(\.showInfo, true)))
                     } label: {
                         Image(systemName: "info.circle")
                     }
@@ -122,10 +116,7 @@ struct TodoEditorView: View {
     private var titleField: some View {
         TextField(
             "",
-            text: Binding(
-                get: { store.title },
-                set: { store.send(.setTitle($0)) }
-            ),
+            text: $store.title,
             prompt: Text(String(localized: "todo_editor_title_required")).foregroundColor(Color.secondary),
         )
         .font(.title2)
@@ -140,7 +131,7 @@ struct TodoEditorView: View {
                 get: { store.tabViewTag },
                 set: { tag in
                     if tag == .editor {
-                        store.send(.setTabViewTag(.editor))
+                        store.send(.binding(.set(\.tabViewTag, .editor)))
                         field = .content
                     } else {
                         transitionToPreview()
@@ -162,10 +153,7 @@ struct TodoEditorView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
                     UIKitTextEditor(
-                        text: Binding(
-                            get: { store.content },
-                            set: { store.send(.setContent($0)) }
-                        ),
+                        text: $store.content,
                         placeholder: String(localized: "todo_editor_description_optional")
                     )
                     .focused($field, equals: .content)
@@ -177,7 +165,7 @@ struct TodoEditorView: View {
                     TodoMarkdownContentView(
                         content: store.content,
                         referenceItems: store.referenceItems,
-                        onOpenTodoID: { store.send(.setSelectedTodoId(TodoIdItem(id: $0))) }
+                        onOpenTodoID: { store.send(.binding(.set(\.selectedTodoId, TodoIdItem(id: $0)))) }
                     )
                 }
             }
@@ -220,7 +208,7 @@ struct TodoEditorView: View {
         field = nil
 
         DispatchQueue.main.async {
-            store.send(.setTabViewTag(.preview))
+            store.send(.binding(.set(\.tabViewTag, .preview)))
         }
     }
 
@@ -261,7 +249,7 @@ private struct TodoEditorInfoSheetView: View {
                                     return
                                 }
 
-                                store.send(.setCategory(item))
+                                store.send(.binding(.set(\.category, item)))
                             }
                         )
                     ) {
@@ -284,7 +272,7 @@ private struct TodoEditorInfoSheetView: View {
                         String(localized: "todo_pinned"),
                         isOn: Binding(
                             get: { store.isPinned },
-                            set: { store.send(.setPinned($0)) }
+                            set: { store.send(.binding(.set(\.isPinned, $0))) }
                         )
                     )
                     .tint(.blue)
@@ -296,10 +284,7 @@ private struct TodoEditorInfoSheetView: View {
                     HStack(spacing: 12) {
                         TextField(
                             String(localized: "todo_add"),
-                            text: Binding(
-                                get: { store.tagText },
-                                set: { store.send(.setTagText($0)) }
-                            )
+                            text: $store.tagText
                         )
                         .frame(height: UIFont.preferredFont(forTextStyle: .title2).lineHeight)
                         .textInputAutocapitalization(.never)
@@ -346,7 +331,7 @@ private struct TodoEditorInfoSheetView: View {
     private var dueDateControl: some View {
         DueDatePicker(selection: Binding(
             get: { store.dueDate ?? Date() },
-            set: { store.send(.setDueDate($0)) }
+            set: { store.send(.binding(.set(\.dueDate, $0))) }
         )) {
             HStack {
                 Text(String(localized: "todo_due_date"))
@@ -354,7 +339,7 @@ private struct TodoEditorInfoSheetView: View {
                 Spacer()
                 if let dueDate = store.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
-                        store.send(.setDueDate(nil))
+                        store.send(.binding(.set(\.dueDate, nil)))
                     }
                     .padding(.vertical, -4)
                 } else {
@@ -370,7 +355,7 @@ private struct TodoEditorInfoSheetView: View {
 
         let tagText = normalizedTagText
         store.send(.addTag(tagText))
-        store.send(.setTagText(""))
+        store.send(.binding(.set(\.tagText, "")))
     }
 
     private var normalizedTagText: String {

@@ -96,7 +96,7 @@ final class TodoEditorStoreTestAdapter {
     }
 
     func setContent(_ content: String) async {
-        await store.send(.setContent(content)) {
+        await store.send(.binding(.set(\.content, content))) {
             $0.content = content
         }
         await drainReceivedActions()
@@ -114,26 +114,26 @@ final class TodoEditorStoreTestAdapter {
 
     func setDueDate(_ dueDate: Date?) async {
         let expectedDueDate = expectedDueDate(for: dueDate)
-        await store.send(.setDueDate(dueDate)) {
+        await store.send(.binding(.set(\.dueDate, dueDate))) {
             $0.dueDate = expectedDueDate
         }
     }
 
     func setPinned(_ isPinned: Bool) async {
-        await store.send(.setPinned(isPinned)) {
+        await store.send(.binding(.set(\.isPinned, isPinned))) {
             $0.isPinned = isPinned
         }
     }
 
     func setTab(_ tab: TodoEditorFeature.Tag) async {
-        await store.send(.setTabViewTag(tab)) {
+        await store.send(.binding(.set(\.tabViewTag, tab))) {
             $0.tabViewTag = tab
         }
         await drainReceivedActions()
     }
 
     func setTitle(_ title: String) async {
-        await store.send(.setTitle(title)) {
+        await store.send(.binding(.set(\.title, title))) {
             $0.title = title
         }
         await drainReceivedActions()

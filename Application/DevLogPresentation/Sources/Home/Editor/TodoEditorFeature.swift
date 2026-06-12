@@ -101,23 +101,13 @@ struct TodoEditorFeature {
         case updated(Todo)
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
+        case binding(BindingAction<State>)
         case onAppear
         case addTag(String)
         case removeTag(String)
-        case setContent(String)
         case setCompleted(Bool)
-        case setDueDate(Date?)
-        case setCategory(TodoCategoryItem)
-        case setPinned(Bool)
-        case setShowInfo(Bool)
-        case setSelectedTodoId(TodoIdItem?)
-        case setTabViewTag(Tag)
-        case setTagText(String)
-        case setTitle(String)
-        case setCategories([TodoCategoryItem])
-        case setReferenceItems([Int: TodoReferenceItem])
         case upsertTodo
         case createSucceeded
         case saveFailed
@@ -135,9 +125,27 @@ struct TodoEditorFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .binding(\.content):
+                if state.tabViewTag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .binding(\.dueDate):
+                if let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: now),
+                   let dueDate = state.dueDate {
+                    state.dueDate = max(dueDate, tomorrowDate)
+                } else {
+                    state.dueDate = nil
+                }
+            case .binding(\.tabViewTag):
+                if state.tabViewTag == .preview {
+                    return resolveMarkdownEffect(content: state.content)
+                }
+            case .binding:
                 break
             case .onAppear:
                 return fetchCategoriesEffect()
@@ -147,44 +155,11 @@ struct TodoEditorFeature {
                 }
             case .removeTag(let tagText):
                 state.tags.removeAll { $0 == tagText }
-            case .setContent(let content):
-                state.content = content
-                if state.tabViewTag == .preview {
-                    return resolveMarkdownEffect(content: state.content)
-                }
-            case .setTagText(let tagText):
-                state.tagText = tagText
-            case .setTitle(let title):
-                state.title = title
-            case .setDueDate(let dueDate):
-                if let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: now),
-                   let dueDate {
-                    state.dueDate = max(dueDate, tomorrowDate)
-                } else {
-                    state.dueDate = nil
-                }
             case .setCompleted(let isCompleted):
                 if state.isCompleted != isCompleted {
                     state.completedAt = isCompleted ? now : nil
                 }
                 state.isCompleted = isCompleted
-            case .setCategory(let item):
-                state.category = item
-            case .setPinned(let isPinned):
-                state.isPinned = isPinned
-            case .setShowInfo(let isPresented):
-                state.showInfo = isPresented
-            case .setSelectedTodoId(let todoId):
-                state.selectedTodoId = todoId
-            case .setTabViewTag(let tag):
-                state.tabViewTag = tag
-                if tag == .preview {
-                    return resolveMarkdownEffect(content: state.content)
-                }
-            case .setCategories(let categories):
-                state.categories = categories
-            case .setReferenceItems(let items):
-                state.referenceItems = items
             case .upsertTodo:
                 state.saveResult = nil
                 if state.originalDraft == nil {
@@ -254,7 +229,7 @@ private extension TodoEditorFeature {
         .run { [fetchPreferencesUseCase] send in
             do {
                 let preferences = try await fetchPreferencesUseCase.execute()
-                await send(.setCategories(preferences.map(TodoCategoryItem.init(from:))))
+                await send(.binding(.set(\.categories, preferences.map(TodoCategoryItem.init(from:)))))
             } catch { }
         }
     }
@@ -273,7 +248,7 @@ private extension TodoEditorFeature {
                 }
             }
 
-            await send(.setReferenceItems(referenceItems))
+            await send(.binding(.set(\.referenceItems, referenceItems)))
         }
     }
 
