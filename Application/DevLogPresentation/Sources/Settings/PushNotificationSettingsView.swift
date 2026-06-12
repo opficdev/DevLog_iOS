@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PushNotificationSettingsView: View {
-    @Bindable var store: StoreOf<PushNotificationSettingsFeature>
+    @State var store: StoreOf<PushNotificationSettingsFeature>
 
     var body: some View {
         List {

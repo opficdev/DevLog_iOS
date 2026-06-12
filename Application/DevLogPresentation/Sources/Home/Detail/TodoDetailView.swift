@@ -14,7 +14,7 @@ struct TodoDetailView: View {
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
-    @Bindable var store: StoreOf<TodoDetailFeature>
+    @State var store: StoreOf<TodoDetailFeature>
 
     var body: some View {
         ZStack {
@@ -88,16 +88,19 @@ struct TodoDetailView: View {
         case .editor:
             if let todo = store.todo {
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        todo: todo,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpdateSuccess: { todo in
-                            store.send(.setFullScreenCover(nil))
-                            store.send(.setTodo(todo))
-                        }
-                    )
+                    store: Store(initialState: TodoEditorFeature.State(todo: todo)) {
+                        TodoEditorFeature()
+                    } withDependencies: {
+                        $0.fetchTodoCategoryPreferencesUseCase = container.resolve(
+                            FetchTodoCategoryPreferencesUseCase.self
+                        )
+                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                        $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    },
+                    onUpdateSuccess: { todo in
+                        store.send(.setFullScreenCover(nil))
+                        store.send(.setTodo(todo))
+                    }
                 )
             }
         }

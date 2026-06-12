@@ -14,7 +14,7 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container: DIContainer
     @State private var router = NavigationRouter<Path>()
-    @Bindable var store: StoreOf<SearchFeature>
+    @State var store: StoreOf<SearchFeature>
 
     var body: some View {
         NavigationStack(path: $router.path) {

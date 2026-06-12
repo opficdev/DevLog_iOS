@@ -77,18 +77,15 @@ final class HomeViewCoordinator {
             .store(in: &cancellables)
     }
 
-    func makeTodoEditorViewModel(category: TodoCategory) -> TodoEditorViewModel {
-        TodoEditorViewModel(
-            category: category,
-            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-            onCreateSuccess: { [weak self] in
-                self?.viewModel.send(.setPresentation(.todoEditor, false))
-                self?.viewModel.send(.fetchData)
-            }
-        )
+    func makeTodoEditorStore(category: TodoCategory) -> StoreOf<TodoEditorFeature> {
+        Store(initialState: TodoEditorFeature.State(category: category)) {
+            TodoEditorFeature()
+        } withDependencies: {
+            $0.fetchTodoCategoryPreferencesUseCase = self.container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+            $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
+            $0.upsertTodoUseCase = self.container.resolve(UpsertTodoUseCase.self)
+            $0.trackAnalyticsEventUseCase = self.container.resolve(TrackAnalyticsEventUseCase.self)
+        }
     }
 
     func makeSearchStore() -> StoreOf<SearchFeature> {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -28,25 +29,31 @@ public struct TodoEditorWindowView: View {
             switch value {
             case .create(let windowCategory, _):
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        category: windowCategory.todoCategory,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-                        onCreateSuccess: create
-                    ),
+                    store: Store(initialState: TodoEditorFeature.State(category: windowCategory.todoCategory)) {
+                        TodoEditorFeature()
+                    } withDependencies: {
+                        $0.fetchTodoCategoryPreferencesUseCase = container.resolve(
+                            FetchTodoCategoryPreferencesUseCase.self
+                        )
+                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                        $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                        $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+                    },
+                    onCreateSuccess: create,
                     onClose: closeWindow
                 )
             case .edit(let windowTodo):
                 TodoEditorView(
-                    viewModel: TodoEditorViewModel(
-                        todo: windowTodo.todo,
-                        fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-                        fetchReferenceItemsUseCase: container.resolve(FetchReferenceItemsUseCase.self),
-                        upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-                        onUpdateSuccess: update
-                    ),
+                    store: Store(initialState: TodoEditorFeature.State(todo: windowTodo.todo)) {
+                        TodoEditorFeature()
+                    } withDependencies: {
+                        $0.fetchTodoCategoryPreferencesUseCase = container.resolve(
+                            FetchTodoCategoryPreferencesUseCase.self
+                        )
+                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                        $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    },
+                    onUpdateSuccess: update,
                     onClose: closeWindow
                 )
             }
