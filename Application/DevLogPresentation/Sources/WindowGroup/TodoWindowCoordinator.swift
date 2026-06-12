@@ -16,7 +16,7 @@ import DevLogDomain
 final class TodoWindowCoordinator {
     private let container: DIContainer
     @ObservationIgnored
-    private var listViewModel: TodoListViewModel?
+    private var listStore: StoreOf<TodoListFeature>?
     @ObservationIgnored
     private var detailStore: StoreOf<TodoDetailFeature>?
     @ObservationIgnored
@@ -35,23 +35,24 @@ final class TodoWindowCoordinator {
             }
     }
 
-    func makeListViewModel(category: TodoCategory) -> TodoListViewModel {
-        if let listViewModel,
-           listViewModel.category == category {
-            return listViewModel
+    func makeListStore(category: TodoCategory) -> StoreOf<TodoListFeature> {
+        if let listStore,
+           listStore.category == category {
+            return listStore
         }
 
-        let listViewModel = TodoListViewModel(
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchTodoByIdUseCase: container.resolve(FetchTodoByIdUseCase.self),
-            upsertTodoUseCase: container.resolve(UpsertTodoUseCase.self),
-            deleteTodoUseCase: container.resolve(DeleteTodoUseCase.self),
-            undoDeleteTodoUseCase: container.resolve(UndoDeleteTodoUseCase.self),
-            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-            category: category
-        )
-        self.listViewModel = listViewModel
-        return listViewModel
+        let listStore = Store(initialState: TodoListFeature.State(category: category)) {
+            TodoListFeature()
+        } withDependencies: {
+            $0.todoListFetchTodosUseCase = self.container.resolve(FetchTodosUseCase.self)
+            $0.fetchTodoByIdUseCase = self.container.resolve(FetchTodoByIdUseCase.self)
+            $0.upsertTodoUseCase = self.container.resolve(UpsertTodoUseCase.self)
+            $0.todoListDeleteTodoUseCase = self.container.resolve(DeleteTodoUseCase.self)
+            $0.todoListUndoDeleteTodoUseCase = self.container.resolve(UndoDeleteTodoUseCase.self)
+            $0.trackAnalyticsEventUseCase = self.container.resolve(TrackAnalyticsEventUseCase.self)
+        }
+        self.listStore = listStore
+        return listStore
     }
 
     func makeDetailStore(
@@ -81,9 +82,9 @@ final class TodoWindowCoordinator {
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit) {
         switch submit {
         case .create(let value):
-            if let listViewModel,
-               value.matchesCreate(category: listViewModel.category, source: .list) {
-                listViewModel.send(.refresh)
+            if let listStore,
+               value.matchesCreate(category: listStore.category, source: .list) {
+                listStore.send(.refresh)
             }
         case .update(let value, let todo):
             if let detailStore,

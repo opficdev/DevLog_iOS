@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TodoCursor {
+public struct TodoCursor: Equatable {
     public let primarySortDate: Date?
     public let secondarySortDate: Date?
     public let documentID: String

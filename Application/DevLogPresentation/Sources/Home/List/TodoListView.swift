@@ -19,72 +19,43 @@ struct TodoListView: View {
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @State private var headerOffset: CGFloat = .zero
     @State private var isScrollTrackingEnabled = false
-    @State var viewModel: TodoListViewModel
+    @State var store: StoreOf<TodoListFeature>
 
     var body: some View {
         Group {
             if #available(iOS 18, *) {
-                if viewModel.state.isSearching {
+                if store.state.isSearching {
                     todoSearchContent
                 } else {
                     todoListContent
                 }
             } else {
                 Group {
-                    if viewModel.state.isSearching {
+                    if store.state.isSearching {
                         searchResultsContent
                     } else {
                         todoListContent
                     }
                 }
                 .searchable(
-                    text: Binding(
-                        get: { viewModel.state.searchText },
-                        set: { viewModel.send(.setSearchText($0)) }
-                    ),
-                    isPresented: Binding(
-                        get: { viewModel.state.isSearching },
-                        set: { viewModel.send(.setIsSearching($0)) }
-                    ),
+                    text: $store.searchText,
+                    isPresented: $store.isSearching,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Text(
                         String.localizedStringWithFormat(
                             String(localized: "todo_list_search_prompt_format"),
-                            TodoCategoryItem(from: viewModel.category).localizedName
+                            TodoCategoryItem(from: store.category).localizedName
                         )
                     )
                 )
             }
         }
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert($0)) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
-        }
-        .navigationTitle(TodoCategoryItem(from: viewModel.category).localizedName)
-        .fullScreenCover(isPresented: Binding(
-            get: { viewModel.state.showEditor },
-            set: { viewModel.send(.setShowEditor($0)) }
-        )) {
-            TodoEditorView(
-                store: Store(initialState: TodoEditorFeature.State(category: viewModel.category)) {
-                    TodoEditorFeature()
-                } withDependencies: {
-                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
-                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
-                },
-                onCreateSuccess: {
-                    viewModel.send(.setShowEditor(false))
-                    viewModel.send(.refresh)
-                }
-            )
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
+        .fullScreenCover(
+            item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
+        ) { coverStore in
+            fullScreenCoverContent(coverStore)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -100,7 +71,7 @@ struct TodoListView: View {
             if #available(iOS 18, *) {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        viewModel.send(.setIsSearching(true))
+                        store.send(.binding(.set(\.isSearching, true)))
                     } label: {
                         Image(systemName: "magnifyingglass")
                     }
@@ -109,17 +80,22 @@ struct TodoListView: View {
         }
         .background(NavigationBarConfigurator())
         .background(Color(.systemGroupedBackground))
-        .task { viewModel.send(.onAppear) }
+        .task { store.send(.onAppear) }
+        .onChange(of: store.deleteToastTodoId) { _, todoId in
+            guard let todoId else { return }
+            presentDeleteTodoToast(todoId)
+            store.send(.presentedDeleteToast)
+        }
     }
 
     @ViewBuilder
     private var todoListContent: some View {
-        let visibleTodos = viewModel.state.todos.filter { !$0.isHidden }
+        let visibleTodos = store.state.todos.filter { !$0.isHidden }
 
         ZStack {
             List {
                 Group {
-                    if visibleTodos.isEmpty, !viewModel.state.isLoading {
+                    if visibleTodos.isEmpty, !store.state.isLoading {
                         HStack {
                             Spacer()
                             Text(String(localized: "todo_list_empty"))
@@ -146,19 +122,19 @@ struct TodoListView: View {
                             }
                             .onAppear {
                                 let lastID = visibleTodos.last?.id
-                                if todo.id == lastID, viewModel.state.hasMore {
-                                    viewModel.send(.loadNextPage)
+                                if todo.id == lastID, store.state.hasMore {
+                                    store.send(.loadNextPage)
                                 }
                             }
                             .swipeActions(edge: .leading) {
                                 Button(action: {
-                                    viewModel.send(.tapTogglePinned(todo))
+                                    store.send(.tapTogglePinned(todo))
                                 }) {
                                     Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
                                 }
                                 .tint(Color.orange)
                                 Button {
-                                    viewModel.send(.tapToggleCompleted(todo))
+                                    store.send(.tapToggleCompleted(todo))
                                 } label: {
                                     Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
                                 }
@@ -166,7 +142,7 @@ struct TodoListView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive, action: {
-                                    viewModel.send(.swipeTodo(todo))
+                                    store.send(.swipeTodo(todo))
                                 }) {
                                     Image(systemName: "trash")
                                 }
@@ -199,10 +175,10 @@ struct TodoListView: View {
                 }
                 .offset(y: headerOffset)
             }
-            .refreshable { viewModel.send(.refresh) }
-            .scrollDisabled(visibleTodos.isEmpty || viewModel.state.isLoading)
+            .refreshable { store.send(.refresh) }
+            .scrollDisabled(visibleTodos.isEmpty || store.state.isLoading)
 
-            if viewModel.state.isLoading {
+            if store.state.isLoading {
                 LoadingView()
             }
         }
@@ -212,53 +188,84 @@ struct TodoListView: View {
     private var todoSearchContent: some View {
         searchResultsContent
             .searchable(
-                text: Binding(
-                    get: { viewModel.state.searchText },
-                    set: { viewModel.send(.setSearchText($0)) }
-                ),
-                isPresented: Binding(
-                    get: { viewModel.state.isSearching },
-                    set: { viewModel.send(.setIsSearching($0)) }
-                ),
+                text: $store.searchText,
+                isPresented: $store.isSearching,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Text(
                     String.localizedStringWithFormat(
                         String(localized: "todo_list_search_prompt_format"),
-                        TodoCategoryItem(from: viewModel.category).localizedName
+                        TodoCategoryItem(from: store.category).localizedName
                     )
                 )
             )
+    }
+
+    @ViewBuilder
+    private func fullScreenCoverContent(
+        _ coverStore: Store<TodoListFeature.FullScreenCoverState, Never>
+    ) -> some View {
+        switch coverStore.destination {
+        case .editor:
+            TodoEditorView(
+                store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
+                    TodoEditorFeature()
+                } withDependencies: {
+                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+                },
+                onCreateSuccess: {
+                    store.send(.setFullScreenCover(nil))
+                    store.send(.refresh)
+                }
+            )
+        }
     }
 
     private func openTodoEditor() {
         if isiOSAppOnMac {
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
-                value: TodoEditorWindowValue(todoCategory: viewModel.category, source: .list)
+                value: TodoEditorWindowValue(todoCategory: store.category, source: .list)
             )
         } else {
-            viewModel.send(.setShowEditor(true))
+            store.send(.setFullScreenCover(.editor))
         }
+    }
+
+    private func presentDeleteTodoToast(_ todoId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            action: {
+                store.send(.undoDelete)
+            },
+            onDismiss: {
+                store.send(.finishDeleteToast(todoId))
+            }
+        )
     }
 
     @ViewBuilder
     private var searchResultsContent: some View {
-        let searchResults = viewModel.state.searchResults.filter { !$0.isHidden }
-        let limit = viewModel.searchResultsLimit
-        let displayedTodos = viewModel.state.showAllSearchResults
+        let searchResults = store.state.searchResults.filter { !$0.isHidden }
+        let limit = store.searchResultsLimit
+        let displayedTodos = store.state.showAllSearchResults
             ? searchResults
             : Array(searchResults.prefix(limit))
 
-        if viewModel.state.searchText.isEmpty {
+        if store.state.searchText.isEmpty {
             Text(
                 String.localizedStringWithFormat(
                     String(localized: "todo_list_search_instruction_format"),
-                    TodoCategoryItem(from: viewModel.category).localizedName
+                    TodoCategoryItem(from: store.category).localizedName
                 )
             )
                 .foregroundStyle(Color.gray)
                 .frame(maxWidth: .infinity)
-        } else if viewModel.state.isLoading {
+        } else if store.state.isLoading {
             LoadingView()
         } else if searchResults.isEmpty {
             Spacer()
@@ -281,9 +288,9 @@ struct TodoListView: View {
                     }
                     .padding(.horizontal, 16)
 
-                    if !viewModel.state.showAllSearchResults, limit < searchResults.count {
+                    if !store.state.showAllSearchResults, limit < searchResults.count {
                         Button(String(localized: "todo_list_show_more")) {
-                            viewModel.send(.setShowAllSearchResults(true))
+                            store.send(.binding(.set(\.showAllSearchResults, true)))
                         }
                         .font(.subheadline)
                         .foregroundStyle(Color.gray)
@@ -298,16 +305,16 @@ struct TodoListView: View {
     private var headerView: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 8) {
-                if 0 < viewModel.appliedFilterCount {
+                if 0 < store.appliedFilterCount {
                     Menu {
                         Text(
                             String.localizedStringWithFormat(
                                 String(localized: "todo_list_filters_applied_format"),
-                                Int64(viewModel.appliedFilterCount)
+                                Int64(store.appliedFilterCount)
                             )
                         )
                         Button(role: .destructive) {
-                            viewModel.send(.resetFilters)
+                            store.send(.resetFilters)
                         } label: {
                             Text(String(localized: "todo_list_clear_filters"))
                         }
@@ -339,20 +346,14 @@ struct TodoListView: View {
 
     private var sortMenu: some View {
         Menu {
-            Picker(selection: Binding(
-                get: { viewModel.state.query.sortTarget },
-                set: { viewModel.send(.setSortTarget($0)) }
-            )) {
+            Picker(selection: $store.query.sortTarget) {
                 ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
             } label: {
                 Text(String(localized: "todo_list_sort_by"))
             }
-            Picker(selection: Binding(
-                get: { viewModel.state.query.sortOrder },
-                set: { viewModel.send(.setSortOrder($0)) }
-            )) {
+            Picker(selection: $store.query.sortOrder) {
                 ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
@@ -360,13 +361,13 @@ struct TodoListView: View {
                 Text(String(localized: "todo_list_sort_order"))
             }
         } label: {
-            let condition = viewModel.state.query.sortTarget == .createdAt && viewModel.state.query.sortOrder == .latest
+            let condition = store.state.query.sortTarget == .createdAt && store.state.query.sortOrder == .latest
             HStack {
                 Text(
                     String.localizedStringWithFormat(
                         String(localized: "todo_list_sort_format"),
-                        viewModel.state.query.sortTarget.title,
-                        viewModel.state.query.sortOrder.title
+                        store.state.query.sortTarget.title,
+                        store.state.query.sortOrder.title
                     )
                 )
                 Image(systemName: "chevron.down")
@@ -378,17 +379,11 @@ struct TodoListView: View {
 
     private var filterMenu: some View {
         Menu {
-            Toggle(isOn: Binding(
-                get: { viewModel.state.query.isPinned == true },
-                set: { _ in viewModel.send(.togglePinnedOnly) }
-            )) {
+            Toggle(isOn: $store.query.isPinned) {
                 Text(String(localized: "todo_pinned"))
             }
 
-            Picker(selection: Binding(
-                get: { viewModel.state.query.completionFilter },
-                set: { viewModel.send(.setCompletionFilter($0)) }
-            )) {
+            Picker(selection: $store.query.completionFilter) {
                 ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
                     Text(option.title).tag(option)
                 }
@@ -396,7 +391,7 @@ struct TodoListView: View {
                 Text(String(localized: "todo_list_completion_status"))
             }
         } label: {
-            let condition = viewModel.state.query.isPinned == true || viewModel.state.query.completionFilter != .all
+            let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
             HStack {
                 Text(String(localized: "todo_list_filter_options"))
                 Image(systemName: "chevron.down")
@@ -412,7 +407,7 @@ struct TodoListView: View {
         let textColor: Color = isDark ? blue : .white
         let backgroundColor: Color = isDark ? .white : blue
 
-        return Text("\(viewModel.appliedFilterCount)")
+        return Text("\(store.appliedFilterCount)")
             .font(.caption2.weight(.bold))
             .foregroundColor(textColor)
             .lineLimit(1)
