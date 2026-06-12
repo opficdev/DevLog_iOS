@@ -1,0 +1,365 @@
+//
+//  SettingsFeature.swift
+//  DevLogPresentation
+//
+//  Created by opfic on 6/12/26.
+//
+
+import Combine
+import ComposableArchitecture
+import DevLogCore
+import DevLogDomain
+import Foundation
+
+@Reducer
+struct SettingsFeature {
+    @ObservableState
+    struct State: Equatable {
+        @Presents var alert: AlertState<Action.Alert>?
+        var theme: SystemTheme = .automatic
+        var dirSize: Int64 = 0
+        var isNetworkConnected = true
+        var loading = LoadingFeature.State()
+        var alertType: Action.AlertType?
+        var appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        var appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
+        var policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
+    }
+
+    enum Action: BindableAction {
+        case alert(PresentationAction<Alert>)
+        case binding(BindingAction<State>)
+        case startObserving
+        case networkStatusChanged(Bool)
+        case setAlert(AlertType)
+        case setDirSize(Int64)
+        case updateDirSize
+        case tapDeleteAuthButton
+        case tapSignOutButton
+        case tapRemoveCacheButton
+        case confirmRemoveCache
+        case loading(LoadingFeature.Action)
+
+        enum Alert: Equatable {
+            case tapDeleteAuthButton
+            case tapSignOutButton
+            case confirmRemoveCache
+        }
+
+        enum AlertType: Equatable {
+            case signOut
+            case deleteAuth
+            case error
+            case removeCache
+        }
+    }
+
+    @Dependency(\.deleteAuthUseCase) var deleteAuthUseCase
+    @Dependency(\.signOutUseCase) var signOutUseCase
+    @Dependency(\.networkConnectivityUseCase) var networkConnectivityUseCase
+    @Dependency(\.systemThemeUseCase) var systemThemeUseCase
+    @Dependency(\.updateSystemThemeUseCase) var updateSystemThemeUseCase
+    @Dependency(\.fetchWebPageImageDirSizeUseCase) var fetchWebPageImageDirSizeUseCase
+    @Dependency(\.clearWebPageImageDirectoryUseCase) var clearWebPageImageDirectoryUseCase
+
+    var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .alert(.presented(.tapDeleteAuthButton)):
+                state.alert = nil
+                state.alertType = nil
+                return deleteAuthEffect()
+            case .alert(.presented(.tapSignOutButton)):
+                state.alert = nil
+                state.alertType = nil
+                return signOutEffect()
+            case .alert(.presented(.confirmRemoveCache)):
+                state.alert = nil
+                state.alertType = nil
+                return clearWebPageImageDirectoryEffect()
+            case .alert(.dismiss):
+                state.alert = nil
+                state.alertType = nil
+            case .alert:
+                break
+            case .binding(\.theme):
+                return updateSystemThemeEffect(state.theme)
+            case .binding:
+                break
+            case .startObserving:
+                return .merge(
+                    observeNetworkConnectivityEffect(),
+                    monitorSystemThemeEffect()
+                )
+            case .networkStatusChanged(let isConnected):
+                state.isNetworkConnected = isConnected
+            case .setAlert(let type):
+                state.alert = alertState(for: type)
+                state.alertType = type
+            case .setDirSize(let value):
+                state.dirSize = value
+            case .updateDirSize:
+                return fetchWebPageImageDirSizeEffect()
+            case .tapDeleteAuthButton:
+                state.alert = nil
+                state.alertType = nil
+                return deleteAuthEffect()
+            case .tapSignOutButton:
+                state.alert = nil
+                state.alertType = nil
+                return signOutEffect()
+            case .tapRemoveCacheButton:
+                state.alert = alertState(for: .removeCache)
+                state.alertType = .removeCache
+            case .confirmRemoveCache:
+                state.alert = nil
+                state.alertType = nil
+                return clearWebPageImageDirectoryEffect()
+            case .loading:
+                break
+            }
+
+            return .none
+        }
+        .ifLet(\.$alert, action: \.alert)
+    }
+}
+
+extension DependencyValues {
+    var deleteAuthUseCase: DeleteAuthUseCase {
+        get { self[DeleteAuthUseCaseKey.self] }
+        set { self[DeleteAuthUseCaseKey.self] = newValue }
+    }
+
+    var signOutUseCase: SignOutUseCase {
+        get { self[SignOutUseCaseKey.self] }
+        set { self[SignOutUseCaseKey.self] = newValue }
+    }
+
+    var networkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
+        get { self[ObserveNetworkConnectivityUseCaseKey.self] }
+        set { self[ObserveNetworkConnectivityUseCaseKey.self] = newValue }
+    }
+
+    var systemThemeUseCase: ObserveSystemThemeUseCase {
+        get { self[ObserveSystemThemeUseCaseKey.self] }
+        set { self[ObserveSystemThemeUseCaseKey.self] = newValue }
+    }
+
+    var updateSystemThemeUseCase: UpdateSystemThemeUseCase {
+        get { self[UpdateSystemThemeUseCaseKey.self] }
+        set { self[UpdateSystemThemeUseCaseKey.self] = newValue }
+    }
+
+    var fetchWebPageImageDirSizeUseCase: FetchWebPageImageDirSizeUseCase {
+        get { self[FetchWebPageImageDirSizeUseCaseKey.self] }
+        set { self[FetchWebPageImageDirSizeUseCaseKey.self] = newValue }
+    }
+
+    var clearWebPageImageDirectoryUseCase: ClearWebPageImageDirectoryUseCase {
+        get { self[ClearWebPageImageDirectoryUseCaseKey.self] }
+        set { self[ClearWebPageImageDirectoryUseCaseKey.self] = newValue }
+    }
+}
+
+private enum DeleteAuthUseCaseKey: DependencyKey {
+    static var liveValue: DeleteAuthUseCase {
+        preconditionFailure("DeleteAuthUseCase must be provided.")
+    }
+
+    static var testValue: DeleteAuthUseCase {
+        liveValue
+    }
+}
+
+private enum SignOutUseCaseKey: DependencyKey {
+    static var liveValue: SignOutUseCase {
+        preconditionFailure("SignOutUseCase must be provided.")
+    }
+
+    static var testValue: SignOutUseCase {
+        liveValue
+    }
+}
+
+private enum ObserveNetworkConnectivityUseCaseKey: DependencyKey {
+    static var liveValue: ObserveNetworkConnectivityUseCase {
+        preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
+    }
+
+    static var testValue: ObserveNetworkConnectivityUseCase {
+        liveValue
+    }
+}
+
+private enum ObserveSystemThemeUseCaseKey: DependencyKey {
+    static var liveValue: ObserveSystemThemeUseCase {
+        preconditionFailure("ObserveSystemThemeUseCase must be provided.")
+    }
+
+    static var testValue: ObserveSystemThemeUseCase {
+        liveValue
+    }
+}
+
+private enum UpdateSystemThemeUseCaseKey: DependencyKey {
+    static var liveValue: UpdateSystemThemeUseCase {
+        preconditionFailure("UpdateSystemThemeUseCase must be provided.")
+    }
+
+    static var testValue: UpdateSystemThemeUseCase {
+        liveValue
+    }
+}
+
+private enum FetchWebPageImageDirSizeUseCaseKey: DependencyKey {
+    static var liveValue: FetchWebPageImageDirSizeUseCase {
+        preconditionFailure("FetchWebPageImageDirSizeUseCase must be provided.")
+    }
+
+    static var testValue: FetchWebPageImageDirSizeUseCase {
+        liveValue
+    }
+}
+
+private enum ClearWebPageImageDirectoryUseCaseKey: DependencyKey {
+    static var liveValue: ClearWebPageImageDirectoryUseCase {
+        preconditionFailure("ClearWebPageImageDirectoryUseCase must be provided.")
+    }
+
+    static var testValue: ClearWebPageImageDirectoryUseCase {
+        liveValue
+    }
+}
+
+private extension SettingsFeature {
+    func observeNetworkConnectivityEffect() -> Effect<Action> {
+        .publisher { [networkConnectivityUseCase] in
+            networkConnectivityUseCase.observe()
+                .receive(on: DispatchQueue.main)
+                .map(Action.networkStatusChanged)
+        }
+    }
+
+    func monitorSystemThemeEffect() -> Effect<Action> {
+        .publisher { [systemThemeUseCase] in
+            systemThemeUseCase.observe()
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .map { .binding(.set(\.theme, $0)) }
+        }
+    }
+
+    func updateSystemThemeEffect(_ theme: SystemTheme) -> Effect<Action> {
+        .run { [updateSystemThemeUseCase] _ in
+            updateSystemThemeUseCase.execute(theme)
+        }
+    }
+
+    func fetchWebPageImageDirSizeEffect() -> Effect<Action> {
+        .run { [fetchWebPageImageDirSizeUseCase] send in
+            let dirSize = await fetchWebPageImageDirSizeUseCase.execute()
+            await send(.setDirSize(dirSize))
+        }
+    }
+
+    func clearWebPageImageDirectoryEffect() -> Effect<Action> {
+        .run { [clearWebPageImageDirectoryUseCase, fetchWebPageImageDirSizeUseCase] send in
+            do {
+                try await clearWebPageImageDirectoryUseCase.execute()
+                let dirSize = await fetchWebPageImageDirSizeUseCase.execute()
+                await send(.setDirSize(dirSize))
+            } catch {
+                await send(.setAlert(.error))
+            }
+        }
+    }
+
+    func deleteAuthEffect() -> Effect<Action> {
+        .run { [deleteAuthUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
+            do {
+                try await deleteAuthUseCase.execute()
+                await send(.loading(.end(target: .default, mode: .delayed)))
+            } catch {
+                await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.setAlert(.error))
+            }
+        }
+    }
+
+    func signOutEffect() -> Effect<Action> {
+        .run { [signOutUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
+            do {
+                try await signOutUseCase.execute()
+                await send(.loading(.end(target: .default, mode: .delayed)))
+            } catch {
+                await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.setAlert(.error))
+            }
+        }
+    }
+
+    func alertState(for type: Action.AlertType) -> AlertState<Action.Alert> {
+        switch type {
+        case .signOut:
+            return AlertState {
+                TextState(String(localized: "settings_alert_sign_out_title"))
+            } actions: {
+                ButtonState(role: .cancel) {
+                    TextState(String(localized: "common_cancel"))
+                }
+                ButtonState(role: .destructive, action: .tapSignOutButton) {
+                    TextState(String(localized: "common_confirm"))
+                }
+            } message: {
+                TextState(String(localized: "settings_alert_sign_out_message"))
+            }
+        case .deleteAuth:
+            return AlertState {
+                TextState(String(localized: "settings_alert_delete_account_title"))
+            } actions: {
+                ButtonState(role: .cancel) {
+                    TextState(String(localized: "common_cancel"))
+                }
+                ButtonState(role: .destructive, action: .tapDeleteAuthButton) {
+                    TextState(String(localized: "settings_delete_account_action"))
+                }
+            } message: {
+                TextState(String(localized: "settings_alert_delete_account_message"))
+            }
+        case .error:
+            return AlertState {
+                TextState(String(localized: "common_error_title"))
+            } actions: {
+                ButtonState(role: .cancel) {
+                    TextState(String(localized: "common_close"))
+                }
+            } message: {
+                TextState(String(localized: "common_error_message"))
+            }
+        case .removeCache:
+            return AlertState {
+                TextState(String(localized: "settings_alert_clear_temp_title"))
+            } actions: {
+                ButtonState(role: .cancel) {
+                    TextState(String(localized: "common_cancel"))
+                }
+                ButtonState(role: .destructive, action: .confirmRemoveCache) {
+                    TextState(String(localized: "common_confirm"))
+                }
+            } message: {
+                TextState(String(localized: "settings_alert_clear_temp_message"))
+            }
+        }
+    }
+}

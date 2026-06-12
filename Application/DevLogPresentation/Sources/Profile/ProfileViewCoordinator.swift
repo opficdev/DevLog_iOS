@@ -14,7 +14,7 @@ import DevLogDomain
 @Observable
 final class ProfileViewCoordinator {
     let viewModel: ProfileViewModel
-    let settingsViewModel: SettingsViewModel
+    let settingsStore: StoreOf<SettingsFeature>
     var router = NavigationRouter<ProfileRoute>()
     private let container: DIContainer
 
@@ -29,15 +29,18 @@ final class ProfileViewCoordinator {
             fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
             updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
         )
-        self.settingsViewModel = SettingsViewModel(
-            deleteAuthUseCase: container.resolve(DeleteAuthUseCase.self),
-            signOutUseCase: container.resolve(SignOutUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-            systemThemeUseCase: container.resolve(ObserveSystemThemeUseCase.self),
-            updateSystemThemeUseCase: container.resolve(UpdateSystemThemeUseCase.self),
-            fetchWebPageImageDirSizeUseCase: container.resolve(FetchWebPageImageDirSizeUseCase.self),
-            clearWebPageImageDirectoryUseCase: container.resolve(ClearWebPageImageDirectoryUseCase.self)
-        )
+        self.settingsStore = Store(initialState: SettingsFeature.State()) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.deleteAuthUseCase = container.resolve(DeleteAuthUseCase.self)
+            $0.signOutUseCase = container.resolve(SignOutUseCase.self)
+            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.systemThemeUseCase = container.resolve(ObserveSystemThemeUseCase.self)
+            $0.updateSystemThemeUseCase = container.resolve(UpdateSystemThemeUseCase.self)
+            $0.fetchWebPageImageDirSizeUseCase = container.resolve(FetchWebPageImageDirSizeUseCase.self)
+            $0.clearWebPageImageDirectoryUseCase = container.resolve(ClearWebPageImageDirectoryUseCase.self)
+        }
+        self.settingsStore.send(.startObserving)
     }
 
     func fetchData() {
