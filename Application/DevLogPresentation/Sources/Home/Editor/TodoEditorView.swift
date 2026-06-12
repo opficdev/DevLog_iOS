@@ -15,7 +15,7 @@ struct TodoEditorView: View {
     @Environment(\.diContainer) private var container: DIContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
-    @Bindable var store: StoreOf<TodoEditorFeature>
+    @State var store: StoreOf<TodoEditorFeature>
     @FocusState private var field: Field?
     private let calendar = Calendar.current
     var onCreateSuccess: (() -> Void)?
