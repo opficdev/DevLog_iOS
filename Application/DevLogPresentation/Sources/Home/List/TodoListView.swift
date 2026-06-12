@@ -52,21 +52,10 @@ struct TodoListView: View {
         }
         .alert($store.scope(state: \.alert, action: \.alert))
         .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
-        .fullScreenCover(isPresented: $store.showEditor) {
-            TodoEditorView(
-                store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
-                    TodoEditorFeature()
-                } withDependencies: {
-                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
-                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
-                },
-                onCreateSuccess: {
-                    store.send(.binding(.set(\.showEditor, false)))
-                    store.send(.refresh)
-                }
-            )
+        .fullScreenCover(
+            item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
+        ) { coverStore in
+            fullScreenCoverContent(coverStore)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -211,6 +200,29 @@ struct TodoListView: View {
             )
     }
 
+    @ViewBuilder
+    private func fullScreenCoverContent(
+        _ coverStore: Store<TodoListFeature.FullScreenCoverState, Never>
+    ) -> some View {
+        switch coverStore.destination {
+        case .editor:
+            TodoEditorView(
+                store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
+                    TodoEditorFeature()
+                } withDependencies: {
+                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+                },
+                onCreateSuccess: {
+                    store.send(.setFullScreenCover(nil))
+                    store.send(.refresh)
+                }
+            )
+        }
+    }
+
     private func openTodoEditor() {
         if isiOSAppOnMac {
             openWindow(
@@ -218,7 +230,7 @@ struct TodoListView: View {
                 value: TodoEditorWindowValue(todoCategory: store.category, source: .list)
             )
         } else {
-            store.send(.binding(.set(\.showEditor, true)))
+            store.send(.setFullScreenCover(.editor))
         }
     }
 

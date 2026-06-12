@@ -15,11 +15,11 @@ struct TodoListFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
+        @Presents var fullScreenCover: FullScreenCoverState?
         var category: TodoCategory
         var todos: [TodoListItem] = []
         var searchText = ""
         var searchResults: [TodoListItem] = []
-        var showEditor = false
         var isSearching = false
         var showAllSearchResults = false
         var query: TodoQuery
@@ -58,8 +58,8 @@ struct TodoListFeature {
             lhs.todos == rhs.todos &&
             lhs.searchText == rhs.searchText &&
             lhs.searchResults == rhs.searchResults &&
-            lhs.showEditor == rhs.showEditor &&
             lhs.alert == rhs.alert &&
+            lhs.fullScreenCover == rhs.fullScreenCover &&
             lhs.isSearching == rhs.isSearching &&
             lhs.showAllSearchResults == rhs.showAllSearchResults &&
             lhs.query == rhs.query &&
@@ -73,11 +73,24 @@ struct TodoListFeature {
         }
     }
 
+    @ObservableState
+    struct FullScreenCoverState: Equatable {
+        var destination: Destination
+
+        enum Destination: Equatable {
+            case editor
+        }
+
+        static let editor = Self(destination: .editor)
+    }
+
     enum Action: BindableAction {
         case alert(PresentationAction<Never>)
+        case fullScreenCover(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case refresh
         case setAlert(Bool)
+        case setFullScreenCover(FullScreenCoverState?)
         case swipeTodo(TodoListItem)
         case resetFilters
         case finishDeleteToast(String)
@@ -177,6 +190,10 @@ private extension TodoListFeature {
         switch action {
         case .alert:
             break
+        case .fullScreenCover(.dismiss):
+            state.fullScreenCover = nil
+        case .fullScreenCover:
+            break
         case .binding(\.searchText):
             return setSearchTextEffect(state: &state)
         case .binding(\.isSearching):
@@ -195,6 +212,8 @@ private extension TodoListFeature {
             return fetchEffect(query: state.query, cursor: nil)
         case .setAlert(let value):
             Self.setAlert(&state, isPresented: value)
+        case .setFullScreenCover(let cover):
+            state.fullScreenCover = cover
         case .swipeTodo(let todo):
             return swipeTodoEffect(todo, state: &state)
         case .resetFilters:

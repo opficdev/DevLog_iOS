@@ -125,6 +125,17 @@ struct TodoListFeatureTests {
         #expect(!adapter.isLoading)
     }
 
+    @Test("fullScreenCover 상태를 설정하고 dismiss 할 수 있다")
+    func fullScreenCover_상태를_설정하고_dismiss_할_수_있다() async {
+        let adapter = TodoListStoreTestAdapter()
+
+        await adapter.setFullScreenCover(.editor)
+        #expect(adapter.fullScreenCover == .editor)
+
+        await adapter.dismissFullScreenCover()
+        #expect(adapter.fullScreenCover == nil)
+    }
+
     @Test("swipeTodo는 Todo를 숨기고 undoDelete와 finishDeleteToast는 숨김 상태를 되돌리거나 제거한다")
     func swipeTodo는_Todo를_숨기고_undoDelete와_finishDeleteToast는_숨김_상태를_되돌리거나_제거한다() async {
         let todo = makeTodoListTodo(id: "todo-delete")
