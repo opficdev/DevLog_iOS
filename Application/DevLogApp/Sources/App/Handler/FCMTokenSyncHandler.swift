@@ -56,27 +56,25 @@ private extension FCMTokenSyncHandler {
                 return
             }
             notificationCenter.post(name: .didRequestRemoteNotificationRegistration, object: nil)
-            syncCurrentFCMToken()
+            await syncCurrentFCMToken()
         }
     }
 
     func handleAPNSToken(_ deviceToken: Data) {
         messagingService.setAPNSToken(deviceToken)
-        syncCurrentFCMToken()
+        Task { [weak self] in
+            await self?.syncCurrentFCMToken()
+        }
     }
 
-    func syncCurrentFCMToken() {
-        Task { [weak self] in
-            guard let self else { return }
-
-            do {
-                guard let fcmToken = try await messagingService.fetchFCMToken() else {
-                    return
-                }
-                try await userService.updateFCMToken(fcmToken)
-            } catch {
-                logger.error("Failed to sync current FCM token", error: error)
+    func syncCurrentFCMToken() async {
+        do {
+            guard let fcmToken = try await messagingService.fetchFCMToken() else {
+                return
             }
+            try await userService.updateFCMToken(fcmToken)
+        } catch {
+            logger.error("Failed to sync current FCM token", error: error)
         }
     }
 
