@@ -42,6 +42,7 @@ struct PushNotificationSettingsFeature {
         case binding(BindingAction<State>)
         case timePicker(PresentationAction<TimePicker>)
         case fetchSettings
+        case applyFetchedSettings(PushNotificationSettings)
         case setAlert
         case tapCustomTime
         case selectPresetTime(Date)
@@ -86,6 +87,13 @@ struct PushNotificationSettingsFeature {
                 break
             case .fetchSettings:
                 return fetchPushNotificationSettingsEffect()
+            case .applyFetchedSettings(let settings):
+                state.pushNotificationEnable = settings.isEnabled
+                if let hour = settings.scheduledTime.hour,
+                   let minute = settings.scheduledTime.minute,
+                   let date = Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) {
+                    state.viewPushNotificationTime = date
+                }
             case .setAlert:
                 state.alert = Self.alertState()
             case .tapCustomTime:
@@ -154,12 +162,7 @@ private extension PushNotificationSettingsFeature {
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 let settings = try await fetchPushSettingsUseCase.execute()
-                await send(.binding(.set(\.pushNotificationEnable, settings.isEnabled)))
-                if let hour = settings.scheduledTime.hour,
-                   let minute = settings.scheduledTime.minute,
-                   let date = Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) {
-                    await send(.binding(.set(\.viewPushNotificationTime, date)))
-                }
+                await send(.applyFetchedSettings(settings))
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
