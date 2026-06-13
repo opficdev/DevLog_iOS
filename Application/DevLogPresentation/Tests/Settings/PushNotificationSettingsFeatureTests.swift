@@ -19,21 +19,31 @@ struct PushNotificationSettingsFeatureTests {
             settings: makePushNotificationSettings(isEnabled: true, hour: 9, minute: 0)
         )
         let adapter = PushNotificationSettingsStoreTestAdapter(fetchUseCase: fetchSpy)
-
         await adapter.fetchSettings()
-
         #expect(adapter.pushNotificationEnable)
         #expect(adapter.pushNotificationHour == 9)
         #expect(adapter.pushNotificationMinute == 0)
         #expect(adapter.sheetPushNotificationTime == adapter.viewPushNotificationTime)
     }
 
+    @Test("fetchSettings는 서버 상태 반영 중 설정 업데이트를 다시 호출하지 않는다")
+    func fetchSettings는_서버_상태_반영_중_설정_업데이트를_다시_호출하지_않는다() async {
+        let fetchSpy = FetchPushSettingsUseCaseSpy(
+            settings: makePushNotificationSettings(isEnabled: true, hour: 9, minute: 0)
+        )
+        let updateSpy = UpdatePushSettingsUseCaseSpy()
+        let adapter = PushNotificationSettingsStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            updateUseCase: updateSpy
+        )
+        await adapter.fetchSettings()
+        #expect(updateSpy.executeCallCount == 0)
+    }
+
     @Test("setPushNotificationEnable은 활성화 상태를 변경한다")
     func setPushNotificationEnable은_활성화_상태를_변경한다() async {
         let adapter = PushNotificationSettingsStoreTestAdapter()
-
         await adapter.setPushNotificationEnable(true)
-
         #expect(adapter.pushNotificationEnable)
     }
 
@@ -41,9 +51,7 @@ struct PushNotificationSettingsFeatureTests {
     func selectPresetTime은_화면과_시트_시간을_함께_변경한다() async {
         let adapter = PushNotificationSettingsStoreTestAdapter()
         let date = makeDate(hour: 15, minute: 0)
-
         await adapter.selectPresetTime(date)
-
         #expect(adapter.viewPushNotificationTime == date)
         #expect(adapter.sheetPushNotificationTime == date)
         #expect(adapter.pushNotificationHour == 15)
@@ -54,10 +62,8 @@ struct PushNotificationSettingsFeatureTests {
     func setShowTimePicker는_현재_화면_시간으로_시트를_연다() async {
         let adapter = PushNotificationSettingsStoreTestAdapter()
         let date = makeDate(hour: 18, minute: 0)
-
         await adapter.setPushNotificationTime(view: date)
         await adapter.setShowTimePicker(true)
-
         #expect(adapter.showTimePicker)
         #expect(adapter.sheetPushNotificationTime == date)
     }
@@ -111,10 +117,8 @@ struct PushNotificationSettingsFeatureTests {
     @Test("setSheetHeight는 시트 높이 상태를 변경한다")
     func setSheetHeight는_시트_높이_상태를_변경한다() async {
         let adapter = PushNotificationSettingsStoreTestAdapter()
-
         await adapter.setShowTimePicker(true)
         await adapter.setSheetHeight(240)
-
         #expect(adapter.sheetHeight == 240)
     }
 
@@ -345,8 +349,10 @@ private final class FetchPushSettingsUseCaseSpy: FetchPushSettingsUseCase {
 
 private final class UpdatePushSettingsUseCaseSpy: UpdatePushSettingsUseCase {
     var error: Error?
+    private(set) var executeCallCount = 0
 
     func execute(_: PushNotificationSettings) async throws {
+        executeCallCount += 1
         if let error {
             self.error = nil
             throw error
@@ -374,12 +380,7 @@ private func makeDate(
     minute: Int
 ) -> Date {
     let baseDate = Date(timeIntervalSince1970: 0)
-    return Calendar.current.date(
-        bySettingHour: hour,
-        minute: minute,
-        second: 0,
-        of: baseDate
-    ) ?? baseDate
+    return Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: baseDate) ?? baseDate
 }
 
 private func expectedPushNotificationSettingsErrorAlert() -> AlertState<Never> {
