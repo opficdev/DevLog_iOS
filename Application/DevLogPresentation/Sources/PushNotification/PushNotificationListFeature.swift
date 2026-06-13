@@ -25,7 +25,6 @@ struct PushNotificationListFeature {
         var selectedTodoId: TodoIdItem?
         var loading = LoadingFeature.State()
         var undoNotificationId: String?
-        var deleteToastNotificationId: String?
 
         init(query: PushNotificationQuery = .default) {
             self.query = query
@@ -59,7 +58,6 @@ struct PushNotificationListFeature {
         case toggleRead(PushNotificationItem)
         case undoDelete
         case finishDeleteToast(String)
-        case presentedDeleteToast
         case setAlert
         case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
         case resetPagination
@@ -142,7 +140,6 @@ private extension PushNotificationListFeature {
         case .deleteNotification(let item):
             guard state.notifications.contains(where: { $0.id == item.id }) else { return .none }
             state.undoNotificationId = item.id
-            state.deleteToastNotificationId = item.id
             Self.setNotificationHidden(&state, notificationId: item.id, isHidden: true)
             return deleteNotificationEffect(item)
         case .toggleRead(let item):
@@ -161,8 +158,6 @@ private extension PushNotificationListFeature {
             if state.undoNotificationId == notificationId {
                 state.undoNotificationId = nil
             }
-        case .presentedDeleteToast:
-            state.deleteToastNotificationId = nil
         case .setAlert:
             state.alert = Self.alertState()
         case .appendNotifications(let notifications, let nextCursor):

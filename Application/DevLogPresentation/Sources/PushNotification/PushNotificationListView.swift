@@ -51,11 +51,6 @@ struct PushNotificationListView: View {
         .onChange(of: store.selectedTodoId?.id, initial: true) {
             store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
         }
-        .onChange(of: store.deleteToastNotificationId) { _, notificationId in
-            guard let notificationId else { return }
-            presentDeleteNotificationToast(notificationId)
-            store.send(.presentedDeleteToast)
-        }
         .overlay {
             if store.isLoading {
                 LoadingView()
@@ -323,6 +318,7 @@ struct PushNotificationListView: View {
                 role: .destructive,
                 action: {
                     store.send(.deleteNotification(item))
+                    presentDeleteNotificationToast(item.id)
                 }
             ) {
                 Image(systemName: "trash")

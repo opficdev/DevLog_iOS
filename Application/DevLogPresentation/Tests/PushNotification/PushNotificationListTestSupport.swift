@@ -190,10 +190,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
 
     func deleteNotification(_ item: PushNotificationItem) async {
         await store.send(.deleteNotification(item))
-        if let notificationId = store.state.deleteToastNotificationId {
-            presentDeleteNotificationToast(notificationId)
-            await store.send(.presentedDeleteToast)
-        }
+        presentDeleteNotificationToast(item.id)
         await drainReceivedActions()
     }
 
