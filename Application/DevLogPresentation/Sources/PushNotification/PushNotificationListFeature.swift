@@ -71,7 +71,7 @@ struct PushNotificationListFeature {
         case toggleUnreadOnly
         case resetFilters
         case selectNotification(String?)
-        case setSheet(SheetState?)
+        case syncSheetPresentation(isCompactLayout: Bool)
         case observeNotifications(PushNotificationQuery, Int)
         case loading(LoadingFeature.Action)
 
@@ -216,8 +216,12 @@ private extension PushNotificationListFeature {
             guard !item.isRead else { return .none }
             state.notifications[index].isRead = true
             return toggleReadEffect(item.todoId)
-        case .setSheet(let sheet):
-            state.sheet = sheet
+        case .syncSheetPresentation(let isCompactLayout):
+            if let todoId = state.selectedTodoId?.id, isCompactLayout {
+                state.sheet = .init(todoId: todoId)
+            } else {
+                state.sheet = nil
+            }
         case .observeNotifications(let query, let limit):
             return observeNotificationsEffect(query: query, limit: limit)
         case .loading:

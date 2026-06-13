@@ -100,17 +100,40 @@ struct PushNotificationListFeatureTests {
         )
     }
 
-    @Test("setSheet와 dismiss는 시트 상태를 제어한다")
-    func setSheet와_dismiss는_시트_상태를_제어한다() async {
-        let adapter = PushNotificationListStoreTestAdapter()
+    @Test("syncSheetPresentation은 layout에 따라 시트 상태를 동기화한다")
+    func syncSheetPresentation은_layout에_따라_시트_상태를_동기화한다() async throws {
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [
+            PushNotificationPage(
+                items: [
+                    makePushNotification(id: "notification-1", number: 1, isRead: true)
+                ],
+                nextCursor: nil
+            )
+        ])
+        let adapter = PushNotificationListStoreTestAdapter(fetchUseCase: fetchSpy)
 
-        await adapter.setSheet(.init(todoId: "todo-1"))
+        await adapter.fetchNotifications()
+        await adapter.selectNotification("notification-1")
+
+        await adapter.syncSheetPresentation(isCompactLayout: true)
+
+        #expect(adapter.sheetTodoId == "todo-1")
+
+        await adapter.syncSheetPresentation(isCompactLayout: false)
+
+        #expect(adapter.sheetTodoId == nil)
+        #expect(adapter.selectedNotificationId == "notification-1")
+        #expect(adapter.selectedTodoId?.id == "todo-1")
+
+        await adapter.syncSheetPresentation(isCompactLayout: true)
 
         #expect(adapter.sheetTodoId == "todo-1")
 
         await adapter.dismissSheet()
 
         #expect(adapter.sheetTodoId == nil)
+        #expect(adapter.selectedNotificationId == nil)
+        #expect(adapter.selectedTodoId == nil)
     }
 
     @Test("delete와 undoDelete는 숨김 상태와 최종 제거 상태를 제어한다")

@@ -42,8 +42,14 @@ struct PushNotificationListView: View {
                 .listStyle(.plain)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
-            sheetContent(sheetStore)
+        .sheet(item: sheetStore) { store in
+            sheetContent(store)
+        }
+        .task(id: isCompactLayout) {
+            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
+        }
+        .onChange(of: store.selectedTodoId?.id, initial: true) {
+            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
         }
         .onChange(of: store.deleteToastNotificationId) { _, notificationId in
             guard let notificationId else { return }
@@ -85,7 +91,7 @@ struct PushNotificationListView: View {
     ) -> some View {
         if isCompactLayout {
             Button {
-                selectNotification(notification.id)
+                store.send(.selectNotification(notification.id))
             } label: {
                 notificationRowContent(notification, index: index, notifications: notifications)
             }
@@ -93,11 +99,11 @@ struct PushNotificationListView: View {
         } else {
             notificationRowContent(notification, index: index, notifications: notifications)
                 .onTapGesture {
-                    selectNotification(notification.id)
+                    store.send(.selectNotification(notification.id))
                 }
                 .accessibilityAddTraits(.isButton)
                 .accessibilityAction {
-                    selectNotification(notification.id)
+                    store.send(.selectNotification(notification.id))
                 }
         }
     }
@@ -371,13 +377,13 @@ struct PushNotificationListView: View {
         .presentationDragIndicator(.visible)
     }
 
-    private func selectNotification(_ notificationId: String?) {
-        store.send(.selectNotification(notificationId))
-        guard isCompactLayout else { return }
-        if let todoId = store.selectedTodoId?.id {
-            store.send(.setSheet(.init(todoId: todoId)))
+    private var sheetStore: Binding<
+        Store<PushNotificationListFeature.SheetState,
+              PushNotificationListFeature.Action.Sheet>?> {
+        if isCompactLayout {
+            $store.scope(state: \.sheet, action: \.sheet)
         } else {
-            store.send(.setSheet(nil))
+            .constant(nil)
         }
     }
 
