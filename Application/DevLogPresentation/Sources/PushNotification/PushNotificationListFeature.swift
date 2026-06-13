@@ -1,0 +1,343 @@
+//
+//  PushNotificationListFeature.swift
+//  DevLogPresentation
+//
+//  Created by opfic on 6/12/26.
+//
+
+import Combine
+import ComposableArchitecture
+import DevLogCore
+import DevLogDomain
+import Foundation
+
+@Reducer
+struct PushNotificationListFeature {
+    @ObservableState
+    struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
+        var notifications: [PushNotificationItem] = []
+        var hasMore = false
+        var nextCursor: PushNotificationCursor?
+        var query: PushNotificationQuery
+        var selectedNotificationId: String?
+        var selectedTodoId: TodoIdItem?
+        var loading = LoadingFeature.State()
+        var undoNotificationId: String?
+        var deleteToastNotificationId: String?
+
+        init(query: PushNotificationQuery = .default) {
+            self.query = query
+        }
+
+        var isLoading: Bool {
+            loading.isLoading
+        }
+
+        var appliedFilterCount: Int {
+            var count = 0
+            if query.sortOrder != .latest { count += 1 }
+            if query.timeFilter != .none { count += 1 }
+            if query.unreadOnly { count += 1 }
+            return count
+        }
+    }
+
+    enum Action {
+        case alert(PresentationAction<Never>)
+        case fetchNotifications
+        case loadNextPage
+        case deleteNotification(PushNotificationItem)
+        case toggleRead(PushNotificationItem)
+        case undoDelete
+        case finishDeleteToast(String)
+        case presentedDeleteToast
+        case setAlert
+        case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
+        case resetPagination
+        case setHasMore(Bool)
+        case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
+        case setNotificationHidden(String, Bool)
+        case toggleSortOption
+        case setTimeFilter(PushNotificationQuery.TimeFilter)
+        case toggleUnreadOnly
+        case resetFilters
+        case selectNotification(String?)
+        case observeNotifications(PushNotificationQuery, Int)
+        case loading(LoadingFeature.Action)
+    }
+
+    enum CancelID: Hashable {
+        case fetchNotifications
+        case observeNotifications
+        case toggleRead
+    }
+
+    @Dependency(\.fetchPushNotificationsUseCase) var fetchPushNotificationsUseCase
+    @Dependency(\.deletePushNotificationUseCase) var deletePushNotificationUseCase
+    @Dependency(\.undoDeletePushNotificationUseCase) var undoDeletePushNotificationUseCase
+    @Dependency(\.togglePushNotificationReadUseCase) var togglePushNotificationReadUseCase
+    @Dependency(\.updatePushNotificationQueryUseCase) var updatePushNotificationQueryUseCase
+
+    var body: some ReducerOf<Self> {
+        Scope(state: \.loading, action: \.loading) {
+            LoadingFeature()
+        }
+        Reduce { state, action in
+            reduce(action, state: &state)
+        }
+        .ifLet(\.$alert, action: \.alert)
+    }
+}
+
+private extension PushNotificationListFeature {
+    func reduce(
+        _ action: Action,
+        state: inout State
+    ) -> Effect<Action> {
+        switch action {
+        case .alert:
+            break
+        case .fetchNotifications:
+            state.nextCursor = nil
+            return fetchNotificationsEffect(query: state.query, cursor: nil, existingCount: 0)
+        case .loadNextPage:
+            guard state.hasMore, !state.isLoading else { return .none }
+            return fetchNotificationsEffect(
+                query: state.query,
+                cursor: state.nextCursor,
+                existingCount: state.notifications.count
+            )
+        case .deleteNotification(let item):
+            guard state.notifications.contains(where: { $0.id == item.id }) else { return .none }
+            state.undoNotificationId = item.id
+            state.deleteToastNotificationId = item.id
+            Self.setNotificationHidden(&state, notificationId: item.id, isHidden: true)
+            return deleteNotificationEffect(item)
+        case .toggleRead(let item):
+            guard let index = state.notifications.firstIndex(where: { $0.id == item.id }) else {
+                return .none
+            }
+            state.notifications[index].isRead.toggle()
+            return toggleReadEffect(item.todoId)
+        case .undoDelete:
+            guard let undoNotificationId = state.undoNotificationId else { return .none }
+            Self.setNotificationHidden(&state, notificationId: undoNotificationId, isHidden: false)
+            state.undoNotificationId = nil
+            return undoDeleteEffect(undoNotificationId)
+        case .finishDeleteToast(let notificationId):
+            state.notifications.removeAll { $0.id == notificationId && $0.isHidden }
+            if state.undoNotificationId == notificationId {
+                state.undoNotificationId = nil
+            }
+        case .presentedDeleteToast:
+            state.deleteToastNotificationId = nil
+        case .setAlert:
+            state.alert = Self.alertState()
+        case .appendNotifications(let notifications, let nextCursor):
+            state.notifications.append(contentsOf: Self.mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            ))
+            state.nextCursor = nextCursor
+        case .resetPagination:
+            state.notifications = []
+            state.nextCursor = nil
+        case .setHasMore(let value):
+            state.hasMore = value
+        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+            state.notifications = Self.mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            )
+            state.nextCursor = nextCursor
+            state.hasMore = hasMore
+        case .setNotificationHidden(let notificationId, let isHidden):
+            Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
+        case .toggleSortOption:
+            state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
+            state.nextCursor = nil
+            return refreshForQueryChangeEffect(query: state.query)
+        case .setTimeFilter(let filter):
+            state.query.timeFilter = filter
+            state.nextCursor = nil
+            return refreshForQueryChangeEffect(query: state.query)
+        case .toggleUnreadOnly:
+            state.query.unreadOnly.toggle()
+            state.nextCursor = nil
+            return refreshForQueryChangeEffect(query: state.query)
+        case .resetFilters:
+            state.query = .default
+            state.nextCursor = nil
+            return refreshForQueryChangeEffect(query: state.query)
+        case .selectNotification(let notificationId):
+            state.selectedNotificationId = notificationId
+            guard let notificationId else {
+                state.selectedTodoId = nil
+                return .none
+            }
+            guard let index = state.notifications.firstIndex(where: { $0.id == notificationId }) else {
+                state.selectedTodoId = nil
+                return .none
+            }
+            let item = state.notifications[index]
+            state.selectedTodoId = TodoIdItem(id: item.todoId)
+            guard !item.isRead else { return .none }
+            state.notifications[index].isRead = true
+            return toggleReadEffect(item.todoId)
+        case .observeNotifications(let query, let limit):
+            return observeNotificationsEffect(query: query, limit: limit)
+        case .loading:
+            break
+        }
+
+        return .none
+    }
+
+    func refreshForQueryChangeEffect(query: PushNotificationQuery) -> Effect<Action> {
+        .merge(
+            updateQueryEffect(query: query),
+            fetchNotificationsEffect(query: query, cursor: nil, existingCount: 0)
+        )
+    }
+
+    func fetchNotificationsEffect(
+        query: PushNotificationQuery,
+        cursor: PushNotificationCursor?,
+        existingCount: Int
+    ) -> Effect<Action> {
+        let limit = max(query.pageSize, existingCount)
+        let fetchEffect: Effect<Action> = .run { [fetchPushNotificationsUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
+            do {
+                let page = try await fetchPushNotificationsUseCase.execute(query, cursor: cursor)
+                if cursor == nil {
+                    await send(.resetPagination)
+                }
+                await send(
+                    .appendNotifications(
+                        page.items.map(PushNotificationItem.init(from:)),
+                        nextCursor: page.nextCursor
+                    )
+                )
+                await send(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil))
+                await send(.observeNotifications(query, max(limit, existingCount + page.items.count)))
+                await send(.loading(.end(target: .default, mode: .delayed)))
+            } catch {
+                await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.setAlert)
+            }
+        }
+        .cancellable(id: CancelID.fetchNotifications, cancelInFlight: true)
+
+        if cursor == nil {
+            return .concatenate(
+                .cancel(id: CancelID.observeNotifications),
+                fetchEffect
+            )
+        }
+
+        return fetchEffect
+    }
+
+    func observeNotificationsEffect(
+        query: PushNotificationQuery,
+        limit: Int
+    ) -> Effect<Action> {
+        .run { [fetchPushNotificationsUseCase] send in
+            do {
+                let publisher = try fetchPushNotificationsUseCase.observe(query, limit: limit)
+                for try await page in publisher.values {
+                    let items = page.items.map(PushNotificationItem.init(from:))
+                    let hasMore = items.count == max(query.pageSize, limit) && page.nextCursor != nil
+                    await send(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore))
+                }
+            } catch is CancellationError {
+            } catch {
+                await send(.setAlert)
+            }
+        }
+        .cancellable(id: CancelID.observeNotifications, cancelInFlight: true)
+    }
+
+    func deleteNotificationEffect(_ item: PushNotificationItem) -> Effect<Action> {
+        .run { [deletePushNotificationUseCase] send in
+            do {
+                try await deletePushNotificationUseCase.execute(item.id)
+            } catch {
+                await send(.setNotificationHidden(item.id, false))
+                await send(.setAlert)
+            }
+        }
+    }
+
+    func undoDeleteEffect(_ notificationId: String) -> Effect<Action> {
+        .run { [undoDeletePushNotificationUseCase] send in
+            do {
+                try await undoDeletePushNotificationUseCase.execute(notificationId)
+            } catch {
+                await send(.setNotificationHidden(notificationId, true))
+                await send(.setAlert)
+            }
+        }
+    }
+
+    func toggleReadEffect(_ todoId: String) -> Effect<Action> {
+        .run { [togglePushNotificationReadUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
+            do {
+                try await togglePushNotificationReadUseCase.execute(todoId)
+                await send(.loading(.end(target: .default, mode: .delayed)))
+            } catch {
+                await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.setAlert)
+            }
+        }
+        .cancellable(id: CancelID.toggleRead, cancelInFlight: true)
+    }
+
+    func updateQueryEffect(query: PushNotificationQuery) -> Effect<Action> {
+        .run { [updatePushNotificationQueryUseCase] _ in
+            updatePushNotificationQueryUseCase.execute(query)
+        }
+    }
+
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "common_error_message"))
+        }
+    }
+
+    static func setNotificationHidden(
+        _ state: inout State,
+        notificationId: String,
+        isHidden: Bool
+    ) {
+        if let index = state.notifications.firstIndex(where: { $0.id == notificationId }) {
+            state.notifications[index].isHidden = isHidden
+        }
+    }
+
+    static func mergedHiddenNotifications(
+        currentNotifications: [PushNotificationItem],
+        incomingNotifications: [PushNotificationItem]
+    ) -> [PushNotificationItem] {
+        let hiddenNotificationIds = Set(currentNotifications.filter(\.isHidden).map(\.id))
+
+        return incomingNotifications.map { notification in
+            guard hiddenNotificationIds.contains(notification.id) else {
+                return notification
+            }
+
+            var hiddenNotification = notification
+            hiddenNotification.isHidden = true
+            return hiddenNotification
+        }
+    }
+}

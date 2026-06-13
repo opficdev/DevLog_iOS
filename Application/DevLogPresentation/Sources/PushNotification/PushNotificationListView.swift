@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
-import DevLogDomain
 
 struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -15,11 +15,17 @@ struct PushNotificationListView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
+    @State private var store: StoreOf<PushNotificationListFeature>
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
 
-    private var viewModel: PushNotificationListViewModel {
-        coordinator.viewModel
+    init(
+        coordinator: PushNotificationListViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+        self._store = State(initialValue: coordinator.store)
     }
 
     var body: some View {
@@ -32,19 +38,15 @@ struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { viewModel.send(.fetchNotifications) }
+                .refreshable { store.send(.fetchNotifications) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert(isPresented: $0)) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .onChange(of: store.deleteToastNotificationId) { _, notificationId in
+            guard let notificationId else { return }
+            presentDeleteNotificationToast(notificationId)
+            store.send(.presentedDeleteToast)
         }
         .sheet(item: Binding(
             get: { isCompactLayout ? coordinator.todoIdToPresent : nil },
@@ -56,7 +58,7 @@ struct PushNotificationListView: View {
         )) { item in
             NavigationStack {
                 TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: item.id))
-                .id(item.id)
+                    .id(item.id)
                 .toolbar {
                     ToolbarLeadingButton {
                         selectNotification(nil)
@@ -67,7 +69,7 @@ struct PushNotificationListView: View {
             .presentationDragIndicator(.visible)
         }
         .overlay {
-            if viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
@@ -75,7 +77,7 @@ struct PushNotificationListView: View {
 
     @ViewBuilder
     private var notificationList: some View {
-        let notifications = viewModel.state.notifications.filter { !$0.isHidden }
+        let notifications = store.notifications.filter { !$0.isHidden }
         if notifications.isEmpty {
             Text(String(localized: "push_notifications_empty"))
                 .foregroundStyle(Color.gray)
@@ -125,12 +127,12 @@ struct PushNotificationListView: View {
     ) -> some View {
         notificationRow(
             notification,
-            isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
+            isSelected: !isCompactLayout && store.selectedNotificationId == notification.id
         )
         .onAppear {
             let lastId = notifications.last?.id
-            if notification.id == lastId, viewModel.state.hasMore {
-                viewModel.send(.loadNextPage)
+            if notification.id == lastId, store.hasMore {
+                store.send(.loadNextPage)
             }
         }
         .overlay(alignment: .top) {
@@ -186,16 +188,16 @@ struct PushNotificationListView: View {
 
     private var headerContent: some View {
         HStack(spacing: 8) {
-            if 0 < viewModel.appliedFilterCount {
+            if 0 < store.appliedFilterCount {
                 Menu {
                     Text(
                         String.localizedStringWithFormat(
                             String(localized: "push_filters_applied_format"),
-                            Int64(viewModel.appliedFilterCount)
+                            Int64(store.appliedFilterCount)
                         )
                     )
                     Button(role: .destructive) {
-                        viewModel.send(.resetFilters)
+                        store.send(.resetFilters)
                     } label: {
                         Text(String(localized: "push_clear_all_filters"))
                     }
@@ -210,14 +212,14 @@ struct PushNotificationListView: View {
 
             Button {
                 DispatchQueue.main.async {
-                    viewModel.send(.toggleSortOption)
+                    store.send(.toggleSortOption)
                 }
             } label: {
-                let condition = viewModel.state.query.sortOrder == .oldest
+                let condition = store.query.sortOrder == .oldest
                 Text(
                     String.localizedStringWithFormat(
                         String(localized: "push_sort_format"),
-                        viewModel.state.query.sortOrder.title
+                        store.query.sortOrder.title
                     )
                 )
                 .foregroundStyle(condition ? .white : Color(.label))
@@ -226,8 +228,8 @@ struct PushNotificationListView: View {
 
             Menu {
                 Picker(selection: Binding(
-                    get: { viewModel.state.query.timeFilter },
-                    set: { viewModel.send(.setTimeFilter($0)) }
+                    get: { store.query.timeFilter },
+                    set: { store.send(.setTimeFilter($0)) }
                 )) {
                     ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
                         Text(option.title).tag(option)
@@ -236,7 +238,7 @@ struct PushNotificationListView: View {
                     Text(String(localized: "push_period"))
                 }
             } label: {
-                let condition = viewModel.state.query.timeFilter == .none
+                let condition = store.query.timeFilter == .none
                 HStack {
                     Text(String(localized: "push_period"))
                     Image(systemName: "chevron.down")
@@ -247,10 +249,10 @@ struct PushNotificationListView: View {
 
             Button {
                 DispatchQueue.main.async {
-                    viewModel.send(.toggleUnreadOnly)
+                    store.send(.toggleUnreadOnly)
                 }
             } label: {
-                let condition = viewModel.state.query.unreadOnly
+                let condition = store.query.unreadOnly
                 Text(String(localized: "push_unread"))
                     .foregroundStyle(condition ? .white : Color(.label))
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
@@ -264,7 +266,7 @@ struct PushNotificationListView: View {
         let textColor: Color = isDark ? blue : .white
         let backgroundColor: Color = isDark ? .white : blue
 
-        return Text("\(viewModel.appliedFilterCount)")
+        return Text("\(store.appliedFilterCount)")
             .font(.caption2.weight(.bold))
             .foregroundColor(textColor)
             .lineLimit(1)
@@ -322,7 +324,7 @@ struct PushNotificationListView: View {
         }
         .swipeActions(edge: .leading) {
             Button {
-                viewModel.send(.toggleRead(item))
+                store.send(.toggleRead(item))
             } label: {
                 Image(systemName: "checkmark.circle\(item.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)
@@ -332,7 +334,7 @@ struct PushNotificationListView: View {
             Button(
                 role: .destructive,
                 action: {
-                    viewModel.send(.deleteNotification(item))
+                    store.send(.deleteNotification(item))
                 }
             ) {
                 Image(systemName: "trash")
@@ -371,7 +373,24 @@ struct PushNotificationListView: View {
     }
 
     private func selectNotification(_ notificationId: String?) {
-        viewModel.send(.selectNotification(notificationId))
-        coordinator.todoIdToPresent = viewModel.state.selectedTodoId
+        store.send(.selectNotification(notificationId))
+        coordinator.todoIdToPresent = store.selectedTodoId
+    }
+
+    private func presentDeleteNotificationToast(_ notificationId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            lineLimit: 3,
+            action: {
+                store.send(.undoDelete)
+            },
+            onDismiss: {
+                store.send(.finishDeleteToast(notificationId))
+            }
+        )
     }
 }

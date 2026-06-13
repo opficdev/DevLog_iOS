@@ -13,7 +13,7 @@ import DevLogDomain
 @MainActor
 @Observable
 final class PushNotificationListViewCoordinator {
-    let viewModel: PushNotificationListViewModel
+    let store: StoreOf<PushNotificationListFeature>
     var todoIdToPresent: TodoIdItem?
     private let container: DIContainer
     @ObservationIgnored
@@ -21,18 +21,25 @@ final class PushNotificationListViewCoordinator {
 
     init(container: DIContainer) {
         self.container = container
-        self.viewModel = PushNotificationListViewModel(
-            fetchUseCase: container.resolve(FetchPushNotificationsUseCase.self),
-            deleteUseCase: container.resolve(DeletePushNotificationUseCase.self),
-            undoDeleteUseCase: container.resolve(UndoDeletePushNotificationUseCase.self),
-            toggleReadUseCase: container.resolve(TogglePushNotificationReadUseCase.self),
-            fetchQueryUseCase: container.resolve(FetchPushNotificationQueryUseCase.self),
-            updateQueryUseCase: container.resolve(UpdatePushNotificationQueryUseCase.self)
-        )
+        let fetchQueryUseCase = container.resolve(FetchPushNotificationQueryUseCase.self)
+
+        self.store = Store(
+            initialState: PushNotificationListFeature.State(
+                query: fetchQueryUseCase.execute()
+            )
+        ) {
+            PushNotificationListFeature()
+        } withDependencies: {
+            $0.fetchPushNotificationsUseCase = container.resolve(FetchPushNotificationsUseCase.self)
+            $0.deletePushNotificationUseCase = container.resolve(DeletePushNotificationUseCase.self)
+            $0.undoDeletePushNotificationUseCase = container.resolve(UndoDeletePushNotificationUseCase.self)
+            $0.togglePushNotificationReadUseCase = container.resolve(TogglePushNotificationReadUseCase.self)
+            $0.updatePushNotificationQueryUseCase = container.resolve(UpdatePushNotificationQueryUseCase.self)
+        }
     }
 
     func fetchData() {
-        viewModel.send(.fetchNotifications)
+        store.send(.fetchNotifications)
     }
 
     func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
