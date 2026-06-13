@@ -3,19 +3,19 @@ import ProjectDescription
 public enum DevLogPackages {
     public static let markdownUIPackage: Package = .package(
         url: "https://github.com/gonzalezreal/swift-markdown-ui.git",
-        .upToNextMajor(from: "2.4.1")
+        .exact("2.4.1")
     )
     public static let swiftCollectionsPackage: Package = .package(
         url: "https://github.com/apple/swift-collections.git",
-        .upToNextMajor(from: "1.3.0")
+        .exact("1.3.0")
     )
     public static let composableArchitecturePackage: Package = .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
-        .upToNextMinor(from: "1.25.5")
+        .exact("1.25.5")
     )
     public static let firebasePackage: Package = .package(
         url: "https://github.com/firebase/firebase-ios-sdk",
-        .upToNextMajor(from: "11.15.0")
+        .exact("11.15.0")
     )
     public static let googleSignInPackage: Package = .package(
         url: "https://github.com/google/GoogleSignIn-iOS",
