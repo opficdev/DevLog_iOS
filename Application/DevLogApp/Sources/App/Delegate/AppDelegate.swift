@@ -77,9 +77,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NotificationCenter.default.post(name: .didRequestFCMTokenSync, object: nil)
     }
 
-    @MainActor
     @objc private func handleRemoteNotificationRegistrationRequest() {
-        UIApplication.shared.registerForRemoteNotifications()
+        Task { @MainActor in
+            UIApplication.shared.registerForRemoteNotifications()
+        }
     }
 
     // APNs 등록 성공
