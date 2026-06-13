@@ -309,7 +309,7 @@ struct MainView: View {
 
     @ViewBuilder
     private var notificationRegularDetailView: some View {
-        if let todoId = pushNotificationListViewCoordinator.todoIdToPresent?.id {
+        if let todoId = pushNotificationListViewCoordinator.store.selectedTodoId?.id {
             TodoDetailView(
                 store: pushNotificationListViewCoordinator.makeTodoDetailStore(
                     todoId: todoId

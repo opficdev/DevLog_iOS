@@ -100,6 +100,19 @@ struct PushNotificationListFeatureTests {
         )
     }
 
+    @Test("setSheet와 dismiss는 시트 상태를 제어한다")
+    func setSheet와_dismiss는_시트_상태를_제어한다() async {
+        let adapter = PushNotificationListStoreTestAdapter()
+
+        await adapter.setSheet(.init(todoId: "todo-1"))
+
+        #expect(adapter.sheetTodoId == "todo-1")
+
+        await adapter.dismissSheet()
+
+        #expect(adapter.sheetTodoId == nil)
+    }
+
     @Test("delete와 undoDelete는 숨김 상태와 최종 제거 상태를 제어한다")
     func delete와_undoDelete는_숨김_상태와_최종_제거_상태를_제어한다() async throws {
         let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [

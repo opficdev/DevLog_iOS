@@ -18,7 +18,6 @@ struct PushNotificationListView: View {
     @State private var store: StoreOf<PushNotificationListFeature>
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
-
     init(
         coordinator: PushNotificationListViewCoordinator,
         isCompactLayout: Bool
@@ -43,30 +42,13 @@ struct PushNotificationListView: View {
                 .listStyle(.plain)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+            sheetContent(sheetStore)
+        }
         .onChange(of: store.deleteToastNotificationId) { _, notificationId in
             guard let notificationId else { return }
             presentDeleteNotificationToast(notificationId)
             store.send(.presentedDeleteToast)
-        }
-        .sheet(item: Binding(
-            get: { isCompactLayout ? coordinator.todoIdToPresent : nil },
-            set: { item in
-                if item == nil {
-                    selectNotification(nil)
-                }
-            }
-        )) { item in
-            NavigationStack {
-                TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: item.id))
-                    .id(item.id)
-                .toolbar {
-                    ToolbarLeadingButton {
-                        selectNotification(nil)
-                    }
-                }
-            }
-            .background(Color(.systemGroupedBackground))
-            .presentationDragIndicator(.visible)
         }
         .overlay {
             if store.isLoading {
@@ -372,9 +354,31 @@ struct PushNotificationListView: View {
         }
     }
 
+    @ViewBuilder
+    private func sheetContent(
+        _ sheetStore: Store<PushNotificationListFeature.SheetState, PushNotificationListFeature.Action.Sheet>
+    ) -> some View {
+        NavigationStack {
+            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: sheetStore.todoId))
+                .id(sheetStore.todoId)
+                .toolbar {
+                    ToolbarLeadingButton {
+                        sheetStore.send(.tapCloseButton)
+                    }
+                }
+        }
+        .background(Color(.systemGroupedBackground))
+        .presentationDragIndicator(.visible)
+    }
+
     private func selectNotification(_ notificationId: String?) {
         store.send(.selectNotification(notificationId))
-        coordinator.todoIdToPresent = store.selectedTodoId
+        guard isCompactLayout else { return }
+        if let todoId = store.selectedTodoId?.id {
+            store.send(.setSheet(.init(todoId: todoId)))
+        } else {
+            store.send(.setSheet(nil))
+        }
     }
 
     private func presentDeleteNotificationToast(_ notificationId: String) {

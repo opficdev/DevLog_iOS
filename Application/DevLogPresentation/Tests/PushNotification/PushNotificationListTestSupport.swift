@@ -119,6 +119,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
     var selectedNotificationId: String? { store.state.selectedNotificationId }
     var selectedTodoId: TodoIdItem? { store.state.selectedTodoId }
     var appliedFilterCount: Int { store.state.appliedFilterCount }
+    var sheetTodoId: String? { store.state.sheet?.todoId }
 
     init(
         fetchUseCase: FetchPushNotificationsUseCase = PushNotificationListFetchUseCaseSpy(),
@@ -203,6 +204,14 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
 
     func finishDeleteToast(_ notificationId: String) async {
         await store.send(.finishDeleteToast(notificationId))
+    }
+
+    func setSheet(_ sheet: PushNotificationListFeature.SheetState?) async {
+        await store.send(.setSheet(sheet))
+    }
+
+    func dismissSheet() async {
+        await store.send(.sheet(.dismiss))
     }
 
     private func presentDeleteNotificationToast(_ notificationId: String) {

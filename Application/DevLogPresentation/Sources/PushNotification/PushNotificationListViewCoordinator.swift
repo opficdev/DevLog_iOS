@@ -14,7 +14,6 @@ import DevLogDomain
 @Observable
 final class PushNotificationListViewCoordinator {
     let store: StoreOf<PushNotificationListFeature>
-    var todoIdToPresent: TodoIdItem?
     private let container: DIContainer
     @ObservationIgnored
     private var todoDetailStore: StoreOf<TodoDetailFeature>?

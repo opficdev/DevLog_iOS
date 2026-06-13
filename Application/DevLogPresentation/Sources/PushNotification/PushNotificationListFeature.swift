@@ -16,6 +16,7 @@ struct PushNotificationListFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
+        @Presents var sheet: SheetState?
         var notifications: [PushNotificationItem] = []
         var hasMore = false
         var nextCursor: PushNotificationCursor?
@@ -43,8 +44,15 @@ struct PushNotificationListFeature {
         }
     }
 
+    @ObservableState
+    struct SheetState: Equatable, Identifiable {
+        let todoId: String
+        var id: String { todoId }
+    }
+
     enum Action {
         case alert(PresentationAction<Never>)
+        case sheet(PresentationAction<Sheet>)
         case fetchNotifications
         case loadNextPage
         case deleteNotification(PushNotificationItem)
@@ -63,8 +71,13 @@ struct PushNotificationListFeature {
         case toggleUnreadOnly
         case resetFilters
         case selectNotification(String?)
+        case setSheet(SheetState?)
         case observeNotifications(PushNotificationQuery, Int)
         case loading(LoadingFeature.Action)
+
+        enum Sheet: Equatable {
+            case tapCloseButton
+        }
     }
 
     enum CancelID: Hashable {
@@ -87,6 +100,18 @@ struct PushNotificationListFeature {
             reduce(action, state: &state)
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$sheet, action: \.sheet) {
+            PushNotificationListSheetFeature()
+        }
+    }
+}
+
+private struct PushNotificationListSheetFeature: Reducer {
+    typealias State = PushNotificationListFeature.SheetState
+    typealias Action = PushNotificationListFeature.Action.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
     }
 }
 
@@ -97,6 +122,12 @@ private extension PushNotificationListFeature {
     ) -> Effect<Action> {
         switch action {
         case .alert:
+            break
+        case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
+            state.sheet = nil
+            state.selectedNotificationId = nil
+            state.selectedTodoId = nil
+        case .sheet:
             break
         case .fetchNotifications:
             state.nextCursor = nil
@@ -185,6 +216,8 @@ private extension PushNotificationListFeature {
             guard !item.isRead else { return .none }
             state.notifications[index].isRead = true
             return toggleReadEffect(item.todoId)
+        case .setSheet(let sheet):
+            state.sheet = sheet
         case .observeNotifications(let query, let limit):
             return observeNotificationsEffect(query: query, limit: limit)
         case .loading:
