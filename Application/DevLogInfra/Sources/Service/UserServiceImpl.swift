@@ -77,10 +77,9 @@ final class UserServiceImpl: UserService {
                 merge: true
             )
             async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
-            async let tokensUpdate: Void? = {
-                guard !settingFieldSnapshot.isEmpty else { return nil }
+            async let tokensUpdate: Void = {
+                guard !settingFieldSnapshot.isEmpty else { return }
                 try await tokensRef.setData(settingFieldSnapshot, merge: true)
-                return nil
             }()
 
             let settingsDocument = try await settingsRef.getDocument()
