@@ -56,7 +56,11 @@ final class UserServiceImpl: UserService {
                 userField["createdAt"] = FieldValue.serverTimestamp()
             }
 
-            var settingField = ["fcmToken": response.fcmToken]
+            var settingField: [String: Any] = [:]
+
+            if let fcmToken = response.fcmToken {
+                settingField["fcmToken"] = fcmToken
+            }
 
             // 깃헙 로그인 시 추가 정보 저장
             if response.providerID == "github.com", let accessToken = response.accessToken {
@@ -73,7 +77,10 @@ final class UserServiceImpl: UserService {
                 merge: true
             )
             async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
-            async let tokensUpdate: Void = tokensRef.setData(settingFieldSnapshot, merge: true)
+            async let tokensUpdate: Void = {
+                guard !settingFieldSnapshot.isEmpty else { return }
+                try await tokensRef.setData(settingFieldSnapshot, merge: true)
+            }()
 
             let settingsDocument = try await settingsRef.getDocument()
             var settingsField: [String: Any] = [

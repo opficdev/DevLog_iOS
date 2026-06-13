@@ -12,6 +12,7 @@ final class AppLayerAssembler: Assembler {
     func assemble(_ container: any DIContainer) {
         container.register(FCMTokenSyncHandler.self) {
             FCMTokenSyncHandler(
+                messagingService: container.resolve(PushMessagingService.self),
                 userService: container.resolve(UserService.self)
             )
         }

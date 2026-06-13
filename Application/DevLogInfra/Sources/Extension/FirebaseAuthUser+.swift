@@ -12,7 +12,6 @@ import DevLogData
 extension FirebaseAuth.User {
     func makeResponse(
         providerID: AuthProviderID,
-        fcmToken: String,
         accessToken: String? = nil
     ) -> AuthDataResponse {
         return AuthDataResponse(
@@ -21,7 +20,6 @@ extension FirebaseAuth.User {
             email: self.email,
             providers: self.providerData.map { $0.providerID },
             providerID: providerID.rawValue,
-            fcmToken: fcmToken,
             accessToken: accessToken
         )
     }

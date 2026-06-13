@@ -51,10 +51,8 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
                 try await changeRequest.commitChanges()
             }
 
-            let fcmToken = try await messaging.token()
-
             logger.info("Successfully signed in with Google")
-            return result.user.makeResponse(providerID: .google, fcmToken: fcmToken)
+            return result.user.makeResponse(providerID: .google)
         } catch {
             logger.error("Failed to sign in with Google", error: error)
             throw error

@@ -90,10 +90,8 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
                 try await result.user.link(with: appleCredential)
             }
 
-            let fcmToken = try await messaging.token()
-
             logger.info("Successfully signed in with Apple")
-            return result.user.makeResponse(providerID: .apple, fcmToken: fcmToken)
+            return result.user.makeResponse(providerID: .apple)
         } catch {
             logger.error("Failed to sign in with Apple", error: error)
             throw error

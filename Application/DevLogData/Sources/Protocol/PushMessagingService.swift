@@ -10,6 +10,8 @@ import Foundation
 public protocol PushMessagingService: AnyObject {
     func setDelegate(_ delegate: PushMessagingServiceDelegate?)
     func setAPNSToken(_ deviceToken: Data)
+    func isNotificationAuthorized() async -> Bool
+    func fetchFCMToken() async throws -> String?
 }
 
 public protocol PushMessagingServiceDelegate: AnyObject {

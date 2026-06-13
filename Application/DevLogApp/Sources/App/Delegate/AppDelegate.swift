@@ -32,6 +32,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = container.resolve(UserTimeZoneSyncHandler.self)
         _ = container.resolve(WidgetSyncEventHandler.self)
         _ = container.resolve(WidgetSessionSyncHandler.self)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSceneDidActivate),
+            name: UIScene.didActivateNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRemoteNotificationRegistrationRequest),
+            name: .didRequestRemoteNotificationRegistration,
+            object: nil
+        )
 
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self
@@ -40,9 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 self.logger.error("Notification authorization error", error: error)
             } else {
                 self.logger.info("Notification permission granted: \(granted)")
-                DispatchQueue.main.async {
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
+                NotificationCenter.default.post(name: .didRequestFCMTokenSync, object: nil)
             }
         }
 
@@ -63,13 +73,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    @objc private func handleSceneDidActivate() {
+        NotificationCenter.default.post(name: .didRequestFCMTokenSync, object: nil)
+    }
+
+    @objc private func handleRemoteNotificationRegistrationRequest() {
+        Task { @MainActor in
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+    }
+
     // APNs 등록 성공
     func application(
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         logger.info("APNs token: \(deviceToken.map { String(format: "%02.2hhx", $0) }.joined())")
-        container.resolve(PushMessagingService.self).setAPNSToken(deviceToken)
+        NotificationCenter.default.post(
+            name: .didReceiveAPNSToken,
+            object: nil,
+            userInfo: ["deviceToken": deviceToken]
+        )
     }
 
     // APNs 등록 실패
