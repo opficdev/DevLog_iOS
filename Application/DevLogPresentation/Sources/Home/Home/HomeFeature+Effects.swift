@@ -173,19 +173,50 @@ extension HomeFeature {
             state.alertTitle = String(localized: "home_webpage_input_title")
             state.alertMessage = String(localized: "home_webpage_input_message")
             state.webPageURLInput = "https://"
-        case .invalidURL:
-            state.alertTitle = String(localized: "home_invalid_url_title")
-            state.alertMessage = String(localized: "home_invalid_url_message")
-        case .error:
-            state.alertTitle = String(localized: "common_error_title")
-            state.alertMessage = String(localized: "common_error_message")
+            state.alert = nil
+        case .invalidURL, .error:
+            state.alert = isPresented ? alertState(for: type) : nil
+            state.showAlert = false
+            state.alertType = nil
         case .none:
+            state.alert = nil
             state.alertTitle = ""
             state.alertMessage = ""
+            state.showAlert = false
+            state.alertType = nil
         }
 
-        state.showAlert = isPresented
-        state.alertType = type
+        if type == .webPageInput {
+            state.showAlert = isPresented
+            state.alertType = type
+        }
+    }
+
+    static func alertState(for type: AlertType?) -> AlertState<Never> {
+        let title: String
+        let message: String
+
+        switch type {
+        case .invalidURL:
+            title = String(localized: "home_invalid_url_title")
+            message = String(localized: "home_invalid_url_message")
+        case .error, .none:
+            title = String(localized: "common_error_title")
+            message = String(localized: "common_error_message")
+        case .webPageInput:
+            title = String(localized: "home_webpage_input_title")
+            message = String(localized: "home_webpage_input_message")
+        }
+
+        return AlertState<Never> {
+            TextState(title)
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(message)
+        }
     }
 
     static func syncRecentTodos(

@@ -69,6 +69,7 @@ struct HomeView: View {
         )) {
             SearchView(store: coordinator.makeSearchStore())
         }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .alert(
             store.alertTitle,
             isPresented: Binding(

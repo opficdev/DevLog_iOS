@@ -14,6 +14,7 @@ import Foundation
 struct HomeFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         var preferences = [TodoCategoryItem]()
         var recentTodos = [RecentTodoItem]()
@@ -24,10 +25,6 @@ struct HomeFeature {
         var showSearchView = false
         var webPageURLInput = "https://"
         var selectedTodoCategory: TodoCategory?
-        var showAlert = false
-        var alertTitle = ""
-        var alertType: AlertType?
-        var alertMessage = ""
         var deletedWebPageURLString: String?
         var loading = LoadingFeature.State()
 
@@ -57,6 +54,7 @@ struct HomeFeature {
     }
 
     enum Action: Equatable {
+        case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case startObserving
         case fetchData
@@ -151,6 +149,8 @@ struct HomeFeature {
         }
         Reduce { state, action in
             switch action {
+            case .alert:
+                break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
             case .sheet:
@@ -172,10 +172,6 @@ struct HomeFeature {
             case .setPresentation(let presentation, let isPresented):
                 Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
             case .setAlert(let isPresented, let type):
-                if isPresented, type == .webPageInput, state.showContentPicker {
-                    state.sheet = nil
-                    return delayedModalEffect(.urlInputAlert)
-                }
                 Self.setAlert(&state, isPresented: isPresented, type: type)
             case .refreshWebPages:
                 return fetchWebPagesEffect()
@@ -239,6 +235,7 @@ struct HomeFeature {
 
             return .none
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
             HomeSheetFeature()
         }
