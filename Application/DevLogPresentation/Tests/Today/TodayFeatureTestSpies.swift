@@ -13,8 +13,7 @@ import DevLogDomain
 final class TodayFetchTodosUseCaseSpy: FetchTodosUseCase {
     var pagesByFilter: [TodoQuery.DueDateFilter: TodoPage]
     var error: Error?
-    private(set) var queries = [TodoQuery]()
-    private(set) var cursors = [TodoCursor?]()
+    private let recorder = TodayFetchTodosUseCaseCallRecorder()
 
     init(
         pagesByFilter: [TodoQuery.DueDateFilter: TodoPage] = [
@@ -26,14 +25,39 @@ final class TodayFetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 
     func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
-        queries.append(query)
-        cursors.append(cursor)
+        await recorder.append(query: query, cursor: cursor)
 
         if let error {
             throw error
         }
 
         return pagesByFilter[query.dueDateFilter] ?? TodoPage(items: [], nextCursor: nil)
+    }
+
+    func calledQueries() async -> [TodoQuery] {
+        await recorder.queries()
+    }
+
+    func calledCursors() async -> [TodoCursor?] {
+        await recorder.cursors()
+    }
+}
+
+private actor TodayFetchTodosUseCaseCallRecorder {
+    var recordedQueries = [TodoQuery]()
+    var recordedCursors = [TodoCursor?]()
+
+    func append(query: TodoQuery, cursor: TodoCursor?) {
+        recordedQueries.append(query)
+        recordedCursors.append(cursor)
+    }
+
+    func queries() -> [TodoQuery] {
+        recordedQueries
+    }
+
+    func cursors() -> [TodoCursor?] {
+        recordedCursors
     }
 }
 
