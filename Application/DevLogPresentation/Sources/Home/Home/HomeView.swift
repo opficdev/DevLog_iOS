@@ -189,6 +189,7 @@ struct HomeView: View {
                                         imageColor: item.color
                                     )
                                 }
+                                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                             }
                         }
                     } header: {
@@ -206,6 +207,7 @@ struct HomeView: View {
                                 imageColor: .blue
                             )
                         }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                     } header: {
                         Text("Web Page")
                             .foregroundStyle(Color(.label))
