@@ -149,7 +149,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                store.send(.setSheet(.contentPicker(.init())))
+                store.send(.setPresentation(.contentPicker, true))
             } label: {
                 Image(systemName: "plus")
             }
