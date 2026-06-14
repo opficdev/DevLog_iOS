@@ -174,12 +174,12 @@ struct TodayStoreTestAdapter: TodayStateDriving {
     }
 
     func setDueDateVisibility(_ visibility: TodayDisplayOptions.DueDateVisibility) async {
-        await store.send(.setDueDateVisibility(visibility))
+        await store.send(.binding(.set(\.displayOptions.dueDateVisibility, visibility)))
         await drainReceivedActions()
     }
 
     func setFocusVisibility(_ visibility: TodayDisplayOptions.FocusVisibility) async {
-        await store.send(.setFocusVisibility(visibility))
+        await store.send(.binding(.set(\.displayOptions.focusVisibility, visibility)))
         await drainReceivedActions()
     }
 

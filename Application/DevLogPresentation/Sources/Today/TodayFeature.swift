@@ -143,8 +143,6 @@ struct TodayFeature {
         case refresh
         case fetchData
         case setSectionScope(SectionScope)
-        case setDueDateVisibility(TodayDisplayOptions.DueDateVisibility)
-        case setFocusVisibility(TodayDisplayOptions.FocusVisibility)
         case resetDisplayOptions
         case completeTodo(TodayTodoItem)
         case togglePinned(TodayTodoItem)
@@ -191,12 +189,6 @@ struct TodayFeature {
                 } else {
                     state.selectedSectionScope = scope
                 }
-            case .setDueDateVisibility(let visibility):
-                state.displayOptions.dueDateVisibility = visibility
-                return updateDisplayOptionsEffect(state.displayOptions)
-            case .setFocusVisibility(let visibility):
-                state.displayOptions.focusVisibility = visibility
-                return updateDisplayOptionsEffect(state.displayOptions)
             case .resetDisplayOptions:
                 state.displayOptions = .default
                 return updateDisplayOptionsEffect(state.displayOptions)
