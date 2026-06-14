@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
-import DevLogDomain
 
 struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -15,16 +15,21 @@ struct PushNotificationListView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
+    @State private var store: StoreOf<PushNotificationListFeature>
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
-
-    private var viewModel: PushNotificationListViewModel {
-        coordinator.viewModel
+    init(
+        coordinator: PushNotificationListViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+        self._store = State(initialValue: coordinator.store)
     }
 
     var body: some View {
         NavigationStack {
-            notificationList
+            notificationListContent
                 .background(Color(.systemGroupedBackground))
                 .background(NavigationBarConfigurator(alwaysVisible: true))
                 .onScrollOffsetChange { offset in
@@ -32,65 +37,54 @@ struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { viewModel.send(.fetchNotifications) }
+                .refreshable { store.send(.fetchNotifications) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .alert(
-            viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { viewModel.state.showAlert },
-                set: { viewModel.send(.setAlert(isPresented: $0)) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: sheetStore) { store in
+            sheetContent(store)
         }
-        .sheet(item: Binding(
-            get: { isCompactLayout ? coordinator.todoIdToPresent : nil },
-            set: { item in
-                if item == nil {
-                    selectNotification(nil)
-                }
-            }
-        )) { item in
-            NavigationStack {
-                TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: item.id))
-                .id(item.id)
-                .toolbar {
-                    ToolbarLeadingButton {
-                        selectNotification(nil)
-                    }
-                }
-            }
-            .background(Color(.systemGroupedBackground))
-            .presentationDragIndicator(.visible)
+        .task(id: isCompactLayout) {
+            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
+        }
+        .onChange(of: store.selectedTodoId?.id, initial: true) {
+            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
         }
         .overlay {
-            if viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
     }
 
     @ViewBuilder
-    private var notificationList: some View {
-        let notifications = viewModel.state.notifications.filter { !$0.isHidden }
-        if notifications.isEmpty {
-            Text(String(localized: "push_notifications_empty"))
-                .foregroundStyle(Color.gray)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            List(
-                Array(zip(notifications.indices, notifications)),
-                id: \.1.id
-            ) { index, notification in
-                notificationListRow(notification, index: index, notifications: notifications)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-                    .listSectionSeparator(.hidden, edges: .top)
-                    .listRowBackground(Color.clear)
+    private var notificationListContent: some View {
+        let notifications = store.notifications.filter { !$0.isHidden }
+        List {
+            Group {
+                if notifications.isEmpty {
+                    HStack {
+                        Spacer()
+                        Text(String(localized: "push_notifications_empty"))
+                            .foregroundStyle(Color.gray)
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
+                } else {
+                    ForEach(
+                        Array(zip(notifications.indices, notifications)),
+                        id: \.1.id
+                    ) { index, notification in
+                        notificationListRow(notification, index: index, notifications: notifications)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                    }
+                }
             }
+            .listSectionSeparator(.hidden, edges: .top)
+            .listRowBackground(Color.clear)
         }
+        .scrollDisabled(notifications.isEmpty || store.isLoading)
     }
 
     @ViewBuilder
@@ -101,7 +95,7 @@ struct PushNotificationListView: View {
     ) -> some View {
         if isCompactLayout {
             Button {
-                selectNotification(notification.id)
+                store.send(.selectNotification(notification.id))
             } label: {
                 notificationRowContent(notification, index: index, notifications: notifications)
             }
@@ -109,11 +103,11 @@ struct PushNotificationListView: View {
         } else {
             notificationRowContent(notification, index: index, notifications: notifications)
                 .onTapGesture {
-                    selectNotification(notification.id)
+                    store.send(.selectNotification(notification.id))
                 }
                 .accessibilityAddTraits(.isButton)
                 .accessibilityAction {
-                    selectNotification(notification.id)
+                    store.send(.selectNotification(notification.id))
                 }
         }
     }
@@ -125,12 +119,12 @@ struct PushNotificationListView: View {
     ) -> some View {
         notificationRow(
             notification,
-            isSelected: !isCompactLayout && viewModel.state.selectedNotificationId == notification.id
+            isSelected: !isCompactLayout && store.selectedNotificationId == notification.id
         )
         .onAppear {
             let lastId = notifications.last?.id
-            if notification.id == lastId, viewModel.state.hasMore {
-                viewModel.send(.loadNextPage)
+            if notification.id == lastId, store.hasMore {
+                store.send(.loadNextPage)
             }
         }
         .overlay(alignment: .top) {
@@ -162,18 +156,81 @@ struct PushNotificationListView: View {
     }
 
     private var headerView: some View {
-        Group {
-            if #available(iOS 18, *) {
-                ScrollView(.horizontal) { headerContent }
-                .scrollIndicators(.never)
-                .scrollDisabled(!isScrollTrackingEnabled)
-                .contentMargins(.leading, 16, for: .scrollContent)
-            } else {
-                headerContent
-                    .padding(.leading, 16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                if 0 < store.appliedFilterCount {
+                    Menu {
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "push_filters_applied_format"),
+                                Int64(store.appliedFilterCount)
+                            )
+                        )
+                        Button(role: .destructive) {
+                            store.send(.resetFilters)
+                        } label: {
+                            Text(String(localized: "push_clear_all_filters"))
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease")
+                            filterBadge
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
+
+                Button {
+                    DispatchQueue.main.async {
+                        store.send(.toggleSortOption)
+                    }
+                } label: {
+                    let condition = store.query.sortOrder == .oldest
+                    Text(
+                        String.localizedStringWithFormat(
+                            String(localized: "push_sort_format"),
+                            store.query.sortOrder.title
+                        )
+                    )
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
+                .frame(height: headerHeight)
+
+                Menu {
+                    Picker(selection: $store.query.timeFilter) {
+                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "push_period"))
+                    }
+                } label: {
+                    let condition = store.query.timeFilter == .none
+                    HStack {
+                        Text(String(localized: "push_period"))
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color(.label) : .white)
+                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
+                }
+
+                Button {
+                    DispatchQueue.main.async {
+                        store.send(.toggleUnreadOnly)
+                    }
+                } label: {
+                    let condition = store.query.unreadOnly
+                    Text(String(localized: "push_unread"))
+                        .foregroundStyle(condition ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
+                .frame(height: headerHeight)
             }
         }
+        .scrollIndicators(.never)
+        .scrollDisabled(!isScrollTrackingEnabled)
+        .contentMargins(.leading, 16, for: .scrollContent)
         .frame(height: headerHeight)
         .onAppear {
             headerOffset = 0
@@ -184,87 +241,13 @@ struct PushNotificationListView: View {
         }
     }
 
-    private var headerContent: some View {
-        HStack(spacing: 8) {
-            if 0 < viewModel.appliedFilterCount {
-                Menu {
-                    Text(
-                        String.localizedStringWithFormat(
-                            String(localized: "push_filters_applied_format"),
-                            Int64(viewModel.appliedFilterCount)
-                        )
-                    )
-                    Button(role: .destructive) {
-                        viewModel.send(.resetFilters)
-                    } label: {
-                        Text(String(localized: "push_clear_all_filters"))
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "line.3.horizontal.decrease")
-                        filterBadge
-                    }
-                    .adaptiveButtonStyle()
-                }
-            }
-
-            Button {
-                DispatchQueue.main.async {
-                    viewModel.send(.toggleSortOption)
-                }
-            } label: {
-                let condition = viewModel.state.query.sortOrder == .oldest
-                Text(
-                    String.localizedStringWithFormat(
-                        String(localized: "push_sort_format"),
-                        viewModel.state.query.sortOrder.title
-                    )
-                )
-                .foregroundStyle(condition ? .white : Color(.label))
-                .adaptiveButtonStyle(color: condition ? .blue : .clear)
-            }
-
-            Menu {
-                Picker(selection: Binding(
-                    get: { viewModel.state.query.timeFilter },
-                    set: { viewModel.send(.setTimeFilter($0)) }
-                )) {
-                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
-                        Text(option.title).tag(option)
-                    }
-                } label: {
-                    Text(String(localized: "push_period"))
-                }
-            } label: {
-                let condition = viewModel.state.query.timeFilter == .none
-                HStack {
-                    Text(String(localized: "push_period"))
-                    Image(systemName: "chevron.down")
-                }
-                .foregroundStyle(condition ? Color(.label) : .white)
-                .adaptiveButtonStyle(color: condition ? .clear : .blue)
-            }
-
-            Button {
-                DispatchQueue.main.async {
-                    viewModel.send(.toggleUnreadOnly)
-                }
-            } label: {
-                let condition = viewModel.state.query.unreadOnly
-                Text(String(localized: "push_unread"))
-                    .foregroundStyle(condition ? .white : Color(.label))
-                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
-            }
-        }
-    }
-
     private var filterBadge: some View {
         let isDark = colorScheme == .dark
         let blue = Color(uiColor: .systemBlue)  //  흰 배경에 따른 청록색화 방지
         let textColor: Color = isDark ? blue : .white
         let backgroundColor: Color = isDark ? .white : blue
 
-        return Text("\(viewModel.appliedFilterCount)")
+        return Text("\(store.appliedFilterCount)")
             .font(.caption2.weight(.bold))
             .foregroundColor(textColor)
             .lineLimit(1)
@@ -322,7 +305,7 @@ struct PushNotificationListView: View {
         }
         .swipeActions(edge: .leading) {
             Button {
-                viewModel.send(.toggleRead(item))
+                store.send(.toggleRead(item))
             } label: {
                 Image(systemName: "checkmark.circle\(item.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)
@@ -332,7 +315,8 @@ struct PushNotificationListView: View {
             Button(
                 role: .destructive,
                 action: {
-                    viewModel.send(.deleteNotification(item))
+                    store.send(.deleteNotification(item))
+                    presentDeleteNotificationToast(item.id)
                 }
             ) {
                 Image(systemName: "trash")
@@ -370,8 +354,47 @@ struct PushNotificationListView: View {
         }
     }
 
-    private func selectNotification(_ notificationId: String?) {
-        viewModel.send(.selectNotification(notificationId))
-        coordinator.todoIdToPresent = viewModel.state.selectedTodoId
+    @ViewBuilder
+    private func sheetContent(
+        _ sheetStore: Store<PushNotificationListFeature.SheetState, PushNotificationListFeature.Action.Sheet>
+    ) -> some View {
+        NavigationStack {
+            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: sheetStore.todoId))
+                .id(sheetStore.todoId)
+                .toolbar {
+                    ToolbarLeadingButton {
+                        sheetStore.send(.tapCloseButton)
+                    }
+                }
+        }
+        .background(Color(.systemGroupedBackground))
+        .presentationDragIndicator(.visible)
+    }
+
+    private var sheetStore: Binding<
+        Store<PushNotificationListFeature.SheetState,
+              PushNotificationListFeature.Action.Sheet>?> {
+        if isCompactLayout {
+            $store.scope(state: \.sheet, action: \.sheet)
+        } else {
+            .constant(nil)
+        }
+    }
+
+    private func presentDeleteNotificationToast(_ notificationId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            lineLimit: 3,
+            action: {
+                store.send(.undoDelete)
+            },
+            onDismiss: {
+                store.send(.finishDeleteToast(notificationId))
+            }
+        )
     }
 }

@@ -34,13 +34,13 @@ struct TodoDetailView: View {
         .onAppear { store.send(.onAppear) }
         .navigationBarTitleDisplayMode(.inline)
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
-            sheetContent(sheetStore)
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { store in
+            sheetContent(store)
         }
         .fullScreenCover(
             item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
-        ) { coverStore in
-            fullScreenCoverContent(coverStore)
+        ) { store in
+            fullScreenCoverContent(store)
         }
         .toolbar { toolbarContent }
     }

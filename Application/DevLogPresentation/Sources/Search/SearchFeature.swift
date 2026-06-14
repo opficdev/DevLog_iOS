@@ -62,16 +62,20 @@ struct SearchFeature {
     enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
-        case fetchWebPage([WebPageItem])
-        case fetchTodos([TodoListItem])
         case addRecentQuery(String)
         case removeRecentQuery(String)
         case clearRecentQueries
-        case applySearchQuery(String)
-        case setAlert(Bool)
         case setShowAllTodos(Bool)
         case setShowAllWebPages(Bool)
+        case store(StoreAction)
         case loading(LoadingFeature.Action)
+
+        enum StoreAction: Equatable {
+            case fetchWebPage([WebPageItem])
+            case fetchTodos([TodoListItem])
+            case applySearchQuery(String)
+            case setAlert(Bool)
+        }
     }
 
     private enum CancelID: Hashable {
@@ -116,9 +120,9 @@ struct SearchFeature {
                 }
             case .binding:
                 break
-            case .fetchWebPage(let items):
+            case .store(.fetchWebPage(let items)):
                 state.webPages = items
-            case .fetchTodos(let items):
+            case .store(.fetchTodos(let items)):
                 state.todos = items
             case .addRecentQuery(let query):
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -135,7 +139,7 @@ struct SearchFeature {
             case .clearRecentQueries:
                 state.recentQueries = []
                 return saveRecentQueriesEffect([])
-            case .applySearchQuery(let query):
+            case .store(.applySearchQuery(let query)):
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
                 if trimmed.isEmpty {
                     state.webPages = []
@@ -144,7 +148,7 @@ struct SearchFeature {
                 } else {
                     return fetchEffect(trimmed, isLoading: state.isLoading)
                 }
-            case .setAlert(let isPresented):
+            case .store(.setAlert(let isPresented)):
                 state.alert = isPresented ? Self.alertState() : nil
             case .setShowAllTodos(let shouldShowAll):
                 state.showAllTodos = shouldShowAll
@@ -221,7 +225,7 @@ private extension SearchFeature {
             .send(.loading(.begin(target: .default, mode: .immediate))),
             .run { [clock, searchDebounceDelay] send in
                 try await clock.sleep(for: searchDebounceDelay)
-                await send(.applySearchQuery(query))
+                await send(.store(.applySearchQuery(query)))
             }
             .cancellable(id: CancelID.debounce, cancelInFlight: true)
         )
@@ -240,8 +244,8 @@ private extension SearchFeature {
                 )
                 let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
                 let resolvedWebPageItems = try await webPageItems
-                await send(.fetchTodos(todoItems))
-                await send(.fetchWebPage(resolvedWebPageItems))
+                await send(.store(.fetchTodos(todoItems)))
+                await send(.store(.fetchWebPage(resolvedWebPageItems)))
                 if isLoading {
                     await send(.loading(.end(target: .default, mode: .immediate)))
                 }
@@ -251,7 +255,7 @@ private extension SearchFeature {
                 if isLoading {
                     await send(.loading(.end(target: .default, mode: .immediate)))
                 }
-                await send(.setAlert(true))
+                await send(.store(.setAlert(true)))
             }
         }
         .cancellable(id: CancelID.request, cancelInFlight: true)

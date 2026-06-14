@@ -100,7 +100,7 @@ final class TodoListStoreTestAdapter {
     }
 
     func setSearchResults(_ results: [TodoListItem]) async {
-        await store.send(.fetchSearchResults(results))
+        await store.send(.store(.fetchSearchResults(results)))
     }
 
     func setIsSearching(_ value: Bool) async {
@@ -113,7 +113,7 @@ final class TodoListStoreTestAdapter {
     }
 
     func appendTodos(_ todos: [TodoListItem]) async {
-        await store.send(.appendTodos(todos, nextCursor: nil))
+        await store.send(.store(.appendTodos(todos, nextCursor: nil)))
     }
 
     func setFullScreenCover(_ cover: TodoListFeature.FullScreenCoverState?) async {
@@ -126,7 +126,6 @@ final class TodoListStoreTestAdapter {
 
     func swipeTodo(_ todo: TodoListItem) async {
         await store.send(.swipeTodo(todo))
-        await store.send(.presentedDeleteToast)
         await drainReceivedActions()
     }
 

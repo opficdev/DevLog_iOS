@@ -81,11 +81,6 @@ struct TodoListView: View {
         .background(NavigationBarConfigurator())
         .background(Color(.systemGroupedBackground))
         .task { store.send(.onAppear) }
-        .onChange(of: store.deleteToastTodoId) { _, todoId in
-            guard let todoId else { return }
-            presentDeleteTodoToast(todoId)
-            store.send(.presentedDeleteToast)
-        }
     }
 
     @ViewBuilder
@@ -143,6 +138,7 @@ struct TodoListView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive, action: {
                                     store.send(.swipeTodo(todo))
+                                    presentDeleteTodoToast(todo.id)
                                 }) {
                                     Image(systemName: "trash")
                                 }
@@ -327,8 +323,58 @@ struct TodoListView: View {
                     }
                 }
 
-                sortMenu
-                filterMenu
+                Menu {
+                    Picker(selection: $store.query.sortTarget) {
+                        ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_sort_by"))
+                    }
+                    Picker(selection: $store.query.sortOrder) {
+                        ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_sort_order"))
+                    }
+                } label: {
+                    let condition = store.state.query.sortTarget == .createdAt && store.state.query.sortOrder == .latest
+                    HStack {
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "todo_list_sort_format"),
+                                store.state.query.sortTarget.title,
+                                store.state.query.sortOrder.title
+                            )
+                        )
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color(.label) : .white)
+                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
+                }
+
+                Menu {
+                    Toggle(isOn: $store.query.isPinned) {
+                        Text(String(localized: "todo_pinned"))
+                    }
+
+                    Picker(selection: $store.query.completionFilter) {
+                        ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_completion_status"))
+                    }
+                } label: {
+                    let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
+                    HStack {
+                        Text(String(localized: "todo_list_filter_options"))
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
             }
         }
         .scrollIndicators(.never)
@@ -341,63 +387,6 @@ struct TodoListView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isScrollTrackingEnabled = true
             }
-        }
-    }
-
-    private var sortMenu: some View {
-        Menu {
-            Picker(selection: $store.query.sortTarget) {
-                ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
-                    Text(option.title).tag(option)
-                }
-            } label: {
-                Text(String(localized: "todo_list_sort_by"))
-            }
-            Picker(selection: $store.query.sortOrder) {
-                ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
-                    Text(option.title).tag(option)
-                }
-            } label: {
-                Text(String(localized: "todo_list_sort_order"))
-            }
-        } label: {
-            let condition = store.state.query.sortTarget == .createdAt && store.state.query.sortOrder == .latest
-            HStack {
-                Text(
-                    String.localizedStringWithFormat(
-                        String(localized: "todo_list_sort_format"),
-                        store.state.query.sortTarget.title,
-                        store.state.query.sortOrder.title
-                    )
-                )
-                Image(systemName: "chevron.down")
-            }
-            .foregroundStyle(condition ? Color(.label) : .white)
-            .adaptiveButtonStyle(color: condition ? .clear : .blue)
-        }
-    }
-
-    private var filterMenu: some View {
-        Menu {
-            Toggle(isOn: $store.query.isPinned) {
-                Text(String(localized: "todo_pinned"))
-            }
-
-            Picker(selection: $store.query.completionFilter) {
-                ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
-                    Text(option.title).tag(option)
-                }
-            } label: {
-                Text(String(localized: "todo_list_completion_status"))
-            }
-        } label: {
-            let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
-            HStack {
-                Text(String(localized: "todo_list_filter_options"))
-                Image(systemName: "chevron.down")
-            }
-            .foregroundStyle(condition ? .white : Color(.label))
-            .adaptiveButtonStyle(color: condition ? .blue : .clear)
         }
     }
 

@@ -114,7 +114,7 @@ struct SearchStoreTestAdapter {
     }
 
     func applySearchQuery(_ query: String) async {
-        await store.send(.applySearchQuery(query))
+        await store.send(.store(.applySearchQuery(query)))
     }
 
     func setSearching(_ value: Bool) async {
@@ -128,7 +128,7 @@ struct SearchStoreTestAdapter {
     }
 
     func receiveAppliedSearchQuery(_ query: String) async {
-        await store.receive(.applySearchQuery(query))
+        await store.receive(.store(.applySearchQuery(query)))
     }
 
     func receiveSearchResults(
@@ -136,10 +136,10 @@ struct SearchStoreTestAdapter {
         webPages: [WebPageItem]
     ) async {
         let wasLoading = store.state.isLoading
-        await store.receive(.fetchTodos(todos)) {
+        await store.receive(.store(.fetchTodos(todos))) {
             $0.todos = todos
         }
-        await store.receive(.fetchWebPage(webPages)) {
+        await store.receive(.store(.fetchWebPage(webPages))) {
             $0.webPages = webPages
         }
         if wasLoading {
@@ -152,7 +152,7 @@ struct SearchStoreTestAdapter {
         if wasLoading {
             await receiveEndLoading()
         }
-        await store.receive(.setAlert(true)) {
+        await store.receive(.store(.setAlert(true))) {
             $0.alert = expectedSearchErrorAlert()
         }
     }

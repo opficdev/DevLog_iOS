@@ -53,8 +53,8 @@ struct TodoEditorView: View {
             .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.background, for: .navigationBar)
-            .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
-                sheetContent(sheetStore)
+            .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { store in
+                sheetContent(store)
             }
             .toolbar {
                 if !isiOSAppOnMac {
