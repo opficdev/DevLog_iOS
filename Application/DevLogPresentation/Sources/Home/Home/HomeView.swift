@@ -6,14 +6,25 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogDomain
 
 struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    @Bindable var store: StoreOf<HomeFeature>
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
+
+    init(
+        coordinator: HomeViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+        self.store = coordinator.store
+    }
 
     var body: some View {
         List {
@@ -24,96 +35,22 @@ struct HomeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
-        .sheet(isPresented: Binding(
-            get: { coordinator.viewModel.state.reorderTodo },
-            set: { coordinator.viewModel.send(.setPresentation(.reorderTodo, $0)) }
-        )) {
-            CategoryManageView(
-                preferences: coordinator.viewModel.state.preferences,
-                onDismiss: { array in
-                    coordinator.viewModel.send(.setPresentation(.reorderTodo, false))
-                    withAnimation {
-                        coordinator.viewModel.send(.orderTodoCategory(array))
-                    }
-                }
-            )
-        }
-        .sheet(isPresented: Binding(
-            get: { coordinator.viewModel.state.showContentPicker },
-            set: { _, _ in }
-        )) {
-            contentPicker
-        }
-        .fullScreenCover(isPresented: Binding(
-            get: { coordinator.viewModel.state.showTodoEditor },
-            set: { coordinator.viewModel.send(.setPresentation(.todoEditor, $0)) }
-        )) {
-            if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
-                TodoEditorView(
-                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
-                    onCreateSuccess: {
-                        coordinator.viewModel.send(.setPresentation(.todoEditor, false))
-                        coordinator.viewModel.send(.fetchData)
-                    }
-                )
-            }
-        }
-        .fullScreenCover(isPresented: Binding(
-            get: { coordinator.viewModel.state.showSearchView },
-            set: { coordinator.viewModel.send(.setPresentation(.searchView, $0)) }
-        )) {
-            SearchView(store: coordinator.makeSearchStore())
-        }
-        .alert(
-            coordinator.viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { coordinator.viewModel.state.showAlert },
-                set: { coordinator.viewModel.send(.setAlert(isPresented: $0)) }
-            )
-        ) {
-            alertButtons
-        } message: {
-            Text(coordinator.viewModel.state.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet), content: sheetContent)
+        .fullScreenCover(item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover), content: coverContent)
         .overlay {
-            if coordinator.viewModel.state.isAppending {
+            if store.isAppending {
                 LoadingView()
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var alertButtons: some View {
-        switch coordinator.viewModel.state.alertType {
-        case .webPageInput:
-            TextField(
-                "https://",
-                text: Binding(
-                    get: { coordinator.viewModel.state.webPageURLInput },
-                    set: { coordinator.viewModel.send(.updateWebPageURLInput($0)) }
-                )
-            )
-            .textInputAutocapitalization(.never)
-            .keyboardType(.URL)
-            Button(String(localized: "home_add")) {
-                coordinator.viewModel.send(.addWebPage)
-            }
-            Button(String(localized: "common_cancel"), role: .cancel) {
-                coordinator.viewModel.send(.setAlert(isPresented: false))
-            }
-        case .invalidURL, .error, .none:
-            Button(String(localized: "common_close"), role: .cancel) {
-                coordinator.viewModel.send(.setAlert(isPresented: false))
             }
         }
     }
 
     private var todoSection: some View {
         Section(content: {
-            if coordinator.viewModel.state.isPreferencesLoading {
+            if store.isPreferencesLoading {
                 LoadingView()
             } else {
-                let preferences = coordinator.viewModel.state.preferences
+                let preferences = store.preferences
                 ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
                     todoCategoryRow(item)
                         .listRowInsets((EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)))
@@ -127,7 +64,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    coordinator.viewModel.send(.setPresentation(.reorderTodo, true))
+                    store.send(.store(.setSheet(.reorderTodo)))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -140,9 +77,9 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if coordinator.viewModel.state.isRecentTodosLoading {
+            if store.isRecentTodosLoading {
                 LoadingView()
-            } else if coordinator.viewModel.state.recentTodos.isEmpty {
+            } else if store.recentTodos.isEmpty {
                 HStack {
                     Spacer()
                     Text(String(localized: "home_recent_empty"))
@@ -150,7 +87,7 @@ struct HomeView: View {
                     Spacer()
                 }
             } else {
-                ForEach(coordinator.viewModel.state.recentTodos, id: \.id) { todo in
+                ForEach(store.recentTodos, id: \.id) { todo in
                     recentTodoRow(todo)
                 }
             }
@@ -167,13 +104,13 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            let webPages = coordinator.viewModel.state.webPages.filter { !$0.isHidden }
-            if coordinator.viewModel.state.isWebPageLoading {
+            let webPages = store.webPages.filter { !$0.isHidden }
+            if store.isWebPageLoading {
                 LoadingView()
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
-            } else if coordinator.viewModel.state.needsWebPageRefresh {
+            } else if store.needsWebPageRefresh {
                 Button {
-                    coordinator.viewModel.send(.refreshWebPages)
+                    store.send(.view(.refreshWebPages))
                 } label: {
                     HStack {
                         Spacer()
@@ -212,21 +149,136 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                coordinator.viewModel.send(.setPresentation(.contentPicker, true))
+                store.send(.store(.setPresentation(.contentPicker, true)))
             } label: {
                 Image(systemName: "plus")
             }
-            .disabled(!coordinator.viewModel.state.isNetworkConnected)
+            .disabled(!store.isNetworkConnected)
         }
         if #available(iOS 26.0, *) {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                coordinator.viewModel.send(.setPresentation(.searchView, true))
+                store.send(.store(.setPresentation(.searchView, true)))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
+        if let contentPickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
+            @Bindable var contentPickerStore = contentPickerStore
+            NavigationStack {
+                List {
+                    Section {
+                        if store.isPreferencesLoading {
+                            LoadingView()
+                        } else {
+                            let preferences = store.preferences.filter(\.isVisible)
+                            ForEach(preferences, id: \.id) { item in
+                                Button {
+                                    openTodoEditor(for: item.category)
+                                } label: {
+                                    labelImage(
+                                        text: item.localizedName,
+                                        systemName: item.symbolName,
+                                        imageColor: item.color
+                                    )
+                                }
+                                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            }
+                        }
+                    } header: {
+                        Text("TODO")
+                            .foregroundStyle(Color(.label))
+                    }
+
+                    Section {
+                        Button {
+                            contentPickerStore.send(.tapWebPageInput)
+                        } label: {
+                            labelImage(
+                                text: "URL",
+                                systemName: "globe",
+                                imageColor: .blue
+                            )
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    } header: {
+                        Text("Web Page")
+                            .foregroundStyle(Color(.label))
+                    }
+                }
+                .navigationDestination(
+                    item: $contentPickerStore.scope(state: \.webPageInput, action: \.webPageInput)
+                ) { _ in
+                    Form {
+                        Section {
+                            TextField(
+                                "https://",
+                                text: Binding(
+                                    get: { store.webPageURLInput },
+                                    set: { store.send(.view(.updateWebPageURLInput($0))) }
+                                )
+                            )
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                        } footer: {
+                            Text(String(localized: "home_webpage_input_message"))
+                        }
+                    }
+                    .scrollDisabled(true)
+                    .navigationTitle(Text(String(localized: "home_webpage_input_title")))
+                    .navigationBarTitleDisplayMode(.inline) //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(String(localized: "home_add")) {
+                                store.send(.view(.addWebPage))
+                            }
+                        }
+                    }
+                }
+                .navigationTitle(Text(String(localized: "nav_home_content")))
+                .navigationBarTitleDisplayMode(.inline)  //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            store.send(.sheet(.presented(.tapCloseButton)))
+                        } label: {
+                            Image(systemName: "xmark")
+                                .bold()
+                        }
+                    }
+                }
+            }
+        } else {
+            CategoryManageView(
+                preferences: store.preferences,
+                onDismiss: { array in
+                    store.send(.view(.orderTodoCategory(array)), animation: .default)
+                }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func coverContent(_ coverStore: Store<HomeFeature.FullScreenCoverState, Never>) -> some View {
+        switch coverStore.destination {
+        case .todoEditor:
+            if let selectedCategory = coverStore.selectedTodoCategory {
+                TodoEditorView(
+                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
+                    onCreateSuccess: {
+                        store.send(.store(.setPresentation(.todoEditor, false)))
+                        store.send(.view(.fetchData))
+                    }
+                )
+            }
+        case .search:
+            SearchView(store: coordinator.makeSearchStore())
         }
     }
 
@@ -292,68 +344,10 @@ struct HomeView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                coordinator.viewModel.send(.deleteWebPage(item))
+                store.send(.view(.deleteWebPage(item)))
+                presentDeleteWebPageToast(item.url.absoluteString)
             } label: {
                 Label(String(localized: "common_delete"), systemImage: "trash")
-            }
-        }
-    }
-
-    private var contentPicker: some View {
-        NavigationStack {
-            List {
-                Section {
-                    if coordinator.viewModel.state.isPreferencesLoading {
-                        LoadingView()
-                    } else {
-                        let preferences = coordinator.viewModel.state.preferences.filter(\.isVisible)
-                        ForEach(preferences, id: \.id) { item in
-                            Button {
-                                DispatchQueue.main.async {
-                                    openTodoEditor(for: item.category)
-                                }
-                            } label: {
-                                labelImage(
-                                    text: item.localizedName,
-                                    systemName: item.symbolName,
-                                    imageColor: item.color
-                                )
-                            }
-                        }
-                    }
-                } header: {
-                    Text("TODO")
-                        .foregroundStyle(Color(.label))
-                }
-
-                Section {
-                    Button {
-                        DispatchQueue.main.async {
-                            coordinator.viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
-                        }
-                    } label: {
-                        labelImage(
-                            text: "URL",
-                            systemName: "globe",
-                            imageColor: .blue
-                        )
-                    }
-                } header: {
-                    Text("Web Page")
-                        .foregroundStyle(Color(.label))
-                }
-            }
-            .navigationTitle(String(localized: "nav_home_content"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        coordinator.viewModel.send(.setPresentation(.contentPicker, false))
-                    } label: {
-                        Image(systemName: "xmark")
-                            .bold()
-                    }
-                }
             }
         }
     }
@@ -381,14 +375,30 @@ struct HomeView: View {
 
     private func openTodoEditor(for todoCategory: TodoCategory) {
         if isiOSAppOnMac {
-            coordinator.viewModel.send(.setPresentation(.contentPicker, false))
+            store.send(.store(.setPresentation(.contentPicker, false)))
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
                 value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
             )
         } else {
-            coordinator.viewModel.send(.tapTodoCategory(todoCategory))
+            store.send(.view(.tapTodoCategory(todoCategory)))
         }
+    }
+
+    private func presentDeleteWebPageToast(_ urlString: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            action: {
+                store.send(.view(.undoDeleteWebPage))
+            },
+            onDismiss: {
+                store.send(.view(.finishDeleteWebPageToast(urlString)))
+            }
+        )
     }
 
 }

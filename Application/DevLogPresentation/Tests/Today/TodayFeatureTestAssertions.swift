@@ -35,13 +35,23 @@ func verifyTodayFetchData<Adapter: TodayStateDriving>(
         adapter.todos.count == 5
     }
 
-    #expect(fetchUseCaseSpy.queries.map(\.dueDateFilter) == [.withDueDate, .withoutDueDate])
-    #expect(fetchUseCaseSpy.queries.map(\.completionFilter) == [.incomplete, .incomplete])
-    #expect(fetchUseCaseSpy.queries.map(\.sortTarget) == [.dueDate, .updatedAt])
-    #expect(fetchUseCaseSpy.queries.map(\.sortOrder) == [.oldest, .latest])
-    #expect(fetchUseCaseSpy.queries.map(\.pageSize) == [20, 20])
-    #expect(fetchUseCaseSpy.queries.map(\.fetchAllPages) == [true, true])
-    #expect(fetchUseCaseSpy.cursors.allSatisfy { $0 == nil })
+    let queries = await fetchUseCaseSpy.calledQueries()
+    let queriesByDueDateFilter = Dictionary(
+        uniqueKeysWithValues: queries.map { ($0.dueDateFilter, $0) }
+    )
+    let cursors = await fetchUseCaseSpy.calledCursors()
+
+    #expect(queries.count == 2)
+    #expect(Set(queries.map(\.dueDateFilter)) == Set([.withDueDate, .withoutDueDate]))
+    #expect(queries.allSatisfy { $0.completionFilter == .incomplete })
+    #expect(queriesByDueDateFilter[.withDueDate]?.sortTarget == .dueDate)
+    #expect(queriesByDueDateFilter[.withDueDate]?.sortOrder == .oldest)
+    #expect(queriesByDueDateFilter[.withoutDueDate]?.sortTarget == .updatedAt)
+    #expect(queriesByDueDateFilter[.withoutDueDate]?.sortOrder == .latest)
+    #expect(queries.map(\.pageSize).allSatisfy { $0 == 20 })
+    #expect(queries.map(\.fetchAllPages).allSatisfy { $0 })
+    #expect(cursors.count == 2)
+    #expect(cursors.allSatisfy { $0 == nil })
     #expect(adapter.todos.map(\.id) == ["focused", "overdue", "due-soon", "later", "unscheduled"])
     #expect(adapter.summaryCounts == [
         .all: 5,

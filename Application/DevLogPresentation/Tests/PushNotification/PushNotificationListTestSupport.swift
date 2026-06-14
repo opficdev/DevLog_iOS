@@ -149,17 +149,17 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
     }
 
     func fetchNotifications() async {
-        await store.send(.fetchNotifications)
+        await store.send(.view(.fetchNotifications))
         await drainReceivedActions()
     }
 
     func loadNextPage() async {
-        await store.send(.loadNextPage)
+        await store.send(.view(.loadNextPage))
         await drainReceivedActions()
     }
 
     func toggleSortOption() async {
-        await store.send(.toggleSortOption)
+        await store.send(.view(.toggleSortOption))
         await drainReceivedActions()
     }
 
@@ -169,42 +169,42 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
     }
 
     func toggleUnreadOnly() async {
-        await store.send(.toggleUnreadOnly)
+        await store.send(.view(.toggleUnreadOnly))
         await drainReceivedActions()
     }
 
     func resetFilters() async {
-        await store.send(.resetFilters)
+        await store.send(.view(.resetFilters))
         await drainReceivedActions()
     }
 
     func selectNotification(_ notificationId: String?) async {
-        await store.send(.selectNotification(notificationId))
+        await store.send(.view(.selectNotification(notificationId)))
         await drainReceivedActions()
     }
 
     func toggleRead(_ item: PushNotificationItem) async {
-        await store.send(.toggleRead(item))
+        await store.send(.view(.toggleRead(item)))
         await drainReceivedActions()
     }
 
     func deleteNotification(_ item: PushNotificationItem) async {
-        await store.send(.deleteNotification(item))
+        await store.send(.view(.deleteNotification(item)))
         presentDeleteNotificationToast(item.id)
         await drainReceivedActions()
     }
 
     func undoDelete() async {
-        await store.send(.undoDelete)
+        await store.send(.view(.undoDelete))
         await drainReceivedActions()
     }
 
     func finishDeleteToast(_ notificationId: String) async {
-        await store.send(.finishDeleteToast(notificationId))
+        await store.send(.view(.finishDeleteToast(notificationId)))
     }
 
     func syncSheetPresentation(isCompactLayout: Bool) async {
-        await store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
+        await store.send(.view(.syncSheetPresentation(isCompactLayout: isCompactLayout)))
     }
 
     func dismissSheet() async {
