@@ -88,7 +88,6 @@ extension TodoListFeature {
     func swipeTodoEffect(_ todo: TodoListItem, state: inout State) -> Effect<Action> {
         guard state.todos.contains(where: { $0.id == todo.id }) else { return .none }
         state.undoTodoId = todo.id
-        state.deleteToastTodoId = todo.id
         Self.setTodoHidden(&state, todoId: todo.id, isHidden: true)
         return deleteEffect(todo)
     }

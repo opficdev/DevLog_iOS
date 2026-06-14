@@ -27,7 +27,6 @@ struct TodoListFeature {
         var loading = LoadingFeature.State()
         var undoTodoId: String?
         var nextCursor: TodoCursor?
-        var deleteToastTodoId: String?
         let searchResultsLimit = 5
 
         init(category: TodoCategory) {
@@ -69,7 +68,6 @@ struct TodoListFeature {
         case swipeTodo(TodoListItem)
         case resetFilters
         case finishDeleteToast(String)
-        case presentedDeleteToast
         case tapToggleCompleted(TodoListItem)
         case tapTogglePinned(TodoListItem)
         case undoDelete
@@ -207,8 +205,6 @@ private extension TodoListFeature {
             if state.undoTodoId == todoId {
                 state.undoTodoId = nil
             }
-        case .presentedDeleteToast:
-            state.deleteToastTodoId = nil
         case .tapToggleCompleted(let todo):
             return toggleCompletedEffect(todo)
         case .tapTogglePinned(let todo):

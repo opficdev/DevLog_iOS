@@ -81,11 +81,6 @@ struct TodoListView: View {
         .background(NavigationBarConfigurator())
         .background(Color(.systemGroupedBackground))
         .task { store.send(.onAppear) }
-        .onChange(of: store.deleteToastTodoId) { _, todoId in
-            guard let todoId else { return }
-            presentDeleteTodoToast(todoId)
-            store.send(.presentedDeleteToast)
-        }
     }
 
     @ViewBuilder
@@ -143,6 +138,7 @@ struct TodoListView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive, action: {
                                     store.send(.swipeTodo(todo))
+                                    presentDeleteTodoToast(todo.id)
                                 }) {
                                     Image(systemName: "trash")
                                 }

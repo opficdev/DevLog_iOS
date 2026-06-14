@@ -126,7 +126,6 @@ final class TodoListStoreTestAdapter {
 
     func swipeTodo(_ todo: TodoListItem) async {
         await store.send(.swipeTodo(todo))
-        await store.send(.presentedDeleteToast)
         await drainReceivedActions()
     }
 
