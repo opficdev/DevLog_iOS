@@ -6,14 +6,25 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogDomain
 
 struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    @State var store: StoreOf<HomeFeature>
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
+
+    init(
+        coordinator: HomeViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+        self._store = State(initialValue: coordinator.store)
+    }
 
     var body: some View {
         List {
@@ -25,58 +36,58 @@ struct HomeView: View {
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
         .sheet(isPresented: Binding(
-            get: { coordinator.viewModel.state.reorderTodo },
-            set: { coordinator.viewModel.send(.setPresentation(.reorderTodo, $0)) }
+            get: { store.reorderTodo },
+            set: { store.send(.setPresentation(.reorderTodo, $0)) }
         )) {
             CategoryManageView(
-                preferences: coordinator.viewModel.state.preferences,
+                preferences: store.preferences,
                 onDismiss: { array in
-                    coordinator.viewModel.send(.setPresentation(.reorderTodo, false))
+                    store.send(.setPresentation(.reorderTodo, false))
                     withAnimation {
-                        coordinator.viewModel.send(.orderTodoCategory(array))
+                        store.send(.orderTodoCategory(array))
                     }
                 }
             )
         }
         .sheet(isPresented: Binding(
-            get: { coordinator.viewModel.state.showContentPicker },
+            get: { store.showContentPicker },
             set: { _, _ in }
         )) {
             contentPicker
         }
         .fullScreenCover(isPresented: Binding(
-            get: { coordinator.viewModel.state.showTodoEditor },
-            set: { coordinator.viewModel.send(.setPresentation(.todoEditor, $0)) }
+            get: { store.showTodoEditor },
+            set: { store.send(.setPresentation(.todoEditor, $0)) }
         )) {
-            if let selectedCategory = coordinator.viewModel.state.selectedTodoCategory {
+            if let selectedCategory = store.selectedTodoCategory {
                 TodoEditorView(
                     store: coordinator.makeTodoEditorStore(category: selectedCategory),
                     onCreateSuccess: {
-                        coordinator.viewModel.send(.setPresentation(.todoEditor, false))
-                        coordinator.viewModel.send(.fetchData)
+                        store.send(.setPresentation(.todoEditor, false))
+                        store.send(.fetchData)
                     }
                 )
             }
         }
         .fullScreenCover(isPresented: Binding(
-            get: { coordinator.viewModel.state.showSearchView },
-            set: { coordinator.viewModel.send(.setPresentation(.searchView, $0)) }
+            get: { store.showSearchView },
+            set: { store.send(.setPresentation(.searchView, $0)) }
         )) {
             SearchView(store: coordinator.makeSearchStore())
         }
         .alert(
-            coordinator.viewModel.state.alertTitle,
+            store.alertTitle,
             isPresented: Binding(
-                get: { coordinator.viewModel.state.showAlert },
-                set: { coordinator.viewModel.send(.setAlert(isPresented: $0)) }
+                get: { store.showAlert },
+                set: { store.send(.setAlert(isPresented: $0)) }
             )
         ) {
             alertButtons
         } message: {
-            Text(coordinator.viewModel.state.alertMessage)
+            Text(store.alertMessage)
         }
         .overlay {
-            if coordinator.viewModel.state.isAppending {
+            if store.isAppending {
                 LoadingView()
             }
         }
@@ -84,36 +95,36 @@ struct HomeView: View {
 
     @ViewBuilder
     private var alertButtons: some View {
-        switch coordinator.viewModel.state.alertType {
+        switch store.alertType {
         case .webPageInput:
             TextField(
                 "https://",
                 text: Binding(
-                    get: { coordinator.viewModel.state.webPageURLInput },
-                    set: { coordinator.viewModel.send(.updateWebPageURLInput($0)) }
+                    get: { store.webPageURLInput },
+                    set: { store.send(.updateWebPageURLInput($0)) }
                 )
             )
             .textInputAutocapitalization(.never)
             .keyboardType(.URL)
             Button(String(localized: "home_add")) {
-                coordinator.viewModel.send(.addWebPage)
+                store.send(.addWebPage)
             }
             Button(String(localized: "common_cancel"), role: .cancel) {
-                coordinator.viewModel.send(.setAlert(isPresented: false))
+                store.send(.setAlert(isPresented: false))
             }
         case .invalidURL, .error, .none:
             Button(String(localized: "common_close"), role: .cancel) {
-                coordinator.viewModel.send(.setAlert(isPresented: false))
+                store.send(.setAlert(isPresented: false))
             }
         }
     }
 
     private var todoSection: some View {
         Section(content: {
-            if coordinator.viewModel.state.isPreferencesLoading {
+            if store.isPreferencesLoading {
                 LoadingView()
             } else {
-                let preferences = coordinator.viewModel.state.preferences
+                let preferences = store.preferences
                 ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
                     todoCategoryRow(item)
                         .listRowInsets((EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)))
@@ -127,7 +138,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    coordinator.viewModel.send(.setPresentation(.reorderTodo, true))
+                    store.send(.setPresentation(.reorderTodo, true))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -140,9 +151,9 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if coordinator.viewModel.state.isRecentTodosLoading {
+            if store.isRecentTodosLoading {
                 LoadingView()
-            } else if coordinator.viewModel.state.recentTodos.isEmpty {
+            } else if store.recentTodos.isEmpty {
                 HStack {
                     Spacer()
                     Text(String(localized: "home_recent_empty"))
@@ -150,7 +161,7 @@ struct HomeView: View {
                     Spacer()
                 }
             } else {
-                ForEach(coordinator.viewModel.state.recentTodos, id: \.id) { todo in
+                ForEach(store.recentTodos, id: \.id) { todo in
                     recentTodoRow(todo)
                 }
             }
@@ -167,13 +178,13 @@ struct HomeView: View {
 
     private var webPageSection: some View {
         Section {
-            let webPages = coordinator.viewModel.state.webPages.filter { !$0.isHidden }
-            if coordinator.viewModel.state.isWebPageLoading {
+            let webPages = store.webPages.filter { !$0.isHidden }
+            if store.isWebPageLoading {
                 LoadingView()
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
-            } else if coordinator.viewModel.state.needsWebPageRefresh {
+            } else if store.needsWebPageRefresh {
                 Button {
-                    coordinator.viewModel.send(.refreshWebPages)
+                    store.send(.refreshWebPages)
                 } label: {
                     HStack {
                         Spacer()
@@ -212,18 +223,18 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                coordinator.viewModel.send(.setPresentation(.contentPicker, true))
+                store.send(.setPresentation(.contentPicker, true))
             } label: {
                 Image(systemName: "plus")
             }
-            .disabled(!coordinator.viewModel.state.isNetworkConnected)
+            .disabled(!store.isNetworkConnected)
         }
         if #available(iOS 26.0, *) {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                coordinator.viewModel.send(.setPresentation(.searchView, true))
+                store.send(.setPresentation(.searchView, true))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -292,7 +303,8 @@ struct HomeView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                coordinator.viewModel.send(.deleteWebPage(item))
+                store.send(.deleteWebPage(item))
+                presentDeleteWebPageToast(item.url.absoluteString)
             } label: {
                 Label(String(localized: "common_delete"), systemImage: "trash")
             }
@@ -303,10 +315,10 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
-                    if coordinator.viewModel.state.isPreferencesLoading {
+                    if store.isPreferencesLoading {
                         LoadingView()
                     } else {
-                        let preferences = coordinator.viewModel.state.preferences.filter(\.isVisible)
+                        let preferences = store.preferences.filter(\.isVisible)
                         ForEach(preferences, id: \.id) { item in
                             Button {
                                 DispatchQueue.main.async {
@@ -329,7 +341,7 @@ struct HomeView: View {
                 Section {
                     Button {
                         DispatchQueue.main.async {
-                            coordinator.viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
+                            store.send(.setAlert(isPresented: true, type: .webPageInput))
                         }
                     } label: {
                         labelImage(
@@ -348,7 +360,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        coordinator.viewModel.send(.setPresentation(.contentPicker, false))
+                        store.send(.setPresentation(.contentPicker, false))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()
@@ -381,14 +393,30 @@ struct HomeView: View {
 
     private func openTodoEditor(for todoCategory: TodoCategory) {
         if isiOSAppOnMac {
-            coordinator.viewModel.send(.setPresentation(.contentPicker, false))
+            store.send(.setPresentation(.contentPicker, false))
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
                 value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
             )
         } else {
-            coordinator.viewModel.send(.tapTodoCategory(todoCategory))
+            store.send(.tapTodoCategory(todoCategory))
         }
+    }
+
+    private func presentDeleteWebPageToast(_ urlString: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            font: .caption,
+            multilineTextAlignment: .center,
+            action: {
+                store.send(.undoDeleteWebPage)
+            },
+            onDismiss: {
+                store.send(.finishDeleteWebPageToast(urlString))
+            }
+        )
     }
 
 }

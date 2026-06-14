@@ -14,7 +14,7 @@ import DevLogDomain
 @MainActor
 @Observable
 final class HomeViewCoordinator {
-    let viewModel: HomeViewModel
+    let store: StoreOf<HomeFeature>
     let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
@@ -26,25 +26,30 @@ final class HomeViewCoordinator {
 
     init(container: DIContainer) {
         self.container = container
-        self.viewModel = HomeViewModel(
-            fetchPreferencesUseCase: container.resolve(FetchTodoCategoryPreferencesUseCase.self),
-            updatePreferencesUseCase: container.resolve(UpdateTodoCategoryPreferencesUseCase.self),
-            addWebPageUseCase: container.resolve(AddWebPageUseCase.self),
-            deleteWebPageUseCase: container.resolve(DeleteWebPageUseCase.self),
-            undoDeleteWebPageUseCase: container.resolve(UndoDeleteWebPageUseCase.self),
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            fetchWebPagesUseCase: container.resolve(FetchWebPagesUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self)
-        )
+        self.store = Store(initialState: HomeFeature.State()) {
+            HomeFeature()
+        } withDependencies: {
+            $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+            $0.homeUpdateTodoCategoryPreferencesUseCase = container.resolve(
+                UpdateTodoCategoryPreferencesUseCase.self
+            )
+            $0.homeAddWebPageUseCase = container.resolve(AddWebPageUseCase.self)
+            $0.homeDeleteWebPageUseCase = container.resolve(DeleteWebPageUseCase.self)
+            $0.homeUndoDeleteWebPageUseCase = container.resolve(UndoDeleteWebPageUseCase.self)
+            $0.homeFetchTodosUseCase = container.resolve(FetchTodosUseCase.self)
+            $0.homeFetchWebPagesUseCase = container.resolve(FetchWebPagesUseCase.self)
+            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+        }
+        self.store.send(.startObserving)
     }
 
     func fetchData() {
-        viewModel.send(.fetchData)
+        store.send(.fetchData)
     }
 
     func refreshRecentTodos() {
-        viewModel.send(.refreshRecentTodos)
+        store.send(.refreshRecentTodos)
     }
 
     func bindTodoMutationEvent() {
@@ -72,7 +77,7 @@ final class HomeViewCoordinator {
             .sink { [weak self] submit in
                 guard case .create(let value) = submit,
                       value.matchesCreate(source: .home) else { return }
-                self?.viewModel.send(.fetchData)
+                self?.store.send(.fetchData)
             }
             .store(in: &cancellables)
     }
