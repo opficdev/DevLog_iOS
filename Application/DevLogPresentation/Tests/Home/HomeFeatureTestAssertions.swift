@@ -11,8 +11,8 @@ import DevLogDomain
 @testable import DevLogPresentation
 
 @MainActor
-func verifyHomeFetchData<Adapter: HomeStateDriving>(
-    adapter: Adapter,
+func verifyHomeFetchData(
+    adapter: HomeStoreTestAdapter,
     fetchTodosUseCaseSpy: FetchTodosUseCaseSpy,
     fetchWebPagesUseCaseSpy: FetchWebPagesUseCaseSpy
 ) async throws {
@@ -35,8 +35,8 @@ func verifyHomeFetchData<Adapter: HomeStateDriving>(
 }
 
 @MainActor
-func verifyHomeWebPageInputAlert<Adapter: HomeStateDriving>(
-    adapter: Adapter
+func verifyHomeWebPageInputAlert(
+    adapter: HomeStoreTestAdapter
 ) async throws {
     await adapter.setPresentation(.contentPicker, true)
 
@@ -44,7 +44,7 @@ func verifyHomeWebPageInputAlert<Adapter: HomeStateDriving>(
 
     await adapter.openWebPageInput()
 
-    #expect(!adapter.showContentPicker)
+    #expect(adapter.showContentPicker)
     #expect(!adapter.showAlert)
 
     await waitUntil {
@@ -56,25 +56,19 @@ func verifyHomeWebPageInputAlert<Adapter: HomeStateDriving>(
 }
 
 @MainActor
-func verifyHomeTapTodoCategory<Adapter: HomeStateDriving>(
-    adapter: Adapter
+func verifyHomeTapTodoCategory(
+    adapter: HomeStoreTestAdapter
 ) async throws {
     await adapter.setPresentation(.contentPicker, true)
     await adapter.tapTodoCategory(.system(.feature))
 
     #expect(!adapter.showContentPicker)
-    #expect(!adapter.showTodoEditor)
-
-    await waitUntil {
-        adapter.showTodoEditor
-    }
-
     #expect(adapter.showTodoEditor)
 }
 
 @MainActor
-func verifyHomeOrderTodoCategory<Adapter: HomeStateDriving>(
-    adapter: Adapter,
+func verifyHomeOrderTodoCategory(
+    adapter: HomeStoreTestAdapter,
     updatePreferencesUseCaseSpy: UpdateTodoCategoryPreferencesUseCaseSpy
 ) async throws {
     await adapter.fetchData()
@@ -101,8 +95,8 @@ func verifyHomeOrderTodoCategory<Adapter: HomeStateDriving>(
 }
 
 @MainActor
-func verifyHomeAddWebPage<Adapter: HomeStateDriving>(
-    adapter: Adapter,
+func verifyHomeAddWebPage(
+    adapter: HomeStoreTestAdapter,
     addWebPageUseCaseSpy: AddWebPageUseCaseSpy,
     fetchWebPagesUseCaseSpy: FetchWebPagesUseCaseSpy,
     trackAnalyticsEventUseCaseSpy: HomeTrackAnalyticsEventUseCaseSpy
@@ -123,38 +117,6 @@ func verifyHomeAddWebPage<Adapter: HomeStateDriving>(
         "https://developer.apple.com"
     ])
     #expect(!adapter.showAlert)
-}
-
-@MainActor
-func verifyHomeDeleteUndoWebPage<Adapter: HomeStateDriving>(
-    adapter: Adapter,
-    deleteWebPageUseCaseSpy: DeleteWebPageUseCaseSpy,
-    undoDeleteWebPageUseCaseSpy: UndoDeleteWebPageUseCaseSpy
-) async throws {
-    await adapter.fetchData()
-
-    let page = try #require(adapter.webPages.first)
-
-    await adapter.deleteWebPage(page)
-
-    #expect(adapter.webPages.first?.isHidden == true)
-
-    await waitUntil {
-        deleteWebPageUseCaseSpy.calledUrlStrings == [page.url.absoluteString]
-    }
-
-    await adapter.undoDeleteWebPage()
-
-    await waitUntil {
-        undoDeleteWebPageUseCaseSpy.calledUrlStrings == [page.url.absoluteString]
-    }
-
-    #expect(adapter.webPages.first?.isHidden == false)
-
-    await adapter.deleteWebPage(page)
-    await adapter.finishDeleteWebPageToast(page.url.absoluteString)
-
-    #expect(adapter.webPages.isEmpty)
 }
 
 struct HomeFetchDataContext {

@@ -11,125 +11,12 @@ import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 @testable import DevLogPresentation
+import Foundation
 
 @MainActor
-protocol HomeStateDriving {
-    var preferences: [TodoCategoryItem] { get }
-    var recentTodos: [RecentTodoItem] { get }
-    var webPages: [WebPageItem] { get }
-    var isNetworkConnected: Bool { get }
-    var showContentPicker: Bool { get }
-    var showWebPageInputNavigation: Bool { get }
-    var showTodoEditor: Bool { get }
-    var showAlert: Bool { get }
-    var alertType: HomeFeature.AlertType? { get }
-    var alertTitle: String { get }
-    var webPageURLInput: String { get }
-
-    func startObserving() async
-    func fetchData() async
-    func openWebPageInput() async
-    func setPresentation(_ presentation: HomeFeature.Presentation, _ isPresented: Bool) async
-    func setAlert(isPresented: Bool, type: HomeFeature.AlertType?) async
-    func tapTodoCategory(_ category: TodoCategory) async
-    func orderTodoCategory(_ items: [TodoCategoryItem]) async
-    func updateWebPageURLInput(_ input: String) async
-    func addWebPage() async
-    func deleteWebPage(_ page: WebPageItem) async
-    func undoDeleteWebPage() async
-    func finishDeleteWebPageToast(_ urlString: String) async
-}
-
-@MainActor
-struct HomeViewModelTestAdapter: HomeStateDriving {
-    private let viewModel: HomeViewModel
-
-    var preferences: [TodoCategoryItem] { viewModel.state.preferences }
-    var recentTodos: [RecentTodoItem] { viewModel.state.recentTodos }
-    var webPages: [WebPageItem] { viewModel.state.webPages }
-    var isNetworkConnected: Bool { viewModel.state.isNetworkConnected }
-    var showContentPicker: Bool { viewModel.state.showContentPicker }
-    var showWebPageInputNavigation: Bool { false }
-    var showTodoEditor: Bool { viewModel.state.showTodoEditor }
-    var showAlert: Bool { viewModel.state.showAlert }
-    var alertType: HomeFeature.AlertType? { viewModel.state.alertType?.featureValue }
-    var alertTitle: String { viewModel.state.alertTitle }
-    var webPageURLInput: String { viewModel.state.webPageURLInput }
-
-    init(
-        fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = FetchTodoCategoryPreferencesUseCaseSpy(),
-        updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase = UpdateTodoCategoryPreferencesUseCaseSpy(),
-        addWebPageUseCase: AddWebPageUseCase = AddWebPageUseCaseSpy(),
-        deleteWebPageUseCase: DeleteWebPageUseCase = DeleteWebPageUseCaseSpy(),
-        undoDeleteWebPageUseCase: UndoDeleteWebPageUseCase = UndoDeleteWebPageUseCaseSpy(),
-        fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
-        fetchWebPagesUseCase: FetchWebPagesUseCase = FetchWebPagesUseCaseSpy(webPages: []),
-        networkConnectivityUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = HomeTrackAnalyticsEventUseCaseSpy()
-    ) {
-        viewModel = HomeViewModel(
-            fetchPreferencesUseCase: fetchPreferencesUseCase,
-            updatePreferencesUseCase: updatePreferencesUseCase,
-            addWebPageUseCase: addWebPageUseCase,
-            deleteWebPageUseCase: deleteWebPageUseCase,
-            undoDeleteWebPageUseCase: undoDeleteWebPageUseCase,
-            fetchTodosUseCase: fetchTodosUseCase,
-            fetchWebPagesUseCase: fetchWebPagesUseCase,
-            networkConnectivityUseCase: networkConnectivityUseCase,
-            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
-        )
-    }
-
-    func startObserving() async { }
-
-    func fetchData() async {
-        viewModel.send(.fetchData)
-    }
-
-    func openWebPageInput() async {
-        viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
-    }
-
-    func setPresentation(_ presentation: HomeFeature.Presentation, _ isPresented: Bool) async {
-        viewModel.send(.setPresentation(presentation.viewModelValue, isPresented))
-    }
-
-    func setAlert(isPresented: Bool, type: HomeFeature.AlertType?) async {
-        viewModel.send(.setAlert(isPresented: isPresented, type: type?.viewModelValue))
-    }
-
-    func tapTodoCategory(_ category: TodoCategory) async {
-        viewModel.send(.tapTodoCategory(category))
-    }
-
-    func orderTodoCategory(_ items: [TodoCategoryItem]) async {
-        viewModel.send(.orderTodoCategory(items))
-    }
-
-    func updateWebPageURLInput(_ input: String) async {
-        viewModel.send(.updateWebPageURLInput(input))
-    }
-
-    func addWebPage() async {
-        viewModel.send(.addWebPage)
-    }
-
-    func deleteWebPage(_ page: WebPageItem) async {
-        viewModel.send(.deleteWebPage(page))
-    }
-
-    func undoDeleteWebPage() async {
-        viewModel.send(.undoDeleteWebPage)
-    }
-
-    func finishDeleteWebPageToast(_ urlString: String) async {
-        viewModel.send(.finishDeleteWebPageToast(urlString))
-    }
-}
-
-@MainActor
-struct HomeStoreTestAdapter: HomeStateDriving {
+struct HomeStoreTestAdapter {
     private let store: TestStoreOf<HomeFeature>
+    private let clock: TestClock<Duration>
 
     var preferences: [TodoCategoryItem] { store.state.preferences }
     var recentTodos: [RecentTodoItem] { store.state.recentTodos }
@@ -171,6 +58,8 @@ struct HomeStoreTestAdapter: HomeStateDriving {
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = HomeTrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
+        let clock = TestClock()
+        self.clock = clock
         store = TestStore(initialState: HomeFeature.State()) {
             HomeFeature()
         } withDependencies: {
@@ -183,7 +72,7 @@ struct HomeStoreTestAdapter: HomeStateDriving {
             $0.homeFetchWebPagesUseCase = fetchWebPagesUseCase
             $0.networkConnectivityUseCase = networkConnectivityUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-            $0.continuousClock = ContinuousClock()
+            $0.continuousClock = clock
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
@@ -215,7 +104,8 @@ struct HomeStoreTestAdapter: HomeStateDriving {
 
     func tapTodoCategory(_ category: TodoCategory) async {
         await store.send(.tapTodoCategory(category))
-        await drainReceivedActions()
+        await clock.advance(by: .seconds(1))
+        await settle()
     }
 
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {
@@ -246,10 +136,15 @@ struct HomeStoreTestAdapter: HomeStateDriving {
         await store.send(.finishDeleteWebPageToast(urlString))
     }
 
-    private func drainReceivedActions() async {
+    func drainReceivedActions() async {
         for _ in 0..<12 {
             await store.skipReceivedActions(strict: false)
         }
+    }
+
+    func settle() async {
+        await Task.yield()
+        await drainReceivedActions()
     }
 }
 
@@ -300,39 +195,4 @@ func makeHomeWebPage(
         displayURL: url,
         imageURL: nil
     )
-}
-
-private extension HomeViewModel.AlertType {
-    var featureValue: HomeFeature.AlertType {
-        switch self {
-        case .invalidURL:
-            return .invalidURL
-        case .error:
-            return .error
-        }
-    }
-}
-
-private extension HomeFeature.AlertType {
-    var viewModelValue: HomeViewModel.AlertType {
-        switch self {
-        case .invalidURL:
-            return .invalidURL
-        case .error:
-            return .error
-        }
-    }
-}
-
-private extension HomeFeature.Presentation {
-    var viewModelValue: HomeViewModel.Presentation {
-        switch self {
-        case .todoEditor:
-            return .todoEditor
-        case .contentPicker:
-            return .contentPicker
-        case .searchView:
-            return .searchView
-        }
-    }
 }
