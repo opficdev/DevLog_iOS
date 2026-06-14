@@ -16,7 +16,6 @@ struct HomeFeature {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         @Presents var fullScreenCover: FullScreenCoverState?
-        @Presents var webPageInput: WebPageInputState?
         var preferences = [TodoCategoryItem]()
         var recentTodos = [RecentTodoItem]()
         var webPages = [WebPageItem]()
@@ -27,7 +26,7 @@ struct HomeFeature {
         var deletedWebPageURLString: String?
         var loading = LoadingFeature.State()
 
-        var showContentPicker: Bool { sheet == .contentPicker }
+        var showContentPicker: Bool { sheet?.contentPickerState != nil }
         var showTodoEditor: Bool { fullScreenCover?.destination == .todoEditor }
 
         var isPreferencesLoading: Bool {
@@ -51,12 +50,10 @@ struct HomeFeature {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case fullScreenCover(PresentationAction<Never>)
-        case webPageInput(PresentationAction<Never>)
         case startObserving
         case fetchData
         case refreshRecentTodos
         case networkStatusChanged(Bool)
-        case tapWebPageInput
         case setSheet(SheetState?)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
@@ -86,8 +83,43 @@ struct HomeFeature {
     }
 
     @ObservableState
+    struct ContentPickerState: Equatable {
+        @Presents var webPageInput: WebPageInputState?
+    }
+
+    @ObservableState
     struct WebPageInputState: Equatable, Identifiable {
         let id = UUID()
+    }
+
+    @ObservableState
+    @CasePathable
+    enum SheetState: Equatable {
+        case reorderTodo
+        case contentPicker(ContentPickerState)
+
+        var contentPickerState: ContentPickerState? {
+            get {
+                guard case .contentPicker(let state) = self else { return nil }
+                return state
+            }
+            set {
+                guard let newValue else { return }
+                self = .contentPicker(newValue)
+            }
+        }
+    }
+
+    @CasePathable
+    enum Sheet: Equatable {
+        case tapCloseButton
+        case contentPicker(ContentPicker)
+
+        @CasePathable
+        enum ContentPicker: Equatable {
+            case tapWebPageInput
+            case webPageInput(PresentationAction<Never>)
+        }
     }
 
     @ObservableState
@@ -105,17 +137,6 @@ struct HomeFeature {
         }
 
         static let search = Self(destination: .search)
-    }
-
-    @ObservableState
-    @CasePathable
-    enum SheetState: Equatable {
-        case reorderTodo
-        case contentPicker
-    }
-
-    enum Sheet: Equatable {
-        case tapCloseButton
     }
 
     enum ModalType: Hashable {
@@ -172,10 +193,6 @@ struct HomeFeature {
                 state.selectedTodoCategory = nil
             case .fullScreenCover:
                 break
-            case .webPageInput(.dismiss):
-                state.webPageInput = nil
-            case .webPageInput:
-                break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
             case .sheet:
@@ -192,8 +209,6 @@ struct HomeFeature {
                 return fetchRecentTodosEffect()
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
-            case .tapWebPageInput:
-                state.webPageInput = .init()
             case .setSheet(let sheet):
                 state.sheet = sheet
             case .setPresentation(let presentation, let isPresented):
@@ -232,7 +247,6 @@ struct HomeFeature {
                     Self.setAlert(&state, isPresented: true, type: .invalidURL)
                     return .none
                 }
-                state.webPageInput = nil
                 state.sheet = nil
                 Self.setAlert(&state, isPresented: false, type: nil)
                 return addWebPageEffect(normalizedURL)
@@ -266,7 +280,39 @@ struct HomeFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            EmptyReducer()
+            HomeSheetFeature()
+        }
+    }
+}
+
+private struct HomeSheetFeature: Reducer {
+    typealias State = HomeFeature.SheetState
+    typealias Action = HomeFeature.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
+        .ifCaseLet(\.contentPicker, action: \.contentPicker) {
+            HomeContentPickerFeature()
+        }
+    }
+}
+
+private struct HomeContentPickerFeature: Reducer {
+    typealias State = HomeFeature.ContentPickerState
+    typealias Action = HomeFeature.Sheet.ContentPicker
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .tapWebPageInput:
+                state.webPageInput = .init()
+            case .webPageInput(.dismiss):
+                state.webPageInput = nil
+            case .webPageInput:
+                break
+            }
+
+            return .none
         }
         .ifLet(\.$webPageInput, action: \.webPageInput) {
             HomeWebPageInputFeature()

@@ -149,7 +149,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                store.send(.setSheet(.contentPicker))
+                store.send(.setSheet(.contentPicker(.init())))
             } label: {
                 Image(systemName: "plus")
             }
@@ -169,7 +169,8 @@ struct HomeView: View {
 
     @ViewBuilder
     private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
-        if sheetStore.state == .contentPicker {
+        if let contentPickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
+            @Bindable var contentPickerStore = contentPickerStore
             NavigationStack {
                 List {
                     Section {
@@ -199,7 +200,7 @@ struct HomeView: View {
 
                     Section {
                         Button {
-                            store.send(.tapWebPageInput)
+                            contentPickerStore.send(.tapWebPageInput)
                         } label: {
                             labelImage(
                                 text: "URL",
@@ -214,7 +215,7 @@ struct HomeView: View {
                     }
                 }
                 .navigationDestination(
-                    item: $store.scope(state: \.webPageInput, action: \.webPageInput)
+                    item: $contentPickerStore.scope(state: \.webPageInput, action: \.webPageInput)
                 ) { _ in
                     Form {
                         Section {

@@ -153,7 +153,7 @@ extension HomeFeature {
                 state.selectedTodoCategory = nil
             }
         case .contentPicker:
-            state.sheet = isPresented ? .contentPicker : state.showContentPicker ? nil : state.sheet
+            state.sheet = isPresented ? .contentPicker(.init()) : state.showContentPicker ? nil : state.sheet
         case .searchView:
             state.fullScreenCover = isPresented ? .search : nil
         }

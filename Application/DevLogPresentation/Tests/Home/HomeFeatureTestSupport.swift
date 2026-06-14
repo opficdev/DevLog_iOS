@@ -136,7 +136,9 @@ struct HomeStoreTestAdapter: HomeStateDriving {
     var webPages: [WebPageItem] { store.state.webPages }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var showContentPicker: Bool { store.state.showContentPicker }
-    var showWebPageInputNavigation: Bool { store.state.showWebPageInput }
+    var showWebPageInputNavigation: Bool {
+        store.state.sheet?.contentPickerState?.webPageInput != nil
+    }
     var showTodoEditor: Bool { store.state.showTodoEditor }
     var showAlert: Bool { store.state.alert != nil }
     var alertType: HomeFeature.AlertType? {
