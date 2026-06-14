@@ -21,6 +21,10 @@ public struct TodayDisplayOptions: Equatable {
 
     public var dueDateVisibility: DueDateVisibility
     public var focusVisibility: FocusVisibility
+    public var isFocusedOnly: Bool {
+        get { focusVisibility == .focusedOnly }
+        set { focusVisibility = newValue ? .focusedOnly : .all }
+    }
 
     public init(
         dueDateVisibility: DueDateVisibility,

@@ -93,12 +93,7 @@ struct TodayView: View {
 
                 Toggle(
                     String(localized: "today_pinned_only"),
-                    isOn: Binding(
-                        get: { store.displayOptions.focusVisibility == .focusedOnly },
-                        set: {
-                            store.send(.setFocusVisibility($0 ? .focusedOnly : .all))
-                        }
-                    )
+                    isOn: $store.displayOptions.isFocusedOnly
                 )
                 .tint(.orange)
 

@@ -178,7 +178,8 @@ struct TodayFeature {
             case .alert:
                 break
             case .binding(\.displayOptions.dueDateVisibility),
-                 .binding(\.displayOptions.focusVisibility):
+                 .binding(\.displayOptions.focusVisibility),
+                 .binding(\.displayOptions.isFocusedOnly):
                 return updateDisplayOptionsEffect(state.displayOptions)
             case .binding:
                 break
