@@ -5,7 +5,6 @@
 //  Created by opfic on 6/14/26.
 //
 
-import Combine
 import ComposableArchitecture
 import DevLogDomain
 import Foundation
@@ -29,9 +28,7 @@ struct HomeFeature {
         var loading = LoadingFeature.State()
 
         var showContentPicker: Bool { sheet == .contentPicker }
-        var reorderTodo: Bool { sheet == .reorderTodo }
         var showTodoEditor: Bool { fullScreenCover?.destination == .todoEditor }
-        var showSearchView: Bool { fullScreenCover?.destination == .search }
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
@@ -126,7 +123,6 @@ struct HomeFeature {
     }
 
     enum Presentation: Equatable {
-        case reorderTodo
         case todoEditor
         case contentPicker
         case searchView

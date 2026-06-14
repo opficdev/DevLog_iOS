@@ -325,8 +325,6 @@ private extension HomeFeature.AlertType {
 private extension HomeFeature.Presentation {
     var viewModelValue: HomeViewModel.Presentation {
         switch self {
-        case .reorderTodo:
-            return .reorderTodo
         case .todoEditor:
             return .todoEditor
         case .contentPicker:

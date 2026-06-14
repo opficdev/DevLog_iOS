@@ -147,8 +147,6 @@ extension HomeFeature {
         isPresented: Bool
     ) {
         switch presentation {
-        case .reorderTodo:
-            state.sheet = isPresented ? .reorderTodo : state.sheet == .reorderTodo ? nil : state.sheet
         case .todoEditor:
             state.fullScreenCover = isPresented ? state.selectedTodoCategory.map(FullScreenCoverState.todoEditor) : nil
             if !isPresented {
