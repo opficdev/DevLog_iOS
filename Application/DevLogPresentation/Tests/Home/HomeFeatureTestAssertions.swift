@@ -42,18 +42,16 @@ func verifyHomeWebPageInputAlert<Adapter: HomeStateDriving>(
 
     #expect(adapter.showContentPicker)
 
-    await adapter.setAlert(isPresented: true, type: .webPageInput)
+    await adapter.openWebPageInput()
 
     #expect(!adapter.showContentPicker)
     #expect(!adapter.showAlert)
 
     await waitUntil {
-        adapter.showAlert
+        adapter.showWebPageInputNavigation
     }
 
-    #expect(adapter.showAlert)
-    #expect(adapter.alertType == .webPageInput)
-    #expect(adapter.alertTitle == String(localized: "home_webpage_input_title"))
+    #expect(adapter.showWebPageInputNavigation)
     #expect(adapter.webPageURLInput == "https://")
 }
 

@@ -70,46 +70,9 @@ struct HomeView: View {
             SearchView(store: coordinator.makeSearchStore())
         }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .alert(
-            store.alertTitle,
-            isPresented: Binding(
-                get: { store.showAlert },
-                set: { store.send(.setAlert(isPresented: $0)) }
-            )
-        ) {
-            alertButtons
-        } message: {
-            Text(store.alertMessage)
-        }
         .overlay {
             if store.isAppending {
                 LoadingView()
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var alertButtons: some View {
-        switch store.alertType {
-        case .webPageInput:
-            TextField(
-                "https://",
-                text: Binding(
-                    get: { store.webPageURLInput },
-                    set: { store.send(.updateWebPageURLInput($0)) }
-                )
-            )
-            .textInputAutocapitalization(.never)
-            .keyboardType(.URL)
-            Button(String(localized: "home_add")) {
-                store.send(.addWebPage)
-            }
-            Button(String(localized: "common_cancel"), role: .cancel) {
-                store.send(.setAlert(isPresented: false))
-            }
-        case .invalidURL, .error, .none:
-            Button(String(localized: "common_close"), role: .cancel) {
-                store.send(.setAlert(isPresented: false))
             }
         }
     }
@@ -335,9 +298,7 @@ struct HomeView: View {
 
                 Section {
                     Button {
-                        DispatchQueue.main.async {
-                            store.send(.setAlert(isPresented: true, type: .webPageInput))
-                        }
+                        store.send(.tapWebPageInput)
                     } label: {
                         labelImage(
                             text: "URL",
@@ -350,9 +311,47 @@ struct HomeView: View {
                         .foregroundStyle(Color(.label))
                 }
             }
-            .navigationTitle(String(localized: "nav_home_content"))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(
+                isPresented: Binding(
+                    get: { store.contentPickerDestination == .webPageInput },
+                    set: { isPresented in
+                        if !isPresented {
+                            store.send(.sheet(.presented(.setContentPickerDestination(nil))))
+                        }
+                    }
+                )
+            ) {
+                Form {
+                    Section {
+                        TextField(
+                            "https://",
+                            text: Binding(
+                                get: { store.webPageURLInput },
+                                set: { store.send(.updateWebPageURLInput($0)) }
+                            )
+                        )
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                    } footer: {
+                        Text(String(localized: "home_webpage_input_message"))
+                    }
+                }
+                .scrollDisabled(true)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(String(localized: "home_webpage_input_title"))
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(String(localized: "home_add")) {
+                            store.send(.addWebPage)
+                        }
+                    }
+                }
+            }
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(String(localized: "nav_home_content"))
+                }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         store.send(.sheet(.presented(.tapCloseButton)))

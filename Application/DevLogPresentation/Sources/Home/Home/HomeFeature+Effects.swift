@@ -125,8 +125,6 @@ extension HomeFeature {
             switch type {
             case .todoEditor:
                 await send(.setPresentation(.todoEditor, true))
-            case .urlInputAlert:
-                await send(.setAlert(isPresented: true, type: .webPageInput))
             }
         }
         .cancellable(id: CancelID.delayedModal(type), cancelInFlight: true)
@@ -157,7 +155,7 @@ extension HomeFeature {
                 state.selectedTodoCategory = nil
             }
         case .contentPicker:
-            state.sheet = isPresented ? .contentPicker : state.sheet == .contentPicker ? nil : state.sheet
+            state.sheet = isPresented ? .contentPicker : state.showContentPicker ? nil : state.sheet
         case .searchView:
             state.showSearchView = isPresented
         }
@@ -168,31 +166,15 @@ extension HomeFeature {
         isPresented: Bool,
         type: AlertType?
     ) {
-        switch type {
-        case .webPageInput:
-            state.alertTitle = String(localized: "home_webpage_input_title")
-            state.alertMessage = String(localized: "home_webpage_input_message")
-            state.webPageURLInput = "https://"
+        guard isPresented, let type else {
             state.alert = nil
-        case .invalidURL, .error:
-            state.alert = isPresented ? alertState(for: type) : nil
-            state.showAlert = false
-            state.alertType = nil
-        case .none:
-            state.alert = nil
-            state.alertTitle = ""
-            state.alertMessage = ""
-            state.showAlert = false
-            state.alertType = nil
+            return
         }
 
-        if type == .webPageInput {
-            state.showAlert = isPresented
-            state.alertType = type
-        }
+        state.alert = alertState(for: type)
     }
 
-    static func alertState(for type: AlertType?) -> AlertState<Never> {
+    static func alertState(for type: AlertType) -> AlertState<Never> {
         let title: String
         let message: String
 
@@ -200,12 +182,9 @@ extension HomeFeature {
         case .invalidURL:
             title = String(localized: "home_invalid_url_title")
             message = String(localized: "home_invalid_url_message")
-        case .error, .none:
+        case .error:
             title = String(localized: "common_error_title")
             message = String(localized: "common_error_message")
-        case .webPageInput:
-            title = String(localized: "home_webpage_input_title")
-            message = String(localized: "home_webpage_input_message")
         }
 
         return AlertState<Never> {

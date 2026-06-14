@@ -36,6 +36,11 @@ struct HomeFeature {
             sheet == .reorderTodo
         }
 
+        var contentPickerDestination: ContentPickerState.Destination? {
+            guard case .contentPicker(let state) = sheet else { return nil }
+            return state.destination
+        }
+
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
         }
@@ -60,6 +65,7 @@ struct HomeFeature {
         case fetchData
         case refreshRecentTodos
         case networkStatusChanged(Bool)
+        case tapWebPageInput
         case setSheet(SheetState?)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
@@ -84,25 +90,35 @@ struct HomeFeature {
     }
 
     enum AlertType: Equatable {
-        case webPageInput
         case invalidURL
         case error
+    }
+
+    @ObservableState
+    struct ContentPickerState: Equatable {
+        var destination: Destination?
+
+        enum Destination: Equatable {
+            case webPageInput
+        }
     }
 
     @ObservableState
     @CasePathable
     enum SheetState: Equatable {
         case reorderTodo
-        case contentPicker
+        case contentPicker(ContentPickerState)
+
+        static let contentPicker = Self.contentPicker(.init())
     }
 
     enum Sheet: Equatable {
         case tapCloseButton
+        case setContentPickerDestination(ContentPickerState.Destination?)
     }
 
     enum ModalType: Hashable {
         case todoEditor
-        case urlInputAlert
     }
 
     enum Presentation: Equatable {
@@ -153,6 +169,10 @@ struct HomeFeature {
                 break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
+            case .sheet(.presented(.setContentPickerDestination(let destination))):
+                guard case .contentPicker(var sheetState) = state.sheet else { break }
+                sheetState.destination = destination
+                state.sheet = .contentPicker(sheetState)
             case .sheet:
                 break
             case .startObserving:
@@ -167,6 +187,13 @@ struct HomeFeature {
                 return fetchRecentTodosEffect()
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
+            case .tapWebPageInput:
+                if case .contentPicker(var sheetState) = state.sheet {
+                    sheetState.destination = .webPageInput
+                    state.sheet = .contentPicker(sheetState)
+                } else {
+                    state.sheet = .contentPicker(.init(destination: .webPageInput))
+                }
             case .setSheet(let sheet):
                 state.sheet = sheet
             case .setPresentation(let presentation, let isPresented):
@@ -205,6 +232,7 @@ struct HomeFeature {
                     Self.setAlert(&state, isPresented: true, type: .invalidURL)
                     return .none
                 }
+                state.sheet = nil
                 Self.setAlert(&state, isPresented: false, type: nil)
                 return addWebPageEffect(normalizedURL)
             case .deleteWebPage(let page):

@@ -19,6 +19,7 @@ protocol HomeStateDriving {
     var webPages: [WebPageItem] { get }
     var isNetworkConnected: Bool { get }
     var showContentPicker: Bool { get }
+    var showWebPageInputNavigation: Bool { get }
     var showTodoEditor: Bool { get }
     var showAlert: Bool { get }
     var alertType: HomeFeature.AlertType? { get }
@@ -27,6 +28,7 @@ protocol HomeStateDriving {
 
     func startObserving() async
     func fetchData() async
+    func openWebPageInput() async
     func setPresentation(_ presentation: HomeFeature.Presentation, _ isPresented: Bool) async
     func setAlert(isPresented: Bool, type: HomeFeature.AlertType?) async
     func tapTodoCategory(_ category: TodoCategory) async
@@ -47,6 +49,7 @@ struct HomeViewModelTestAdapter: HomeStateDriving {
     var webPages: [WebPageItem] { viewModel.state.webPages }
     var isNetworkConnected: Bool { viewModel.state.isNetworkConnected }
     var showContentPicker: Bool { viewModel.state.showContentPicker }
+    var showWebPageInputNavigation: Bool { false }
     var showTodoEditor: Bool { viewModel.state.showTodoEditor }
     var showAlert: Bool { viewModel.state.showAlert }
     var alertType: HomeFeature.AlertType? { viewModel.state.alertType?.featureValue }
@@ -81,6 +84,10 @@ struct HomeViewModelTestAdapter: HomeStateDriving {
 
     func fetchData() async {
         viewModel.send(.fetchData)
+    }
+
+    func openWebPageInput() async {
+        viewModel.send(.setAlert(isPresented: true, type: .webPageInput))
     }
 
     func setPresentation(_ presentation: HomeFeature.Presentation, _ isPresented: Bool) async {
@@ -129,10 +136,25 @@ struct HomeStoreTestAdapter: HomeStateDriving {
     var webPages: [WebPageItem] { store.state.webPages }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var showContentPicker: Bool { store.state.showContentPicker }
+    var showWebPageInputNavigation: Bool { store.state.contentPickerDestination == .webPageInput }
     var showTodoEditor: Bool { store.state.showTodoEditor }
-    var showAlert: Bool { store.state.showAlert }
-    var alertType: HomeFeature.AlertType? { store.state.alertType }
-    var alertTitle: String { store.state.alertTitle }
+    var showAlert: Bool { store.state.alert != nil }
+    var alertType: HomeFeature.AlertType? {
+        guard let title = store.state.alert?.title else { return nil }
+        if title == TextState(String(localized: "home_invalid_url_title")) {
+            return .invalidURL
+        }
+        if title == TextState(String(localized: "common_error_title")) {
+            return .error
+        }
+        return nil
+    }
+    var alertTitle: String {
+        if let title = store.state.alert?.title {
+            return String(state: title)
+        }
+        return ""
+    }
     var webPageURLInput: String { store.state.webPageURLInput }
 
     init(
@@ -172,6 +194,11 @@ struct HomeStoreTestAdapter: HomeStateDriving {
 
     func fetchData() async {
         await store.send(.fetchData)
+        await drainReceivedActions()
+    }
+
+    func openWebPageInput() async {
+        await store.send(.tapWebPageInput)
         await drainReceivedActions()
     }
 
@@ -276,8 +303,6 @@ func makeHomeWebPage(
 private extension HomeViewModel.AlertType {
     var featureValue: HomeFeature.AlertType {
         switch self {
-        case .webPageInput:
-            return .webPageInput
         case .invalidURL:
             return .invalidURL
         case .error:
@@ -289,8 +314,6 @@ private extension HomeViewModel.AlertType {
 private extension HomeFeature.AlertType {
     var viewModelValue: HomeViewModel.AlertType {
         switch self {
-        case .webPageInput:
-            return .webPageInput
         case .invalidURL:
             return .invalidURL
         case .error:
