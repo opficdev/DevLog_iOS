@@ -59,22 +59,26 @@ struct PushNotificationListFeature {
         case toggleRead(PushNotificationItem)
         case undoDelete
         case finishDeleteToast(String)
-        case setAlert
-        case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
-        case resetPagination
-        case setHasMore(Bool)
-        case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
-        case setNotificationHidden(String, Bool)
         case toggleSortOption
         case toggleUnreadOnly
         case resetFilters
         case selectNotification(String?)
         case syncSheetPresentation(isCompactLayout: Bool)
-        case observeNotifications(PushNotificationQuery, Int)
+        case store(StoreAction)
         case loading(LoadingFeature.Action)
 
         enum Sheet: Equatable {
             case tapCloseButton
+        }
+
+        enum StoreAction: Equatable {
+            case setAlert
+            case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
+            case resetPagination
+            case setHasMore(Bool)
+            case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
+            case setNotificationHidden(String, Bool)
+            case observeNotifications(PushNotificationQuery, Int)
         }
     }
 
@@ -164,27 +168,27 @@ private extension PushNotificationListFeature {
             if state.undoNotificationId == notificationId {
                 state.undoNotificationId = nil
             }
-        case .setAlert:
+        case .store(.setAlert):
             state.alert = Self.alertState()
-        case .appendNotifications(let notifications, let nextCursor):
+        case .store(.appendNotifications(let notifications, let nextCursor)):
             state.notifications.append(contentsOf: Self.mergedHiddenNotifications(
                 currentNotifications: state.notifications,
                 incomingNotifications: notifications
             ))
             state.nextCursor = nextCursor
-        case .resetPagination:
+        case .store(.resetPagination):
             state.notifications = []
             state.nextCursor = nil
-        case .setHasMore(let value):
+        case .store(.setHasMore(let value)):
             state.hasMore = value
-        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+        case .store(.syncNotifications(let notifications, let nextCursor, let hasMore)):
             state.notifications = Self.mergedHiddenNotifications(
                 currentNotifications: state.notifications,
                 incomingNotifications: notifications
             )
             state.nextCursor = nextCursor
             state.hasMore = hasMore
-        case .setNotificationHidden(let notificationId, let isHidden):
+        case .store(.setNotificationHidden(let notificationId, let isHidden)):
             Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
@@ -219,7 +223,7 @@ private extension PushNotificationListFeature {
             } else {
                 state.sheet = nil
             }
-        case .observeNotifications(let query, let limit):
+        case .store(.observeNotifications(let query, let limit)):
             return observeNotificationsEffect(query: query, limit: limit)
         case .loading:
             break
@@ -246,20 +250,20 @@ private extension PushNotificationListFeature {
             do {
                 let page = try await fetchPushNotificationsUseCase.execute(query, cursor: cursor)
                 if cursor == nil {
-                    await send(.resetPagination)
+                    await send(.store(.resetPagination))
                 }
                 await send(
-                    .appendNotifications(
+                    .store(.appendNotifications(
                         page.items.map(PushNotificationItem.init(from:)),
                         nextCursor: page.nextCursor
-                    )
+                    ))
                 )
-                await send(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil))
-                await send(.observeNotifications(query, max(limit, existingCount + page.items.count)))
+                await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
+                await send(.store(.observeNotifications(query, max(limit, existingCount + page.items.count))))
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
-                await send(.setAlert)
+                await send(.store(.setAlert))
             }
         }
         .cancellable(id: CancelID.fetchNotifications, cancelInFlight: true)
@@ -284,11 +288,11 @@ private extension PushNotificationListFeature {
                 for try await page in publisher.values {
                     let items = page.items.map(PushNotificationItem.init(from:))
                     let hasMore = items.count == max(query.pageSize, limit) && page.nextCursor != nil
-                    await send(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore))
+                    await send(.store(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore)))
                 }
             } catch is CancellationError {
             } catch {
-                await send(.setAlert)
+                await send(.store(.setAlert))
             }
         }
         .cancellable(id: CancelID.observeNotifications, cancelInFlight: true)
@@ -299,8 +303,8 @@ private extension PushNotificationListFeature {
             do {
                 try await deletePushNotificationUseCase.execute(item.id)
             } catch {
-                await send(.setNotificationHidden(item.id, false))
-                await send(.setAlert)
+                await send(.store(.setNotificationHidden(item.id, false)))
+                await send(.store(.setAlert))
             }
         }
     }
@@ -310,8 +314,8 @@ private extension PushNotificationListFeature {
             do {
                 try await undoDeletePushNotificationUseCase.execute(notificationId)
             } catch {
-                await send(.setNotificationHidden(notificationId, true))
-                await send(.setAlert)
+                await send(.store(.setNotificationHidden(notificationId, true)))
+                await send(.store(.setAlert))
             }
         }
     }
@@ -324,7 +328,7 @@ private extension PushNotificationListFeature {
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
-                await send(.setAlert)
+                await send(.store(.setAlert))
             }
         }
         .cancellable(id: CancelID.toggleRead, cancelInFlight: true)

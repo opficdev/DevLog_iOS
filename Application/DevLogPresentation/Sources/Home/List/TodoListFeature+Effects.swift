@@ -20,12 +20,12 @@ extension TodoListFeature {
                 let query = TodoQuery(categoryId: category.storageValue, keyword: keyword)
                 let page = try await fetchTodosUseCase.execute(query, cursor: nil)
                 try Task.checkCancellation()
-                await send(.fetchSearchResults(page.items.compactMap(TodoListItem.init(from:))))
+                await send(.store(.fetchSearchResults(page.items.compactMap(TodoListItem.init(from:)))))
                 await send(.loading(.end(target: .default, mode: .immediate)))
             } catch is CancellationError {
                 return
             } catch {
-                await send(.setAlert(true))
+                await send(.store(.setAlert(true)))
                 await send(.loading(.end(target: .default, mode: .immediate)))
             }
         }
@@ -47,14 +47,14 @@ extension TodoListFeature {
                         trackAnalyticsEventUseCase?.execute(.todoComplete)
                     }
                     guard let todoListItem = TodoListItem(from: todo) else {
-                        await send(.setAlert(true))
+                        await send(.store(.setAlert(true)))
                         await send(.loading(.end(target: .default, mode: .delayed)))
                         return
                     }
-                    await send(.didToggleCompleted(todoListItem))
+                    await send(.store(.didToggleCompleted(todoListItem)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 } catch {
-                    await send(.setAlert(true))
+                    await send(.store(.setAlert(true)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
             }
@@ -71,14 +71,14 @@ extension TodoListFeature {
                     todo.updatedAt = Date()
                     try await upsertTodoUseCase.execute(todo)
                     guard let todoListItem = TodoListItem(from: todo) else {
-                        await send(.setAlert(true))
+                        await send(.store(.setAlert(true)))
                         await send(.loading(.end(target: .default, mode: .delayed)))
                         return
                     }
-                    await send(.didTogglePinned(todoListItem))
+                    await send(.store(.didTogglePinned(todoListItem)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 } catch {
-                    await send(.setAlert(true))
+                    await send(.store(.setAlert(true)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
             }
@@ -98,8 +98,8 @@ extension TodoListFeature {
             do {
                 try await deleteTodoUseCase.execute(item.id)
             } catch {
-                await send(.setTodoHidden(item.id, false))
-                await send(.setAlert(true))
+                await send(.store(.setTodoHidden(item.id, false)))
+                await send(.store(.setAlert(true)))
             }
         }
     }
@@ -109,8 +109,8 @@ extension TodoListFeature {
             do {
                 try await undoDeleteTodoUseCase.execute(todoId)
             } catch {
-                await send(.setTodoHidden(todoId, true))
-                await send(.setAlert(true))
+                await send(.store(.setTodoHidden(todoId, true)))
+                await send(.store(.setAlert(true)))
             }
         }
     }

@@ -65,7 +65,6 @@ struct TodoListFeature {
         case fullScreenCover(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case refresh
-        case setAlert(Bool)
         case setFullScreenCover(FullScreenCoverState?)
         case swipeTodo(TodoListItem)
         case resetFilters
@@ -76,15 +75,20 @@ struct TodoListFeature {
         case undoDelete
         case onAppear
         case loadNextPage
-        case applySearchQuery(String)
-        case fetchSearchResults([TodoListItem])
-        case didToggleCompleted(TodoListItem)
-        case didTogglePinned(TodoListItem)
-        case setTodoHidden(String, Bool)
-        case appendTodos([TodoListItem], nextCursor: TodoCursor?)
-        case resetPagination
-        case setHasMore(Bool)
+        case store(StoreAction)
         case loading(LoadingFeature.Action)
+
+        enum StoreAction: Equatable {
+            case setAlert(Bool)
+            case applySearchQuery(String)
+            case fetchSearchResults([TodoListItem])
+            case didToggleCompleted(TodoListItem)
+            case didTogglePinned(TodoListItem)
+            case setTodoHidden(String, Bool)
+            case appendTodos([TodoListItem], nextCursor: TodoCursor?)
+            case resetPagination
+            case setHasMore(Bool)
+        }
     }
 
     enum CancelID: Hashable {
@@ -187,7 +191,7 @@ private extension TodoListFeature {
             break
         case .refresh, .onAppear:
             return fetchEffect(query: state.query, cursor: nil)
-        case .setAlert(let value):
+        case .store(.setAlert(let value)):
             Self.setAlert(&state, isPresented: value)
         case .setFullScreenCover(let cover):
             state.fullScreenCover = cover
@@ -217,24 +221,24 @@ private extension TodoListFeature {
         case .loadNextPage:
             guard state.hasMore, !state.isLoading else { return .none }
             return fetchEffect(query: state.query, cursor: state.nextCursor, resetsPagination: false)
-        case .applySearchQuery(let query):
+        case .store(.applySearchQuery(let query)):
             return applySearchQueryEffect(query, state: &state)
-        case .fetchSearchResults(let items):
+        case .store(.fetchSearchResults(let items)):
             state.searchResults = items
-        case .didToggleCompleted(let todo), .didTogglePinned(let todo):
+        case .store(.didToggleCompleted(let todo)), .store(.didTogglePinned(let todo)):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo
             }
-        case .setTodoHidden(let todoId, let isHidden):
+        case .store(.setTodoHidden(let todoId, let isHidden)):
             Self.setTodoHidden(&state, todoId: todoId, isHidden: isHidden)
-        case .appendTodos(let todos, let nextCursor):
+        case .store(.appendTodos(let todos, let nextCursor)):
             state.todos.append(contentsOf: todos)
             state.nextCursor = nextCursor
-        case .resetPagination:
+        case .store(.resetPagination):
             state.todos = []
             state.nextCursor = nil
             state.hasMore = false
-        case .setHasMore(let value):
+        case .store(.setHasMore(let value)):
             state.hasMore = value
         case .loading:
             break
@@ -254,18 +258,18 @@ private extension TodoListFeature {
                 do {
                     let page = try await fetchTodosUseCase.execute(query, cursor: cursor)
                     if resetsPagination {
-                        await send(.resetPagination)
+                        await send(.store(.resetPagination))
                     }
-                    await send(.appendTodos(
+                    await send(.store(.appendTodos(
                         page.items.compactMap(TodoListItem.init(from:)),
                         nextCursor: page.nextCursor
-                    ))
-                    await send(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil))
+                    )))
+                    await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 } catch is CancellationError {
                     return
                 } catch {
-                    await send(.setAlert(true))
+                    await send(.store(.setAlert(true)))
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
             }
@@ -311,7 +315,7 @@ private extension TodoListFeature {
             .send(.loading(.begin(target: .default, mode: .immediate))),
             .run { [clock, searchDebounceDelay] send in
                 try await clock.sleep(for: searchDebounceDelay)
-                await send(.applySearchQuery(keyword))
+                await send(.store(.applySearchQuery(keyword)))
             }
             .cancellable(id: CancelID.debounce, cancelInFlight: true)
         )
