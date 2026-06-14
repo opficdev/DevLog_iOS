@@ -37,11 +37,19 @@ struct HomeView: View {
         .toolbar { toolbar }
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet), content: sheetContent)
-        .fullScreenCover(isPresented: Binding(
-            get: { store.showTodoEditor },
-            set: { store.send(.setPresentation(.todoEditor, $0)) }
-        )) {
-            if let selectedCategory = store.selectedTodoCategory {
+        .fullScreenCover(item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover), content: coverContent)
+        .overlay {
+            if store.isAppending {
+                LoadingView()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func coverContent(_ coverStore: Store<HomeFeature.FullScreenCoverState, Never>) -> some View {
+        switch coverStore.destination {
+        case .todoEditor:
+            if let selectedCategory = coverStore.selectedTodoCategory {
                 TodoEditorView(
                     store: coordinator.makeTodoEditorStore(category: selectedCategory),
                     onCreateSuccess: {
@@ -50,17 +58,8 @@ struct HomeView: View {
                     }
                 )
             }
-        }
-        .fullScreenCover(isPresented: Binding(
-            get: { store.showSearchView },
-            set: { store.send(.setPresentation(.searchView, $0)) }
-        )) {
+        case .search:
             SearchView(store: coordinator.makeSearchStore())
-        }
-        .overlay {
-            if store.isAppending {
-                LoadingView()
-            }
         }
     }
 

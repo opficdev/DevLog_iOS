@@ -150,14 +150,14 @@ extension HomeFeature {
         case .reorderTodo:
             state.sheet = isPresented ? .reorderTodo : state.sheet == .reorderTodo ? nil : state.sheet
         case .todoEditor:
-            state.showTodoEditor = isPresented
+            state.fullScreenCover = isPresented ? state.selectedTodoCategory.map(FullScreenCoverState.todoEditor) : nil
             if !isPresented {
                 state.selectedTodoCategory = nil
             }
         case .contentPicker:
             state.sheet = isPresented ? .contentPicker : state.showContentPicker ? nil : state.sheet
         case .searchView:
-            state.showSearchView = isPresented
+            state.fullScreenCover = isPresented ? .search : nil
         }
     }
 

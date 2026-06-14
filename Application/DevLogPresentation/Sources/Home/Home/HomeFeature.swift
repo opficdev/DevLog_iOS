@@ -16,14 +16,13 @@ struct HomeFeature {
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
+        @Presents var fullScreenCover: FullScreenCoverState?
         @Presents var webPageInput: WebPageInputState?
         var preferences = [TodoCategoryItem]()
         var recentTodos = [RecentTodoItem]()
         var webPages = [WebPageItem]()
         var needsWebPageRefresh = false
         var isNetworkConnected = true
-        var showTodoEditor = false
-        var showSearchView = false
         var webPageURLInput = "https://"
         var selectedTodoCategory: TodoCategory?
         var deletedWebPageURLString: String?
@@ -31,6 +30,8 @@ struct HomeFeature {
 
         var showContentPicker: Bool { sheet == .contentPicker }
         var reorderTodo: Bool { sheet == .reorderTodo }
+        var showTodoEditor: Bool { fullScreenCover?.destination == .todoEditor }
+        var showSearchView: Bool { fullScreenCover?.destination == .search }
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
@@ -52,6 +53,7 @@ struct HomeFeature {
     enum Action: Equatable {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
+        case fullScreenCover(PresentationAction<Never>)
         case webPageInput(PresentationAction<Never>)
         case startObserving
         case fetchData
@@ -89,6 +91,23 @@ struct HomeFeature {
     @ObservableState
     struct WebPageInputState: Equatable, Identifiable {
         let id = UUID()
+    }
+
+    @ObservableState
+    struct FullScreenCoverState: Equatable {
+        var destination: Destination
+        var selectedTodoCategory: TodoCategory?
+
+        enum Destination: Equatable {
+            case todoEditor
+            case search
+        }
+
+        static func todoEditor(_ category: TodoCategory) -> Self {
+            Self(destination: .todoEditor, selectedTodoCategory: category)
+        }
+
+        static let search = Self(destination: .search)
     }
 
     @ObservableState
@@ -151,6 +170,11 @@ struct HomeFeature {
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .fullScreenCover(.dismiss):
+                state.fullScreenCover = nil
+                state.selectedTodoCategory = nil
+            case .fullScreenCover:
                 break
             case .webPageInput(.dismiss):
                 state.webPageInput = nil
