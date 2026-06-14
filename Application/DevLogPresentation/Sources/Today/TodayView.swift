@@ -6,20 +6,31 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
 struct TodayView: View {
+    @State private var store: StoreOf<TodayFeature>
     let coordinator: TodayViewCoordinator
     let isCompactLayout: Bool
+
+    init(
+        coordinator: TodayViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+        self._store = State(initialValue: coordinator.store)
+    }
 
     var body: some View {
         List {
             summarySection
-            if coordinator.viewModel.sections.isEmpty, !coordinator.viewModel.state.isLoading {
+            if store.sections.isEmpty, !store.isLoading {
                 emptySection
             } else {
-                ForEach(coordinator.viewModel.sections) { section in
+                ForEach(store.sections) { section in
                     todoSection(section.title, items: section.items)
                 }
             }
@@ -28,20 +39,10 @@ struct TodayView: View {
         .navigationTitle(String(localized: "nav_today"))
         .toolbar { toolbarContent }
         .background(NavigationBarConfigurator())
-        .refreshable { coordinator.viewModel.send(.refresh) }
-        .alert(
-            coordinator.viewModel.state.alertTitle,
-            isPresented: Binding(
-                get: { coordinator.viewModel.state.showAlert },
-                set: { coordinator.viewModel.send(.setAlert($0)) }
-            )
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(coordinator.viewModel.state.alertMessage)
-        }
+        .refreshable { store.send(.refresh) }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
-            if coordinator.viewModel.state.isLoading {
+            if store.isLoading {
                 LoadingView()
             }
         }
@@ -49,29 +50,39 @@ struct TodayView: View {
 
     private var summarySection: some View {
         Section {
-            ScrollView(.horizontal) {
-                HStack(spacing: 12) {
-                    ForEach(TodayViewModel.SectionScope.allCases, id: \.self) { scope in
-                        Button {
-                            withAnimation(.easeInOut) {
-                                coordinator.viewModel.send(.setSectionScope(scope))
-                            }
-                        } label: {
-                            SummaryCard(
-                                title: scope.title,
-                                value: coordinator.viewModel.summaryValue(for: scope),
-                                accentColor: scope.accentColor,
-                                isSelected: coordinator.viewModel.state.selectedSectionScope == scope
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            .scrollIndicators(.never)
-            .contentMargins(.horizontal, 16)
+            summaryScrollView
         }
         .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+    }
+
+    private var summaryScrollView: some View {
+        SwiftUI.ScrollView(.horizontal, showsIndicators: false) {
+            summaryCards
+        }
+        .contentMargins(.horizontal, 16)
+    }
+
+    private var summaryCards: some View {
+        let summaryCounts = store.summaryCounts
+        let selectedSectionScope = store.selectedSectionScope
+
+        return HStack(spacing: 12) {
+            ForEach(TodayFeature.SectionScope.allCases, id: \.self) { scope in
+                Button {
+                    withAnimation(SwiftUI.Animation.easeInOut) {
+                        _ = store.send(.setSectionScope(scope))
+                    }
+                } label: {
+                    SummaryCard(
+                        title: scope.title,
+                        value: summaryCounts[scope, default: 0],
+                        accentColor: scope.accentColor,
+                        isSelected: selectedSectionScope == scope
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     @ToolbarContentBuilder
@@ -81,8 +92,8 @@ struct TodayView: View {
                 Picker(
                     String(localized: "today_due_visibility_label"),
                     selection: Binding(
-                        get: { coordinator.viewModel.state.displayOptions.dueDateVisibility },
-                        set: { coordinator.viewModel.send(.setDueDateVisibility($0)) }
+                        get: { store.displayOptions.dueDateVisibility },
+                        set: { store.send(.setDueDateVisibility($0)) }
                     )
                 ) {
                     ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
@@ -93,20 +104,20 @@ struct TodayView: View {
                 Toggle(
                     String(localized: "today_pinned_only"),
                     isOn: Binding(
-                        get: { coordinator.viewModel.state.displayOptions.focusVisibility == .focusedOnly },
+                        get: { store.displayOptions.focusVisibility == .focusedOnly },
                         set: {
-                            coordinator.viewModel.send(.setFocusVisibility($0 ? .focusedOnly : .all))
+                            store.send(.setFocusVisibility($0 ? .focusedOnly : .all))
                         }
                     )
                 )
                 .tint(.orange)
 
-                if coordinator.viewModel.state.displayOptions.focusVisibility == .focusedOnly {
+                if store.displayOptions.focusVisibility == .focusedOnly {
                     Text(String(localized: "today_pinned_only_description"))
                         .font(.caption)
                 }
             } label: {
-                let options = coordinator.viewModel.state.displayOptions
+                let options = store.displayOptions
                 Image(systemName: "line.3.horizontal.decrease.circle\(options == .default ? "" : ".fill")")
             }
         }
@@ -135,7 +146,7 @@ struct TodayView: View {
                     todoRow(item)
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
-                            coordinator.viewModel.send(.togglePinned(item))
+                            store.send(.togglePinned(item))
                         } label: {
                             Image(systemName: item.isPinned ? "star.slash" : "star.fill")
                         }
@@ -143,7 +154,7 @@ struct TodayView: View {
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {
-                            coordinator.viewModel.send(.completeTodo(item))
+                            store.send(.completeTodo(item))
                         } label: {
                             Label(String(localized: "today_complete_action"), systemImage: "checkmark")
                         }
@@ -176,9 +187,9 @@ struct TodayView: View {
     }
 
     private var emptyStateContent: EmptyStateContent {
-        switch coordinator.viewModel.state.selectedSectionScope {
+        switch store.selectedSectionScope {
         case .all:
-            if coordinator.viewModel.state.todos.isEmpty {
+            if store.todos.isEmpty {
                 return EmptyStateContent(
                     title: String(localized: "today_empty_all_title"),
                     message: String(localized: "today_empty_all_message")
@@ -229,7 +240,7 @@ private extension TodayDisplayOptions.DueDateVisibility {
     }
 }
 
-private extension TodayViewModel.SectionScope {
+private extension TodayFeature.SectionScope {
     var title: String {
         switch self {
         case .all:
