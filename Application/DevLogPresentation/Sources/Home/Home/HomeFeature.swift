@@ -139,10 +139,6 @@ struct HomeFeature {
         static let search = Self(destination: .search)
     }
 
-    enum ModalType: Hashable {
-        case todoEditor
-    }
-
     enum Presentation: Equatable {
         case todoEditor
         case contentPicker
@@ -235,7 +231,7 @@ struct HomeFeature {
             case .tapTodoCategory(let category):
                 state.selectedTodoCategory = category
                 state.sheet = nil
-                return delayedModalEffect(.todoEditor)
+                return delayedTodoEditorEffect()
             case .orderTodoCategory(let preferences):
                 state.preferences = preferences
                 state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)

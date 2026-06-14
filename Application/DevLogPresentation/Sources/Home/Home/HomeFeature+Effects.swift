@@ -13,7 +13,7 @@ import Foundation
 
 extension HomeFeature {
     private enum CancelID: Hashable {
-        case delayedModal(ModalType)
+        case delayedTodoEditor
         case networkConnectivity
     }
 
@@ -119,15 +119,12 @@ extension HomeFeature {
         }
     }
 
-    func delayedModalEffect(_ type: ModalType) -> Effect<Action> {
+    func delayedTodoEditorEffect() -> Effect<Action> {
         .run { [clock] send in
             try await clock.sleep(for: .seconds(0.1))
-            switch type {
-            case .todoEditor:
-                await send(.setPresentation(.todoEditor, true))
-            }
+            await send(.setPresentation(.todoEditor, true))
         }
-        .cancellable(id: CancelID.delayedModal(type), cancelInFlight: true)
+        .cancellable(id: CancelID.delayedTodoEditor, cancelInFlight: true)
     }
 
     func fetchRecentTodos(fetchTodosUseCase: FetchTodosUseCase) async throws -> TodoPage {
