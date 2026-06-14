@@ -11,7 +11,7 @@ import DevLogCore
 import DevLogDomain
 
 struct TodayView: View {
-    @State private var store: StoreOf<TodayFeature>
+    @Bindable var store: StoreOf<TodayFeature>
     let coordinator: TodayViewCoordinator
     let isCompactLayout: Bool
 
@@ -21,7 +21,7 @@ struct TodayView: View {
     ) {
         self.coordinator = coordinator
         self.isCompactLayout = isCompactLayout
-        self._store = State(initialValue: coordinator.store)
+        self.store = coordinator.store
     }
 
     var body: some View {
