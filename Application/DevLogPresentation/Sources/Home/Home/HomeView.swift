@@ -35,20 +35,8 @@ struct HomeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
-        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
-            switch sheetStore.state {
-            case .reorderTodo:
-                CategoryManageView(
-                    preferences: store.preferences,
-                    onDismiss: { array in
-                        store.send(.sheet(.dismiss))
-                        store.send(.orderTodoCategory(array), animation: .default)
-                    }
-                )
-            case .contentPicker:
-                contentPicker
-            }
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet), content: sheetContent)
         .fullScreenCover(isPresented: Binding(
             get: { store.showTodoEditor },
             set: { store.send(.setPresentation(.todoEditor, $0)) }
@@ -69,11 +57,109 @@ struct HomeView: View {
         )) {
             SearchView(store: coordinator.makeSearchStore())
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
             if store.isAppending {
                 LoadingView()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
+        if sheetStore.state == .contentPicker {
+            NavigationStack {
+                List {
+                    Section {
+                        if store.isPreferencesLoading {
+                            LoadingView()
+                        } else {
+                            let preferences = store.preferences.filter(\.isVisible)
+                            ForEach(preferences, id: \.id) { item in
+                                Button {
+                                    DispatchQueue.main.async {
+                                        openTodoEditor(for: item.category)
+                                    }
+                                } label: {
+                                    labelImage(
+                                        text: item.localizedName,
+                                        systemName: item.symbolName,
+                                        imageColor: item.color
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("TODO")
+                            .foregroundStyle(Color(.label))
+                    }
+
+                    Section {
+                        Button {
+                            store.send(.tapWebPageInput)
+                        } label: {
+                            labelImage(
+                                text: "URL",
+                                systemName: "globe",
+                                imageColor: .blue
+                            )
+                        }
+                    } header: {
+                        Text("Web Page")
+                            .foregroundStyle(Color(.label))
+                    }
+                }
+                .navigationDestination(
+                    item: $store.scope(state: \.webPageInput, action: \.webPageInput)
+                ) { _ in
+                    Form {
+                        Section {
+                            TextField(
+                                "https://",
+                                text: Binding(
+                                    get: { store.webPageURLInput },
+                                    set: { store.send(.updateWebPageURLInput($0)) }
+                                )
+                            )
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                        } footer: {
+                            Text(String(localized: "home_webpage_input_message"))
+                        }
+                    }
+                    .scrollDisabled(true)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Text(String(localized: "home_webpage_input_title"))
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(String(localized: "home_add")) {
+                                store.send(.addWebPage)
+                            }
+                        }
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(String(localized: "nav_home_content"))
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            store.send(.sheet(.presented(.tapCloseButton)))
+                        } label: {
+                            Image(systemName: "xmark")
+                                .bold()
+                        }
+                    }
+                }
+            }
+        } else {
+            CategoryManageView(
+                preferences: store.preferences,
+                onDismiss: { array in
+                    store.send(.sheet(.dismiss))
+                    store.send(.orderTodoCategory(array), animation: .default)
+                }
+            )
         }
     }
 
@@ -265,101 +351,6 @@ struct HomeView: View {
                 presentDeleteWebPageToast(item.url.absoluteString)
             } label: {
                 Label(String(localized: "common_delete"), systemImage: "trash")
-            }
-        }
-    }
-
-    private var contentPicker: some View {
-        NavigationStack {
-            List {
-                Section {
-                    if store.isPreferencesLoading {
-                        LoadingView()
-                    } else {
-                        let preferences = store.preferences.filter(\.isVisible)
-                        ForEach(preferences, id: \.id) { item in
-                            Button {
-                                DispatchQueue.main.async {
-                                    openTodoEditor(for: item.category)
-                                }
-                            } label: {
-                                labelImage(
-                                    text: item.localizedName,
-                                    systemName: item.symbolName,
-                                    imageColor: item.color
-                                )
-                            }
-                        }
-                    }
-                } header: {
-                    Text("TODO")
-                        .foregroundStyle(Color(.label))
-                }
-
-                Section {
-                    Button {
-                        store.send(.tapWebPageInput)
-                    } label: {
-                        labelImage(
-                            text: "URL",
-                            systemName: "globe",
-                            imageColor: .blue
-                        )
-                    }
-                } header: {
-                    Text("Web Page")
-                        .foregroundStyle(Color(.label))
-                }
-            }
-            .navigationDestination(
-                isPresented: Binding(
-                    get: { store.contentPickerDestination == .webPageInput },
-                    set: { isPresented in
-                        if !isPresented {
-                            store.send(.sheet(.presented(.setContentPickerDestination(nil))))
-                        }
-                    }
-                )
-            ) {
-                Form {
-                    Section {
-                        TextField(
-                            "https://",
-                            text: Binding(
-                                get: { store.webPageURLInput },
-                                set: { store.send(.updateWebPageURLInput($0)) }
-                            )
-                        )
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.URL)
-                    } footer: {
-                        Text(String(localized: "home_webpage_input_message"))
-                    }
-                }
-                .scrollDisabled(true)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text(String(localized: "home_webpage_input_title"))
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(String(localized: "home_add")) {
-                            store.send(.addWebPage)
-                        }
-                    }
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(String(localized: "nav_home_content"))
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        store.send(.sheet(.presented(.tapCloseButton)))
-                    } label: {
-                        Image(systemName: "xmark")
-                            .bold()
-                    }
-                }
             }
         }
     }

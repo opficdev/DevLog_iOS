@@ -16,6 +16,7 @@ struct HomeFeature {
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
+        @Presents var webPageInput: WebPageInputState?
         var preferences = [TodoCategoryItem]()
         var recentTodos = [RecentTodoItem]()
         var webPages = [WebPageItem]()
@@ -28,18 +29,8 @@ struct HomeFeature {
         var deletedWebPageURLString: String?
         var loading = LoadingFeature.State()
 
-        var showContentPicker: Bool {
-            sheet == .contentPicker
-        }
-
-        var reorderTodo: Bool {
-            sheet == .reorderTodo
-        }
-
-        var contentPickerDestination: ContentPickerState.Destination? {
-            guard case .contentPicker(let state) = sheet else { return nil }
-            return state.destination
-        }
+        var showContentPicker: Bool { sheet == .contentPicker }
+        var reorderTodo: Bool { sheet == .reorderTodo }
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
@@ -61,6 +52,7 @@ struct HomeFeature {
     enum Action: Equatable {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
+        case webPageInput(PresentationAction<Never>)
         case startObserving
         case fetchData
         case refreshRecentTodos
@@ -95,26 +87,19 @@ struct HomeFeature {
     }
 
     @ObservableState
-    struct ContentPickerState: Equatable {
-        var destination: Destination?
-
-        enum Destination: Equatable {
-            case webPageInput
-        }
+    struct WebPageInputState: Equatable, Identifiable {
+        let id = UUID()
     }
 
     @ObservableState
     @CasePathable
     enum SheetState: Equatable {
         case reorderTodo
-        case contentPicker(ContentPickerState)
-
-        static let contentPicker = Self.contentPicker(.init())
+        case contentPicker
     }
 
     enum Sheet: Equatable {
         case tapCloseButton
-        case setContentPickerDestination(ContentPickerState.Destination?)
     }
 
     enum ModalType: Hashable {
@@ -167,12 +152,12 @@ struct HomeFeature {
             switch action {
             case .alert:
                 break
+            case .webPageInput(.dismiss):
+                state.webPageInput = nil
+            case .webPageInput:
+                break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
-            case .sheet(.presented(.setContentPickerDestination(let destination))):
-                guard case .contentPicker(var sheetState) = state.sheet else { break }
-                sheetState.destination = destination
-                state.sheet = .contentPicker(sheetState)
             case .sheet:
                 break
             case .startObserving:
@@ -188,12 +173,7 @@ struct HomeFeature {
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
             case .tapWebPageInput:
-                if case .contentPicker(var sheetState) = state.sheet {
-                    sheetState.destination = .webPageInput
-                    state.sheet = .contentPicker(sheetState)
-                } else {
-                    state.sheet = .contentPicker(.init(destination: .webPageInput))
-                }
+                state.webPageInput = .init()
             case .setSheet(let sheet):
                 state.sheet = sheet
             case .setPresentation(let presentation, let isPresented):
@@ -232,6 +212,7 @@ struct HomeFeature {
                     Self.setAlert(&state, isPresented: true, type: .invalidURL)
                     return .none
                 }
+                state.webPageInput = nil
                 state.sheet = nil
                 Self.setAlert(&state, isPresented: false, type: nil)
                 return addWebPageEffect(normalizedURL)
@@ -265,14 +246,17 @@ struct HomeFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            HomeSheetFeature()
+            EmptyReducer()
+        }
+        .ifLet(\.$webPageInput, action: \.webPageInput) {
+            HomeWebPageInputFeature()
         }
     }
 }
 
-private struct HomeSheetFeature: Reducer {
-    typealias State = HomeFeature.SheetState
-    typealias Action = HomeFeature.Sheet
+private struct HomeWebPageInputFeature: Reducer {
+    typealias State = HomeFeature.WebPageInputState
+    typealias Action = Never
 
     var body: some ReducerOf<Self> {
         EmptyReducer()
