@@ -50,27 +50,31 @@ struct HomeFeature {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case fullScreenCover(PresentationAction<Never>)
-        case startObserving
-        case fetchData
-        case refreshRecentTodos
-        case networkStatusChanged(Bool)
-        case setSheet(SheetState?)
-        case setPresentation(Presentation, Bool)
-        case setAlert(isPresented: Bool, type: AlertType? = nil)
-        case refreshWebPages
-        case setWebPageHidden(URL, Bool)
-        case handleWebPageDeleteFailure(URL)
-        case finishDeleteWebPageToast(String)
-        case tapTodoCategory(TodoCategory)
-        case orderTodoCategory([TodoCategoryItem])
-        case updateWebPageURLInput(String)
-        case addWebPage
-        case deleteWebPage(WebPageItem)
-        case undoDeleteWebPage
+        case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
 
+        enum ViewAction: Equatable {
+            case startObserving
+            case fetchData
+            case refreshRecentTodos
+            case refreshWebPages
+            case finishDeleteWebPageToast(String)
+            case tapTodoCategory(TodoCategory)
+            case orderTodoCategory([TodoCategoryItem])
+            case updateWebPageURLInput(String)
+            case addWebPage
+            case deleteWebPage(WebPageItem)
+            case undoDeleteWebPage
+        }
+
         enum StoreAction: Equatable {
+            case networkStatusChanged(Bool)
+            case setSheet(SheetState?)
+            case setPresentation(Presentation, Bool)
+            case setAlert(isPresented: Bool, type: AlertType? = nil)
+            case setWebPageHidden(URL, Bool)
+            case handleWebPageDeleteFailure(URL)
             case setTodoCategory([TodoCategoryItem])
             case updateRecentTodos([RecentTodoItem])
             case updateWebPages([WebPageItem])
@@ -193,82 +197,10 @@ struct HomeFeature {
                 state.sheet = nil
             case .sheet:
                 break
-            case .startObserving:
-                return observeNetworkConnectivityEffect()
-            case .fetchData:
-                return .merge(
-                    fetchTodoCategoryPreferencesEffect(),
-                    fetchRecentTodosEffect(),
-                    fetchWebPagesEffect()
-                )
-            case .refreshRecentTodos:
-                return fetchRecentTodosEffect()
-            case .networkStatusChanged(let isConnected):
-                state.isNetworkConnected = isConnected
-            case .setSheet(let sheet):
-                state.sheet = sheet
-            case .setPresentation(let presentation, let isPresented):
-                Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
-            case .setAlert(let isPresented, let type):
-                Self.setAlert(&state, isPresented: isPresented, type: type)
-            case .refreshWebPages:
-                return fetchWebPagesEffect()
-            case .setWebPageHidden(let webPageURL, let isHidden):
-                if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
-                    state.webPages[index].isHidden = isHidden
-                }
-            case .handleWebPageDeleteFailure(let webPageURL):
-                if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
-                    state.webPages[index].isHidden = false
-                } else {
-                    state.needsWebPageRefresh = true
-                }
-            case .finishDeleteWebPageToast(let urlString):
-                state.webPages.removeAll { $0.url.absoluteString == urlString && $0.isHidden }
-                if state.deletedWebPageURLString == urlString {
-                    state.deletedWebPageURLString = nil
-                }
-            case .tapTodoCategory(let category):
-                state.selectedTodoCategory = category
-                state.sheet = nil
-                return delayedTodoEditorEffect()
-            case .orderTodoCategory(let preferences):
-                state.preferences = preferences
-                state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
-                state.sheet = nil
-                return updateTodoCategoryPreferencesEffect(preferences)
-            case .updateWebPageURLInput(let text):
-                state.webPageURLInput = text
-            case .addWebPage:
-                guard let normalizedURL = Self.normalizedWebPageURL(state.webPageURLInput) else {
-                    Self.setAlert(&state, isPresented: true, type: .invalidURL)
-                    return .none
-                }
-                state.sheet = nil
-                Self.setAlert(&state, isPresented: false, type: nil)
-                return addWebPageEffect(normalizedURL)
-            case .deleteWebPage(let page):
-                guard let index = state.webPages.firstIndex(where: { $0.id == page.id }) else {
-                    return .none
-                }
-                state.deletedWebPageURLString = page.url.absoluteString
-                state.webPages[index].isHidden = true
-                return deleteWebPageEffect(page)
-            case .undoDeleteWebPage:
-                guard let urlString = state.deletedWebPageURLString else { return .none }
-                if let index = state.webPages.firstIndex(where: { $0.url.absoluteString == urlString }) {
-                    state.webPages[index].isHidden = false
-                }
-                state.deletedWebPageURLString = nil
-                return undoDeleteWebPageEffect(urlString)
-            case .store(.setTodoCategory(let preferences)):
-                state.preferences = preferences
-                state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
-            case .store(.updateRecentTodos(let todos)):
-                state.recentTodos = todos
-            case .store(.updateWebPages(let pages)):
-                state.webPages = pages
-                state.needsWebPageRefresh = false
+            case .view(let action):
+                return reduce(action, state: &state)
+            case .store(let action):
+                return reduce(action, state: &state)
             case .loading:
                 break
             }
@@ -279,6 +211,104 @@ struct HomeFeature {
         .ifLet(\.$sheet, action: \.sheet) {
             HomeSheetFeature()
         }
+    }
+}
+
+private extension HomeFeature {
+    func reduce(
+        _ action: Action.ViewAction,
+        state: inout State
+    ) -> Effect<Action> {
+        switch action {
+        case .startObserving:
+            return observeNetworkConnectivityEffect()
+        case .fetchData:
+            return .merge(
+                fetchTodoCategoryPreferencesEffect(),
+                fetchRecentTodosEffect(),
+                fetchWebPagesEffect()
+            )
+        case .refreshRecentTodos:
+            return fetchRecentTodosEffect()
+        case .refreshWebPages:
+            return fetchWebPagesEffect()
+        case .finishDeleteWebPageToast(let urlString):
+            state.webPages.removeAll { $0.url.absoluteString == urlString && $0.isHidden }
+            if state.deletedWebPageURLString == urlString {
+                state.deletedWebPageURLString = nil
+            }
+        case .tapTodoCategory(let category):
+            state.selectedTodoCategory = category
+            state.sheet = nil
+            return delayedTodoEditorEffect()
+        case .orderTodoCategory(let preferences):
+            state.preferences = preferences
+            state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
+            state.sheet = nil
+            return updateTodoCategoryPreferencesEffect(preferences)
+        case .updateWebPageURLInput(let text):
+            state.webPageURLInput = text
+        case .addWebPage:
+            guard let normalizedURL = Self.normalizedWebPageURL(state.webPageURLInput) else {
+                Self.setAlert(&state, isPresented: true, type: .invalidURL)
+                return .none
+            }
+            state.sheet = nil
+            Self.setAlert(&state, isPresented: false, type: nil)
+            return addWebPageEffect(normalizedURL)
+        case .deleteWebPage(let page):
+            guard let index = state.webPages.firstIndex(where: { $0.id == page.id }) else {
+                return .none
+            }
+            state.deletedWebPageURLString = page.url.absoluteString
+            state.webPages[index].isHidden = true
+            return deleteWebPageEffect(page)
+        case .undoDeleteWebPage:
+            guard let urlString = state.deletedWebPageURLString else { return .none }
+            if let index = state.webPages.firstIndex(where: { $0.url.absoluteString == urlString }) {
+                state.webPages[index].isHidden = false
+            }
+            state.deletedWebPageURLString = nil
+            return undoDeleteWebPageEffect(urlString)
+        }
+
+        return .none
+    }
+
+    func reduce(
+        _ action: Action.StoreAction,
+        state: inout State
+    ) -> Effect<Action> {
+        switch action {
+        case .networkStatusChanged(let isConnected):
+            state.isNetworkConnected = isConnected
+        case .setSheet(let sheet):
+            state.sheet = sheet
+        case .setPresentation(let presentation, let isPresented):
+            Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
+        case .setAlert(let isPresented, let type):
+            Self.setAlert(&state, isPresented: isPresented, type: type)
+        case .setWebPageHidden(let webPageURL, let isHidden):
+            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+                state.webPages[index].isHidden = isHidden
+            }
+        case .handleWebPageDeleteFailure(let webPageURL):
+            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+                state.webPages[index].isHidden = false
+            } else {
+                state.needsWebPageRefresh = true
+            }
+        case .setTodoCategory(let preferences):
+            state.preferences = preferences
+            state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
+        case .updateRecentTodos(let todos):
+            state.recentTodos = todos
+        case .updateWebPages(let pages):
+            state.webPages = pages
+            state.needsWebPageRefresh = false
+        }
+
+        return .none
     }
 }
 

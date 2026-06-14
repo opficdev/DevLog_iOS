@@ -79,12 +79,12 @@ struct HomeStoreTestAdapter {
     }
 
     func startObserving() async {
-        await store.send(.startObserving)
+        await store.send(.view(.startObserving))
         await drainReceivedActions()
     }
 
     func fetchData() async {
-        await store.send(.fetchData)
+        await store.send(.view(.fetchData))
         await drainReceivedActions()
     }
 
@@ -94,46 +94,46 @@ struct HomeStoreTestAdapter {
     }
 
     func setPresentation(_ presentation: HomeFeature.Presentation, _ isPresented: Bool) async {
-        await store.send(.setPresentation(presentation, isPresented))
+        await store.send(.store(.setPresentation(presentation, isPresented)))
     }
 
     func setAlert(isPresented: Bool, type: HomeFeature.AlertType?) async {
-        await store.send(.setAlert(isPresented: isPresented, type: type))
+        await store.send(.store(.setAlert(isPresented: isPresented, type: type)))
         await drainReceivedActions()
     }
 
     func tapTodoCategory(_ category: TodoCategory) async {
-        await store.send(.tapTodoCategory(category))
+        await store.send(.view(.tapTodoCategory(category)))
         await clock.advance(by: .seconds(1))
         await settle()
     }
 
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {
-        await store.send(.orderTodoCategory(items))
+        await store.send(.view(.orderTodoCategory(items)))
         await drainReceivedActions()
     }
 
     func updateWebPageURLInput(_ input: String) async {
-        await store.send(.updateWebPageURLInput(input))
+        await store.send(.view(.updateWebPageURLInput(input)))
     }
 
     func addWebPage() async {
-        await store.send(.addWebPage)
+        await store.send(.view(.addWebPage))
         await drainReceivedActions()
     }
 
     func deleteWebPage(_ page: WebPageItem) async {
-        await store.send(.deleteWebPage(page))
+        await store.send(.view(.deleteWebPage(page)))
         await drainReceivedActions()
     }
 
     func undoDeleteWebPage() async {
-        await store.send(.undoDeleteWebPage)
+        await store.send(.view(.undoDeleteWebPage))
         await drainReceivedActions()
     }
 
     func finishDeleteWebPageToast(_ urlString: String) async {
-        await store.send(.finishDeleteWebPageToast(urlString))
+        await store.send(.view(.finishDeleteWebPageToast(urlString)))
     }
 
     func drainReceivedActions() async {

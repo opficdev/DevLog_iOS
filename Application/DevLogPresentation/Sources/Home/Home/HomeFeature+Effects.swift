@@ -21,7 +21,7 @@ extension HomeFeature {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
                 .receive(on: DispatchQueue.main)
-                .map(Action.networkStatusChanged)
+                .map { .store(.networkStatusChanged($0)) }
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
     }
@@ -33,7 +33,7 @@ extension HomeFeature {
                 let preferences = try await fetchPreferencesUseCase.execute()
                 await send(.store(.setTodoCategory(preferences.map(TodoCategoryItem.init(from:)))))
             } catch {
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
             await send(.loading(.end(target: LoadingTarget.preferences.target, mode: .immediate)))
         }
@@ -50,7 +50,7 @@ extension HomeFeature {
                     .compactMap(RecentTodoItem.init(from:))
                 await send(.store(.updateRecentTodos(Array(items))))
             } catch {
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
             await send(.loading(.end(target: LoadingTarget.recentTodos.target, mode: .immediate)))
         }
@@ -63,7 +63,7 @@ extension HomeFeature {
                 let pages = try await fetchWebPagesUseCase.execute("")
                 await send(.store(.updateWebPages(pages.map(WebPageItem.init(from:)))))
             } catch {
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
             await send(.loading(.end(target: LoadingTarget.webPage.target, mode: .immediate)))
         }
@@ -78,7 +78,7 @@ extension HomeFeature {
                 let pages = try await fetchWebPagesUseCase.execute("")
                 await send(.store(.updateWebPages(pages.map(WebPageItem.init(from:)))))
             } catch {
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
             await send(.loading(.end(target: LoadingTarget.overlay.target, mode: .delayed)))
         }
@@ -89,8 +89,8 @@ extension HomeFeature {
             do {
                 try await deleteWebPageUseCase.execute(page.url.absoluteString)
             } catch {
-                await send(.handleWebPageDeleteFailure(page.id))
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.handleWebPageDeleteFailure(page.id)))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
         }
     }
@@ -102,9 +102,9 @@ extension HomeFeature {
                 try await addWebPageUseCase.execute(urlString)
             } catch {
                 if let webPageURL = URL(string: urlString) {
-                    await send(.setWebPageHidden(webPageURL, true))
+                    await send(.store(.setWebPageHidden(webPageURL, true)))
                 }
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
         }
     }
@@ -114,7 +114,7 @@ extension HomeFeature {
             do {
                 try await updatePreferencesUseCase.execute(items.map(\.preference))
             } catch {
-                await send(.setAlert(isPresented: true, type: .error))
+                await send(.store(.setAlert(isPresented: true, type: .error)))
             }
         }
     }
@@ -123,7 +123,7 @@ extension HomeFeature {
         .run { [clock] send in
             // iOS 17에서 시트 dismiss 직후 fullScreenCover를 바로 올리지 않도록 하기 위해서 0.1초 딜레이
             try await clock.sleep(for: .seconds(0.1))
-            await send(.setPresentation(.todoEditor, true))
+            await send(.store(.setPresentation(.todoEditor, true)))
         }
         .cancellable(id: CancelID.delayedTodoEditor, cancelInFlight: true)
     }

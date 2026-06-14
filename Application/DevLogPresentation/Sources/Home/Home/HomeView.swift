@@ -64,7 +64,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    store.send(.setSheet(.reorderTodo))
+                    store.send(.store(.setSheet(.reorderTodo)))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -110,7 +110,7 @@ struct HomeView: View {
                     .id(UUID()) //  id 부여를 통해 렌더링 강제
             } else if store.needsWebPageRefresh {
                 Button {
-                    store.send(.refreshWebPages)
+                    store.send(.view(.refreshWebPages))
                 } label: {
                     HStack {
                         Spacer()
@@ -149,7 +149,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                store.send(.setPresentation(.contentPicker, true))
+                store.send(.store(.setPresentation(.contentPicker, true)))
             } label: {
                 Image(systemName: "plus")
             }
@@ -160,7 +160,7 @@ struct HomeView: View {
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
-                store.send(.setPresentation(.searchView, true))
+                store.send(.store(.setPresentation(.searchView, true)))
             } label: {
                 Image(systemName: "magnifyingglass")
             }
@@ -221,7 +221,7 @@ struct HomeView: View {
                                 "https://",
                                 text: Binding(
                                     get: { store.webPageURLInput },
-                                    set: { store.send(.updateWebPageURLInput($0)) }
+                                    set: { store.send(.view(.updateWebPageURLInput($0))) }
                                 )
                             )
                             .textInputAutocapitalization(.never)
@@ -236,7 +236,7 @@ struct HomeView: View {
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button(String(localized: "home_add")) {
-                                store.send(.addWebPage)
+                                store.send(.view(.addWebPage))
                             }
                         }
                     }
@@ -258,7 +258,7 @@ struct HomeView: View {
             CategoryManageView(
                 preferences: store.preferences,
                 onDismiss: { array in
-                    store.send(.orderTodoCategory(array), animation: .default)
+                    store.send(.view(.orderTodoCategory(array)), animation: .default)
                 }
             )
         }
@@ -272,8 +272,8 @@ struct HomeView: View {
                 TodoEditorView(
                     store: coordinator.makeTodoEditorStore(category: selectedCategory),
                     onCreateSuccess: {
-                        store.send(.setPresentation(.todoEditor, false))
-                        store.send(.fetchData)
+                        store.send(.store(.setPresentation(.todoEditor, false)))
+                        store.send(.view(.fetchData))
                     }
                 )
             }
@@ -344,7 +344,7 @@ struct HomeView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                store.send(.deleteWebPage(item))
+                store.send(.view(.deleteWebPage(item)))
                 presentDeleteWebPageToast(item.url.absoluteString)
             } label: {
                 Label(String(localized: "common_delete"), systemImage: "trash")
@@ -375,13 +375,13 @@ struct HomeView: View {
 
     private func openTodoEditor(for todoCategory: TodoCategory) {
         if isiOSAppOnMac {
-            store.send(.setPresentation(.contentPicker, false))
+            store.send(.store(.setPresentation(.contentPicker, false)))
             openWindow(
                 id: TodoEditorWindowValue.sceneId,
                 value: TodoEditorWindowValue(todoCategory: todoCategory, source: .home)
             )
         } else {
-            store.send(.tapTodoCategory(todoCategory))
+            store.send(.view(.tapTodoCategory(todoCategory)))
         }
     }
 
@@ -393,10 +393,10 @@ struct HomeView: View {
             font: .caption,
             multilineTextAlignment: .center,
             action: {
-                store.send(.undoDeleteWebPage)
+                store.send(.view(.undoDeleteWebPage))
             },
             onDismiss: {
-                store.send(.finishDeleteWebPageToast(urlString))
+                store.send(.view(.finishDeleteWebPageToast(urlString)))
             }
         )
     }

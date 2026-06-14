@@ -41,15 +41,15 @@ final class HomeViewCoordinator {
             $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
             $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
         }
-        self.store.send(.startObserving)
+        self.store.send(.view(.startObserving))
     }
 
     func fetchData() {
-        store.send(.fetchData)
+        store.send(.view(.fetchData))
     }
 
     func refreshRecentTodos() {
-        store.send(.refreshRecentTodos)
+        store.send(.view(.refreshRecentTodos))
     }
 
     func bindTodoMutationEvent() {
@@ -77,7 +77,7 @@ final class HomeViewCoordinator {
             .sink { [weak self] submit in
                 guard case .create(let value) = submit,
                       value.matchesCreate(source: .home) else { return }
-                self?.store.send(.fetchData)
+                self?.store.send(.view(.fetchData))
             }
             .store(in: &cancellables)
     }
