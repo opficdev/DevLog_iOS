@@ -172,7 +172,47 @@ struct TodayFeature {
             LoadingFeature()
         }
         Reduce { state, action in
-            reduce(action, state: &state)
+            switch action {
+            case .alert:
+                break
+            case .refresh, .fetchData:
+                return fetchTodosEffect()
+            case .setSectionScope(let scope):
+                if state.selectedSectionScope == scope, scope != .all {
+                    state.selectedSectionScope = .all
+                } else {
+                    state.selectedSectionScope = scope
+                }
+            case .setDueDateVisibility(let visibility):
+                state.displayOptions.dueDateVisibility = visibility
+                return updateDisplayOptionsEffect(state.displayOptions)
+            case .setFocusVisibility(let visibility):
+                state.displayOptions.focusVisibility = visibility
+                return updateDisplayOptionsEffect(state.displayOptions)
+            case .resetDisplayOptions:
+                state.displayOptions = .default
+                return updateDisplayOptionsEffect(state.displayOptions)
+            case .completeTodo(let item):
+                return completeTodoEffect(item)
+            case .togglePinned(let item):
+                return togglePinnedEffect(item)
+            case .store(.setAlert):
+                state.alert = Self.alertState()
+            case .store(.setTodos(let todos)):
+                state.todos = todos
+            case .store(.updateTodo(let item)):
+                if let index = state.todos.firstIndex(where: { $0.id == item.id }) {
+                    state.todos[index] = item
+                } else {
+                    state.todos.append(item)
+                }
+            case .store(.removeTodo(let todoId)):
+                state.todos.removeAll { $0.id == todoId }
+            case .loading:
+                break
+            }
+
+            return .none
         }
         .ifLet(\.$alert, action: \.alert)
     }
@@ -211,53 +251,6 @@ private enum UpdateTodayDisplayOptionsUseCaseKey: DependencyKey {
 }
 
 private extension TodayFeature {
-    func reduce(
-        _ action: Action,
-        state: inout State
-    ) -> Effect<Action> {
-        switch action {
-        case .alert:
-            break
-        case .refresh, .fetchData:
-            return fetchTodosEffect()
-        case .setSectionScope(let scope):
-            if state.selectedSectionScope == scope, scope != .all {
-                state.selectedSectionScope = .all
-            } else {
-                state.selectedSectionScope = scope
-            }
-        case .setDueDateVisibility(let visibility):
-            state.displayOptions.dueDateVisibility = visibility
-            return updateDisplayOptionsEffect(state.displayOptions)
-        case .setFocusVisibility(let visibility):
-            state.displayOptions.focusVisibility = visibility
-            return updateDisplayOptionsEffect(state.displayOptions)
-        case .resetDisplayOptions:
-            state.displayOptions = .default
-            return updateDisplayOptionsEffect(state.displayOptions)
-        case .completeTodo(let item):
-            return completeTodoEffect(item)
-        case .togglePinned(let item):
-            return togglePinnedEffect(item)
-        case .store(.setAlert):
-            state.alert = Self.alertState()
-        case .store(.setTodos(let todos)):
-            state.todos = todos
-        case .store(.updateTodo(let item)):
-            if let index = state.todos.firstIndex(where: { $0.id == item.id }) {
-                state.todos[index] = item
-            } else {
-                state.todos.append(item)
-            }
-        case .store(.removeTodo(let todoId)):
-            state.todos.removeAll { $0.id == todoId }
-        case .loading:
-            break
-        }
-
-        return .none
-    }
-
     func fetchTodosEffect() -> Effect<Action> {
         .run { [fetchTodosUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
