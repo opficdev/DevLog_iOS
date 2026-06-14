@@ -53,19 +53,23 @@ struct PushNotificationListFeature {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case binding(BindingAction<State>)
-        case fetchNotifications
-        case loadNextPage
-        case deleteNotification(PushNotificationItem)
-        case toggleRead(PushNotificationItem)
-        case undoDelete
-        case finishDeleteToast(String)
-        case toggleSortOption
-        case toggleUnreadOnly
-        case resetFilters
-        case selectNotification(String?)
-        case syncSheetPresentation(isCompactLayout: Bool)
+        case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
+
+        enum ViewAction: Equatable {
+            case fetchNotifications
+            case loadNextPage
+            case deleteNotification(PushNotificationItem)
+            case toggleRead(PushNotificationItem)
+            case undoDelete
+            case finishDeleteToast(String)
+            case toggleSortOption
+            case toggleUnreadOnly
+            case resetFilters
+            case selectNotification(String?)
+            case syncSheetPresentation(isCompactLayout: Bool)
+        }
 
         enum Sheet: Equatable {
             case tapCloseButton
@@ -101,7 +105,29 @@ struct PushNotificationListFeature {
         }
         BindingReducer()
         Reduce { state, action in
-            reduce(action, state: &state)
+            switch action {
+            case .alert:
+                break
+            case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
+                state.sheet = nil
+                state.selectedNotificationId = nil
+                state.selectedTodoId = nil
+            case .sheet:
+                break
+            case .binding(\.query.timeFilter):
+                state.nextCursor = nil
+                return refreshForQueryChangeEffect(query: state.query)
+            case .binding:
+                break
+            case .view(let action):
+                return reduce(action, state: &state)
+            case .store(let action):
+                return reduce(action, state: &state)
+            case .loading:
+                break
+            }
+
+            return .none
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
@@ -121,23 +147,10 @@ private struct PushNotificationListSheetFeature: Reducer {
 
 private extension PushNotificationListFeature {
     func reduce(
-        _ action: Action,
+        _ action: Action.ViewAction,
         state: inout State
     ) -> Effect<Action> {
         switch action {
-        case .alert:
-            break
-        case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
-            state.sheet = nil
-            state.selectedNotificationId = nil
-            state.selectedTodoId = nil
-        case .sheet:
-            break
-        case .binding(\.query.timeFilter):
-            state.nextCursor = nil
-            return refreshForQueryChangeEffect(query: state.query)
-        case .binding:
-            break
         case .fetchNotifications:
             state.nextCursor = nil
             return fetchNotificationsEffect(query: state.query, cursor: nil, existingCount: 0)
@@ -169,32 +182,6 @@ private extension PushNotificationListFeature {
             state.notifications.removeAll { $0.id == notificationId && $0.isHidden }
             if state.undoNotificationId == notificationId {
                 state.undoNotificationId = nil
-            }
-        case .store(.setAlert):
-            state.alert = Self.alertState()
-        case .store(.appendNotifications(let notifications, let nextCursor)):
-            state.notifications.append(contentsOf: Self.mergedHiddenNotifications(
-                currentNotifications: state.notifications,
-                incomingNotifications: notifications
-            ))
-            state.nextCursor = nextCursor
-        case .store(.resetPagination):
-            state.notifications = []
-            state.nextCursor = nil
-        case .store(.setHasMore(let value)):
-            state.hasMore = value
-        case .store(.syncNotifications(let notifications, let nextCursor, let hasMore)):
-            state.notifications = Self.mergedHiddenNotifications(
-                currentNotifications: state.notifications,
-                incomingNotifications: notifications
-            )
-            state.nextCursor = nextCursor
-            state.hasMore = hasMore
-        case .store(.setNotificationHidden(let notificationId, let isHidden)):
-            Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
-        case .store(.setNotificationRead(let notificationId, let isRead)):
-            if let index = state.notifications.firstIndex(where: { $0.id == notificationId }) {
-                state.notifications[index].isRead = isRead
             }
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
@@ -229,10 +216,44 @@ private extension PushNotificationListFeature {
             } else {
                 state.sheet = nil
             }
-        case .store(.observeNotifications(let query, let limit)):
+        }
+
+        return .none
+    }
+
+    func reduce(
+        _ action: Action.StoreAction,
+        state: inout State
+    ) -> Effect<Action> {
+        switch action {
+        case .setAlert:
+            state.alert = Self.alertState()
+        case .appendNotifications(let notifications, let nextCursor):
+            state.notifications.append(contentsOf: Self.mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            ))
+            state.nextCursor = nextCursor
+        case .resetPagination:
+            state.notifications = []
+            state.nextCursor = nil
+        case .setHasMore(let value):
+            state.hasMore = value
+        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+            state.notifications = Self.mergedHiddenNotifications(
+                currentNotifications: state.notifications,
+                incomingNotifications: notifications
+            )
+            state.nextCursor = nextCursor
+            state.hasMore = hasMore
+        case .setNotificationHidden(let notificationId, let isHidden):
+            Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
+        case .setNotificationRead(let notificationId, let isRead):
+            if let index = state.notifications.firstIndex(where: { $0.id == notificationId }) {
+                state.notifications[index].isRead = isRead
+            }
+        case .observeNotifications(let query, let limit):
             return observeNotificationsEffect(query: query, limit: limit)
-        case .loading:
-            break
         }
 
         return .none

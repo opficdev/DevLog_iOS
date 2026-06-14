@@ -84,7 +84,7 @@ final class TodoWindowCoordinator {
         case .create(let value):
             if let listStore,
                value.matchesCreate(category: listStore.category, source: .list) {
-                listStore.send(.refresh)
+                listStore.send(.view(.refresh))
             }
         case .update(let value, let todo):
             if let detailStore,

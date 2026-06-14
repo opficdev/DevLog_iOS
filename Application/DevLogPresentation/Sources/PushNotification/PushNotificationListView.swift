@@ -38,7 +38,7 @@ struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { store.send(.fetchNotifications) }
+                .refreshable { store.send(.view(.fetchNotifications)) }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
@@ -47,10 +47,10 @@ struct PushNotificationListView: View {
             sheetContent(store)
         }
         .task(id: isCompactLayout) {
-            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
+            store.send(.view(.syncSheetPresentation(isCompactLayout: isCompactLayout)))
         }
         .onChange(of: store.selectedTodoId?.id, initial: true) {
-            store.send(.syncSheetPresentation(isCompactLayout: isCompactLayout))
+            store.send(.view(.syncSheetPresentation(isCompactLayout: isCompactLayout)))
         }
         .overlay {
             if store.isLoading {
@@ -96,7 +96,7 @@ struct PushNotificationListView: View {
     ) -> some View {
         if isCompactLayout {
             Button {
-                store.send(.selectNotification(notification.id))
+                store.send(.view(.selectNotification(notification.id)))
             } label: {
                 notificationRowContent(notification, index: index, notifications: notifications)
             }
@@ -104,11 +104,11 @@ struct PushNotificationListView: View {
         } else {
             notificationRowContent(notification, index: index, notifications: notifications)
                 .onTapGesture {
-                    store.send(.selectNotification(notification.id))
+                    store.send(.view(.selectNotification(notification.id)))
                 }
                 .accessibilityAddTraits(.isButton)
                 .accessibilityAction {
-                    store.send(.selectNotification(notification.id))
+                    store.send(.view(.selectNotification(notification.id)))
                 }
         }
     }
@@ -125,7 +125,7 @@ struct PushNotificationListView: View {
         .onAppear {
             let lastId = notifications.last?.id
             if notification.id == lastId, store.hasMore {
-                store.send(.loadNextPage)
+                store.send(.view(.loadNextPage))
             }
         }
         .overlay(alignment: .top) {
@@ -168,7 +168,7 @@ struct PushNotificationListView: View {
                             )
                         )
                         Button(role: .destructive) {
-                            store.send(.resetFilters)
+                            store.send(.view(.resetFilters))
                         } label: {
                             Text(String(localized: "push_clear_all_filters"))
                         }
@@ -183,7 +183,7 @@ struct PushNotificationListView: View {
 
                 Button {
                     DispatchQueue.main.async {
-                        store.send(.toggleSortOption)
+                        store.send(.view(.toggleSortOption))
                     }
                 } label: {
                     let condition = store.query.sortOrder == .oldest
@@ -218,7 +218,7 @@ struct PushNotificationListView: View {
 
                 Button {
                     DispatchQueue.main.async {
-                        store.send(.toggleUnreadOnly)
+                        store.send(.view(.toggleUnreadOnly))
                     }
                 } label: {
                     let condition = store.query.unreadOnly
@@ -306,7 +306,7 @@ struct PushNotificationListView: View {
         }
         .swipeActions(edge: .leading) {
             Button {
-                store.send(.toggleRead(item))
+                store.send(.view(.toggleRead(item)))
             } label: {
                 Image(systemName: "checkmark.circle\(item.isRead ? ".badge.xmark" : "")")
                     .tint(.blue)
@@ -316,7 +316,7 @@ struct PushNotificationListView: View {
             Button(
                 role: .destructive,
                 action: {
-                    store.send(.deleteNotification(item))
+                    store.send(.view(.deleteNotification(item)))
                     presentDeleteNotificationToast(item.id)
                 }
             ) {
@@ -391,10 +391,10 @@ struct PushNotificationListView: View {
             multilineTextAlignment: .center,
             lineLimit: 3,
             action: {
-                store.send(.undoDelete)
+                store.send(.view(.undoDelete))
             },
             onDismiss: {
-                store.send(.finishDeleteToast(notificationId))
+                store.send(.view(.finishDeleteToast(notificationId)))
             }
         )
     }

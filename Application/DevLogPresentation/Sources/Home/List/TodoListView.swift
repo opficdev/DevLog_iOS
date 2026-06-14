@@ -80,7 +80,7 @@ struct TodoListView: View {
         }
         .background(NavigationBarConfigurator())
         .background(Color(.systemGroupedBackground))
-        .task { store.send(.onAppear) }
+        .task { store.send(.view(.onAppear)) }
     }
 
     @ViewBuilder
@@ -118,18 +118,18 @@ struct TodoListView: View {
                             .onAppear {
                                 let lastID = visibleTodos.last?.id
                                 if todo.id == lastID, store.state.hasMore {
-                                    store.send(.loadNextPage)
+                                    store.send(.view(.loadNextPage))
                                 }
                             }
                             .swipeActions(edge: .leading) {
                                 Button(action: {
-                                    store.send(.tapTogglePinned(todo))
+                                    store.send(.view(.tapTogglePinned(todo)))
                                 }) {
                                     Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
                                 }
                                 .tint(Color.orange)
                                 Button {
-                                    store.send(.tapToggleCompleted(todo))
+                                    store.send(.view(.tapToggleCompleted(todo)))
                                 } label: {
                                     Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
                                 }
@@ -137,7 +137,7 @@ struct TodoListView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive, action: {
-                                    store.send(.swipeTodo(todo))
+                                    store.send(.view(.swipeTodo(todo)))
                                     presentDeleteTodoToast(todo.id)
                                 }) {
                                     Image(systemName: "trash")
@@ -171,7 +171,7 @@ struct TodoListView: View {
                 }
                 .offset(y: headerOffset)
             }
-            .refreshable { store.send(.refresh) }
+            .refreshable { store.send(.view(.refresh)) }
             .scrollDisabled(visibleTodos.isEmpty || store.state.isLoading)
 
             if store.state.isLoading {
@@ -212,8 +212,8 @@ struct TodoListView: View {
                     $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
                 },
                 onCreateSuccess: {
-                    store.send(.setFullScreenCover(nil))
-                    store.send(.refresh)
+                    store.send(.store(.setFullScreenCover(nil)))
+                    store.send(.view(.refresh))
                 }
             )
         }
@@ -226,7 +226,7 @@ struct TodoListView: View {
                 value: TodoEditorWindowValue(todoCategory: store.category, source: .list)
             )
         } else {
-            store.send(.setFullScreenCover(.editor))
+            store.send(.store(.setFullScreenCover(.editor)))
         }
     }
 
@@ -236,10 +236,10 @@ struct TodoListView: View {
             systemImage: "arrow.uturn.left",
             duration: 5,
             action: {
-                store.send(.undoDelete)
+                store.send(.view(.undoDelete))
             },
             onDismiss: {
-                store.send(.finishDeleteToast(todoId))
+                store.send(.view(.finishDeleteToast(todoId)))
             }
         )
     }
@@ -310,7 +310,7 @@ struct TodoListView: View {
                             )
                         )
                         Button(role: .destructive) {
-                            store.send(.resetFilters)
+                            store.send(.view(.resetFilters))
                         } label: {
                             Text(String(localized: "todo_list_clear_filters"))
                         }

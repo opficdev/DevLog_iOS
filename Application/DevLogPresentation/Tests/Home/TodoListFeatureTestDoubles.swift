@@ -54,12 +54,12 @@ final class TodoListStoreTestAdapter {
     }
 
     func onAppear() async {
-        await store.send(.onAppear)
+        await store.send(.view(.onAppear))
         await drainReceivedActions()
     }
 
     func loadNextPage() async {
-        await store.send(.loadNextPage)
+        await store.send(.view(.loadNextPage))
         await drainReceivedActions()
     }
 
@@ -84,7 +84,7 @@ final class TodoListStoreTestAdapter {
     }
 
     func resetFilters() async {
-        await store.send(.resetFilters)
+        await store.send(.view(.resetFilters))
         await drainReceivedActions()
     }
 
@@ -117,7 +117,7 @@ final class TodoListStoreTestAdapter {
     }
 
     func setFullScreenCover(_ cover: TodoListFeature.FullScreenCoverState?) async {
-        await store.send(.setFullScreenCover(cover))
+        await store.send(.store(.setFullScreenCover(cover)))
     }
 
     func dismissFullScreenCover() async {
@@ -125,26 +125,26 @@ final class TodoListStoreTestAdapter {
     }
 
     func swipeTodo(_ todo: TodoListItem) async {
-        await store.send(.swipeTodo(todo))
+        await store.send(.view(.swipeTodo(todo)))
         await drainReceivedActions()
     }
 
     func undoDelete() async {
-        await store.send(.undoDelete)
+        await store.send(.view(.undoDelete))
         await drainReceivedActions()
     }
 
     func finishDeleteToast(_ todoId: String) async {
-        await store.send(.finishDeleteToast(todoId))
+        await store.send(.view(.finishDeleteToast(todoId)))
     }
 
     func tapToggleCompleted(_ todo: TodoListItem) async {
-        await store.send(.tapToggleCompleted(todo))
+        await store.send(.view(.tapToggleCompleted(todo)))
         await drainReceivedActions()
     }
 
     func tapTogglePinned(_ todo: TodoListItem) async {
-        await store.send(.tapTogglePinned(todo))
+        await store.send(.view(.tapTogglePinned(todo)))
         await drainReceivedActions()
     }
 

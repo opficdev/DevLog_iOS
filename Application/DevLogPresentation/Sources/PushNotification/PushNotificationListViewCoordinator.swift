@@ -38,7 +38,7 @@ final class PushNotificationListViewCoordinator {
     }
 
     func fetchData() {
-        store.send(.fetchNotifications)
+        store.send(.view(.fetchNotifications))
     }
 
     func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
