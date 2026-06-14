@@ -137,8 +137,9 @@ struct TodayFeature {
         }
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
+        case binding(BindingAction<State>)
         case refresh
         case fetchData
         case setSectionScope(SectionScope)
@@ -171,9 +172,15 @@ struct TodayFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .binding(\.displayOptions.dueDateVisibility),
+                 .binding(\.displayOptions.focusVisibility):
+                return updateDisplayOptionsEffect(state.displayOptions)
+            case .binding:
                 break
             case .refresh, .fetchData:
                 return fetchTodosEffect()

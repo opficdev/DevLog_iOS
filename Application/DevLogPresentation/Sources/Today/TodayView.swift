@@ -84,10 +84,7 @@ struct TodayView: View {
             Menu {
                 Picker(
                     String(localized: "today_due_visibility_label"),
-                    selection: Binding(
-                        get: { store.displayOptions.dueDateVisibility },
-                        set: { store.send(.setDueDateVisibility($0)) }
-                    )
+                    selection: $store.displayOptions.dueDateVisibility
                 ) {
                     ForEach(TodayDisplayOptions.DueDateVisibility.allCases, id: \.self) { option in
                         Text(option.title).tag(option)
