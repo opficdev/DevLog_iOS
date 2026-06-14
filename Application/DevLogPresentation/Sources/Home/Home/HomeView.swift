@@ -43,9 +43,7 @@ struct HomeView: View {
                 preferences: store.preferences,
                 onDismiss: { array in
                     store.send(.setPresentation(.reorderTodo, false))
-                    withAnimation {
-                        store.send(.orderTodoCategory(array))
-                    }
+                    store.send(.orderTodoCategory(array), animation: .default)
                 }
             )
         }
