@@ -50,39 +50,32 @@ struct TodayView: View {
 
     private var summarySection: some View {
         Section {
-            summaryScrollView
+            ScrollView(.horizontal) {
+                let summaryCounts = store.summaryCounts
+                let selectedSectionScope = store.selectedSectionScope
+
+                HStack(spacing: 12) {
+                    ForEach(TodayFeature.SectionScope.allCases, id: \.self) { scope in
+                        Button {
+                            withAnimation(SwiftUI.Animation.easeInOut) {
+                                _ = store.send(.setSectionScope(scope))
+                            }
+                        } label: {
+                            SummaryCard(
+                                title: scope.title,
+                                value: summaryCounts[scope, default: 0],
+                                accentColor: scope.accentColor,
+                                isSelected: selectedSectionScope == scope
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .scrollIndicators(.never)
+            .contentMargins(.horizontal, 16)
         }
         .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
-    }
-
-    private var summaryScrollView: some View {
-        SwiftUI.ScrollView(.horizontal, showsIndicators: false) {
-            summaryCards
-        }
-        .contentMargins(.horizontal, 16)
-    }
-
-    private var summaryCards: some View {
-        let summaryCounts = store.summaryCounts
-        let selectedSectionScope = store.selectedSectionScope
-
-        return HStack(spacing: 12) {
-            ForEach(TodayFeature.SectionScope.allCases, id: \.self) { scope in
-                Button {
-                    withAnimation(SwiftUI.Animation.easeInOut) {
-                        _ = store.send(.setSectionScope(scope))
-                    }
-                } label: {
-                    SummaryCard(
-                        title: scope.title,
-                        value: summaryCounts[scope, default: 0],
-                        accentColor: scope.accentColor,
-                        isSelected: selectedSectionScope == scope
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
     }
 
     @ToolbarContentBuilder
