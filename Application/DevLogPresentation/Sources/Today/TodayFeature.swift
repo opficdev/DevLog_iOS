@@ -59,22 +59,27 @@ struct TodayFeature {
         }
 
         var sections: [SectionContent] {
-            let items = groupedSectionItems(from: displayedTodos)
+            let items = TodayFeature.groupedSectionItems(
+                from: TodayFeature.displayedTodos(
+                    todos: todos,
+                    displayOptions: displayOptions
+                )
+            )
 
             switch selectedSectionScope {
             case .all:
                 return
-                    makeSection(
+                    TodayFeature.makeSection(
                         category: .focused,
                         title: String(localized: "today_section_focused"),
                         items: items.focused
                     )
-                    + makeSection(
+                    + TodayFeature.makeSection(
                         category: .overdue,
                         title: String(localized: "today_section_overdue"),
                         items: items.overdue
                     )
-                    + makeSection(
+                    + TodayFeature.makeSection(
                         category: .dueSoon,
                         title: String.localizedStringWithFormat(
                             String(localized: "today_section_due_soon_format"),
@@ -82,30 +87,30 @@ struct TodayFeature {
                         ),
                         items: items.dueSoon
                     )
-                    + makeSection(
+                    + TodayFeature.makeSection(
                         category: .later,
                         title: String(localized: "today_section_later"),
                         items: items.later
                     )
-                    + makeSection(
+                    + TodayFeature.makeSection(
                         category: .unscheduled,
                         title: String(localized: "today_section_unscheduled"),
                         items: items.unscheduled
                     )
             case .focused:
-                return makeSection(
+                return TodayFeature.makeSection(
                     category: .focused,
                     title: String(localized: "today_section_focused"),
                     items: items.focused
                 )
             case .overdue:
-                return makeSection(
+                return TodayFeature.makeSection(
                     category: .overdue,
                     title: String(localized: "today_section_overdue"),
                     items: items.overdue
                 )
             case .dueSoon:
-                return makeSection(
+                return TodayFeature.makeSection(
                     category: .dueSoon,
                     title: String.localizedStringWithFormat(
                         String(localized: "today_section_due_soon_format"),
@@ -119,7 +124,14 @@ struct TodayFeature {
         var summaryCounts: [SectionScope: Int] {
             Dictionary(
                 uniqueKeysWithValues: SectionScope.allCases.map { scope in
-                    (scope, summaryValue(for: scope))
+                    (
+                        scope,
+                        TodayFeature.summaryValue(
+                            for: scope,
+                            todos: todos,
+                            displayOptions: displayOptions
+                        )
+                    )
                 }
             )
         }

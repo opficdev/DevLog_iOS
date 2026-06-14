@@ -5,10 +5,20 @@
 //  Created by opfic on 6/14/26.
 //
 
+import DevLogCore
 import Foundation
 
-extension TodayFeature.State {
-    func summaryValue(for scope: TodayFeature.SectionScope) -> Int {
+extension TodayFeature {
+    static func summaryValue(
+        for scope: SectionScope,
+        todos: [TodayTodoItem],
+        displayOptions: TodayDisplayOptions
+    ) -> Int {
+        let displayedTodos = displayedTodos(
+            todos: todos,
+            displayOptions: displayOptions
+        )
+
         switch scope {
         case .all:
             return displayedTodos.count
@@ -21,7 +31,10 @@ extension TodayFeature.State {
         }
     }
 
-    var displayedTodos: [TodayTodoItem] {
+    static func displayedTodos(
+        todos: [TodayTodoItem],
+        displayOptions: TodayDisplayOptions
+    ) -> [TodayTodoItem] {
         let dueDateFilteredTodos: [TodayTodoItem]
         switch displayOptions.dueDateVisibility {
         case .all:
@@ -40,7 +53,7 @@ extension TodayFeature.State {
         }
     }
 
-    func groupedSectionItems(
+    static func groupedSectionItems(
         from items: [TodayTodoItem]
     ) -> TodayFeature.SectionCollection {
         let calendar = Calendar.current
@@ -82,13 +95,13 @@ extension TodayFeature.State {
         return collection
     }
 
-    func isOverdue(_ item: TodayTodoItem) -> Bool {
+    static func isOverdue(_ item: TodayTodoItem) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         let calendar = Calendar.current
         return calendar.startOfDay(for: dueDate) < calendar.startOfDay(for: Date())
     }
 
-    func isDueSoon(_ item: TodayTodoItem) -> Bool {
+    static func isDueSoon(_ item: TodayTodoItem) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
@@ -103,12 +116,12 @@ extension TodayFeature.State {
         return startOfToday <= dueDay && dueDay <= windowEnd
     }
 
-    func makeSection(
-        category: TodayFeature.SectionCategory,
+    static func makeSection(
+        category: SectionCategory,
         title: String,
         items: [TodayTodoItem]
-    ) -> [TodayFeature.SectionContent] {
+    ) -> [SectionContent] {
         guard !items.isEmpty else { return [] }
-        return [TodayFeature.SectionContent(category: category, title: title, items: items)]
+        return [SectionContent(category: category, title: title, items: items)]
     }
 }
