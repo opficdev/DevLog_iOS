@@ -235,6 +235,7 @@ struct HomeFeature {
             case .orderTodoCategory(let preferences):
                 state.preferences = preferences
                 state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
+                state.sheet = nil
                 return updateTodoCategoryPreferencesEffect(preferences)
             case .updateWebPageURLInput(let text):
                 state.webPageURLInput = text

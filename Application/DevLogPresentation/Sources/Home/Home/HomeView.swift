@@ -260,7 +260,6 @@ struct HomeView: View {
             CategoryManageView(
                 preferences: store.preferences,
                 onDismiss: { array in
-                    store.send(.sheet(.dismiss))
                     store.send(.orderTodoCategory(array), animation: .default)
                 }
             )
