@@ -126,10 +126,9 @@ struct HomeView: View {
                         }
                     }
                     .scrollDisabled(true)
+                    .navigationTitle(Text(String(localized: "home_webpage_input_title")))
+                    .navigationBarTitleDisplayMode(.inline) //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
                     .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            Text(String(localized: "home_webpage_input_title"))
-                        }
                         ToolbarItem(placement: .topBarTrailing) {
                             Button(String(localized: "home_add")) {
                                 store.send(.addWebPage)
@@ -137,10 +136,9 @@ struct HomeView: View {
                         }
                     }
                 }
+                .navigationTitle(Text(String(localized: "nav_home_content")))
+                .navigationBarTitleDisplayMode(.inline)  //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
                 .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text(String(localized: "nav_home_content"))
-                    }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             store.send(.sheet(.presented(.tapCloseButton)))
