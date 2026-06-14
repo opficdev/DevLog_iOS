@@ -164,7 +164,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
     }
 
     func setTimeFilter(_ filter: PushNotificationQuery.TimeFilter) async {
-        await store.send(.setTimeFilter(filter))
+        await store.send(.binding(.set(\.query.timeFilter, filter)))
         await drainReceivedActions()
     }
 

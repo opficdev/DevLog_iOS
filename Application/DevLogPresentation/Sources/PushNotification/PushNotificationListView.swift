@@ -210,10 +210,7 @@ struct PushNotificationListView: View {
             }
 
             Menu {
-                Picker(selection: Binding(
-                    get: { store.query.timeFilter },
-                    set: { store.send(.setTimeFilter($0)) }
-                )) {
+                Picker(selection: $store.query.timeFilter) {
                     ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
                         Text(option.title).tag(option)
                     }

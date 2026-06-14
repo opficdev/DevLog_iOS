@@ -49,9 +49,10 @@ struct PushNotificationListFeature {
         var id: String { todoId }
     }
 
-    enum Action {
+    enum Action: BindableAction {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
+        case binding(BindingAction<State>)
         case fetchNotifications
         case loadNextPage
         case deleteNotification(PushNotificationItem)
@@ -65,7 +66,6 @@ struct PushNotificationListFeature {
         case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
         case setNotificationHidden(String, Bool)
         case toggleSortOption
-        case setTimeFilter(PushNotificationQuery.TimeFilter)
         case toggleUnreadOnly
         case resetFilters
         case selectNotification(String?)
@@ -94,6 +94,7 @@ struct PushNotificationListFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             reduce(action, state: &state)
         }
@@ -126,6 +127,11 @@ private extension PushNotificationListFeature {
             state.selectedNotificationId = nil
             state.selectedTodoId = nil
         case .sheet:
+            break
+        case .binding(\.query.timeFilter):
+            state.nextCursor = nil
+            return refreshForQueryChangeEffect(query: state.query)
+        case .binding:
             break
         case .fetchNotifications:
             state.nextCursor = nil
@@ -182,10 +188,6 @@ private extension PushNotificationListFeature {
             Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
-            state.nextCursor = nil
-            return refreshForQueryChangeEffect(query: state.query)
-        case .setTimeFilter(let filter):
-            state.query.timeFilter = filter
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .toggleUnreadOnly:
