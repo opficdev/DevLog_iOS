@@ -15,16 +15,17 @@ struct PushNotificationListView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
     @State private var headerOffset: CGFloat = 0
     @State private var isScrollTrackingEnabled = false
-    @State private var store: StoreOf<PushNotificationListFeature>
+    @Bindable var store: StoreOf<PushNotificationListFeature>
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
+
     init(
         coordinator: PushNotificationListViewCoordinator,
         isCompactLayout: Bool
     ) {
         self.coordinator = coordinator
         self.isCompactLayout = isCompactLayout
-        self._store = State(initialValue: coordinator.store)
+        self.store = coordinator.store
     }
 
     var body: some View {
