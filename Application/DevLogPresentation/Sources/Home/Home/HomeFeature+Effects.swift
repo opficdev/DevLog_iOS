@@ -150,14 +150,14 @@ extension HomeFeature {
     ) {
         switch presentation {
         case .reorderTodo:
-            state.reorderTodo = isPresented
+            state.sheet = isPresented ? .reorderTodo : state.sheet == .reorderTodo ? nil : state.sheet
         case .todoEditor:
             state.showTodoEditor = isPresented
             if !isPresented {
                 state.selectedTodoCategory = nil
             }
         case .contentPicker:
-            state.showContentPicker = isPresented
+            state.sheet = isPresented ? .contentPicker : state.sheet == .contentPicker ? nil : state.sheet
         case .searchView:
             state.showSearchView = isPresented
         }

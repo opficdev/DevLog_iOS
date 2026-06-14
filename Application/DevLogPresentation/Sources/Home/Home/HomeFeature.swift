@@ -14,23 +14,30 @@ import Foundation
 struct HomeFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var sheet: SheetState?
         var preferences = [TodoCategoryItem]()
         var recentTodos = [RecentTodoItem]()
         var webPages = [WebPageItem]()
         var needsWebPageRefresh = false
         var isNetworkConnected = true
-        var showContentPicker = false
         var showTodoEditor = false
         var showSearchView = false
         var webPageURLInput = "https://"
         var selectedTodoCategory: TodoCategory?
-        var reorderTodo = false
         var showAlert = false
         var alertTitle = ""
         var alertType: AlertType?
         var alertMessage = ""
         var deletedWebPageURLString: String?
         var loading = LoadingFeature.State()
+
+        var showContentPicker: Bool {
+            sheet == .contentPicker
+        }
+
+        var reorderTodo: Bool {
+            sheet == .reorderTodo
+        }
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
@@ -50,10 +57,12 @@ struct HomeFeature {
     }
 
     enum Action: Equatable {
+        case sheet(PresentationAction<Sheet>)
         case startObserving
         case fetchData
         case refreshRecentTodos
         case networkStatusChanged(Bool)
+        case setSheet(SheetState?)
         case setPresentation(Presentation, Bool)
         case setAlert(isPresented: Bool, type: AlertType? = nil)
         case refreshWebPages
@@ -80,6 +89,17 @@ struct HomeFeature {
         case webPageInput
         case invalidURL
         case error
+    }
+
+    @ObservableState
+    @CasePathable
+    enum SheetState: Equatable {
+        case reorderTodo
+        case contentPicker
+    }
+
+    enum Sheet: Equatable {
+        case tapCloseButton
     }
 
     enum ModalType: Hashable {
@@ -131,6 +151,10 @@ struct HomeFeature {
         }
         Reduce { state, action in
             switch action {
+            case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
+                state.sheet = nil
+            case .sheet:
+                break
             case .startObserving:
                 return observeNetworkConnectivityEffect()
             case .fetchData:
@@ -143,11 +167,13 @@ struct HomeFeature {
                 return fetchRecentTodosEffect()
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
+            case .setSheet(let sheet):
+                state.sheet = sheet
             case .setPresentation(let presentation, let isPresented):
                 Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
             case .setAlert(let isPresented, let type):
                 if isPresented, type == .webPageInput, state.showContentPicker {
-                    state.showContentPicker = false
+                    state.sheet = nil
                     return delayedModalEffect(.urlInputAlert)
                 }
                 Self.setAlert(&state, isPresented: isPresented, type: type)
@@ -170,7 +196,7 @@ struct HomeFeature {
                 }
             case .tapTodoCategory(let category):
                 state.selectedTodoCategory = category
-                state.showContentPicker = false
+                state.sheet = nil
                 return delayedModalEffect(.todoEditor)
             case .orderTodoCategory(let preferences):
                 state.preferences = preferences
@@ -213,5 +239,17 @@ struct HomeFeature {
 
             return .none
         }
+        .ifLet(\.$sheet, action: \.sheet) {
+            HomeSheetFeature()
+        }
+    }
+}
+
+private struct HomeSheetFeature: Reducer {
+    typealias State = HomeFeature.SheetState
+    typealias Action = HomeFeature.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
     }
 }

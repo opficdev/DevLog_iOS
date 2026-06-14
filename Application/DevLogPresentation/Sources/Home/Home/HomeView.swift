@@ -13,7 +13,7 @@ struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
-    @@Bindable var store: StoreOf<HomeFeature>
+    @Bindable var store: StoreOf<HomeFeature>
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
 
@@ -23,7 +23,7 @@ struct HomeView: View {
     ) {
         self.coordinator = coordinator
         self.isCompactLayout = isCompactLayout
-        self._store = State(initialValue: coordinator.store)
+        self.store = coordinator.store
     }
 
     var body: some View {
@@ -35,23 +35,19 @@ struct HomeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
-        .sheet(isPresented: Binding(
-            get: { store.reorderTodo },
-            set: { store.send(.setPresentation(.reorderTodo, $0)) }
-        )) {
-            CategoryManageView(
-                preferences: store.preferences,
-                onDismiss: { array in
-                    store.send(.setPresentation(.reorderTodo, false))
-                    store.send(.orderTodoCategory(array), animation: .default)
-                }
-            )
-        }
-        .sheet(isPresented: Binding(
-            get: { store.showContentPicker },
-            set: { _, _ in }
-        )) {
-            contentPicker
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+            switch sheetStore.state {
+            case .reorderTodo:
+                CategoryManageView(
+                    preferences: store.preferences,
+                    onDismiss: { array in
+                        store.send(.sheet(.dismiss))
+                        store.send(.orderTodoCategory(array), animation: .default)
+                    }
+                )
+            case .contentPicker:
+                contentPicker
+            }
         }
         .fullScreenCover(isPresented: Binding(
             get: { store.showTodoEditor },
@@ -136,7 +132,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    store.send(.setPresentation(.reorderTodo, true))
+                    store.send(.setSheet(.reorderTodo))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -221,7 +217,7 @@ struct HomeView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                store.send(.setPresentation(.contentPicker, true))
+                store.send(.setSheet(.contentPicker))
             } label: {
                 Image(systemName: "plus")
             }
@@ -358,7 +354,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        store.send(.setPresentation(.contentPicker, false))
+                        store.send(.sheet(.presented(.tapCloseButton)))
                     } label: {
                         Image(systemName: "xmark")
                             .bold()
