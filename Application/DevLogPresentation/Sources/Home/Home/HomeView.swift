@@ -45,121 +45,6 @@ struct HomeView: View {
         }
     }
 
-    @ViewBuilder
-    private func coverContent(_ coverStore: Store<HomeFeature.FullScreenCoverState, Never>) -> some View {
-        switch coverStore.destination {
-        case .todoEditor:
-            if let selectedCategory = coverStore.selectedTodoCategory {
-                TodoEditorView(
-                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
-                    onCreateSuccess: {
-                        store.send(.setPresentation(.todoEditor, false))
-                        store.send(.fetchData)
-                    }
-                )
-            }
-        case .search:
-            SearchView(store: coordinator.makeSearchStore())
-        }
-    }
-
-    @ViewBuilder
-    private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
-        if sheetStore.state == .contentPicker {
-            NavigationStack {
-                List {
-                    Section {
-                        if store.isPreferencesLoading {
-                            LoadingView()
-                        } else {
-                            let preferences = store.preferences.filter(\.isVisible)
-                            ForEach(preferences, id: \.id) { item in
-                                Button {
-                                    DispatchQueue.main.async {
-                                        openTodoEditor(for: item.category)
-                                    }
-                                } label: {
-                                    labelImage(
-                                        text: item.localizedName,
-                                        systemName: item.symbolName,
-                                        imageColor: item.color
-                                    )
-                                }
-                            }
-                        }
-                    } header: {
-                        Text("TODO")
-                            .foregroundStyle(Color(.label))
-                    }
-
-                    Section {
-                        Button {
-                            store.send(.tapWebPageInput)
-                        } label: {
-                            labelImage(
-                                text: "URL",
-                                systemName: "globe",
-                                imageColor: .blue
-                            )
-                        }
-                    } header: {
-                        Text("Web Page")
-                            .foregroundStyle(Color(.label))
-                    }
-                }
-                .navigationDestination(
-                    item: $store.scope(state: \.webPageInput, action: \.webPageInput)
-                ) { _ in
-                    Form {
-                        Section {
-                            TextField(
-                                "https://",
-                                text: Binding(
-                                    get: { store.webPageURLInput },
-                                    set: { store.send(.updateWebPageURLInput($0)) }
-                                )
-                            )
-                            .textInputAutocapitalization(.never)
-                            .keyboardType(.URL)
-                        } footer: {
-                            Text(String(localized: "home_webpage_input_message"))
-                        }
-                    }
-                    .scrollDisabled(true)
-                    .navigationTitle(Text(String(localized: "home_webpage_input_title")))
-                    .navigationBarTitleDisplayMode(.inline) //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button(String(localized: "home_add")) {
-                                store.send(.addWebPage)
-                            }
-                        }
-                    }
-                }
-                .navigationTitle(Text(String(localized: "nav_home_content")))
-                .navigationBarTitleDisplayMode(.inline)  //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            store.send(.sheet(.presented(.tapCloseButton)))
-                        } label: {
-                            Image(systemName: "xmark")
-                                .bold()
-                        }
-                    }
-                }
-            }
-        } else {
-            CategoryManageView(
-                preferences: store.preferences,
-                onDismiss: { array in
-                    store.send(.sheet(.dismiss))
-                    store.send(.orderTodoCategory(array), animation: .default)
-                }
-            )
-        }
-    }
-
     private var todoSection: some View {
         Section(content: {
             if store.isPreferencesLoading {
@@ -279,6 +164,121 @@ struct HomeView: View {
             } label: {
                 Image(systemName: "magnifyingglass")
             }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
+        if sheetStore.state == .contentPicker {
+            NavigationStack {
+                List {
+                    Section {
+                        if store.isPreferencesLoading {
+                            LoadingView()
+                        } else {
+                            let preferences = store.preferences.filter(\.isVisible)
+                            ForEach(preferences, id: \.id) { item in
+                                Button {
+                                    DispatchQueue.main.async {
+                                        openTodoEditor(for: item.category)
+                                    }
+                                } label: {
+                                    labelImage(
+                                        text: item.localizedName,
+                                        systemName: item.symbolName,
+                                        imageColor: item.color
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("TODO")
+                            .foregroundStyle(Color(.label))
+                    }
+
+                    Section {
+                        Button {
+                            store.send(.tapWebPageInput)
+                        } label: {
+                            labelImage(
+                                text: "URL",
+                                systemName: "globe",
+                                imageColor: .blue
+                            )
+                        }
+                    } header: {
+                        Text("Web Page")
+                            .foregroundStyle(Color(.label))
+                    }
+                }
+                .navigationDestination(
+                    item: $store.scope(state: \.webPageInput, action: \.webPageInput)
+                ) { _ in
+                    Form {
+                        Section {
+                            TextField(
+                                "https://",
+                                text: Binding(
+                                    get: { store.webPageURLInput },
+                                    set: { store.send(.updateWebPageURLInput($0)) }
+                                )
+                            )
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                        } footer: {
+                            Text(String(localized: "home_webpage_input_message"))
+                        }
+                    }
+                    .scrollDisabled(true)
+                    .navigationTitle(Text(String(localized: "home_webpage_input_title")))
+                    .navigationBarTitleDisplayMode(.inline) //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(String(localized: "home_add")) {
+                                store.send(.addWebPage)
+                            }
+                        }
+                    }
+                }
+                .navigationTitle(Text(String(localized: "nav_home_content")))
+                .navigationBarTitleDisplayMode(.inline)  //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            store.send(.sheet(.presented(.tapCloseButton)))
+                        } label: {
+                            Image(systemName: "xmark")
+                                .bold()
+                        }
+                    }
+                }
+            }
+        } else {
+            CategoryManageView(
+                preferences: store.preferences,
+                onDismiss: { array in
+                    store.send(.sheet(.dismiss))
+                    store.send(.orderTodoCategory(array), animation: .default)
+                }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func coverContent(_ coverStore: Store<HomeFeature.FullScreenCoverState, Never>) -> some View {
+        switch coverStore.destination {
+        case .todoEditor:
+            if let selectedCategory = coverStore.selectedTodoCategory {
+                TodoEditorView(
+                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
+                    onCreateSuccess: {
+                        store.send(.setPresentation(.todoEditor, false))
+                        store.send(.fetchData)
+                    }
+                )
+            }
+        case .search:
+            SearchView(store: coordinator.makeSearchStore())
         }
     }
 
