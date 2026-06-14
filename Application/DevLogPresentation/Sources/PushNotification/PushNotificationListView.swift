@@ -61,20 +61,28 @@ struct PushNotificationListView: View {
     @ViewBuilder
     private var notificationListContent: some View {
         let notifications = store.notifications.filter { !$0.isHidden }
-        if notifications.isEmpty {
-            Text(String(localized: "push_notifications_empty"))
-                .foregroundStyle(Color.gray)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            List(
-                Array(zip(notifications.indices, notifications)),
-                id: \.1.id
-            ) { index, notification in
-                notificationListRow(notification, index: index, notifications: notifications)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-                    .listSectionSeparator(.hidden, edges: .top)
-                    .listRowBackground(Color.clear)
+        List {
+            Group {
+                if notifications.isEmpty {
+                    HStack {
+                        Spacer()
+                        Text(String(localized: "push_notifications_empty"))
+                            .foregroundStyle(Color.gray)
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
+                } else {
+                    ForEach(
+                        Array(zip(notifications.indices, notifications)),
+                        id: \.1.id
+                    ) { index, notification in
+                        notificationListRow(notification, index: index, notifications: notifications)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                    }
+                }
             }
+            .listSectionSeparator(.hidden, edges: .top)
+            .listRowBackground(Color.clear)
         }
     }
 
