@@ -13,7 +13,7 @@ struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
-    @State var store: StoreOf<HomeFeature>
+    @@Bindable var store: StoreOf<HomeFeature>
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
 
