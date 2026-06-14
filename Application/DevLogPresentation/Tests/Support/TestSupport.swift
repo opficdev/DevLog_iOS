@@ -107,9 +107,13 @@ final class UndoDeletePushNotificationUseCaseSpy: UndoDeletePushNotificationUseC
 
 final class TogglePushNotificationReadUseCaseSpy: TogglePushNotificationReadUseCase {
     private(set) var calledTodoIds: [String] = []
+    var error: Error?
 
     func execute(_ todoId: String) async throws {
         calledTodoIds.append(todoId)
+        if let error {
+            throw error
+        }
     }
 }
 

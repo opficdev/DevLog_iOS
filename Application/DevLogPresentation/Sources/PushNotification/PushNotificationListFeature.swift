@@ -78,6 +78,7 @@ struct PushNotificationListFeature {
             case setHasMore(Bool)
             case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
             case setNotificationHidden(String, Bool)
+            case setNotificationRead(String, Bool)
             case observeNotifications(PushNotificationQuery, Int)
         }
     }
@@ -156,8 +157,9 @@ private extension PushNotificationListFeature {
             guard let index = state.notifications.firstIndex(where: { $0.id == item.id }) else {
                 return .none
             }
-            state.notifications[index].isRead.toggle()
-            return toggleReadEffect(item.todoId)
+            let isRead = !state.notifications[index].isRead
+            state.notifications[index].isRead = isRead
+            return toggleReadEffect(notificationId: item.id, todoId: item.todoId, rollbackRead: !isRead)
         case .undoDelete:
             guard let undoNotificationId = state.undoNotificationId else { return .none }
             Self.setNotificationHidden(&state, notificationId: undoNotificationId, isHidden: false)
@@ -190,6 +192,10 @@ private extension PushNotificationListFeature {
             state.hasMore = hasMore
         case .store(.setNotificationHidden(let notificationId, let isHidden)):
             Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
+        case .store(.setNotificationRead(let notificationId, let isRead)):
+            if let index = state.notifications.firstIndex(where: { $0.id == notificationId }) {
+                state.notifications[index].isRead = isRead
+            }
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
             state.nextCursor = nil
@@ -216,7 +222,7 @@ private extension PushNotificationListFeature {
             state.selectedTodoId = TodoIdItem(id: item.todoId)
             guard !item.isRead else { return .none }
             state.notifications[index].isRead = true
-            return toggleReadEffect(item.todoId)
+            return toggleReadEffect(notificationId: item.id, todoId: item.todoId, rollbackRead: false)
         case .syncSheetPresentation(let isCompactLayout):
             if let todoId = state.selectedTodoId?.id, isCompactLayout {
                 state.sheet = .init(todoId: todoId)
@@ -320,13 +326,18 @@ private extension PushNotificationListFeature {
         }
     }
 
-    func toggleReadEffect(_ todoId: String) -> Effect<Action> {
+    func toggleReadEffect(
+        notificationId: String,
+        todoId: String,
+        rollbackRead: Bool
+    ) -> Effect<Action> {
         .run { [togglePushNotificationReadUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await togglePushNotificationReadUseCase.execute(todoId)
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
+                await send(.store(.setNotificationRead(notificationId, rollbackRead)))
                 await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.store(.setAlert))
             }

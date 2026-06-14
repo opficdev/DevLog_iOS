@@ -100,6 +100,33 @@ struct PushNotificationListFeatureTests {
         )
     }
 
+    @Test("toggleRead 실패 시 읽음 상태를 원래 값으로 롤백한다")
+    func toggleRead_실패_시_읽음_상태를_원래_값으로_롤백한다() async throws {
+        struct DummyError: Error {}
+
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [
+            PushNotificationPage(
+                items: [
+                    makePushNotification(id: "notification-1", number: 1, isRead: true)
+                ],
+                nextCursor: nil
+            )
+        ])
+        let toggleSpy = TogglePushNotificationReadUseCaseSpy()
+        toggleSpy.error = DummyError()
+        let adapter = PushNotificationListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            toggleReadUseCase: toggleSpy
+        )
+
+        await adapter.fetchNotifications()
+        let item = try #require(adapter.notifications.first)
+
+        await adapter.toggleRead(item)
+
+        #expect(adapter.notifications.first?.isRead == true)
+    }
+
     @Test("syncSheetPresentation은 layout에 따라 시트 상태를 동기화한다")
     func syncSheetPresentation은_layout에_따라_시트_상태를_동기화한다() async throws {
         let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [
