@@ -84,6 +84,7 @@ struct PushNotificationListView: View {
             .listSectionSeparator(.hidden, edges: .top)
             .listRowBackground(Color.clear)
         }
+        .scrollDisabled(notifications.isEmpty || store.isLoading)
     }
 
     @ViewBuilder
