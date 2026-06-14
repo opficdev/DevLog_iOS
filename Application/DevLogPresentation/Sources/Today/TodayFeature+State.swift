@@ -12,7 +12,8 @@ extension TodayFeature {
     static func summaryValue(
         for scope: SectionScope,
         todos: [TodayTodoItem],
-        displayOptions: TodayDisplayOptions
+        displayOptions: TodayDisplayOptions,
+        now: Date
     ) -> Int {
         let displayedTodos = displayedTodos(
             todos: todos,
@@ -25,9 +26,9 @@ extension TodayFeature {
         case .focused:
             return displayedTodos.filter(\.isPinned).count
         case .overdue:
-            return displayedTodos.filter(isOverdue).count
+            return displayedTodos.filter { isOverdue($0, now: now) }.count
         case .dueSoon:
-            return displayedTodos.filter(isDueSoon).count
+            return displayedTodos.filter { isDueSoon($0, now: now) }.count
         }
     }
 
@@ -54,10 +55,11 @@ extension TodayFeature {
     }
 
     static func groupedSectionItems(
-        from items: [TodayTodoItem]
+        from items: [TodayTodoItem],
+        now: Date
     ) -> TodayFeature.SectionCollection {
         let calendar = Calendar.current
-        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfToday = calendar.startOfDay(for: now)
         guard let windowEnd = calendar.date(
             byAdding: .day,
             value: TodayFeature.upcomingWindowDays,
@@ -95,16 +97,16 @@ extension TodayFeature {
         return collection
     }
 
-    static func isOverdue(_ item: TodayTodoItem) -> Bool {
+    static func isOverdue(_ item: TodayTodoItem, now: Date) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         let calendar = Calendar.current
-        return calendar.startOfDay(for: dueDate) < calendar.startOfDay(for: Date())
+        return calendar.startOfDay(for: dueDate) < calendar.startOfDay(for: now)
     }
 
-    static func isDueSoon(_ item: TodayTodoItem) -> Bool {
+    static func isDueSoon(_ item: TodayTodoItem, now: Date) -> Bool {
         guard let dueDate = item.dueDate else { return false }
         let calendar = Calendar.current
-        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfToday = calendar.startOfDay(for: now)
         guard let windowEnd = calendar.date(
             byAdding: .day,
             value: TodayFeature.upcomingWindowDays,

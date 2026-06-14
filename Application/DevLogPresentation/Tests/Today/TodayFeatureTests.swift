@@ -6,10 +6,65 @@
 //
 
 import Testing
+import Foundation
+import DevLogCore
 @testable import DevLogPresentation
 
 @MainActor
 struct TodayFeatureTests {
+    @Test("TodayFeature groupedSectionItems는 주입된 now 기준으로 섹션을 분류한다")
+    func TodayFeature_groupedSectionItems는_주입된_now_기준으로_섹션을_분류한다() throws {
+        let now = try #require(makeFixedTodayNow())
+        let items = makeFixedTodayTodoItems(now: now)
+
+        let sections = TodayFeature.groupedSectionItems(from: items, now: now)
+
+        #expect(sections.focused.map(\.id) == ["focused"])
+        #expect(sections.overdue.map(\.id) == ["overdue"])
+        #expect(sections.dueSoon.map(\.id) == ["due-soon"])
+        #expect(sections.later.map(\.id) == ["later"])
+        #expect(sections.unscheduled.map(\.id) == ["unscheduled"])
+    }
+
+    @Test("TodayFeature summaryValue는 주입된 now 기준으로 요약 값을 계산한다")
+    func TodayFeature_summaryValue는_주입된_now_기준으로_요약_값을_계산한다() throws {
+        let now = try #require(makeFixedTodayNow())
+        let todos = makeFixedTodayTodoItems(now: now)
+
+        #expect(
+            TodayFeature.summaryValue(
+                for: .all,
+                todos: todos,
+                displayOptions: .default,
+                now: now
+            ) == 5
+        )
+        #expect(
+            TodayFeature.summaryValue(
+                for: .focused,
+                todos: todos,
+                displayOptions: .default,
+                now: now
+            ) == 1
+        )
+        #expect(
+            TodayFeature.summaryValue(
+                for: .overdue,
+                todos: todos,
+                displayOptions: .default,
+                now: now
+            ) == 1
+        )
+        #expect(
+            TodayFeature.summaryValue(
+                for: .dueSoon,
+                todos: todos,
+                displayOptions: .default,
+                now: now
+            ) == 2
+        )
+    }
+
     @Test("현재 TodayViewModel fetchData는 요약과 섹션 상태를 갱신한다")
     func 현재_TodayViewModel_fetchData는_요약과_섹션_상태를_갱신한다() async throws {
         let todos = makeTodaySectionTodos()
@@ -233,4 +288,31 @@ struct TodayFeatureTests {
 
         await verifyTodayFetchFailureShowsAlert(adapter: adapter)
     }
+}
+
+private func makeFixedTodayNow() -> Date? {
+    Calendar.current.date(
+        from: DateComponents(
+            year: 2026,
+            month: 6,
+            day: 14,
+            hour: 12
+        )
+    )
+}
+
+private func makeFixedTodayTodoItems(now: Date) -> [TodayTodoItem] {
+    let calendar = Calendar.current
+
+    func dueDate(_ dayOffset: Int) -> Date {
+        calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
+    }
+
+    return [
+        TodayTodoItem(from: makeTodayTodo(id: "focused", isPinned: true, dueDate: dueDate(1)))!,
+        TodayTodoItem(from: makeTodayTodo(id: "overdue", dueDate: dueDate(-1)))!,
+        TodayTodoItem(from: makeTodayTodo(id: "due-soon", dueDate: dueDate(2)))!,
+        TodayTodoItem(from: makeTodayTodo(id: "later", dueDate: dueDate(10)))!,
+        TodayTodoItem(from: makeTodayTodo(id: "unscheduled", dueDate: nil))!
+    ]
 }

@@ -59,11 +59,13 @@ struct TodayFeature {
         }
 
         var sections: [SectionContent] {
+            let now = Date()
             let items = TodayFeature.groupedSectionItems(
                 from: TodayFeature.displayedTodos(
                     todos: todos,
                     displayOptions: displayOptions
-                )
+                ),
+                now: now
             )
 
             switch selectedSectionScope {
@@ -122,14 +124,16 @@ struct TodayFeature {
         }
 
         var summaryCounts: [SectionScope: Int] {
-            Dictionary(
+            let now = Date()
+            return Dictionary(
                 uniqueKeysWithValues: SectionScope.allCases.map { scope in
                     (
                         scope,
                         TodayFeature.summaryValue(
                             for: scope,
                             todos: todos,
-                            displayOptions: displayOptions
+                            displayOptions: displayOptions,
+                            now: now
                         )
                     )
                 }
