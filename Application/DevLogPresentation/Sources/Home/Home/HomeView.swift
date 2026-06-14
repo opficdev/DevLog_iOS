@@ -180,9 +180,7 @@ struct HomeView: View {
                             let preferences = store.preferences.filter(\.isVisible)
                             ForEach(preferences, id: \.id) { item in
                                 Button {
-                                    DispatchQueue.main.async {
-                                        openTodoEditor(for: item.category)
-                                    }
+                                    openTodoEditor(for: item.category)
                                 } label: {
                                     labelImage(
                                         text: item.localizedName,

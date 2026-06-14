@@ -121,6 +121,7 @@ extension HomeFeature {
 
     func delayedTodoEditorEffect() -> Effect<Action> {
         .run { [clock] send in
+            // iOS 17에서 시트 dismiss 직후 fullScreenCover를 바로 올리지 않도록 하기 위해서 0.1초 딜레이
             try await clock.sleep(for: .seconds(0.1))
             await send(.setPresentation(.todoEditor, true))
         }
