@@ -29,7 +29,7 @@ struct PushNotificationListView: View {
 
     var body: some View {
         NavigationStack {
-            notificationList
+            notificationListContent
                 .background(Color(.systemGroupedBackground))
                 .background(NavigationBarConfigurator(alwaysVisible: true))
                 .onScrollOffsetChange { offset in
@@ -59,7 +59,7 @@ struct PushNotificationListView: View {
     }
 
     @ViewBuilder
-    private var notificationList: some View {
+    private var notificationListContent: some View {
         let notifications = store.notifications.filter { !$0.isHidden }
         if notifications.isEmpty {
             Text(String(localized: "push_notifications_empty"))
@@ -147,95 +147,87 @@ struct PushNotificationListView: View {
     }
 
     private var headerView: some View {
-        Group {
-            if #available(iOS 18, *) {
-                ScrollView(.horizontal) { headerContent }
-                .scrollIndicators(.never)
-                .scrollDisabled(!isScrollTrackingEnabled)
-                .contentMargins(.leading, 16, for: .scrollContent)
-            } else {
-                headerContent
-                    .padding(.leading, 16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                if 0 < store.appliedFilterCount {
+                    Menu {
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "push_filters_applied_format"),
+                                Int64(store.appliedFilterCount)
+                            )
+                        )
+                        Button(role: .destructive) {
+                            store.send(.resetFilters)
+                        } label: {
+                            Text(String(localized: "push_clear_all_filters"))
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease")
+                            filterBadge
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
+
+                Button {
+                    DispatchQueue.main.async {
+                        store.send(.toggleSortOption)
+                    }
+                } label: {
+                    let condition = store.query.sortOrder == .oldest
+                    Text(
+                        String.localizedStringWithFormat(
+                            String(localized: "push_sort_format"),
+                            store.query.sortOrder.title
+                        )
+                    )
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
+                .frame(height: headerHeight)
+
+                Menu {
+                    Picker(selection: $store.query.timeFilter) {
+                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "push_period"))
+                    }
+                } label: {
+                    let condition = store.query.timeFilter == .none
+                    HStack {
+                        Text(String(localized: "push_period"))
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color(.label) : .white)
+                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
+                }
+
+                Button {
+                    DispatchQueue.main.async {
+                        store.send(.toggleUnreadOnly)
+                    }
+                } label: {
+                    let condition = store.query.unreadOnly
+                    Text(String(localized: "push_unread"))
+                        .foregroundStyle(condition ? .white : Color(.label))
+                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
+                .frame(height: headerHeight)
             }
         }
+        .scrollIndicators(.never)
+        .scrollDisabled(!isScrollTrackingEnabled)
+        .contentMargins(.leading, 16, for: .scrollContent)
         .frame(height: headerHeight)
         .onAppear {
             headerOffset = 0
             isScrollTrackingEnabled = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isScrollTrackingEnabled = true
-            }
-        }
-    }
-
-    private var headerContent: some View {
-        HStack(spacing: 8) {
-            if 0 < store.appliedFilterCount {
-                Menu {
-                    Text(
-                        String.localizedStringWithFormat(
-                            String(localized: "push_filters_applied_format"),
-                            Int64(store.appliedFilterCount)
-                        )
-                    )
-                    Button(role: .destructive) {
-                        store.send(.resetFilters)
-                    } label: {
-                        Text(String(localized: "push_clear_all_filters"))
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "line.3.horizontal.decrease")
-                        filterBadge
-                    }
-                    .adaptiveButtonStyle()
-                }
-            }
-
-            Button {
-                DispatchQueue.main.async {
-                    store.send(.toggleSortOption)
-                }
-            } label: {
-                let condition = store.query.sortOrder == .oldest
-                Text(
-                    String.localizedStringWithFormat(
-                        String(localized: "push_sort_format"),
-                        store.query.sortOrder.title
-                    )
-                )
-                .foregroundStyle(condition ? .white : Color(.label))
-                .adaptiveButtonStyle(color: condition ? .blue : .clear)
-            }
-
-            Menu {
-                Picker(selection: $store.query.timeFilter) {
-                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
-                        Text(option.title).tag(option)
-                    }
-                } label: {
-                    Text(String(localized: "push_period"))
-                }
-            } label: {
-                let condition = store.query.timeFilter == .none
-                HStack {
-                    Text(String(localized: "push_period"))
-                    Image(systemName: "chevron.down")
-                }
-                .foregroundStyle(condition ? Color(.label) : .white)
-                .adaptiveButtonStyle(color: condition ? .clear : .blue)
-            }
-
-            Button {
-                DispatchQueue.main.async {
-                    store.send(.toggleUnreadOnly)
-                }
-            } label: {
-                let condition = store.query.unreadOnly
-                Text(String(localized: "push_unread"))
-                    .foregroundStyle(condition ? .white : Color(.label))
-                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
         }
     }
