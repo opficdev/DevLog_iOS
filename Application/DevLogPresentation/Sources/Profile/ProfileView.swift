@@ -5,14 +5,26 @@
 //  Created by opfic on 5/7/25.
 //
 
+// swiftlint:disable file_length
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
 struct ProfileView: View {
+    @Bindable var store: StoreOf<ProfileFeature>
+    @FocusState private var focused: Bool
     let coordinator: ProfileViewCoordinator
     let isCompactLayout: Bool
-    @FocusState private var focused: Bool
+
+    init(
+        coordinator: ProfileViewCoordinator,
+        isCompactLayout: Bool
+    ) {
+        self.store = coordinator.store
+        self.coordinator = coordinator
+        self.isCompactLayout = isCompactLayout
+    }
 
     var body: some View {
         Group {
@@ -29,118 +41,212 @@ struct ProfileView: View {
         }
         .onChange(of: focused) { _, newValue in
             withAnimation {
-                coordinator.viewModel.send(.updateStatusTextFieldFocus(newValue))
+                _ = store.send(.updateStatusTextFieldFocus(newValue))
             }
         }
-        .alert(
-            "",
-            isPresented: Binding(
-                get: { coordinator.viewModel.state.showAlert },
-                set: { coordinator.viewModel.send(.setAlert($0)) }
-            )
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(coordinator.viewModel.state.alertMessage)
-        }
-        .sheet(
-            isPresented: Binding(
-                get: { coordinator.viewModel.state.showQuarterPicker },
-                set: { coordinator.viewModel.send(.setQuarterPickerPresented($0)) }
-            )
-        ) {
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(isPresented: $store.showQuarterPicker) {
             quarterPickerSheet
+        }
+        .overlay {
+            if store.isLoading {
+                LoadingView()
+            }
         }
     }
 
     private var profileContentView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    profileAvatarImage
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(30)
-                    .foregroundStyle(Color.gray)
-
-                    VStack(alignment: .leading) {
-                        Text(coordinator.viewModel.state.name)
-                            .font(.title2)
-                            .bold()
-                        Text(coordinator.viewModel.state.email)
-                            .font(.caption2)
-                            .foregroundStyle(Color.gray)
-                    }
-                }
-                let connected = coordinator.viewModel.state.isNetworkConnected
-                HStack {
-                    HStack {
-                        Image(systemName: "face.smiling")
-                        TextField(
-                            text: Binding(
-                                get: { coordinator.viewModel.state.statusMessage },
-                                set: { coordinator.viewModel.send(.updateStatusMessage($0)) }
-                            )
-                        ) {
-                            Text(String(localized: "profile_status_placeholder"))
-                        }
-                        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
-                        .focused($focused)
-                        .disabled(!connected)
-
-                        if !coordinator.viewModel.state.statusMessage.isEmpty,
-                           coordinator.viewModel.state.showDoneButton {
-                            Button(action: {
-                                coordinator.viewModel.send(.tapResetStatusMessageButton)
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                            }
-                            .transition(.move(edge: .trailing).combined(with: .opacity))
-                        }
-                    }
-                    .foregroundStyle(Color.gray)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(.secondarySystemGroupedBackground))
-                    )
-                    if coordinator.viewModel.state.showDoneButton {
-                        Button(action: {
-                            focused = false
-                            coordinator.viewModel.send(.willUpdateStatusMessage)
-                        }) {
-                            Text(String(localized: "profile_done"))
-                        }
-                        .transition(.move(edge: .trailing).combined(with: .opacity))
-                    }
-                }
-                .opacity(connected ? 1 : 0.7)
+                profileHeader
+                statusMessageSection
                 activityHeatmapSection
             }
             .padding(.horizontal, 16)
         }
-        .refreshable { coordinator.viewModel.send(.refresh) }
+        .refreshable { store.send(.refresh) }
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
-        .toolbar { profileToolbarContent }
+        .toolbar { toolbar }
     }
 
-    @ViewBuilder
-    private var profileAvatarImage: some View {
-        if let data = coordinator.viewModel.state.avatarImageData?.data,
-           let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
-        } else {
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .scaledToFill()
-                .foregroundStyle(Color(.systemGray2))
+    private var profileHeader: some View {
+        HStack {
+            Group {
+                if let data = store.avatarImageData?.data,
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .scaledToFill()
+                        .foregroundStyle(Color(.systemGray2))
+                }
+            }
+            .frame(width: 60, height: 60)
+            .cornerRadius(30)
+
+            VStack(alignment: .leading) {
+                Text(store.name)
+                    .font(.title2)
+                    .bold()
+                Text(store.email)
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+            }
         }
     }
 
+    private var statusMessageSection: some View {
+        let connected = store.isNetworkConnected
+
+        return HStack {
+            HStack {
+                Image(systemName: "face.smiling")
+                TextField(
+                    text: $store.statusMessage
+                ) {
+                    Text(String(localized: "profile_status_placeholder"))
+                }
+                .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
+                .focused($focused)
+                .disabled(!connected)
+
+                if !store.statusMessage.isEmpty,
+                   store.showDoneButton {
+                    Button(action: {
+                        store.send(.tapResetStatusMessageButton)
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
+            }
+            .foregroundStyle(Color.gray)
+            .padding(8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
+            if store.showDoneButton {
+                Button(action: {
+                    focused = false
+                    store.send(.willUpdateStatusMessage)
+                }) {
+                    Text(String(localized: "profile_done"))
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+        }
+        .opacity(connected ? 1 : 0.7)
+    }
+
+    private var activityHeatmapSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(String(localized: "profile_quarterly_activity"))
+                    .font(.headline)
+                Spacer()
+                if !store.isViewingCurrentQuarter {
+                    Button {
+                        store.send(.moveToCurrentQuarter)
+                    } label: {
+                        Image(systemName: "arrow.uturn.backward")
+                            .bold()
+                            .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
+                }
+                Menu {
+                    ForEach(ActivityKindItem.selectableItems) { activityKindItem in
+                        Toggle(
+                            activityKindItem.title,
+                            isOn: Binding(
+                                get: {
+                                    guard let activityKind = ActivityKind(
+                                        rawValue: activityKindItem.rawValue
+                                    ) else {
+                                        return false
+                                    }
+                                    return store.selectedActivityKinds.contains(activityKind)
+                                },
+                                set: { _ in
+                                    guard let activityKind = ActivityKind(
+                                        rawValue: activityKindItem.rawValue
+                                    ) else {
+                                        return
+                                    }
+                                    store.send(.toggleActivityKind(activityKind))
+                                }
+                            )
+                        )
+                        .disabled({
+                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
+                                return false
+                            }
+                            return store.selectedActivityKinds.count == 1
+                                && store.selectedActivityKinds.contains(activityKind)
+                        }())
+                    }
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                        .bold()
+                        .foregroundStyle(.blue)
+                }
+            }
+
+            HStack {
+                Button {
+                    store.send(.moveQuarter(-1))
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .disabled(!store.canMoveToPreviousQuarter)
+                Spacer()
+                Button {
+                    store.send(.openQuarterPicker)
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(store.quarterTitle)
+                            .font(.subheadline)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                Spacer()
+                Button {
+                    store.send(.moveQuarter(1))
+                } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .disabled(!store.canMoveToNextQuarter)
+            }
+
+            if let quarter = store.activityQuarter {
+                HeatmapView(
+                    quarter: quarter,
+                    selectedActivityKinds: store.selectedActivityKinds,
+                    selectedDay: store.selectedDay,
+                    onSelectDay: { store.send(.selectDay($0)) }
+                )
+                if let selectedDay = store.selectedDay {
+                    selectedDayDetailSection(for: selectedDay)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+    }
+
     @ToolbarContentBuilder
-    private var profileToolbarContent: some ToolbarContent {
+    private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 if isCompactLayout {
@@ -172,122 +278,6 @@ struct ProfileView: View {
         }
     }
 
-    private var activityHeatmapSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(String(localized: "profile_quarterly_activity"))
-                    .font(.headline)
-                Spacer()
-                quarterResetButton
-                activityTypeSelector
-            }
-
-            quarterNavigator
-
-            if let quarter = coordinator.viewModel.state.activityQuarter {
-                HeatmapView(
-                    quarter: quarter,
-                    selectedActivityKinds: coordinator.viewModel.state.selectedActivityKinds,
-                    selectedDay: coordinator.viewModel.state.selectedDay,
-                    onSelectDay: { coordinator.viewModel.send(.selectDay($0)) }
-                )
-                if let selectedDay = coordinator.viewModel.state.selectedDay {
-                    selectedDayDetailSection(for: selectedDay)
-                        .overlay {
-                            if coordinator.viewModel.state.isLoading {
-                                LoadingView()
-                            }
-                        }
-                }
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
-    }
-
-    @ViewBuilder
-    private var quarterResetButton: some View {
-        if !coordinator.viewModel.isViewingCurrentQuarter {
-            Button {
-                coordinator.viewModel.send(.moveToCurrentQuarter)
-            } label: {
-                Image(systemName: "arrow.uturn.backward")
-                    .bold()
-                    .foregroundStyle(.blue)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private var activityTypeSelector: some View {
-        Menu {
-            ForEach(ActivityKindItem.selectableItems) { activityKindItem in
-                Toggle(
-                    activityKindItem.title,
-                    isOn: Binding(
-                        get: {
-                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                                return false
-                            }
-                            return coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
-                        },
-                        set: { _ in
-                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                                return
-                            }
-                            coordinator.viewModel.send(.toggleActivityKind(activityKind))
-                        }
-                    )
-                )
-                .disabled({
-                    guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                        return false
-                    }
-                    return coordinator.viewModel.state.selectedActivityKinds.count == 1
-                        && coordinator.viewModel.state.selectedActivityKinds.contains(activityKind)
-                }())
-            }
-        } label: {
-            Image(systemName: "line.3.horizontal.decrease")
-                .bold()
-                .foregroundStyle(.blue)
-        }
-    }
-
-    private var quarterNavigator: some View {
-        HStack {
-            Button {
-                coordinator.viewModel.send(.moveQuarter(-1))
-            } label: {
-                Image(systemName: "chevron.left")
-            }
-            .disabled(!coordinator.viewModel.canMoveToPreviousQuarter)
-            Spacer()
-            Button {
-                coordinator.viewModel.send(.openQuarterPicker)
-            } label: {
-                HStack(spacing: 4) {
-                    Text(coordinator.viewModel.quarterTitle)
-                        .font(.subheadline)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption2)
-                }
-                .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            Spacer()
-            Button {
-                coordinator.viewModel.send(.moveQuarter(1))
-            } label: {
-                Image(systemName: "chevron.right")
-            }
-            .disabled(!coordinator.viewModel.canMoveToNextQuarter)
-        }
-    }
-
     private var quarterPickerSheet: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
@@ -298,12 +288,9 @@ struct ProfileView: View {
                     Spacer()
                     Picker(
                         "",
-                        selection: Binding(
-                            get: { coordinator.viewModel.state.selectedQuarterPickerYear },
-                            set: { coordinator.viewModel.send(.setQuarterPickerYear($0)) }
-                        )
+                        selection: $store.selectedQuarterPickerYear
                     ) {
-                        ForEach(coordinator.viewModel.availableQuarterYears, id: \.self) { year in
+                        ForEach(store.availableQuarterYears, id: \.self) { year in
                             Text(verbatim: String(year))
                                 .tag(year)
                         }
@@ -325,7 +312,7 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarTrailingButton {
-                    coordinator.viewModel.send(.setQuarterPickerPresented(false))
+                    store.send(.setQuarterPickerPresented(false))
                 }
             }
         }
@@ -335,13 +322,13 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func quarterSelectionButton(for quarter: Int) -> some View {
-        let quarterStart = coordinator.viewModel.quarterStartForPicker(quarter: quarter)
-        let isEnabled = coordinator.viewModel.isQuarterSelectableForPicker(quarter)
-        let isSelected = coordinator.viewModel.isQuarterSelectedForPicker(quarter)
+        let quarterStart = store.state.quarterStartForPicker(quarter: quarter)
+        let isEnabled = store.state.isQuarterSelectableForPicker(quarter)
+        let isSelected = store.state.isQuarterSelectedForPicker(quarter)
 
         Button {
             guard let quarterStart else { return }
-            coordinator.viewModel.send(.selectQuarter(quarterStart))
+            store.send(.selectQuarter(quarterStart))
         } label: {
             Text(
                 String.localizedStringWithFormat(
@@ -364,7 +351,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private func selectedDayDetailSection(for day: HeatmapDay) -> some View {
-        let activities = coordinator.viewModel.selectedDayActivities
+        let activities = store.selectedDayActivities
 
         VStack(alignment: .leading, spacing: 12) {
             Text(day.date.formatted(.dateTime.year().month(.wide).day()))
@@ -380,13 +367,7 @@ struct ProfileView: View {
             } else {
                 ForEach(activities) { activity in
                     Button {
-                        if !activity.isDeleted {
-                            if isCompactLayout {
-                                coordinator.router.push(.activity(activity.todoId))
-                            } else {
-                                coordinator.router.replace(with: .activity(activity.todoId))
-                            }
-                        }
+                        selectActivity(activity)
                     } label: {
                         let item = TodoCategoryItem(from: activity.category)
                         let rowColor = activity.isDeleted ? Color.secondary : .primary
@@ -401,15 +382,15 @@ struct ProfileView: View {
                             Text("#\(activity.number)")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            ForEach(activity.activityKindItems) { activityKindItem in
-                                Text(activityKindItem.title)
+                            ForEach(activity.activityKindItems) { item in
+                                Text(item.title)
                                     .font(.caption2)
-                                    .foregroundStyle(activityKindItem.badgeColor)
+                                    .foregroundStyle(item.badgeColor)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(
                                         Capsule()
-                                            .fill(activityKindItem.badgeColor.opacity(0.14))
+                                            .fill(item.badgeColor.opacity(0.14))
                                     )
                             }
                             Spacer()
@@ -435,6 +416,16 @@ struct ProfileView: View {
             get: { coordinator.router.path },
             set: { coordinator.router.path = $0 }
         )
+    }
+
+    private func selectActivity(_ activity: HeatmapActivityItem) {
+        guard !activity.isDeleted else { return }
+
+        if isCompactLayout {
+            coordinator.router.push(.activity(activity.todoId))
+        } else {
+            coordinator.router.replace(with: .activity(activity.todoId))
+        }
     }
 }
 
