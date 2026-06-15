@@ -144,11 +144,13 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 
 | 항목 | 버전 |
 | --- | --- |
-| Xcode | 26.3 |
+| Xcode | 26.5 |
 | iOS Deployment Target | 17.0 |
 | Swift | 5.0 |
 | Tuist | 4.194.4 |
-| Ruby | 3.2 |
+| SwiftLint | 0.63.3 |
+| Ruby | 3.4.7 |
+| Bundler | 2.7.2 |
 | Fastlane | 2.232.2 |
 | Node.js | 22 |
 | TypeScript | 4.9.5 |
