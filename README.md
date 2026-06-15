@@ -32,8 +32,6 @@
 
 ## 앱 사용해보기
 
-iOS 17 이상 환경에서 App Store에서 다운로드 가능
-
 <a href="https://apps.apple.com/us/app/devlog/id6760288611">
   <img src="https://img.shields.io/badge/App%20Store-0D96F6?style=flat&logo=appstore&logoColor=white" />
 
