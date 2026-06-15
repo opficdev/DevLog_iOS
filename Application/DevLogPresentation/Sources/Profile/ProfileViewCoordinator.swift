@@ -13,22 +13,24 @@ import DevLogDomain
 @MainActor
 @Observable
 final class ProfileViewCoordinator {
-    let viewModel: ProfileViewModel
+    let store: StoreOf<ProfileFeature>
     let settingsStore: StoreOf<SettingsFeature>
     var router = NavigationRouter<ProfileRoute>()
     private let container: DIContainer
 
     init(container: DIContainer) {
         self.container = container
-        self.viewModel = ProfileViewModel(
-            fetchUserDataUseCase: container.resolve(FetchUserDataUseCase.self),
-            fetchProfileImageDataUseCase: container.resolve(FetchProfileImageDataUseCase.self),
-            fetchTodosUseCase: container.resolve(FetchTodosUseCase.self),
-            upsertStatusMessageUseCase: container.resolve(UpsertStatusMessageUseCase.self),
-            networkConnectivityUseCase: container.resolve(ObserveNetworkConnectivityUseCase.self),
-            fetchHeatmapActivityTypesUseCase: container.resolve(FetchHeatmapActivityTypesUseCase.self),
-            updateHeatmapActivityTypesUseCase: container.resolve(UpdateHeatmapActivityTypesUseCase.self)
-        )
+        self.store = Store(initialState: ProfileFeature.State()) {
+            ProfileFeature()
+        } withDependencies: {
+            $0.profileFetchUserDataUseCase = container.resolve(FetchUserDataUseCase.self)
+            $0.profileFetchImageDataUseCase = container.resolve(FetchProfileImageDataUseCase.self)
+            $0.profileFetchTodosUseCase = container.resolve(FetchTodosUseCase.self)
+            $0.profileUpsertStatusMessageUseCase = container.resolve(UpsertStatusMessageUseCase.self)
+            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.profileFetchHeatmapActivityTypesUseCase = container.resolve(FetchHeatmapActivityTypesUseCase.self)
+            $0.profileUpdateHeatmapActivityTypesUseCase = container.resolve(UpdateHeatmapActivityTypesUseCase.self)
+        }
         self.settingsStore = Store(initialState: SettingsFeature.State()) {
             SettingsFeature()
         } withDependencies: {
@@ -40,11 +42,12 @@ final class ProfileViewCoordinator {
             $0.fetchWebPageImageDirSizeUseCase = container.resolve(FetchWebPageImageDirSizeUseCase.self)
             $0.clearWebPageImageDirectoryUseCase = container.resolve(ClearWebPageImageDirectoryUseCase.self)
         }
+        self.store.send(.startObserving)
         self.settingsStore.send(.startObserving)
     }
 
     func fetchData() {
-        viewModel.send(.fetchData)
+        store.send(.fetchData)
     }
 
     func makeAccountStore() -> StoreOf<AccountFeature> {
