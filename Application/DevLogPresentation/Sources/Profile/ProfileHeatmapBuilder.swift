@@ -1,5 +1,5 @@
 //
-//  ProfileFeature+Heatmap.swift
+//  ProfileHeatmapBuilder.swift
 //  DevLogPresentation
 //
 //  Created by opfic on 6/15/26.
@@ -31,7 +31,7 @@ private struct ProfileHeatmapActivityEntry {
     var activityKinds: Set<ActivityKind>
 }
 
-extension ProfileFeature {
+enum ProfileHeatmapBuilder {
     static func quarterStart(for date: Date) -> Date? {
         let month = Calendar.current.component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
@@ -50,9 +50,9 @@ extension ProfileFeature {
         return Calendar.current.date(from: components)
     }
 
-    static func canSelectQuarter(_ quarterStart: Date, state: State) -> Bool {
+    static func canSelectQuarter(_ quarterStart: Date, state: ProfileFeature.State) -> Bool {
         guard let earliestQuarterStart = state.earliestQuarterStart,
-              let currentQuarterStart = self.quarterStart(for: Date()) else { return false }
+              let currentQuarterStart = Self.quarterStart(for: Date()) else { return false }
         return earliestQuarterStart <= quarterStart && quarterStart <= currentQuarterStart
     }
 
@@ -66,7 +66,7 @@ extension ProfileFeature {
         )
     }
 
-    static func canMoveToQuarter(offsetMonths: Int, state: State) -> Bool {
+    static func canMoveToQuarter(offsetMonths: Int, state: ProfileFeature.State) -> Bool {
         guard let selectedQuarterStart = state.selectedQuarterStart else { return false }
         guard let targetQuarterStart = Calendar.current.date(
             byAdding: .month,

@@ -95,11 +95,11 @@ struct ProfileFeature {
                 return observeNetworkConnectivityEffect()
             case .fetchData, .refresh:
                 if state.selectedQuarterStart == nil,
-                   let quarterStart = Self.quarterStart(for: Date()) {
+                   let quarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()) {
                     state.selectedQuarterStart = quarterStart
                 }
                 let rawValues = fetchHeatmapActivityTypesUseCase.execute()
-                let settings = Self.normalizeActivityKinds(rawValues)
+                let settings = ProfileHeatmapBuilder.normalizeActivityKinds(rawValues)
                 if !settings.isEmpty {
                     state.selectedActivityKinds = settings
                 }
@@ -127,11 +127,11 @@ struct ProfileFeature {
                 }
                 state.showQuarterPicker = true
             case .selectQuarter(let quarterStart):
-                guard Self.canSelectQuarter(quarterStart, state: state) else { break }
+                guard ProfileHeatmapBuilder.canSelectQuarter(quarterStart, state: state) else { break }
                 state.showQuarterPicker = false
                 return updateSelectedQuarter(to: quarterStart, state: &state)
             case .moveToCurrentQuarter:
-                guard let currentQuarterStart = Self.quarterStart(for: Date()),
+                guard let currentQuarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()),
                       state.selectedQuarterStart != currentQuarterStart else { break }
                 return updateSelectedQuarter(to: currentQuarterStart, state: &state)
             case .moveQuarter(let delta):
@@ -142,7 +142,7 @@ struct ProfileFeature {
                     value: monthDelta,
                     to: selectedQuarterStart
                 ) else { break }
-                guard Self.canSelectQuarter(nextQuarterStart, state: state) else { break }
+                guard ProfileHeatmapBuilder.canSelectQuarter(nextQuarterStart, state: state) else { break }
                 return updateSelectedQuarter(to: nextQuarterStart, state: &state)
             case .toggleActivityKind(let activityKind):
                 if state.selectedActivityKinds.contains(activityKind),
@@ -174,7 +174,7 @@ struct ProfileFeature {
                     state.avatarImageData = nil
                 }
                 if state.earliestQuarterStart == nil {
-                    state.earliestQuarterStart = Self.quarterStart(for: profile.createdAt)
+                    state.earliestQuarterStart = ProfileHeatmapBuilder.quarterStart(for: profile.createdAt)
                         ?? Calendar.current.startOfDay(for: profile.createdAt)
                 }
                 if let avatarURL = profile.avatarURL {
@@ -232,7 +232,7 @@ private extension ProfileFeature {
         .run { [fetchTodosUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
-                let data = try await Self.fetchQuarterActivityData(
+                let data = try await ProfileHeatmapBuilder.fetchQuarterActivityData(
                     from: quarterStart,
                     fetchTodosUseCase: fetchTodosUseCase
                 )
