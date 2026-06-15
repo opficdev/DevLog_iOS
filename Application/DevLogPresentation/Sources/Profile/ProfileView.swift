@@ -83,6 +83,7 @@ struct ProfileView: View {
             }
             .frame(width: 60, height: 60)
             .cornerRadius(30)
+            .transaction { $0.animation = nil }
 
             VStack(alignment: .leading) {
                 Text(store.name)
