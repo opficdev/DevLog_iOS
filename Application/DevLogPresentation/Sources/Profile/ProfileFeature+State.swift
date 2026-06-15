@@ -35,6 +35,33 @@ extension ProfileFeature.State {
         }
     }
 
+    var isCreatedActivitySelected: Bool {
+        get { selectedActivityKinds.contains(.created) }
+        set { setActivityKind(.created, isSelected: newValue) }
+    }
+
+    var isCompletedActivitySelected: Bool {
+        get { selectedActivityKinds.contains(.completed) }
+        set { setActivityKind(.completed, isSelected: newValue) }
+    }
+
+    var isDeletedActivitySelected: Bool {
+        get { selectedActivityKinds.contains(.deleted) }
+        set { setActivityKind(.deleted, isSelected: newValue) }
+    }
+
+    var isCreatedActivityToggleDisabled: Bool {
+        selectedActivityKinds == [.created]
+    }
+
+    var isCompletedActivityToggleDisabled: Bool {
+        selectedActivityKinds == [.completed]
+    }
+
+    var isDeletedActivityToggleDisabled: Bool {
+        selectedActivityKinds == [.deleted]
+    }
+
     var canMoveToPreviousQuarter: Bool {
         ProfileHeatmapBuilder.canMoveToQuarter(offsetMonths: -3, state: self)
     }
@@ -72,5 +99,13 @@ extension ProfileFeature.State {
 
     func isQuarterSelectedForPicker(_ quarter: Int) -> Bool {
         quarterStartForPicker(quarter: quarter) == selectedQuarterStart
+    }
+
+    private mutating func setActivityKind(_ activityKind: ActivityKind, isSelected: Bool) {
+        if isSelected {
+            selectedActivityKinds.insert(activityKind)
+        } else if 1 < selectedActivityKinds.count {
+            selectedActivityKinds.remove(activityKind)
+        }
     }
 }

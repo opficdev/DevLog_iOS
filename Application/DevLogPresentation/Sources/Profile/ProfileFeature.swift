@@ -53,7 +53,6 @@ struct ProfileFeature {
         case selectQuarter(Date)
         case moveToCurrentQuarter
         case moveQuarter(Int)
-        case toggleActivityKind(ActivityKind)
         case selectDay(HeatmapDay?)
         case updateStatusTextFieldFocus(Bool)
         case store(StoreAction)
@@ -89,6 +88,12 @@ struct ProfileFeature {
                 state.alert = nil
             case .alert:
                 break
+            case .binding(\.isCreatedActivitySelected):
+                return updateHeatmapActivityKindsEffectIfNeeded(.created, state: state)
+            case .binding(\.isCompletedActivitySelected):
+                return updateHeatmapActivityKindsEffectIfNeeded(.completed, state: state)
+            case .binding(\.isDeletedActivitySelected):
+                return updateHeatmapActivityKindsEffectIfNeeded(.deleted, state: state)
             case .binding:
                 break
             case .startObserving:
@@ -144,18 +149,6 @@ struct ProfileFeature {
                 ) else { break }
                 guard ProfileHeatmapBuilder.canSelectQuarter(nextQuarterStart, state: state) else { break }
                 return updateSelectedQuarter(to: nextQuarterStart, state: &state)
-            case .toggleActivityKind(let activityKind):
-                if state.selectedActivityKinds.contains(activityKind),
-                   state.selectedActivityKinds.count == 1 {
-                    break
-                }
-
-                if state.selectedActivityKinds.contains(activityKind) {
-                    state.selectedActivityKinds.remove(activityKind)
-                } else {
-                    state.selectedActivityKinds.insert(activityKind)
-                }
-                return updateHeatmapActivityKindsEffect(state.selectedActivityKinds)
             case .selectDay(let day):
                 if let day, state.selectedDay?.date == day.date {
                     state.selectedDay = nil
@@ -275,6 +268,14 @@ private extension ProfileFeature {
                 }
             updateHeatmapActivityTypesUseCase.execute(rawValues)
         }
+    }
+
+    func updateHeatmapActivityKindsEffectIfNeeded(
+        _ activityKind: ActivityKind,
+        state: State
+    ) -> Effect<Action> {
+        guard state.selectedActivityKinds != [activityKind] else { return .none }
+        return updateHeatmapActivityKindsEffect(state.selectedActivityKinds)
     }
 
     func updateSelectedQuarter(

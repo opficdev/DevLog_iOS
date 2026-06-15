@@ -157,34 +157,19 @@ struct ProfileView: View {
                 }
                 Menu {
                     ForEach(ActivityKindItem.selectableItems) { activityKindItem in
-                        Toggle(
-                            activityKindItem.title,
-                            isOn: Binding(
-                                get: {
-                                    guard let activityKind = ActivityKind(
-                                        rawValue: activityKindItem.rawValue
-                                    ) else {
-                                        return false
-                                    }
-                                    return store.selectedActivityKinds.contains(activityKind)
-                                },
-                                set: { _ in
-                                    guard let activityKind = ActivityKind(
-                                        rawValue: activityKindItem.rawValue
-                                    ) else {
-                                        return
-                                    }
-                                    store.send(.toggleActivityKind(activityKind))
-                                }
-                            )
-                        )
-                        .disabled({
-                            guard let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) else {
-                                return false
+                        if let activityKind = ActivityKind(rawValue: activityKindItem.rawValue) {
+                            switch activityKind {
+                            case .created:
+                                Toggle(activityKindItem.title, isOn: $store.isCreatedActivitySelected)
+                                    .disabled(store.isCreatedActivityToggleDisabled)
+                            case .completed:
+                                Toggle(activityKindItem.title, isOn: $store.isCompletedActivitySelected)
+                                    .disabled(store.isCompletedActivityToggleDisabled)
+                            case .deleted:
+                                Toggle(activityKindItem.title, isOn: $store.isDeletedActivitySelected)
+                                    .disabled(store.isDeletedActivityToggleDisabled)
                             }
-                            return store.selectedActivityKinds.count == 1
-                                && store.selectedActivityKinds.contains(activityKind)
-                        }())
+                        }
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")

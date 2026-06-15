@@ -207,7 +207,20 @@ private struct ProfileStoreTestAdapter {
     }
 
     func toggleActivityKind(_ activityKind: ActivityKind) async {
-        await store.send(.toggleActivityKind(activityKind))
+        switch activityKind {
+        case .created:
+            await store.send(.binding(.set(\.isCreatedActivitySelected, !store.state.isCreatedActivitySelected))) {
+                $0.isCreatedActivitySelected.toggle()
+            }
+        case .completed:
+            await store.send(.binding(.set(\.isCompletedActivitySelected, !store.state.isCompletedActivitySelected))) {
+                $0.isCompletedActivitySelected.toggle()
+            }
+        case .deleted:
+            await store.send(.binding(.set(\.isDeletedActivitySelected, !store.state.isDeletedActivitySelected))) {
+                $0.isDeletedActivitySelected.toggle()
+            }
+        }
         await drainReceivedActions()
     }
 
