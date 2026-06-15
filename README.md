@@ -53,8 +53,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 
 ## 아키텍처
 
-MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방향 흐름을 차용한 구조  
-`DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `MVVM + Clean Architecture` 기반 구성
+`DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
 
 <table>
   <tr>
@@ -64,14 +63,6 @@ MVVM을 기반으로 하되, ViewModel 상태 관리에는 MVI 형태의 단방�
   </tr>
   <tr>
     <td align="center">Tuist 모듈 의존성 그래프</td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img alt="StorePattern Protocol" src="./docs/store-protocol.png" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">StorePattern 프로토콜</td>
   </tr>
 </table>
 
