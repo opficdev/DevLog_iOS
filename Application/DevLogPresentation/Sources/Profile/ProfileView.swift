@@ -60,7 +60,7 @@ struct ProfileView: View {
             }
             .padding(.horizontal, 16)
         }
-        .refreshable { store.send(.refresh) }
+        .refreshable { await store.send(.refresh).finish() }
         .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
         .toolbar { toolbar }
