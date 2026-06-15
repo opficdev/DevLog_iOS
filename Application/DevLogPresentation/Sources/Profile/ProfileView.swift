@@ -43,9 +43,7 @@ struct ProfileView: View {
             store.send(.updateStatusTextFieldFocus(newValue), animation: .default)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(isPresented: $store.showQuarterPicker) {
-            quarterPickerSheet
-        }
+        .sheet(isPresented: $store.showQuarterPicker) { quarterPickerSheet }
         .overlay {
             if store.isLoading {
                 LoadingView()
