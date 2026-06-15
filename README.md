@@ -124,14 +124,16 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 
 | 구분 | 스택 |
 | --- | --- |
-| Deployment Target | iOS 17+ |
-| Architecture | Modular Architecture, MVVM, MVI-inspired state flow, Clean Architecture |
-| UI | SwiftUI, Charts, MarkdownUI |
-| State & Async | Observable, Combine, async/await |
-| Backend | FirebaseAuth, FirebaseFirestore, Firebase Cloud Functions, FirebaseMessaging |
-| Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network |
-| Utility | GoogleSignIn, OrderedCollections |
-| Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
+| Deployment Target | iOS / iPadOS 17.0+ |
+| Platform Support | iPhone, iPad, Apple Silicon Mac (App Store, Designed for iPad) |
+| Architecture | Tuist Modular based Clean Architecture |
+| UI | SwiftUI, MarkdownUI, WidgetKit, AppIntents |
+| State & Async | Observable, Combine, async/await, The Composable Architecture |
+| Backend | Firebase Authentication, Firestore, Cloud Functions, Cloud Messaging, Analytics |
+| Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network, CryptoKit, os.log |
+| External Packages | ComposableArchitecture, MarkdownUI, OrderedCollections, GoogleSignIn, Nexa |
+| Testing | swift-testing, TCA TestStore |
+| Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane, Firebase CLI |
 
 ## 개발 환경 구성
 
