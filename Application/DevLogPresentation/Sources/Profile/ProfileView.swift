@@ -112,9 +112,9 @@ struct ProfileView: View {
 
                 if !store.statusMessage.isEmpty,
                    store.showDoneButton {
-                    Button(action: {
+                    Button {
                         store.send(.tapResetStatusMessageButton)
-                    }) {
+                    } label: {
                         Image(systemName: "xmark.circle.fill")
                     }
                     .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -127,10 +127,10 @@ struct ProfileView: View {
                     .fill(Color(.secondarySystemGroupedBackground))
             )
             if store.showDoneButton {
-                Button(action: {
+                Button {
                     focused = false
                     store.send(.willUpdateStatusMessage)
-                }) {
+                } label: {
                     Text(String(localized: "profile_done"))
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
