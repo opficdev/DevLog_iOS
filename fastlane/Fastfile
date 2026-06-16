@@ -131,8 +131,14 @@ platform :ios do
       export_method: "app-store",
       output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
       output_name: "#{APP_PRODUCT_NAME}.ipa",
+      include_symbols: true,
       xcargs: "-skipPackagePluginValidation -skipMacroValidation"
     )
+
+    dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH].to_s
+    archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE].to_s
+    UI.message("dSYM output path: #{dsym_output_path}") if !dsym_output_path.empty?
+    UI.message("Xcode archive path: #{archive_path}") if !archive_path.empty?
 
     next api_key
   end
