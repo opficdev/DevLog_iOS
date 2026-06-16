@@ -33,7 +33,7 @@ struct MainFeature {
 
         enum StoreAction: Equatable {
             case setUnreadPushCount(Int)
-            case setAlert(Bool)
+            case setAlert
         }
     }
 
@@ -60,8 +60,8 @@ struct MainFeature {
             case .store(.setUnreadPushCount(let count)):
                 state.unreadPushCount = count
                 return updateBadgeCountEffect(count)
-            case .store(.setAlert(let isPresented)):
-                Self.setAlert(&state, isPresented: isPresented)
+            case .store(.setAlert):
+                state.alert = Self.alertState()
             }
 
             return .none
@@ -111,7 +111,7 @@ private extension MainFeature {
                     await send(.store(.setUnreadPushCount(count)))
                 }
             } catch {
-                await send(.store(.setAlert(true)))
+                await send(.store(.setAlert))
             }
         }
         .cancellable(id: CancelID.unreadPushCount, cancelInFlight: true)
@@ -131,13 +131,6 @@ private extension MainFeature {
                 Logger(category: "MainFeature").error("Failed to update application badge count", error: error)
             }
         }
-    }
-
-    static func setAlert(
-        _ state: inout State,
-        isPresented: Bool
-    ) {
-        state.alert = isPresented ? alertState() : nil
     }
 
     static func alertState() -> AlertState<Never> {

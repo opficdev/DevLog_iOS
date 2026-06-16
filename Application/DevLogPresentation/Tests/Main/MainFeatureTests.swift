@@ -85,19 +85,17 @@ struct MainFeatureTests {
         let reference = MainStateManagementReference()
         let store = makeStore()
 
-        let presentEffects = reference.reduce(.setAlert(true))
-        await store.send(.store(.setAlert(true))) {
+        let presentEffects = reference.reduce(.setAlert)
+        await store.send(.store(.setAlert)) {
             $0.alert = reference.state.alert
         }
 
-        let dismissEffects = reference.reduce(.setAlert(false))
-        await store.send(.store(.setAlert(false))) {
-            $0.alert = reference.state.alert
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
         }
 
         #expect(presentEffects.isEmpty)
-        #expect(dismissEffects.isEmpty)
-        #expect(reference.state.alert == nil)
+        #expect(reference.state.alert == expectedMainErrorAlert())
     }
 
     @Test("MainFeature는 기존 Main 상태관리처럼 unread count 관찰 시작 실패 시 alert를 표시한다")
@@ -107,11 +105,11 @@ struct MainFeatureTests {
         let store = makeStore(unreadPushCountUseCase: unreadPushCountUseCase)
 
         _ = reference.reduce(.onAppear)
-        _ = reference.reduce(.setAlert(true))
+        _ = reference.reduce(.setAlert)
         await store.send(.view(.onAppear)) {
             $0.isObservingUnreadPushCount = true
         }
-        await store.receive(.store(.setAlert(true))) {
+        await store.receive(.store(.setAlert)) {
             $0.alert = reference.state.alert
         }
     }
@@ -178,7 +176,7 @@ private final class MainStateManagementReference {
         case onAppear
         case selectedTabChanged(MainTab)
         case setUnreadPushCount(Int)
-        case setAlert(Bool)
+        case setAlert
     }
 
     enum Effect: Equatable {
@@ -204,15 +202,15 @@ private final class MainStateManagementReference {
         case .setUnreadPushCount(let count):
             state.unreadPushCount = count
             return [.updateBadgeCount(count)]
-        case .setAlert(let isPresented):
-            setAlert(isPresented)
+        case .setAlert:
+            setAlert()
         }
 
         return []
     }
 
-    private func setAlert(_ isPresented: Bool) {
-        state.alert = isPresented ? expectedMainErrorAlert() : nil
+    private func setAlert() {
+        state.alert = expectedMainErrorAlert()
     }
 }
 
