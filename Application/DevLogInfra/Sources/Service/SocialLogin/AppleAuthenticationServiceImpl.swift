@@ -333,7 +333,7 @@ private extension AppleAuthenticationServiceImpl {
     private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
-            domain: CrashlyticsError.domain,
+            domain: "\(CrashlyticsError.domain).\(code)",
             code: code.rawValue
         )
     }

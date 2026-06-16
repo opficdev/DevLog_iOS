@@ -32,7 +32,7 @@ final class ProfileImageDataServiceImpl: ProfileImageDataService {
         } catch {
             FirebaseCrashlyticsHelper.record(
                 error,
-                domain: CrashlyticsError.domain,
+                domain: "\(CrashlyticsError.domain).\(CrashlyticsError.Code.fetchImageData)",
                 code: CrashlyticsError.Code.fetchImageData.rawValue
             )
             throw error

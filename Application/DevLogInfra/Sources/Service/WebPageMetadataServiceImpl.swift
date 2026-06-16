@@ -120,7 +120,7 @@ private extension WebPageMetadataServiceImpl {
     private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
-            domain: CrashlyticsError.domain,
+            domain: "\(CrashlyticsError.domain).\(code)",
             code: code.rawValue
         )
     }

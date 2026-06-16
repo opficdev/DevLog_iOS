@@ -52,7 +52,7 @@ final class PushMessagingServiceImpl: NSObject, PushMessagingService {
             }
             FirebaseCrashlyticsHelper.record(
                 error,
-                domain: CrashlyticsError.domain,
+                domain: "\(CrashlyticsError.domain).\(CrashlyticsError.Code.fetchFCMToken)",
                 code: CrashlyticsError.Code.fetchFCMToken.rawValue
             )
             throw error
