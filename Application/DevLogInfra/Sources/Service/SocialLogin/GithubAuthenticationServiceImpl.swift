@@ -101,11 +101,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     func signOut(_ uid: String) async throws {
         do {
             let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            let doc = try await infoRef.getDocument()
-
-            if doc.exists {
-                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
-            }
+            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
 
             if messaging.fcmToken != nil {
                 do {
