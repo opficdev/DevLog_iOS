@@ -47,6 +47,7 @@ let project = Project(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                     "PRODUCT_MODULE_NAME": "DevLogApp",
                 ],
