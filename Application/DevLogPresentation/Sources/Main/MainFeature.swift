@@ -55,8 +55,8 @@ struct MainFeature {
                 state.isObservingUnreadPushCount = true
                 return observeUnreadPushCountEffect()
             case .view(.selectedTabChanged(let tab)):
-                guard tab.analyticsScreenName != nil else { break }
-                return trackScreenViewEffect(tab)
+                guard let screenName = tab.analyticsScreenName else { break }
+                return trackScreenViewEffect(screenName)
             case .store(.setUnreadPushCount(let count)):
                 state.unreadPushCount = count
                 return updateBadgeCountEffect(count)
@@ -125,9 +125,8 @@ private extension MainFeature {
         .cancellable(id: CancelID.unreadPushCount, cancelInFlight: true)
     }
 
-    func trackScreenViewEffect(_ tab: MainTab) -> Effect<Action> {
+    func trackScreenViewEffect(_ screenName: String) -> Effect<Action> {
         .run { [trackAnalyticsEventUseCase] _ in
-            guard let screenName = tab.analyticsScreenName else { return }
             trackAnalyticsEventUseCase?.execute(.screenView(screenName))
         }
     }
