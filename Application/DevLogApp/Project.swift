@@ -29,6 +29,7 @@ let project = Project(
                     sourcePath: "Sources",
                     configPath: "Sources/.swiftlint.yml"
                 ),
+                DevLogScripts.firebaseCrashlyticsDSYMUpload(),
             ],
             dependencies: [
                 .project(target: "DevLogPresentation", path: "../DevLogPresentation"),

@@ -60,6 +60,25 @@ public enum DevLogPackages {
 }
 
 public enum DevLogScripts {
+    public static func firebaseCrashlyticsDSYMUpload() -> TargetScript {
+        TargetScript.post(
+        script: """
+        "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+        """,
+        name: "Firebase Crashlytics dSYM Upload",
+        inputPaths: [
+            "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+            "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+            "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+            "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+            "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+            "$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+        ],
+        basedOnDependencyAnalysis: false,
+        shellPath: "/bin/bash"
+        )
+    }
+
     public static func swiftLint(
         sourcePath: String,
         configPath: String = "../../.swiftlint.yml"
