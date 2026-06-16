@@ -78,11 +78,12 @@ private extension LoginFeature {
         .run { [signInUseCase] send in
             await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
-                try await signInUseCase.execute(provider)
+                let signedIn = try await signInUseCase.execute(provider)
                 // 유스케이스 완료가 화면 전환 완료를 의미하지 않으므로 LoginView가 교체될 때까지 로딩을 유지한다.
+                guard !signedIn else { return }
+                await send(.loading(.end(target: .default, mode: .immediate)))
             } catch {
                 await send(.loading(.end(target: .default, mode: .immediate)))
-                if error.isSocialLoginCancelled { return }
                 await send(.signInFailed(Self.alertType(for: error)))
             }
         }

@@ -5,7 +5,6 @@
 //  Created by opfic on 3/11/26.
 //
 
-import AuthenticationServices
 import Foundation
 import DevLogCore
 
@@ -47,18 +46,4 @@ public enum DataError: Error {
 public enum DataLayerError: Error {
     case notAuthenticated
     case linkCredentialAlreadyInUse
-}
-
-public extension Error {
-    var isSocialLoginCancelled: Bool {
-        switch self {
-        case let authError as ASAuthorizationError:
-            return authError.code == .canceled
-        case let webAuthError as ASWebAuthenticationSessionError:
-            return webAuthError.code == .canceledLogin
-        default:
-            let nsError = self as NSError
-            return nsError.domain == "com.google.GIDSignIn" && nsError.code == -5
-        }
-    }
 }

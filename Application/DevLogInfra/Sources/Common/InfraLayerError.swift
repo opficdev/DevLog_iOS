@@ -33,3 +33,17 @@ enum SocialLoginError: Error {
     case failedToStartWebAuthenticationSession
     case authenticationAlreadyInProgress
 }
+
+extension Error {
+    var isSocialLoginCancelled: Bool {
+        switch self {
+        case let authError as ASAuthorizationError:
+            return authError.code == .canceled
+        case let webAuthError as ASWebAuthenticationSessionError:
+            return webAuthError.code == .canceledLogin
+        default:
+            let nsError = self as NSError
+            return nsError.domain == "com.google.GIDSignIn" && nsError.code == -5
+        }
+    }
+}

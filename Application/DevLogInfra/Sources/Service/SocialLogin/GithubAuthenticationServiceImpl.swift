@@ -52,7 +52,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         )
     )
 
-    func signIn() async throws -> AuthDataResponse {
+    func signIn() async throws -> AuthDataResponse? {
         logger.info("Starting GitHub sign in")
         
         do {
@@ -90,6 +90,8 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
                 accessToken: accessToken
             )
         } catch {
+            if error.isSocialLoginCancelled { return nil }
+
             logger.error("Failed to sign in with GitHub", error: error)
             record(error, code: .signIn)
             throw error
@@ -125,7 +127,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         }
     }
 
-    func link(uid: String, email: String) async throws {
+    func link(uid: String, email: String) async throws -> Bool {
         logger.info("Linking GitHub account for user: \(uid)")
         
         do {
@@ -153,7 +155,10 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             try await user?.link(with: credential)
             
             logger.info("Successfully linked GitHub account")
+            return true
         } catch {
+            if error.isSocialLoginCancelled { return false }
+
             logger.error("Failed to link GitHub account", error: error)
             record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {

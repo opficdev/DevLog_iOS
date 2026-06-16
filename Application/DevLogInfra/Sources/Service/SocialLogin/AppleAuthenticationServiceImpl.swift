@@ -44,7 +44,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
-    func signIn() async throws -> AuthDataResponse {
+    func signIn() async throws -> AuthDataResponse? {
         logger.info("Starting Apple sign in")
         
         do {
@@ -105,6 +105,8 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             logger.info("Successfully signed in with Apple")
             return result.user.makeResponse(providerID: .apple)
         } catch {
+            if error.isSocialLoginCancelled { return nil }
+
             logger.error("Failed to sign in with Apple", error: error)
             record(error, code: .signIn)
             throw error
@@ -142,7 +144,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email: String) async throws {
+    func link(uid: String, email: String) async throws -> Bool {
         do {
             let response = try await authenticateWithAppleAsync()
 
@@ -170,7 +172,10 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             )
 
             try await user?.link(with: appleCredential)
+            return true
         } catch {
+            if error.isSocialLoginCancelled { return false }
+
             logger.error("Failed to link Apple account", error: error)
             record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {

@@ -6,5 +6,5 @@
 //
 
 public protocol LinkAuthProviderUseCase {
-    func execute(_ provider: AuthProvider) async throws
+    func execute(_ provider: AuthProvider) async throws -> Bool
 }
