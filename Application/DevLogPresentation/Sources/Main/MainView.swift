@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
@@ -38,6 +39,8 @@ struct MainView: View {
     }
 
     var body: some View {
+        @Bindable var store = coordinator.store
+
         Group {
             if isCompactLayout {
                 tabView
@@ -63,14 +66,7 @@ struct MainView: View {
                 profileViewCoordinator.fetchData()
             }
         }
-        .alert(
-            coordinator.store.alertTitle,
-            isPresented: mainAlertPresented
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(coordinator.store.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .toastHost()
     }
 
@@ -379,13 +375,6 @@ struct MainView: View {
 private extension MainView {
     var isCompactLayout: Bool {
         horizontalSizeClass == .compact
-    }
-
-    var mainAlertPresented: Binding<Bool> {
-        Binding(
-            get: { coordinator.store.showAlert },
-            set: { coordinator.store.send(.store(.setAlert($0))) }
-        )
     }
 
     var sidebarSelection: Binding<MainTab?> {

@@ -81,29 +81,23 @@ struct MainFeatureTests {
     }
 
     @Test("MainFeature는 기존 Main 상태관리처럼 alert 표시 여부와 문구를 함께 갱신한다")
-    func MainFeature는_기존_Main_상태관리처럼_alert_표시_여부와_문구를_함께_갱신한다() async {
+    func MainFeature는_기존_Main_상태관리처럼_alert_state를_갱신한다() async {
         let reference = MainStateManagementReference()
         let store = makeStore()
 
         let presentEffects = reference.reduce(.setAlert(true))
         await store.send(.store(.setAlert(true))) {
-            $0.showAlert = reference.state.showAlert
-            $0.alertTitle = reference.state.alertTitle
-            $0.alertMessage = reference.state.alertMessage
+            $0.alert = reference.state.alert
         }
 
         let dismissEffects = reference.reduce(.setAlert(false))
         await store.send(.store(.setAlert(false))) {
-            $0.showAlert = reference.state.showAlert
-            $0.alertTitle = reference.state.alertTitle
-            $0.alertMessage = reference.state.alertMessage
+            $0.alert = reference.state.alert
         }
 
         #expect(presentEffects.isEmpty)
         #expect(dismissEffects.isEmpty)
-        #expect(!reference.state.showAlert)
-        #expect(reference.state.alertTitle == String(localized: "common_error_title"))
-        #expect(reference.state.alertMessage == String(localized: "main_alert_badge_error_message"))
+        #expect(reference.state.alert == nil)
     }
 
     @Test("MainFeature는 기존 Main 상태관리처럼 unread count 관찰 시작 실패 시 alert를 표시한다")
@@ -118,9 +112,7 @@ struct MainFeatureTests {
             $0.isObservingUnreadPushCount = true
         }
         await store.receive(.store(.setAlert(true))) {
-            $0.showAlert = reference.state.showAlert
-            $0.alertTitle = reference.state.alertTitle
-            $0.alertMessage = reference.state.alertMessage
+            $0.alert = reference.state.alert
         }
     }
 
@@ -178,10 +170,8 @@ private func makeStore(
 @MainActor
 private final class MainStateManagementReference {
     struct State: Equatable {
+        var alert: AlertState<Never>?
         var unreadPushCount = 0
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
     }
 
     enum Action {
@@ -222,9 +212,19 @@ private final class MainStateManagementReference {
     }
 
     private func setAlert(_ isPresented: Bool) {
-        state.alertTitle = String(localized: "common_error_title")
-        state.alertMessage = String(localized: "main_alert_badge_error_message")
-        state.showAlert = isPresented
+        state.alert = isPresented ? expectedMainErrorAlert() : nil
+    }
+}
+
+private func expectedMainErrorAlert() -> AlertState<Never> {
+    AlertState {
+        TextState(String(localized: "common_error_title"))
+    } actions: {
+        ButtonState(role: .cancel) {
+            TextState(String(localized: "common_close"))
+        }
+    } message: {
+        TextState(String(localized: "main_alert_badge_error_message"))
     }
 }
 

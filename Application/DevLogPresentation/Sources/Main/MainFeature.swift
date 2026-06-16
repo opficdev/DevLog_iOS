@@ -16,14 +16,13 @@ import UserNotifications
 struct MainFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
         var unreadPushCount = 0
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
         var isObservingUnreadPushCount = false
     }
 
     enum Action: Equatable {
+        case alert(PresentationAction<Never>)
         case view(ViewAction)
         case store(StoreAction)
 
@@ -49,6 +48,8 @@ struct MainFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .alert:
+                break
             case .view(.onAppear):
                 guard !state.isObservingUnreadPushCount else { break }
                 state.isObservingUnreadPushCount = true
@@ -65,6 +66,7 @@ struct MainFeature {
 
             return .none
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
@@ -145,9 +147,19 @@ private extension MainFeature {
         _ state: inout State,
         isPresented: Bool
     ) {
-        state.alertTitle = String(localized: "common_error_title")
-        state.alertMessage = String(localized: "main_alert_badge_error_message")
-        state.showAlert = isPresented
+        state.alert = isPresented ? alertState() : nil
+    }
+
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "common_error_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "main_alert_badge_error_message"))
+        }
     }
 }
 
