@@ -11,6 +11,18 @@ import DevLogCore
 import DevLogData
 
 final class UserServiceImpl: UserService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.UserServiceImpl"
+
+        enum Code: Int {
+            case upsertUser = 1
+            case fetchUserProfile
+            case upsertStatusMessage
+            case updateFCMToken
+            case updateUserTimeZone
+        }
+    }
+
     private let store = Firestore.firestore()
     private let logger = Logger(category: "UserServiceImpl")
     
@@ -112,6 +124,7 @@ final class UserServiceImpl: UserService {
             logger.info("Successfully upserted user: \(user.uid)")
         } catch {
             logger.error("Failed to upsert user", error: error)
+            record(error, code: .upsertUser)
             throw error
         }
     }
@@ -150,6 +163,7 @@ final class UserServiceImpl: UserService {
             )
         } catch {
             logger.error("Failed to fetch user profile", error: error)
+            record(error, code: .fetchUserProfile)
             throw error
         }
     }
@@ -168,6 +182,7 @@ final class UserServiceImpl: UserService {
             logger.info("Successfully upserted status message")
         } catch {
             logger.error("Failed to upsert status message", error: error)
+            record(error, code: .upsertStatusMessage)
             throw error
         }
     }
@@ -186,6 +201,7 @@ final class UserServiceImpl: UserService {
             logger.info("Successfully updated FCM token")
         } catch {
             logger.error("Failed to update FCM token", error: error)
+            record(error, code: .updateFCMToken)
             throw error
         }
     }
@@ -207,7 +223,22 @@ final class UserServiceImpl: UserService {
             logger.info("Successfully updated timeZone")
         } catch {
             logger.error("Failed to update timeZone", error: error)
+            record(error, code: .updateUserTimeZone)
             throw error
         }
+    }
+}
+
+private extension UserServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: CrashlyticsError.domain,
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
     }
 }

@@ -12,6 +12,16 @@ import DevLogCore
 import DevLogData
 
 final class WebPageMetadataServiceImpl: WebPageMetadataService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.WebPageMetadataServiceImpl"
+
+        enum Code: Int {
+            case fetchMetadata = 1
+            case removeCachedImage
+            case cachedImageURL
+        }
+    }
+
     private let imageStore: WebPageImageStore
     private let logger = Logger(category: "WebPageMetadataServiceImpl")
 
@@ -42,6 +52,7 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
             )
         } catch {
             logger.error("Failed to fetch metadata", error: error)
+            record(error, code: .fetchMetadata)
             throw error
         }
     }
@@ -60,6 +71,7 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
             }
         } catch {
             logger.error("Failed to remove cached image", error: error)
+            record(error, code: .removeCachedImage)
         }
     }
 
@@ -68,7 +80,13 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
             throw URLError(.badURL)
         }
 
-        return try await imageStore.cachedImageURL(for: url)
+        do {
+            return try await imageStore.cachedImageURL(for: url)
+        } catch {
+            logger.error("Failed to fetch cached image URL", error: error)
+            record(error, code: .cachedImageURL)
+            throw error
+        }
     }
 
     private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
@@ -95,5 +113,19 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
                 continuation.resume(returning: data)
             }
         }
+    }
+}
+
+private extension WebPageMetadataServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: CrashlyticsError.domain,
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
     }
 }

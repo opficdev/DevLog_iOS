@@ -16,6 +16,18 @@ import DevLogCore
 import DevLogData
 
 final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.GithubAuthenticationServiceImpl"
+
+        enum Code: Int {
+            case signIn = 1
+            case signOut
+            case deleteAuth
+            case link
+            case unlink
+        }
+    }
+
     private enum FunctionName: String {
         case requestGithubTokens
         case revokeGithubAccessToken
@@ -79,6 +91,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             )
         } catch {
             logger.error("Failed to sign in with GitHub", error: error)
+            record(error, code: .signIn)
             throw error
         }
     }
@@ -97,6 +110,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             try Auth.auth().signOut()
         } catch {
             logger.error("Failed to sign out with GitHub", error: error)
+            record(error, code: .signOut)
             throw error
         }
     }
@@ -106,6 +120,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             try await revokeAccessToken()
         } catch {
             logger.error("Failed to delete GitHub auth", error: error)
+            record(error, code: .deleteAuth)
             throw error
         }
     }
@@ -140,6 +155,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             logger.info("Successfully linked GitHub account")
         } catch {
             logger.error("Failed to link GitHub account", error: error)
+            record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {
                 throw DataLayerError.linkCredentialAlreadyInUse
             }
@@ -161,6 +177,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             _ = try await user?.unlink(fromProvider: providerID.rawValue)
         } catch {
             logger.error("Failed to unlink GitHub account", error: error)
+            record(error, code: .unlink)
             throw error
         }
     }
@@ -304,6 +321,18 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
 }
 
 private extension GithubAuthenticationServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: CrashlyticsError.domain,
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     struct GitHubUser: Codable {
         let login: String
         let name: String?

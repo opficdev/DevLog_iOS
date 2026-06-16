@@ -12,6 +12,19 @@ import DevLogCore
 import DevLogData
 
 final class TodoServiceImpl: TodoService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.TodoServiceImpl"
+
+        enum Code: Int {
+            case fetchTodos = 1
+            case upsertTodo
+            case deleteTodo
+            case undoDeleteTodo
+            case fetchTodo
+            case fetchReferences
+        }
+    }
+
     private enum FunctionName: String {
         case requestTodoDeletion
         case undoTodoDeletion
@@ -49,122 +62,128 @@ final class TodoServiceImpl: TodoService {
         ]
         logger.info("Fetching todo page: \(logComponents.compactMap { $0 }.joined(separator: ", "))")
 
-        var firestoreQuery = makeQuery(uid: uid, query: query)
+        do {
+            var firestoreQuery = makeQuery(uid: uid, query: query)
 
-        if let categoryId = query.categoryId {
-            firestoreQuery = firestoreQuery.whereField(
-                TodoFieldKey.category.rawValue,
-                isEqualTo: categoryId
-            )
-        }
+            if let categoryId = query.categoryId {
+                firestoreQuery = firestoreQuery.whereField(
+                    TodoFieldKey.category.rawValue,
+                    isEqualTo: categoryId
+                )
+            }
 
-        if query.isPinned {
-            firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: true)
-        }
+            if query.isPinned {
+                firestoreQuery = firestoreQuery.whereField("isPinned", isEqualTo: true)
+            }
 
-        if let isCompleted = query.completionFilter.isCompletedValue {
-            firestoreQuery = firestoreQuery.whereField("isCompleted", isEqualTo: isCompleted)
-        }
+            if let isCompleted = query.completionFilter.isCompletedValue {
+                firestoreQuery = firestoreQuery.whereField("isCompleted", isEqualTo: isCompleted)
+            }
 
-        switch query.dueDateFilter {
-        case .all:
-            break
-        case .withDueDate:
-            firestoreQuery = firestoreQuery.whereField(
-                "dueDate",
-                isGreaterThan: Timestamp(date: Date(timeIntervalSince1970: 0))
-            )
-        case .withoutDueDate:
-            firestoreQuery = firestoreQuery.whereField("dueDate", isEqualTo: NSNull())
-        }
+            switch query.dueDateFilter {
+            case .all:
+                break
+            case .withDueDate:
+                firestoreQuery = firestoreQuery.whereField(
+                    "dueDate",
+                    isGreaterThan: Timestamp(date: Date(timeIntervalSince1970: 0))
+                )
+            case .withoutDueDate:
+                firestoreQuery = firestoreQuery.whereField("dueDate", isEqualTo: NSNull())
+            }
 
-        if let sortDateFrom = query.sortDateFrom {
-            firestoreQuery = firestoreQuery.whereField(
-                query.sortTarget.fieldName,
-                isGreaterThanOrEqualTo: Timestamp(date: sortDateFrom)
-            )
-        }
+            if let sortDateFrom = query.sortDateFrom {
+                firestoreQuery = firestoreQuery.whereField(
+                    query.sortTarget.fieldName,
+                    isGreaterThanOrEqualTo: Timestamp(date: sortDateFrom)
+                )
+            }
 
-        if let sortDateTo = query.sortDateTo {
-            firestoreQuery = firestoreQuery.whereField(
-                query.sortTarget.fieldName,
-                isLessThan: Timestamp(date: sortDateTo)
-            )
-        }
+            if let sortDateTo = query.sortDateTo {
+                firestoreQuery = firestoreQuery.whereField(
+                    query.sortTarget.fieldName,
+                    isLessThan: Timestamp(date: sortDateTo)
+                )
+            }
 
-        if trimmedKeyword.isEmpty {
-            if query.fetchAllPages {
-                var allItems: [TodoResponse] = []
-                var pageCursor = cursor
+            if trimmedKeyword.isEmpty {
+                if query.fetchAllPages {
+                    var allItems: [TodoResponse] = []
+                    var pageCursor = cursor
 
-                while true {
-                    var pageQuery = firestoreQuery
-                    if let pageCursor {
-                        guard let cursorValues = cursorValues(
-                            for: query,
-                            cursor: pageCursor
-                        ) else {
-                            logger.error("Failed to build cursor values for paginated todo fetch.")
+                    while true {
+                        var pageQuery = firestoreQuery
+                        if let pageCursor {
+                            guard let cursorValues = cursorValues(
+                                for: query,
+                                cursor: pageCursor
+                            ) else {
+                                logger.error("Failed to build cursor values for paginated todo fetch.")
+                                break
+                            }
+                            pageQuery = pageQuery.start(after: cursorValues)
+                        }
+
+                        pageQuery = pageQuery.limit(to: query.pageSize)
+                        let snapshot = try await pageQuery.getDocuments()
+                        allItems.append(contentsOf: snapshot.documents.compactMap { makeResponse(from: $0) })
+
+                        guard snapshot.documents.count == query.pageSize else {
                             break
                         }
-                        pageQuery = pageQuery.start(after: cursorValues)
+
+                        guard let lastDocument = snapshot.documents.last,
+                              let nextCursor = makeCursor(
+                                from: lastDocument,
+                                query: query
+                              ) else {
+                            break
+                        }
+
+                        pageCursor = nextCursor
                     }
 
-                    pageQuery = pageQuery.limit(to: query.pageSize)
-                    let snapshot = try await pageQuery.getDocuments()
-                    allItems.append(contentsOf: snapshot.documents.compactMap { makeResponse(from: $0) })
-
-                    guard snapshot.documents.count == query.pageSize else {
-                        break
-                    }
-
-                    guard let lastDocument = snapshot.documents.last,
-                          let nextCursor = makeCursor(
-                            from: lastDocument,
-                            query: query
-                          ) else {
-                        break
-                    }
-
-                    pageCursor = nextCursor
+                    return TodoPageResponse(items: allItems, nextCursor: nil)
                 }
 
-                return TodoPageResponse(items: allItems, nextCursor: nil)
-            }
-
-            if let cursor {
-                guard let cursorValues = cursorValues(for: query, cursor: cursor) else {
-                    logger.error("Failed to build cursor values for todo fetch.")
-                    return TodoPageResponse(items: [], nextCursor: nil)
+                if let cursor {
+                    guard let cursorValues = cursorValues(for: query, cursor: cursor) else {
+                        logger.error("Failed to build cursor values for todo fetch.")
+                        return TodoPageResponse(items: [], nextCursor: nil)
+                    }
+                    firestoreQuery = firestoreQuery.start(after: cursorValues)
                 }
-                firestoreQuery = firestoreQuery.start(after: cursorValues)
+
+                firestoreQuery = firestoreQuery.limit(to: query.pageSize)
+                let snapshot = try await firestoreQuery.getDocuments()
+                let items = snapshot.documents.compactMap { makeResponse(from: $0) }
+                let nextCursor = snapshot.documents.last.flatMap {
+                    makeCursor(from: $0, query: query)
+                }
+
+                return TodoPageResponse(items: items, nextCursor: nextCursor)
             }
 
-            firestoreQuery = firestoreQuery.limit(to: query.pageSize)
             let snapshot = try await firestoreQuery.getDocuments()
-            let items = snapshot.documents.compactMap { makeResponse(from: $0) }
-            let nextCursor = snapshot.documents.last.flatMap {
-                makeCursor(from: $0, query: query)
+            let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
+
+            let todoNumber = searchedTodoNumber(from: trimmedKeyword)
+            let filtered = todos.filter { todo in
+                if let todoNumber, todo.number == todoNumber {
+                    return true
+                }
+
+                return todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
+                    || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
+                    || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
             }
 
-            return TodoPageResponse(items: items, nextCursor: nextCursor)
+            return TodoPageResponse(items: filtered, nextCursor: nil)
+        } catch {
+            logger.error("Failed to fetch todos", error: error)
+            record(error, code: .fetchTodos)
+            throw error
         }
-
-        let snapshot = try await firestoreQuery.getDocuments()
-        let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
-
-        let todoNumber = searchedTodoNumber(from: trimmedKeyword)
-        let filtered = todos.filter { todo in
-            if let todoNumber, todo.number == todoNumber {
-                return true
-            }
-
-            return todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
-                || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
-                || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
-        }
-
-        return TodoPageResponse(items: filtered, nextCursor: nil)
     }
     // swiftlint:enable function_body_length
 
@@ -198,6 +217,7 @@ final class TodoServiceImpl: TodoService {
             logger.info("Successfully upserted todo")
         } catch {
             logger.error("Failed to upsert todo", error: error)
+            record(error, code: .upsertTodo)
             throw error
         }
     }
@@ -214,6 +234,7 @@ final class TodoServiceImpl: TodoService {
             logger.info("Successfully requested todo deletion")
         } catch {
             logger.error("Failed to request todo deletion", error: error)
+            record(error, code: .deleteTodo)
             throw error
         }
     }
@@ -230,6 +251,7 @@ final class TodoServiceImpl: TodoService {
             logger.info("Successfully undone todo deletion")
         } catch {
             logger.error("Failed to undo todo deletion", error: error)
+            record(error, code: .undoDeleteTodo)
             throw error
         }
     }
@@ -253,6 +275,7 @@ final class TodoServiceImpl: TodoService {
             return todo
         } catch {
             logger.error("Failed to fetch todo", error: error)
+            record(error, code: .fetchTodo)
             throw error
         }
     }
@@ -263,45 +286,63 @@ final class TodoServiceImpl: TodoService {
         let uniqueNumbers = Array(Set(numbers)).sorted()
         if uniqueNumbers.isEmpty { return [:] }
 
-        let collection = store.collection(FirestorePath.todos(uid))
-        let snapshots = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group in
-            for chunk in uniqueNumbers.chunked(maxCount: 10) {
-                group.addTask {
-                    let snapshot = try await collection
-                        .whereField(TodoFieldKey.number.rawValue, in: chunk)
-                        .whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
-                        .getDocuments()
-                    return snapshot.documents
+        do {
+            let collection = store.collection(FirestorePath.todos(uid))
+            let snapshots = try await withThrowingTaskGroup(of: [QueryDocumentSnapshot].self) { group in
+                for chunk in uniqueNumbers.chunked(maxCount: 10) {
+                    group.addTask {
+                        let snapshot = try await collection
+                            .whereField(TodoFieldKey.number.rawValue, in: chunk)
+                            .whereField(TodoFieldKey.deletedAt.rawValue, isEqualTo: NSNull())
+                            .getDocuments()
+                        return snapshot.documents
+                    }
                 }
+
+                var documents = [QueryDocumentSnapshot]()
+                for try await chunkDocuments in group {
+                    documents.append(contentsOf: chunkDocuments)
+                }
+                return documents
             }
 
-            var documents = [QueryDocumentSnapshot]()
-            for try await chunkDocuments in group {
-                documents.append(contentsOf: chunkDocuments)
-            }
-            return documents
-        }
+            return snapshots.reduce(into: [Int: TodoReferenceResponse]()) { partialResult, document in
+                let data = document.data()
+                guard
+                    data[TodoFieldKey.deletedAt.rawValue] is NSNull,
+                    let response = makeResponse(from: document)
+                else {
+                    return
+                }
 
-        return snapshots.reduce(into: [Int: TodoReferenceResponse]()) { partialResult, document in
-            let data = document.data()
-            guard
-                data[TodoFieldKey.deletedAt.rawValue] is NSNull,
-                let response = makeResponse(from: document)
-            else {
-                return
+                partialResult[response.number] = TodoReferenceResponse(
+                    id: response.id,
+                    number: response.number,
+                    title: response.title,
+                    category: response.category
+                )
             }
-
-            partialResult[response.number] = TodoReferenceResponse(
-                id: response.id,
-                number: response.number,
-                title: response.title,
-                category: response.category
-            )
+        } catch {
+            logger.error("Failed to fetch todo references", error: error)
+            record(error, code: .fetchReferences)
+            throw error
         }
     }
 }
 
 private extension TodoServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: CrashlyticsError.domain,
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     func upsertTodoWithNumberOnCreate(
         _ data: [String: Any],
         for todoRef: DocumentReference,

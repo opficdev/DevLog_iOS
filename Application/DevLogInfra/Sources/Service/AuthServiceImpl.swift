@@ -13,6 +13,17 @@ import DevLogCore
 import DevLogData
 
 final class AuthServiceImpl: AuthService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.AuthServiceImpl"
+
+        enum Code: Int {
+            case getProviderID = 1
+            case deleteCurrentUser
+            case deleteMessagingToken
+            case signOut
+        }
+    }
+
     private let store = Firestore.firestore()
     private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthServiceImpl")
@@ -87,6 +98,7 @@ final class AuthServiceImpl: AuthService {
             return providerID
         } catch {
             logger.error("Failed to fetch provider ID", error: error)
+            record(error, code: .getProviderID)
             throw error
         }
     }
@@ -103,6 +115,7 @@ final class AuthServiceImpl: AuthService {
             try await currentUser.delete()
         } catch {
             logger.error("Failed to delete FirebaseAuth current user", error: error)
+            record(error, code: .deleteCurrentUser)
             throw error
         }
     }
@@ -114,12 +127,14 @@ final class AuthServiceImpl: AuthService {
             try await messaging.deleteToken()
         } catch {
             logger.error("Failed to delete FCM token while clearing session", error: error)
+            record(error, code: .deleteMessagingToken)
         }
 
         do {
             try Auth.auth().signOut()
         } catch {
             logger.error("Failed to sign out while clearing session", error: error)
+            record(error, code: .signOut)
             throw error
         }
     }
@@ -127,6 +142,18 @@ final class AuthServiceImpl: AuthService {
 }
 
 private extension AuthServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: CrashlyticsError.domain,
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     func handleAuthStateChange(_ user: User?) {
         let signedIn = user != nil
         logger.info("Firebase auth state changed. signedIn: \(signedIn)")
