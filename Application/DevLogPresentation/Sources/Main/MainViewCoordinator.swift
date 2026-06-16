@@ -6,18 +6,21 @@
 //
 
 import Foundation
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
 @MainActor
 @Observable
 final class MainViewCoordinator {
-    let viewModel: MainViewModel
+    let store: StoreOf<MainFeature>
 
     init(container: DIContainer) {
-        self.viewModel = MainViewModel(
-            trackAnalyticsEventUseCase: container.resolve(TrackAnalyticsEventUseCase.self),
-            unreadPushCountUseCase: container.resolve(ObserveUnreadPushCountUseCase.self)
-        )
+        self.store = Store(initialState: MainFeature.State()) {
+            MainFeature()
+        } withDependencies: {
+            $0.observeUnreadPushCountUseCase = container.resolve(ObserveUnreadPushCountUseCase.self)
+            $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+        }
     }
 }
