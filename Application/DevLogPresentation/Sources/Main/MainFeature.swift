@@ -94,15 +94,7 @@ private enum ObserveUnreadPushCountUseCaseKey: DependencyKey {
 
 private enum SetApplicationBadgeCountKey: DependencyKey {
     static let liveValue: @Sendable (Int) async throws -> Void = { count in
-        try await withCheckedThrowingContinuation { continuation in
-            UNUserNotificationCenter.current().setBadgeCount(count) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
-        }
+        try await UNUserNotificationCenter.current().setBadgeCount(count)
     }
 
     static var testValue: @Sendable (Int) async throws -> Void {
