@@ -45,6 +45,7 @@ private extension FirebaseCrashlyticsHelper {
         metadata: [String: String]
     ) -> [String: Any] {
         var userInfo: [String: Any] = [
+            NSUnderlyingErrorKey: nsError,
             Key.underlyingType.rawValue: String(describing: type(of: error)),
             Key.underlyingDomain.rawValue: nsError.domain,
             Key.underlyingCode.rawValue: nsError.code
