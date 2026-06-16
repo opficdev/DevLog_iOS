@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var coordinator: MainViewCoordinator
     @State private var todoWindowCoordinator: TodoWindowCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
     @Binding var selectedTab: MainTab
+    @State private var store: StoreOf<MainFeature>
     private let windowEvent: TodoEditorWindowEvent
 
     init(
@@ -25,7 +26,12 @@ struct MainView: View {
         windowEvent: TodoEditorWindowEvent,
         selectedTab: Binding<MainTab>
     ) {
-        self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        self._store = State(initialValue: Store(initialState: MainFeature.State()) {
+            MainFeature()
+        } withDependencies: {
+            $0.observeUnreadPushCountUseCase = container.resolve(ObserveUnreadPushCountUseCase.self)
+            $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+        })
         self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
@@ -33,8 +39,9 @@ struct MainView: View {
             initialValue: PushNotificationListViewCoordinator(container: container)
         )
         self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
-        self.windowEvent = windowEvent
+
         self._selectedTab = selectedTab
+        self.windowEvent = windowEvent
     }
 
     var body: some View {
@@ -46,13 +53,13 @@ struct MainView: View {
             }
         }
         .onAppear {
-            coordinator.viewModel.send(.onAppear)
+            store.send(.view(.onAppear))
             homeViewCoordinator.bindWindowEvent(windowEvent)
             homeViewCoordinator.bindTodoMutationEvent()
             todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
-            coordinator.viewModel.send(.selectedTabChanged(newValue))
+            store.send(.view(.selectedTabChanged(newValue)))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
@@ -63,14 +70,7 @@ struct MainView: View {
                 profileViewCoordinator.fetchData()
             }
         }
-        .alert(
-            coordinator.viewModel.state.alertTitle,
-            isPresented: mainAlertPresented
-        ) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(coordinator.viewModel.state.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .toastHost()
     }
 
@@ -92,7 +92,7 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.notification)
                 }
-                .badge(coordinator.viewModel.state.unreadPushCount)
+                .badge(store.unreadPushCount)
                 .tag(MainTab.notification)
 
             profileView
@@ -163,7 +163,7 @@ struct MainView: View {
     private func sidebarRow(_ tab: MainTab) -> some View {
         if tab == .notification {
             tabLabel(tab)
-                .badge(coordinator.viewModel.state.unreadPushCount)
+                .badge(store.unreadPushCount)
                 .tag(tab)
         } else {
             tabLabel(tab)
@@ -379,13 +379,6 @@ struct MainView: View {
 private extension MainView {
     var isCompactLayout: Bool {
         horizontalSizeClass == .compact
-    }
-
-    var mainAlertPresented: Binding<Bool> {
-        Binding(
-            get: { coordinator.viewModel.state.showAlert },
-            set: { coordinator.viewModel.send(.setAlert($0)) }
-        )
     }
 
     var sidebarSelection: Binding<MainTab?> {
