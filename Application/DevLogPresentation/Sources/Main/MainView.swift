@@ -18,6 +18,7 @@ struct MainView: View {
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
+    @Bindable var store: StoreOf<MainFeature>
     @Binding var selectedTab: MainTab
     private let windowEvent: TodoEditorWindowEvent
 
@@ -26,7 +27,8 @@ struct MainView: View {
         windowEvent: TodoEditorWindowEvent,
         selectedTab: Binding<MainTab>
     ) {
-        self._coordinator = State(initialValue: MainViewCoordinator(container: container))
+        let coordinator = MainViewCoordinator(container: container)
+        self._coordinator = State(initialValue: coordinator)
         self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
@@ -34,13 +36,12 @@ struct MainView: View {
             initialValue: PushNotificationListViewCoordinator(container: container)
         )
         self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
+        self.store = coordinator.store
         self.windowEvent = windowEvent
         self._selectedTab = selectedTab
     }
 
     var body: some View {
-        @Bindable var store = coordinator.store
-
         Group {
             if isCompactLayout {
                 tabView
@@ -49,13 +50,13 @@ struct MainView: View {
             }
         }
         .onAppear {
-            coordinator.store.send(.view(.onAppear))
+            store.send(.view(.onAppear))
             homeViewCoordinator.bindWindowEvent(windowEvent)
             homeViewCoordinator.bindTodoMutationEvent()
             todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
-            coordinator.store.send(.view(.selectedTabChanged(newValue)))
+            store.send(.view(.selectedTabChanged(newValue)))
             if newValue == .home {
                 homeViewCoordinator.fetchData()
             } else if newValue == .today {
@@ -88,7 +89,7 @@ struct MainView: View {
                 .tabItem {
                     tabLabel(.notification)
                 }
-                .badge(coordinator.store.unreadPushCount)
+                .badge(store.unreadPushCount)
                 .tag(MainTab.notification)
 
             profileView
@@ -159,7 +160,7 @@ struct MainView: View {
     private func sidebarRow(_ tab: MainTab) -> some View {
         if tab == .notification {
             tabLabel(tab)
-                .badge(coordinator.store.unreadPushCount)
+                .badge(store.unreadPushCount)
                 .tag(tab)
         } else {
             tabLabel(tab)
