@@ -13,6 +13,22 @@ import DevLogCore
 import DevLogData
 
 final class PushNotificationServiceImpl: PushNotificationService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.PushNotificationServiceImpl"
+
+        enum Code: Int {
+            case fetchPushNotificationEnabled = 1
+            case fetchPushNotificationTime
+            case updatePushNotificationSettings
+            case requestNotifications
+            case observeNotifications
+            case observeUnreadPushCount
+            case deleteNotification
+            case undoDeleteNotification
+            case toggleNotificationRead
+        }
+    }
+
     private enum FunctionName: String {
         case requestPushNotificationDeletion
         case undoPushNotificationDeletion
@@ -44,6 +60,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             throw FirestoreError.dataNotFound("allowPushNotification")
         } catch {
             logger.error("Failed to fetch push notification status", error: error)
+            record(error, code: .fetchPushNotificationEnabled)
             throw error
         }
     }
@@ -72,6 +89,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             return DateComponents(hour: hour, minute: minute)
         } catch {
             logger.error("Failed to fetch push notification time", error: error)
+            record(error, code: .fetchPushNotificationTime)
             throw error
         }
     }
@@ -102,6 +120,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             logger.info("Successfully updated push notification settings")
         } catch {
             logger.error("Failed to update push notification settings", error: error)
+            record(error, code: .updatePushNotificationSettings)
             throw error
         }
     }
@@ -144,6 +163,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
         } catch {
             logger.error("Failed to request notifications", error: error)
+            record(error, code: .requestNotifications)
             throw error
         }
     }
@@ -160,6 +180,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             .limit(to: pageLimit)
             .addSnapshotListener { [weak self] snapshot, error in
                 if let error {
+                    Self.record(error, code: .observeNotifications)
                     subject.send(completion: .failure(error))
                     return
                 }
@@ -190,6 +211,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             .whereField(PushNotificationFieldKey.isDeleted.rawValue, isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 if let error {
+                    Self.record(error, code: .observeUnreadPushCount)
                     subject.send(completion: .failure(error))
                     return
                 }
@@ -213,6 +235,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             _ = try await function.call(["notificationId": notificationID])
         } catch {
             logger.error("Failed to request notification deletion", error: error)
+            record(error, code: .deleteNotification)
             throw error
         }
     }
@@ -225,6 +248,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
             _ = try await function.call(["notificationId": notificationID])
         } catch {
             logger.error("Failed to undo notification deletion", error: error)
+            record(error, code: .undoDeleteNotification)
             throw error
         }
     }
@@ -259,12 +283,25 @@ final class PushNotificationServiceImpl: PushNotificationService {
             logger.info("Successfully toggled notification read")
         } catch {
             logger.error("Failed to toggle notification read", error: error)
+            record(error, code: .toggleNotificationRead)
             throw error
         }
     }
 }
 
 private extension PushNotificationServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: "\(CrashlyticsError.domain).\(code)",
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     func makeQuery(
         uid: String,
         query: PushNotificationQuery

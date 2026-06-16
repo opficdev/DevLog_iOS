@@ -16,6 +16,18 @@ import DevLogCore
 import DevLogData
 
 final class AppleAuthenticationServiceImpl: AuthenticationService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.AppleAuthenticationServiceImpl"
+
+        enum Code: Int {
+            case signIn = 1
+            case signOut
+            case deleteAuth
+            case link
+            case unlink
+        }
+    }
+
     private enum FunctionName: String {
         case requestAppleCustomToken
         case refreshAppleAccessToken
@@ -94,6 +106,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             return result.user.makeResponse(providerID: .apple)
         } catch {
             logger.error("Failed to sign in with Apple", error: error)
+            record(error, code: .signIn)
             throw error
         }
     }
@@ -112,6 +125,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             try Auth.auth().signOut()
         } catch {
             logger.error("Failed to sign out with Apple", error: error)
+            record(error, code: .signOut)
             throw error
         }
     }
@@ -123,6 +137,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             try await revokeAppleAccessToken(token: token)
         } catch {
             logger.error("Failed to delete Apple auth", error: error)
+            record(error, code: .deleteAuth)
             throw error
         }
     }
@@ -157,6 +172,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             try await user?.link(with: appleCredential)
         } catch {
             logger.error("Failed to link Apple account", error: error)
+            record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {
                 throw DataLayerError.linkCredentialAlreadyInUse
             }
@@ -188,6 +204,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             _ = try await user?.unlink(fromProvider: providerID.rawValue)
         } catch {
             logger.error("Failed to unlink Apple account", error: error)
+            record(error, code: .unlink)
             throw error
         }
     }
@@ -309,5 +326,19 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         let revokeFunction = functions.httpsCallable(FunctionName.revokeAppleAccessToken)
         
         _ = try await revokeFunction.call(["token": token])
+    }
+}
+
+private extension AppleAuthenticationServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: "\(CrashlyticsError.domain).\(code)",
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
     }
 }

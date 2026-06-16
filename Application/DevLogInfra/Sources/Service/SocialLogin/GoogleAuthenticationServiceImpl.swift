@@ -14,6 +14,18 @@ import DevLogCore
 import DevLogData
 
 final class GoogleAuthenticationServiceImpl: AuthenticationService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.GoogleAuthenticationServiceImpl"
+
+        enum Code: Int {
+            case signIn = 1
+            case signOut
+            case deleteAuth
+            case link
+            case unlink
+        }
+    }
+
     private let store = Firestore.firestore()
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
@@ -55,6 +67,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             return result.user.makeResponse(providerID: .google)
         } catch {
             logger.error("Failed to sign in with Google", error: error)
+            record(error, code: .signIn)
             throw error
         }
     }
@@ -76,6 +89,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             try Auth.auth().signOut()
         } catch {
             logger.error("Failed to sign out with Google", error: error)
+            record(error, code: .signOut)
             throw error
         }
     }
@@ -86,6 +100,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             try await GIDSignIn.sharedInstance.disconnect()
         } catch {
             logger.error("Failed to delete Google auth", error: error)
+            record(error, code: .deleteAuth)
             throw error
         }
     }
@@ -121,6 +136,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             try await user?.link(with: credential)
         } catch {
             logger.error("Failed to link Google account", error: error)
+            record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {
                 throw DataLayerError.linkCredentialAlreadyInUse
             }
@@ -138,8 +154,22 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             _ = try await user?.unlink(fromProvider: AuthProviderID.google.rawValue)
         } catch {
             logger.error("Failed to unlink Google account", error: error)
+            record(error, code: .unlink)
             throw error
         }
     }
+}
 
+private extension GoogleAuthenticationServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: "\(CrashlyticsError.domain).\(code)",
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
 }

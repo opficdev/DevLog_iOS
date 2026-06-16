@@ -12,6 +12,17 @@ import DevLogCore
 import DevLogData
 
 final class WebPageServiceImpl: WebPageService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.WebPageServiceImpl"
+
+        enum Code: Int {
+            case fetchWebPages = 1
+            case upsertWebPage
+            case deleteWebPage
+            case undoDeleteWebPage
+        }
+    }
+
     private enum FunctionName: String {
         case requestWebPageDeletion
         case undoWebPageDeletion
@@ -51,6 +62,7 @@ final class WebPageServiceImpl: WebPageService {
             return filtered
         } catch {
             logger.error("Failed to fetch web pages", error: error)
+            record(error, code: .fetchWebPages)
             throw error
         }
     }
@@ -72,6 +84,7 @@ final class WebPageServiceImpl: WebPageService {
             logger.info("Successfully upserted web page")
         } catch {
             logger.error("Failed to upsert web page", error: error)
+            record(error, code: .upsertWebPage)
             throw error
         }
     }
@@ -90,6 +103,7 @@ final class WebPageServiceImpl: WebPageService {
             logger.info("Successfully requested web page deletion")
         } catch {
             logger.error("Failed to request web page deletion", error: error)
+            record(error, code: .deleteWebPage)
             throw error
         }
     }
@@ -108,6 +122,7 @@ final class WebPageServiceImpl: WebPageService {
             logger.info("Successfully undone web page deletion")
         } catch {
             logger.error("Failed to undo web page deletion", error: error)
+            record(error, code: .undoDeleteWebPage)
             throw error
         }
     }
@@ -125,6 +140,18 @@ final class WebPageServiceImpl: WebPageService {
 }
 
 private extension WebPageServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: "\(CrashlyticsError.domain).\(code)",
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {
         let data = snapshot.data()
         guard

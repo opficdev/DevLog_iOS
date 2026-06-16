@@ -51,9 +51,13 @@ let project = Project(
                 ],
                 debug: [
                     "APS_ENVIRONMENT": "development",
+                    "DEBUG_INFORMATION_FORMAT": "dwarf",
+                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "NO",
                 ],
                 release: [
                     "APS_ENVIRONMENT": "production",
+                    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ]
             )
         ),

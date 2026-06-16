@@ -37,6 +37,7 @@ public enum DevLogPackages {
         .package(product: "FirebaseCore"),
         .package(product: "FirebaseFunctions"),
         .package(product: "FirebaseAuth"),
+        .package(product: "FirebaseCrashlytics"),
         .package(product: "FirebaseMessaging"),
         .package(product: "FirebaseFirestore"),
         .package(product: "GoogleSignIn"),

@@ -11,6 +11,15 @@ import DevLogCore
 import DevLogData
 
 final class TodoCategoryServiceImpl: TodoCategoryService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.TodoCategoryServiceImpl"
+
+        enum Code: Int {
+            case fetchCategoryPreferences = 1
+            case updateCategoryPreferences
+        }
+    }
+
     private enum Field: String {
         case items
         case kind
@@ -57,6 +66,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
             return preferences
         } catch {
             logger.error("Failed to fetch todo category preferences", error: error)
+            record(error, code: .fetchCategoryPreferences)
             throw error
         }
     }
@@ -79,12 +89,25 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
             logger.info("Successfully updated todo category preferences")
         } catch {
             logger.error("Failed to update todo category preferences", error: error)
+            record(error, code: .updateCategoryPreferences)
             throw error
         }
     }
 }
 
 private extension TodoCategoryServiceImpl {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
+        FirebaseCrashlyticsHelper.record(
+            error,
+            domain: "\(CrashlyticsError.domain).\(code)",
+            code: code.rawValue
+        )
+    }
+
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
+        Self.record(error, code: code)
+    }
+
     func makePreference(_ items: [String: Any]) -> TodoCategoryPreferenceResponse? {
         guard
             let kindString = items[Field.kind.rawValue] as? String,

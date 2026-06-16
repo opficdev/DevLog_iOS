@@ -11,6 +11,14 @@ import FirebaseMessaging
 import UserNotifications
 
 final class PushMessagingServiceImpl: NSObject, PushMessagingService {
+    private enum CrashlyticsError {
+        static let domain = "DevLogInfra.PushMessagingServiceImpl"
+
+        enum Code: Int {
+            case fetchFCMToken = 1
+        }
+    }
+
     private weak var delegate: PushMessagingServiceDelegate?
 
     func setDelegate(_ delegate: PushMessagingServiceDelegate?) {
@@ -42,6 +50,11 @@ final class PushMessagingServiceImpl: NSObject, PushMessagingService {
             if error.isMissingAPNSTokenForFCMToken {
                 return nil
             }
+            FirebaseCrashlyticsHelper.record(
+                error,
+                domain: "\(CrashlyticsError.domain).\(CrashlyticsError.Code.fetchFCMToken)",
+                code: CrashlyticsError.Code.fetchFCMToken.rawValue
+            )
             throw error
         }
     }

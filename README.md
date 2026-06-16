@@ -129,7 +129,8 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 | Architecture | Tuist Modular based Clean Architecture |
 | UI | SwiftUI, MarkdownUI, WidgetKit, AppIntents |
 | State & Async | Observable, Combine, async/await, The Composable Architecture |
-| Backend | Firebase Authentication, Firestore, Cloud Functions, Cloud Messaging, Analytics |
+| Backend | Firebase Authentication, Firestore, Cloud Functions, Cloud Messaging |
+| Monitoring | Firebase Analytics, Crashlytics |
 | Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network, CryptoKit, os.log |
 | External Packages | ComposableArchitecture, MarkdownUI, OrderedCollections, GoogleSignIn, Nexa |
 | Testing | swift-testing, TCA TestStore |

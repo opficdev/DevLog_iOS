@@ -6,6 +6,7 @@
 //
 
 import DevLogData
+import FirebaseCrashlytics
 import FirebaseCore
 
 final class FirebaseAppServiceImpl: FirebaseAppService {
@@ -15,6 +16,15 @@ final class FirebaseAppServiceImpl: FirebaseAppService {
         guard !Self.isConfigured else { return }
 
         FirebaseApp.configure()
+        enableCrashlyticsCollectionIfNeeded()
         Self.isConfigured = true
+    }
+}
+
+private extension FirebaseAppServiceImpl {
+    func enableCrashlyticsCollectionIfNeeded() {
+        #if !DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        #endif
     }
 }
