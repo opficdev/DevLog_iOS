@@ -115,7 +115,6 @@ private extension MainFeature {
         .run { [observeUnreadPushCountUseCase] send in
             do {
                 let publisher = try observeUnreadPushCountUseCase.observe()
-                    .receive(on: DispatchQueue.main)
                 for try await count in publisher.values {
                     await send(.store(.setUnreadPushCount(count)))
                 }
