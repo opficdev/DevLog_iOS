@@ -59,6 +59,8 @@ jobs:
           cache: true
 
       - name: Install SwiftLint
+        env:
+          HOMEBREW_REQUIRE_TAP_TRUST: "1"
         shell: bash
         run: |
           set -euo pipefail
@@ -264,6 +266,8 @@ jobs:
           cache: true
 
       - name: Install SwiftLint
+        env:
+          HOMEBREW_REQUIRE_TAP_TRUST: "1"
         shell: bash
         run: |
           set -euo pipefail
