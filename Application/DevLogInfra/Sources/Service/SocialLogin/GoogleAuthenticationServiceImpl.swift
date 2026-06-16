@@ -86,7 +86,13 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             GIDSignIn.sharedInstance.signOut()
             try await GIDSignIn.sharedInstance.disconnect()
 
-            try await messaging.deleteToken()
+            if messaging.fcmToken != nil {
+                do {
+                    try await messaging.deleteToken()
+                } catch {
+                    logger.error("Failed to delete FCM token while signing out with Google", error: error)
+                }
+            }
 
             try Auth.auth().signOut()
         } catch {

@@ -107,7 +107,13 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
                 try await infoRef.updateData(["fcmToken": FieldValue.delete()])
             }
 
-            try await messaging.deleteToken()
+            if messaging.fcmToken != nil {
+                do {
+                    try await messaging.deleteToken()
+                } catch {
+                    logger.error("Failed to delete FCM token while signing out with GitHub", error: error)
+                }
+            }
 
             try Auth.auth().signOut()
         } catch {
