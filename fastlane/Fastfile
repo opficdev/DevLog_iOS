@@ -135,10 +135,10 @@ platform :ios do
       xcargs: "-skipPackagePluginValidation -skipMacroValidation"
     )
 
-    dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH].to_s
-    archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE].to_s
-    UI.message("dSYM output path: #{dsym_output_path}") if !dsym_output_path.empty?
-    UI.message("Xcode archive path: #{archive_path}") if !archive_path.empty?
+    dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH]
+    archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
+    UI.message("dSYM output path: #{dsym_output_path}") unless dsym_output_path.to_s.empty?
+    UI.message("Xcode archive path: #{archive_path}") unless archive_path.to_s.empty?
 
     next api_key
   end
