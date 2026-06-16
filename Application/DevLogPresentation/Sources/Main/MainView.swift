@@ -12,14 +12,13 @@ import DevLogDomain
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var coordinator: MainViewCoordinator
     @State private var todoWindowCoordinator: TodoWindowCoordinator
     @State private var homeViewCoordinator: HomeViewCoordinator
     @State private var todayViewCoordinator: TodayViewCoordinator
     @State private var pushNotificationListViewCoordinator: PushNotificationListViewCoordinator
     @State private var profileViewCoordinator: ProfileViewCoordinator
-    @Bindable var store: StoreOf<MainFeature>
     @Binding var selectedTab: MainTab
+    @State private var store: StoreOf<MainFeature>
     private let windowEvent: TodoEditorWindowEvent
 
     init(
@@ -27,8 +26,12 @@ struct MainView: View {
         windowEvent: TodoEditorWindowEvent,
         selectedTab: Binding<MainTab>
     ) {
-        let coordinator = MainViewCoordinator(container: container)
-        self._coordinator = State(initialValue: coordinator)
+        self._store = State(initialValue: Store(initialState: MainFeature.State()) {
+            MainFeature()
+        } withDependencies: {
+            $0.observeUnreadPushCountUseCase = container.resolve(ObserveUnreadPushCountUseCase.self)
+            $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+        })
         self._todoWindowCoordinator = State(initialValue: TodoWindowCoordinator(container: container))
         self._homeViewCoordinator = State(initialValue: HomeViewCoordinator(container: container))
         self._todayViewCoordinator = State(initialValue: TodayViewCoordinator(container: container))
@@ -36,9 +39,9 @@ struct MainView: View {
             initialValue: PushNotificationListViewCoordinator(container: container)
         )
         self._profileViewCoordinator = State(initialValue: ProfileViewCoordinator(container: container))
-        self.store = coordinator.store
-        self.windowEvent = windowEvent
+
         self._selectedTab = selectedTab
+        self.windowEvent = windowEvent
     }
 
     var body: some View {
