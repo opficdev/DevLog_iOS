@@ -110,10 +110,10 @@ struct LoginFeatureTests {
         ))
     }
 
-    @Test("소셜 로그인 취소 에러가 발생하면 알림을 표시하지 않는다")
-    func 소셜_로그인_취소_에러가_발생하면_알림을_표시하지_않는다() async {
+    @Test("소셜 로그인이 취소되어도 알림을 표시하지 않는다")
+    func 소셜_로그인이_취소되어도_알림을_표시하지_않는다() async {
         let spy = SignInUseCaseSpy()
-        spy.error = NSError(domain: "com.google.GIDSignIn", code: -5)
+        spy.signedIn = false
         let driver = LoginTestDriver(useCase: spy)
 
         driver.tapSignInButton(.google)
