@@ -181,10 +181,10 @@ struct AccountFeatureTests {
         }
     }
 
-    @Test("소셜 로그인 취소 에러로 연동이 실패하면 알림을 표시하지 않는다")
-    func 소셜_로그인_취소_에러로_연동이_실패하면_알림을_표시하지_않는다() async {
+    @Test("소셜 로그인이 취소되어도 연동 알림을 표시하지 않는다")
+    func 소셜_로그인이_취소되어도_연동_알림을_표시하지_않는다() async {
         let linkSpy = LinkAuthProviderUseCaseSpy()
-        linkSpy.error = NSError(domain: "com.google.GIDSignIn", code: -5)
+        linkSpy.linked = false
         let driver = AccountTestDriver(linkUseCase: linkSpy)
 
         driver.linkWithProvider(.google)
@@ -323,12 +323,13 @@ private final class FetchAuthProvidersUseCaseSpy: FetchAuthProvidersUseCase {
 
 private final class LinkAuthProviderUseCaseSpy: LinkAuthProviderUseCase {
     var error: Error?
+    var linked = true
     var shouldSuspend = false
     private(set) var providers = [AuthProvider]()
     private var continuation: CheckedContinuation<Void, Never>?
     private var shouldResume = false
 
-    func execute(_ provider: AuthProvider) async throws {
+    func execute(_ provider: AuthProvider) async throws -> Bool {
         providers.append(provider)
 
         if shouldSuspend {
@@ -345,6 +346,8 @@ private final class LinkAuthProviderUseCaseSpy: LinkAuthProviderUseCase {
         if let error {
             throw error
         }
+
+        return linked
     }
 
     func resume() {

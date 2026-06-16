@@ -33,7 +33,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
     private let logger = Logger(category: "GoogleAuthService")
 
     @MainActor
-    func signIn() async throws -> AuthDataResponse {
+    func signIn() async throws -> AuthDataResponse? {
         logger.info("Starting Google sign in")
         
         guard let topViewController = provider.topViewController() else {
@@ -66,6 +66,8 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             logger.info("Successfully signed in with Google")
             return result.user.makeResponse(providerID: .google)
         } catch {
+            if error.isSocialLoginCancelled { return nil }
+
             logger.error("Failed to sign in with Google", error: error)
             record(error, code: .signIn)
             throw error
@@ -75,16 +77,18 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
     func signOut(_ uid: String) async throws {
         do {
             let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            let doc = try await infoRef.getDocument()
-
-            if doc.exists {
-                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
-            }
+            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
 
             GIDSignIn.sharedInstance.signOut()
             try await GIDSignIn.sharedInstance.disconnect()
 
-            try await messaging.deleteToken()
+            if messaging.fcmToken != nil {
+                do {
+                    try await messaging.deleteToken()
+                } catch {
+                    logger.error("Failed to delete FCM token while signing out with Google", error: error)
+                }
+            }
 
             try Auth.auth().signOut()
         } catch {
@@ -106,7 +110,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
     }
 
     @MainActor
-    func link(uid: String, email: String) async throws {
+    func link(uid: String, email: String) async throws -> Bool {
         do {
             guard let topViewController = provider.topViewController() else {
                 throw UIError.notFoundTopViewController
@@ -134,7 +138,10 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
 
             try await user?.link(with: credential)
+            return true
         } catch {
+            if error.isSocialLoginCancelled { return false }
+
             logger.error("Failed to link Google account", error: error)
             record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {

@@ -124,10 +124,11 @@ final class AuthServiceImpl: AuthService {
         logger.info("Clearing current auth session")
 
         do {
-            try await messaging.deleteToken()
+            if messaging.fcmToken != nil {
+                try await messaging.deleteToken()
+            }
         } catch {
             logger.error("Failed to delete FCM token while clearing session", error: error)
-            record(error, code: .deleteMessagingToken)
         }
 
         do {

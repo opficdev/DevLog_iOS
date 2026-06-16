@@ -12,7 +12,7 @@ public final class LinkAuthProviderUseCaseImpl: LinkAuthProviderUseCase {
         self.repository = repository
     }
     
-    public func execute(_ provider: AuthProvider) async throws {
+    public func execute(_ provider: AuthProvider) async throws -> Bool {
         try await repository.linkProvider(provider)
     }
 }

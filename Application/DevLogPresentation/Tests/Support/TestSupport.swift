@@ -52,13 +52,14 @@ final class FetchPushNotificationsUseCaseSpy: FetchPushNotificationsUseCase {
 
 final class SignInUseCaseSpy: SignInUseCase {
     var error: Error?
+    var signedIn = true
     var shouldSuspend = false
     private(set) var calledProviders: [AuthProvider] = []
     private(set) var successfulProviders = [AuthProvider]()
     private var continuation: CheckedContinuation<Void, Never>?
     private var shouldResume = false
 
-    func execute(_ provider: AuthProvider) async throws {
+    func execute(_ provider: AuthProvider) async throws -> Bool {
         calledProviders.append(provider)
 
         if shouldSuspend {
@@ -76,7 +77,11 @@ final class SignInUseCaseSpy: SignInUseCase {
             throw error
         }
 
-        successfulProviders.append(provider)
+        if signedIn {
+            successfulProviders.append(provider)
+        }
+
+        return signedIn
     }
 
     func resume() {

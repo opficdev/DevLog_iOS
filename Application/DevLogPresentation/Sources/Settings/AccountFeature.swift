@@ -141,7 +141,12 @@ private extension AccountFeature {
         .run { [fetchProvidersUseCase, linkProviderUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
-                try await linkProviderUseCase.execute(provider)
+                let linked = try await linkProviderUseCase.execute(provider)
+                guard linked else {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                    return
+                }
+
                 await ToastPresenter.present(message: String(localized: "account_toast_link_success"))
                 let providers = try await fetchProvidersUseCase.execute()
                 await send(.setProviders(
@@ -151,9 +156,6 @@ private extension AccountFeature {
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
-
-                if error.isSocialLoginCancelled { return }
-
                 await send(.setAlert(Self.linkAlertType(for: error)))
             }
         }

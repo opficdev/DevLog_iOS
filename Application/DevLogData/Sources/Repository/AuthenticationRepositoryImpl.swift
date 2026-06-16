@@ -31,11 +31,11 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         self.widgetSnapshotUpdater = widgetSnapshotUpdater
     }
 
-    func signIn(_ provider: AuthProvider) async throws {
+    func signIn(_ provider: AuthProvider) async throws -> Bool {
         authService.beginSignIn()
 
         do {
-            let response: AuthDataResponse
+            let response: AuthDataResponse?
             switch provider {
             case .apple:
                 response = try await appleAuthService.signIn()
@@ -45,8 +45,14 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
                 response = try await googleAuthService.signIn()
             }
 
+            guard let response else {
+                authService.cancelSignIn()
+                return false
+            }
+
             try await userService.upsertUser(response)
             authService.completeSignIn()
+            return true
         } catch {
             if authService.uid != nil {
                 try? await authService.clearCurrentSession()

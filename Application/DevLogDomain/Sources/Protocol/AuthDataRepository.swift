@@ -13,7 +13,7 @@ public protocol AuthDataRepository {
     func fetchAllProviders() async throws -> [AuthProvider]
     
     /// 특정 프로바이더를 계정에 연결합니다
-    func linkProvider(_ provider: AuthProvider) async throws
+    func linkProvider(_ provider: AuthProvider) async throws -> Bool
     
     /// 특정 프로바이더를 계정에서 해제합니다
     func unlinkProvider(_ provider: AuthProvider) async throws

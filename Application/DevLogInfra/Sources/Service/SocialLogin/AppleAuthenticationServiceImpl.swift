@@ -44,7 +44,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
-    func signIn() async throws -> AuthDataResponse {
+    func signIn() async throws -> AuthDataResponse? {
         logger.info("Starting Apple sign in")
         
         do {
@@ -105,6 +105,8 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             logger.info("Successfully signed in with Apple")
             return result.user.makeResponse(providerID: .apple)
         } catch {
+            if error.isSocialLoginCancelled { return nil }
+
             logger.error("Failed to sign in with Apple", error: error)
             record(error, code: .signIn)
             throw error
@@ -114,13 +116,15 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     func signOut(_ uid: String) async throws {
         do {
             let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            let doc = try await infoRef.getDocument()
+            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
 
-            if doc.exists {
-                try await infoRef.updateData(["fcmToken": FieldValue.delete()])
+            if messaging.fcmToken != nil {
+                do {
+                    try await messaging.deleteToken()
+                } catch {
+                    logger.error("Failed to delete FCM token while signing out with Apple", error: error)
+                }
             }
-
-            try await messaging.deleteToken()
 
             try Auth.auth().signOut()
         } catch {
@@ -142,7 +146,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email: String) async throws {
+    func link(uid: String, email: String) async throws -> Bool {
         do {
             let response = try await authenticateWithAppleAsync()
 
@@ -170,7 +174,10 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             )
 
             try await user?.link(with: appleCredential)
+            return true
         } catch {
+            if error.isSocialLoginCancelled { return false }
+
             logger.error("Failed to link Apple account", error: error)
             record(error, code: .link)
             if error.isFirebaseCredentialAlreadyInUse {
