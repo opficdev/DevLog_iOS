@@ -53,9 +53,11 @@ let project = Project(
                 ],
                 debug: [
                     "APS_ENVIRONMENT": "development",
+                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "NO",
                 ],
                 release: [
                     "APS_ENVIRONMENT": "production",
+                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ]
             )
         ),

@@ -16,15 +16,15 @@ final class FirebaseAppServiceImpl: FirebaseAppService {
         guard !Self.isConfigured else { return }
 
         FirebaseApp.configure()
-        configureCrashlyticsCollection()
+        enableCrashlyticsCollectionIfNeeded()
         Self.isConfigured = true
     }
 }
 
 private extension FirebaseAppServiceImpl {
-    func configureCrashlyticsCollection() {
-        #if DEBUG
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+    func enableCrashlyticsCollectionIfNeeded() {
+        #if !DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
         #endif
     }
 }
