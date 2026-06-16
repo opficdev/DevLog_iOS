@@ -91,6 +91,8 @@ jobs:
           cache: true
 
       - name: Install SwiftLint
+        env:
+          HOMEBREW_REQUIRE_TAP_TRUST: "1"
         shell: bash
         run: |
           set -euo pipefail
@@ -114,6 +116,32 @@ jobs:
       - name: Build for TestFlight
         run: bundle exec fastlane testflight_build_only
 
+      - name: Upload dSYM to Firebase Crashlytics
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          google_service_info_path="Application/DevLogApp/Sources/Resource/GoogleService-Info.plist"
+          dsym_zip_path="$(find fastlane/testflight_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
+          upload_symbols_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" "$HOME/Library/Developer/Xcode/SourcePackages" "$GITHUB_WORKSPACE" -path '*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols' -type f -print -quit 2>/dev/null || true)"
+
+          if [ ! -f "$google_service_info_path" ]; then
+            echo "Missing GoogleService-Info.plist at $google_service_info_path" >&2
+            exit 1
+          fi
+
+          if [ -z "$dsym_zip_path" ]; then
+            echo "Missing dSYM zip in fastlane/testflight_build" >&2
+            exit 1
+          fi
+
+          if [ -z "$upload_symbols_path" ]; then
+            echo "Missing Firebase Crashlytics upload-symbols script" >&2
+            exit 1
+          fi
+
+          "$upload_symbols_path" -gsp "$google_service_info_path" -p ios "$dsym_zip_path"
+
       - name: Upload TestFlight build log
         if: always()
         uses: actions/upload-artifact@v6
@@ -121,6 +149,14 @@ jobs:
           name: testflight-build-log
           path: ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
+
+      - name: Upload TestFlight dSYM
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: testflight-dsym
+          path: fastlane/testflight_build/*.dSYM.zip
+          if-no-files-found: warn
 
       - name: Skip TestFlight Upload
         if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect != 'true')
