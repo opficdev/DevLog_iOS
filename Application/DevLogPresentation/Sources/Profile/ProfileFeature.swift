@@ -195,7 +195,6 @@ private extension ProfileFeature {
     func observeNetworkConnectivityEffect() -> Effect<Action> {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
-                .receive(on: DispatchQueue.main)
                 .map(Action.networkStatusChanged)
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)

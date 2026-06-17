@@ -234,7 +234,6 @@ private extension SettingsFeature {
     func observeNetworkConnectivityEffect() -> Effect<Action> {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
-                .receive(on: DispatchQueue.main)
                 .map(Action.networkStatusChanged)
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
@@ -244,7 +243,6 @@ private extension SettingsFeature {
         .publisher { [systemThemeUseCase] in
             systemThemeUseCase.observe()
                 .removeDuplicates()
-                .receive(on: DispatchQueue.main)
                 .map { .binding(.set(\.theme, $0)) }
         }
         .cancellable(id: CancelID.systemTheme, cancelInFlight: true)

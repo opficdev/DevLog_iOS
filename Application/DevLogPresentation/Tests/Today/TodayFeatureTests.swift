@@ -65,22 +65,8 @@ struct TodayFeatureTests {
         )
     }
 
-    @Test("현재 TodayViewModel fetchData는 요약과 섹션 상태를 갱신한다")
-    func 현재_TodayViewModel_fetchData는_요약과_섹션_상태를_갱신한다() async throws {
-        let todos = makeTodaySectionTodos()
-        let fetchSpy = TodayFetchTodosUseCaseSpy(
-            pagesByFilter: [
-                .withDueDate: .init(items: todos.filter { $0.dueDate != nil }, nextCursor: nil),
-                .withoutDueDate: .init(items: todos.filter { $0.dueDate == nil }, nextCursor: nil)
-            ]
-        )
-        let adapter = TodayViewModelTestAdapter(fetchUseCase: fetchSpy)
-
-        try await verifyTodayFetchData(adapter: adapter, fetchUseCaseSpy: fetchSpy)
-    }
-
-    @Test("TodayFeature fetchData는 현재 TodayViewModel과 같은 요약과 섹션 상태를 만든다")
-    func TodayFeature_fetchData는_현재_TodayViewModel과_같은_요약과_섹션_상태를_만든다() async throws {
+    @Test("TodayFeature fetchData는 요약과 섹션 상태를 갱신한다")
+    func TodayFeature_fetchData는_요약과_섹션_상태를_갱신한다() async throws {
         let todos = makeTodaySectionTodos()
         let fetchSpy = TodayFetchTodosUseCaseSpy(
             pagesByFilter: [
@@ -93,22 +79,8 @@ struct TodayFeatureTests {
         try await verifyTodayFetchData(adapter: adapter, fetchUseCaseSpy: fetchSpy)
     }
 
-    @Test("현재 TodayViewModel setSectionScope는 동일 탭 재선택 시 all로 되돌린다")
-    func 현재_TodayViewModel_setSectionScope는_동일_탭_재선택_시_all로_되돌린다() async throws {
-        let todos = makeTodaySectionTodos()
-        let fetchSpy = TodayFetchTodosUseCaseSpy(
-            pagesByFilter: [
-                .withDueDate: .init(items: todos.filter { $0.dueDate != nil }, nextCursor: nil),
-                .withoutDueDate: .init(items: todos.filter { $0.dueDate == nil }, nextCursor: nil)
-            ]
-        )
-        let adapter = TodayViewModelTestAdapter(fetchUseCase: fetchSpy)
-
-        try await verifyTodaySectionScopeToggle(adapter: adapter, fetchUseCaseSpy: fetchSpy)
-    }
-
-    @Test("TodayFeature setSectionScope는 현재 TodayViewModel과 같은 토글 동작을 유지한다")
-    func TodayFeature_setSectionScope는_현재_TodayViewModel과_같은_토글_동작을_유지한다() async throws {
+    @Test("TodayFeature setSectionScope는 동일 탭 재선택 시 all로 되돌린다")
+    func TodayFeature_setSectionScope는_동일_탭_재선택_시_all로_되돌린다() async throws {
         let todos = makeTodaySectionTodos()
         let fetchSpy = TodayFetchTodosUseCaseSpy(
             pagesByFilter: [
@@ -121,30 +93,8 @@ struct TodayFeatureTests {
         try await verifyTodaySectionScopeToggle(adapter: adapter, fetchUseCaseSpy: fetchSpy)
     }
 
-    @Test("현재 TodayViewModel displayOptions 변경은 필터링 결과와 저장 상태를 갱신한다")
-    func 현재_TodayViewModel_displayOptions_변경은_필터링_결과와_저장_상태를_갱신한다() async throws {
-        let todos = makeTodaySectionTodos()
-        let fetchSpy = TodayFetchTodosUseCaseSpy(
-            pagesByFilter: [
-                .withDueDate: .init(items: todos.filter { $0.dueDate != nil }, nextCursor: nil),
-                .withoutDueDate: .init(items: todos.filter { $0.dueDate == nil }, nextCursor: nil)
-            ]
-        )
-        let updateSpy = TodayUpdateDisplayOptionsUseCaseSpy()
-        let adapter = TodayViewModelTestAdapter(
-            fetchUseCase: fetchSpy,
-            updateDisplayOptionsUseCase: updateSpy
-        )
-
-        try await verifyTodayDisplayOptions(
-            adapter: adapter,
-            fetchUseCaseSpy: fetchSpy,
-            updateDisplayOptionsUseCaseSpy: updateSpy
-        )
-    }
-
-    @Test("TodayFeature displayOptions 변경은 현재 TodayViewModel과 같은 필터링 결과를 유지한다")
-    func TodayFeature_displayOptions_변경은_현재_TodayViewModel과_같은_필터링_결과를_유지한다() async throws {
+    @Test("TodayFeature displayOptions 변경은 필터링 결과와 저장 상태를 갱신한다")
+    func TodayFeature_displayOptions_변경은_필터링_결과와_저장_상태를_갱신한다() async throws {
         let todos = makeTodaySectionTodos()
         let fetchSpy = TodayFetchTodosUseCaseSpy(
             pagesByFilter: [
@@ -165,33 +115,8 @@ struct TodayFeatureTests {
         )
     }
 
-    @Test("현재 TodayViewModel togglePinned는 Todo를 갱신하고 섹션을 다시 계산한다")
-    func 현재_TodayViewModel_togglePinned는_Todo를_갱신하고_섹션을_다시_계산한다() async throws {
-        let todos = makeTodaySectionTodos()
-        let fetchSpy = TodayFetchTodosUseCaseSpy(
-            pagesByFilter: [
-                .withDueDate: .init(items: todos.filter { $0.dueDate != nil }, nextCursor: nil),
-                .withoutDueDate: .init(items: todos.filter { $0.dueDate == nil }, nextCursor: nil)
-            ]
-        )
-        let fetchByIdSpy = TodayFetchTodoByIdUseCaseSpy(todos: todos)
-        let upsertSpy = TodayUpsertTodoUseCaseSpy()
-        let adapter = TodayViewModelTestAdapter(
-            fetchUseCase: fetchSpy,
-            fetchTodoByIdUseCase: fetchByIdSpy,
-            upsertUseCase: upsertSpy
-        )
-
-        try await verifyTodayTogglePinned(
-            adapter: adapter,
-            fetchUseCaseSpy: fetchSpy,
-            fetchTodoByIdUseCaseSpy: fetchByIdSpy,
-            upsertTodoUseCaseSpy: upsertSpy
-        )
-    }
-
-    @Test("TodayFeature togglePinned는 현재 TodayViewModel과 같은 섹션 재계산을 유지한다")
-    func TodayFeature_togglePinned는_현재_TodayViewModel과_같은_섹션_재계산을_유지한다() async throws {
+    @Test("TodayFeature togglePinned는 Todo를 갱신하고 섹션을 다시 계산한다")
+    func TodayFeature_togglePinned는_Todo를_갱신하고_섹션을_다시_계산한다() async throws {
         let todos = makeTodaySectionTodos()
         let fetchSpy = TodayFetchTodosUseCaseSpy(
             pagesByFilter: [
@@ -215,36 +140,8 @@ struct TodayFeatureTests {
         )
     }
 
-    @Test("현재 TodayViewModel completeTodo는 Todo를 제거하고 완료 이벤트를 남긴다")
-    func 현재_TodayViewModel_completeTodo는_Todo를_제거하고_완료_이벤트를_남긴다() async throws {
-        let todos = makeTodaySectionTodos()
-        let fetchSpy = TodayFetchTodosUseCaseSpy(
-            pagesByFilter: [
-                .withDueDate: .init(items: todos.filter { $0.dueDate != nil }, nextCursor: nil),
-                .withoutDueDate: .init(items: todos.filter { $0.dueDate == nil }, nextCursor: nil)
-            ]
-        )
-        let fetchByIdSpy = TodayFetchTodoByIdUseCaseSpy(todos: todos)
-        let upsertSpy = TodayUpsertTodoUseCaseSpy()
-        let trackSpy = TodayTrackAnalyticsEventUseCaseSpy()
-        let adapter = TodayViewModelTestAdapter(
-            fetchUseCase: fetchSpy,
-            fetchTodoByIdUseCase: fetchByIdSpy,
-            upsertUseCase: upsertSpy,
-            trackAnalyticsEventUseCase: trackSpy
-        )
-
-        try await verifyTodayCompleteTodo(
-            adapter: adapter,
-            fetchUseCaseSpy: fetchSpy,
-            fetchTodoByIdUseCaseSpy: fetchByIdSpy,
-            upsertTodoUseCaseSpy: upsertSpy,
-            trackAnalyticsEventUseCaseSpy: trackSpy
-        )
-    }
-
-    @Test("TodayFeature completeTodo는 현재 TodayViewModel과 같은 제거와 완료 추적을 유지한다")
-    func TodayFeature_completeTodo는_현재_TodayViewModel과_같은_제거와_완료_추적을_유지한다() async throws {
+    @Test("TodayFeature completeTodo는 Todo를 제거하고 완료 이벤트를 남긴다")
+    func TodayFeature_completeTodo는_Todo를_제거하고_완료_이벤트를_남긴다() async throws {
         let todos = makeTodaySectionTodos()
         let fetchSpy = TodayFetchTodosUseCaseSpy(
             pagesByFilter: [
@@ -271,17 +168,8 @@ struct TodayFeatureTests {
         )
     }
 
-    @Test("현재 TodayViewModel fetchData 실패는 에러 표시 상태를 만든다")
-    func 현재_TodayViewModel_fetchData_실패는_에러_표시_상태를_만든다() async {
-        let fetchSpy = TodayFetchTodosUseCaseSpy()
-        fetchSpy.error = TodayTestError.failure
-        let adapter = TodayViewModelTestAdapter(fetchUseCase: fetchSpy)
-
-        await verifyTodayFetchFailureShowsAlert(adapter: adapter)
-    }
-
-    @Test("TodayFeature fetchData 실패는 현재 TodayViewModel과 같은 에러 표시 상태를 만든다")
-    func TodayFeature_fetchData_실패는_현재_TodayViewModel과_같은_에러_표시_상태를_만든다() async {
+    @Test("TodayFeature fetchData 실패는 에러 표시 상태를 만든다")
+    func TodayFeature_fetchData_실패는_에러_표시_상태를_만든다() async {
         let fetchSpy = TodayFetchTodosUseCaseSpy()
         fetchSpy.error = TodayTestError.failure
         let adapter = TodayStoreTestAdapter(fetchUseCase: fetchSpy)

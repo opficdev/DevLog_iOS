@@ -119,7 +119,7 @@ private extension MainFeature {
 
     func trackScreenViewEffect(_ screenName: String) -> Effect<Action> {
         .run { [trackAnalyticsEventUseCase] _ in
-            trackAnalyticsEventUseCase?.execute(.screenView(screenName))
+            trackAnalyticsEventUseCase.execute(.screenView(screenName))
         }
     }
 

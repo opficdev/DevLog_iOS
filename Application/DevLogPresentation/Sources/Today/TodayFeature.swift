@@ -308,7 +308,7 @@ private extension TodayFeature {
                 todo.completedAt = now
                 todo.updatedAt = now
                 try await upsertTodoUseCase.execute(todo)
-                trackAnalyticsEventUseCase?.execute(.todoComplete)
+                trackAnalyticsEventUseCase.execute(.todoComplete)
                 await send(.store(.removeTodo(todo.id)))
                 await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {

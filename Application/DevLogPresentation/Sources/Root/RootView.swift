@@ -13,9 +13,7 @@ import DevLogDomain
 
 public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
-    @State var viewModel: RootViewModel
-    @State private var selectedRoute: Route?
-    @State private var selectedMainTab = MainTab.home
+    @State private var store: StoreOf<RootFeature>
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -31,12 +29,14 @@ public struct RootView: View {
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
     ) {
-        self._viewModel = State(initialValue: RootViewModel(
-            sessionUseCase: sessionUseCase,
-            networkConnectivityUseCase: networkConnectivityUseCase,
-            systemThemeUseCase: systemThemeUseCase,
-            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
-        ))
+        self._store = State(initialValue: Store(initialState: RootFeature.State()) {
+            RootFeature()
+        } withDependencies: {
+            $0.observeAuthSessionUseCase = sessionUseCase
+            $0.networkConnectivityUseCase = networkConnectivityUseCase
+            $0.systemThemeUseCase = systemThemeUseCase
+            $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+        })
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
@@ -46,81 +46,56 @@ public struct RootView: View {
     public var body: some View {
         ZStack {
             Color(UIColor.systemGroupedBackground).ignoresSafeArea()
-            if let signIn = viewModel.state.signIn {
+            if let signIn = store.signIn {
                 if signIn {
                     MainView(
                         container: container,
                         windowEvent: windowEvent,
-                        selectedTab: $selectedMainTab
+                        selectedTab: $store.selectedMainTab
                     )
                 } else {
                     LoginView(signInUseCase: container.resolve(SignInUseCase.self))
                 }
             }
         }
-        .preferredColorScheme(viewModel.state.theme.colorScheme)
-        .onAppear { viewModel.send(.onAppear) }
-        .onChange(of: viewModel.state.signIn) { _, value in
-            guard let value else { return }
-            if value {
-                selectedMainTab = .home
-            }
-        }
+        .preferredColorScheme(store.theme.colorScheme)
+        .onAppear { store.send(.onAppear) }
         .onOpenURL { url in
             guard let mainTab = widgetURLTab(url) else { return }
-            switch viewModel.state.signIn {
-            case .some(false):
-                break
-            case .some(true):
-                selectedMainTab = mainTab
-            case .none:
-                break
-            }
+            store.send(.openWidgetRoute(mainTab))
         }
-        .alert(viewModel.state.alertTitle, isPresented: Binding(
-            get: { viewModel.state.showAlert },
-            set: { viewModel.send(.setAlert($0)) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(viewModel.state.alertMessage)
-        }
-        .sheet(item: $selectedRoute) { route in
-            switch route {
-            case .todoDetail(let todoId):
-                NavigationStack {
-                    TodoDetailView(store: Store(
-                        initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: false)
-                    ) {
-                        TodoDetailFeature()
-                    } withDependencies: {
-                        $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
-                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    })
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            selectedRoute = nil
-                        }
-                    }
-                }
-                .background(Color(.systemGroupedBackground))
-                .presentationDragIndicator(.visible)
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+            sheetContent(todoId: sheetStore.todoId) {
+                sheetStore.send(.tapCloseButton)
             }
         }
         .onReceive(pushNotificationTodoIdPublisher) { todoId in
-            selectedRoute = .todoDetail(todoId)
+            store.send(.presentTodoDetail(todoId))
             clearPushNotificationRoute()
         }
     }
-}
 
-private enum Route: Equatable, Identifiable {
-    case todoDetail(String)
-
-    var id: String {
-        switch self {
-        case .todoDetail(let todoId):
-            return "todo:\(todoId)"
+    private func sheetContent(
+        todoId: String,
+        onClose: @escaping () -> Void
+    ) -> some View {
+        NavigationStack {
+            TodoDetailView(store: Store(
+                initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: false)
+            ) {
+                TodoDetailFeature()
+            } withDependencies: {
+                $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+            })
+            .toolbar {
+                ToolbarLeadingButton {
+                    onClose()
+                }
+            }
         }
+        .background(Color(.systemGroupedBackground))
+        .presentationDragIndicator(.visible)
     }
 }

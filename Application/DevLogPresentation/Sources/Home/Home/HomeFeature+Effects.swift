@@ -20,7 +20,6 @@ extension HomeFeature {
     func observeNetworkConnectivityEffect() -> Effect<Action> {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
-                .receive(on: DispatchQueue.main)
                 .map { .store(.networkStatusChanged($0)) }
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
@@ -74,7 +73,7 @@ extension HomeFeature {
             await send(.loading(.begin(target: LoadingTarget.overlay.target, mode: .delayed)))
             do {
                 try await addWebPageUseCase.execute(urlString)
-                trackAnalyticsEventUseCase?.execute(.webPageCreate)
+                trackAnalyticsEventUseCase.execute(.webPageCreate)
                 let pages = try await fetchWebPagesUseCase.execute("")
                 await send(.store(.updateWebPages(pages.map(WebPageItem.init(from:)))))
             } catch {

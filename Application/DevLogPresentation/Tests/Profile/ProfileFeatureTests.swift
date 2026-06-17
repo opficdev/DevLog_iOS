@@ -1,5 +1,5 @@
 //
-//  ProfileViewModelTests.swift
+//  ProfileFeatureTests.swift
 //  DevLogPresentationTests
 //
 //  Created by opfic on 6/11/26.
@@ -13,35 +13,7 @@ import DevLogDomain
 @testable import DevLogPresentation
 
 @MainActor
-struct ProfileViewModelTests {
-    @Test("같은 아바타 URL을 다시 받아도 프로필 이미지 데이터를 다시 요청한다")
-    func 같은_아바타_URL을_다시_받아도_프로필_이미지_데이터를_다시_요청한다() async {
-        let imageData = Data([1, 2, 3])
-        let spy = FetchProfileImageDataUseCaseSpy(data: imageData)
-        let viewModel = makeProfileViewModel(fetchProfileImageDataUseCase: spy)
-        let avatarURL = URL(string: "https://example.com/avatar.png")!
-        let profile = UserProfile(
-            name: "opfic",
-            email: "opfic@example.com",
-            statusMessage: "status",
-            avatarURL: avatarURL,
-            createdAt: Date(timeIntervalSince1970: 0)
-        )
-
-        viewModel.send(.fetchUserData(profile))
-        await waitUntil {
-            spy.calledURLs == [avatarURL]
-        }
-
-        viewModel.send(.fetchUserData(profile))
-        await waitUntil {
-            spy.calledURLs == [avatarURL, avatarURL]
-        }
-
-        #expect(spy.calledURLs == [avatarURL, avatarURL])
-        #expect(viewModel.state.avatarImageData?.data == imageData)
-    }
-
+struct ProfileFeatureTests {
     @Test("ProfileFeature는 같은 아바타 URL을 다시 받아도 프로필 이미지 데이터를 다시 요청한다")
     func ProfileFeature는_같은_아바타_URL을_다시_받아도_프로필_이미지_데이터를_다시_요청한다() async {
         let imageData = Data([1, 2, 3])
@@ -63,22 +35,8 @@ struct ProfileViewModelTests {
         #expect(adapter.avatarImageData?.data == imageData)
     }
 
-    @Test("현재 ProfileViewModel은 연결 상태일 때 상태 메시지 저장을 요청한다")
-    func 현재_ProfileViewModel은_연결_상태일_때_상태_메시지_저장을_요청한다() async {
-        let spy = UpsertStatusMessageUseCaseSpy()
-        let viewModel = makeProfileViewModel(upsertStatusMessageUseCase: spy)
-
-        viewModel.send(.updateStatusMessage("working"))
-        viewModel.send(.willUpdateStatusMessage)
-        await waitUntil {
-            spy.messages == ["working"]
-        }
-
-        #expect(spy.messages == ["working"])
-    }
-
-    @Test("ProfileFeature는 연결 상태일 때 현재 ProfileViewModel처럼 상태 메시지 저장을 요청한다")
-    func ProfileFeature는_연결_상태일_때_현재_ProfileViewModel처럼_상태_메시지_저장을_요청한다() async {
+    @Test("ProfileFeature는 연결 상태일 때 상태 메시지 저장을 요청한다")
+    func ProfileFeature는_연결_상태일_때_상태_메시지_저장을_요청한다() async {
         let spy = UpsertStatusMessageUseCaseSpy()
         let adapter = ProfileStoreTestAdapter(upsertStatusMessageUseCase: spy)
 
@@ -88,25 +46,8 @@ struct ProfileViewModelTests {
         #expect(spy.messages == ["working"])
     }
 
-    @Test("현재 ProfileViewModel은 마지막 활동 종류를 해제하지 않는다")
-    func 현재_ProfileViewModel은_마지막_활동_종류를_해제하지_않는다() {
-        let spy = UpdateHeatmapActivityTypesUseCaseSpy()
-        let fetchSpy = FetchHeatmapActivityTypesUseCaseSpy()
-        fetchSpy.activityTypes = ["created"]
-        let viewModel = makeProfileViewModel(
-            fetchHeatmapActivityTypesUseCase: fetchSpy,
-            updateHeatmapActivityTypesUseCase: spy
-        )
-
-        viewModel.send(.fetchData)
-        viewModel.send(.toggleActivityKind(.created))
-
-        #expect(viewModel.state.selectedActivityKinds == [.created])
-        #expect(spy.activityTypes.isEmpty)
-    }
-
-    @Test("ProfileFeature는 현재 ProfileViewModel처럼 마지막 활동 종류를 해제하지 않는다")
-    func ProfileFeature는_현재_ProfileViewModel처럼_마지막_활동_종류를_해제하지_않는다() async {
+    @Test("ProfileFeature는 마지막 활동 종류를 해제하지 않는다")
+    func ProfileFeature는_마지막_활동_종류를_해제하지_않는다() async {
         let spy = UpdateHeatmapActivityTypesUseCaseSpy()
         let fetchSpy = FetchHeatmapActivityTypesUseCaseSpy()
         fetchSpy.activityTypes = ["created"]
@@ -121,32 +62,6 @@ struct ProfileViewModelTests {
         #expect(adapter.selectedActivityKinds == [.created])
         #expect(spy.activityTypes.isEmpty)
     }
-}
-
-@MainActor
-private func makeProfileViewModel(
-    fetchProfileImageDataUseCase: FetchProfileImageDataUseCase = FetchProfileImageDataUseCaseSpy(data: Data()),
-    upsertStatusMessageUseCase: UpsertStatusMessageUseCase = UpsertStatusMessageUseCaseSpy(),
-    fetchHeatmapActivityTypesUseCase: FetchHeatmapActivityTypesUseCase = FetchHeatmapActivityTypesUseCaseSpy(),
-    updateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase = UpdateHeatmapActivityTypesUseCaseSpy()
-) -> ProfileViewModel {
-    ProfileViewModel(
-        fetchUserDataUseCase: FetchUserDataUseCaseSpy(
-            profile: UserProfile(
-                name: "opfic",
-                email: "opfic@example.com",
-                statusMessage: "",
-                avatarURL: nil,
-                createdAt: Date(timeIntervalSince1970: 0)
-            )
-        ),
-        fetchProfileImageDataUseCase: fetchProfileImageDataUseCase,
-        fetchTodosUseCase: FetchTodosUseCaseSpy(),
-        upsertStatusMessageUseCase: upsertStatusMessageUseCase,
-        networkConnectivityUseCase: ObserveNetworkConnectivityUseCaseSpy(),
-        fetchHeatmapActivityTypesUseCase: fetchHeatmapActivityTypesUseCase,
-        updateHeatmapActivityTypesUseCase: updateHeatmapActivityTypesUseCase
-    )
 }
 
 @MainActor

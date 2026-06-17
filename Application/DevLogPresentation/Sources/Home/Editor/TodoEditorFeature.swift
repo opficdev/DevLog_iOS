@@ -230,7 +230,7 @@ extension DependencyValues {
         set { self[UpsertTodoUseCaseKey.self] = newValue }
     }
 
-    var trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? {
+    var trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase {
         get { self[TrackAnalyticsEventUseCaseKey.self] }
         set { self[TrackAnalyticsEventUseCaseKey.self] = newValue }
     }
@@ -257,7 +257,17 @@ private enum UpsertTodoUseCaseKey: DependencyKey {
 }
 
 private enum TrackAnalyticsEventUseCaseKey: DependencyKey {
-    static let liveValue: TrackAnalyticsEventUseCase? = nil
+    static var liveValue: TrackAnalyticsEventUseCase {
+        preconditionFailure("TrackAnalyticsEventUseCase must be provided.")
+    }
+
+    static var testValue: TrackAnalyticsEventUseCase {
+        NoOpTrackAnalyticsEventUseCase()
+    }
+}
+
+private struct NoOpTrackAnalyticsEventUseCase: TrackAnalyticsEventUseCase {
+    func execute(_ event: AnalyticsEvent) { }
 }
 
 private extension TodoEditorFeature {
@@ -294,7 +304,7 @@ private extension TodoEditorFeature {
             await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
                 try await upsertTodoUseCase.execute(draft)
-                trackAnalyticsEventUseCase?.execute(.todoCreate)
+                trackAnalyticsEventUseCase.execute(.todoCreate)
                 await send(.createSucceeded)
             } catch {
                 await send(.saveFailed)

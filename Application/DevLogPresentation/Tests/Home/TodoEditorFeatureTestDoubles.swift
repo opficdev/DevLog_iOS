@@ -41,7 +41,7 @@ final class TodoEditorStoreTestAdapter {
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = TodoEditorFetchPreferencesUseCaseSpy(),
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase = TodoEditorFetchReferenceItemsUseCaseSpy(),
         upsertTodoUseCase: UpsertTodoUseCase = TodoEditorUpsertTodoUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = nil
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TodoEditorTrackAnalyticsEventUseCaseSpy()
     ) {
         self.now = now
         store = TestStore(

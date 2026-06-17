@@ -44,7 +44,7 @@ extension TodoListFeature {
                     todo.updatedAt = now
                     try await upsertTodoUseCase.execute(todo)
                     if todo.isCompleted {
-                        trackAnalyticsEventUseCase?.execute(.todoComplete)
+                        trackAnalyticsEventUseCase.execute(.todoComplete)
                     }
                     guard let todoListItem = TodoListItem(from: todo) else {
                         await send(.store(.setAlert(true)))
