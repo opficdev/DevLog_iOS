@@ -185,7 +185,9 @@ struct TodayFeature {
                 return updateDisplayOptionsEffect(state.displayOptions)
             case .binding:
                 break
-            case .refresh, .fetchData:
+            case .refresh:
+                return fetchTodosEffect(showsIndicator: false)
+            case .fetchData:
                 return fetchTodosEffect()
             case .setSectionScope(let scope):
                 if state.selectedSectionScope == scope, scope != .all {
@@ -255,9 +257,11 @@ private enum UpdateTodayDisplayOptionsUseCaseKey: DependencyKey {
 }
 
 private extension TodayFeature {
-    func fetchTodosEffect() -> Effect<Action> {
+    func fetchTodosEffect(showsIndicator: Bool = true) -> Effect<Action> {
         .run { [fetchTodosUseCase] send in
-            await send(.loading(.begin(target: .default, mode: .delayed)))
+            if showsIndicator {
+                await send(.loading(.begin(target: .default, mode: .delayed)))
+            }
             do {
                 async let todosWithDueDatePage = fetchTodosUseCase.execute(
                     TodoQuery(
@@ -284,9 +288,13 @@ private extension TodayFeature {
                 let todosWithDueDate = try await todosWithDueDatePage.items.compactMap(TodayTodoItem.init(from:))
                 let todosWithoutDueDate = try await todosWithoutDueDatePage.items.compactMap(TodayTodoItem.init(from:))
                 await send(.store(.setTodos(todosWithDueDate + todosWithoutDueDate)))
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
             } catch {
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
                 await send(.store(.setAlert))
             }
         }

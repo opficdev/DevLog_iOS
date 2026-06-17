@@ -153,7 +153,7 @@ private extension PushNotificationListFeature {
         switch action {
         case .refresh:
             state.nextCursor = nil
-            return fetchNotificationsPageEffect(query: state.query, cursor: nil)
+            return fetchNotificationsPageEffect(query: state.query, cursor: nil, showsIndicator: false)
         case .fetchNotifications:
             state.nextCursor = nil
             return fetchNotificationsEffect(query: state.query, cursor: nil, existingCount: 0)
@@ -292,10 +292,13 @@ private extension PushNotificationListFeature {
 
     func fetchNotificationsPageEffect(
         query: PushNotificationQuery,
-        cursor: PushNotificationCursor?
+        cursor: PushNotificationCursor?,
+        showsIndicator: Bool = true
     ) -> Effect<Action> {
         .run { [fetchPushNotificationsUseCase] send in
-            await send(.loading(.begin(target: .default, mode: .delayed)))
+            if showsIndicator {
+                await send(.loading(.begin(target: .default, mode: .delayed)))
+            }
             do {
                 let page = try await fetchPushNotificationsUseCase.execute(query, cursor: cursor)
                 if cursor == nil {
@@ -308,9 +311,13 @@ private extension PushNotificationListFeature {
                     ))
                 )
                 await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
             } catch {
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
                 await send(.store(.setAlert))
             }
         }
