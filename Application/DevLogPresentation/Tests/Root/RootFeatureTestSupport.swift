@@ -79,32 +79,32 @@ struct RootStoreTestAdapter: RootStateDriving {
     }
 
     func onAppear() async {
-        await store.send(.view(.onAppear))
+        await store.send(.onAppear)
         await drainReceivedActions()
     }
 
     func setAlert(_ isPresented: Bool) async {
         if isPresented {
-            await store.send(.store(.networkStatusChanged(false)))
+            await store.send(.networkStatusChanged(false))
         } else {
             await store.send(.alert(.dismiss))
         }
     }
 
     func networkStatusChanged(_ isConnected: Bool) async {
-        await store.send(.store(.networkStatusChanged(isConnected)))
+        await store.send(.networkStatusChanged(isConnected))
     }
 
     func setTheme(_ theme: SystemTheme) async {
-        await store.send(.store(.setTheme(theme)))
+        await store.send(.setTheme(theme))
     }
 
     func didLogined(_ signIn: Bool) async {
-        await store.send(.store(.didLogined(signIn)))
+        await store.send(.didLogined(signIn))
     }
 
     func presentTodoDetail(_ todoId: String) async {
-        await store.send(.view(.presentTodoDetail(todoId)))
+        await store.send(.presentTodoDetail(todoId))
     }
 
     func dismissSheet() async {
@@ -116,7 +116,7 @@ struct RootStoreTestAdapter: RootStateDriving {
     }
 
     func openWidgetRoute(_ tab: MainTab) async {
-        await store.send(.view(.openWidgetRoute(tab)))
+        await store.send(.openWidgetRoute(tab))
     }
 
     private func drainReceivedActions() async {

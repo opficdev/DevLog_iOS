@@ -42,23 +42,15 @@ struct RootFeature {
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case sheet(PresentationAction<Sheet>)
-        case view(ViewAction)
-        case store(StoreAction)
-
-        enum ViewAction: Equatable {
-            case onAppear
-            case presentTodoDetail(String)
-            case openWidgetRoute(MainTab)
-        }
+        case onAppear
+        case presentTodoDetail(String)
+        case openWidgetRoute(MainTab)
+        case networkStatusChanged(Bool)
+        case setTheme(SystemTheme)
+        case didLogined(Bool)
 
         enum Sheet: Equatable {
             case tapCloseButton
-        }
-
-        enum StoreAction: Equatable {
-            case networkStatusChanged(Bool)
-            case setTheme(SystemTheme)
-            case didLogined(Bool)
         }
     }
 
@@ -80,7 +72,7 @@ struct RootFeature {
                 state.sheet = nil
             case .sheet:
                 break
-            case .view(.onAppear):
+            case .onAppear:
                 var effect = clearApplicationBadgeCountEffect()
 
                 if !state.isObservingNetworkConnectivity {
@@ -99,20 +91,20 @@ struct RootFeature {
                 }
 
                 return effect
-            case .view(.presentTodoDetail(let todoId)):
+            case .presentTodoDetail(let todoId):
                 state.sheet = .init(todoId: todoId)
-            case .view(.openWidgetRoute(let mainTab)):
+            case .openWidgetRoute(let mainTab):
                 guard state.signIn == true else { break }
                 state.selectedMainTab = mainTab
-            case .store(.networkStatusChanged(let isConnected)):
+            case .networkStatusChanged(let isConnected):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
                 if wasConnected && !isConnected {
                     state.alert = Self.alertState()
                 }
-            case .store(.setTheme(let theme)):
+            case .setTheme(let theme):
                 state.theme = theme
-            case .store(.didLogined(let result)):
+            case .didLogined(let result):
                 state.signIn = result
                 if result {
                     state.selectedMainTab = .home
@@ -166,7 +158,7 @@ private extension RootFeature {
     func observeNetworkConnectivityEffect() -> Effect<Action> {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
-                .map { Action.store(.networkStatusChanged($0)) }
+                .map(Action.networkStatusChanged)
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
     }
@@ -175,7 +167,7 @@ private extension RootFeature {
         .publisher { [observeAuthSessionUseCase] in
             observeAuthSessionUseCase.observe()
                 .removeDuplicates()
-                .map { Action.store(.didLogined($0)) }
+                .map(Action.didLogined)
         }
         .cancellable(id: CancelID.session, cancelInFlight: true)
     }
@@ -184,7 +176,7 @@ private extension RootFeature {
         .publisher { [systemThemeUseCase] in
             systemThemeUseCase.observe()
                 .removeDuplicates()
-                .map { Action.store(.setTheme($0)) }
+                .map(Action.setTheme)
         }
         .cancellable(id: CancelID.theme, cancelInFlight: true)
     }

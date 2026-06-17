@@ -59,10 +59,10 @@ public struct RootView: View {
             }
         }
         .preferredColorScheme(store.theme.colorScheme)
-        .onAppear { store.send(.view(.onAppear)) }
+        .onAppear { store.send(.onAppear) }
         .onOpenURL { url in
             guard let mainTab = widgetURLTab(url) else { return }
-            store.send(.view(.openWidgetRoute(mainTab)))
+            store.send(.openWidgetRoute(mainTab))
         }
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
@@ -85,7 +85,7 @@ public struct RootView: View {
             .presentationDragIndicator(.visible)
         }
         .onReceive(pushNotificationTodoIdPublisher) { todoId in
-            store.send(.view(.presentTodoDetail(todoId)))
+            store.send(.presentTodoDetail(todoId))
             clearPushNotificationRoute()
         }
     }
