@@ -39,7 +39,7 @@ struct TodayView: View {
         .navigationTitle(String(localized: "nav_today"))
         .toolbar { toolbarContent }
         .background(NavigationBarConfigurator())
-        .refreshable { store.send(.refresh) }
+        .refreshable { await store.send(.refresh).finish() }
         .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
             if store.isLoading {

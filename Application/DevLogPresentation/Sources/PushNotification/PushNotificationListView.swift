@@ -38,7 +38,7 @@ struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { store.send(.view(.fetchNotifications)) }
+                .refreshable { await store.send(.view(.refresh)).finish() }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }

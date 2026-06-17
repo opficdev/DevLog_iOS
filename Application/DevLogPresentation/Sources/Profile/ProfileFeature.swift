@@ -108,10 +108,11 @@ struct ProfileFeature {
                 if !settings.isEmpty {
                     state.selectedActivityKinds = settings
                 }
+                let showsIndicator = if case .fetchData = action { true } else { false }
                 if let selectedQuarterStart = state.selectedQuarterStart {
                     return .merge(
                         fetchUserDataEffect(),
-                        fetchActivityQuarterEffect(selectedQuarterStart)
+                        fetchActivityQuarterEffect(selectedQuarterStart, showsIndicator: showsIndicator)
                     )
                 }
                 return fetchUserDataEffect()
@@ -220,9 +221,14 @@ private extension ProfileFeature {
         }
     }
 
-    func fetchActivityQuarterEffect(_ quarterStart: Date) -> Effect<Action> {
+    func fetchActivityQuarterEffect(
+        _ quarterStart: Date,
+        showsIndicator: Bool = true
+    ) -> Effect<Action> {
         .run { [fetchTodosUseCase] send in
-            await send(.loading(.begin(target: .default, mode: .delayed)))
+            if showsIndicator {
+                await send(.loading(.begin(target: .default, mode: .delayed)))
+            }
             do {
                 let data = try await ProfileHeatmapBuilder.fetchQuarterActivityData(
                     from: quarterStart,
@@ -237,9 +243,13 @@ private extension ProfileFeature {
                         )
                     )
                 )
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
             } catch {
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                if showsIndicator {
+                    await send(.loading(.end(target: .default, mode: .delayed)))
+                }
                 await send(.setAlert(true))
             }
         }

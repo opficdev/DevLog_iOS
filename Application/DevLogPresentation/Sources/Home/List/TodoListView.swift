@@ -171,7 +171,7 @@ struct TodoListView: View {
                 }
                 .offset(y: headerOffset)
             }
-            .refreshable { store.send(.view(.refresh)) }
+            .refreshable { await store.send(.view(.refresh)).finish() }
             .scrollDisabled(visibleTodos.isEmpty || store.state.isLoading)
 
             if store.state.isLoading {

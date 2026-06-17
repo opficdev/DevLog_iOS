@@ -201,10 +201,11 @@ private extension TodoListFeature {
     func fetchEffect(
         query: TodoQuery,
         cursor: TodoCursor?,
-        resetsPagination: Bool = true
+        resetsPagination: Bool = true,
+        showsIndicator: Bool = true
     ) -> Effect<Action> {
         .concatenate(
-            .send(.loading(.begin(target: .default, mode: .delayed))),
+            showsIndicator ? .send(.loading(.begin(target: .default, mode: .delayed))) : .none,
             .run { [fetchTodosUseCase] send in
                 do {
                     let page = try await fetchTodosUseCase.execute(query, cursor: cursor)
@@ -216,12 +217,16 @@ private extension TodoListFeature {
                         nextCursor: page.nextCursor
                     )))
                     await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
-                    await send(.loading(.end(target: .default, mode: .delayed)))
+                    if showsIndicator {
+                        await send(.loading(.end(target: .default, mode: .delayed)))
+                    }
                 } catch is CancellationError {
                     return
                 } catch {
                     await send(.store(.setAlert(true)))
-                    await send(.loading(.end(target: .default, mode: .delayed)))
+                    if showsIndicator {
+                        await send(.loading(.end(target: .default, mode: .delayed)))
+                    }
                 }
             }
         )
@@ -277,7 +282,9 @@ private extension TodoListFeature {
         state: inout State
     ) -> Effect<Action> {
         switch action {
-        case .refresh, .onAppear:
+        case .refresh:
+            return fetchEffect(query: state.query, cursor: nil, showsIndicator: false)
+        case .onAppear:
             return fetchEffect(query: state.query, cursor: nil)
         case .swipeTodo(let todo):
             return swipeTodoEffect(todo, state: &state)
