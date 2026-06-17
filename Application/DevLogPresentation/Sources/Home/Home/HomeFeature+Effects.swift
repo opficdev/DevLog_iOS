@@ -20,7 +20,6 @@ extension HomeFeature {
     func observeNetworkConnectivityEffect() -> Effect<Action> {
         .publisher { [networkConnectivityUseCase] in
             networkConnectivityUseCase.observe()
-                .receive(on: DispatchQueue.main)
                 .map { .store(.networkStatusChanged($0)) }
         }
         .cancellable(id: CancelID.networkConnectivity, cancelInFlight: true)
