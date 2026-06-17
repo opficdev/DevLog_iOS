@@ -153,7 +153,12 @@ private extension PushNotificationListFeature {
         switch action {
         case .refresh:
             state.nextCursor = nil
-            return fetchNotificationsPageEffect(query: state.query, cursor: nil, showsIndicator: false)
+            return fetchNotificationsEffect(
+                query: state.query,
+                cursor: nil,
+                existingCount: 0,
+                showsIndicator: false
+            )
         case .fetchNotifications:
             state.nextCursor = nil
             return fetchNotificationsEffect(query: state.query, cursor: nil, existingCount: 0)
@@ -270,10 +275,11 @@ private extension PushNotificationListFeature {
     func fetchNotificationsEffect(
         query: PushNotificationQuery,
         cursor: PushNotificationCursor?,
-        existingCount: Int
+        existingCount: Int,
+        showsIndicator: Bool = true
     ) -> Effect<Action> {
         let limit = max(query.pageSize, existingCount)
-        let fetchEffect = fetchNotificationsPageEffect(query: query, cursor: cursor)
+        let fetchEffect = fetchNotificationsPageEffect(query: query, cursor: cursor, showsIndicator: showsIndicator)
         let observeEffect = observeNotificationsEffect(
             query: query,
             limit: max(limit, existingCount + query.pageSize)
