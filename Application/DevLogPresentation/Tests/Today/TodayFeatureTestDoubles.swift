@@ -55,71 +55,6 @@ protocol TodayStateDriving {
 }
 
 @MainActor
-struct TodayViewModelTestAdapter: TodayStateDriving {
-    private let viewModel: TodayViewModel
-
-    var todos: [TodayTodoItem] { viewModel.state.todos }
-    var selectedSectionScope: TodayTestSectionScope { viewModel.state.selectedSectionScope.testValue }
-    var displayOptions: TodayDisplayOptions { viewModel.state.displayOptions }
-    var showAlert: Bool { viewModel.state.showAlert }
-    var isLoading: Bool { viewModel.state.isLoading }
-    var displayedSections: [TodayDisplayedSection] { viewModel.sections.map(\.testValue) }
-    var summaryCounts: [TodayTestSectionScope: Int] {
-        Dictionary(
-            uniqueKeysWithValues: TodayTestSectionScope.allCases.map { scope in
-                (scope, viewModel.summaryValue(for: scope.viewModelValue))
-            }
-        )
-    }
-
-    init(
-        fetchUseCase: FetchTodosUseCase = TodayFetchTodosUseCaseSpy(),
-        fetchTodoByIdUseCase: FetchTodoByIdUseCase = TodayFetchTodoByIdUseCaseSpy(),
-        upsertUseCase: UpsertTodoUseCase = TodayUpsertTodoUseCaseSpy(),
-        fetchDisplayOptionsUseCase: FetchTodayDisplayOptionsUseCase = TodayFetchDisplayOptionsUseCaseSpy(),
-        updateDisplayOptionsUseCase: UpdateTodayDisplayOptionsUseCase = TodayUpdateDisplayOptionsUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TodayTrackAnalyticsEventUseCaseSpy()
-    ) {
-        viewModel = TodayViewModel(
-            fetchTodosUseCase: fetchUseCase,
-            fetchTodoByIdUseCase: fetchTodoByIdUseCase,
-            upsertTodoUseCase: upsertUseCase,
-            fetchTodayDisplayOptionsUseCase: fetchDisplayOptionsUseCase,
-            updateTodayDisplayOptionsUseCase: updateDisplayOptionsUseCase,
-            trackAnalyticsEventUseCase: trackAnalyticsEventUseCase
-        )
-    }
-
-    func fetchData() async {
-        viewModel.send(.fetchData)
-    }
-
-    func setSectionScope(_ scope: TodayTestSectionScope) async {
-        viewModel.send(.setSectionScope(scope.viewModelValue))
-    }
-
-    func setDueDateVisibility(_ visibility: TodayDisplayOptions.DueDateVisibility) async {
-        viewModel.send(.setDueDateVisibility(visibility))
-    }
-
-    func setFocusVisibility(_ visibility: TodayDisplayOptions.FocusVisibility) async {
-        viewModel.send(.setFocusVisibility(visibility))
-    }
-
-    func resetDisplayOptions() async {
-        viewModel.send(.resetDisplayOptions)
-    }
-
-    func completeTodo(_ item: TodayTodoItem) async {
-        viewModel.send(.completeTodo(item))
-    }
-
-    func togglePinned(_ item: TodayTodoItem) async {
-        viewModel.send(.togglePinned(item))
-    }
-}
-
-@MainActor
 struct TodayStoreTestAdapter: TodayStateDriving {
     private let store: TestStoreOf<TodayFeature>
 
@@ -205,35 +140,7 @@ struct TodayStoreTestAdapter: TodayStateDriving {
     }
 }
 
-private extension TodayViewModel.SectionScope {
-    var testValue: TodayTestSectionScope {
-        switch self {
-        case .all:
-            return .all
-        case .focused:
-            return .focused
-        case .overdue:
-            return .overdue
-        case .dueSoon:
-            return .dueSoon
-        }
-    }
-}
-
 private extension TodayTestSectionScope {
-    var viewModelValue: TodayViewModel.SectionScope {
-        switch self {
-        case .all:
-            return .all
-        case .focused:
-            return .focused
-        case .overdue:
-            return .overdue
-        case .dueSoon:
-            return .dueSoon
-        }
-    }
-
     var featureValue: TodayFeature.SectionScope {
         switch self {
         case .all:
@@ -263,23 +170,6 @@ private extension TodayFeature.SectionScope {
     }
 }
 
-private extension TodayViewModel.SectionCategory {
-    var testValue: TodayTestSectionCategory {
-        switch self {
-        case .later:
-            return .later
-        case .unscheduled:
-            return .unscheduled
-        case .focused:
-            return .focused
-        case .overdue:
-            return .overdue
-        case .dueSoon:
-            return .dueSoon
-        }
-    }
-}
-
 private extension TodayFeature.SectionCategory {
     var testValue: TodayTestSectionCategory {
         switch self {
@@ -294,15 +184,6 @@ private extension TodayFeature.SectionCategory {
         case .dueSoon:
             return .dueSoon
         }
-    }
-}
-
-private extension TodayViewModel.SectionContent {
-    var testValue: TodayDisplayedSection {
-        TodayDisplayedSection(
-            category: category.testValue,
-            itemIds: items.map(\.id)
-        )
     }
 }
 
