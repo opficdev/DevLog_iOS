@@ -183,7 +183,7 @@ private extension RootFeature {
 
     func trackLoginScreenEffect() -> Effect<Action> {
         .run { [trackAnalyticsEventUseCase] _ in
-            trackAnalyticsEventUseCase?.execute(.screenView("login"))
+            trackAnalyticsEventUseCase.execute(.screenView("login"))
         }
     }
 

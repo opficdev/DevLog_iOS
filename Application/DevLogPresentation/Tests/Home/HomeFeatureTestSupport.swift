@@ -55,7 +55,7 @@ struct HomeStoreTestAdapter {
         fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
         fetchWebPagesUseCase: FetchWebPagesUseCase = FetchWebPagesUseCaseSpy(webPages: []),
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase? = HomeTrackAnalyticsEventUseCaseSpy(),
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = HomeTrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
         let clock = TestClock()

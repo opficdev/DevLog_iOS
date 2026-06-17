@@ -73,7 +73,7 @@ extension HomeFeature {
             await send(.loading(.begin(target: LoadingTarget.overlay.target, mode: .delayed)))
             do {
                 try await addWebPageUseCase.execute(urlString)
-                trackAnalyticsEventUseCase?.execute(.webPageCreate)
+                trackAnalyticsEventUseCase.execute(.webPageCreate)
                 let pages = try await fetchWebPagesUseCase.execute("")
                 await send(.store(.updateWebPages(pages.map(WebPageItem.init(from:)))))
             } catch {
