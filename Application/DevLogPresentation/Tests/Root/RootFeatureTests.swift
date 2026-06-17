@@ -90,4 +90,11 @@ struct RootFeatureTests {
 
         #expect(badgeSpy.counts == [0, 0])
     }
+
+    @Test("RootFeature는 TodoDetail sheet 표시와 해제를 store state로 관리한다")
+    func RootFeature는_TodoDetail_sheet_표시와_해제를_store_state로_관리한다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await verifyTodoDetailSheetPresentation(adapter: adapter)
+    }
 }

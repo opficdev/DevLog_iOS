@@ -15,12 +15,15 @@ import Testing
 @MainActor
 protocol RootStateDriving {
     var snapshot: RootStateSnapshot { get }
+    var sheetTodoId: String? { get }
 
     func onAppear() async
     func setAlert(_ isPresented: Bool) async
     func networkStatusChanged(_ isConnected: Bool) async
     func setTheme(_ theme: SystemTheme) async
     func didLogined(_ signIn: Bool) async
+    func presentTodoDetail(_ todoId: String) async
+    func dismissSheet() async
 }
 
 struct RootStateSnapshot: Equatable {
@@ -44,6 +47,7 @@ struct RootStoreTestAdapter: RootStateDriving {
             theme: store.state.theme
         )
     }
+    var sheetTodoId: String? { store.state.sheet?.todoId }
 
     init(
         sessionUseCase: ObserveAuthSessionUseCase = ObserveAuthSessionUseCaseSpy(currentValue: true),
@@ -93,6 +97,14 @@ struct RootStoreTestAdapter: RootStateDriving {
 
     func didLogined(_ signIn: Bool) async {
         await store.send(.store(.didLogined(signIn)))
+    }
+
+    func presentTodoDetail(_ todoId: String) async {
+        await store.send(.view(.presentTodoDetail(todoId)))
+    }
+
+    func dismissSheet() async {
+        await store.send(.sheet(.dismiss))
     }
 
     private func drainReceivedActions() async {
@@ -189,6 +201,15 @@ func verifyObservedInitialValues(adapter: some RootStateDriving) async {
                 theme: .dark
             )
     )
+}
+
+@MainActor
+func verifyTodoDetailSheetPresentation(adapter: some RootStateDriving) async {
+    await adapter.presentTodoDetail("todo-1")
+    #expect(adapter.sheetTodoId == "todo-1")
+
+    await adapter.dismissSheet()
+    #expect(adapter.sheetTodoId == nil)
 }
 
 final class ObserveAuthSessionUseCaseSpy: ObserveAuthSessionUseCase {

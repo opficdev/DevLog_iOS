@@ -14,7 +14,6 @@ import DevLogDomain
 public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State private var store: StoreOf<RootFeature>
-    @State private var selectedRoute: Route?
     @State private var selectedMainTab = MainTab.home
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
@@ -80,42 +79,28 @@ public struct RootView: View {
             }
         }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $selectedRoute) { route in
-            switch route {
-            case .todoDetail(let todoId):
-                NavigationStack {
-                    TodoDetailView(store: Store(
-                        initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: false)
-                    ) {
-                        TodoDetailFeature()
-                    } withDependencies: {
-                        $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
-                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    })
-                    .toolbar {
-                        ToolbarLeadingButton {
-                            selectedRoute = nil
-                        }
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
+            NavigationStack {
+                TodoDetailView(store: Store(
+                    initialState: TodoDetailFeature.State(todoId: sheetStore.todoId, showEditButton: false)
+                ) {
+                    TodoDetailFeature()
+                } withDependencies: {
+                    $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                })
+                .toolbar {
+                    ToolbarLeadingButton {
+                        sheetStore.send(.tapCloseButton)
                     }
                 }
-                .background(Color(.systemGroupedBackground))
-                .presentationDragIndicator(.visible)
             }
+            .background(Color(.systemGroupedBackground))
+            .presentationDragIndicator(.visible)
         }
         .onReceive(pushNotificationTodoIdPublisher) { todoId in
-            selectedRoute = .todoDetail(todoId)
+            store.send(.view(.presentTodoDetail(todoId)))
             clearPushNotificationRoute()
-        }
-    }
-}
-
-private enum Route: Equatable, Identifiable {
-    case todoDetail(String)
-
-    var id: String {
-        switch self {
-        case .todoDetail(let todoId):
-            return "todo:\(todoId)"
         }
     }
 }

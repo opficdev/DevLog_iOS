@@ -22,6 +22,7 @@ struct RootFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
+        @Presents var sheet: SheetState?
         var isNetworkConnected = true
         var signIn: Bool?
         var theme: SystemTheme = .automatic
@@ -30,13 +31,25 @@ struct RootFeature {
         var isObservingTheme = false
     }
 
+    @ObservableState
+    struct SheetState: Equatable, Identifiable {
+        let todoId: String
+        var id: String { todoId }
+    }
+
     enum Action: Equatable {
         case alert(PresentationAction<Never>)
+        case sheet(PresentationAction<Sheet>)
         case view(ViewAction)
         case store(StoreAction)
 
         enum ViewAction: Equatable {
             case onAppear
+            case presentTodoDetail(String)
+        }
+
+        enum Sheet: Equatable {
+            case tapCloseButton
         }
 
         enum StoreAction: Equatable {
@@ -57,6 +70,10 @@ struct RootFeature {
             switch action {
             case .alert:
                 break
+            case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
+                state.sheet = nil
+            case .sheet:
+                break
             case .view(.onAppear):
                 var effect = clearApplicationBadgeCountEffect()
 
@@ -76,6 +93,8 @@ struct RootFeature {
                 }
 
                 return effect
+            case .view(.presentTodoDetail(let todoId)):
+                state.sheet = .init(todoId: todoId)
             case .store(.networkStatusChanged(let isConnected)):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
@@ -94,6 +113,18 @@ struct RootFeature {
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$sheet, action: \.sheet) {
+            RootSheetFeature()
+        }
+    }
+}
+
+private struct RootSheetFeature: Reducer {
+    typealias State = RootFeature.SheetState
+    typealias Action = RootFeature.Action.Sheet
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
     }
 }
 
