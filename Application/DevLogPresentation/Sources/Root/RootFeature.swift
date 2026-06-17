@@ -21,9 +21,7 @@ struct RootFeature {
 
     @ObservableState
     struct State: Equatable {
-        var showAlert = false
-        var alertTitle = ""
-        var alertMessage = ""
+        @Presents var alert: AlertState<Never>?
         var isNetworkConnected = true
         var signIn: Bool?
         var theme: SystemTheme = .automatic
@@ -33,12 +31,12 @@ struct RootFeature {
     }
 
     enum Action: Equatable {
+        case alert(PresentationAction<Never>)
         case view(ViewAction)
         case store(StoreAction)
 
         enum ViewAction: Equatable {
             case onAppear
-            case setAlert(Bool)
         }
 
         enum StoreAction: Equatable {
@@ -57,6 +55,8 @@ struct RootFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .alert:
+                break
             case .view(.onAppear):
                 var effect = clearApplicationBadgeCountEffect()
 
@@ -76,13 +76,11 @@ struct RootFeature {
                 }
 
                 return effect
-            case .view(.setAlert(let isPresented)):
-                Self.setAlert(&state, isPresented: isPresented)
             case .store(.networkStatusChanged(let isConnected)):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
                 if wasConnected && !isConnected {
-                    Self.setAlert(&state, isPresented: true)
+                    state.alert = Self.alertState()
                 }
             case .store(.setTheme(let theme)):
                 state.theme = theme
@@ -95,6 +93,7 @@ struct RootFeature {
 
             return .none
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
@@ -154,9 +153,15 @@ private extension RootFeature {
         }
     }
 
-    static func setAlert(_ state: inout State, isPresented: Bool) {
-        state.alertTitle = String(localized: "root_network_disconnected_title")
-        state.alertMessage = String(localized: "root_network_disconnected_message")
-        state.showAlert = isPresented
+    static func alertState() -> AlertState<Never> {
+        AlertState {
+            TextState(String(localized: "root_network_disconnected_title"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_close"))
+            }
+        } message: {
+            TextState(String(localized: "root_network_disconnected_message"))
+        }
     }
 }

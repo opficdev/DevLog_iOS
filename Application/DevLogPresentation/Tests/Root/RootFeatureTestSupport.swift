@@ -24,9 +24,8 @@ protocol RootStateDriving {
 }
 
 struct RootStateSnapshot: Equatable {
-    let showAlert: Bool
-    let alertTitle: String
-    let alertMessage: String
+    let alertTitle: String?
+    let alertMessage: String?
     let isNetworkConnected: Bool
     let signIn: Bool?
     let theme: SystemTheme
@@ -38,9 +37,8 @@ struct RootStoreTestAdapter: RootStateDriving {
 
     var snapshot: RootStateSnapshot {
         RootStateSnapshot(
-            showAlert: store.state.showAlert,
-            alertTitle: store.state.alertTitle,
-            alertMessage: store.state.alertMessage,
+            alertTitle: store.state.alert.map { String(state: $0.title) },
+            alertMessage: store.state.alert?.message.map { String(state: $0) },
             isNetworkConnected: store.state.isNetworkConnected,
             signIn: store.state.signIn,
             theme: store.state.theme
@@ -78,7 +76,11 @@ struct RootStoreTestAdapter: RootStateDriving {
     }
 
     func setAlert(_ isPresented: Bool) async {
-        await store.send(.view(.setAlert(isPresented)))
+        if isPresented {
+            await store.send(.store(.networkStatusChanged(false)))
+        } else {
+            await store.send(.alert(.dismiss))
+        }
     }
 
     func networkStatusChanged(_ isConnected: Bool) async {
@@ -107,7 +109,6 @@ func verifyNetworkDisconnectedAlert(adapter: some RootStateDriving) async {
     #expect(
         adapter.snapshot
             == RootStateSnapshot(
-                showAlert: true,
                 alertTitle: String(localized: "root_network_disconnected_title"),
                 alertMessage: String(localized: "root_network_disconnected_message"),
                 isNetworkConnected: false,
@@ -125,9 +126,8 @@ func verifySetAlert(adapter: some RootStateDriving) async {
     #expect(
         adapter.snapshot
             == RootStateSnapshot(
-                showAlert: false,
-                alertTitle: String(localized: "root_network_disconnected_title"),
-                alertMessage: String(localized: "root_network_disconnected_message"),
+                alertTitle: nil,
+                alertMessage: nil,
                 isNetworkConnected: false,
                 signIn: nil,
                 theme: .automatic
@@ -140,7 +140,7 @@ func verifyThemeUpdate(adapter: some RootStateDriving) async {
     await adapter.setTheme(.dark)
 
     #expect(adapter.snapshot.theme == .dark)
-    #expect(!adapter.snapshot.showAlert)
+    #expect(adapter.snapshot.alertTitle == nil)
 }
 
 @MainActor
@@ -176,13 +176,12 @@ func verifyObservedInitialValues(adapter: some RootStateDriving) async {
         return snapshot.signIn == false
             && !snapshot.isNetworkConnected
             && snapshot.theme == .dark
-            && snapshot.showAlert
+            && snapshot.alertTitle == String(localized: "root_network_disconnected_title")
     }
 
     #expect(
         adapter.snapshot
             == RootStateSnapshot(
-                showAlert: true,
                 alertTitle: String(localized: "root_network_disconnected_title"),
                 alertMessage: String(localized: "root_network_disconnected_message"),
                 isNetworkConnected: false,

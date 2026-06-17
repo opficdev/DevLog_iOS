@@ -79,14 +79,7 @@ public struct RootView: View {
                 break
             }
         }
-        .alert(store.alertTitle, isPresented: Binding(
-            get: { store.showAlert },
-            set: { store.send(.view(.setAlert($0))) }
-        )) {
-            Button(String(localized: "common_close"), role: .cancel) { }
-        } message: {
-            Text(store.alertMessage)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $selectedRoute) { route in
             switch route {
             case .todoDetail(let todoId):
