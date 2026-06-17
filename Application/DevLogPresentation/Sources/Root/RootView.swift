@@ -14,7 +14,6 @@ import DevLogDomain
 public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer
     @State private var store: StoreOf<RootFeature>
-    @State private var selectedMainTab = MainTab.home
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -52,7 +51,7 @@ public struct RootView: View {
                     MainView(
                         container: container,
                         windowEvent: windowEvent,
-                        selectedTab: $selectedMainTab
+                        selectedTab: $store.selectedMainTab
                     )
                 } else {
                     LoginView(signInUseCase: container.resolve(SignInUseCase.self))
@@ -61,22 +60,9 @@ public struct RootView: View {
         }
         .preferredColorScheme(store.theme.colorScheme)
         .onAppear { store.send(.view(.onAppear)) }
-        .onChange(of: store.signIn) { _, value in
-            guard let value else { return }
-            if value {
-                selectedMainTab = .home
-            }
-        }
         .onOpenURL { url in
             guard let mainTab = widgetURLTab(url) else { return }
-            switch store.signIn {
-            case .some(false):
-                break
-            case .some(true):
-                selectedMainTab = mainTab
-            case .none:
-                break
-            }
+            store.send(.view(.openWidgetRoute(mainTab)))
         }
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in

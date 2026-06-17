@@ -24,6 +24,8 @@ protocol RootStateDriving {
     func didLogined(_ signIn: Bool) async
     func presentTodoDetail(_ todoId: String) async
     func dismissSheet() async
+    func selectMainTab(_ tab: MainTab) async
+    func openWidgetRoute(_ tab: MainTab) async
 }
 
 struct RootStateSnapshot: Equatable {
@@ -32,6 +34,7 @@ struct RootStateSnapshot: Equatable {
     let isNetworkConnected: Bool
     let signIn: Bool?
     let theme: SystemTheme
+    let selectedMainTab: MainTab
 }
 
 @MainActor
@@ -44,7 +47,8 @@ struct RootStoreTestAdapter: RootStateDriving {
             alertMessage: store.state.alert?.message.map { String(state: $0) },
             isNetworkConnected: store.state.isNetworkConnected,
             signIn: store.state.signIn,
-            theme: store.state.theme
+            theme: store.state.theme,
+            selectedMainTab: store.state.selectedMainTab
         )
     }
     var sheetTodoId: String? { store.state.sheet?.todoId }
@@ -107,6 +111,14 @@ struct RootStoreTestAdapter: RootStateDriving {
         await store.send(.sheet(.dismiss))
     }
 
+    func selectMainTab(_ tab: MainTab) async {
+        await store.send(.binding(.set(\.selectedMainTab, tab)))
+    }
+
+    func openWidgetRoute(_ tab: MainTab) async {
+        await store.send(.view(.openWidgetRoute(tab)))
+    }
+
     private func drainReceivedActions() async {
         for _ in 0..<8 {
             await store.skipReceivedActions(strict: false)
@@ -125,7 +137,8 @@ func verifyNetworkDisconnectedAlert(adapter: some RootStateDriving) async {
                 alertMessage: String(localized: "root_network_disconnected_message"),
                 isNetworkConnected: false,
                 signIn: nil,
-                theme: .automatic
+                theme: .automatic,
+                selectedMainTab: .home
             )
     )
 }
@@ -142,7 +155,8 @@ func verifySetAlert(adapter: some RootStateDriving) async {
                 alertMessage: nil,
                 isNetworkConnected: false,
                 signIn: nil,
-                theme: .automatic
+                theme: .automatic,
+                selectedMainTab: .home
             )
     )
 }
@@ -153,6 +167,7 @@ func verifyThemeUpdate(adapter: some RootStateDriving) async {
 
     #expect(adapter.snapshot.theme == .dark)
     #expect(adapter.snapshot.alertTitle == nil)
+    #expect(adapter.snapshot.selectedMainTab == .home)
 }
 
 @MainActor
@@ -166,6 +181,7 @@ func verifyDidLoginedFalse(
     }
 
     #expect(adapter.snapshot.signIn == false)
+    #expect(adapter.snapshot.selectedMainTab == .home)
     #expect(trackAnalyticsEventUseCaseSpy.screenNames == ["login"])
 }
 
@@ -174,9 +190,11 @@ func verifyDidLoginedTrue(
     adapter: some RootStateDriving,
     trackAnalyticsEventUseCaseSpy: RootTrackAnalyticsEventUseCaseSpy
 ) async {
+    await adapter.selectMainTab(.today)
     await adapter.didLogined(true)
 
     #expect(adapter.snapshot.signIn == true)
+    #expect(adapter.snapshot.selectedMainTab == .home)
     #expect(trackAnalyticsEventUseCaseSpy.screenNames.isEmpty)
 }
 
@@ -198,7 +216,8 @@ func verifyObservedInitialValues(adapter: some RootStateDriving) async {
                 alertMessage: String(localized: "root_network_disconnected_message"),
                 isNetworkConnected: false,
                 signIn: false,
-                theme: .dark
+                theme: .dark,
+                selectedMainTab: .home
             )
     )
 }
@@ -210,6 +229,16 @@ func verifyTodoDetailSheetPresentation(adapter: some RootStateDriving) async {
 
     await adapter.dismissSheet()
     #expect(adapter.sheetTodoId == nil)
+}
+
+@MainActor
+func verifyWidgetRouteOpensWhenSignedIn(adapter: some RootStateDriving) async {
+    await adapter.openWidgetRoute(.today)
+    #expect(adapter.snapshot.selectedMainTab == .home)
+
+    await adapter.didLogined(true)
+    await adapter.openWidgetRoute(.today)
+    #expect(adapter.snapshot.selectedMainTab == .today)
 }
 
 final class ObserveAuthSessionUseCaseSpy: ObserveAuthSessionUseCase {

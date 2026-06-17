@@ -39,8 +39,8 @@ struct RootFeatureTests {
         await verifyDidLoginedFalse(adapter: adapter, trackAnalyticsEventUseCaseSpy: trackSpy)
     }
 
-    @Test("RootFeature didLogined(true)는 기존 Root 상태관리처럼 signIn 상태만 true로 갱신한다")
-    func RootFeature_didLogined_true는_기존_Root_상태관리처럼_signIn_상태만_true로_갱신한다() async {
+    @Test("RootFeature didLogined(true)는 기존 Root 상태관리처럼 signIn 상태를 true로 갱신하고 selectedMainTab을 home으로 되돌린다")
+    func RootFeature_didLogined_true는_기존_Root_상태관리처럼_signIn_상태를_true로_갱신하고_selectedMainTab을_home으로_되돌린다() async {
         let trackSpy = RootTrackAnalyticsEventUseCaseSpy()
         let adapter = RootStoreTestAdapter(trackAnalyticsEventUseCase: trackSpy)
 
@@ -96,5 +96,12 @@ struct RootFeatureTests {
         let adapter = RootStoreTestAdapter()
 
         await verifyTodoDetailSheetPresentation(adapter: adapter)
+    }
+
+    @Test("RootFeature는 로그인된 경우에만 widget route로 selectedMainTab을 변경한다")
+    func RootFeature는_로그인된_경우에만_widget_route로_selectedMainTab을_변경한다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await verifyWidgetRouteOpensWhenSignedIn(adapter: adapter)
     }
 }

@@ -26,6 +26,7 @@ struct RootFeature {
         var isNetworkConnected = true
         var signIn: Bool?
         var theme: SystemTheme = .automatic
+        var selectedMainTab = MainTab.home
         var isObservingNetworkConnectivity = false
         var isObservingSession = false
         var isObservingTheme = false
@@ -37,8 +38,9 @@ struct RootFeature {
         var id: String { todoId }
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
+        case binding(BindingAction<State>)
         case sheet(PresentationAction<Sheet>)
         case view(ViewAction)
         case store(StoreAction)
@@ -46,6 +48,7 @@ struct RootFeature {
         enum ViewAction: Equatable {
             case onAppear
             case presentTodoDetail(String)
+            case openWidgetRoute(MainTab)
         }
 
         enum Sheet: Equatable {
@@ -66,9 +69,12 @@ struct RootFeature {
     @Dependency(\.setApplicationBadgeCount) var setApplicationBadgeCount
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
+                break
+            case .binding:
                 break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
@@ -95,6 +101,9 @@ struct RootFeature {
                 return effect
             case .view(.presentTodoDetail(let todoId)):
                 state.sheet = .init(todoId: todoId)
+            case .view(.openWidgetRoute(let mainTab)):
+                guard state.signIn == true else { break }
+                state.selectedMainTab = mainTab
             case .store(.networkStatusChanged(let isConnected)):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
@@ -105,7 +114,9 @@ struct RootFeature {
                 state.theme = theme
             case .store(.didLogined(let result)):
                 state.signIn = result
-                if !result {
+                if result {
+                    state.selectedMainTab = .home
+                } else {
                     return trackLoginScreenEffect()
                 }
             }
