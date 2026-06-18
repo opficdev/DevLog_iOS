@@ -14,6 +14,7 @@ struct LoginFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
+        var activeSignInProvider: AuthProvider?
         var loading = LoadingFeature.State()
 
         var isLoading: Bool {
@@ -44,11 +45,15 @@ struct LoginFeature {
             case .alert:
                 break
             case .tapSignInButton(let provider):
+                guard !state.isLoading else { return .none }
+                state.activeSignInProvider = provider
                 return signInEffect(provider)
             case .signInFailed(let alertType):
                 state.alert = Self.alertState(for: alertType)
             case .loading:
-                break
+                if !state.isLoading {
+                    state.activeSignInProvider = nil
+                }
             }
             return .none
         }
