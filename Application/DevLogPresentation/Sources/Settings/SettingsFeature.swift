@@ -18,12 +18,19 @@ struct SettingsFeature {
         case systemTheme
     }
 
+    enum ActiveLoadingRow: Equatable {
+        case removeCache
+        case signOut
+        case deleteAuth
+    }
+
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
         var theme: SystemTheme = .automatic
         var dirSize: Int64 = 0
         var isNetworkConnected = true
+        var activeLoadingRow: ActiveLoadingRow?
         var loading = LoadingFeature.State()
         var alertType: Action.AlertType?
         var appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
@@ -78,14 +85,17 @@ struct SettingsFeature {
             case .alert(.presented(.tapDeleteAuthButton)):
                 state.alert = nil
                 state.alertType = nil
+                state.activeLoadingRow = .deleteAuth
                 return deleteAuthEffect()
             case .alert(.presented(.tapSignOutButton)):
                 state.alert = nil
                 state.alertType = nil
+                state.activeLoadingRow = .signOut
                 return signOutEffect()
             case .alert(.presented(.confirmRemoveCache)):
                 state.alert = nil
                 state.alertType = nil
+                state.activeLoadingRow = .removeCache
                 return clearWebPageImageDirectoryEffect()
             case .alert(.dismiss):
                 state.alert = nil
@@ -114,7 +124,9 @@ struct SettingsFeature {
                 state.alert = Self.alertState(for: .removeCache)
                 state.alertType = .removeCache
             case .loading:
-                break
+                if !state.isLoading {
+//                    state.activeLoadingRow = nil
+                }
             }
 
             return .none
@@ -263,11 +275,14 @@ private extension SettingsFeature {
 
     func clearWebPageImageDirectoryEffect() -> Effect<Action> {
         .run { [clearWebPageImageDirectoryUseCase, fetchWebPageImageDirSizeUseCase] send in
+            await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await clearWebPageImageDirectoryUseCase.execute()
                 let dirSize = await fetchWebPageImageDirSizeUseCase.execute()
                 await send(.setDirSize(dirSize))
+                await send(.loading(.end(target: .default, mode: .delayed)))
             } catch {
+                await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.setAlert(.error))
             }
         }
@@ -278,7 +293,7 @@ private extension SettingsFeature {
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await deleteAuthUseCase.execute()
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                // 유스케이스 완료가 LoginView 전환 완료를 의미하지 않으므로 화면이 교체될 때까지 로딩을 유지한다.
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.setAlert(.error))
@@ -291,7 +306,7 @@ private extension SettingsFeature {
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await signOutUseCase.execute()
-                await send(.loading(.end(target: .default, mode: .delayed)))
+                // 유스케이스 완료가 LoginView 전환 완료를 의미하지 않으므로 화면이 교체될 때까지 로딩을 유지한다.
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
                 await send(.setAlert(.error))

@@ -44,11 +44,16 @@ struct SettingsView: View {
                         Text(String(localized: "settings_clear_temp_data"))
                             .foregroundStyle(dirSize == 0 ? Color.secondary : .primary)
                         Spacer()
-                        Text(formatFileSize(bytes: dirSize))
-                            .foregroundStyle(Color.secondary.opacity(dirSize == 0 ? 0 : 1))
+                        if store.activeLoadingRow == .removeCache {
+                            ProgressView()
+                                .tint(.secondary)
+                        } else {
+                            Text(formatFileSize(bytes: dirSize))
+                                .foregroundStyle(Color.secondary.opacity(dirSize == 0 ? 0 : 1))
+                        }
                     }
                 }
-                .disabled(dirSize == 0)
+                .disabled(dirSize == 0 || store.isLoading)
             }
             
             Section {
@@ -88,34 +93,42 @@ struct SettingsView: View {
                     Text(String(localized: "settings_account"))
                 }
                 .disabled(!connected)
-                Button(role: .destructive, action: {
+                Button {
                     store.send(.setAlert(.signOut))
-                }) {
-                    Text(String(localized: "settings_sign_out"))
+                } label: {
+                    HStack {
+                        Text(String(localized: "settings_sign_out"))
+                            .foregroundStyle(.red)
+                        Spacer()
+                        if store.activeLoadingRow == .signOut {
+                            ProgressView()
+                        }
+                    }
                 }
-                .disabled(!connected)
+                .disabled(!connected || store.isLoading)
             }
             
             HStack {
                 Spacer()
-                Button(role: .destructive, action: {
+                Button {
                     store.send(.setAlert(.deleteAuth))
-                }) {
-                    Text(String(localized: "settings_delete_account"))
-                        .font(.headline)
+                } label: {
+                    if store.activeLoadingRow == .deleteAuth {
+                        ProgressView()
+                            .tint(.red)
+                    } else {
+                        Text(String(localized: "settings_delete_account"))
+                            .foregroundStyle(.red)
+                            .font(.headline)
+                    }
                 }
-                .disabled(!connected)
+                .disabled(!connected || store.isLoading)
                 Spacer()
             }
         }
         .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
         .alert($store.scope(state: \.alert, action: \.alert))
-        .overlay {
-            if store.isLoading {
-                LoadingView()
-            }
-        }
         .onAppear {
             store.send(.updateDirSize)
         }
