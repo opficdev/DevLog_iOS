@@ -134,7 +134,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 | Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network, CryptoKit, os.log |
 | External Packages | ComposableArchitecture, MarkdownUI, OrderedCollections, GoogleSignIn, Nexa |
 | Testing | swift-testing, TCA TestStore |
-| Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane, Firebase CLI |
+| Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
 
 ## 개발 환경 구성
 
@@ -155,8 +155,6 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 | Ruby | 3.4.7 |
 | Bundler | 2.7.2 |
 | Fastlane | 2.232.2 |
-| Node.js | 22 |
-| TypeScript | 4.9.5 |
 
 ### 1. 도구 설치
 
@@ -212,8 +210,6 @@ SwiftUI_DevLog/
 ├── Widget/
 │	├── DevLogWidgetCore/      # 위젯 스냅샷 모델, Factory, App Group 상수
 │	└── DevLogWidgetExtension/ # WidgetKit UI, Provider, Timeline
-├── Firebase/
-│	└── functions/            # 인증 보조, 푸시 발송, 정리 작업용 Cloud Functions
 ├── docs/                     # README 이미지와 draw.io 원본
 └── README.md
 ```

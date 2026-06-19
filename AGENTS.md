@@ -51,14 +51,13 @@ Treat this repository as a Tuist-generated, workspace-based modular iOS app. The
 - `Application/DevLogApp`: composition root, app lifecycle, app delegate, app-level routing, assembler wiring, and app target ownership for widget extension embedding. App may import concrete layers to assemble the dependency graph.
 - `Widget/DevLogWidgetCore`: widget snapshot models, factories, keys, app-group constants/defaults store, deep links, and widget-only pure helpers. WidgetCore may depend on Core. It must not depend on Domain, Data, Infra, Persistence, Presentation, App, or DevLogWidget without explicit user approval.
 - `Widget/DevLogWidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
-- `Firebase/functions`: TypeScript Cloud Functions. Deploy updated functions one by one separately.
 
 ### Layer-internal dependency injection
 
 - Do not inject dependencies between types that belong to the same layer.
 - This applies to initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
 - The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
-- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, WidgetExtension, or Firebase functions.
+- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, or WidgetExtension.
 
 ### StorePattern flow
 
@@ -107,7 +106,6 @@ These may proceed after inspection when they do not change architecture meaning:
 - If Xcode Local MCP is unavailable, state that explicitly before using a fallback.
 - Do not claim architecture work is complete without checking the diff scope.
 - Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
-- For Firebase Cloud Functions, deploy updated functions one by one separately.
 
 ## Canonical project rules
 
