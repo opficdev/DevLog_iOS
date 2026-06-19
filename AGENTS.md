@@ -106,6 +106,7 @@ These may proceed after inspection when they do not change architecture meaning:
 - If Xcode Local MCP is unavailable, state that explicitly before using a fallback.
 - Do not claim architecture work is complete without checking the diff scope.
 - Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
+
 ## Canonical project rules
 
 - DevLog-specific working rules belong in this repository, not in global agent memory.
