@@ -19,7 +19,6 @@ struct PushNotificationSettingsView: View {
                     Spacer()
                     if store.isLoading && store.activeLoadingRow == .enable {
                         ProgressView()
-                            .id(UUID())
                     } else {
                         Toggle("", isOn: $store.pushNotificationEnable)
                             .labelsHidden()
@@ -40,9 +39,9 @@ struct PushNotificationSettingsView: View {
                             if let loadingRow,
                                store.isLoading && store.activeLoadingRow == loadingRow {
                                 ProgressView()
-                                    .id(UUID())
-                            } else if store.pushNotificationHour == hour &&
-                                        store.pushNotificationMinute == 0 {
+                            } else if store.activeLoadingRow != loadingRow
+                                        && store.pushNotificationHour == hour
+                                        && store.pushNotificationMinute == 0 {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Color.blue)
                             }
@@ -56,11 +55,11 @@ struct PushNotificationSettingsView: View {
                     Spacer()
                     if store.isLoading && store.activeLoadingRow == .customTime {
                         ProgressView()
-                            .id(UUID())
                     } else {
                         Text(formattedTimeString(store.viewPushNotificationTime))
                             .foregroundStyle(.secondary)
-                        if store.pushNotificationMinute != 0 {
+                        if store.activeLoadingRow != .customTime &&
+                            store.pushNotificationMinute != 0 {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(Color.blue)
                         }
