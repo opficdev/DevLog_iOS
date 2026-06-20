@@ -28,24 +28,29 @@ struct AccountView: View {
                     HStack {
                         providerContent(provider)
                         Spacer()
-                        Button {
-                            if isConnected {
-                                store.send(.unlinkFromProvider(provider))
-                            } else {
-                                store.send(.linkWithProvider(provider))
-                            }
-                        } label: {
-                            Text(isConnected
-                                 ? String(localized: "account_disconnect")
-                                 : String(localized: "account_connect"))
+                        if store.isLoading && store.activeLoadingProvider == provider {
+                            ProgressView()
+                                .id(UUID())
+                        } else {
+                            Button {
+                                if isConnected {
+                                    store.send(.unlinkFromProvider(provider))
+                                } else {
+                                    store.send(.linkWithProvider(provider))
+                                }
+                            } label: {
+                                Text(isConnected
+                                     ? String(localized: "account_disconnect")
+                                     : String(localized: "account_connect"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
                                 .background(isConnected ? Color.red : .blue)
                                 .clipShape(.capsule)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -55,11 +60,6 @@ struct AccountView: View {
         .navigationTitle(String(localized: "nav_account"))
         .onAppear { store.send(.onAppear) }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .overlay {
-            if store.isLoading {
-                LoadingView()
-            }
-        }
     }
     
     private func formattedProviderName(_ provider: AuthProvider) -> String {
