@@ -25,31 +25,34 @@ struct AccountView: View {
                 let providers = AuthProvider.allCases.filter { $0 != store.currentProvider }
                 ForEach(providers, id: \.self) { provider in
                     let isConnected = store.connectedProviders.contains(provider)
+                    let showProgressView = store.isLoading && store.activeLoadingProvider == provider
                     HStack {
                         providerContent(provider)
                         Spacer()
-                        if store.isLoading && store.activeLoadingProvider == provider {
-                            ProgressView()
-                                .id(UUID())
-                        } else {
-                            Button {
-                                if isConnected {
-                                    store.send(.unlinkFromProvider(provider))
-                                } else {
-                                    store.send(.linkWithProvider(provider))
-                                }
-                            } label: {
-                                Text(isConnected
-                                     ? String(localized: "account_disconnect")
-                                     : String(localized: "account_connect"))
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(isConnected ? Color.red : .blue)
-                                .clipShape(.capsule)
+                        Button {
+                            if isConnected {
+                                store.send(.unlinkFromProvider(provider))
+                            } else {
+                                store.send(.linkWithProvider(provider))
                             }
-                            .buttonStyle(.plain)
+                        } label: {
+                            Text(isConnected
+                                 ? String(localized: "account_disconnect")
+                                 : String(localized: "account_connect"))
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(isConnected ? Color.red : .blue)
+                            .clipShape(.capsule)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(store.isLoading)
+                        .opacity(showProgressView ? 0 : 1)
+                        .overlay {
+                            if showProgressView {
+                                ProgressView()
+                            }
                         }
                     }
                 }
