@@ -123,10 +123,12 @@ struct SettingsFeature {
             case .tapRemoveCacheButton:
                 state.alert = Self.alertState(for: .removeCache)
                 state.alertType = .removeCache
-            case .loading:
+            case .loading(.end):
                 if !state.isLoading {
                     state.activeLoadingRow = nil
                 }
+            case .loading:
+                break
             }
 
             return .none

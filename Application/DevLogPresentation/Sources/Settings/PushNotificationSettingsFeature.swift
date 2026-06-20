@@ -91,7 +91,10 @@ struct PushNotificationSettingsFeature {
                 guard let time = state.timePicker?.time else { break }
                 state.viewPushNotificationTime = time
                 state.activeLoadingRow = .customTime
-                return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
+                return updatePushNotificationSettingsEffect(
+                    settings: Self.settings(from: state),
+                    dismissesTimePickerOnSuccess: true
+                )
             case .timePicker:
                 break
             case .fetchSettings:
@@ -195,13 +198,18 @@ private extension PushNotificationSettingsFeature {
         }
     }
 
-    func updatePushNotificationSettingsEffect(settings: PushNotificationSettings) -> Effect<Action> {
+    func updatePushNotificationSettingsEffect(
+        settings: PushNotificationSettings,
+        dismissesTimePickerOnSuccess: Bool = false
+    ) -> Effect<Action> {
         .run { [updatePushSettingsUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await updatePushSettingsUseCase.execute(settings)
                 await send(.loading(.end(target: .default, mode: .delayed)))
-                await send(.timePicker(.dismiss))
+                if dismissesTimePickerOnSuccess {
+                    await send(.timePicker(.dismiss))
+                }
                 await send(.clearActiveLoadingRow)
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
