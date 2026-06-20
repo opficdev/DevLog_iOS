@@ -125,7 +125,7 @@ struct SettingsFeature {
                 state.alertType = .removeCache
             case .loading:
                 if !state.isLoading {
-//                    state.activeLoadingRow = nil
+                    state.activeLoadingRow = nil
                 }
             }
 

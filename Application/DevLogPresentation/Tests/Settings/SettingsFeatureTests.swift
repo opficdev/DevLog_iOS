@@ -90,6 +90,7 @@ struct SettingsFeatureTests {
 
         #expect(!adapter.showAlert)
         #expect(adapter.dirSize == 0)
+        #expect(adapter.activeLoadingRow == nil)
     }
 
     @Test("캐시 삭제에 실패하면 공통 에러 알림을 표시한다")
@@ -104,6 +105,7 @@ struct SettingsFeatureTests {
         #expect(adapter.showAlert)
         #expect(adapter.alertTitle == String(localized: "common_error_title"))
         #expect(adapter.alertMessage == String(localized: "common_error_message"))
+        #expect(adapter.activeLoadingRow == nil)
     }
 
     @Test("로그아웃 성공 후에도 LoginView 전환 전까지 로딩 상태를 유지한다")
@@ -128,6 +130,18 @@ struct SettingsFeatureTests {
         #expect(adapter.activeLoadingRow == .signOut)
     }
 
+    @Test("로그아웃 실패 시 로딩 row 상태를 해제한다")
+    func 로그아웃_실패_시_로딩_row_상태를_해제한다() async {
+        let signOutSpy = SignOutUseCaseSpy()
+        signOutSpy.error = SettingsTestError.failure
+        let adapter = SettingsStoreTestAdapter(signOutUseCase: signOutSpy)
+
+        await adapter.tapSignOutButton()
+
+        #expect(adapter.showAlert)
+        #expect(adapter.activeLoadingRow == nil)
+    }
+
     @Test("회원 탈퇴 실패 시 공통 에러 알림을 표시한다")
     func 회원_탈퇴_실패_시_공통_에러_알림을_표시한다() async {
         let deleteSpy = DeleteAuthUseCaseSpy()
@@ -139,6 +153,7 @@ struct SettingsFeatureTests {
         #expect(deleteSpy.executeCallCount == 1)
         #expect(adapter.showAlert)
         #expect(adapter.alertTitle == String(localized: "common_error_title"))
+        #expect(adapter.activeLoadingRow == nil)
     }
 }
 
