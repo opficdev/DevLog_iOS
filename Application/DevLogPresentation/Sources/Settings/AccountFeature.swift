@@ -71,10 +71,12 @@ struct AccountFeature {
                 state.connectedProviders = allProviders.filter { $0 != currentProvider }
                 state.disconnectedProviders = AuthProvider.allCases
                     .filter { !allProviders.contains($0) }
-            case .loading:
+            case .loading(.end):
                 if !state.isLoading {
                     state.activeLoadingProvider = nil
                 }
+            case .loading:
+                break
             }
             return .none
         }
