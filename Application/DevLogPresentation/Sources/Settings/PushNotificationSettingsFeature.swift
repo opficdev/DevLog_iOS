@@ -12,12 +12,19 @@ import SwiftUI
 
 @Reducer
 struct PushNotificationSettingsFeature {
+    enum ActiveLoadingRow: Equatable {
+        case enable
+        case presetTime(hour: Int, minute: Int)
+        case customTime
+    }
+
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
         @Presents var timePicker: TimePickerState?
         var pushNotificationEnable = false
         var viewPushNotificationTime = Date()
+        var activeLoadingRow: ActiveLoadingRow?
         var loading = LoadingFeature.State()
 
         var isLoading: Bool {
@@ -46,6 +53,7 @@ struct PushNotificationSettingsFeature {
         case setAlert
         case tapCustomTime
         case selectPresetTime(Date)
+        case clearActiveLoadingRow
         case loading(LoadingFeature.Action)
 
         enum TimePicker: BindableAction, Equatable {
@@ -68,6 +76,7 @@ struct PushNotificationSettingsFeature {
             case .alert:
                 break
             case .binding(\.pushNotificationEnable):
+                state.activeLoadingRow = .enable
                 return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
             case .binding(\.viewPushNotificationTime):
                 let time = state.viewPushNotificationTime
@@ -82,10 +91,12 @@ struct PushNotificationSettingsFeature {
                 guard let time = state.timePicker?.time else { break }
                 state.timePicker = nil
                 state.viewPushNotificationTime = time
+                state.activeLoadingRow = .customTime
                 return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
             case .timePicker:
                 break
             case .fetchSettings:
+                state.activeLoadingRow = .enable
                 return fetchPushNotificationSettingsEffect()
             case .applyFetchedSettings(let settings):
                 state.pushNotificationEnable = settings.isEnabled
@@ -101,7 +112,10 @@ struct PushNotificationSettingsFeature {
             case .selectPresetTime(let date):
                 state.viewPushNotificationTime = date
                 state.timePicker?.time = date
+                state.activeLoadingRow = Self.activeLoadingRow(for: date)
                 return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
+            case .clearActiveLoadingRow:
+                state.activeLoadingRow = nil
             case .loading:
                 break
             }
@@ -156,6 +170,15 @@ private enum UpdatePushSettingsUseCaseKey: DependencyKey {
     }
 }
 
+extension PushNotificationSettingsFeature {
+    static func activeLoadingRow(for date: Date) -> ActiveLoadingRow? {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        guard let hour = components.hour,
+              let minute = components.minute else { return nil }
+        return .presetTime(hour: hour, minute: minute)
+    }
+}
+
 private extension PushNotificationSettingsFeature {
     func fetchPushNotificationSettingsEffect() -> Effect<Action> {
         .run { [fetchPushSettingsUseCase] send in
@@ -164,8 +187,10 @@ private extension PushNotificationSettingsFeature {
                 let settings = try await fetchPushSettingsUseCase.execute()
                 await send(.applyFetchedSettings(settings))
                 await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.clearActiveLoadingRow)
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.clearActiveLoadingRow)
                 await send(.setAlert)
             }
         }
@@ -177,8 +202,10 @@ private extension PushNotificationSettingsFeature {
             do {
                 try await updatePushSettingsUseCase.execute(settings)
                 await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.clearActiveLoadingRow)
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.clearActiveLoadingRow)
                 await send(.setAlert)
                 await send(.fetchSettings)
             }

@@ -14,21 +14,35 @@ struct PushNotificationSettingsView: View {
     var body: some View {
         List {
             Section(content: {
-                Toggle(isOn: $store.pushNotificationEnable) {
+                HStack {
                     Text(String(localized: "push_settings_enable"))
+                    Spacer()
+                    if store.isLoading && store.activeLoadingRow == .enable {
+                        ProgressView()
+                            .id(UUID())
+                    } else {
+                        Toggle("", isOn: $store.pushNotificationEnable)
+                            .labelsHidden()
+                            .tint(.blue)
+                            .disabled(store.activeLoadingRow != nil)
+                    }
                 }
-                .tint(.blue)
             }, footer: {
                 Text(String(localized: "push_settings_footer"))
             })
             Section {
                 ForEach([9, 15, 18, 21], id: \.self) { hour in
                     if let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
+                        let loadingRow = PushNotificationSettingsFeature.activeLoadingRow(for: date)
                         HStack {
                             Text(formattedTimeString(date))
                             Spacer()
-                            if store.pushNotificationHour == hour &&
-                                store.pushNotificationMinute == 0 {
+                            if let loadingRow,
+                               store.isLoading && store.activeLoadingRow == loadingRow {
+                                ProgressView()
+                                    .id(UUID())
+                            } else if store.pushNotificationHour == hour &&
+                                        store.pushNotificationMinute == 0 {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Color.blue)
                             }
@@ -40,22 +54,26 @@ struct PushNotificationSettingsView: View {
                 HStack {
                     Text(String(localized: "push_settings_custom"))
                     Spacer()
-                    Text(formattedTimeString(store.viewPushNotificationTime))
-                        .foregroundStyle(.secondary)
-                    if store.pushNotificationMinute != 0 {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(Color.blue)
+                    if store.isLoading && store.activeLoadingRow == .customTime {
+                        ProgressView()
+                            .id(UUID())
+                    } else {
+                        Text(formattedTimeString(store.viewPushNotificationTime))
+                            .foregroundStyle(.secondary)
+                        if store.pushNotificationMinute != 0 {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(Color.blue)
+                        }
                     }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { store.send(.tapCustomTime) }
             }
-            .disabled(!store.pushNotificationEnable)
+            .disabled(!store.pushNotificationEnable || store.activeLoadingRow != nil)
             .opacity(store.pushNotificationEnable ? 1.0 : 0.2)
         }
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_push_settings"))
-        .overlay { if store.isLoading { LoadingView() } }
         .onAppear { store.send(.fetchSettings) }
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { store in

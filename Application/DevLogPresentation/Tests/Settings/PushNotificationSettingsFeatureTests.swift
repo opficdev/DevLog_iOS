@@ -5,6 +5,8 @@
 //  Created by opfic on 6/12/26.
 //
 
+// swiftlint:disable file_length
+
 import Testing
 import ComposableArchitecture
 import Foundation
@@ -143,12 +145,46 @@ struct PushNotificationSettingsFeatureTests {
         await adapter.receiveDelayedLoading()
 
         #expect(adapter.isLoading)
+        #expect(adapter.activeLoadingRow == .enable)
 
         fetchSpy.resume()
         await adapter.drainReceivedActions()
 
         #expect(!adapter.isLoading)
+        #expect(adapter.activeLoadingRow == nil)
         #expect(adapter.pushNotificationHour == 9)
+    }
+
+    @Test("프리셋 시간 업데이트가 지연되면 해당 시간 row에 로딩 상태를 표시한다")
+    func 프리셋_시간_업데이트가_지연되면_해당_시간_row에_로딩_상태를_표시한다() async {
+        let clock = TestClock()
+        let updateSpy = UpdatePushSettingsUseCaseSpy()
+        updateSpy.shouldSuspend = true
+        let adapter = PushNotificationSettingsStoreTestAdapter(
+            updateUseCase: updateSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+        let date = makeDate(hour: 15, minute: 0)
+
+        await adapter.selectPresetTime(date)
+
+        #expect(updateSpy.executeCallCount == 1)
+        #expect(adapter.activeLoadingRow == .presetTime(hour: 15, minute: 0))
+        #expect(!adapter.isLoading)
+
+        await clock.advance(by: .milliseconds(300))
+        await adapter.receiveDelayedLoading()
+
+        #expect(adapter.isLoading)
+        #expect(adapter.activeLoadingRow == .presetTime(hour: 15, minute: 0))
+
+        updateSpy.resume()
+        await adapter.drainReceivedActions()
+
+        #expect(!adapter.isLoading)
+        #expect(adapter.activeLoadingRow == nil)
     }
 
     @Test("푸시 설정 조회에 실패하면 공통 에러 알림을 표시한다")
@@ -193,6 +229,7 @@ private struct PushNotificationSettingsStoreTestAdapter {
     var sheetPushNotificationTime: Date { store.state.timePicker?.time ?? store.state.viewPushNotificationTime }
     var showTimePicker: Bool { store.state.timePicker != nil }
     var isLoading: Bool { store.state.isLoading }
+    var activeLoadingRow: PushNotificationSettingsFeature.ActiveLoadingRow? { store.state.activeLoadingRow }
     var sheetHeight: CGFloat { store.state.timePicker?.height ?? .pi }
     var alert: AlertState<Never>? { store.state.alert }
     var pushNotificationHour: Int { store.state.pushNotificationHour }
@@ -349,14 +386,39 @@ private final class FetchPushSettingsUseCaseSpy: FetchPushSettingsUseCase {
 
 private final class UpdatePushSettingsUseCaseSpy: UpdatePushSettingsUseCase {
     var error: Error?
+    var shouldSuspend = false
     private(set) var executeCallCount = 0
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var shouldResume = false
 
     func execute(_: PushNotificationSettings) async throws {
         executeCallCount += 1
+
+        if shouldSuspend {
+            await withCheckedContinuation { continuation in
+                if shouldResume {
+                    shouldResume = false
+                    continuation.resume()
+                } else {
+                    self.continuation = continuation
+                }
+            }
+        }
+
         if let error {
             self.error = nil
             throw error
         }
+    }
+
+    func resume() {
+        guard let continuation else {
+            shouldResume = true
+            return
+        }
+
+        self.continuation = nil
+        continuation.resume()
     }
 }
 
