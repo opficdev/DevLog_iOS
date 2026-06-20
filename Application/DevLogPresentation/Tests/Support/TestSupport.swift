@@ -155,10 +155,14 @@ final class UpdateTodoCategoryPreferencesUseCaseSpy: UpdateTodoCategoryPreferenc
 }
 
 final class AddWebPageUseCaseSpy: AddWebPageUseCase {
+    var error: Error?
     private(set) var calledUrlStrings: [String] = []
 
     func execute(_ urlString: String) async throws {
         calledUrlStrings.append(urlString)
+        if let error {
+            throw error
+        }
     }
 }
 

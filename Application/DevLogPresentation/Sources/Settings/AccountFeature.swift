@@ -17,6 +17,7 @@ struct AccountFeature {
         var currentProvider: AuthProvider?
         var connectedProviders: [AuthProvider] = []
         var disconnectedProviders: [AuthProvider] = []
+        var activeLoadingProvider: AuthProvider?
         var loading = LoadingFeature.State()
 
         var isLoading: Bool {
@@ -56,8 +57,12 @@ struct AccountFeature {
             case .onAppear:
                 return fetchProvidersEffect()
             case .linkWithProvider(let provider):
+                guard !state.isLoading else { return .none }
+                state.activeLoadingProvider = provider
                 return linkProviderEffect(provider)
             case .unlinkFromProvider(let provider):
+                guard !state.isLoading else { return .none }
+                state.activeLoadingProvider = provider
                 return unlinkProviderEffect(provider)
             case .setAlert(let type):
                 state.alert = Self.alertState(for: type)
@@ -66,6 +71,10 @@ struct AccountFeature {
                 state.connectedProviders = allProviders.filter { $0 != currentProvider }
                 state.disconnectedProviders = AuthProvider.allCases
                     .filter { !allProviders.contains($0) }
+            case .loading(.end):
+                if !state.isLoading {
+                    state.activeLoadingProvider = nil
+                }
             case .loading:
                 break
             }

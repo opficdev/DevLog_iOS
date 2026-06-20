@@ -38,11 +38,6 @@ struct HomeView: View {
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet), content: sheetContent)
         .fullScreenCover(item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover), content: coverContent)
-        .overlay {
-            if store.isAppending {
-                LoadingView()
-            }
-        }
     }
 
     private var todoSection: some View {
@@ -234,9 +229,18 @@ struct HomeView: View {
                     .navigationTitle(Text(String(localized: "home_webpage_input_title")))
                     .navigationBarTitleDisplayMode(.inline) //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
                     .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button(String(localized: "home_add")) {
-                                store.send(.view(.addWebPage))
+                        if store.isAppending {
+                            if #available(iOS 26.0, *) {
+                                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                            }
+                            ToolbarItem(placement: .topBarTrailing) {
+                                ProgressView()
+                            }
+                        } else {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button(String(localized: "home_add")) {
+                                    store.send(.view(.addWebPage))
+                                }
                             }
                         }
                     }

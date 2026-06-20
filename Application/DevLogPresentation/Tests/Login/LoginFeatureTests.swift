@@ -40,6 +40,7 @@ struct LoginFeatureTests {
         }
 
         #expect(driver.isLoading)
+        #expect(driver.activeSignInProvider == .google)
 
         spy.resume()
 
@@ -48,6 +49,7 @@ struct LoginFeatureTests {
         }
 
         #expect(driver.isLoading)
+        #expect(driver.activeSignInProvider == .google)
     }
 
     @Test("로그인 실패 후에도 로딩 상태가 꺼진다")
@@ -72,6 +74,7 @@ struct LoginFeatureTests {
         }
 
         #expect(!driver.isLoading)
+        #expect(driver.activeSignInProvider == nil)
     }
 
     @Test("이메일을 가져오지 못하면 이메일 없음 알림을 표시한다")
@@ -151,6 +154,10 @@ private struct LoginTestDriver {
 
     var isLoading: Bool {
         feature.state.isLoading
+    }
+
+    var activeSignInProvider: AuthProvider? {
+        feature.state.activeSignInProvider
     }
 
     var showAlert: Bool {

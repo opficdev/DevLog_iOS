@@ -25,6 +25,7 @@ struct AccountView: View {
                 let providers = AuthProvider.allCases.filter { $0 != store.currentProvider }
                 ForEach(providers, id: \.self) { provider in
                     let isConnected = store.connectedProviders.contains(provider)
+                    let showProgressView = store.isLoading && store.activeLoadingProvider == provider
                     HStack {
                         providerContent(provider)
                         Spacer()
@@ -38,14 +39,21 @@ struct AccountView: View {
                             Text(isConnected
                                  ? String(localized: "account_disconnect")
                                  : String(localized: "account_connect"))
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(isConnected ? Color.red : .blue)
-                                .clipShape(.capsule)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(isConnected ? Color.red : .blue)
+                            .clipShape(.capsule)
                         }
                         .buttonStyle(.plain)
+                        .disabled(store.isLoading)
+                        .opacity(showProgressView ? 0 : 1)
+                        .overlay {
+                            if showProgressView {
+                                ProgressView()
+                            }
+                        }
                     }
                 }
             }
@@ -55,11 +63,6 @@ struct AccountView: View {
         .navigationTitle(String(localized: "nav_account"))
         .onAppear { store.send(.onAppear) }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .overlay {
-            if store.isLoading {
-                LoadingView()
-            }
-        }
     }
     
     private func formattedProviderName(_ provider: AuthProvider) -> String {

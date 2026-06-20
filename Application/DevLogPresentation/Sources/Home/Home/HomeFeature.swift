@@ -253,7 +253,6 @@ private extension HomeFeature {
                 Self.setAlert(&state, isPresented: true, type: .invalidURL)
                 return .none
             }
-            state.sheet = nil
             Self.setAlert(&state, isPresented: false, type: nil)
             return addWebPageEffect(normalizedURL)
         case .deleteWebPage(let page):

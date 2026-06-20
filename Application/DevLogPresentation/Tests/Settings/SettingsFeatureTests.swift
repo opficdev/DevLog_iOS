@@ -90,6 +90,7 @@ struct SettingsFeatureTests {
 
         #expect(!adapter.showAlert)
         #expect(adapter.dirSize == 0)
+        #expect(adapter.activeLoadingRow == nil)
     }
 
     @Test("캐시 삭제에 실패하면 공통 에러 알림을 표시한다")
@@ -104,10 +105,11 @@ struct SettingsFeatureTests {
         #expect(adapter.showAlert)
         #expect(adapter.alertTitle == String(localized: "common_error_title"))
         #expect(adapter.alertMessage == String(localized: "common_error_message"))
+        #expect(adapter.activeLoadingRow == nil)
     }
 
-    @Test("로그아웃 작업이 지연되면 로딩 상태를 표시하고 완료되면 해제한다")
-    func 로그아웃_작업이_지연되면_로딩_상태를_표시하고_완료되면_해제한다() async {
+    @Test("로그아웃 성공 후에도 LoginView 전환 전까지 로딩 상태를 유지한다")
+    func 로그아웃_성공_후에도_LoginView_전환_전까지_로딩_상태를_유지한다() async {
         let signOutSpy = SignOutUseCaseSpy()
         signOutSpy.shouldSuspend = true
         let adapter = SettingsStoreTestAdapter(signOutUseCase: signOutSpy)
@@ -119,11 +121,25 @@ struct SettingsFeatureTests {
         await adapter.advanceDelayedLoading()
 
         #expect(adapter.isLoading)
+        #expect(adapter.activeLoadingRow == .signOut)
 
         signOutSpy.resume()
         await adapter.drainReceivedActions()
 
-        #expect(!adapter.isLoading)
+        #expect(adapter.isLoading)
+        #expect(adapter.activeLoadingRow == .signOut)
+    }
+
+    @Test("로그아웃 실패 시 로딩 row 상태를 해제한다")
+    func 로그아웃_실패_시_로딩_row_상태를_해제한다() async {
+        let signOutSpy = SignOutUseCaseSpy()
+        signOutSpy.error = SettingsTestError.failure
+        let adapter = SettingsStoreTestAdapter(signOutUseCase: signOutSpy)
+
+        await adapter.tapSignOutButton()
+
+        #expect(adapter.showAlert)
+        #expect(adapter.activeLoadingRow == nil)
     }
 
     @Test("회원 탈퇴 실패 시 공통 에러 알림을 표시한다")
@@ -137,6 +153,7 @@ struct SettingsFeatureTests {
         #expect(deleteSpy.executeCallCount == 1)
         #expect(adapter.showAlert)
         #expect(adapter.alertTitle == String(localized: "common_error_title"))
+        #expect(adapter.activeLoadingRow == nil)
     }
 }
 
@@ -156,6 +173,7 @@ private struct SettingsStoreTestAdapter {
     var dirSize: Int64 { store.state.dirSize }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var isLoading: Bool { store.state.isLoading }
+    var activeLoadingRow: SettingsFeature.ActiveLoadingRow? { store.state.activeLoadingRow }
     var showAlert: Bool { store.state.alert != nil }
     var alertTitle: String {
         guard let alert = store.state.alert else { return "" }
@@ -221,6 +239,7 @@ private struct SettingsStoreTestAdapter {
         await store.send(.alert(.presented(.confirmRemoveCache))) {
             $0.alert = nil
             $0.alertType = nil
+            $0.activeLoadingRow = .removeCache
         }
         await drainReceivedActions()
     }
@@ -233,6 +252,7 @@ private struct SettingsStoreTestAdapter {
         await store.send(.alert(.presented(.tapSignOutButton))) {
             $0.alert = nil
             $0.alertType = nil
+            $0.activeLoadingRow = .signOut
         }
         await drainReceivedActions()
     }
@@ -245,6 +265,7 @@ private struct SettingsStoreTestAdapter {
         await store.send(.alert(.presented(.tapDeleteAuthButton))) {
             $0.alert = nil
             $0.alertType = nil
+            $0.activeLoadingRow = .deleteAuth
         }
         await drainReceivedActions()
     }

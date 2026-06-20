@@ -14,21 +14,34 @@ struct PushNotificationSettingsView: View {
     var body: some View {
         List {
             Section(content: {
-                Toggle(isOn: $store.pushNotificationEnable) {
+                HStack {
                     Text(String(localized: "push_settings_enable"))
+                    Spacer()
+                    if store.isLoading && store.activeLoadingRow == .enable {
+                        ProgressView()
+                    } else {
+                        Toggle("", isOn: $store.pushNotificationEnable)
+                            .labelsHidden()
+                            .tint(.blue)
+                            .disabled(store.activeLoadingRow != nil)
+                    }
                 }
-                .tint(.blue)
             }, footer: {
                 Text(String(localized: "push_settings_footer"))
             })
             Section {
                 ForEach([9, 15, 18, 21], id: \.self) { hour in
                     if let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
+                        let loadingRow = PushNotificationSettingsFeature.activeLoadingRow(for: date)
                         HStack {
                             Text(formattedTimeString(date))
                             Spacer()
-                            if store.pushNotificationHour == hour &&
-                                store.pushNotificationMinute == 0 {
+                            if let loadingRow,
+                               store.isLoading && store.activeLoadingRow == loadingRow {
+                                ProgressView()
+                            } else if store.activeLoadingRow != loadingRow
+                                        && store.pushNotificationHour == hour
+                                        && store.pushNotificationMinute == 0 {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Color.blue)
                             }
@@ -50,16 +63,18 @@ struct PushNotificationSettingsView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { store.send(.tapCustomTime) }
             }
-            .disabled(!store.pushNotificationEnable)
+            .disabled(!store.pushNotificationEnable || store.activeLoadingRow != nil)
             .opacity(store.pushNotificationEnable ? 1.0 : 0.2)
         }
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_push_settings"))
-        .overlay { if store.isLoading { LoadingView() } }
         .onAppear { store.send(.fetchSettings) }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { store in
-            TimePickerView(store: store)
+        .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { timePickerStore in
+            TimePickerView(
+                store: timePickerStore,
+                showsProgressView: store.isLoading && store.activeLoadingRow == .customTime
+            )
         }
     }
 
@@ -73,6 +88,7 @@ private struct TimePickerView: View {
         PushNotificationSettingsFeature.TimePickerState,
         PushNotificationSettingsFeature.Action.TimePicker
     >
+    let showsProgressView: Bool
 
     var body: some View {
         NavigationStack {
@@ -89,8 +105,17 @@ private struct TimePickerView: View {
                 ToolbarLeadingButton {
                     store.send(.tapCloseButton)
                 }
-                ToolbarTrailingButton {
-                    store.send(.tapDoneButton)
+                if showsProgressView {
+                    if #available(iOS 26.0, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ProgressView()
+                    }
+                } else {
+                    ToolbarTrailingButton {
+                        store.send(.tapDoneButton)
+                    }
                 }
             }
             .background(

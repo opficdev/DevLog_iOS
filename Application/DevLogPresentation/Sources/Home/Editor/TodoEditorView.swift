@@ -67,10 +67,19 @@ struct TodoEditorView: View {
                         Image(systemName: "info.circle")
                     }
                 }
-                ToolbarTrailingButton {
-                    submit()
+                if store.isLoading {
+                    if #available(iOS 26.0, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ProgressView()
+                    }
+                } else {
+                    ToolbarTrailingButton {
+                        submit()
+                    }
+                    .disabled(!store.isReadyToSubmit)
                 }
-                .disabled(!store.isReadyToSubmit || store.isLoading)
             }
             .alert($store.scope(state: \.alert, action: \.alert))
         }

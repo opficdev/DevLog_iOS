@@ -25,38 +25,55 @@ struct LoginView: View {
     }
 
     var body: some View {
-        ZStack {
-            VStack {
-                Spacer()
-                Image("Primary")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: sceneWidth / 5)
-                Spacer()
-                VStack(spacing: 20) {
-                    LoginButton(logo: Image("Google"), text: String(localized: "login_google_sign_in")) {
-                        store.send(.tapSignInButton(.google))
-                    }
-                    
-                    LoginButton(logo: Image("Github"), text: String(localized: "login_github_sign_in")) {
-                        store.send(.tapSignInButton(.github))
-                    }
-                        
-                    LoginButton(logo: Image("Apple"), text: String(localized: "login_apple_sign_in")) {
-                        store.send(.tapSignInButton(.apple))
-                    }
-                }
-                .padding(.bottom, 30)
-                Text(String(localized: "login_terms_notice"))
-                    .font(.caption2)
-                    .foregroundStyle(Color.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.vertical)
+        VStack {
+            Spacer()
+            Image("Primary")
+                .resizable()
+                .scaledToFit()
+                .frame(width: sceneWidth / 5)
+            Spacer()
+            VStack(spacing: 20) {
+                signInButton(
+                    provider: .google,
+                    logo: Image("Google"),
+                    text: String(localized: "login_google_sign_in")
+                )
+
+                signInButton(
+                    provider: .github,
+                    logo: Image("Github"),
+                    text: String(localized: "login_github_sign_in")
+                )
+
+                signInButton(
+                    provider: .apple,
+                    logo: Image("Apple"),
+                    text: String(localized: "login_apple_sign_in")
+                )
             }
-            if store.isLoading {
-                LoadingView()
-            }
+            .padding(.bottom, 30)
+            Text(String(localized: "login_terms_notice"))
+                .font(.caption2)
+                .foregroundStyle(Color.gray)
+                .multilineTextAlignment(.center)
+                .padding(.vertical)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+    }
+
+    private func signInButton(
+        provider: AuthProvider,
+        logo: Image,
+        text: String
+    ) -> some View {
+        LoginButton(
+            logo: logo,
+            text: text,
+            showsProgressView: store.activeSignInProvider == provider
+        ) {
+            store.send(.tapSignInButton(provider))
+        }
+        .disabled(store.isLoading)
+        .opacity(store.isLoading ? 0.5 : 1)
     }
 }

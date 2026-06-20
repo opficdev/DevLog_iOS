@@ -110,6 +110,7 @@ struct AccountFeatureTests {
         }
 
         #expect(driver.isLoading)
+        #expect(driver.activeLoadingProvider == .github)
 
         linkSpy.resume()
 
@@ -250,6 +251,10 @@ private struct AccountTestDriver {
 
     var isLoading: Bool {
         feature.state.isLoading
+    }
+
+    var activeLoadingProvider: AuthProvider? {
+        feature.state.activeLoadingProvider
     }
 
     var alert: AlertState<Never>? {
