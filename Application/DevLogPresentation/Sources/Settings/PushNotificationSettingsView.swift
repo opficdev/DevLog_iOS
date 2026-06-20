@@ -53,16 +53,11 @@ struct PushNotificationSettingsView: View {
                 HStack {
                     Text(String(localized: "push_settings_custom"))
                     Spacer()
-                    if store.isLoading && store.activeLoadingRow == .customTime {
-                        ProgressView()
-                    } else {
-                        Text(formattedTimeString(store.viewPushNotificationTime))
-                            .foregroundStyle(.secondary)
-                        if store.activeLoadingRow != .customTime &&
-                            store.pushNotificationMinute != 0 {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(Color.blue)
-                        }
+                    Text(formattedTimeString(store.viewPushNotificationTime))
+                        .foregroundStyle(.secondary)
+                    if store.pushNotificationMinute != 0 {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(Color.blue)
                     }
                 }
                 .contentShape(Rectangle())
@@ -75,8 +70,11 @@ struct PushNotificationSettingsView: View {
         .navigationTitle(String(localized: "nav_push_settings"))
         .onAppear { store.send(.fetchSettings) }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { store in
-            TimePickerView(store: store)
+        .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { timePickerStore in
+            TimePickerView(
+                store: timePickerStore,
+                showsProgressView: store.isLoading && store.activeLoadingRow == .customTime
+            )
         }
     }
 
@@ -90,6 +88,7 @@ private struct TimePickerView: View {
         PushNotificationSettingsFeature.TimePickerState,
         PushNotificationSettingsFeature.Action.TimePicker
     >
+    let showsProgressView: Bool
 
     var body: some View {
         NavigationStack {
@@ -106,8 +105,17 @@ private struct TimePickerView: View {
                 ToolbarLeadingButton {
                     store.send(.tapCloseButton)
                 }
-                ToolbarTrailingButton {
-                    store.send(.tapDoneButton)
+                if showsProgressView {
+                    if #available(iOS 26.0, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ProgressView()
+                    }
+                } else {
+                    ToolbarTrailingButton {
+                        store.send(.tapDoneButton)
+                    }
                 }
             }
             .background(

@@ -187,6 +187,42 @@ struct PushNotificationSettingsFeatureTests {
         #expect(adapter.activeLoadingRow == nil)
     }
 
+    @Test("커스텀 시간 업데이트가 지연되면 시트를 유지하고 Done 버튼 로딩 상태를 표시한다")
+    func 커스텀_시간_업데이트가_지연되면_시트를_유지하고_Done_버튼_로딩_상태를_표시한다() async {
+        let clock = TestClock()
+        let updateSpy = UpdatePushSettingsUseCaseSpy()
+        updateSpy.shouldSuspend = true
+        let adapter = PushNotificationSettingsStoreTestAdapter(
+            updateUseCase: updateSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+        let date = makeDate(hour: 10, minute: 35)
+
+        await adapter.setShowTimePicker(true)
+        await adapter.setPushNotificationTime(sheet: date)
+        await adapter.confirmUpdate()
+
+        #expect(adapter.showTimePicker)
+        #expect(adapter.activeLoadingRow == .customTime)
+        #expect(!adapter.isLoading)
+
+        await clock.advance(by: .milliseconds(300))
+        await adapter.receiveDelayedLoading()
+
+        #expect(adapter.showTimePicker)
+        #expect(adapter.isLoading)
+        #expect(adapter.activeLoadingRow == .customTime)
+
+        updateSpy.resume()
+        await adapter.drainReceivedActions()
+
+        #expect(!adapter.showTimePicker)
+        #expect(!adapter.isLoading)
+        #expect(adapter.activeLoadingRow == nil)
+    }
+
     @Test("푸시 설정 조회에 실패하면 공통 에러 알림을 표시한다")
     func 푸시_설정_조회에_실패하면_공통_에러_알림을_표시한다() async {
         let fetchSpy = FetchPushSettingsUseCaseSpy()
@@ -309,10 +345,10 @@ private struct PushNotificationSettingsStoreTestAdapter {
     func confirmUpdate() async {
         let time = store.state.timePicker?.time
         await store.send(.timePicker(.presented(.tapDoneButton))) {
-            $0.timePicker = nil
             if let time {
                 $0.viewPushNotificationTime = time
             }
+            $0.activeLoadingRow = .customTime
         }
         await drainReceivedActions()
     }

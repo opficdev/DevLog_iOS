@@ -89,7 +89,6 @@ struct PushNotificationSettingsFeature {
                 state.timePicker = nil
             case .timePicker(.presented(.tapDoneButton)):
                 guard let time = state.timePicker?.time else { break }
-                state.timePicker = nil
                 state.viewPushNotificationTime = time
                 state.activeLoadingRow = .customTime
                 return updatePushNotificationSettingsEffect(settings: Self.settings(from: state))
@@ -202,6 +201,7 @@ private extension PushNotificationSettingsFeature {
             do {
                 try await updatePushSettingsUseCase.execute(settings)
                 await send(.loading(.end(target: .default, mode: .delayed)))
+                await send(.timePicker(.dismiss))
                 await send(.clearActiveLoadingRow)
             } catch {
                 await send(.loading(.end(target: .default, mode: .delayed)))
