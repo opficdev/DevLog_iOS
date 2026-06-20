@@ -76,6 +76,7 @@ extension HomeFeature {
                 trackAnalyticsEventUseCase.execute(.webPageCreate)
                 let pages = try await fetchWebPagesUseCase.execute("")
                 await send(.store(.updateWebPages(pages.map(WebPageItem.init(from:)))))
+                await send(.store(.setSheet(nil)))
             } catch {
                 await send(.store(.setAlert(isPresented: true, type: .error)))
             }

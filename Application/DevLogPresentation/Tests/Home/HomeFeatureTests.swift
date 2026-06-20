@@ -74,6 +74,22 @@ struct HomeFeatureTests {
         )
     }
 
+    @Test("HomeFeature addWebPage 실패는 입력 시트를 유지한다")
+    func HomeFeature_addWebPage_실패는_입력_시트를_유지한다() async throws {
+        let context = makeHomeAddWebPageContext()
+        context.addWebPageUseCaseSpy.error = HomeTestError.failure
+        let adapter = HomeStoreTestAdapter(
+            addWebPageUseCase: context.addWebPageUseCaseSpy,
+            fetchWebPagesUseCase: context.fetchWebPagesUseCaseSpy,
+            trackAnalyticsEventUseCase: context.trackAnalyticsEventUseCaseSpy
+        )
+
+        try await verifyHomeAddWebPageFailureKeepsSheet(
+            adapter: adapter,
+            addWebPageUseCaseSpy: context.addWebPageUseCaseSpy
+        )
+    }
+
     @Test("웹페이지를 삭제하면 항목이 즉시 숨겨지고 삭제 유스케이스가 호출된다")
     func 웹페이지를_삭제하면_항목이_즉시_숨겨지고_삭제_유스케이스가_호출된다() async throws {
         let context = makeHomeDeleteContext()
@@ -142,4 +158,8 @@ struct HomeFeatureTests {
 
         #expect(!adapter.isNetworkConnected)
     }
+}
+
+private enum HomeTestError: Error {
+    case failure
 }

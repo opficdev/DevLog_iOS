@@ -101,6 +101,7 @@ func verifyHomeAddWebPage(
     fetchWebPagesUseCaseSpy: FetchWebPagesUseCaseSpy,
     trackAnalyticsEventUseCaseSpy: HomeTrackAnalyticsEventUseCaseSpy
 ) async throws {
+    await adapter.setPresentation(.contentPicker, true)
     await adapter.updateWebPageURLInput("openai.com")
     await adapter.addWebPage()
 
@@ -116,7 +117,26 @@ func verifyHomeAddWebPage(
         "https://openai.com",
         "https://developer.apple.com"
     ])
+    #expect(!adapter.showContentPicker)
     #expect(!adapter.showAlert)
+}
+
+@MainActor
+func verifyHomeAddWebPageFailureKeepsSheet(
+    adapter: HomeStoreTestAdapter,
+    addWebPageUseCaseSpy: AddWebPageUseCaseSpy
+) async throws {
+    await adapter.setPresentation(.contentPicker, true)
+    await adapter.updateWebPageURLInput("openai.com")
+    await adapter.addWebPage()
+
+    await waitUntil {
+        addWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"]
+            && adapter.showAlert
+    }
+
+    #expect(adapter.showContentPicker)
+    #expect(adapter.alertType == .error)
 }
 
 struct HomeFetchDataContext {
