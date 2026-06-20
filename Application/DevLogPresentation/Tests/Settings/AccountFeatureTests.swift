@@ -98,8 +98,6 @@ struct AccountFeatureTests {
             $0.unlinkAuthProviderUseCase = UnlinkAuthProviderUseCaseSpy()
             $0.continuousClock = clock
         }
-        store.exhaustivity = .off(showSkippedAssertions: false)
-
         await store.send(.linkWithProvider(.github)) {
             $0.activeLoadingProvider = .github
         }
