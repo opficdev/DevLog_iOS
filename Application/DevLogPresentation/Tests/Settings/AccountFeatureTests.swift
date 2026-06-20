@@ -5,6 +5,8 @@
 //  Created by opfic on 6/11/26.
 //
 
+// swiftlint:disable file_length
+
 import Testing
 import ComposableArchitecture
 import Foundation
@@ -87,38 +89,51 @@ struct AccountFeatureTests {
         )
         let linkSpy = LinkAuthProviderUseCaseSpy()
         linkSpy.shouldSuspend = true
-        let driver = AccountTestDriver(
-            fetchUseCase: fetchSpy,
-            linkUseCase: linkSpy,
-            configureDependencies: {
-                $0.continuousClock = clock
-            }
-        )
-
-        driver.linkWithProvider(.github)
-
-        await waitUntil {
-            linkSpy.providers == [.github]
+        let target = LoadingFeature.Target.default
+        let store = TestStore(initialState: AccountFeature.State()) {
+            AccountFeature()
+        } withDependencies: {
+            $0.fetchAuthProvidersUseCase = fetchSpy
+            $0.linkAuthProviderUseCase = linkSpy
+            $0.unlinkAuthProviderUseCase = UnlinkAuthProviderUseCaseSpy()
+            $0.continuousClock = clock
         }
-
-        #expect(!driver.isLoading)
+        await store.send(.linkWithProvider(.github)) {
+            $0.activeLoadingProvider = .github
+        }
+        await store.receive(\.loading.begin) {
+            $0.loading.delayedCountByTarget[target] = 1
+            $0.loading.scheduledDelayedTargets = [target]
+        }
+        #expect(linkSpy.providers == [.github])
+        #expect(!store.state.isLoading)
 
         await clock.advance(by: .milliseconds(300))
-
-        await waitUntil {
-            driver.isLoading
+        await store.receive(\.loading.delayedLoadingDidBecomeVisible, target) {
+            $0.loading.scheduledDelayedTargets = []
+            $0.loading.visibleDelayedTargets = [target]
+            $0.loading.visibleTargets = [target]
+            $0.loading.isLoading = true
         }
 
-        #expect(driver.isLoading)
-        #expect(driver.activeLoadingProvider == .github)
+        #expect(store.state.isLoading)
+        #expect(store.state.activeLoadingProvider == .github)
 
         linkSpy.resume()
-
-        await waitUntil {
-            !driver.isLoading && fetchSpy.executeCallCount == 1
+        await store.receive(\.setProviders) {
+            $0.currentProvider = .google
+            $0.connectedProviders = [.github]
+            $0.disconnectedProviders = [.apple]
+        }
+        await store.receive(\.loading.end) {
+            $0.loading.delayedCountByTarget[target] = 0
+            $0.loading.visibleDelayedTargets = []
+            $0.loading.visibleTargets = []
+            $0.loading.isLoading = false
+            $0.activeLoadingProvider = nil
         }
 
-        #expect(!driver.isLoading)
+        #expect(!store.state.isLoading)
     }
 
     @Test("인증 제공자 조회에 실패하면 공통 에러 알림을 표시한다")
@@ -253,10 +268,6 @@ private struct AccountTestDriver {
         feature.state.isLoading
     }
 
-    var activeLoadingProvider: AuthProvider? {
-        feature.state.activeLoadingProvider
-    }
-
     var alert: AlertState<Never>? {
         feature.state.alert
     }
@@ -264,8 +275,7 @@ private struct AccountTestDriver {
     init(
         fetchUseCase: FetchAuthProvidersUseCase = FetchAuthProvidersUseCaseSpy(),
         linkUseCase: LinkAuthProviderUseCase = LinkAuthProviderUseCaseSpy(),
-        unlinkUseCase: UnlinkAuthProviderUseCase = UnlinkAuthProviderUseCaseSpy(),
-        configureDependencies: ((inout DependencyValues) -> Void)? = nil
+        unlinkUseCase: UnlinkAuthProviderUseCase = UnlinkAuthProviderUseCaseSpy()
     ) {
         feature = Store(initialState: AccountFeature.State()) {
             AccountFeature()
@@ -274,7 +284,6 @@ private struct AccountTestDriver {
             $0.linkAuthProviderUseCase = linkUseCase
             $0.unlinkAuthProviderUseCase = unlinkUseCase
             $0.continuousClock = ContinuousClock()
-            configureDependencies?(&$0)
         }
     }
 
