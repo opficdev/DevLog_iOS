@@ -224,8 +224,10 @@ jobs:
         include:
           - name: Domain-Data
             schemes: "DevLogDomain DevLogData"
-          - name: Persistence-Presentation
-            schemes: "DevLogPersistence DevLogPresentation"
+          - name: Persistence
+            schemes: "DevLogPersistence"
+          - name: Presentation
+            schemes: "DevLogPresentation"
           - name: Widget
             schemes: "DevLogWidget DevLogWidgetCore"
     steps:
