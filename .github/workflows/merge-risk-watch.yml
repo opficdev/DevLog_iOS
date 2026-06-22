@@ -1,12 +1,6 @@
 name: Merge Risk Watch
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
   schedule:
     - cron: "0 15 * * 0-4"
   workflow_dispatch:
