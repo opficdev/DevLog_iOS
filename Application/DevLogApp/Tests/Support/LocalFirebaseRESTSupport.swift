@@ -149,7 +149,8 @@ final class LocalFirebaseRESTSupport {
     func fetchPushNotificationIDs(userId: String) async throws -> [String] {
         let googleServiceInfo = try loadGoogleServiceInfo()
         let url = firestoreBaseURL.appending(
-            path: "v1/projects/\(googleServiceInfo.projectId)/databases/(default)/documents/users/\(userId)/notifications",
+            path: "v1/projects/\(googleServiceInfo.projectId)/databases/(default)/documents/users/" +
+                "\(userId)/notifications",
             directoryHint: .notDirectory
         )
         let (data, response) = try await URLSession.shared.data(from: url)
@@ -242,7 +243,7 @@ private extension LocalFirebaseRESTSupport {
     func loadGoogleServiceInfo() throws -> GoogleServiceInfo {
         var fileURL = URL(fileURLWithPath: #filePath)
 
-        while fileURL.lastPathComponent != "SwiftUI_DevLog" {
+        while fileURL.lastPathComponent != "DevLog_iOS" {
             let nextURL = fileURL.deletingLastPathComponent()
             if nextURL == fileURL {
                 throw RESTError.missingConfiguration

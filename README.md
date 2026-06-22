@@ -192,7 +192,7 @@ mise exec -- tuist generate --no-open
 ## 프로젝트 구조
 
 ```text
-SwiftUI_DevLog/
+DevLog_iOS/
 ├── Tuist.swift
 ├── Workspace.swift
 ├── .mise.toml
