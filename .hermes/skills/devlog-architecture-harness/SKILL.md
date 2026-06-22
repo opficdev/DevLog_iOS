@@ -1,6 +1,6 @@
 ---
 name: devlog-architecture-harness
-description: Use before architecture, modularization, dependency-boundary, DI, repository, Firebase-boundary, or widget-data-flow work in the SwiftUI_DevLog repository.
+description: Use before architecture, modularization, dependency-boundary, DI, repository, Firebase-boundary, or widget-data-flow work in the DevLog_iOS repository.
 version: 1.0.0
 metadata:
   hermes:
