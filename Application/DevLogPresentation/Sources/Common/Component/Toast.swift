@@ -88,6 +88,7 @@ private struct ToastHostModifier: ViewModifier {
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @State private var tabBarHeight = CGFloat.zero
     private let toastPresenter = ToastPresenter.presenter
+    private let placement = ToastPresentationPlacement.current
 
     func body(content: Content) -> some View {
         content
@@ -98,7 +99,7 @@ private struct ToastHostModifier: ViewModifier {
             .onChange(of: toastPresenter.item?.id) { _, _ in
                 updateTabBarHeight()
             }
-            .overlay(alignment: .bottom) {
+            .overlay(alignment: placement.alignment) {
                 if let item = toastPresenter.item {
                     ToastOverlayView(
                         isPresented: Binding(
@@ -110,6 +111,7 @@ private struct ToastHostModifier: ViewModifier {
                             }
                         ),
                         duration: item.duration,
+                        presentedOffset: placement.presentedOffset,
                         action: item.action,
                         onDismiss: item.onDismiss
                     ) {
@@ -117,7 +119,7 @@ private struct ToastHostModifier: ViewModifier {
                     }
                     .id(item.id)
                     .padding(.horizontal, 12)
-                    .padding(.bottom, toastBottomInset)
+                    .padding(.bottom, placement.bottomPadding(toastBottomInset))
                 }
             }
     }
@@ -141,6 +143,42 @@ private struct ToastHostModifier: ViewModifier {
     }
 }
 
+private enum ToastPresentationPlacement {
+    case top
+    case bottom
+
+    static var current: ToastPresentationPlacement {
+        ProcessInfo.processInfo.isiOSAppOnMac ? .top : .bottom
+    }
+
+    var alignment: Alignment {
+        switch self {
+        case .top:
+            return .top
+        case .bottom:
+            return .bottom
+        }
+    }
+
+    var presentedOffset: CGFloat {
+        switch self {
+        case .top:
+            return 50
+        case .bottom:
+            return -50
+        }
+    }
+
+    func bottomPadding(_ inset: CGFloat) -> CGFloat {
+        switch self {
+        case .top:
+            return 0
+        case .bottom:
+            return inset
+        }
+    }
+}
+
 private struct ToastItemLabel: View {
     let item: ToastItem
 
@@ -161,6 +199,7 @@ private struct ToastItemLabel: View {
 private struct ToastOverlayView<Label: View>: View {
     @Binding var isPresented: Bool
     let duration: TimeInterval
+    let presentedOffset: CGFloat
     let action: (() -> Void)?
     let onDismiss: (() -> Void)?
     @ViewBuilder let label: () -> Label
@@ -209,7 +248,7 @@ private struct ToastOverlayView<Label: View>: View {
         guard opacityValue == 0 else { return }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 1, blendDuration: 0.0)) {
-            yOffset = -50
+            yOffset = presentedOffset
             opacityValue = 1
         }
     }
