@@ -2,7 +2,7 @@ name: Merge Risk Watch
 
 on:
   schedule:
-    - cron: "0 15 * * 0-4"
+    - cron: "30 15 * * 0-4"
   workflow_dispatch:
 
 permissions:
