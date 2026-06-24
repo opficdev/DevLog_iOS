@@ -2,19 +2,16 @@ name: Merge Risk Watch
 
 on:
   schedule:
-    - cron: "0 15 * * 0-4"
+    - cron: "30 15 * * 0-4"
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
-  checks: read
-  pull-requests: read
 
 jobs:
   watch:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    uses: opficdev/Watcher/.github/workflows/merge-risk-watch.yml@0.1.0
+    uses: opficdev/Watcher/.github/workflows/merge-risk-watch.yml@0.2.1
     with:
       repository: ${{ github.repository }}
       base_branch: develop
@@ -35,5 +32,5 @@ jobs:
         **/*.xcstrings
     secrets:
       watcher_github_token: ${{ secrets.WATCHER_GITHUB_TOKEN }}
-      gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+      openai_api_key: ${{ secrets.OPENAI_API_KEY }}
       discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
