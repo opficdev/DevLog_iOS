@@ -57,6 +57,10 @@ struct SearchFeature {
         var shouldShowMoreWebPages: Bool {
             !showAllWebPages && contentsLimit < webPages.count
         }
+
+        var showsTodoNumberSearchInstruction: Bool {
+            SearchFeature.showsTodoNumberSearchInstruction(searchQuery)
+        }
     }
 
     enum Action: BindableAction, Equatable {
@@ -112,6 +116,10 @@ struct SearchFeature {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
+                } else if Self.showsTodoNumberSearchInstruction(trimmed) {
+                    state.webPages = []
+                    state.todos = []
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
                 } else {
                     return .concatenate(
                         Self.cancelSearchEffect(isLoading: state.isLoading),
@@ -142,6 +150,10 @@ struct SearchFeature {
             case .store(.applySearchQuery(let query)):
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
                 if trimmed.isEmpty {
+                    state.webPages = []
+                    state.todos = []
+                    return Self.cancelSearchEffect(isLoading: state.isLoading)
+                } else if Self.showsTodoNumberSearchInstruction(trimmed) {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
@@ -275,6 +287,10 @@ private extension SearchFeature {
 
     static func searchesTodoOnly(_ query: String) -> Bool {
         query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
+    }
+
+    static func showsTodoNumberSearchInstruction(_ query: String) -> Bool {
+        query.trimmingCharacters(in: .whitespacesAndNewlines) == "#"
     }
 
     static func fetchWebPageItems(

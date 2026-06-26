@@ -62,6 +62,8 @@ struct SearchView: View {
                         recentQueries
                     }
                 }
+            } else if store.showsTodoNumberSearchInstruction {
+                todoNumberSearchInstruction
             } else if store.isLoading {
                 LoadingView()
             } else if store.webPages.isEmpty && store.todos.isEmpty {
@@ -101,6 +103,22 @@ struct SearchView: View {
                 .foregroundStyle(Color.gray)
             Spacer()
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var todoNumberSearchInstruction: some View {
+        VStack(spacing: 8) {
+            Spacer()
+            Text(String(localized: "search_todo_number_instruction_title"))
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            Text(String(localized: "search_todo_number_instruction_message"))
+                .font(.subheadline)
+                .foregroundStyle(Color.gray)
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
         .frame(maxWidth: .infinity)
     }
 
