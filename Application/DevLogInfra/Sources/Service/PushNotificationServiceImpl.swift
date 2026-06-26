@@ -308,6 +308,7 @@ private extension PushNotificationServiceImpl {
                 transaction.updateData(["isRead": !currentValue], forDocument: notificationRef)
             } catch let error as NSError {
                 errorPointer?.pointee = error
+                return nil
             }
 
             return nil
