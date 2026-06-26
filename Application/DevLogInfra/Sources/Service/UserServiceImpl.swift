@@ -36,12 +36,6 @@ final class UserServiceImpl: UserService {
         }
 
         do {
-            let userRef = store.document(FirestorePath.user(user.uid))
-            let infoRef = store.document(FirestorePath.userData(user.uid, document: .info))
-            let tokensRef = store.document(FirestorePath.userData(user.uid, document: .tokens))
-            let settingsRef = store.document(FirestorePath.userData(user.uid, document: .settings))
-            let todoCounterRef = store.document(FirestorePath.counter(user.uid, document: .todo))
-
             // 사용자 기본 정보
             var userField: [String: Any] = [
                 "currentProvider": response.providerID
@@ -62,64 +56,22 @@ final class UserServiceImpl: UserService {
                 userField["appleName"] = user.displayName
             }
 
-            let userDocument = try await userRef.getDocument()
-            if !userDocument.exists {
-                userField["statusMsg"] = ""
-                userField["createdAt"] = FieldValue.serverTimestamp()
-            }
-
-            var settingField: [String: Any] = [:]
+            var tokenField: [String: Any] = [:]
 
             if let fcmToken = response.fcmToken {
-                settingField["fcmToken"] = fcmToken
+                tokenField["fcmToken"] = fcmToken
             }
 
             // 깃헙 로그인 시 추가 정보 저장
             if response.providerID == "github.com", let accessToken = response.accessToken {
-                settingField["githubAccessToken"] = accessToken
+                tokenField["githubAccessToken"] = accessToken
             }
 
-            // Reference to capture ~ in concurrently-executing code; Swift 6 lang mode의 경고 해결
-            let userFieldSnapshot = userField
-            let settingFieldSnapshot = settingField
-            // -----------------------------------------------------
-
-            async let userUpdate: Void = userRef.setData(
-                ["updatedAt": FieldValue.serverTimestamp()],
-                merge: true
+            try await upsertUserDocuments(
+                uid: user.uid,
+                userField: userField,
+                tokenField: tokenField
             )
-            async let infoUpdate: Void = infoRef.setData(userFieldSnapshot, merge: true)
-            async let tokensUpdate: Void = {
-                guard !settingFieldSnapshot.isEmpty else { return }
-                try await tokensRef.setData(settingFieldSnapshot, merge: true)
-            }()
-
-            let settingsDocument = try await settingsRef.getDocument()
-            var settingsField: [String: Any] = [
-                "timeZone": TimeZone.autoupdatingCurrent.identifier
-            ]
-            if !settingsDocument.exists {
-                settingsField["allowPushNotification"] = true
-                settingsField["pushNotificationHour"] = 9
-                settingsField["pushNotificationMinute"] = 0
-            }
-
-            let settingsFieldSnapshot = settingsField
-            async let settingsUpdate: Void = settingsRef.setData(settingsFieldSnapshot, merge: true)
-            async let todoCounterUpdate: Void? = {  //  옵셔널이 포함된 이유: 신규 사용자일 때만 할 작업
-                guard !userDocument.exists else { return nil }
-
-                try await todoCounterRef.setData(
-                    [
-                        "nextNumber": 1,
-                        "updatedAt": FieldValue.serverTimestamp()
-                    ],
-                    merge: true
-                )
-                return nil
-            }()
-
-            _ = try await (userUpdate, infoUpdate, tokensUpdate, settingsUpdate, todoCounterUpdate)
             
             logger.info("Successfully upserted user: \(user.uid)")
         } catch {
@@ -240,5 +192,80 @@ private extension UserServiceImpl {
 
     private func record(_ error: Error, code: CrashlyticsError.Code) {
         Self.record(error, code: code)
+    }
+
+    func upsertUserDocuments(
+        uid: String,
+        userField: [String: Any],
+        tokenField: [String: Any]
+    ) async throws {
+        let userRef = store.document(FirestorePath.user(uid))
+        let infoRef = store.document(FirestorePath.userData(uid, document: .info))
+        let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
+        let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
+        let todoCounterRef = store.document(FirestorePath.counter(uid, document: .todo))
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            store.runTransaction({ transaction, errorPointer in
+                let userDocument: DocumentSnapshot
+                let settingsDocument: DocumentSnapshot
+
+                do {
+                    userDocument = try transaction.getDocument(userRef)
+                    settingsDocument = try transaction.getDocument(settingsRef)
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+
+                var infoField = userField
+                if !userDocument.exists {
+                    infoField["statusMsg"] = ""
+                    infoField["createdAt"] = FieldValue.serverTimestamp()
+                }
+
+                var settingsField: [String: Any] = [
+                    "timeZone": TimeZone.autoupdatingCurrent.identifier
+                ]
+                if !settingsDocument.exists {
+                    settingsField["allowPushNotification"] = true
+                    settingsField["pushNotificationHour"] = 9
+                    settingsField["pushNotificationMinute"] = 0
+                }
+
+                transaction.setData(
+                    ["updatedAt": FieldValue.serverTimestamp()],
+                    forDocument: userRef,
+                    merge: true
+                )
+                transaction.setData(infoField, forDocument: infoRef, merge: true)
+
+                if !tokenField.isEmpty {
+                    transaction.setData(tokenField, forDocument: tokensRef, merge: true)
+                }
+
+                transaction.setData(settingsField, forDocument: settingsRef, merge: true)
+
+                if !userDocument.exists {
+                    transaction.setData(
+                        [
+                            "nextNumber": 1,
+                            "updatedAt": FieldValue.serverTimestamp()
+                        ],
+                        forDocument: todoCounterRef,
+                        merge: true
+                    )
+                }
+
+                return nil
+            }) { _, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: ())
+            }
+        }
     }
 }
