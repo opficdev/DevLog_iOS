@@ -30,8 +30,8 @@ final class TodoServiceImpl: TodoService {
         case undoTodoDeletion
     }
 
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
+    private let store = FirebaseConfiguration.firestore
+    private let functions = FirebaseConfiguration.functions
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoServiceImpl")
     

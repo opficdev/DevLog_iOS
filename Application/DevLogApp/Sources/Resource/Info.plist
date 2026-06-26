@@ -40,6 +40,8 @@
 	<false/>
 	<key>FirebaseAutomaticScreenReportingEnabled</key>
 	<false/>
+	<key>FIRESTORE_DATABASE_ID</key>
+	<string>$(FIRESTORE_DATABASE_ID)</string>
 	<key>GIDClientID</key>
 	<string>$(CLIENT_ID)</string>
 	<key>GITHUB_CLIENT_ID</key>

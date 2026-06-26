@@ -1,10 +1,10 @@
-name: iOS TestFlight
+name: iOS App Store
 
 on:
   workflow_dispatch:
     inputs:
-      upload_to_testflight:
-        description: Upload to TestFlight
+      upload_to_app_store_connect:
+        description: Upload to App Store Connect
         required: true
         default: "false"
         type: choice
@@ -13,7 +13,6 @@ on:
           - "true"
 
 env:
-  SCHEME: DevLogApp
   RUBY_VERSION: "3.2"
   XCODE_VERSION: latest
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
@@ -29,7 +28,7 @@ permissions:
   contents: read
 
 jobs:
-  testflight:
+  appstore:
     runs-on: macos-latest
     timeout-minutes: 45
 
@@ -77,16 +76,6 @@ jobs:
           install: true
           cache: true
 
-      - name: Install SwiftLint
-        env:
-          HOMEBREW_REQUIRE_TAP_TRUST: "1"
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
-          swiftlint version
-
       - name: Generate Xcode workspace with Tuist
         shell: bash
         run: |
@@ -100,8 +89,8 @@ jobs:
         run: |
           printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
 
-      - name: Build for TestFlight
-        run: bundle exec fastlane testflight_build_only
+      - name: Build for App Store
+        run: bundle exec fastlane appstore_build_only
 
       - name: Upload dSYM to Firebase Crashlytics
         shell: bash
@@ -109,7 +98,7 @@ jobs:
           set -euo pipefail
 
           google_service_info_path="Application/DevLogApp/Sources/Resource/GoogleService-Info.plist"
-          dsym_zip_path="$(find fastlane/testflight_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
+          dsym_zip_path="$(find fastlane/appstore_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
           upload_symbols_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" "$HOME/Library/Developer/Xcode/SourcePackages" "$GITHUB_WORKSPACE" -path '*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols' -type f -print -quit 2>/dev/null || true)"
 
           if [ ! -f "$google_service_info_path" ]; then
@@ -118,7 +107,7 @@ jobs:
           fi
 
           if [ -z "$dsym_zip_path" ]; then
-            echo "Missing dSYM zip in fastlane/testflight_build" >&2
+            echo "Missing dSYM zip in fastlane/appstore_build" >&2
             exit 1
           fi
 
@@ -129,26 +118,26 @@ jobs:
 
           "$upload_symbols_path" -gsp "$google_service_info_path" -p ios "$dsym_zip_path"
 
-      - name: Upload TestFlight build log
+      - name: Upload App Store build log
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: testflight-build-log
+          name: appstore-build-log
           path: ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
 
-      - name: Upload TestFlight dSYM
+      - name: Upload App Store dSYM
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: testflight-dsym
-          path: fastlane/testflight_build/*.dSYM.zip
+          name: appstore-dsym
+          path: fastlane/appstore_build/*.dSYM.zip
           if-no-files-found: warn
 
-      - name: Skip TestFlight Upload
-        if: inputs.upload_to_testflight != 'true'
-        run: echo "Skipping TestFlight upload"
+      - name: Skip App Store Upload
+        if: inputs.upload_to_app_store_connect != 'true'
+        run: echo "Skipping App Store upload"
 
-      - name: Upload to TestFlight
-        if: inputs.upload_to_testflight == 'true'
-        run: bundle exec fastlane upload_testflight_build
+      - name: Upload to App Store Connect
+        if: inputs.upload_to_app_store_connect == 'true'
+        run: bundle exec fastlane upload_appstore_build

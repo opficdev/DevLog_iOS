@@ -7,13 +7,19 @@ APP_IDENTIFIERS = [APP_IDENTIFIER, WIDGET_IDENTIFIER]
 TARGET_NAME = "DevLogApp"
 WIDGET_TARGET_NAME = "DevLogWidgetExtension"
 APP_PRODUCT_NAME = "DevLog"
+TESTFLIGHT_CONFIGURATION = "Staging"
+APPSTORE_CONFIGURATION = "Release"
+TESTFLIGHT_DATABASE_ID = "staging"
+APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
+APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
+APPSTORE_IPA_OUTPUT_PATH = File.join(APPSTORE_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 
 default_platform(:ios)
 
 platform :ios do
-  private_lane :fetch_latest_testflight_build_number do |options|
+  private_lane :fetch_latest_app_store_connect_build_number do |options|
     require "spaceship"
 
     api_key = options[:api_key]
@@ -51,7 +57,74 @@ platform :ios do
     )
   end
 
-  private_lane :build_for_store do
+  private_lane :verify_store_configuration do |options|
+    configuration = options[:configuration].to_s.strip
+    database_id = options[:database_id].to_s.strip
+
+    expected_database_id =
+      case configuration
+      when TESTFLIGHT_CONFIGURATION
+        TESTFLIGHT_DATABASE_ID
+      when APPSTORE_CONFIGURATION
+        APPSTORE_DATABASE_ID
+      else
+        UI.user_error!("Unsupported store configuration: #{configuration}")
+      end
+
+    UI.user_error!("Missing Firestore database ID for #{configuration}") if database_id.empty?
+
+    if database_id != expected_database_id
+      UI.user_error!(
+        "Invalid store configuration: #{configuration} must use FIRESTORE_DATABASE_ID=#{expected_database_id}, got #{database_id}"
+      )
+    end
+
+    UI.message("Verified store configuration: #{configuration}/#{database_id}")
+  end
+
+  private_lane :verify_firestore_database_id do |options|
+    require "shellwords"
+    require "tmpdir"
+
+    ipa_path = options[:ipa]
+    expected_database_id = options[:database_id]
+
+    UI.user_error!("Missing IPA path") if ipa_path.to_s.strip.empty?
+    UI.user_error!("Missing expected Firestore database ID") if expected_database_id.to_s.strip.empty?
+    UI.user_error!("Missing built ipa at #{ipa_path}") if !File.exist?(ipa_path)
+
+    Dir.mktmpdir("devlog-ipa") do |tmpdir|
+      sh("unzip -q #{Shellwords.escape(ipa_path)} -d #{Shellwords.escape(tmpdir)}")
+
+      plist_path = File.join(tmpdir, "Payload", "#{APP_PRODUCT_NAME}.app", "Info.plist")
+      UI.user_error!("Missing app Info.plist in ipa") if !File.exist?(plist_path)
+
+      actual_database_id = sh(
+        "/usr/libexec/PlistBuddy -c 'Print :FIRESTORE_DATABASE_ID' #{Shellwords.escape(plist_path)}",
+        log: false
+      ).strip
+
+      if actual_database_id != expected_database_id
+        UI.user_error!(
+          "Unexpected FIRESTORE_DATABASE_ID: expected #{expected_database_id}, got #{actual_database_id}"
+        )
+      end
+
+      UI.message("Verified FIRESTORE_DATABASE_ID=#{actual_database_id}")
+    end
+  end
+
+  private_lane :build_for_store do |options|
+    configuration = options[:configuration] || TESTFLIGHT_CONFIGURATION
+    output_directory = options[:output_directory] || TESTFLIGHT_BUILD_OUTPUT_DIRECTORY
+    expected_database_id = options[:database_id] ||
+      (configuration == APPSTORE_CONFIGURATION ? APPSTORE_DATABASE_ID : TESTFLIGHT_DATABASE_ID)
+
+    verify_store_configuration(
+      configuration: configuration,
+      database_id: expected_database_id
+    )
+
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
       ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
     end
@@ -67,23 +140,23 @@ platform :ios do
       target: TARGET_NAME
     )
 
-    latest_testflight_build_number = fetch_latest_testflight_build_number(
+    latest_build_number = fetch_latest_app_store_connect_build_number(
       api_key: api_key,
       version: version_number
     )
 
     setup_ci if ENV["CI"]
 
-    testflight_build_number = latest_testflight_build_number + 1
+    next_build_number = latest_build_number + 1
 
     increment_build_number(
       xcodeproj: XCODE_PROJ,
-      build_number: testflight_build_number
+      build_number: next_build_number
     )
 
     increment_build_number(
       xcodeproj: WIDGET_XCODE_PROJ,
-      build_number: testflight_build_number
+      build_number: next_build_number
     )
 
     match(
@@ -118,7 +191,7 @@ platform :ios do
           sdk: "iphoneos*",
           team_id: ENV["APP_STORE_TEAM_ID"],
           targets: [target_name],
-          build_configurations: ["Release"],
+          build_configurations: [configuration],
           code_sign_identity: "Apple Distribution",
           profile_name: provisioning_profile_specifier
         )
@@ -128,11 +201,20 @@ platform :ios do
     build_app(
       workspace: XCODE_WORKSPACE,
       scheme: TARGET_NAME,
+      configuration: configuration,
       export_method: "app-store",
-      output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
+      output_directory: output_directory,
       output_name: "#{APP_PRODUCT_NAME}.ipa",
       include_symbols: true,
       xcargs: "-skipPackagePluginValidation -skipMacroValidation"
+    )
+
+    ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
+    ipa_output_path = File.join(output_directory, "#{APP_PRODUCT_NAME}.ipa") if ipa_output_path.empty?
+
+    verify_firestore_database_id(
+      ipa: ipa_output_path,
+      database_id: expected_database_id
     )
 
     dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH]
@@ -144,13 +226,37 @@ platform :ios do
   end
 
   lane :deploy_testflight do
-    build_for_store
+    build_for_store(
+      configuration: TESTFLIGHT_CONFIGURATION,
+      database_id: TESTFLIGHT_DATABASE_ID
+    )
 
     upload_testflight_build
   end
 
   lane :testflight_build_only do
-    build_for_store
+    build_for_store(
+      configuration: TESTFLIGHT_CONFIGURATION,
+      database_id: TESTFLIGHT_DATABASE_ID
+    )
+  end
+
+  lane :appstore_build_only do
+    build_for_store(
+      configuration: APPSTORE_CONFIGURATION,
+      output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
+      database_id: APPSTORE_DATABASE_ID
+    )
+  end
+
+  lane :deploy_appstore do
+    build_for_store(
+      configuration: APPSTORE_CONFIGURATION,
+      output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
+      database_id: APPSTORE_DATABASE_ID
+    )
+
+    upload_appstore_build
   end
 
   lane :sync_appstore_profiles do
@@ -174,10 +280,39 @@ platform :ios do
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
 
+    verify_firestore_database_id(
+      ipa: ipa_output_path,
+      database_id: TESTFLIGHT_DATABASE_ID
+    )
+
     upload_to_testflight(
       api_key: api_key,
       ipa: ipa_output_path,
       skip_waiting_for_build_processing: true
+    )
+  end
+
+  lane :upload_appstore_build do
+    api_key = asc_api_key
+    # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
+    ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
+    ipa_output_path = APPSTORE_IPA_OUTPUT_PATH if ipa_output_path.empty?
+
+    UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
+
+    verify_firestore_database_id(
+      ipa: ipa_output_path,
+      database_id: APPSTORE_DATABASE_ID
+    )
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa_output_path,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true
     )
   end
 

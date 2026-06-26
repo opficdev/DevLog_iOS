@@ -9,6 +9,7 @@ public extension Settings {
         versionXcconfigPath: Path? = nil,
         base: SettingsDictionary = [:],
         debug: SettingsDictionary = [:],
+        staging: SettingsDictionary = [:],
         release: SettingsDictionary = [:],
         defaultSettings: DefaultSettings = .recommended
     ) -> Settings {
@@ -26,6 +27,7 @@ public extension Settings {
                 base: commonBase,
                 configurations: [
                     .debug(name: "Debug", settings: debug, xcconfig: versionXcconfigPath),
+                    .release(name: "Staging", settings: staging, xcconfig: versionXcconfigPath),
                     .release(name: "Release", settings: release, xcconfig: versionXcconfigPath),
                 ],
                 defaultSettings: defaultSettings
@@ -36,6 +38,7 @@ public extension Settings {
             base: commonBase,
             configurations: [
                 .debug(name: "Debug", settings: debug),
+                .release(name: "Staging", settings: staging),
                 .release(name: "Release", settings: release),
             ],
             defaultSettings: defaultSettings

@@ -37,8 +37,8 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     private var appleSignInDelegate: AppleSignInDelegate?
     private var appleSignInContinuation: CheckedContinuation<ASAuthorization, Error>?
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
+    private let store = FirebaseConfiguration.firestore
+    private let functions = FirebaseConfiguration.functions
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.apple

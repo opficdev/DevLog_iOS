@@ -26,7 +26,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    private let store = Firestore.firestore()
+    private let store = FirebaseConfiguration.firestore
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let provider = TopViewControllerProvider()

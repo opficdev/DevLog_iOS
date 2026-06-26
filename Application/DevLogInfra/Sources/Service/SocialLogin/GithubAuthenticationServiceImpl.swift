@@ -38,8 +38,8 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         static let acceptHeader = "application/vnd.github.v3+json"
     }
 
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
+    private let store = FirebaseConfiguration.firestore
+    private let functions = FirebaseConfiguration.functions
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.gitHub

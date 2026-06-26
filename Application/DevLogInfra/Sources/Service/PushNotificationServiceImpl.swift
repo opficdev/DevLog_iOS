@@ -34,8 +34,8 @@ final class PushNotificationServiceImpl: PushNotificationService {
         case undoPushNotificationDeletion
     }
 
-    private let store = Firestore.firestore()
-    private let functions = Functions.functions(region: "asia-northeast3")
+    private let store = FirebaseConfiguration.firestore
+    private let functions = FirebaseConfiguration.functions
     private let logger = Logger(category: "PushNotificationServiceImpl")
 
     /// 푸시 알림 On/Off 설정

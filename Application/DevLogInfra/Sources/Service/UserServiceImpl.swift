@@ -23,7 +23,7 @@ final class UserServiceImpl: UserService {
         }
     }
 
-    private let store = Firestore.firestore()
+    private let store = FirebaseConfiguration.firestore
     private let logger = Logger(category: "UserServiceImpl")
     
     // 유저를 Firestore에 저장 및 업데이트
