@@ -290,8 +290,6 @@ private extension LocalFirebaseRESTSupport {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
-        var data = data
-        data["databaseID"] = databaseID()
         request.httpBody = try JSONSerialization.data(withJSONObject: ["data": data])
         return try await sendJSON(request)
     }

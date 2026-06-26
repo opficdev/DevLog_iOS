@@ -14,10 +14,6 @@ enum FirebaseConfiguration {
         static let databaseID = "FIRESTORE_DATABASE_ID"
     }
 
-    private enum CallablePayloadKey {
-        static let databaseID = "databaseID"
-    }
-
     static let defaultDatabaseID = "staging"
 
     static var databaseID: String {
@@ -45,11 +41,5 @@ enum FirebaseConfiguration {
 
     static var functions: Functions {
         Functions.functions(region: "asia-northeast3")
-    }
-
-    static func callablePayload(_ payload: [String: Any] = [:]) -> [String: Any] {
-        var payload = payload
-        payload[CallablePayloadKey.databaseID] = databaseID
-        return payload
     }
 }
