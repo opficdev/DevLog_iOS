@@ -57,6 +57,31 @@ platform :ios do
     )
   end
 
+  private_lane :verify_store_configuration do |options|
+    configuration = options[:configuration].to_s.strip
+    database_id = options[:database_id].to_s.strip
+
+    expected_database_id =
+      case configuration
+      when TESTFLIGHT_CONFIGURATION
+        TESTFLIGHT_DATABASE_ID
+      when APPSTORE_CONFIGURATION
+        APPSTORE_DATABASE_ID
+      else
+        UI.user_error!("Unsupported store configuration: #{configuration}")
+      end
+
+    UI.user_error!("Missing Firestore database ID for #{configuration}") if database_id.empty?
+
+    if database_id != expected_database_id
+      UI.user_error!(
+        "Invalid store configuration: #{configuration} must use FIRESTORE_DATABASE_ID=#{expected_database_id}, got #{database_id}"
+      )
+    end
+
+    UI.message("Verified store configuration: #{configuration}/#{database_id}")
+  end
+
   private_lane :verify_firestore_database_id do |options|
     require "shellwords"
     require "tmpdir"
@@ -94,6 +119,11 @@ platform :ios do
     output_directory = options[:output_directory] || TESTFLIGHT_BUILD_OUTPUT_DIRECTORY
     expected_database_id = options[:database_id] ||
       (configuration == APPSTORE_CONFIGURATION ? APPSTORE_DATABASE_ID : TESTFLIGHT_DATABASE_ID)
+
+    verify_store_configuration(
+      configuration: configuration,
+      database_id: expected_database_id
+    )
 
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
       ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
@@ -249,6 +279,11 @@ platform :ios do
     ipa_output_path = TESTFLIGHT_IPA_OUTPUT_PATH if ipa_output_path.empty?
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
+
+    verify_firestore_database_id(
+      ipa: ipa_output_path,
+      database_id: TESTFLIGHT_DATABASE_ID
+    )
 
     upload_to_testflight(
       api_key: api_key,
