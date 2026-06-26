@@ -167,15 +167,8 @@ final class TodoServiceImpl: TodoService {
             let snapshot = try await firestoreQuery.getDocuments()
             let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
 
-            let todoNumber = searchedTodoNumber(from: trimmedKeyword)
             let filtered = todos.filter { todo in
-                if let todoNumber, todo.number == todoNumber {
-                    return true
-                }
-
-                return todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
+                todo.matchesSearchKeyword(trimmedKeyword)
             }
 
             return TodoPageResponse(items: filtered, nextCursor: nil)
@@ -327,6 +320,20 @@ final class TodoServiceImpl: TodoService {
             record(error, code: .fetchReferences)
             throw error
         }
+    }
+}
+
+extension TodoResponse {
+    func matchesSearchKeyword(_ keyword: String) -> Bool {
+        if keyword.hasPrefix("#"),
+           1 < keyword.count,
+           "#\(number)".localizedCaseInsensitiveContains(keyword) {
+            return true
+        }
+
+        return title.localizedCaseInsensitiveContains(keyword)
+            || content.localizedCaseInsensitiveContains(keyword)
+            || tags.contains { $0.localizedCaseInsensitiveContains(keyword) }
     }
 }
 
@@ -525,19 +532,6 @@ private extension TodoServiceImpl {
             tags: tags,
             category: .raw(category)
         )
-    }
-
-    func searchedTodoNumber(from keyword: String) -> Int? {
-        guard keyword.hasPrefix("#") else {
-            return nil
-        }
-
-        let numberText = String(keyword.dropFirst())
-        guard !numberText.isEmpty, numberText.allSatisfy(\.isNumber) else {
-            return nil
-        }
-
-        return Int(numberText)
     }
 
     enum TodoFieldKey: String {
