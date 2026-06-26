@@ -19,7 +19,7 @@ APPSTORE_IPA_OUTPUT_PATH = File.join(APPSTORE_BUILD_OUTPUT_DIRECTORY, "#{APP_PRO
 default_platform(:ios)
 
 platform :ios do
-  private_lane :fetch_latest_testflight_build_number do |options|
+  private_lane :fetch_latest_app_store_connect_build_number do |options|
     require "spaceship"
 
     api_key = options[:api_key]
@@ -110,23 +110,23 @@ platform :ios do
       target: TARGET_NAME
     )
 
-    latest_testflight_build_number = fetch_latest_testflight_build_number(
+    latest_build_number = fetch_latest_app_store_connect_build_number(
       api_key: api_key,
       version: version_number
     )
 
     setup_ci if ENV["CI"]
 
-    testflight_build_number = latest_testflight_build_number + 1
+    next_build_number = latest_build_number + 1
 
     increment_build_number(
       xcodeproj: XCODE_PROJ,
-      build_number: testflight_build_number
+      build_number: next_build_number
     )
 
     increment_build_number(
       xcodeproj: WIDGET_XCODE_PROJ,
-      build_number: testflight_build_number
+      build_number: next_build_number
     )
 
     match(
