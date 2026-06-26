@@ -183,6 +183,11 @@ Release -> prod
 
 TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
 
+- TestFlight build: `bundle exec fastlane testflight_build_only`
+- TestFlight upload: `bundle exec fastlane deploy_testflight`
+- App Store build: `bundle exec fastlane appstore_build_only`
+- App Store upload: `bundle exec fastlane deploy_appstore`
+
 ### 3. Xcode 워크스페이스 생성
 
 ```bash

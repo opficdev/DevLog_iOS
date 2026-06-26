@@ -1,0 +1,143 @@
+name: iOS App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_app_store_connect:
+        description: Upload to App Store Connect
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+env:
+  RUBY_VERSION: "3.2"
+  XCODE_VERSION: latest
+  APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_KEY_PATH: fastlane/AuthKey.p8
+  SPACESHIP_CONNECT_API_IN_HOUSE: "false"
+  MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+permissions:
+  contents: read
+
+jobs:
+  appstore:
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install private config files
+        uses: ./.github/actions/install-private-config
+        with:
+          git_url: ${{ env.MATCH_GIT_URL }}
+          git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ env.RUBY_VERSION }}
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$XCODE_VERSION" = "latest" ]; then
+            XCODE_APP="$(find /Applications -maxdepth 1 -name 'Xcode*.app' -type d | sort -V | tail -n 1)"
+          else
+            XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
+            if [ ! -d "$XCODE_APP" ]; then
+              XCODE_APP="/Applications/Xcode-${XCODE_VERSION}.app"
+            fi
+          fi
+
+          if [ ! -d "${XCODE_APP:-}" ]; then
+            echo "Requested Xcode not found for version: $XCODE_VERSION" >&2
+            exit 1
+          fi
+
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+
+      - name: Set up Tuist
+        uses: jdx/mise-action@v4
+        with:
+          install: true
+          cache: true
+
+      - name: Generate Xcode workspace with Tuist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tuist generate --no-open
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          printf '%s' "$ASC_KEY_CONTENT" | base64 -D > "$ASC_KEY_PATH"
+
+      - name: Build for App Store
+        run: bundle exec fastlane appstore_build_only
+
+      - name: Upload dSYM to Firebase Crashlytics
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          google_service_info_path="Application/DevLogApp/Sources/Resource/GoogleService-Info.plist"
+          dsym_zip_path="$(find fastlane/appstore_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
+          upload_symbols_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" "$HOME/Library/Developer/Xcode/SourcePackages" "$GITHUB_WORKSPACE" -path '*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols' -type f -print -quit 2>/dev/null || true)"
+
+          if [ ! -f "$google_service_info_path" ]; then
+            echo "Missing GoogleService-Info.plist at $google_service_info_path" >&2
+            exit 1
+          fi
+
+          if [ -z "$dsym_zip_path" ]; then
+            echo "Missing dSYM zip in fastlane/appstore_build" >&2
+            exit 1
+          fi
+
+          if [ -z "$upload_symbols_path" ]; then
+            echo "Missing Firebase Crashlytics upload-symbols script" >&2
+            exit 1
+          fi
+
+          "$upload_symbols_path" -gsp "$google_service_info_path" -p ios "$dsym_zip_path"
+
+      - name: Upload App Store build log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: appstore-build-log
+          path: ~/Library/Logs/gym/*.log
+          if-no-files-found: ignore
+
+      - name: Upload App Store dSYM
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: appstore-dsym
+          path: fastlane/appstore_build/*.dSYM.zip
+          if-no-files-found: warn
+
+      - name: Skip App Store Upload
+        if: inputs.upload_to_app_store_connect != 'true'
+        run: echo "Skipping App Store upload"
+
+      - name: Upload to App Store Connect
+        if: inputs.upload_to_app_store_connect == 'true'
+        run: bundle exec fastlane upload_appstore_build

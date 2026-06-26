@@ -14,6 +14,7 @@ APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
+APPSTORE_IPA_OUTPUT_PATH = File.join(APPSTORE_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 
 default_platform(:ios)
 
@@ -218,6 +219,16 @@ platform :ios do
     )
   end
 
+  lane :deploy_appstore do
+    build_for_store(
+      configuration: APPSTORE_CONFIGURATION,
+      output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
+      database_id: APPSTORE_DATABASE_ID
+    )
+
+    upload_appstore_build
+  end
+
   lane :sync_appstore_profiles do
     api_key = asc_api_key
     match_force = ENV.fetch("MATCH_FORCE", "false") == "true"
@@ -243,6 +254,30 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_output_path,
       skip_waiting_for_build_processing: true
+    )
+  end
+
+  lane :upload_appstore_build do
+    api_key = asc_api_key
+    # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
+    ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
+    ipa_output_path = APPSTORE_IPA_OUTPUT_PATH if ipa_output_path.empty?
+
+    UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
+
+    verify_firestore_database_id(
+      ipa: ipa_output_path,
+      database_id: APPSTORE_DATABASE_ID
+    )
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa_output_path,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true
     )
   end
 
