@@ -348,66 +348,57 @@ private extension TodoServiceImpl {
         for todoRef: DocumentReference,
         counterRef: DocumentReference
     ) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            store.runTransaction({ transaction, errorPointer in
-                let todoSnapshot: DocumentSnapshot
+        _ = try await store.runTransaction { transaction, errorPointer in
+            let todoSnapshot: DocumentSnapshot
+
+            do {
+                todoSnapshot = try transaction.getDocument(todoRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+
+            var todoData = data
+
+            if !todoSnapshot.exists {
+                let counterSnapshot: DocumentSnapshot
 
                 do {
-                    todoSnapshot = try transaction.getDocument(todoRef)
+                    counterSnapshot = try transaction.getDocument(counterRef)
                 } catch let error as NSError {
                     errorPointer?.pointee = error
                     return nil
                 }
 
-                var todoData = data
+                let nextNumberValue = counterSnapshot.data()?[CounterFieldKey.nextNumber.rawValue]
+                let nextNumber: Int
 
-                if !todoSnapshot.exists {
-                    let counterSnapshot: DocumentSnapshot
-
-                    do {
-                        counterSnapshot = try transaction.getDocument(counterRef)
-                    } catch let error as NSError {
-                        errorPointer?.pointee = error
-                        return nil
-                    }
-
-                    let nextNumberValue = counterSnapshot.data()?[CounterFieldKey.nextNumber.rawValue]
-                    let nextNumber: Int
-
-                    if let storedNextNumber = nextNumberValue as? Int {
-                        nextNumber = storedNextNumber
-                    } else if counterSnapshot.exists {
-                        errorPointer?.pointee = NSError(
-                            domain: "TodoServiceImpl",
-                            code: 1,
-                            userInfo: [NSLocalizedDescriptionKey: "Todo counter is invalid."]
-                        )
-                        return nil
-                    } else {
-                        nextNumber = 1
-                    }
-
-                    todoData[TodoFieldKey.number.rawValue] = nextNumber
-                    transaction.setData(
-                        [
-                            CounterFieldKey.nextNumber.rawValue: nextNumber + 1,
-                            CounterFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
-                        ],
-                        forDocument: counterRef,
-                        merge: true
+                if let storedNextNumber = nextNumberValue as? Int {
+                    nextNumber = storedNextNumber
+                } else if counterSnapshot.exists {
+                    errorPointer?.pointee = NSError(
+                        domain: "TodoServiceImpl",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: "Todo counter is invalid."]
                     )
+                    return nil
+                } else {
+                    nextNumber = 1
                 }
 
-                transaction.setData(todoData, forDocument: todoRef, merge: true)
-                return nil
-            }) { _, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                continuation.resume(returning: ())
+                todoData[TodoFieldKey.number.rawValue] = nextNumber
+                transaction.setData(
+                    [
+                        CounterFieldKey.nextNumber.rawValue: nextNumber + 1,
+                        CounterFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
+                    ],
+                    forDocument: counterRef,
+                    merge: true
+                )
             }
+
+            transaction.setData(todoData, forDocument: todoRef, merge: true)
+            return nil
         }
     }
 

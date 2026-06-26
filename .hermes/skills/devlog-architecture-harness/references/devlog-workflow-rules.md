@@ -45,6 +45,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 - If the user says they will commit or asks only for a commit message, provide commit-message guidance instead of committing.
 - Before proposing a commit message, inspect the actual diff and recent `git log`.
+- When recent history contains GitHub merge commits, do not infer commit-message style from merge subjects such as `[#123] ... (#456)`. Open the merge commit with `git show --no-patch --format=full <merge-commit>` and use the individual commit messages in the body, or inspect nearby non-merge commits.
 - Match the repository's current Korean style and prefix pattern.
 - If the user explicitly specifies a prefix or noun-phrase ending, follow it exactly.
 - For broad architecture refactors, split commits by layer when the user asks for staged commits.

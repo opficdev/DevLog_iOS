@@ -197,15 +197,8 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
             let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
 
-            logger.info("Starting Apple token document fetch for unlink. uid: \(uid)")
-            let doc = try await tokensRef.getDocument()
-
-            if doc.exists {
-                logger.info("Starting Apple refresh token deletion from Firestore for unlink. uid: \(uid)")
-                try await tokensRef.updateData([
-                    "appleRefreshToken": FieldValue.delete()
-                ])
-            }
+            logger.info("Starting Apple refresh token deletion from Firestore for unlink. uid: \(uid)")
+            try await deleteAppleRefreshToken(from: tokensRef)
 
             logger.info("Starting Firebase Apple provider unlink. uid: \(uid)")
             _ = try await user?.unlink(fromProvider: providerID.rawValue)
@@ -337,6 +330,28 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 }
 
 private extension AppleAuthenticationServiceImpl {
+    func deleteAppleRefreshToken(from tokensRef: DocumentReference) async throws {
+        _ = try await store.runTransaction { transaction, errorPointer in
+            let snapshot: DocumentSnapshot
+
+            do {
+                snapshot = try transaction.getDocument(tokensRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+
+            if snapshot.exists {
+                transaction.updateData(
+                    ["appleRefreshToken": FieldValue.delete()],
+                    forDocument: tokensRef
+                )
+            }
+
+            return nil
+        }
+    }
+
     private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
