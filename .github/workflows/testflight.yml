@@ -3,19 +3,14 @@ name: iOS TestFlight
 on:
   workflow_dispatch:
     inputs:
-      upload_to_app_store_connect:
-        description: Upload to App Store Connect
+      upload_to_testflight:
+        description: Upload to TestFlight
         required: true
         default: "false"
         type: choice
         options:
           - "false"
           - "true"
-  pull_request:
-    types:
-      - closed
-    branches:
-      - develop
 
 env:
   SCHEME: DevLogApp
@@ -35,19 +30,11 @@ permissions:
 
 jobs:
   testflight:
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (contains(github.event.pull_request.labels.*.name, 'qa') || contains(github.event.pull_request.labels.*.name, 'qa-local')))
     runs-on: macos-latest
     timeout-minutes: 45
 
     steps:
-      - name: Checkout merge commit
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Checkout current ref
-        if: github.event_name == 'workflow_dispatch'
+      - name: Checkout
         uses: actions/checkout@v5
 
       - name: Install private config files
@@ -159,9 +146,9 @@ jobs:
           if-no-files-found: warn
 
       - name: Skip TestFlight Upload
-        if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect != 'true')
+        if: inputs.upload_to_testflight != 'true'
         run: echo "Skipping TestFlight upload"
 
       - name: Upload to TestFlight
-        if: (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'qa') && !contains(github.event.pull_request.labels.*.name, 'qa-local')) || (github.event_name == 'workflow_dispatch' && inputs.upload_to_app_store_connect == 'true')
+        if: inputs.upload_to_testflight == 'true'
         run: bundle exec fastlane upload_testflight_build

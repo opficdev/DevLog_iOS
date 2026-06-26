@@ -182,6 +182,7 @@ Release -> prod
 ```
 
 TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
+GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행함
 
 - TestFlight build: `bundle exec fastlane testflight_build_only`
 - TestFlight upload: `bundle exec fastlane deploy_testflight`
