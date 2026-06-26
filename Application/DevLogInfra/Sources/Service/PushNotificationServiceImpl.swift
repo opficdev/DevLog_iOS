@@ -298,28 +298,19 @@ private extension PushNotificationServiceImpl {
     }
 
     func toggleReadValue(for notificationRef: DocumentReference) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            store.runTransaction({ transaction, errorPointer in
-                do {
-                    let snapshot = try transaction.getDocument(notificationRef)
-                    guard let currentValue = snapshot.data()?["isRead"] as? Bool else {
-                        throw FirestoreError.dataNotFound("isRead")
-                    }
-
-                    transaction.updateData(["isRead": !currentValue], forDocument: notificationRef)
-                } catch let error as NSError {
-                    errorPointer?.pointee = error
+        _ = try await store.runTransaction { transaction, errorPointer in
+            do {
+                let snapshot = try transaction.getDocument(notificationRef)
+                guard let currentValue = snapshot.data()?["isRead"] as? Bool else {
+                    throw FirestoreError.dataNotFound("isRead")
                 }
 
-                return nil
-            }) { _, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                continuation.resume(returning: ())
+                transaction.updateData(["isRead": !currentValue], forDocument: notificationRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
             }
+
+            return nil
         }
     }
 

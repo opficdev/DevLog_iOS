@@ -205,67 +205,58 @@ private extension UserServiceImpl {
         let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
         let todoCounterRef = store.document(FirestorePath.counter(uid, document: .todo))
 
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            store.runTransaction({ transaction, errorPointer in
-                let userDocument: DocumentSnapshot
-                let settingsDocument: DocumentSnapshot
+        _ = try await store.runTransaction { transaction, errorPointer in
+            let userDocument: DocumentSnapshot
+            let settingsDocument: DocumentSnapshot
 
-                do {
-                    userDocument = try transaction.getDocument(userRef)
-                    settingsDocument = try transaction.getDocument(settingsRef)
-                } catch let error as NSError {
-                    errorPointer?.pointee = error
-                    return nil
-                }
+            do {
+                userDocument = try transaction.getDocument(userRef)
+                settingsDocument = try transaction.getDocument(settingsRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
 
-                var infoField = userField
-                if !userDocument.exists {
-                    infoField["statusMsg"] = ""
-                    infoField["createdAt"] = FieldValue.serverTimestamp()
-                }
+            var infoField = userField
+            if !userDocument.exists {
+                infoField["statusMsg"] = ""
+                infoField["createdAt"] = FieldValue.serverTimestamp()
+            }
 
-                var settingsField: [String: Any] = [
-                    "timeZone": TimeZone.autoupdatingCurrent.identifier
-                ]
-                if !settingsDocument.exists {
-                    settingsField["allowPushNotification"] = true
-                    settingsField["pushNotificationHour"] = 9
-                    settingsField["pushNotificationMinute"] = 0
-                }
+            var settingsField: [String: Any] = [
+                "timeZone": TimeZone.autoupdatingCurrent.identifier
+            ]
+            if !settingsDocument.exists {
+                settingsField["allowPushNotification"] = true
+                settingsField["pushNotificationHour"] = 9
+                settingsField["pushNotificationMinute"] = 0
+            }
 
+            transaction.setData(
+                ["updatedAt": FieldValue.serverTimestamp()],
+                forDocument: userRef,
+                merge: true
+            )
+            transaction.setData(infoField, forDocument: infoRef, merge: true)
+
+            if !tokenField.isEmpty {
+                transaction.setData(tokenField, forDocument: tokensRef, merge: true)
+            }
+
+            transaction.setData(settingsField, forDocument: settingsRef, merge: true)
+
+            if !userDocument.exists {
                 transaction.setData(
-                    ["updatedAt": FieldValue.serverTimestamp()],
-                    forDocument: userRef,
+                    [
+                        "nextNumber": 1,
+                        "updatedAt": FieldValue.serverTimestamp()
+                    ],
+                    forDocument: todoCounterRef,
                     merge: true
                 )
-                transaction.setData(infoField, forDocument: infoRef, merge: true)
-
-                if !tokenField.isEmpty {
-                    transaction.setData(tokenField, forDocument: tokensRef, merge: true)
-                }
-
-                transaction.setData(settingsField, forDocument: settingsRef, merge: true)
-
-                if !userDocument.exists {
-                    transaction.setData(
-                        [
-                            "nextNumber": 1,
-                            "updatedAt": FieldValue.serverTimestamp()
-                        ],
-                        forDocument: todoCounterRef,
-                        merge: true
-                    )
-                }
-
-                return nil
-            }) { _, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                continuation.resume(returning: ())
             }
+
+            return nil
         }
     }
 }

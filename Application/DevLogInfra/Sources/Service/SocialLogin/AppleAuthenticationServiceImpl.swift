@@ -331,33 +331,24 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
 private extension AppleAuthenticationServiceImpl {
     func deleteAppleRefreshToken(from tokensRef: DocumentReference) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            store.runTransaction({ transaction, errorPointer in
-                let snapshot: DocumentSnapshot
+        _ = try await store.runTransaction { transaction, errorPointer in
+            let snapshot: DocumentSnapshot
 
-                do {
-                    snapshot = try transaction.getDocument(tokensRef)
-                } catch let error as NSError {
-                    errorPointer?.pointee = error
-                    return nil
-                }
-
-                if snapshot.exists {
-                    transaction.updateData(
-                        ["appleRefreshToken": FieldValue.delete()],
-                        forDocument: tokensRef
-                    )
-                }
-
+            do {
+                snapshot = try transaction.getDocument(tokensRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
                 return nil
-            }) { _, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                continuation.resume(returning: ())
             }
+
+            if snapshot.exists {
+                transaction.updateData(
+                    ["appleRefreshToken": FieldValue.delete()],
+                    forDocument: tokensRef
+                )
+            }
+
+            return nil
         }
     }
 
