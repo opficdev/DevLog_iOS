@@ -7,8 +7,11 @@ APP_IDENTIFIERS = [APP_IDENTIFIER, WIDGET_IDENTIFIER]
 TARGET_NAME = "DevLogApp"
 WIDGET_TARGET_NAME = "DevLogWidgetExtension"
 APP_PRODUCT_NAME = "DevLog"
+TESTFLIGHT_CONFIGURATION = "Staging"
+APPSTORE_CONFIGURATION = "Release"
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
+APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
 
 default_platform(:ios)
 
@@ -51,7 +54,10 @@ platform :ios do
     )
   end
 
-  private_lane :build_for_store do
+  private_lane :build_for_store do |options|
+    configuration = options[:configuration] || TESTFLIGHT_CONFIGURATION
+    output_directory = options[:output_directory] || TESTFLIGHT_BUILD_OUTPUT_DIRECTORY
+
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
       ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
     end
@@ -118,7 +124,7 @@ platform :ios do
           sdk: "iphoneos*",
           team_id: ENV["APP_STORE_TEAM_ID"],
           targets: [target_name],
-          build_configurations: ["Release"],
+          build_configurations: [configuration],
           code_sign_identity: "Apple Distribution",
           profile_name: provisioning_profile_specifier
         )
@@ -128,8 +134,9 @@ platform :ios do
     build_app(
       workspace: XCODE_WORKSPACE,
       scheme: TARGET_NAME,
+      configuration: configuration,
       export_method: "app-store",
-      output_directory: TESTFLIGHT_BUILD_OUTPUT_DIRECTORY,
+      output_directory: output_directory,
       output_name: "#{APP_PRODUCT_NAME}.ipa",
       include_symbols: true,
       xcargs: "-skipPackagePluginValidation -skipMacroValidation"
@@ -144,13 +151,20 @@ platform :ios do
   end
 
   lane :deploy_testflight do
-    build_for_store
+    build_for_store(configuration: TESTFLIGHT_CONFIGURATION)
 
     upload_testflight_build
   end
 
   lane :testflight_build_only do
-    build_for_store
+    build_for_store(configuration: TESTFLIGHT_CONFIGURATION)
+  end
+
+  lane :appstore_build_only do
+    build_for_store(
+      configuration: APPSTORE_CONFIGURATION,
+      output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY
+    )
   end
 
   lane :sync_appstore_profiles do

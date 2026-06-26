@@ -52,11 +52,19 @@ let project = Project(
                 debug: [
                     "APS_ENVIRONMENT": "development",
                     "DEBUG_INFORMATION_FORMAT": "dwarf",
+                    "FIRESTORE_DATABASE_ID": "staging",
                     "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "NO",
+                ],
+                staging: [
+                    "APS_ENVIRONMENT": "production",
+                    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                    "FIRESTORE_DATABASE_ID": "staging",
+                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ],
                 release: [
                     "APS_ENVIRONMENT": "production",
                     "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                    "FIRESTORE_DATABASE_ID": "prod",
                     "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ]
             )

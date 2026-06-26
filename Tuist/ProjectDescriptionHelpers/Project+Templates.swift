@@ -34,6 +34,9 @@ public extension Project {
                     debug: [
                         "DEBUG_INFORMATION_FORMAT": "dwarf",
                     ],
+                    staging: [
+                        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                    ],
                     release: [
                         "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     ]
