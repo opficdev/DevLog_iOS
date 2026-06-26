@@ -21,6 +21,15 @@ struct SearchFeatureTests {
         #expect(adapter.recentQueries == ["swift", "tca"])
     }
 
+    @Test("onAppear는 검색 상태를 활성화한다")
+    func onAppear는_검색_상태를_활성화한다() async {
+        let adapter = SearchStoreTestAdapter()
+
+        await adapter.onAppear()
+
+        #expect(adapter.isSearching)
+    }
+
     @Test("addRecentQuery는 공백을 제거하고 중복 제거 후 앞에 추가한다")
     func addRecentQuery는_공백을_제거하고_중복_제거_후_앞에_추가한다() async {
         let updateSpy = SearchUpdateRecentQueriesUseCaseSpy()

@@ -64,6 +64,7 @@ struct SearchFeature {
     }
 
     enum Action: BindableAction, Equatable {
+        case onAppear
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case addRecentQuery(String)
@@ -102,6 +103,11 @@ struct SearchFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                return .run { send in
+                    await Task.yield()
+                    await send(.binding(.set(\.isSearching, true)))
+                }
             case .alert:
                 break
             case .binding(\.isSearching):
