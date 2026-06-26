@@ -64,6 +64,7 @@ struct SearchFeature {
     }
 
     enum Action: BindableAction, Equatable {
+        case onAppear
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
         case addRecentQuery(String)
@@ -102,6 +103,14 @@ struct SearchFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                return .run { send in
+                    // `.searchable` 바인딩이 화면에 붙은 뒤 포커스를 요청하도록 main queue 다음 턴으로 넘긴다.
+                    await withCheckedContinuation { continuation in
+                        DispatchQueue.main.async { continuation.resume() }
+                    }
+                    await send(.binding(.set(\.isSearching, true)))
+                }
             case .alert:
                 break
             case .binding(\.isSearching):

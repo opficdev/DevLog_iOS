@@ -82,6 +82,13 @@ struct SearchStoreTestAdapter {
         }
     }
 
+    func onAppear() async {
+        await store.send(.onAppear)
+        await store.receive(.binding(.set(\.isSearching, true))) {
+            $0.isSearching = true
+        }
+    }
+
     func setShowAllTodos(_ value: Bool) async {
         await store.send(.setShowAllTodos(value)) {
             $0.showAllTodos = value

@@ -41,7 +41,7 @@ struct SearchView: View {
                             }
                     }
                 }
-                .onAppear { store.send(.binding(.set(\.isSearching, true))) }
+                .onAppear { store.send(.onAppear) }
                 .onChange(of: store.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
