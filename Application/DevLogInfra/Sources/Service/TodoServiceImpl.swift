@@ -167,8 +167,9 @@ final class TodoServiceImpl: TodoService {
             let snapshot = try await firestoreQuery.getDocuments()
             let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
 
+            let numberKeyword = TodoResponse.normalizedNumberKeyword(from: trimmedKeyword) ?? trimmedKeyword
             let filtered = todos.filter { todo in
-                todo.matchesSearchKeyword(trimmedKeyword)
+                todo.matchesSearchKeyword(trimmedKeyword, numberKeyword: numberKeyword)
             }
 
             return TodoPageResponse(items: filtered, nextCursor: nil)
@@ -324,12 +325,12 @@ final class TodoServiceImpl: TodoService {
 }
 
 extension TodoResponse {
-    func matchesSearchKeyword(_ keyword: String) -> Bool {
-        let numberKeyword = normalizedNumberKeyword(from: keyword) ?? keyword
+    func matchesSearchKeyword(_ keyword: String, numberKeyword: String? = nil) -> Bool {
+        let resolvedNumberKeyword = numberKeyword ?? Self.normalizedNumberKeyword(from: keyword) ?? keyword
 
         if keyword.hasPrefix("#"),
            1 < keyword.count,
-           "#\(number)".localizedCaseInsensitiveContains(numberKeyword) {
+           "#\(number)".localizedCaseInsensitiveContains(resolvedNumberKeyword) {
             return true
         }
 
@@ -338,7 +339,7 @@ extension TodoResponse {
             || tags.contains { $0.localizedCaseInsensitiveContains(keyword) }
     }
 
-    private func normalizedNumberKeyword(from keyword: String) -> String? {
+    static func normalizedNumberKeyword(from keyword: String) -> String? {
         guard keyword.hasPrefix("#") else {
             return nil
         }
