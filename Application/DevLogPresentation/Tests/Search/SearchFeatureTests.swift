@@ -122,6 +122,30 @@ struct SearchFeatureTests {
         #expect(!adapter.isLoading)
     }
 
+    @Test("# 단독 검색어는 안내 상태로 전환하고 조회를 시작하지 않는다")
+    func 해시_단독_검색어는_안내_상태로_전환하고_조회를_시작하지_않는다() async {
+        let todo = TodoListItem(from: makeSearchTodo(id: "todo-1"))!
+        let webPage = WebPageItem(from: makeSearchWebPage(urlString: "https://swift.org"))
+        let todoSpy = SearchFetchTodosUseCaseSpy()
+        let webSpy = SearchFetchWebPagesUseCaseSpy()
+        let adapter = SearchStoreTestAdapter(
+            initialTodos: [todo],
+            initialWebPages: [webPage],
+            isLoading: true,
+            fetchWebPagesUseCase: webSpy,
+            fetchTodosUseCase: todoSpy
+        )
+
+        await adapter.setSearchQuery("#")
+
+        #expect(adapter.isHashOnlyQuery)
+        #expect(adapter.todos.isEmpty)
+        #expect(adapter.webPages.isEmpty)
+        #expect(!adapter.isLoading)
+        #expect(todoSpy.queries.isEmpty)
+        #expect(webSpy.queries.isEmpty)
+    }
+
     @Test("# 검색어는 WebPage 조회를 생략하고 Todo만 반영한다")
     func 해시태그_검색어는_WebPage_조회를_생략하고_Todo만_반영한다() async {
         let todo = makeSearchTodo(id: "todo-1", title: "Issue")

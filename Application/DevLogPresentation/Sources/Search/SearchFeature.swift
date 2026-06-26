@@ -57,6 +57,10 @@ struct SearchFeature {
         var shouldShowMoreWebPages: Bool {
             !showAllWebPages && contentsLimit < webPages.count
         }
+
+        var isHashOnlyQuery: Bool {
+            searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) == "#"
+        }
     }
 
     enum Action: BindableAction, Equatable {
@@ -108,7 +112,7 @@ struct SearchFeature {
                 state.showAllTodos = false
                 state.showAllWebPages = false
                 let trimmed = state.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-                if trimmed.isEmpty {
+                if trimmed.isEmpty || trimmed == "#" {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
@@ -141,7 +145,7 @@ struct SearchFeature {
                 return saveRecentQueriesEffect([])
             case .store(.applySearchQuery(let query)):
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-                if trimmed.isEmpty {
+                if trimmed.isEmpty || trimmed == "#" {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
@@ -232,20 +236,16 @@ private extension SearchFeature {
     }
 
     func fetchEffect(_ query: String, isLoading: Bool) -> Effect<Action> {
-        let searchesTodoOnly = Self.searchesTodoOnly(query)
+        let skipsWebPages = query.hasPrefix("#")
 
         return .run { [fetchTodosUseCase, fetchWebPagesUseCase] send in
             do {
                 async let todos = fetchTodosUseCase.execute(TodoQuery(keyword: query), cursor: nil)
-                async let webPageItems = Self.fetchWebPageItems(
-                    query: query,
-                    searchesTodoOnly: searchesTodoOnly,
-                    fetchWebPagesUseCase: fetchWebPagesUseCase
-                )
+                let webPages = skipsWebPages ? [] : try await fetchWebPagesUseCase.execute(query)
                 let todoItems = try await todos.items.compactMap { TodoListItem(from: $0) }
-                let resolvedWebPageItems = try await webPageItems
+                let webPageItems = webPages.map { WebPageItem(from: $0) }
                 await send(.store(.fetchTodos(todoItems)))
-                await send(.store(.fetchWebPage(resolvedWebPageItems)))
+                await send(.store(.fetchWebPage(webPageItems)))
                 if isLoading {
                     await send(.loading(.end(target: .default, mode: .immediate)))
                 }
@@ -271,23 +271,6 @@ private extension SearchFeature {
         return .run { [updateRecentSearchQueriesUseCase] _ in
             updateRecentSearchQueriesUseCase.execute(values)
         }
-    }
-
-    static func searchesTodoOnly(_ query: String) -> Bool {
-        query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
-    }
-
-    static func fetchWebPageItems(
-        query: String,
-        searchesTodoOnly: Bool,
-        fetchWebPagesUseCase: FetchWebPagesUseCase
-    ) async throws -> [WebPageItem] {
-        if searchesTodoOnly {
-            return []
-        }
-
-        let webPages = try await fetchWebPagesUseCase.execute(query)
-        return webPages.map { WebPageItem(from: $0) }
     }
 
     static func alertState() -> AlertState<Never> {

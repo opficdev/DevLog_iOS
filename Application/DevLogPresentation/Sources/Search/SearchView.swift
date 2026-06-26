@@ -62,6 +62,8 @@ struct SearchView: View {
                         recentQueries
                     }
                 }
+            } else if store.isHashOnlyQuery {
+                hashGuide
             } else if store.isLoading {
                 LoadingView()
             } else if store.webPages.isEmpty && store.todos.isEmpty {
@@ -101,6 +103,22 @@ struct SearchView: View {
                 .foregroundStyle(Color.gray)
             Spacer()
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var hashGuide: some View {
+        VStack(spacing: 8) {
+            Spacer()
+            Text(String(localized: "search_hash_guide_title"))
+                .font(.headline)
+                .foregroundStyle(Color(.label))
+            Text(String(localized: "search_hash_guide_message"))
+                .font(.subheadline)
+                .foregroundStyle(Color.gray)
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
         .frame(maxWidth: .infinity)
     }
 
