@@ -9,6 +9,7 @@ import Combine
 import ComposableArchitecture
 import DevLogCore
 import DevLogDomain
+import Foundation
 import Testing
 @testable import DevLogPresentation
 
@@ -299,9 +300,18 @@ final class RootTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
 }
 
 final class RootApplicationBadgeCountSpy: @unchecked Sendable {
-    private(set) var counts = [Int]()
+    private let lock = NSLock()
+    private var protectedCounts = [Int]()
+
+    var counts: [Int] {
+        lock.withLock {
+            protectedCounts
+        }
+    }
 
     func setBadgeCount(_ count: Int) async throws {
-        counts.append(count)
+        lock.withLock {
+            protectedCounts.append(count)
+        }
     }
 }
