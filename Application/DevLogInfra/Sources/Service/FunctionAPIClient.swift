@@ -98,19 +98,23 @@ struct EmptyAPIResponse: Decodable {}
 
 private struct EmptyPayload: Encodable {}
 
+private struct FunctionAPIErrorBody: Decodable {
+    let code: String
+    let message: String?
+}
+
 private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
     func decodeServerError(
         data: Data,
         response: HTTPURLResponse,
         decoder: JSONDecoder
     ) -> (any Error)? {
-        guard let json = try? JSONSerialization.jsonObject(with: data),
-              let payload = json as? [String: Any],
-              let reason = reason(from: payload) else {
-            return nil
-        }
+        guard let body = try? decoder.decode(
+            FunctionAPIErrorBody.self,
+            from: data
+        ) else { return nil }
 
-        switch reason {
+        switch body.code {
         case EmailFetchError.emailNotFound.code:
             return EmailFetchError.emailNotFound
         case EmailFetchError.emailMismatch.code:
@@ -118,24 +122,6 @@ private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
         default:
             return nil
         }
-    }
-
-    private func reason(from payload: [String: Any]) -> String? {
-        if let reason = payload["reason"] as? String {
-            return reason
-        }
-
-        if let details = payload["details"] as? [String: Any],
-           let reason = details["reason"] as? String {
-            return reason
-        }
-
-        if let error = payload["error"] as? [String: Any],
-           let reason = error["reason"] as? String {
-            return reason
-        }
-
-        return nil
     }
 }
 
