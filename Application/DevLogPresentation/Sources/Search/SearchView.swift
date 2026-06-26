@@ -41,7 +41,11 @@ struct SearchView: View {
                             }
                     }
                 }
-                .onAppear { store.send(.binding(.set(\.isSearching, true))) }
+                .onAppear {
+                    DispatchQueue.main.async {
+                        store.send(.binding(.set(\.isSearching, true)))
+                    }
+                }
                 .onChange(of: store.isSearching) { _, isSearching in
                     if !isSearching {
                         dismiss()
