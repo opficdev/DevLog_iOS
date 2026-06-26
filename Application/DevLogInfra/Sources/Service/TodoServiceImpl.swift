@@ -167,15 +167,9 @@ final class TodoServiceImpl: TodoService {
             let snapshot = try await firestoreQuery.getDocuments()
             let todos = snapshot.documents.compactMap { makeResponse(from: $0) }
 
-            let todoNumber = searchedTodoNumber(from: trimmedKeyword)
+            let numberKeyword = TodoResponse.normalizedNumberKeyword(from: trimmedKeyword) ?? trimmedKeyword
             let filtered = todos.filter { todo in
-                if let todoNumber, todo.number == todoNumber {
-                    return true
-                }
-
-                return todo.title.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.content.localizedCaseInsensitiveContains(trimmedKeyword)
-                    || todo.tags.contains { $0.localizedCaseInsensitiveContains(trimmedKeyword) }
+                todo.matchesSearchKeyword(trimmedKeyword, numberKeyword: numberKeyword)
             }
 
             return TodoPageResponse(items: filtered, nextCursor: nil)
@@ -327,6 +321,38 @@ final class TodoServiceImpl: TodoService {
             record(error, code: .fetchReferences)
             throw error
         }
+    }
+}
+
+extension TodoResponse {
+    func matchesSearchKeyword(_ keyword: String, numberKeyword: String? = nil) -> Bool {
+        let resolvedNumberKeyword = numberKeyword ?? Self.normalizedNumberKeyword(from: keyword) ?? keyword
+
+        if keyword.hasPrefix("#"),
+           1 < keyword.count,
+           "#\(number)".localizedCaseInsensitiveContains(resolvedNumberKeyword) {
+            return true
+        }
+
+        return title.localizedCaseInsensitiveContains(keyword)
+            || content.localizedCaseInsensitiveContains(keyword)
+            || tags.contains { $0.localizedCaseInsensitiveContains(keyword) }
+    }
+
+    static func normalizedNumberKeyword(from keyword: String) -> String? {
+        guard keyword.hasPrefix("#") else {
+            return nil
+        }
+
+        let digits = keyword.dropFirst()
+        guard !digits.isEmpty, digits.allSatisfy(\.isNumber) else {
+            return nil
+        }
+
+        let normalizedDigits = digits.drop(while: { $0 == "0" })
+        let numberText = normalizedDigits.isEmpty ? "0" : String(normalizedDigits)
+
+        return "#\(numberText)"
     }
 }
 
@@ -525,19 +551,6 @@ private extension TodoServiceImpl {
             tags: tags,
             category: .raw(category)
         )
-    }
-
-    func searchedTodoNumber(from keyword: String) -> Int? {
-        guard keyword.hasPrefix("#") else {
-            return nil
-        }
-
-        let numberText = String(keyword.dropFirst())
-        guard !numberText.isEmpty, numberText.allSatisfy(\.isNumber) else {
-            return nil
-        }
-
-        return Int(numberText)
     }
 
     enum TodoFieldKey: String {
