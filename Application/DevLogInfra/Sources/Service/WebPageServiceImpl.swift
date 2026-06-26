@@ -7,7 +7,6 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import DevLogCore
 import DevLogData
 
@@ -23,13 +22,7 @@ final class WebPageServiceImpl: WebPageService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestWebPageDeletion
-        case undoWebPageDeletion
-    }
-
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "WebPageServiceImpl")
 
@@ -98,8 +91,9 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            let function = functions.httpsCallable(FunctionName.requestWebPageDeletion)
-            _ = try await function.call(["urlString": urlString])
+            try await FunctionAPIClient().send(
+                .requestWebPageDeletion(documentID(for: urlString))
+            )
             logger.info("Successfully requested web page deletion")
         } catch {
             logger.error("Failed to request web page deletion", error: error)
@@ -117,8 +111,9 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            let function = functions.httpsCallable(FunctionName.undoWebPageDeletion)
-            _ = try await function.call(["urlString": urlString])
+            try await FunctionAPIClient().send(
+                .undoWebPageDeletion(documentID(for: urlString))
+            )
             logger.info("Successfully undone web page deletion")
         } catch {
             logger.error("Failed to undo web page deletion", error: error)
