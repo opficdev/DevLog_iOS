@@ -101,10 +101,7 @@ struct SearchStoreTestAdapter {
             $0.searchQuery = query
             $0.showAllTodos = false
             $0.showAllWebPages = false
-            if trimmed.isEmpty {
-                $0.todos = []
-                $0.webPages = []
-            } else if trimmed == "#" {
+            if trimmed.isEmpty || $0.showsTodoNumberSearchInstruction {
                 $0.todos = []
                 $0.webPages = []
             }
@@ -112,7 +109,7 @@ struct SearchStoreTestAdapter {
         if wasLoading {
             await receiveEndLoading()
         }
-        if !trimmed.isEmpty && trimmed != "#" {
+        if !trimmed.isEmpty && !store.state.showsTodoNumberSearchInstruction {
             await receiveBeginLoading()
         }
     }
