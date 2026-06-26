@@ -109,7 +109,10 @@ struct RootFeature {
                 if result {
                     state.selectedMainTab = .home
                 } else {
-                    return trackLoginScreenEffect()
+                    return .merge(
+                        trackLoginScreenEffect(),
+                        clearApplicationBadgeCountEffect()
+                    )
                 }
             }
 

@@ -39,6 +39,19 @@ struct RootFeatureTests {
         await verifyDidLoginedFalse(adapter: adapter, trackAnalyticsEventUseCaseSpy: trackSpy)
     }
 
+    @Test("RootFeature didLogined(false)는 앱 badge 초기화를 요청한다")
+    func RootFeature_didLogined_false는_앱_badge_초기화를_요청한다() async {
+        let badgeSpy = RootApplicationBadgeCountSpy()
+        let adapter = RootStoreTestAdapter(badgeCountSpy: badgeSpy)
+
+        await adapter.didLogined(false)
+        await waitUntil {
+            badgeSpy.counts == [0]
+        }
+
+        #expect(badgeSpy.counts == [0])
+    }
+
     @Test("RootFeature didLogined(true)는 기존 Root 상태관리처럼 signIn 상태를 true로 갱신하고 selectedMainTab을 home으로 되돌린다")
     func RootFeature_didLogined_true는_기존_Root_상태관리처럼_signIn_상태를_true로_갱신하고_selectedMainTab을_home으로_되돌린다() async {
         let trackSpy = RootTrackAnalyticsEventUseCaseSpy()
