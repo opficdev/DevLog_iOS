@@ -35,7 +35,7 @@ final class TodoCategoryServiceImpl: TodoCategoryService {
         case user
     }
 
-    private let store = Firestore.firestore()
+    private let store = FirebaseConfiguration.firestore
     private let logger = Logger(category: "TodoCategoryServiceImpl")
 
     func fetchCategoryPreferences() async throws -> [TodoCategoryPreferenceResponse] {

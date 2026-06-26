@@ -174,6 +174,14 @@ Application/DevLogApp/Sources/Resource/
 └── GoogleService-Info.plist
 ```
 
+Firestore database는 기본값으로 `staging`을 사용함
+
+```text
+FIRESTORE_DATABASE_ID = staging
+```
+
+App Store 실제 서비스 배포용 archive는 `Config.xcconfig`에서 `prod`로 override함
+
 ### 3. Xcode 워크스페이스 생성
 
 ```bash

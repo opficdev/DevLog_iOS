@@ -24,7 +24,7 @@ final class AuthServiceImpl: AuthService {
         }
     }
 
-    private let store = Firestore.firestore()
+    private let store = FirebaseConfiguration.firestore
     private let messaging = Messaging.messaging()
     private let logger = Logger(category: "AuthServiceImpl")
     private let subject = CurrentValueSubject<Bool, Never>(Auth.auth().currentUser != nil)

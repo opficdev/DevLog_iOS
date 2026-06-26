@@ -1,2 +1,3 @@
 #include "../../../Shared/Version.xcconfig"
+FIRESTORE_DATABASE_ID = staging
 #include? "Config.xcconfig"

@@ -149,7 +149,7 @@ final class LocalFirebaseRESTSupport {
     func fetchPushNotificationIDs(userId: String) async throws -> [String] {
         let googleServiceInfo = try loadGoogleServiceInfo()
         let url = firestoreBaseURL.appending(
-            path: "v1/projects/\(googleServiceInfo.projectId)/databases/(default)/documents/users/" +
+            path: "v1/projects/\(googleServiceInfo.projectId)/databases/\(databaseID())/documents/users/" +
                 "\(userId)/notifications",
             directoryHint: .notDirectory
         )
@@ -181,7 +181,8 @@ final class LocalFirebaseRESTSupport {
     func fetchWebPageURLs(userId: String) async throws -> [String] {
         let googleServiceInfo = try loadGoogleServiceInfo()
         let url = firestoreBaseURL.appending(
-            path: "v1/projects/\(googleServiceInfo.projectId)/databases/(default)/documents/users/\(userId)/webPages",
+            path: "v1/projects/\(googleServiceInfo.projectId)/databases/\(databaseID())" +
+                "/documents/users/\(userId)/webPages",
             directoryHint: .notDirectory
         )
         let (data, response) = try await URLSession.shared.data(from: url)
@@ -289,6 +290,8 @@ private extension LocalFirebaseRESTSupport {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        var data = data
+        data["databaseID"] = databaseID()
         request.httpBody = try JSONSerialization.data(withJSONObject: ["data": data])
         return try await sendJSON(request)
     }
@@ -301,7 +304,8 @@ private extension LocalFirebaseRESTSupport {
         let encodedPath = encode(documentPath)
         var request = URLRequest(
             url: firestoreBaseURL.appending(
-                path: "v1/projects/\(googleServiceInfo.projectId)/databases/(default)/documents/\(encodedPath)",
+                path: "v1/projects/\(googleServiceInfo.projectId)/databases/\(databaseID())" +
+                    "/documents/\(encodedPath)",
                 directoryHint: .notDirectory
             )
         )
@@ -334,6 +338,22 @@ private extension LocalFirebaseRESTSupport {
         path.split(separator: "/").map {
             String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0)
         }.joined(separator: "/")
+    }
+
+    func databaseID() -> String {
+        let environmentValue = ProcessInfo.processInfo.environment["FIRESTORE_DATABASE_ID"]?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let environmentValue, !environmentValue.isEmpty {
+            return environmentValue
+        }
+
+        let bundleValue = Bundle.main.object(forInfoDictionaryKey: "FIRESTORE_DATABASE_ID") as? String
+        let databaseID = bundleValue?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let databaseID, !databaseID.isEmpty, !databaseID.hasPrefix("$(") else {
+            return "staging"
+        }
+
+        return databaseID
     }
 
     func stringValue(_ value: String) -> [String: Any] {
