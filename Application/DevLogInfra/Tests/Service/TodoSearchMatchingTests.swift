@@ -17,6 +17,7 @@ struct TodoSearchMatchingTests {
 
         #expect(todo.matchesSearchKeyword("#1"))
         #expect(todo.matchesSearchKeyword("#12"))
+        #expect(todo.matchesSearchKeyword("#0001"))
     }
 
     @Test("# 단독 검색어는 Todo 번호로 매칭하지 않는다")

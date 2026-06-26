@@ -325,15 +325,33 @@ final class TodoServiceImpl: TodoService {
 
 extension TodoResponse {
     func matchesSearchKeyword(_ keyword: String) -> Bool {
+        let numberKeyword = normalizedNumberKeyword(from: keyword) ?? keyword
+
         if keyword.hasPrefix("#"),
            1 < keyword.count,
-           "#\(number)".localizedCaseInsensitiveContains(keyword) {
+           "#\(number)".localizedCaseInsensitiveContains(numberKeyword) {
             return true
         }
 
         return title.localizedCaseInsensitiveContains(keyword)
             || content.localizedCaseInsensitiveContains(keyword)
             || tags.contains { $0.localizedCaseInsensitiveContains(keyword) }
+    }
+
+    private func normalizedNumberKeyword(from keyword: String) -> String? {
+        guard keyword.hasPrefix("#") else {
+            return nil
+        }
+
+        let digits = keyword.dropFirst()
+        guard !digits.isEmpty, digits.allSatisfy(\.isNumber) else {
+            return nil
+        }
+
+        let normalizedDigits = digits.drop(while: { $0 == "0" })
+        let numberText = normalizedDigits.isEmpty ? "0" : String(normalizedDigits)
+
+        return "#\(numberText)"
     }
 }
 
