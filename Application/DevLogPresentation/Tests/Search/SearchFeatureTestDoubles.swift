@@ -24,6 +24,7 @@ struct SearchStoreTestAdapter {
     var recentQueries: [String] { Array(store.state.recentQueries) }
     var showAllTodos: Bool { store.state.showAllTodos }
     var showAllWebPages: Bool { store.state.showAllWebPages }
+    var showsTodoNumberSearchInstruction: Bool { store.state.showsTodoNumberSearchInstruction }
     var alert: AlertState<Never>? { store.state.alert }
 
     init(
@@ -103,12 +104,15 @@ struct SearchStoreTestAdapter {
             if trimmed.isEmpty {
                 $0.todos = []
                 $0.webPages = []
+            } else if trimmed == "#" {
+                $0.todos = []
+                $0.webPages = []
             }
         }
         if wasLoading {
             await receiveEndLoading()
         }
-        if !trimmed.isEmpty {
+        if !trimmed.isEmpty && trimmed != "#" {
             await receiveBeginLoading()
         }
     }
