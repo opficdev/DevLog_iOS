@@ -21,6 +21,12 @@ enum FirebaseConfiguration {
     static let defaultDatabaseID = "staging"
 
     static var databaseID: String {
+        let environmentValue = ProcessInfo.processInfo.environment[InfoKey.databaseID]?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let environmentValue, !environmentValue.isEmpty {
+            return environmentValue
+        }
+
         guard let rawValue = Bundle.main.object(forInfoDictionaryKey: InfoKey.databaseID) as? String else {
             return defaultDatabaseID
         }
