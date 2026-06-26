@@ -138,7 +138,7 @@ struct SearchFeatureTests {
 
         await adapter.setSearchQuery("#")
 
-        #expect(adapter.showsTodoNumberSearchInstruction)
+        #expect(adapter.isHashOnlyQuery)
         #expect(adapter.todos.isEmpty)
         #expect(adapter.webPages.isEmpty)
         #expect(!adapter.isLoading)

@@ -58,8 +58,8 @@ struct SearchFeature {
             !showAllWebPages && contentsLimit < webPages.count
         }
 
-        var showsTodoNumberSearchInstruction: Bool {
-            SearchFeature.showsTodoNumberSearchInstruction(searchQuery)
+        var isHashOnlyQuery: Bool {
+            SearchFeature.isHashOnlyQuery(searchQuery)
         }
     }
 
@@ -116,7 +116,7 @@ struct SearchFeature {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
-                } else if Self.showsTodoNumberSearchInstruction(trimmed) {
+                } else if Self.isHashOnlyQuery(trimmed) {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
@@ -153,7 +153,7 @@ struct SearchFeature {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
-                } else if Self.showsTodoNumberSearchInstruction(trimmed) {
+                } else if Self.isHashOnlyQuery(trimmed) {
                     state.webPages = []
                     state.todos = []
                     return Self.cancelSearchEffect(isLoading: state.isLoading)
@@ -289,7 +289,7 @@ private extension SearchFeature {
         query.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#")
     }
 
-    static func showsTodoNumberSearchInstruction(_ query: String) -> Bool {
+    static func isHashOnlyQuery(_ query: String) -> Bool {
         query.trimmingCharacters(in: .whitespacesAndNewlines) == "#"
     }
 

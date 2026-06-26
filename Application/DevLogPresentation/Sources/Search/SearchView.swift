@@ -62,8 +62,8 @@ struct SearchView: View {
                         recentQueries
                     }
                 }
-            } else if store.showsTodoNumberSearchInstruction {
-                todoNumberSearchInstruction
+            } else if store.isHashOnlyQuery {
+                hashGuide
             } else if store.isLoading {
                 LoadingView()
             } else if store.webPages.isEmpty && store.todos.isEmpty {
@@ -106,13 +106,13 @@ struct SearchView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private var todoNumberSearchInstruction: some View {
+    private var hashGuide: some View {
         VStack(spacing: 8) {
             Spacer()
-            Text(String(localized: "search_todo_number_instruction_title"))
+            Text(String(localized: "search_hash_guide_title"))
                 .font(.headline)
                 .foregroundStyle(Color(.label))
-            Text(String(localized: "search_todo_number_instruction_message"))
+            Text(String(localized: "search_hash_guide_message"))
                 .font(.subheadline)
                 .foregroundStyle(Color.gray)
                 .multilineTextAlignment(.center)

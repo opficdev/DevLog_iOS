@@ -1595,7 +1595,7 @@
         }
       }
     },
-    "search_todo_number_instruction_message" : {
+    "search_hash_guide_message" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -1612,7 +1612,7 @@
         }
       }
     },
-    "search_todo_number_instruction_title" : {
+    "search_hash_guide_title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
