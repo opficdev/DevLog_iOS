@@ -185,11 +185,13 @@ func makeHomeTodo(
 }
 
 func makeHomeWebPage(
+    id: String = "web-page-id",
     title: String = "OpenAI",
     urlString: String = "https://openai.com"
 ) -> WebPage {
     let url = URL(string: urlString)!
     return WebPage(
+        id: id,
         title: title,
         url: url,
         displayURL: url,

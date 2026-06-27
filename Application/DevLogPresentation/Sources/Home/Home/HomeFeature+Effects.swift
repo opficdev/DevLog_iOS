@@ -87,7 +87,10 @@ extension HomeFeature {
     func deleteWebPageEffect(_ page: WebPageItem) -> Effect<Action> {
         .run { [deleteWebPageUseCase] send in
             do {
-                try await deleteWebPageUseCase.execute(page.url.absoluteString)
+                try await deleteWebPageUseCase.execute(
+                    id: page.id,
+                    urlString: page.url.absoluteString
+                )
             } catch {
                 await send(.store(.handleWebPageDeleteFailure(page.id)))
                 await send(.store(.setAlert(isPresented: true, type: .error)))
@@ -95,15 +98,13 @@ extension HomeFeature {
         }
     }
 
-    func undoDeleteWebPageEffect(_ urlString: String) -> Effect<Action> {
+    func undoDeleteWebPageEffect(_ webPage: DeletedWebPage) -> Effect<Action> {
         .run { [undoDeleteWebPageUseCase, addWebPageUseCase] send in
             do {
-                try await undoDeleteWebPageUseCase.execute(urlString)
-                try await addWebPageUseCase.execute(urlString)
+                try await undoDeleteWebPageUseCase.execute(webPage.id)
+                try await addWebPageUseCase.execute(webPage.urlString)
             } catch {
-                if let webPageURL = URL(string: urlString) {
-                    await send(.store(.setWebPageHidden(webPageURL, true)))
-                }
+                await send(.store(.setWebPageHidden(webPage.id, true)))
                 await send(.store(.setAlert(isPresented: true, type: .error)))
             }
         }

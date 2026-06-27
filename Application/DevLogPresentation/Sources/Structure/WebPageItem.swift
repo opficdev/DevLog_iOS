@@ -16,7 +16,7 @@ public struct WebPageItem: Identifiable, Hashable {
         self.metadata = metadata
     }
 
-    public var id: URL { metadata.url }
+    public var id: String { metadata.id }
     public var title: String { metadata.title ?? String(localized: "web_page_missing_title") }
     public var url: URL { metadata.url }
     public var displayURL: String { metadata.displayURL.absoluteString }

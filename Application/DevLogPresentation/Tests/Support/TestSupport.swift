@@ -167,18 +167,18 @@ final class AddWebPageUseCaseSpy: AddWebPageUseCase {
 }
 
 final class DeleteWebPageUseCaseSpy: DeleteWebPageUseCase {
-    private(set) var calledUrlStrings: [String] = []
+    private(set) var calls: [(id: String, urlString: String)] = []
 
-    func execute(_ urlString: String) async throws {
-        calledUrlStrings.append(urlString)
+    func execute(id: String, urlString: String) async throws {
+        calls.append((id, urlString))
     }
 }
 
 final class UndoDeleteWebPageUseCaseSpy: UndoDeleteWebPageUseCase {
-    private(set) var calledUrlStrings: [String] = []
+    private(set) var calledIDs: [String] = []
 
-    func execute(_ urlString: String) async throws {
-        calledUrlStrings.append(urlString)
+    func execute(_ id: String) async throws {
+        calledIDs.append(id)
     }
 }
 

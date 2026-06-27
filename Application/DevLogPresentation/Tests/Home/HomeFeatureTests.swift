@@ -109,10 +109,11 @@ struct HomeFeatureTests {
         #expect(adapter.webPages.filter { !$0.isHidden }.isEmpty)
 
         await waitUntil {
-            context.deleteWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"]
+            context.deleteWebPageUseCaseSpy.calls.count == 1
         }
 
-        #expect(context.deleteWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"])
+        #expect(context.deleteWebPageUseCaseSpy.calls.first?.id == "web-page-id")
+        #expect(context.deleteWebPageUseCaseSpy.calls.first?.urlString == "https://openai.com")
     }
 
     @Test("웹페이지 삭제를 되돌리면 되돌리기 유스케이스가 호출되고 숨김 상태가 해제된다")
@@ -133,14 +134,14 @@ struct HomeFeatureTests {
         await adapter.undoDeleteWebPage()
 
         await waitUntil {
-            context.undoDeleteWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"]
+            context.undoDeleteWebPageUseCaseSpy.calledIDs == ["web-page-id"]
         }
 
         let restoredWebPageItem = try #require(adapter.webPages.first {
             $0.url.absoluteString == "https://openai.com"
         })
 
-        #expect(context.undoDeleteWebPageUseCaseSpy.calledUrlStrings == ["https://openai.com"])
+        #expect(context.undoDeleteWebPageUseCaseSpy.calledIDs == ["web-page-id"])
         #expect(!restoredWebPageItem.isHidden)
     }
 

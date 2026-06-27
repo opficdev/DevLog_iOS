@@ -63,18 +63,18 @@ final class WebPageRepositoryImpl: WebPageRepository {
         }
     }
 
-    func delete(_ urlString: String) async throws {
+    func delete(id: String, urlString: String) async throws {
         do {
-            try await webPageService.deleteWebPage(urlString)
+            try await webPageService.deleteWebPage(id)
             await metadataService.removeCachedImage(for: urlString)
         } catch {
             throw error.toDomain()
         }
     }
 
-    func undoDelete(_ urlString: String) async throws {
+    func undoDelete(_ id: String) async throws {
         do {
-            try await webPageService.undoDeleteWebPage(urlString)
+            try await webPageService.undoDeleteWebPage(id)
         } catch {
             throw error.toDomain()
         }

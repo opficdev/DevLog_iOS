@@ -23,7 +23,7 @@ struct HomeFeature {
         var isNetworkConnected = true
         var webPageURLInput = "https://"
         var selectedTodoCategory: TodoCategory?
-        var deletedWebPageURLString: String?
+        var deletedWebPage: DeletedWebPage?
         var loading = LoadingFeature.State()
 
         var showContentPicker: Bool { sheet?.contentPickerState != nil }
@@ -44,6 +44,11 @@ struct HomeFeature {
         var isAppending: Bool {
             loading.visibleTargets.contains(LoadingTarget.overlay.target)
         }
+    }
+
+    struct DeletedWebPage: Equatable {
+        let id: String
+        let urlString: String
     }
 
     enum Action: Equatable {
@@ -73,8 +78,8 @@ struct HomeFeature {
             case setSheet(SheetState?)
             case setPresentation(Presentation, Bool)
             case setAlert(isPresented: Bool, type: AlertType? = nil)
-            case setWebPageHidden(URL, Bool)
-            case handleWebPageDeleteFailure(URL)
+            case setWebPageHidden(String, Bool)
+            case handleWebPageDeleteFailure(String)
             case setTodoCategory([TodoCategoryItem])
             case updateRecentTodos([RecentTodoItem])
             case updateWebPages([WebPageItem])
@@ -234,8 +239,8 @@ private extension HomeFeature {
             return fetchWebPagesEffect()
         case .finishDeleteWebPageToast(let urlString):
             state.webPages.removeAll { $0.url.absoluteString == urlString && $0.isHidden }
-            if state.deletedWebPageURLString == urlString {
-                state.deletedWebPageURLString = nil
+            if state.deletedWebPage?.urlString == urlString {
+                state.deletedWebPage = nil
             }
         case .tapTodoCategory(let category):
             state.selectedTodoCategory = category
@@ -259,16 +264,19 @@ private extension HomeFeature {
             guard let index = state.webPages.firstIndex(where: { $0.id == page.id }) else {
                 return .none
             }
-            state.deletedWebPageURLString = page.url.absoluteString
+            state.deletedWebPage = DeletedWebPage(
+                id: page.id,
+                urlString: page.url.absoluteString
+            )
             state.webPages[index].isHidden = true
             return deleteWebPageEffect(page)
         case .undoDeleteWebPage:
-            guard let urlString = state.deletedWebPageURLString else { return .none }
-            if let index = state.webPages.firstIndex(where: { $0.url.absoluteString == urlString }) {
+            guard let webPage = state.deletedWebPage else { return .none }
+            if let index = state.webPages.firstIndex(where: { $0.id == webPage.id }) {
                 state.webPages[index].isHidden = false
             }
-            state.deletedWebPageURLString = nil
-            return undoDeleteWebPageEffect(urlString)
+            state.deletedWebPage = nil
+            return undoDeleteWebPageEffect(webPage)
         }
 
         return .none
@@ -287,12 +295,12 @@ private extension HomeFeature {
             Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
         case .setAlert(let isPresented, let type):
             Self.setAlert(&state, isPresented: isPresented, type: type)
-        case .setWebPageHidden(let webPageURL, let isHidden):
-            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+        case .setWebPageHidden(let id, let isHidden):
+            if let index = state.webPages.firstIndex(where: { $0.id == id }) {
                 state.webPages[index].isHidden = isHidden
             }
-        case .handleWebPageDeleteFailure(let webPageURL):
-            if let index = state.webPages.firstIndex(where: { $0.id == webPageURL }) {
+        case .handleWebPageDeleteFailure(let id):
+            if let index = state.webPages.firstIndex(where: { $0.id == id }) {
                 state.webPages[index].isHidden = false
             } else {
                 state.needsWebPageRefresh = true

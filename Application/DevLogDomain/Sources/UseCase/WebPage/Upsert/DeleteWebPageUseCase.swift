@@ -6,5 +6,5 @@
 //
 
 public protocol DeleteWebPageUseCase {
-    func execute(_ urlString: String) async throws
+    func execute(id: String, urlString: String) async throws
 }
