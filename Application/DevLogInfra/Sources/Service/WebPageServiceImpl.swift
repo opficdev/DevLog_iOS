@@ -7,7 +7,6 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import DevLogCore
 import DevLogData
 
@@ -23,13 +22,7 @@ final class WebPageServiceImpl: WebPageService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestWebPageDeletion
-        case undoWebPageDeletion
-    }
-
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "WebPageServiceImpl")
 
@@ -77,8 +70,8 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            let documentID = documentID(for: request.url)
-            let docRef = store.document(FirestorePath.webPage(uid, documentId: documentID))
+            let docID = documentID(for: request.url)
+            let docRef = store.document(FirestorePath.webPage(uid, documentId: docID))
             let data = try encoder.encode(request)
             try await docRef.setData(data, merge: true)
             logger.info("Successfully upserted web page")
@@ -89,8 +82,8 @@ final class WebPageServiceImpl: WebPageService {
         }
     }
 
-    func deleteWebPage(_ urlString: String) async throws {
-        logger.info("Requesting web page deletion: \(urlString)")
+    func deleteWebPage(_ id: String) async throws {
+        logger.info("Requesting web page deletion: \(id)")
 
         guard Auth.auth().currentUser?.uid != nil else {
             logger.error("User not authenticated")
@@ -98,8 +91,9 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            let function = functions.httpsCallable(FunctionName.requestWebPageDeletion)
-            _ = try await function.call(["urlString": urlString])
+            try await FunctionAPIClient.shared.send(
+                .requestWebPageDeletion(id)
+            )
             logger.info("Successfully requested web page deletion")
         } catch {
             logger.error("Failed to request web page deletion", error: error)
@@ -108,8 +102,8 @@ final class WebPageServiceImpl: WebPageService {
         }
     }
 
-    func undoDeleteWebPage(_ urlString: String) async throws {
-        logger.info("Undoing web page deletion: \(urlString)")
+    func undoDeleteWebPage(_ id: String) async throws {
+        logger.info("Undoing web page deletion: \(id)")
 
         guard Auth.auth().currentUser?.uid != nil else {
             logger.error("User not authenticated")
@@ -117,25 +111,15 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            let function = functions.httpsCallable(FunctionName.undoWebPageDeletion)
-            _ = try await function.call(["urlString": urlString])
+            try await FunctionAPIClient.shared.send(
+                .undoWebPageDeletion(id)
+            )
             logger.info("Successfully undone web page deletion")
         } catch {
             logger.error("Failed to undo web page deletion", error: error)
             record(error, code: .undoDeleteWebPage)
             throw error
         }
-    }
-
-    private func documentID(for url: String) -> String {
-        if let encoded = url.addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
-            return encoded
-        }
-        let base64 = Data(url.utf8).base64EncodedString()
-        return base64
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "=", with: "")
     }
 }
 
@@ -150,6 +134,17 @@ private extension WebPageServiceImpl {
 
     private func record(_ error: Error, code: CrashlyticsError.Code) {
         Self.record(error, code: code)
+    }
+
+    func documentID(for url: String) -> String {
+        if let encoded = url.addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
+            return encoded
+        }
+        let base64 = Data(url.utf8).base64EncodedString()
+        return base64
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "=", with: "")
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> WebPageResponse? {

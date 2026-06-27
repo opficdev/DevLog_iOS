@@ -9,7 +9,6 @@ import AuthenticationServices
 import CryptoKit
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import FirebaseMessaging
 import Foundation
 import DevLogCore
@@ -28,17 +27,9 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestAppleCustomToken
-        case refreshAppleAccessToken
-        case requestAppleRefreshToken
-        case revokeAppleAccessToken
-    }
-
     private var appleSignInDelegate: AppleSignInDelegate?
     private var appleSignInContinuation: CheckedContinuation<ASAuthorization, Error>?
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.apple
@@ -155,7 +146,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             let authorizationCode = response.authorizationCode
             let idTokenString = response.idTokenString
 
-            let refreshToken = try await requestAppleRefreshToken(uid: uid, authorizationCode: authorizationCode)
+            let refreshToken = try await requestAppleRefreshToken(authorizationCode: authorizationCode)
 
             guard let appleEmail = credential.email else {
                 try await revokeAppleAccessToken(token: refreshToken)
@@ -275,13 +266,16 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             throw URLError(.badServerResponse)
         }
         
-        let requestTokenFunction = functions.httpsCallable(FunctionName.requestAppleCustomToken)
-        let result = try await requestTokenFunction.call([
-            "idToken": idToken,
-            "authorizationCode": authorizationCode
-        ])
+        let response = try await FunctionAPIClient.shared.send(
+            .requestAppleCustomToken,
+            payload: [
+                "idToken": idToken,
+                "authorizationCode": authorizationCode
+            ],
+            requiresAuthentication: false
+        )
         
-        if let data = result.data as? [String: Any], let customToken = data["customToken"] as? String {
+        if let customToken = response.customToken {
             return customToken
         }
         throw URLError(.badServerResponse)
@@ -289,11 +283,9 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     // Apple AceessToken 재발급 메서드
     private func refreshAppleAccessToken() async throws -> String {
-        let refreshFunction = functions.httpsCallable(FunctionName.refreshAppleAccessToken)
-        let result = try await refreshFunction.call()
+        let response = try await FunctionAPIClient.shared.send(.refreshAppleAccessToken)
 
-        guard let data = result.data as? [String: Any],
-              let accessToken = data["token"] as? String else {
+        guard let accessToken = response.token else {
             throw URLError(.cannotParseResponse)
         }
 
@@ -301,31 +293,28 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     }
 
     // Apple RefreshToken 발급 메서드
-    func requestAppleRefreshToken(uid: String, authorizationCode: Data) async throws -> String {
+    func requestAppleRefreshToken(authorizationCode: Data) async throws -> String {
         guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.userAuthenticationRequired)
         }
         
-        let requestFuction = functions.httpsCallable(FunctionName.requestAppleRefreshToken)
+        let response = try await FunctionAPIClient.shared.send(
+            .requestAppleRefreshToken,
+            payload: ["authorizationCode": authorizationCode]
+        )
         
-        let params: [String: Any] = [
-            "authorizationCode": authorizationCode,
-            "uid": uid
-        ]
-        
-        let result = try await requestFuction.call(params)
-        
-        if let data = result.data as? [String: Any], let accessToken = data["refreshToken"] as? String {
-            return accessToken
+        if let refreshToken = response.refreshToken {
+            return refreshToken
         }
         throw URLError(.badServerResponse)
     }
     
     // Apple AccessToken 취소 메서드
     func revokeAppleAccessToken(token: String) async throws {
-        let revokeFunction = functions.httpsCallable(FunctionName.revokeAppleAccessToken)
-        
-        _ = try await revokeFunction.call(["token": token])
+        try await FunctionAPIClient.shared.send(
+            .revokeAppleAccessToken,
+            payload: ["token": token]
+        )
     }
 }
 

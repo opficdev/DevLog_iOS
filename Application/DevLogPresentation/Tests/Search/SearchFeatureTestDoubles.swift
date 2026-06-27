@@ -269,11 +269,13 @@ func makeSearchTodo(
 }
 
 func makeSearchWebPage(
+    id: String = "web-page-id",
     title: String? = "Web",
     urlString: String = "https://example.com"
 ) -> WebPage {
     let url = URL(string: urlString)!
     return WebPage(
+        id: id,
         title: title,
         url: url,
         displayURL: url,

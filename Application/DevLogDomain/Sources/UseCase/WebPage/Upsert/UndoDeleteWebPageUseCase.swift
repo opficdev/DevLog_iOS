@@ -6,5 +6,5 @@
 //
 
 public protocol UndoDeleteWebPageUseCase {
-    func execute(_ urlString: String) async throws
+    func execute(_ id: String) async throws
 }

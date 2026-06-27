@@ -9,7 +9,6 @@ import AuthenticationServices
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import FirebaseMessaging
 import Nexa
 import DevLogCore
@@ -28,18 +27,12 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestGithubTokens
-        case revokeGithubAccessToken
-    }
-
     private enum GitHubAPI {
         static let baseURL = URL(string: "https://api.github.com")!
         static let acceptHeader = "application/vnd.github.v3+json"
     }
 
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let providerID = AuthProviderID.gitHub
@@ -251,14 +244,15 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     
     // Firebase Function 호출: Custom Token 발급
     private func requestTokens(authorizationCode: String) async throws -> (String, String) {
-        let requestTokenFunction = functions.httpsCallable(FunctionName.requestGithubTokens)
-
         do {
-            let result = try await requestTokenFunction.call(["code": authorizationCode])
+            let response = try await FunctionAPIClient.shared.send(
+                .requestGithubTokens,
+                payload: ["code": authorizationCode],
+                requiresAuthentication: false
+            )
             
-            if let data = result.data as? [String: Any],
-               let accessToken = data["accessToken"] as? String,
-               let customToken = data["customToken"] as? String {
+            if let accessToken = response.accessToken,
+               let customToken = response.customToken {
                 return (accessToken, customToken)
             }
             throw TokenError.invalidResponse
@@ -268,15 +262,16 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     }
     
     private func revokeAccessToken(accessToken: String? = nil) async throws {
-        var param: [String: Any] = [:]
+        var param: [String: String] = [:]
         
         if let accessToken = accessToken {
             param["accessToken"] = accessToken
         }
         
-        let revokeFunction = functions.httpsCallable(FunctionName.revokeGithubAccessToken)
-        
-        _ = try await revokeFunction.call(param)
+        try await FunctionAPIClient.shared.send(
+            .revokeGithubAccessToken,
+            payload: param
+        )
     }
 
     // GitHub API로 사용자 프로필 정보 가져오기
@@ -315,15 +310,11 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     }
 
     private func mapRequestTokensError(_ error: Error) -> Error {
-        let nsError = error as NSError
-        guard nsError.domain == FunctionsErrorDomain,
-              let details = nsError.userInfo[FunctionsErrorDetailsKey] as? [String: Any],
-              let reason = details["reason"] as? String,
-              reason == EmailFetchError.emailNotFound.code else {
-            return error
+        if let emailFetchError = error.apiEmailFetchError {
+            return emailFetchError
         }
 
-        return EmailFetchError.emailNotFound
+        return error
     }
 }
 

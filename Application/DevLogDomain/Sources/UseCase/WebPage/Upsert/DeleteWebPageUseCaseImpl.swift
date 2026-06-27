@@ -12,7 +12,7 @@ public final class DeleteWebPageUseCaseImpl: DeleteWebPageUseCase {
         self.repository = repository
     }
 
-    public func execute(_ urlString: String) async throws {
-        try await repository.delete(urlString)
+    public func execute(id: String, urlString: String) async throws {
+        try await repository.delete(id: id, urlString: urlString)
     }
 }

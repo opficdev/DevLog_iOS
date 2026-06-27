@@ -7,7 +7,6 @@
 
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseFunctions
 import DevLogCore
 import DevLogData
 
@@ -25,13 +24,7 @@ final class TodoServiceImpl: TodoService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestTodoDeletion
-        case undoTodoDeletion
-    }
-
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let encoder = Firestore.Encoder()
     private let logger = Logger(category: "TodoServiceImpl")
     
@@ -222,8 +215,9 @@ final class TodoServiceImpl: TodoService {
         logger.info("Requesting todo deletion")
         
         do {
-            let function = functions.httpsCallable(FunctionName.requestTodoDeletion)
-            _ = try await function.call(["todoId": todoId])
+            try await FunctionAPIClient.shared.send(
+                .requestTodoDeletion(todoId)
+            )
             
             logger.info("Successfully requested todo deletion")
         } catch {
@@ -239,8 +233,9 @@ final class TodoServiceImpl: TodoService {
         logger.info("Undoing todo deletion")
 
         do {
-            let function = functions.httpsCallable(FunctionName.undoTodoDeletion)
-            _ = try await function.call(["todoId": todoId])
+            try await FunctionAPIClient.shared.send(
+                .undoTodoDeletion(todoId)
+            )
 
             logger.info("Successfully undone todo deletion")
         } catch {

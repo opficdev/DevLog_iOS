@@ -23,6 +23,7 @@ public extension WebPageResponse {
             imageURL = nil
         }
         return WebPage(
+            id: id,
             title: title,
             url: url,
             displayURL: displayURL,

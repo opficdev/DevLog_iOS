@@ -12,7 +12,7 @@ public final class UndoDeleteWebPageUseCaseImpl: UndoDeleteWebPageUseCase {
         self.repository = repository
     }
 
-    public func execute(_ urlString: String) async throws {
-        try await repository.undoDelete(urlString)
+    public func execute(_ id: String) async throws {
+        try await repository.undoDelete(id)
     }
 }

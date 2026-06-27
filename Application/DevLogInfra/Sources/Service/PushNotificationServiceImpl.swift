@@ -8,7 +8,6 @@
 import FirebaseAuth
 import Combine
 import FirebaseFirestore
-import FirebaseFunctions
 import DevLogCore
 import DevLogData
 
@@ -29,13 +28,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         }
     }
 
-    private enum FunctionName: String {
-        case requestPushNotificationDeletion
-        case undoPushNotificationDeletion
-    }
-
     private let store = FirebaseConfiguration.firestore
-    private let functions = FirebaseConfiguration.functions
     private let logger = Logger(category: "PushNotificationServiceImpl")
 
     /// 푸시 알림 On/Off 설정
@@ -231,8 +224,9 @@ final class PushNotificationServiceImpl: PushNotificationService {
         do {
             guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
-            let function = functions.httpsCallable(FunctionName.requestPushNotificationDeletion)
-            _ = try await function.call(["notificationId": notificationID])
+            try await FunctionAPIClient.shared.send(
+                .requestPushNotificationDeletion(notificationID)
+            )
         } catch {
             logger.error("Failed to request notification deletion", error: error)
             record(error, code: .deleteNotification)
@@ -244,8 +238,9 @@ final class PushNotificationServiceImpl: PushNotificationService {
         do {
             guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
-            let function = functions.httpsCallable(FunctionName.undoPushNotificationDeletion)
-            _ = try await function.call(["notificationId": notificationID])
+            try await FunctionAPIClient.shared.send(
+                .undoPushNotificationDeletion(notificationID)
+            )
         } catch {
             logger.error("Failed to undo notification deletion", error: error)
             record(error, code: .undoDeleteNotification)
