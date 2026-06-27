@@ -14,7 +14,7 @@ public extension Settings {
         defaultSettings: DefaultSettings = .recommended
     ) -> Settings {
         var commonBase: SettingsDictionary = [
-            "CURRENT_PROJECT_VERSION": "1",
+            "CURRENT_PROJECT_VERSION": "0",
             "INFOPLIST_KEY_CFBundleShortVersionString": "$(MARKETING_VERSION)",
             "INFOPLIST_KEY_CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
             "SWIFT_VERSION": "5.0",
