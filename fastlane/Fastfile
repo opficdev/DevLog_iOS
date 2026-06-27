@@ -315,9 +315,10 @@ platform :ios do
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
 
-    verify_firestore_database_id(
+    verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: TESTFLIGHT_DATABASE_ID
+      database_id: TESTFLIGHT_DATABASE_ID,
+      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
     )
 
     upload_to_testflight(
@@ -335,9 +336,10 @@ platform :ios do
 
     UI.user_error!("Missing built ipa at #{ipa_output_path}") if !File.exist?(ipa_output_path)
 
-    verify_firestore_database_id(
+    verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: APPSTORE_DATABASE_ID
+      database_id: APPSTORE_DATABASE_ID,
+      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
     )
 
     upload_to_app_store(
