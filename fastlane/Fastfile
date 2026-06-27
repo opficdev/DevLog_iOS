@@ -11,6 +11,8 @@ TESTFLIGHT_CONFIGURATION = "Staging"
 APPSTORE_CONFIGURATION = "Release"
 TESTFLIGHT_DATABASE_ID = "staging"
 APPSTORE_DATABASE_ID = "prod"
+TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/stagingApi/api"
+APPSTORE_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/prodApi/api"
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
@@ -60,37 +62,53 @@ platform :ios do
   private_lane :verify_store_configuration do |options|
     configuration = options[:configuration].to_s.strip
     database_id = options[:database_id].to_s.strip
+    function_api_base_url = options[:function_api_base_url].to_s.strip
 
-    expected_database_id =
+    expected_configuration =
       case configuration
       when TESTFLIGHT_CONFIGURATION
-        TESTFLIGHT_DATABASE_ID
+        {
+          database_id: TESTFLIGHT_DATABASE_ID,
+          function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+        }
       when APPSTORE_CONFIGURATION
-        APPSTORE_DATABASE_ID
+        {
+          database_id: APPSTORE_DATABASE_ID,
+          function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+        }
       else
         UI.user_error!("Unsupported store configuration: #{configuration}")
       end
 
     UI.user_error!("Missing Firestore database ID for #{configuration}") if database_id.empty?
+    UI.user_error!("Missing Function API base URL for #{configuration}") if function_api_base_url.empty?
 
-    if database_id != expected_database_id
+    if database_id != expected_configuration[:database_id]
       UI.user_error!(
-        "Invalid store configuration: #{configuration} must use FIRESTORE_DATABASE_ID=#{expected_database_id}, got #{database_id}"
+        "Invalid store configuration: #{configuration} must use FIRESTORE_DATABASE_ID=#{expected_configuration[:database_id]}, got #{database_id}"
       )
     end
 
-    UI.message("Verified store configuration: #{configuration}/#{database_id}")
+    if function_api_base_url != expected_configuration[:function_api_base_url]
+      UI.user_error!(
+        "Invalid store configuration: #{configuration} must use FUNCTION_API_BASE_URL=#{expected_configuration[:function_api_base_url]}, got #{function_api_base_url}"
+      )
+    end
+
+    UI.message("Verified store configuration: #{configuration}/#{database_id}/#{function_api_base_url}")
   end
 
-  private_lane :verify_firestore_database_id do |options|
+  private_lane :verify_store_info_plist do |options|
     require "shellwords"
     require "tmpdir"
 
     ipa_path = options[:ipa]
     expected_database_id = options[:database_id]
+    expected_function_api_base_url = options[:function_api_base_url]
 
     UI.user_error!("Missing IPA path") if ipa_path.to_s.strip.empty?
     UI.user_error!("Missing expected Firestore database ID") if expected_database_id.to_s.strip.empty?
+    UI.user_error!("Missing expected Function API base URL") if expected_function_api_base_url.to_s.strip.empty?
     UI.user_error!("Missing built ipa at #{ipa_path}") if !File.exist?(ipa_path)
 
     Dir.mktmpdir("devlog-ipa") do |tmpdir|
@@ -111,6 +129,19 @@ platform :ios do
       end
 
       UI.message("Verified FIRESTORE_DATABASE_ID=#{actual_database_id}")
+
+      actual_function_api_base_url = sh(
+        "/usr/libexec/PlistBuddy -c 'Print :FUNCTION_API_BASE_URL' #{Shellwords.escape(plist_path)}",
+        log: false
+      ).strip
+
+      if actual_function_api_base_url != expected_function_api_base_url
+        UI.user_error!(
+          "Unexpected FUNCTION_API_BASE_URL: expected #{expected_function_api_base_url}, got #{actual_function_api_base_url}"
+        )
+      end
+
+      UI.message("Verified FUNCTION_API_BASE_URL=#{actual_function_api_base_url}")
     end
   end
 
@@ -119,10 +150,13 @@ platform :ios do
     output_directory = options[:output_directory] || TESTFLIGHT_BUILD_OUTPUT_DIRECTORY
     expected_database_id = options[:database_id] ||
       (configuration == APPSTORE_CONFIGURATION ? APPSTORE_DATABASE_ID : TESTFLIGHT_DATABASE_ID)
+    expected_function_api_base_url = options[:function_api_base_url] ||
+      (configuration == APPSTORE_CONFIGURATION ? APPSTORE_FUNCTION_API_BASE_URL : TESTFLIGHT_FUNCTION_API_BASE_URL)
 
     verify_store_configuration(
       configuration: configuration,
-      database_id: expected_database_id
+      database_id: expected_database_id,
+      function_api_base_url: expected_function_api_base_url
     )
 
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
@@ -212,9 +246,10 @@ platform :ios do
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
     ipa_output_path = File.join(output_directory, "#{APP_PRODUCT_NAME}.ipa") if ipa_output_path.empty?
 
-    verify_firestore_database_id(
+    verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: expected_database_id
+      database_id: expected_database_id,
+      function_api_base_url: expected_function_api_base_url
     )
 
     dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH]
