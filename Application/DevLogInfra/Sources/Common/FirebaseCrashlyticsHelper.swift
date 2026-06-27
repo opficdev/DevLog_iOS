@@ -7,6 +7,7 @@
 
 import FirebaseCrashlytics
 import Foundation
+import Nexa
 
 enum FirebaseCrashlyticsHelper {
     static func record(
@@ -39,6 +40,11 @@ private extension FirebaseCrashlyticsHelper {
         case underlyingCode
     }
 
+    enum RESTKey: String {
+        case statusCode = "restStatusCode"
+        case errorMessage = "restErrorMessage"
+    }
+
     static func userInfo(
         for nsError: NSError,
         error: Error,
@@ -51,10 +57,43 @@ private extension FirebaseCrashlyticsHelper {
             Key.underlyingCode.rawValue: nsError.code
         ]
 
+        restMetadata(for: error).forEach {
+            userInfo[$0.key] = $0.value
+        }
+
         metadata.forEach {
             userInfo[$0.key] = $0.value
         }
 
         return userInfo
+    }
+
+    static func restMetadata(for error: Error) -> [String: String] {
+        guard let error = error as? NXError else { return [:] }
+
+        switch error {
+        case let .invalidStatus(statusCode, data),
+             let .server(statusCode, data, underlying: _):
+            var metadata = [
+                RESTKey.statusCode.rawValue: String(statusCode)
+            ]
+
+            if let message = restErrorMessage(from: data) {
+                metadata[RESTKey.errorMessage.rawValue] = message
+            }
+
+            return metadata
+        default:
+            return [:]
+        }
+    }
+
+    private static func restErrorMessage(from data: Data?) -> String? {
+        struct RESTErrorBody: Decodable {
+            let message: String?
+        }
+
+        guard let data else { return nil }
+        return try? JSONDecoder().decode(RESTErrorBody.self, from: data).message
     }
 }
