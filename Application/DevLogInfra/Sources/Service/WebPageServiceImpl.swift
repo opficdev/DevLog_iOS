@@ -91,7 +91,7 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .requestWebPageDeletion(id)
             )
             logger.info("Successfully requested web page deletion")
@@ -111,7 +111,7 @@ final class WebPageServiceImpl: WebPageService {
         }
 
         do {
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .undoWebPageDeletion(id)
             )
             logger.info("Successfully undone web page deletion")

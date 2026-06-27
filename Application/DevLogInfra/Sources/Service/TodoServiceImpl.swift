@@ -215,7 +215,7 @@ final class TodoServiceImpl: TodoService {
         logger.info("Requesting todo deletion")
         
         do {
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .requestTodoDeletion(todoId)
             )
             
@@ -233,7 +233,7 @@ final class TodoServiceImpl: TodoService {
         logger.info("Undoing todo deletion")
 
         do {
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .undoTodoDeletion(todoId)
             )
 

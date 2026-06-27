@@ -245,7 +245,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     // Firebase Function 호출: Custom Token 발급
     private func requestTokens(authorizationCode: String) async throws -> (String, String) {
         do {
-            let response = try await FunctionAPIClient().send(
+            let response = try await FunctionAPIClient.shared.send(
                 .requestGithubTokens,
                 payload: ["code": authorizationCode],
                 requiresAuthentication: false
@@ -268,7 +268,7 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             param["accessToken"] = accessToken
         }
         
-        try await FunctionAPIClient().send(
+        try await FunctionAPIClient.shared.send(
             .revokeGithubAccessToken,
             payload: param
         )

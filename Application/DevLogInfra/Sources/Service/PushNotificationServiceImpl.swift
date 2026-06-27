@@ -224,7 +224,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         do {
             guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .requestPushNotificationDeletion(notificationID)
             )
         } catch {
@@ -238,7 +238,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         do {
             guard Auth.auth().currentUser?.uid != nil else { throw DataLayerError.notAuthenticated }
 
-            try await FunctionAPIClient().send(
+            try await FunctionAPIClient.shared.send(
                 .undoPushNotificationDeletion(notificationID)
             )
         } catch {

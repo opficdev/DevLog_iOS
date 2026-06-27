@@ -10,8 +10,24 @@ import Foundation
 import DevLogData
 import Nexa
 
-struct FunctionAPIClient {
-    private let authTokenProvider = FirebaseAuthTokenProvider()
+final class FunctionAPIClient {
+    static let shared = FunctionAPIClient()
+
+    private let apiClient: Result<NXAPIClient, Error>
+
+    private init() {
+        let authTokenProvider = FirebaseAuthTokenProvider()
+        apiClient = Result {
+            try NXAPIClient(
+                configuration: NXClientConfiguration(
+                    baseURL: FirebaseConfiguration.functionAPIBaseURL(),
+                    headers: ["Accept": "application/json"],
+                    serverErrorDecoder: FunctionAPIServerErrorDecoder(),
+                    authTokenProvider: authTokenProvider
+                )
+            )
+        }
+    }
 
     func send(
         _ endpoint: FunctionAPIEndpoint<EmptyAPIResponse>,
@@ -71,14 +87,7 @@ struct FunctionAPIClient {
     }
 
     private func client() throws -> NXAPIClient {
-        try NXAPIClient(
-            configuration: NXClientConfiguration(
-                baseURL: FirebaseConfiguration.functionAPIBaseURL(),
-                headers: ["Accept": "application/json"],
-                serverErrorDecoder: FunctionAPIServerErrorDecoder(),
-                authTokenProvider: authTokenProvider
-            )
-        )
+        try apiClient.get()
     }
 }
 

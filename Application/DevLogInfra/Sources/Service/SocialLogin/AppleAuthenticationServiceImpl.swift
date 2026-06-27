@@ -266,7 +266,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             throw URLError(.badServerResponse)
         }
         
-        let response = try await FunctionAPIClient().send(
+        let response = try await FunctionAPIClient.shared.send(
             .requestAppleCustomToken,
             payload: [
                 "idToken": idToken,
@@ -283,7 +283,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     // Apple AceessToken 재발급 메서드
     private func refreshAppleAccessToken() async throws -> String {
-        let response = try await FunctionAPIClient().send(.refreshAppleAccessToken)
+        let response = try await FunctionAPIClient.shared.send(.refreshAppleAccessToken)
 
         guard let accessToken = response.token else {
             throw URLError(.cannotParseResponse)
@@ -298,7 +298,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             throw URLError(.userAuthenticationRequired)
         }
         
-        let response = try await FunctionAPIClient().send(
+        let response = try await FunctionAPIClient.shared.send(
             .requestAppleRefreshToken,
             payload: ["authorizationCode": authorizationCode]
         )
@@ -311,7 +311,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     
     // Apple AccessToken 취소 메서드
     func revokeAppleAccessToken(token: String) async throws {
-        try await FunctionAPIClient().send(
+        try await FunctionAPIClient.shared.send(
             .revokeAppleAccessToken,
             payload: ["token": token]
         )
