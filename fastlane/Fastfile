@@ -263,7 +263,8 @@ platform :ios do
   lane :deploy_testflight do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
-      database_id: TESTFLIGHT_DATABASE_ID
+      database_id: TESTFLIGHT_DATABASE_ID,
+      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
     )
 
     upload_testflight_build
@@ -272,7 +273,8 @@ platform :ios do
   lane :testflight_build_only do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
-      database_id: TESTFLIGHT_DATABASE_ID
+      database_id: TESTFLIGHT_DATABASE_ID,
+      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
     )
   end
 
@@ -280,7 +282,8 @@ platform :ios do
     build_for_store(
       configuration: APPSTORE_CONFIGURATION,
       output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
-      database_id: APPSTORE_DATABASE_ID
+      database_id: APPSTORE_DATABASE_ID,
+      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
     )
   end
 
@@ -288,7 +291,8 @@ platform :ios do
     build_for_store(
       configuration: APPSTORE_CONFIGURATION,
       output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
-      database_id: APPSTORE_DATABASE_ID
+      database_id: APPSTORE_DATABASE_ID,
+      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
     )
 
     upload_appstore_build
