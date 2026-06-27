@@ -33,12 +33,22 @@ struct SettingsFeature {
         var activeLoadingRow: ActiveLoadingRow?
         var loading = LoadingFeature.State()
         var alertType: Action.AlertType?
-        var appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        var appVersion = Self.appVersion()
         var appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
         var policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
 
         var isLoading: Bool {
             loading.isLoading
+        }
+
+        private static func appVersion() -> String? {
+            let marketingVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+            let components = [marketingVersion, buildNumber]
+                .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+
+            return components.isEmpty ? nil : components.joined(separator: ".")
         }
     }
 
