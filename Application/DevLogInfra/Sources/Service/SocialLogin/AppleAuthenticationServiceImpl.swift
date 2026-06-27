@@ -146,7 +146,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             let authorizationCode = response.authorizationCode
             let idTokenString = response.idTokenString
 
-            let refreshToken = try await requestAppleRefreshToken(uid: uid, authorizationCode: authorizationCode)
+            let refreshToken = try await requestAppleRefreshToken(authorizationCode: authorizationCode)
 
             guard let appleEmail = credential.email else {
                 try await revokeAppleAccessToken(token: refreshToken)
@@ -293,17 +293,14 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     }
 
     // Apple RefreshToken 발급 메서드
-    func requestAppleRefreshToken(uid: String, authorizationCode: Data) async throws -> String {
+    func requestAppleRefreshToken(authorizationCode: Data) async throws -> String {
         guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.userAuthenticationRequired)
         }
         
         let response = try await FunctionAPIClient().send(
             .requestAppleRefreshToken,
-            payload: [
-                "authorizationCode": authorizationCode,
-                "uid": uid
-            ]
+            payload: ["authorizationCode": authorizationCode]
         )
         
         if let refreshToken = response.refreshToken {
