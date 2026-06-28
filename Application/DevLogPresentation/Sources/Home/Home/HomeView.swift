@@ -72,7 +72,7 @@ struct HomeView: View {
 
     private var recentTodoSection: some View {
         Section {
-            if store.isRecentTodosLoading {
+            if store.isRecentTodosLoading && store.recentTodos.isEmpty {
                 LoadingView()
             } else if store.recentTodos.isEmpty {
                 HStack {
