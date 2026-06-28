@@ -9,6 +9,7 @@ import Foundation
 import Testing
 import DevLogCore
 import DevLogData
+import DevLogWidgetCore
 @testable import DevLogWidget
 
 struct WidgetSyncEventHandlerTests {
@@ -93,6 +94,28 @@ struct WidgetSyncEventHandlerTests {
         _ = fixture.handler
     }
 
+    @Test("Today 위젯만 설정되어 있으면 Today 스냅샷만 갱신한다")
+    func today_위젯만_설정되어_있으면_today_스냅샷만_갱신한다() async throws {
+        let now = Date()
+        let fixture = makeFixture(widgetKinds: [WidgetKind.todayTodo])
+
+        await fixture.repository.setTodos(
+            todayTodosWithDueDate: [
+                makeTodo(id: "today", createdAt: now, dueDate: now)
+            ]
+        )
+
+        fixture.bus.publish(.syncRequested)
+
+        try await waitUntil {
+            fixture.snapshotUpdater.hasTodayUpdate
+        }
+
+        #expect(fixture.snapshotUpdater.todayUpdates.first?.todos.map(\.id) == ["today"])
+        #expect(fixture.snapshotUpdater.heatmapUpdates.isEmpty)
+        #expect(Set(await fixture.repository.calledCalls().map(\.sortTarget)) == Set([.dueDate, .updatedAt]))
+        _ = fixture.handler
+    }
     @Test("Heatmap 스냅샷 조회 실패는 Today 스냅샷 갱신을 막지 않는다")
     func heatmap_스냅샷_조회_실패는_today_스냅샷_갱신을_막지_않는다() async throws {
         let now = Date()
@@ -116,14 +139,18 @@ struct WidgetSyncEventHandlerTests {
         _ = fixture.handler
     }
 
-    private func makeFixture() -> Fixture {
+    private func makeFixture(
+        widgetKinds: Set<String> = [WidgetKind.todayTodo, WidgetKind.heatmap]
+    ) -> Fixture {
         let bus = WidgetSyncEventBusImpl()
         let repository = WidgetTodoSnapshotRepositorySpy()
         let snapshotUpdater = WidgetSnapshotUpdaterSpy()
+        let configurationProvider = WidgetConfigurationProviderSpy(widgetKinds: widgetKinds)
         let handler = WidgetSyncEventHandler(
             eventBus: bus,
             repository: repository,
-            snapshotUpdater: snapshotUpdater
+            snapshotUpdater: snapshotUpdater,
+            configurationProvider: configurationProvider
         )
 
         return Fixture(
@@ -159,6 +186,13 @@ private struct Fixture {
     let repository: WidgetTodoSnapshotRepositorySpy
     let snapshotUpdater: WidgetSnapshotUpdaterSpy
     let handler: WidgetSyncEventHandler
+}
+
+private struct WidgetConfigurationProviderSpy: WidgetConfigurationProvider {
+    let widgetKinds: Set<String>
+    func currentWidgetKinds() async throws -> Set<String> {
+        widgetKinds
+    }
 }
 
 private actor WidgetTodoSnapshotRepositorySpy: WidgetTodoSnapshotRepository {
