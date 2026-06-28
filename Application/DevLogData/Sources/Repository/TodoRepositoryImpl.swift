@@ -17,20 +17,17 @@ final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
-    private let widgetSyncEventBus: WidgetSyncEventBus
     private let todoMutationEventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
         store: MemoryCacheStore,
-        widgetSyncEventBus: WidgetSyncEventBus,
         todoMutationEventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
         self.store = store
-        self.widgetSyncEventBus = widgetSyncEventBus
         self.todoMutationEventBus = todoMutationEventBus
     }
 
@@ -143,7 +140,6 @@ final class TodoRepositoryImpl: TodoRepository {
     private func upsertTodo(_ todoRequest: TodoRequest) async throws {
         do {
             try await todoService.upsertTodo(request: todoRequest)
-            widgetSyncEventBus.request()
         } catch {
             throw error.toDomain()
         }
@@ -152,7 +148,6 @@ final class TodoRepositoryImpl: TodoRepository {
     func deleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.deleteTodo(todoId: todoId)
-            widgetSyncEventBus.request()
             todoMutationEventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
@@ -162,7 +157,6 @@ final class TodoRepositoryImpl: TodoRepository {
     func undoDeleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
-            widgetSyncEventBus.request()
             todoMutationEventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()
