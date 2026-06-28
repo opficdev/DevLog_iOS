@@ -40,17 +40,22 @@ struct DevLogApp: App {
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .background else { return }
                 let now = Date()
+                let bus = container.resolve(WidgetSyncEventBus.self)
 
                 // 위젯 갱신은 앱 실행 시 로그인 세션 흐름에서 한 번 요청된다. (WidgetSessionSyncHandler.swift:47)
-                // 따라서 이 백그라운드 트리거는 매번 최신 데이터를 다시 가져오기 위한 경로가 아니라
-                // 앱이 실행된 상태로 날짜가 넘어가서 Today widget의 분류 기준일이 바뀌었을 때만
-                // 기존 위젯 갱신 흐름을 보조로 허용하기 위한 안전장치다.
-                // 같은 날의 첫 백그라운드 진입을 막는 것은 의도된 동작이며
-                // 앱이 꺼져 있는 동안 날짜가 바뀐 경우는 다음 실행 시 세션 기반 갱신 요청이 담당한다.
-                guard !Calendar.current.isDate(syncDate, inSameDayAs: now) else { return }
+                // Todo 변경 성공 시에는 즉시 fetch하지 않고 WidgetSyncEventBus에 갱신 요청만 남긴다.
+                // 따라서 같은 날의 백그라운드 진입은 저장된 요청이 있을 때만 기존 syncRequested 흐름을 실행한다.
+                // 앱이 실행된 상태로 날짜가 넘어간 경우에는 Today widget의 분류 기준일 자체가 바뀌므로,
+                // 콘텐츠 변경 여부와 관계없이 기존 syncRequested 흐름을 즉시 허용한다.
+                guard Calendar.current.isDate(syncDate, inSameDayAs: now) else {
+                    syncDate = now
+                    _ = bus.confirmRequest()
+                    bus.publish(.syncRequested)
+                    return
+                }
 
-                syncDate = now
-                container.resolve(WidgetSyncEventBus.self).publish(.syncRequested)
+                guard bus.confirmRequest() else { return }
+                bus.publish(.syncRequested)
             }
         }
         WindowGroup(id: TodoEditorWindowValue.sceneId, for: TodoEditorWindowValue.self) { value in

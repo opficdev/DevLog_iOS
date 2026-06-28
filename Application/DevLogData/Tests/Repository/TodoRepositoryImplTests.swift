@@ -13,8 +13,8 @@ import DevLogDomain
 @testable import DevLogData
 
 struct TodoRepositoryImplTests {
-    @Test("Todo 변경 성공 시 위젯 동기화와 mutation 이벤트를 발행한다")
-    func todo_변경_성공_시_위젯_동기화와_mutation_이벤트를_발행한다() async throws {
+    @Test("Todo 변경 성공 시 위젯 동기화 요청과 mutation 이벤트를 발행한다")
+    func todo_변경_성공_시_위젯_동기화_요청과_mutation_이벤트를_발행한다() async throws {
         let fixture = makeFixture()
         let todo = makeTodo()
 
@@ -22,8 +22,7 @@ struct TodoRepositoryImplTests {
         try await fixture.repository.deleteTodo(todo.id)
         try await fixture.repository.undoDeleteTodo(todo.id)
 
-        let events = fixture.widgetSyncEventBus.events
-        #expect(events == [.syncRequested, .syncRequested, .syncRequested])
+        #expect(fixture.widgetSyncEventBus.requestCallCount == 3)
 
         let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents == [.updated(todo.id), .deleted(todo.id), .restored(todo.id)])
@@ -55,8 +54,7 @@ struct TodoRepositoryImplTests {
             #expect(error as? TodoRepositoryImplTestsError == .serviceFailed)
         }
 
-        let syncEvents = fixture.widgetSyncEventBus.events
-        #expect(syncEvents.isEmpty)
+        #expect(fixture.widgetSyncEventBus.requestCallCount == 0)
 
         let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents.isEmpty)
@@ -177,14 +175,20 @@ private final class TodoRepositoryMemoryCacheStoreSpy: MemoryCacheStore {
 }
 
 private final class WidgetSyncEventBusSpy: WidgetSyncEventBus {
-    private(set) var events = [WidgetSyncEvent]()
+    private(set) var requestCallCount = 0
+
+    func publish(_ event: WidgetSyncEvent) { }
+
+    func request() {
+        requestCallCount += 1
+    }
+
+    func confirmRequest() -> Bool {
+        false
+    }
 
     func observe() -> AnyPublisher<WidgetSyncEvent, Never> {
         Empty().eraseToAnyPublisher()
-    }
-
-    func publish(_ event: WidgetSyncEvent) {
-        events.append(event)
     }
 }
 

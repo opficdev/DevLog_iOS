@@ -25,4 +25,16 @@ struct WidgetSyncEventBusTests {
         #expect(receivedEvents == [.syncRequested])
         _ = cancellable
     }
+
+    @Test("WidgetSyncEventBus는 요청 여부를 한 번만 소비한다")
+    func widgetSyncEventBus는_요청_여부를_한_번만_소비한다() {
+        let bus = WidgetSyncEventBusImpl()
+
+        #expect(bus.confirmRequest() == false)
+
+        bus.request()
+
+        #expect(bus.confirmRequest())
+        #expect(bus.confirmRequest() == false)
+    }
 }

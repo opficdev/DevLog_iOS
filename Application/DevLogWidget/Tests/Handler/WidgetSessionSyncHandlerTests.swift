@@ -75,6 +75,12 @@ private final class WidgetSyncEventBusSpy: WidgetSyncEventBus {
         events.append(event)
     }
 
+    func request() { }
+
+    func confirmRequest() -> Bool {
+        false
+    }
+
     func observe() -> AnyPublisher<WidgetSyncEvent, Never> {
         Empty().eraseToAnyPublisher()
     }
