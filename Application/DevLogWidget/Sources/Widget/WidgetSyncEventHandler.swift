@@ -14,7 +14,6 @@ import DevLogWidgetCore
 public final class WidgetSyncEventHandler {
     private let repository: WidgetTodoSnapshotRepository
     private let snapshotUpdater: WidgetSnapshotUpdater
-    private let configurationProvider: WidgetConfigurationProvider
     private let pageSize = 100
     private let logger = Logger(category: "WidgetSyncEventHandler")
     private var cancellables = Set<AnyCancellable>()
@@ -22,12 +21,10 @@ public final class WidgetSyncEventHandler {
     public init(
         eventBus: WidgetSyncEventBus,
         repository: WidgetTodoSnapshotRepository,
-        snapshotUpdater: WidgetSnapshotUpdater,
-        configurationProvider: WidgetConfigurationProvider
+        snapshotUpdater: WidgetSnapshotUpdater
     ) {
         self.repository = repository
         self.snapshotUpdater = snapshotUpdater
-        self.configurationProvider = configurationProvider
 
         eventBus.observe()
             .sink { [weak self] event in
@@ -44,29 +41,11 @@ private extension WidgetSyncEventHandler {
             Task { [weak self] in
                 guard let self else { return }
                 let now = Date()
-                let targets = await enabledSnapshotTargets()
                 await withTaskGroup(of: Void.self) { group in
-                    if targets.contains(.today) {
-                        group.addTask { await self.updateTodayWidgetSnapshot(now: now) }
-                    }
-                    if targets.contains(.heatmap) {
-                        group.addTask { await self.updateHeatmapWidgetSnapshot(now: now) }
-                    }
+                    group.addTask { await self.updateTodayWidgetSnapshot(now: now) }
+                    group.addTask { await self.updateHeatmapWidgetSnapshot(now: now) }
                 }
             }
-        }
-    }
-
-    func enabledSnapshotTargets() async -> Set<WidgetSnapshotTarget> {
-        do {
-            let kinds = try await configurationProvider.currentWidgetKinds()
-            return WidgetSnapshotTarget.targets(for: kinds)
-        } catch {
-            logger.error(
-                "Failed to fetch current widget configurations.",
-                error: error
-            )
-            return Set(WidgetSnapshotTarget.allCases)
         }
     }
 
@@ -164,21 +143,5 @@ private extension WidgetSyncEventHandler {
             nextQuarterStart: nextQuarterStart,
             pageSize: pageSize
         )
-    }
-}
-
-private enum WidgetSnapshotTarget: CaseIterable {
-    case today
-    case heatmap
-
-    static func targets(for kinds: Set<String>) -> Set<Self> {
-        var targets = Set<Self>()
-        if kinds.contains(WidgetKind.todayTodo) {
-            targets.insert(.today)
-        }
-        if kinds.contains(WidgetKind.heatmap) {
-            targets.insert(.heatmap)
-        }
-        return targets
     }
 }
