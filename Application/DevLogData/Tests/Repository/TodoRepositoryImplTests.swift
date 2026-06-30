@@ -73,7 +73,7 @@ struct TodoRepositoryImplTests {
             todoCategoryService: todoCategoryService,
             store: store,
             updater: widgetSnapshotUpdater,
-            todoMutationEventBus: todoMutationEventBus
+            eventBus: todoMutationEventBus
         )
 
         return Fixture(

@@ -18,20 +18,20 @@ final class TodoRepositoryImpl: TodoRepository {
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
     private let updater: WidgetSnapshotUpdater
-    private let todoMutationEventBus: TodoMutationEventBus
+    private let eventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
         store: MemoryCacheStore,
         updater: WidgetSnapshotUpdater,
-        todoMutationEventBus: TodoMutationEventBus
+        eventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
         self.store = store
         self.updater = updater
-        self.todoMutationEventBus = todoMutationEventBus
+        self.eventBus = eventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -135,7 +135,7 @@ final class TodoRepositoryImpl: TodoRepository {
         let now = Date()
         let snapshot = WidgetTodoSnapshot.fromDomain(todo)
         updater.upsertTodoSnapshot(snapshot, now: now)
-        todoMutationEventBus.publish(.updated(todo.id))
+        eventBus.publish(.updated(todo.id))
     }
 
     func upsertTodo(_ todoDraft: TodoDraft) async throws {
@@ -159,7 +159,7 @@ final class TodoRepositoryImpl: TodoRepository {
             try await todoService.deleteTodo(todoId: todoId)
             let now = Date()
             updater.deleteTodoSnapshot(todoId: todoId, deletedAt: now, now: now)
-            todoMutationEventBus.publish(.deleted(todoId))
+            eventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
         }
@@ -170,7 +170,7 @@ final class TodoRepositoryImpl: TodoRepository {
             try await todoService.undoDeleteTodo(todoId: todoId)
             let now = Date()
             updater.restoreTodoSnapshot(todoId: todoId, now: now)
-            todoMutationEventBus.publish(.restored(todoId))
+            eventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()
         }
