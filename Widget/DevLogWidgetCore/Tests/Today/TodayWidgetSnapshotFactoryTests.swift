@@ -27,8 +27,8 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 1)
         #expect(snapshot.dueSoonCount == 2)
-        #expect(snapshot.sections.flatMap(\.items).count == 3)
-        #expect(snapshot.sections.flatMap(\.items).map(\.title) == ["고정된 할 일", "지난 일정", "임박 일정"])
+        #expect(snapshot.items.count == 3)
+        #expect(snapshot.items.map(\.title) == ["고정된 할 일", "지난 일정", "임박 일정"])
     }
 
     @Test("Today 위젯 스냅샷은 화면과 같은 display option 필터를 적용한다")
@@ -50,7 +50,7 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 0)
         #expect(snapshot.dueSoonCount == 1)
-        #expect(snapshot.sections.flatMap(\.items).map(\.title) == ["고정된 할 일"])
+        #expect(snapshot.items.map(\.title) == ["고정된 할 일"])
     }
 
     @Test("Today 위젯 스냅샷은 날짜 경계에 따라 일정 섹션을 구분한다")
@@ -107,8 +107,8 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.totalCount == 5)
         #expect(snapshot.overdueCount == 1)
         #expect(snapshot.dueSoonCount == 2)
-        #expect(snapshot.sections.flatMap(\.items).count == 3)
-        #expect(snapshot.sections.flatMap(\.items).map(\.title) == ["지난 일정", "오늘 일정", "7일 뒤 일정"])
+        #expect(snapshot.items.count == 3)
+        #expect(snapshot.items.map(\.title) == ["지난 일정", "오늘 일정", "7일 뒤 일정"])
     }
 
     private func makeTodayTodos(

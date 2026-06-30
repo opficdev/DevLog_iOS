@@ -13,15 +13,10 @@ struct TodayWidgetSnapshot: Decodable, Equatable {
     let focusedCount: Int
     let overdueCount: Int
     let dueSoonCount: Int
-    let sections: [TodayWidgetSectionSnapshot]
+    let items: [WidgetTodayTodoSnapshot]
 }
 
-struct TodayWidgetSectionSnapshot: Decodable, Equatable {
-    let category: String
-    let items: [WidgetTodoSnapshotItem]
-}
-
-struct WidgetTodoSnapshotItem: Decodable, Equatable {
+struct WidgetTodayTodoSnapshot: Decodable, Equatable {
     let id: String
     let number: Int
     let title: String

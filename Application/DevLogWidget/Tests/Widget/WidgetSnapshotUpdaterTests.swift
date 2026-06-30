@@ -31,7 +31,7 @@ struct WidgetSnapshotUpdaterTests {
 
         let snapshot = try #require(try fixture.snapshotStore.loadTodaySnapshot())
         #expect(snapshot.totalCount == 1)
-        #expect(snapshot.sections.first?.items.first?.id == todo.id)
+        #expect(snapshot.items.first?.id == todo.id)
     }
 
     @Test("Heatmap 스냅샷 갱신은 Heatmap 스냅샷을 저장한다")
@@ -152,7 +152,7 @@ struct WidgetSnapshotUpdaterTests {
 
         let snapshot = try #require(try fixture.snapshotStore.loadTodaySnapshot())
         #expect(snapshot.totalCount == 1)
-        #expect(snapshot.sections.flatMap(\.items).map(\.id) == ["focused"])
+        #expect(snapshot.items.map(\.id) == ["focused"])
     }
 
     @Test("저장된 원본이 없으면 재생성 요청은 기존 스냅샷을 덮지 않는다")
@@ -166,18 +166,13 @@ struct WidgetSnapshotUpdaterTests {
                 focusedCount: 0,
                 overdueCount: 0,
                 dueSoonCount: 1,
-                sections: [
-                    TodayWidgetSectionSnapshot(
-                        category: "dueSoon",
-                        items: [
-                            WidgetTodoSnapshotItem(
-                                id: "existing",
-                                number: 1,
-                                title: "existing",
-                                isPinned: false,
-                                dueDate: now
-                            )
-                        ]
+                items: [
+                    WidgetTodayTodoSnapshot(
+                        id: "existing",
+                        number: 1,
+                        title: "existing",
+                        isPinned: false,
+                        dueDate: now
                     )
                 ]
             )
@@ -187,7 +182,7 @@ struct WidgetSnapshotUpdaterTests {
 
         let snapshot = try #require(try fixture.snapshotStore.loadTodaySnapshot())
         #expect(snapshot.totalCount == 1)
-        #expect(snapshot.sections.flatMap(\.items).map(\.id) == ["existing"])
+        #expect(snapshot.items.map(\.id) == ["existing"])
     }
 
     @Test("Todo 삭제 원본 반영은 Today에서 제거하고 Heatmap 삭제 활동을 갱신한다")
