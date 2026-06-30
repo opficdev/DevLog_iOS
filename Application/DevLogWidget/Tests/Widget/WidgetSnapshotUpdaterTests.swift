@@ -185,8 +185,8 @@ struct WidgetSnapshotUpdaterTests {
         #expect(snapshot.items.map(\.id) == ["existing"])
     }
 
-    @Test("Todo 삭제 원본 반영은 Today에서 제거하고 Heatmap 삭제 활동을 갱신한다")
-    func todo_삭제_원본_반영은_today에서_제거하고_heatmap_삭제_활동을_갱신한다() throws {
+    @Test("Todo 삭제 원본 반영은 Today 원본에만 있는 Todo도 Heatmap 삭제 활동으로 갱신한다")
+    func todo_삭제_원본_반영은_today_원본에만_있는_todo도_heatmap_삭제_활동으로_갱신한다() throws {
         let calendar = Calendar(identifier: .gregorian)
         let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
         let createdAt = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 2)))
@@ -205,7 +205,7 @@ struct WidgetSnapshotUpdaterTests {
             now: now
         )
         fixture.updater.updateHeatmapSnapshot(
-            createdTodos: [todo],
+            createdTodos: [],
             completedTodos: [],
             deletedTodos: [],
             quarterStart: quarterStart,

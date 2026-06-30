@@ -124,8 +124,9 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
         now: Date = Date()
     ) {
         lock.lock()
+        let todo = sourceTodo(id: todoId)
         source.todayTodos.removeAll { $0.id == todoId }
-        if let todo = sourceTodo(id: todoId) {
+        if let todo {
             upsertHeatmapSource(todo.withDeletedAt(deletedAt))
         }
         lock.unlock()
@@ -146,10 +147,9 @@ final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     ) {
         lock.lock()
         if let todo = sourceTodo(id: todoId) {
-            upsertTodaySource(todo.withDeletedAt(nil))
-        }
-        if let todo = sourceTodo(id: todoId) {
-            upsertHeatmapSource(todo.withDeletedAt(nil))
+            let restored = todo.withDeletedAt(nil)
+            upsertTodaySource(restored)
+            upsertHeatmapSource(restored)
         }
         lock.unlock()
 
