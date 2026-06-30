@@ -107,6 +107,16 @@ These may proceed after inspection when they do not change architecture meaning:
 - Do not claim architecture work is complete without checking the diff scope.
 - Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
 
+## Git and commit rules
+
+- Commit messages must start with a short prefix used by recent local commits, such as `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `ui`, or `rollback`.
+- Write commit message prose in Korean.
+- Keep implementation names such as `ToastPresenter`, `toastHost`, `MainView`, `DevLogPresentation`, file paths, commands, branch names, and commit hashes in their original form.
+- Do not translate implementation names into Korean unless the user explicitly asks for a user-facing Korean label.
+- Do not write a commit message body.
+- When checking recent commit-message style, do not infer local commit style from GitHub merge or squash-merge subjects such as `[#123] ... (#456)`.
+- For squash-merge commits, inspect the commit body and use the individual bullet commit messages as the style reference.
+
 ## Canonical project rules
 
 - DevLog-specific working rules belong in this repository, not in global agent memory.

@@ -17,21 +17,21 @@ final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
-    private let widgetSyncEventBus: WidgetSyncEventBus
-    private let todoMutationEventBus: TodoMutationEventBus
+    private let updater: WidgetSnapshotUpdater
+    private let eventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
         store: MemoryCacheStore,
-        widgetSyncEventBus: WidgetSyncEventBus,
-        todoMutationEventBus: TodoMutationEventBus
+        updater: WidgetSnapshotUpdater,
+        eventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
         self.store = store
-        self.widgetSyncEventBus = widgetSyncEventBus
-        self.todoMutationEventBus = todoMutationEventBus
+        self.updater = updater
+        self.eventBus = eventBus
     }
 
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
@@ -132,18 +132,23 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let todoRequest = TodoRequest.fromDomain(todo)
         try await upsertTodo(todoRequest)
-        todoMutationEventBus.publish(.updated(todo.id))
+        let now = Date()
+        let snapshot = WidgetTodoSnapshot.fromDomain(todo)
+        updater.upsertTodoSnapshot(snapshot, now: now)
+        eventBus.publish(.updated(todo.id))
     }
 
     func upsertTodo(_ todoDraft: TodoDraft) async throws {
         let todoRequest = TodoRequest.fromDomain(todoDraft)
         try await upsertTodo(todoRequest)
+        let now = Date()
+        let snapshot = WidgetTodoSnapshot.fromDomain(todoDraft)
+        updater.upsertTodoSnapshot(snapshot, now: now)
     }
 
     private func upsertTodo(_ todoRequest: TodoRequest) async throws {
         do {
             try await todoService.upsertTodo(request: todoRequest)
-            widgetSyncEventBus.publish(.syncRequested)
         } catch {
             throw error.toDomain()
         }
@@ -152,8 +157,9 @@ final class TodoRepositoryImpl: TodoRepository {
     func deleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.deleteTodo(todoId: todoId)
-            widgetSyncEventBus.publish(.syncRequested)
-            todoMutationEventBus.publish(.deleted(todoId))
+            let now = Date()
+            updater.deleteTodoSnapshot(todoId: todoId, deletedAt: now, now: now)
+            eventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
         }
@@ -162,8 +168,9 @@ final class TodoRepositoryImpl: TodoRepository {
     func undoDeleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
-            widgetSyncEventBus.publish(.syncRequested)
-            todoMutationEventBus.publish(.restored(todoId))
+            let now = Date()
+            updater.restoreTodoSnapshot(todoId: todoId, now: now)
+            eventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()
         }

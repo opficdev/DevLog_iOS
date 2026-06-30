@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import DevLogCore
 import DevLogData
+import DevLogWidgetCore
 
 public final class WidgetSyncEventHandler {
     private let repository: WidgetTodoSnapshotRepository
@@ -40,10 +41,15 @@ private extension WidgetSyncEventHandler {
             Task { [weak self] in
                 guard let self else { return }
                 let now = Date()
-                async let todaySnapshot: Void = updateTodayWidgetSnapshot(now: now)
-                async let heatmapSnapshot: Void = updateHeatmapWidgetSnapshot(now: now)
-                _ = await (todaySnapshot, heatmapSnapshot)
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask { await self.updateTodayWidgetSnapshot(now: now) }
+                    group.addTask { await self.updateHeatmapWidgetSnapshot(now: now) }
+                }
             }
+        case .refreshRequested:
+            let now = Date()
+            snapshotUpdater.updateTodaySnapshot(now: now)
+            snapshotUpdater.updateHeatmapSnapshot(now: now)
         }
     }
 

@@ -95,7 +95,7 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setHeatmapActivityTypes(_ activityTypes: [String]) {
         widgetSnapshotPreferenceStore.setHeatmapActivityTypes(activityTypes)
-        widgetSyncEventBus.publish(.syncRequested)
+        widgetSyncEventBus.publish(.refreshRequested)
     }
 
     func todayDisplayOptions() -> TodayDisplayOptions {
@@ -104,6 +104,6 @@ final class UserPreferencesRepositoryImpl: UserPreferencesRepository {
 
     func setTodayDisplayOptions(_ options: TodayDisplayOptions) {
         widgetSnapshotPreferenceStore.setTodayDisplayOptions(options)
-        widgetSyncEventBus.publish(.syncRequested)
+        widgetSyncEventBus.publish(.refreshRequested)
     }
 }

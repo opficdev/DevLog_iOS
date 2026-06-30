@@ -78,7 +78,7 @@ public struct TodayWidgetSnapshotFactory {
             from: todayWidgetTodoItems,
             displayOptions: displayOptions
         )
-        let sections = groupedSectionItems(
+        let collection = groupedSectionItems(
             from: displayedTodos,
             now: now
         )
@@ -89,23 +89,7 @@ public struct TodayWidgetSnapshotFactory {
             focusedCount: displayedTodos.filter(\.isPinned).count,
             overdueCount: displayedTodos.filter { isOverdue($0, now: now) }.count,
             dueSoonCount: displayedTodos.filter { isDueSoon($0, now: now) }.count,
-            sections: SectionCategory.allCases.compactMap { category in
-                let items = sections.items(for: category)
-                guard !items.isEmpty else { return nil }
-
-                return TodayWidgetSectionSnapshot(
-                    category: category.rawValue,
-                    items: items.map {
-                        WidgetTodoSnapshotItem(
-                            id: $0.id,
-                            number: $0.number,
-                            title: $0.title,
-                            isPinned: $0.isPinned,
-                            dueDate: $0.dueDate
-                        )
-                    }
-                )
-            }
+            items: snapshotItems(from: collection)
         )
     }
 
@@ -171,6 +155,21 @@ public struct TodayWidgetSnapshotFactory {
         }
 
         return collection
+    }
+
+    private func snapshotItems(from collection: SectionCollection) -> [WidgetTodayTodoSnapshot] {
+        SectionCategory.allCases
+            .flatMap { collection.items(for: $0) }
+            .prefix(3)
+            .map {
+                WidgetTodayTodoSnapshot(
+                    id: $0.id,
+                    number: $0.number,
+                    title: $0.title,
+                    isPinned: $0.isPinned,
+                    dueDate: $0.dueDate
+                )
+            }
     }
 
     private func isOverdue(

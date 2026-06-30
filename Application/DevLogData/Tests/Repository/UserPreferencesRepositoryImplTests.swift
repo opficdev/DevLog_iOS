@@ -12,8 +12,8 @@ import DevLogCore
 @testable import DevLogData
 
 struct UserPreferencesRepositoryImplTests {
-    @Test("위젯 설정 변경 시 위젯 동기화 이벤트를 발행한다")
-    func 위젯_설정_변경_시_위젯_동기화_이벤트를_발행한다() {
+    @Test("위젯 설정 변경 시 위젯 스냅샷 재생성 이벤트를 발행한다")
+    func 위젯_설정_변경_시_위젯_스냅샷_재생성_이벤트를_발행한다() {
         let widgetSnapshotPreferenceStore = WidgetSnapshotPreferenceStoreSpy()
         let widgetSyncEventBus = WidgetSyncEventBusSpy()
         let repository = UserPreferencesRepositoryImpl(
@@ -38,7 +38,7 @@ struct UserPreferencesRepositoryImplTests {
                 focusVisibility: .focusedOnly
             )
         )
-        #expect(widgetSyncEventBus.events == [.syncRequested, .syncRequested])
+        #expect(widgetSyncEventBus.events == [.refreshRequested, .refreshRequested])
     }
 }
 

@@ -11,8 +11,8 @@ import DevLogCore
 @testable import DevLogWidgetCore
 
 struct TodayWidgetSnapshotFactoryTests {
-    @Test("Today 위젯 스냅샷은 화면 규칙과 같은 순서로 섹션과 요약 수치를 만든다")
-    func today_위젯_스냅샷은_화면_규칙과_같은_순서로_섹션과_요약_수치를_만든다() throws {
+    @Test("Today 위젯 스냅샷은 화면 규칙과 같은 순서로 저장 항목과 요약 수치를 만든다")
+    func today_위젯_스냅샷은_화면_규칙과_같은_순서로_저장_항목과_요약_수치를_만든다() throws {
         let calendar = Calendar(identifier: .gregorian)
         let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 17)))
         let factory = TodayWidgetSnapshotFactory(calendar: calendar)
@@ -27,12 +27,8 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 1)
         #expect(snapshot.dueSoonCount == 2)
-        #expect(snapshot.sections.map(\.category) == ["focused", "overdue", "dueSoon", "later", "unscheduled"])
-        #expect(snapshot.sections[0].items.map(\.title) == ["고정된 할 일"])
-        #expect(snapshot.sections[1].items.map(\.title) == ["지난 일정"])
-        #expect(snapshot.sections[2].items.map(\.title) == ["임박 일정"])
-        #expect(snapshot.sections[3].items.map(\.title) == ["나중 일정"])
-        #expect(snapshot.sections[4].items.map(\.title) == ["미정 일정"])
+        #expect(snapshot.items.count == 3)
+        #expect(snapshot.items.map(\.title) == ["고정된 할 일", "지난 일정", "임박 일정"])
     }
 
     @Test("Today 위젯 스냅샷은 화면과 같은 display option 필터를 적용한다")
@@ -54,8 +50,7 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.focusedCount == 1)
         #expect(snapshot.overdueCount == 0)
         #expect(snapshot.dueSoonCount == 1)
-        #expect(snapshot.sections.map(\.category) == ["focused"])
-        #expect(snapshot.sections[0].items.map(\.title) == ["고정된 할 일"])
+        #expect(snapshot.items.map(\.title) == ["고정된 할 일"])
     }
 
     @Test("Today 위젯 스냅샷은 날짜 경계에 따라 일정 섹션을 구분한다")
@@ -112,11 +107,8 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.totalCount == 5)
         #expect(snapshot.overdueCount == 1)
         #expect(snapshot.dueSoonCount == 2)
-        #expect(snapshot.sections.map(\.category) == ["overdue", "dueSoon", "later", "unscheduled"])
-        #expect(snapshot.sections[0].items.map(\.title) == ["지난 일정"])
-        #expect(snapshot.sections[1].items.map(\.title) == ["오늘 일정", "7일 뒤 일정"])
-        #expect(snapshot.sections[2].items.map(\.title) == ["8일 뒤 일정"])
-        #expect(snapshot.sections[3].items.map(\.title) == ["미정 일정"])
+        #expect(snapshot.items.count == 3)
+        #expect(snapshot.items.map(\.title) == ["지난 일정", "오늘 일정", "7일 뒤 일정"])
     }
 
     private func makeTodayTodos(

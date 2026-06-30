@@ -94,14 +94,11 @@ struct TodayTodoWidgetEntryView: View {
         }
     }
 
-    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodoSnapshotItem] {
-        Array(snapshot
-            .sections
-            .flatMap(\.items)
-            .prefix(3))
+    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodayTodoSnapshot] {
+        Array(snapshot.items.prefix(3))
     }
 
-    private func todoRow(_ item: WidgetTodoSnapshotItem, lineLimit: Int? = nil) -> some View {
+    private func todoRow(_ item: WidgetTodayTodoSnapshot, lineLimit: Int? = nil) -> some View {
         HStack(spacing: 6) {
             Text("#\(item.number)")
                 .font(.caption2)
