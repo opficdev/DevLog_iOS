@@ -17,17 +17,20 @@ final class TodoRepositoryImpl: TodoRepository {
     private let todoService: TodoService
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
+    private let updater: WidgetSnapshotUpdater
     private let todoMutationEventBus: TodoMutationEventBus
 
     init(
         todoService: TodoService,
         todoCategoryService: TodoCategoryService,
         store: MemoryCacheStore,
+        updater: WidgetSnapshotUpdater,
         todoMutationEventBus: TodoMutationEventBus
     ) {
         self.todoService = todoService
         self.todoCategoryService = todoCategoryService
         self.store = store
+        self.updater = updater
         self.todoMutationEventBus = todoMutationEventBus
     }
 
@@ -129,12 +132,18 @@ final class TodoRepositoryImpl: TodoRepository {
     func upsertTodo(_ todo: Todo) async throws {
         let todoRequest = TodoRequest.fromDomain(todo)
         try await upsertTodo(todoRequest)
+        let now = Date()
+        let snapshot = WidgetTodoSnapshot.fromDomain(todo)
+        updater.upsertTodoSnapshot(snapshot, now: now)
         todoMutationEventBus.publish(.updated(todo.id))
     }
 
     func upsertTodo(_ todoDraft: TodoDraft) async throws {
         let todoRequest = TodoRequest.fromDomain(todoDraft)
         try await upsertTodo(todoRequest)
+        let now = Date()
+        let snapshot = WidgetTodoSnapshot.fromDomain(todoDraft)
+        updater.upsertTodoSnapshot(snapshot, now: now)
     }
 
     private func upsertTodo(_ todoRequest: TodoRequest) async throws {
@@ -148,6 +157,8 @@ final class TodoRepositoryImpl: TodoRepository {
     func deleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.deleteTodo(todoId: todoId)
+            let now = Date()
+            updater.deleteTodoSnapshot(todoId: todoId, deletedAt: now, now: now)
             todoMutationEventBus.publish(.deleted(todoId))
         } catch {
             throw error.toDomain()
@@ -157,6 +168,8 @@ final class TodoRepositoryImpl: TodoRepository {
     func undoDeleteTodo(_ todoId: String) async throws {
         do {
             try await todoService.undoDeleteTodo(todoId: todoId)
+            let now = Date()
+            updater.restoreTodoSnapshot(todoId: todoId, now: now)
             todoMutationEventBus.publish(.restored(todoId))
         } catch {
             throw error.toDomain()

@@ -89,6 +89,19 @@ public extension WidgetTodoSnapshot {
             dueDate: todo.dueDate
         )
     }
+
+    static func fromDomain(_ draft: TodoDraft) -> Self {
+        WidgetTodoSnapshot(
+            id: draft.id,
+            number: nil,
+            title: draft.title,
+            isPinned: draft.isPinned,
+            createdAt: draft.createdAt,
+            completedAt: draft.completedAt,
+            deletedAt: nil,
+            dueDate: draft.dueDate
+        )
+    }
 }
 
 public extension TodoCursorDTO {

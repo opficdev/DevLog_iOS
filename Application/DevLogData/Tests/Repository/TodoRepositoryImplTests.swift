@@ -24,6 +24,9 @@ struct TodoRepositoryImplTests {
 
         let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents == [.updated(todo.id), .deleted(todo.id), .restored(todo.id)])
+        #expect(fixture.widgetSnapshotUpdater.upsertedTodoIds == [todo.id])
+        #expect(fixture.widgetSnapshotUpdater.deletedTodoIds == [todo.id])
+        #expect(fixture.widgetSnapshotUpdater.restoredTodoIds == [todo.id])
     }
 
     @Test("Todo 변경 실패 시 mutation 이벤트를 발행하지 않는다")
@@ -54,23 +57,29 @@ struct TodoRepositoryImplTests {
 
         let mutationEvents = fixture.todoMutationEventBus.publishedEvents()
         #expect(mutationEvents.isEmpty)
+        #expect(fixture.widgetSnapshotUpdater.upsertedTodoIds.isEmpty)
+        #expect(fixture.widgetSnapshotUpdater.deletedTodoIds.isEmpty)
+        #expect(fixture.widgetSnapshotUpdater.restoredTodoIds.isEmpty)
     }
 
     private func makeFixture() -> Fixture {
         let todoService = TodoServiceSpy()
         let todoCategoryService = TodoCategoryServiceSpy()
         let store = TodoRepositoryMemoryCacheStoreSpy()
+        let widgetSnapshotUpdater = WidgetSnapshotUpdaterSpy()
         let todoMutationEventBus = TodoMutationEventBusSpy()
         let repository = TodoRepositoryImpl(
             todoService: todoService,
             todoCategoryService: todoCategoryService,
             store: store,
+            updater: widgetSnapshotUpdater,
             todoMutationEventBus: todoMutationEventBus
         )
 
         return Fixture(
             repository: repository,
             todoService: todoService,
+            widgetSnapshotUpdater: widgetSnapshotUpdater,
             todoMutationEventBus: todoMutationEventBus
         )
     }
@@ -98,6 +107,7 @@ struct TodoRepositoryImplTests {
 private struct Fixture {
     let repository: TodoRepositoryImpl
     let todoService: TodoServiceSpy
+    let widgetSnapshotUpdater: WidgetSnapshotUpdaterSpy
     let todoMutationEventBus: TodoMutationEventBusSpy
 }
 
@@ -180,6 +190,50 @@ private final class TodoMutationEventBusSpy: TodoMutationEventBus {
     func observe() -> AnyPublisher<TodoMutationEvent, Never> {
         Empty().eraseToAnyPublisher()
     }
+}
+
+private final class WidgetSnapshotUpdaterSpy: WidgetSnapshotUpdater {
+    private(set) var upsertedTodoIds = [String]()
+    private(set) var deletedTodoIds = [String]()
+    private(set) var restoredTodoIds = [String]()
+
+    func updateTodaySnapshot(
+        todos: [WidgetTodoSnapshot]?,
+        displayOptions: TodayDisplayOptions?,
+        now: Date
+    ) { }
+
+    func updateHeatmapSnapshot(
+        createdTodos: [WidgetTodoSnapshot]?,
+        completedTodos: [WidgetTodoSnapshot]?,
+        deletedTodos: [WidgetTodoSnapshot]?,
+        quarterStart: Date?,
+        now: Date
+    ) { }
+
+    func upsertTodoSnapshot(
+        _ todo: WidgetTodoSnapshot,
+        now: Date
+    ) {
+        upsertedTodoIds.append(todo.id)
+    }
+
+    func deleteTodoSnapshot(
+        todoId: String,
+        deletedAt: Date,
+        now: Date
+    ) {
+        deletedTodoIds.append(todoId)
+    }
+
+    func restoreTodoSnapshot(
+        todoId: String,
+        now: Date
+    ) {
+        restoredTodoIds.append(todoId)
+    }
+
+    func clear() { }
 }
 
 private enum TodoRepositoryImplTestsError: Error, Equatable {

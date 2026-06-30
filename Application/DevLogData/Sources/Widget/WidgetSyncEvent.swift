@@ -7,4 +7,5 @@
 
 public enum WidgetSyncEvent: Equatable {
     case syncRequested
+    case refreshRequested
 }

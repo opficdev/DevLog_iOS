@@ -41,6 +41,7 @@ public final class DataAssembler: Assembler {
                 todoService: container.resolve(TodoService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
                 store: container.resolve(MemoryCacheStore.self),
+                updater: container.resolve(WidgetSnapshotUpdater.self),
                 todoMutationEventBus: container.resolve(TodoMutationEventBus.self)
             )
         }

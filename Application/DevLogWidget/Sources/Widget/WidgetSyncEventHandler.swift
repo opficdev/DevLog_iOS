@@ -46,6 +46,10 @@ private extension WidgetSyncEventHandler {
                     group.addTask { await self.updateHeatmapWidgetSnapshot(now: now) }
                 }
             }
+        case .refreshRequested:
+            let now = Date()
+            snapshotUpdater.updateTodaySnapshot(now: now)
+            snapshotUpdater.updateHeatmapSnapshot(now: now)
         }
     }
 
