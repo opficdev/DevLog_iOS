@@ -13,7 +13,7 @@ let project = Project(
             name: "WidgetExtension",
             destinations: .iOS,
             product: .appExtension,
-            bundleId: "opfic.DevLog.DevLogWidget",
+            bundleId: "opfic.DevLog.Widget",
             infoPlist: .file(path: "Resource/Info.plist"),
             sources: [
                 .glob(
