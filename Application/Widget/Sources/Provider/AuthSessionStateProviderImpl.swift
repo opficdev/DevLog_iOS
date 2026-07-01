@@ -1,12 +1,12 @@
 //
 //  AuthSessionStateProviderImpl.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 6/9/26.
 //
 
 import Combine
-import DevLogData
+import Data
 
 public final class AuthSessionStateProviderImpl: AuthSessionStateProvider {
     private let subject = CurrentValueSubject<Bool?, Never>(nil)

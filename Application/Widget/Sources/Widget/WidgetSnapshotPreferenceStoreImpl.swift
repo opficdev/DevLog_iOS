@@ -1,13 +1,13 @@
 //
 //  WidgetSnapshotPreferenceStoreImpl.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
-import DevLogCore
-import DevLogData
+import Core
+import Data
 
 final class WidgetSnapshotPreferenceStoreImpl: WidgetSnapshotPreferenceStore {
     private enum Key: String, CaseIterable {

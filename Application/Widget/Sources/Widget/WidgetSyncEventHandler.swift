@@ -1,15 +1,15 @@
 //
 //  WidgetSyncEventHandler.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Combine
 import Foundation
-import DevLogCore
-import DevLogData
-import DevLogWidgetCore
+import Core
+import Data
+import WidgetCore
 
 public final class WidgetSyncEventHandler {
     private let repository: WidgetTodoSnapshotRepository

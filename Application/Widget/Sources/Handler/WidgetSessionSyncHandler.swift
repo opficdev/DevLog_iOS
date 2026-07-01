@@ -1,13 +1,13 @@
 //
 //  WidgetSessionSyncHandler.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 6/1/26.
 //
 
 import Combine
 import Foundation
-import DevLogData
+import Data
 
 public final class WidgetSessionSyncHandler {
     private let provider: AuthSessionStateProvider

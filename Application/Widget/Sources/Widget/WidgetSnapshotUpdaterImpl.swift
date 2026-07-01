@@ -1,15 +1,15 @@
 //
 //  WidgetSnapshotUpdaterImpl.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
 import WidgetKit
-import DevLogCore
-import DevLogData
-import DevLogWidgetCore
+import Core
+import Data
+import WidgetCore
 
 final class WidgetSnapshotUpdaterImpl: WidgetSnapshotUpdater {
     private struct SnapshotSource {

@@ -1,16 +1,16 @@
 //
 //  WidgetSnapshotUpdaterTests.swift
-//  DevLogWidgetTests
+//  WidgetTests
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
-import DevLogCore
-import DevLogData
+import Core
+import Data
 import Testing
-@testable import DevLogWidget
-@testable import DevLogWidgetCore
+@testable import Widget
+@testable import WidgetCore
 
 struct WidgetSnapshotUpdaterTests {
     @Test("Today 스냅샷 갱신은 Today 스냅샷을 저장한다")

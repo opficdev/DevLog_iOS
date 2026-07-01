@@ -1,13 +1,13 @@
 //
 //  WidgetAssembler.swift
-//  DevLogWidget
+//  Widget
 //
 //  Created by opfic on 6/8/26.
 //
 
-import DevLogCore
-import DevLogData
-import DevLogWidgetCore
+import Core
+import Data
+import WidgetCore
 
 public final class WidgetAssembler: Assembler {
     public init() { }
