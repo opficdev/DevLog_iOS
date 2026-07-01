@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
-import DevLogCore
-import DevLogData
-import DevLogDomain
-import DevLogPresentation
-import DevLogWidget
+import Core
+import Data
+import Domain
+import Presentation
+import Widget
 
 @main
 struct DevLogApp: App {

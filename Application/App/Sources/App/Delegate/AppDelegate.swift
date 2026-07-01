@@ -6,10 +6,10 @@
 //
 
 import UIKit
-import DevLogCore
-import DevLogData
-import DevLogInfra
-import DevLogWidget
+import Core
+import Data
+import Infra
+import Widget
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let logger = Logger(category: "AppDelegate")

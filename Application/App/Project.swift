@@ -2,7 +2,7 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project(
-    name: "DevLogApp",
+    name: "App",
     options: .options(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
@@ -11,7 +11,7 @@ let project = Project(
     settings: .devlogProject(versionXcconfigPath: "../Shared/Version.xcconfig"),
     targets: [
         .target(
-            name: "DevLogApp",
+            name: "App",
             destinations: .iOS,
             product: .app,
             productName: "DevLog",
@@ -31,15 +31,15 @@ let project = Project(
                 ),
             ],
             dependencies: [
-                .project(target: "DevLogPresentation", path: "../DevLogPresentation"),
-                .project(target: "DevLogPersistence", path: "../DevLogPersistence"),
-                .project(target: "DevLogInfra", path: "../DevLogInfra"),
-                .project(target: "DevLogWidget", path: "../DevLogWidget"),
-                .project(target: "DevLogData", path: "../DevLogData"),
-                .project(target: "DevLogDomain", path: "../DevLogDomain"),
-                .project(target: "DevLogCore", path: "../DevLogCore"),
-                .project(target: "DevLogWidgetCore", path: "../../Widget/DevLogWidgetCore"),
-                .project(target: "DevLogWidgetExtension", path: "../../Widget/DevLogWidgetExtension"),
+                .project(target: "Presentation", path: "../Presentation"),
+                .project(target: "Persistence", path: "../Persistence"),
+                .project(target: "Infra", path: "../Infra"),
+                .project(target: "Widget", path: "../Widget"),
+                .project(target: "Data", path: "../Data"),
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .project(target: "WidgetCore", path: "../../Widget/WidgetCore"),
+                .project(target: "WidgetExtension", path: "../../Widget/WidgetExtension"),
             ],
             settings: .devlog(
                 versionXcconfigPath: "Sources/Resource/App.xcconfig",
@@ -47,7 +47,7 @@ let project = Project(
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
                     "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
-                    "PRODUCT_MODULE_NAME": "DevLogApp",
+                    "PRODUCT_MODULE_NAME": "App",
                 ],
                 debug: [
                     "APS_ENVIRONMENT": "development",
@@ -70,10 +70,10 @@ let project = Project(
             )
         ),
         .target(
-            name: "DevLogAppTests",
+            name: "AppTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "opfic.DevLogAppTests",
+            bundleId: "opfic.AppTests",
             infoPlist: .file(path: "../Shared/InfoPlists/UnitTests-Info.plist"),
             sources: ["Tests/**/*.swift"],
             scripts: [
@@ -83,7 +83,7 @@ let project = Project(
                 ),
             ],
             dependencies: [
-                .target(name: "DevLogApp"),
+                .target(name: "App"),
             ],
             settings: .devlog(
                 base: [
@@ -91,7 +91,7 @@ let project = Project(
                     "CODE_SIGN_STYLE": "Automatic",
                     "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
                     "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/DevLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DevLog",
-                    "TEST_TARGET_NAME": "DevLogApp",
+                    "TEST_TARGET_NAME": "App",
                 ]
             )
         ),

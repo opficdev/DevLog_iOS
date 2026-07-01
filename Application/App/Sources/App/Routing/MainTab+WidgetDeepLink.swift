@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import DevLogPresentation
-import DevLogWidgetCore
+import Presentation
+import WidgetCore
 
 extension MainTab {
     init?(widgetURL: URL) {

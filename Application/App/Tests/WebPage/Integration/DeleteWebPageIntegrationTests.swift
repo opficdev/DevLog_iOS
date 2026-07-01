@@ -1,6 +1,6 @@
 //
 //  DeleteWebPageIntegrationTests.swift
-//  DevLogAppTests
+//  AppTests
 //
 //  Created by opfic on 4/6/26.
 //

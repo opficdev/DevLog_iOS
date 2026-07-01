@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DevLogData
+import Data
 
 final class PushNotificationOpenHandler {
     private let analyticsService: AnalyticsService

@@ -5,12 +5,12 @@
 //  Created by 최윤진 on 12/7/25.
 //
 
-import DevLogCore
-import DevLogData
-import DevLogDomain
-import DevLogInfra
-import DevLogPersistence
-import DevLogWidget
+import Core
+import Data
+import Domain
+import Infra
+import Persistence
+import Widget
 
 final class AppAssembler: Assembler {
     private let assemblers: [Assembler] = [

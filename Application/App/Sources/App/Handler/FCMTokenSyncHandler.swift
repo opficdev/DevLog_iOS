@@ -6,8 +6,8 @@
 //
 
 import Combine
-import DevLogCore
-import DevLogData
+import Core
+import Data
 import Foundation
 
 final class FCMTokenSyncHandler {

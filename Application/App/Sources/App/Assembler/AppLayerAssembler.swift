@@ -5,8 +5,8 @@
 //  Created by opfic on 3/19/26.
 //
 
-import DevLogCore
-import DevLogData
+import Core
+import Data
 
 final class AppLayerAssembler: Assembler {
     func assemble(_ container: any DIContainer) {

@@ -1,14 +1,14 @@
 //
 //  FCMTokenSyncHandlerTests.swift
-//  DevLogAppTests
+//  AppTests
 //
 //  Created by opfic on 6/13/26.
 //
 
 import Foundation
 import Testing
-import DevLogData
-@testable import DevLogApp
+import Data
+@testable import App
 
 struct FCMTokenSyncHandlerTests {
     @Test("현재 FCM token 동기화 요청 시 token이 있으면 저장한다")
