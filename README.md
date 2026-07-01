@@ -169,7 +169,7 @@ mise install
 앱 실행에 필요한 비공개 설정 파일은 리포지토리에 포함되지 않음
 
 ```text
-Application/DevLogApp/Sources/Resource/
+Application/App/Sources/Resource/
 ├── Config.xcconfig
 └── GoogleService-Info.plist
 ```
@@ -200,7 +200,7 @@ mise exec -- tuist generate --no-open
 ### 4. 빌드 확인
 
 - Xcode에서 `DevLog.xcworkspace` 열기
-- `DevLogApp` 스킴 선택
+- `App` 스킴 선택
 - iOS Simulator 선택 후 Build 실행
 
 `Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers`를 수정한 경우 다시 워크스페이스 생성 명령 실행.
@@ -216,17 +216,17 @@ DevLog_iOS/
 ├── Tuist/
 │	└── ProjectDescriptionHelpers/ # Tuist 공통 패키지, 설정, 타깃 템플릿
 ├── Application/
-│	├── DevLogApp/             # 앱 진입점, 앱 생명주기, 라우팅, Assembler 구성
-│	├── DevLogCore/            # DI, Logger, Query, 공통 값 타입
-│	├── DevLogDomain/          # Entity, Repository Protocol, UseCase
-│	├── DevLogData/            # Repository 구현, DTO, Mapper, Data 계층 Protocol
-│	├── DevLogInfra/           # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
-│	├── DevLogPersistence/     # UserDefaults, 이미지 저장소, 앱 로컬 영속성 처리
-│	├── DevLogPresentation/    # SwiftUI 화면, ViewModel, Store, Coordinator
-│	└── DevLogWidget/          # 앱-위젯 브릿지, 위젯 동기화 이벤트, 스냅샷 갱신
+│	├── App/                   # 앱 진입점, 앱 생명주기, 라우팅, Assembler 구성
+│	├── Core/                  # DI, Logger, Query, 공통 값 타입
+│	├── Domain/                # Entity, Repository Protocol, UseCase
+│	├── Data/                  # Repository 구현, DTO, Mapper, Data 계층 Protocol
+│	├── Infra/                 # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
+│	├── Persistence/           # UserDefaults, 이미지 저장소, 앱 로컬 영속성 처리
+│	├── Presentation/          # SwiftUI 화면, ViewModel, Store, Coordinator
+│	└── Widget/                # 앱-위젯 브릿지, 위젯 동기화 이벤트, 스냅샷 갱신
 ├── Widget/
-│	├── DevLogWidgetCore/      # 위젯 스냅샷 모델, Factory, App Group 상수
-│	└── DevLogWidgetExtension/ # WidgetKit UI, Provider, Timeline
+│	├── WidgetCore/            # 위젯 스냅샷 모델, Factory, App Group 상수
+│	└── WidgetExtension/       # WidgetKit UI, Provider, Timeline
 ├── docs/                     # README 이미지와 draw.io 원본
 └── README.md
 ```

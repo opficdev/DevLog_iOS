@@ -17,7 +17,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Prefer Xcode Local MCP for iOS project code changes.
 - If Xcode Local MCP is unavailable or fails because of session transport, state that explicitly before using a fallback.
 - This repository is workspace-based. Prefer workspace/scheme context over standalone project builds when dependencies cross module projects.
-- CI truth lives in `.github/workflows/build.yml`: select Xcode 26.3, install Tuist with mise, run `tuist generate --no-open`, then build `DevLog.xcworkspace` scheme `DevLogApp` with `-resolvePackageDependencies`, `-skipPackagePluginValidation`, and `-skipMacroValidation`.
+- CI truth lives in `.github/workflows/build.yml`: select Xcode 26.3, install Tuist with mise, run `tuist generate --no-open`, then build `DevLog.xcworkspace` scheme `App` with `-resolvePackageDependencies`, `-skipPackagePluginValidation`, and `-skipMacroValidation`.
 - CI is build validation, not a full test run, unless the workflow changes.
 - Avoid unrelated generated project and `Package.resolved` churn. Generated Xcode workspace/project files should not be tracked unless the project explicitly changes that policy.
 
@@ -62,7 +62,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 - Do not inject dependencies between types that belong to the same layer.
 - This includes initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
-- The only allowed exception is a SwiftUI `View` file in `Application/DevLogPresentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
+- The only allowed exception is a SwiftUI `View` file in `Application/Presentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
 - The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, or WidgetExtension.
 
 ## Data, Domain, and Infra boundary
@@ -70,7 +70,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Do not move domain entities to Core only because multiple modules need them.
 - Keep protocol location and implementation layer distinct when explaining or changing boundaries.
 - If a Data protocol is implemented by Infra, every type in that protocol signature must be visible to Infra.
-- `DevLogInfra` should depend on Data and Core, not Domain. Do not treat a manifest-only Domain target dependency as architecture permission.
+- `Infra` should depend on Data and Core, not Domain. Do not treat a manifest-only Domain target dependency as architecture permission.
 - Prefer a Data-side boundary value plus repository mapping when Infra should not import Domain.
 - For example, keep the app-facing Domain query separate from an Infra-facing Data query when that avoids Domain coupling in service protocols.
 - Firebase-specific error detection belongs in Infra; Data should handle domain-level errors after mapping.
@@ -88,11 +88,11 @@ This reference holds DevLog-specific working rules that should live with the pro
 ## Widget flow
 
 - Widget UI should consume snapshot data, not app/domain services.
-- `DevLogWidgetCore` should stay free of Domain, Data, Infra, Persistence, Presentation, and App dependencies unless the user explicitly approves a boundary change.
-- `DevLogWidget` owns the app-side widget bridge: sync event bus implementation, sync event handlers, session sync handler, auth-session sync provider, snapshot generation/persistence orchestration, WidgetKit reload bridge, and `WidgetAssembler`.
-- `DevLogData` owns widget-related contracts and repository implementations, including `WidgetSyncEventBus`, `WidgetSnapshotUpdater`, and `WidgetTodoSnapshotRepository`. Data should not own concrete widget handlers, WidgetCore snapshot model/factory usage, or WidgetKit reload behavior.
-- `DevLogPersistence` owns local persistence, user defaults, image store, and non-widget app persistence.
-- Prefer an app-driven snapshot flow: app/runtime event, DevLogWidget sync handler, Data snapshot input fetch, DevLogWidget snapshot update, App Group storage through WidgetCore contracts, WidgetExtension rendering.
+- `WidgetCore` should stay free of Domain, Data, Infra, Persistence, Presentation, and App dependencies unless the user explicitly approves a boundary change.
+- `Widget` owns the app-side widget bridge: sync event bus implementation, sync event handlers, session sync handler, auth-session sync provider, snapshot generation/persistence orchestration, WidgetKit reload bridge, and `WidgetAssembler`.
+- `Data` owns widget-related contracts and repository implementations, including `WidgetSyncEventBus`, `WidgetSnapshotUpdater`, and `WidgetTodoSnapshotRepository`. Data should not own concrete widget handlers, WidgetCore snapshot model/factory usage, or WidgetKit reload behavior.
+- `Persistence` owns local persistence, user defaults, image store, and non-widget app persistence.
+- Prefer an app-driven snapshot flow: app/runtime event, Widget sync handler, Data snapshot input fetch, Widget snapshot update, App Group storage through WidgetCore contracts, WidgetExtension rendering.
 - `WidgetTodoSnapshot` is a lightweight snapshot value, not a full domain `Todo`.
 - Do not make `Todo.number` or `WidgetTodoSnapshot.number` non-optional without a separate saved-vs-draft model decision.
 - If a widget sync flow needs one timestamp for multiple snapshots, capture `Date()` once and pass it through to avoid midnight or quarter-boundary drift.

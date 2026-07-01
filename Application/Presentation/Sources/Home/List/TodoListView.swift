@@ -1,0 +1,411 @@
+//
+//  TodoListView.swift
+//  Presentation
+//
+//  Created by opfic on 5/30/25.
+//
+
+import SwiftUI
+import ComposableArchitecture
+import Core
+import Domain
+
+struct TodoListView: View {
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
+    @Environment(\.diContainer) var container: DIContainer
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
+    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
+    @State private var headerOffset: CGFloat = .zero
+    @State private var isScrollTrackingEnabled = false
+    @State var store: StoreOf<TodoListFeature>
+
+    var body: some View {
+        Group {
+            if #available(iOS 18, *) {
+                if store.state.isSearching {
+                    todoSearchContent
+                } else {
+                    todoListContent
+                }
+            } else {
+                Group {
+                    if store.state.isSearching {
+                        searchResultsContent
+                    } else {
+                        todoListContent
+                    }
+                }
+                .searchable(
+                    text: $store.searchText,
+                    isPresented: $store.isSearching,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Text(
+                        String.localizedStringWithFormat(
+                            String(localized: "todo_list_search_prompt_format"),
+                            TodoCategoryItem(from: store.category).localizedName
+                        )
+                    )
+                )
+            }
+        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
+        .fullScreenCover(
+            item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
+        ) { coverStore in
+            fullScreenCoverContent(coverStore)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    openTodoEditor()
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+            if #available(iOS 18, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        store.send(.binding(.set(\.isSearching, true)))
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+            }
+        }
+        .background(NavigationBarConfigurator())
+        .background(Color(.systemGroupedBackground))
+        .task { store.send(.view(.onAppear)) }
+    }
+
+    @ViewBuilder
+    private var todoListContent: some View {
+        let visibleTodos = store.state.todos.filter { !$0.isHidden }
+
+        ZStack {
+            List {
+                Group {
+                    if visibleTodos.isEmpty, !store.state.isLoading {
+                        HStack {
+                            Spacer()
+                            Text(String(localized: "todo_list_empty"))
+                                .foregroundStyle(Color.gray)
+                            Spacer()
+                        }
+                        .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(Array(zip(visibleTodos.indices, visibleTodos)), id: \.1.id) { idx, todo in
+                            Button {
+                                selectTodo(todo.id)
+                            } label: {
+                                TodoItemRow(todo)
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            .alignmentGuide(.listRowSeparatorLeading) { _ in return 0 }
+                            .overlay(alignment: .top) {
+                                if #available(iOS 26.0, *) {
+                                    if idx == 0 {
+                                        Divider()
+                                            .padding(.horizontal, -16)
+                                    }
+                                }
+                            }
+                            .onAppear {
+                                let lastID = visibleTodos.last?.id
+                                if todo.id == lastID, store.state.hasMore {
+                                    store.send(.view(.loadNextPage))
+                                }
+                            }
+                            .swipeActions(edge: .leading) {
+                                Button(action: {
+                                    store.send(.view(.tapTogglePinned(todo)))
+                                }) {
+                                    Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                                }
+                                .tint(Color.orange)
+                                Button {
+                                    store.send(.view(.tapToggleCompleted(todo)))
+                                } label: {
+                                    Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
+                                }
+                                .tint(Color.green)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive, action: {
+                                    store.send(.view(.swipeTodo(todo)))
+                                    presentDeleteTodoToast(todo.id)
+                                }) {
+                                    Image(systemName: "trash")
+                                }
+                            }
+                        }
+                    }
+                }
+                .listRowBackground(Color.clear)
+                .listSectionSeparator(.hidden, edges: .top)
+            }
+            .listStyle(.plain)
+            .onScrollOffsetChange { offset in
+                guard isScrollTrackingEnabled else { return }
+                headerOffset = max(0, -offset)
+            }
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 4) {
+                    headerView
+                    if #unavailable(iOS 26) {
+                        Divider()
+                            .padding(.horizontal, -16)
+                    }
+                }
+                .background {
+                    if #available(iOS 26.0, *) {
+                        Color.clear
+                    } else {
+                        Color(.systemGroupedBackground)
+                    }
+                }
+                .offset(y: headerOffset)
+            }
+            .refreshable { await store.send(.view(.refresh)).finish() }
+            .scrollDisabled(visibleTodos.isEmpty || store.state.isLoading)
+
+            if store.state.isLoading {
+                LoadingView()
+            }
+        }
+    }
+
+    @available(iOS 18, *)
+    private var todoSearchContent: some View {
+        searchResultsContent
+            .searchable(
+                text: $store.searchText,
+                isPresented: $store.isSearching,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Text(
+                    String.localizedStringWithFormat(
+                        String(localized: "todo_list_search_prompt_format"),
+                        TodoCategoryItem(from: store.category).localizedName
+                    )
+                )
+            )
+    }
+
+    @ViewBuilder
+    private func fullScreenCoverContent(
+        _ coverStore: Store<TodoListFeature.FullScreenCoverState, Never>
+    ) -> some View {
+        switch coverStore.destination {
+        case .editor:
+            TodoEditorView(
+                store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
+                    TodoEditorFeature()
+                } withDependencies: {
+                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
+                },
+                onCreateSuccess: {
+                    store.send(.store(.setFullScreenCover(nil)))
+                    store.send(.view(.refresh))
+                }
+            )
+        }
+    }
+
+    private func openTodoEditor() {
+        if isiOSAppOnMac {
+            openWindow(
+                id: TodoEditorWindowValue.sceneId,
+                value: TodoEditorWindowValue(todoCategory: store.category, source: .list)
+            )
+        } else {
+            store.send(.store(.setFullScreenCover(.editor)))
+        }
+    }
+
+    private func presentDeleteTodoToast(_ todoId: String) {
+        ToastPresenter.present(
+            message: String(localized: "common_undo"),
+            systemImage: "arrow.uturn.left",
+            duration: 5,
+            action: {
+                store.send(.view(.undoDelete))
+            },
+            onDismiss: {
+                store.send(.view(.finishDeleteToast(todoId)))
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var searchResultsContent: some View {
+        let searchResults = store.state.searchResults.filter { !$0.isHidden }
+        let limit = store.searchResultsLimit
+        let displayedTodos = store.state.showAllSearchResults
+            ? searchResults
+            : Array(searchResults.prefix(limit))
+
+        if store.state.searchText.isEmpty {
+            Text(
+                String.localizedStringWithFormat(
+                    String(localized: "todo_list_search_instruction_format"),
+                    TodoCategoryItem(from: store.category).localizedName
+                )
+            )
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+        } else if store.state.isLoading {
+            LoadingView()
+        } else if searchResults.isEmpty {
+            Spacer()
+            Text(String(localized: "todo_list_search_empty"))
+                .foregroundStyle(Color.gray)
+                .frame(maxWidth: .infinity)
+            Spacer()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(displayedTodos) { todo in
+                        Button {
+                            selectTodo(todo.id)
+                        } label: {
+                            VStack(spacing: 0) {
+                                TodoItemRow(todo)
+                                Divider()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+
+                    if !store.state.showAllSearchResults, limit < searchResults.count {
+                        Button(String(localized: "todo_list_show_more")) {
+                            store.send(.binding(.set(\.showAllSearchResults, true)))
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Color.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 4)
+                    }
+                }
+            }
+        }
+    }
+
+    private var headerView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                if 0 < store.appliedFilterCount {
+                    Menu {
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "todo_list_filters_applied_format"),
+                                Int64(store.appliedFilterCount)
+                            )
+                        )
+                        Button(role: .destructive) {
+                            store.send(.view(.resetFilters))
+                        } label: {
+                            Text(String(localized: "todo_list_clear_filters"))
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "line.3.horizontal.decrease")
+                            filterBadge
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
+
+                Menu {
+                    Picker(selection: $store.query.sortTarget) {
+                        ForEach([TodoQuery.SortTarget.createdAt, .updatedAt], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_sort_by"))
+                    }
+                    Picker(selection: $store.query.sortOrder) {
+                        ForEach([TodoQuery.SortOrder.latest, .oldest], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_sort_order"))
+                    }
+                } label: {
+                    let condition = store.state.query.sortTarget == .createdAt && store.state.query.sortOrder == .latest
+                    HStack {
+                        Text(
+                            String.localizedStringWithFormat(
+                                String(localized: "todo_list_sort_format"),
+                                store.state.query.sortTarget.title,
+                                store.state.query.sortOrder.title
+                            )
+                        )
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color(.label) : .white)
+                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
+                }
+
+                Menu {
+                    Toggle(isOn: $store.query.isPinned) {
+                        Text(String(localized: "todo_pinned"))
+                    }
+
+                    Picker(selection: $store.query.completionFilter) {
+                        ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_completion_status"))
+                    }
+                } label: {
+                    let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
+                    HStack {
+                        Text(String(localized: "todo_list_filter_options"))
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? .white : Color(.label))
+                    .adaptiveButtonStyle(color: condition ? .blue : .clear)
+                }
+            }
+        }
+        .scrollIndicators(.never)
+        .scrollDisabled(!isScrollTrackingEnabled)
+        .contentMargins(.leading, 16, for: .scrollContent)
+        .frame(height: headerHeight)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
+            }
+        }
+    }
+
+    private var filterBadge: some View {
+        let isDark = colorScheme == .dark
+        let blue = Color(uiColor: .systemBlue)
+        let textColor: Color = isDark ? blue : .white
+        let backgroundColor: Color = isDark ? .white : blue
+
+        return Text("\(store.appliedFilterCount)")
+            .font(.caption2.weight(.bold))
+            .foregroundColor(textColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(width: 20, height: 20)
+            .background(Circle().fill(backgroundColor))
+    }
+
+    private func selectTodo(_ todoId: String) {
+        router.push(.todo(TodoIdItem(id: todoId)))
+    }
+}

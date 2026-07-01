@@ -1,0 +1,204 @@
+//
+//  PushNotificationListTestAssertions.swift
+//  PresentationTests
+//
+//  Created by opfic on 6/12/26.
+//
+
+import Testing
+import Core
+import Domain
+import Foundation
+@testable import Presentation
+
+@MainActor
+func waitUntilMainActor(
+    timeout: Duration = .seconds(1),
+    pollInterval: Duration = .milliseconds(20),
+    _ condition: @escaping @MainActor () -> Bool
+) async {
+    let continuousClock = ContinuousClock()
+    let deadline = continuousClock.now + timeout
+
+    while !condition() && continuousClock.now < deadline {
+        try? await Task.sleep(for: pollInterval)
+    }
+}
+
+@MainActor
+func verifyFetchNotifications<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    fetchUseCaseSpy: PushNotificationListFetchUseCaseSpy
+) async throws {
+    let expectedItems = fetchUseCaseSpy.pages[0].items.map(PushNotificationItem.init(from:))
+
+    await adapter.fetchNotifications()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == expectedItems.count
+    }
+
+    let notifications = adapter.notifications
+    let hasMore = adapter.hasMore
+    #expect(fetchUseCaseSpy.queries.map(\.pageSize) == [20])
+    #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil])
+    #expect(notifications == expectedItems)
+    #expect(hasMore)
+}
+
+@MainActor
+func verifyLoadNextPage<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    fetchUseCaseSpy: PushNotificationListFetchUseCaseSpy,
+    nextNotification: PushNotification
+) async throws {
+    await adapter.fetchNotifications()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == 20
+    }
+
+    let nextCursorId = try #require(fetchUseCaseSpy.pages.first?.nextCursor?.documentID)
+
+    await adapter.loadNextPage()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == 21
+    }
+
+    let notifications = adapter.notifications
+    let hasMore = adapter.hasMore
+    #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil, nextCursorId])
+    #expect(notifications.last == PushNotificationItem(from: nextNotification))
+    #expect(!hasMore)
+}
+
+@MainActor
+func verifyFilterStateTransitions<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    updateQueryUseCaseSpy: UpdatePushNotificationQueryUseCaseSpy
+) async throws {
+    await adapter.toggleSortOption()
+    await adapter.setTimeFilter(.hours(24))
+    await adapter.toggleUnreadOnly()
+
+    let query = adapter.query
+    let appliedFilterCount = adapter.appliedFilterCount
+    #expect(query.sortOrder == .oldest)
+    #expect(query.timeFilter == .hours(24))
+    #expect(query.unreadOnly)
+    #expect(appliedFilterCount == 3)
+    #expect(updateQueryUseCaseSpy.queries == [
+        PushNotificationQuery(sortOrder: .oldest, timeFilter: .none, unreadOnly: false, pageSize: 20),
+        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: false, pageSize: 20),
+        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: true, pageSize: 20)
+    ])
+
+    await adapter.resetFilters()
+
+    let resetQuery = adapter.query
+    let resetAppliedFilterCount = adapter.appliedFilterCount
+    #expect(resetQuery == .default)
+    #expect(resetAppliedFilterCount == 0)
+    #expect(updateQueryUseCaseSpy.queries.last == .default)
+}
+
+@MainActor
+func verifySelectNotification<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    toggleReadUseCaseSpy: TogglePushNotificationReadUseCaseSpy
+) async throws {
+    await adapter.fetchNotifications()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == 1
+    }
+
+    await adapter.selectNotification("notification-1")
+
+    let selectedNotificationId = adapter.selectedNotificationId
+    let selectedTodoId = adapter.selectedTodoId
+    let notifications = adapter.notifications
+    #expect(selectedNotificationId == "notification-1")
+    #expect(selectedTodoId?.id == "todo-1")
+    #expect(notifications.first?.isRead == true)
+
+    await waitUntilMainActor {
+        toggleReadUseCaseSpy.calledTodoIds == ["todo-1"]
+    }
+
+    await adapter.selectNotification(nil)
+
+    let resetSelectedNotificationId = adapter.selectedNotificationId
+    let resetSelectedTodoId = adapter.selectedTodoId
+    #expect(resetSelectedNotificationId == nil)
+    #expect(resetSelectedTodoId == nil)
+}
+
+@MainActor
+func verifyToggleRead<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    toggleReadUseCaseSpy: TogglePushNotificationReadUseCaseSpy
+) async throws {
+    await adapter.fetchNotifications()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == 1
+    }
+
+    let initialNotifications = adapter.notifications
+    let item = try #require(initialNotifications.first)
+
+    await adapter.toggleRead(item)
+
+    let notifications = adapter.notifications
+    #expect(notifications.first?.isRead == false)
+
+    await waitUntilMainActor {
+        toggleReadUseCaseSpy.calledTodoIds == ["todo-1"]
+    }
+}
+
+@MainActor
+func verifyDeleteUndoAndFinishToast<Adapter: PushNotificationListStateDriving>(
+    adapter: Adapter,
+    deleteUseCaseSpy: DeletePushNotificationUseCaseSpy,
+    undoDeleteUseCaseSpy: UndoDeletePushNotificationUseCaseSpy
+) async throws {
+    ToastPresenter.reset()
+
+    await adapter.fetchNotifications()
+
+    await waitUntilMainActor {
+        adapter.notifications.count == 1
+    }
+
+    let initialNotifications = adapter.notifications
+    let item = try #require(initialNotifications.first)
+
+    await adapter.deleteNotification(item)
+
+    let deletedNotifications = adapter.notifications
+    let toastMessage = ToastPresenter.item?.message
+    #expect(deletedNotifications.first?.isHidden == true)
+    #expect(toastMessage == String(localized: "common_undo"))
+
+    await waitUntilMainActor {
+        deleteUseCaseSpy.calledNotificationIds == ["notification-1"]
+    }
+
+    await adapter.undoDelete()
+
+    let restoredNotifications = adapter.notifications
+    #expect(restoredNotifications.first?.isHidden == false)
+
+    await waitUntilMainActor {
+        undoDeleteUseCaseSpy.calledNotificationIds == ["notification-1"]
+    }
+
+    await adapter.deleteNotification(item)
+    await adapter.finishDeleteToast("notification-1")
+
+    let finalNotifications = adapter.notifications
+    #expect(finalNotifications.isEmpty)
+}

@@ -5,7 +5,7 @@ on:
 
 env:
   WORKSPACE: DevLog.xcworkspace
-  SCHEME: DevLogApp
+  SCHEME: App
   XCODE_VERSION: "26.3"
   MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -223,13 +223,13 @@ jobs:
       matrix:
         include:
           - name: Domain-Data
-            schemes: "DevLogDomain DevLogData"
+            schemes: "Domain Data"
           - name: Persistence
-            schemes: "DevLogPersistence"
+            schemes: "Persistence"
           - name: Presentation
-            schemes: "DevLogPresentation"
+            schemes: "Presentation"
           - name: Widget
-            schemes: "DevLogWidget DevLogWidgetCore"
+            schemes: "Widget WidgetCore"
     steps:
       - uses: actions/checkout@v5
 
@@ -395,8 +395,8 @@ jobs:
 
           for TEST_SCHEME in $TEST_SCHEMES; do
             LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
-            if [ "$TEST_SCHEME" = "DevLogWidgetCore" ]; then
-              TEST_SOURCE_DIR="Widget/DevLogWidgetCore/Tests"
+            if [ "$TEST_SCHEME" = "WidgetCore" ]; then
+              TEST_SOURCE_DIR="Widget/WidgetCore/Tests"
             else
               TEST_SOURCE_DIR="Application/${TEST_SCHEME}/Tests"
             fi

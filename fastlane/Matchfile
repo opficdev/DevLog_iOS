@@ -5,7 +5,7 @@ git_branch("main")
 type("appstore")
 app_identifier([
   "opfic.DevLog",
-  "opfic.DevLog.DevLogWidget"
+  "opfic.DevLog.Widget"
 ])
 team_id(ENV["APP_STORE_TEAM_ID"])
 readonly(ENV["CI"] == "true")
