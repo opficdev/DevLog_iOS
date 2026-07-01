@@ -111,6 +111,7 @@ struct TodoEditorFeature {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case onAppear
         case addTag(String)
         case removeTag(String)
@@ -124,6 +125,11 @@ struct TodoEditorFeature {
 
         enum Sheet: Equatable {
             case tapCloseButton
+        }
+
+        enum Delegate: Equatable {
+            case created
+            case updated(Todo)
         }
     }
 
@@ -168,6 +174,8 @@ struct TodoEditorFeature {
                     return resolveMarkdownEffect(content: state.content)
                 }
             case .binding:
+                break
+            case .delegate:
                 break
             case .onAppear:
                 return fetchCategoriesEffect()
@@ -306,6 +314,7 @@ private extension TodoEditorFeature {
                 try await upsertTodoUseCase.execute(draft)
                 trackAnalyticsEventUseCase.execute(.todoCreate)
                 await send(.createSucceeded)
+                await send(.delegate(.created))
             } catch {
                 await send(.saveFailed)
             }
@@ -319,6 +328,7 @@ private extension TodoEditorFeature {
             do {
                 try await upsertTodoUseCase.execute(todo)
                 await send(.updateSucceeded(todo))
+                await send(.delegate(.updated(todo)))
             } catch {
                 await send(.saveFailed)
             }

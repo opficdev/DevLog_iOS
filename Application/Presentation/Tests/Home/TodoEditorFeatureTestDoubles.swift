@@ -165,6 +165,26 @@ final class TodoEditorStoreTestAdapter {
         await receiveBeginLoading()
     }
 
+    func receiveCreateSucceeded() async {
+        await store.receive(.createSucceeded) {
+            $0.saveResult = .created
+        }
+    }
+
+    func receiveCreatedDelegate() async {
+        await store.receive(.delegate(.created))
+    }
+
+    func receiveUpdateSucceeded(_ todo: Todo) async {
+        await store.receive(.updateSucceeded(todo)) {
+            $0.saveResult = .updated(todo)
+        }
+    }
+
+    func receiveUpdatedDelegate(_ todo: Todo) async {
+        await store.receive(.delegate(.updated(todo)))
+    }
+
     func drainReceivedActions() async {
         await store.skipReceivedActions(strict: false)
         await store.skipReceivedActions(strict: false)
