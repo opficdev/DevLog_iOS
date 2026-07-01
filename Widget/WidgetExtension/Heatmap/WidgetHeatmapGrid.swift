@@ -1,12 +1,12 @@
 //
 //  WidgetHeatmapGrid.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by opfic on 4/28/26.
 //
 
 import SwiftUI
-import DevLogWidgetCore
+import WidgetCore
 
 struct WidgetHeatmapGrid: View {
     let months: [WidgetHeatmapMonthSnapshot]

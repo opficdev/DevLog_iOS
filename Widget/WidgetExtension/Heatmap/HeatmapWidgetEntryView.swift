@@ -1,13 +1,13 @@
 //
 //  HeatmapWidgetEntryView.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by opfic on 4/15/26.
 //
 
 import SwiftUI
 import WidgetKit
-import DevLogWidgetCore
+import WidgetCore
 
 struct HeatmapWidgetEntryView: View {
     let entry: HeatmapWidgetEntry

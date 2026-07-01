@@ -2,7 +2,7 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project(
-    name: "DevLogWidgetExtension",
+    name: "WidgetExtension",
     options: .options(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
@@ -10,7 +10,7 @@ let project = Project(
     settings: .devlogProject(versionXcconfigPath: "../../Application/Shared/Version.xcconfig"),
     targets: [
         .target(
-            name: "DevLogWidgetExtension",
+            name: "WidgetExtension",
             destinations: .iOS,
             product: .appExtension,
             bundleId: "opfic.DevLog.DevLogWidget",
@@ -20,28 +20,28 @@ let project = Project(
                     "**/*.swift",
                     excluding: [
                         "Derived/**",
-                        "Project.swift",
+                        "Project.swift"
                     ]
-                ),
+                )
             ],
             resources: [
                 "Resource/Assets.xcassets",
-                "Resource/Localizable.xcstrings",
+                "Resource/Localizable.xcstrings"
             ],
             entitlements: .file(path: "Resource/DevLogWidget.entitlements"),
             scripts: [
-                DevLogScripts.swiftLint(sourcePath: "."),
+                DevLogScripts.swiftLint(sourcePath: ".")
             ],
             dependencies: [
-                .project(target: "DevLogWidgetCore", path: "../DevLogWidgetCore"),
+                .project(target: "WidgetCore", path: "../WidgetCore")
             ],
             settings: .devlog(
                 versionXcconfigPath: "../../Application/Shared/Version.xcconfig",
                 base: [
                     "CODE_SIGN_STYLE": "Automatic",
-                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO"
                 ]
             )
-        ),
+        )
     ]
 )

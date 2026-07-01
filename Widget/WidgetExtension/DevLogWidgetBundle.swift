@@ -1,6 +1,6 @@
 //
 //  DevLogWidgetBundle.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by 최윤진 on 4/14/26.
 //

@@ -1,6 +1,6 @@
 //
 //  WidgetHeatmapLayout.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by opfic on 4/28/26.
 //

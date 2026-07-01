@@ -1,6 +1,6 @@
 //
 //  HeatmapWidget.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by opfic on 4/15/26.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 import AppIntents
 import WidgetKit
-import DevLogWidgetCore
+import WidgetCore
 
 struct HeatmapWidget: Widget {
     let kind = WidgetKind.heatmap

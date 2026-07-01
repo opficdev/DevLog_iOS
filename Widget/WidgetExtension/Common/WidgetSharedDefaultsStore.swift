@@ -1,12 +1,12 @@
 //
 //  WidgetSharedDefaultsStore.swift
-//  DevLogWidgetExtension
+//  WidgetExtension
 //
 //  Created by opfic on 4/17/26.
 //
 
 import Foundation
-import DevLogWidgetCore
+import WidgetCore
 
 final class WidgetSharedDefaultsStore {
     private let userDefaults: UserDefaults
