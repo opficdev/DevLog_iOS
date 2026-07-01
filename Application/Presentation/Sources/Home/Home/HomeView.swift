@@ -269,17 +269,13 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private func coverContent(_ coverStore: Store<HomeFeature.FullScreenCoverState, Never>) -> some View {
+    private func coverContent(
+        _ coverStore: Store<HomeFeature.FullScreenCoverState, HomeFeature.FullScreenCover>
+    ) -> some View {
         switch coverStore.destination {
         case .todoEditor:
-            if let selectedCategory = coverStore.selectedTodoCategory {
-                TodoEditorView(
-                    store: coordinator.makeTodoEditorStore(category: selectedCategory),
-                    onCreateSuccess: {
-                        store.send(.store(.setPresentation(.todoEditor, false)))
-                        store.send(.view(.fetchData))
-                    }
-                )
+            if let todoEditorStore = coverStore.scope(state: \.todoEditor, action: \.todoEditor) {
+                TodoEditorView(store: todoEditorStore)
             }
         case .search:
             SearchView(store: coordinator.makeSearchStore())

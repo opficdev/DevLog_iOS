@@ -108,6 +108,11 @@ struct HomeStoreTestAdapter {
         await settle()
     }
 
+    func todoEditorCreated() async {
+        await store.send(.fullScreenCover(.presented(.todoEditor(.delegate(.created)))))
+        await drainReceivedActions()
+    }
+
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {
         await store.send(.view(.orderTodoCategory(items)))
         await drainReceivedActions()

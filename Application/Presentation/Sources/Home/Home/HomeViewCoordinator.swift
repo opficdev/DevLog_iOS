@@ -39,6 +39,8 @@ final class HomeViewCoordinator {
             $0.homeFetchTodosUseCase = container.resolve(FetchTodosUseCase.self)
             $0.homeFetchWebPagesUseCase = container.resolve(FetchWebPagesUseCase.self)
             $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+            $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
             $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
         }
         self.store.send(.view(.startObserving))
@@ -80,17 +82,6 @@ final class HomeViewCoordinator {
                 self?.store.send(.view(.fetchData))
             }
             .store(in: &cancellables)
-    }
-
-    func makeTodoEditorStore(category: TodoCategory) -> StoreOf<TodoEditorFeature> {
-        Store(initialState: TodoEditorFeature.State(category: category)) {
-            TodoEditorFeature()
-        } withDependencies: {
-            $0.fetchTodoCategoryPreferencesUseCase = self.container.resolve(FetchTodoCategoryPreferencesUseCase.self)
-            $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
-            $0.upsertTodoUseCase = self.container.resolve(UpsertTodoUseCase.self)
-            $0.trackAnalyticsEventUseCase = self.container.resolve(TrackAnalyticsEventUseCase.self)
-        }
     }
 
     func makeSearchStore() -> StoreOf<SearchFeature> {
