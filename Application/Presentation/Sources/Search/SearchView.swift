@@ -27,8 +27,12 @@ struct SearchView: View {
                         ) {
                             TodoDetailFeature()
                         } withDependencies: {
+                            $0.fetchTodoCategoryPreferencesUseCase = container.resolve(
+                                FetchTodoCategoryPreferencesUseCase.self
+                            )
                             $0.fetchTodoByIdUseCase = container.resolve(FetchTodoByIdUseCase.self)
                             $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
+                            $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
                         })
                     case .web(let page):
                         WebView(url: page.url)

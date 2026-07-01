@@ -82,26 +82,12 @@ struct TodoDetailView: View {
 
     @ViewBuilder
     private func fullScreenCoverContent(
-        _ coverStore: Store<TodoDetailFeature.FullScreenCoverState, Never>
+        _ coverStore: Store<TodoDetailFeature.FullScreenCoverState, TodoDetailFeature.Action.FullScreenCover>
     ) -> some View {
         switch coverStore.destination {
         case .editor:
-            if let todo = store.todo {
-                TodoEditorView(
-                    store: Store(initialState: TodoEditorFeature.State(todo: todo)) {
-                        TodoEditorFeature()
-                    } withDependencies: {
-                        $0.fetchTodoCategoryPreferencesUseCase = container.resolve(
-                            FetchTodoCategoryPreferencesUseCase.self
-                        )
-                        $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                        $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-                    },
-                    onUpdateSuccess: { todo in
-                        store.send(.setFullScreenCover(nil))
-                        store.send(.setTodo(todo))
-                    }
-                )
+            if let todoEditorStore = coverStore.scope(state: \.todoEditor, action: \.todoEditor) {
+                TodoEditorView(store: todoEditorStore)
             }
         }
     }

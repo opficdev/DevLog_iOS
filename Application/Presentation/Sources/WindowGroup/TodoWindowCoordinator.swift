@@ -74,8 +74,10 @@ final class TodoWindowCoordinator {
         ) {
             TodoDetailFeature()
         } withDependencies: {
+            $0.fetchTodoCategoryPreferencesUseCase = self.container.resolve(FetchTodoCategoryPreferencesUseCase.self)
             $0.fetchTodoByIdUseCase = self.container.resolve(FetchTodoByIdUseCase.self)
             $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
+            $0.upsertTodoUseCase = self.container.resolve(UpsertTodoUseCase.self)
         }
         self.detailStore = detailStore
         return detailStore
