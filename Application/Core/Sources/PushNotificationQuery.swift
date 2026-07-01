@@ -1,6 +1,6 @@
 //
 //  PushNotificationQuery.swift
-//  DevLogCore
+//  Core
 //
 //  Created by opfic on 2/18/26.
 //

@@ -1,6 +1,6 @@
 //
 //  TodoQuery.swift
-//  DevLogCore
+//  Core
 //
 //  Created by opfic on 2/21/26.
 //

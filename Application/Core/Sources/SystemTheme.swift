@@ -1,6 +1,6 @@
 //
 //  SystemTheme.swift
-//  DevLogCore
+//  Core
 //
 //  Created by opfic on 5/6/25.
 //

@@ -1,6 +1,6 @@
 //
 //  ActivityKind.swift
-//  DevLogCore
+//  Core
 //
 //  Created by opfic on 4/4/26.
 //

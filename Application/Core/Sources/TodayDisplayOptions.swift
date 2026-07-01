@@ -1,6 +1,6 @@
 //
 //  TodayDisplayOptions.swift
-//  DevLogCore
+//  Core
 //
 //  Created by opfic on 3/6/26.
 //
