@@ -1,6 +1,6 @@
 //
 //  WidgetKind.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/29/26.
 //

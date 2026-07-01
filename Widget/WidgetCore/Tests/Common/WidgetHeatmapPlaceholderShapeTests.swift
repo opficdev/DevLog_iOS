@@ -1,13 +1,13 @@
 //
 //  WidgetHeatmapPlaceholderShapeTests.swift
-//  DevLogWidgetCoreTests
+//  WidgetCoreTests
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLogWidgetCore
+@testable import WidgetCore
 
 struct WidgetHeatmapPlaceholderShapeTests {
     @Test("Heatmap 위젯 placeholder는 현재 월과 분기의 실제 날짜 위치를 사용한다")

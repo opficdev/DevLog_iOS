@@ -1,6 +1,6 @@
 //
 //  TodayWidgetSnapshot.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/17/26.
 //

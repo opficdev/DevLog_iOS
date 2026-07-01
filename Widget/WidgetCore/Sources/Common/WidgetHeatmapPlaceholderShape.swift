@@ -1,12 +1,12 @@
 //
 //  WidgetHeatmapPlaceholderShape.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/30/26.
 //
 
 import Foundation
-import DevLogCore
+import Core
 
 public struct WidgetHeatmapPlaceholderShape {
     public let currentMonths: [WidgetHeatmapPlaceholderMonthShape]

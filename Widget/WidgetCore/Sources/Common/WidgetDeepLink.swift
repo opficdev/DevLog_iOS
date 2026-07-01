@@ -1,6 +1,6 @@
 //
 //  WidgetDeepLink.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/30/26.
 //

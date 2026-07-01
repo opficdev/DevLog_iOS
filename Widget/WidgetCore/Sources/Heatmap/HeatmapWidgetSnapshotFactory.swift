@@ -1,12 +1,12 @@
 //
 //  HeatmapWidgetSnapshotFactory.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/17/26.
 //
 
 import Foundation
-import DevLogCore
+import Core
 
 public struct HeatmapWidgetSnapshotFactory {
     fileprivate struct DailyCounts {

@@ -1,6 +1,6 @@
 //
 //  WidgetAppGroup.swift
-//  DevLogWidgetCore
+//  WidgetCore
 //
 //  Created by opfic on 4/15/26.
 //
