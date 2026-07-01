@@ -1,13 +1,13 @@
 //
 //  WebPageImageStoreImplTests.swift
-//  DevLogPersistenceTests
+//  PersistenceTests
 //
 //  Created by opfic on 6/3/26.
 //
 
 import Foundation
 import Testing
-@testable import DevLogPersistence
+@testable import Persistence
 
 @Suite(.serialized)
 struct WebPageImageStoreImplTests {

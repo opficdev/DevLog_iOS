@@ -1,12 +1,12 @@
 //
 //  PersistenceAssembler.swift
-//  DevLogPersistence
+//  Persistence
 //
 //  Created by opfic on 3/15/26.
 //
 
-import DevLogCore
-import DevLogData
+import Core
+import Data
 
 public final class PersistenceAssembler: Assembler {
     public init() { }

@@ -1,12 +1,12 @@
 //
 //  MemoryCacheStoreImpl.swift
-//  DevLogPersistence
+//  Persistence
 //
 //  Created by opfic on 6/9/26.
 //
 
 import Foundation
-import DevLogData
+import Data
 
 final class MemoryCacheStoreImpl: MemoryCacheStore {
     private let lock = NSLock()

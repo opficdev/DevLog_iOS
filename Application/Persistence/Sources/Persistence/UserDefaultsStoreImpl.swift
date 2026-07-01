@@ -1,12 +1,12 @@
 //
 //  UserDefaultsStoreImpl.swift
-//  DevLogPersistence
+//  Persistence
 //
 //  Created by 최윤진 on 2/25/26.
 //
 
 import Foundation
-import DevLogData
+import Data
 
 final class UserDefaultsStoreImpl: UserDefaultsStore {
     private let userDefaults: UserDefaults

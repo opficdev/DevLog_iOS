@@ -1,13 +1,13 @@
 //
 //  ThemeStoreImpl.swift
-//  DevLogPersistence
+//  Persistence
 //
 //  Created by 최윤진 on 2/25/26.
 //
 
 import Combine
-import DevLogCore
-import DevLogData
+import Core
+import Data
 
 final class ThemeStoreImpl: ThemeStore {
     private let subject = CurrentValueSubject<SystemTheme, Never>(.automatic)

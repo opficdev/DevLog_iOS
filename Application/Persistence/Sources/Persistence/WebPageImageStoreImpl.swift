@@ -1,13 +1,13 @@
 //
 //  WebPageImageStoreImpl.swift
-//  DevLogPersistence
+//  Persistence
 //
 //  Created by opfic on 4/14/26.
 //
 
 import CryptoKit
 import Foundation
-import DevLogData
+import Data
 
 final class WebPageImageStoreImpl: WebPageImageStore {
     private let queue = DispatchQueue(
