@@ -156,10 +156,31 @@ struct TodoListFeatureTests {
         let adapter = TodoListStoreTestAdapter()
 
         await adapter.setFullScreenCover(.editor)
-        #expect(adapter.fullScreenCover == .editor)
+        #expect(adapter.fullScreenCoverDestination == .editor)
 
         await adapter.dismissFullScreenCover()
         #expect(adapter.fullScreenCover == nil)
+    }
+
+    @Test("TodoEditor 생성 delegate는 editor를 닫고 목록을 새로 조회한다")
+    func TodoEditor_생성_delegate는_editor를_닫고_목록을_새로_조회한다() async {
+        let fetchSpy = TodoListFetchTodosUseCaseSpy()
+        let trackSpy = TodoListTrackAnalyticsEventUseCaseSpy()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            trackAnalyticsEventUseCase: trackSpy
+        )
+
+        await adapter.setFullScreenCover(.editor)
+        await adapter.todoEditorCreated()
+
+        await waitUntil {
+            fetchSpy.queries.count == 1 && trackSpy.hasTrackedTodoCreate
+        }
+
+        #expect(adapter.fullScreenCover == nil)
+        #expect(fetchSpy.queries.map(\.categoryId) == ["feature"])
+        #expect(fetchSpy.cursors.map { $0?.documentID } == [nil])
     }
 
     @Test("swipeTodo는 Todo를 숨기고 undoDelete와 finishDeleteToast는 숨김 상태를 되돌리거나 제거한다")

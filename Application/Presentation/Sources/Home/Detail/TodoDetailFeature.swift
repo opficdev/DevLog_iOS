@@ -57,18 +57,26 @@ struct TodoDetailFeature {
     @ObservableState
     struct FullScreenCoverState: Equatable {
         var destination: Destination
+        var todoEditor: TodoEditorFeature.State?
 
         enum Destination: Equatable {
             case editor
         }
 
         static let editor = Self(destination: .editor)
+
+        static func editor(_ todo: Todo) -> Self {
+            Self(
+                destination: .editor,
+                todoEditor: TodoEditorFeature.State(todo: todo)
+            )
+        }
     }
 
     enum Action {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
-        case fullScreenCover(PresentationAction<Never>)
+        case fullScreenCover(PresentationAction<FullScreenCover>)
         case onAppear
         case fetchFailed
         case setSheet(SheetState?)
@@ -81,6 +89,11 @@ struct TodoDetailFeature {
         enum Sheet {
             case tapCloseButton
             case todo(TodoDetailFeature.Action)
+        }
+
+        @CasePathable
+        enum FullScreenCover {
+            case todoEditor(TodoEditorFeature.Action)
         }
     }
 
@@ -101,6 +114,11 @@ struct TodoDetailFeature {
                 state.sheet = nil
             case .sheet:
                 break
+            case .fullScreenCover(.presented(.todoEditor(.delegate(.updated(let todo))))):
+                state.fullScreenCover = nil
+                state.todo = todo
+                state.referenceItems = [:]
+                return resolveMarkdownEffect(content: todo.content)
             case .fullScreenCover(.dismiss):
                 state.fullScreenCover = nil
             case .fullScreenCover:
@@ -112,7 +130,12 @@ struct TodoDetailFeature {
             case .setSheet(let sheet):
                 state.sheet = sheet
             case .setFullScreenCover(let cover):
-                state.fullScreenCover = cover
+                if cover?.destination == .editor,
+                   let todo = state.todo {
+                    state.fullScreenCover = .editor(todo)
+                } else {
+                    state.fullScreenCover = nil
+                }
             case .setTodo(let todo):
                 state.todo = todo
                 state.referenceItems = [:]
@@ -129,6 +152,21 @@ struct TodoDetailFeature {
         .ifLet(\.$sheet, action: \.sheet) {
             TodoDetailSheetFeature()
         }
+        .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
+            TodoDetailFullScreenCoverFeature()
+        }
+    }
+}
+
+private struct TodoDetailFullScreenCoverFeature: Reducer {
+    typealias State = TodoDetailFeature.FullScreenCoverState
+    typealias Action = TodoDetailFeature.Action.FullScreenCover
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
+            .ifLet(\.todoEditor, action: \.todoEditor) {
+                TodoEditorFeature()
+            }
     }
 }
 

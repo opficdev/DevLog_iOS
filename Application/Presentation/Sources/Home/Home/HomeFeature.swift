@@ -27,7 +27,9 @@ struct HomeFeature {
         var loading = LoadingFeature.State()
 
         var showContentPicker: Bool { sheet?.contentPickerState != nil }
-        var showTodoEditor: Bool { fullScreenCover?.destination == .todoEditor }
+        var showTodoEditor: Bool {
+            fullScreenCover?.destination == .todoEditor
+        }
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
@@ -54,7 +56,7 @@ struct HomeFeature {
     enum Action: Equatable {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
-        case fullScreenCover(PresentationAction<Never>)
+        case fullScreenCover(PresentationAction<FullScreenCover>)
         case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
@@ -135,6 +137,7 @@ struct HomeFeature {
     struct FullScreenCoverState: Equatable {
         var destination: Destination
         var selectedTodoCategory: TodoCategory?
+        var todoEditor: TodoEditorFeature.State?
 
         enum Destination: Equatable {
             case todoEditor
@@ -142,10 +145,19 @@ struct HomeFeature {
         }
 
         static func todoEditor(_ category: TodoCategory) -> Self {
-            Self(destination: .todoEditor, selectedTodoCategory: category)
+            Self(
+                destination: .todoEditor,
+                selectedTodoCategory: category,
+                todoEditor: TodoEditorFeature.State(category: category)
+            )
         }
 
         static let search = Self(destination: .search)
+    }
+
+    @CasePathable
+    enum FullScreenCover: Equatable {
+        case todoEditor(TodoEditorFeature.Action)
     }
 
     enum Presentation: Equatable {
@@ -193,6 +205,13 @@ struct HomeFeature {
             switch action {
             case .alert:
                 break
+            case .fullScreenCover(.presented(.todoEditor(.delegate(.created)))):
+                state.fullScreenCover = nil
+                state.selectedTodoCategory = nil
+                return .merge(
+                    trackTodoCreateEffect(),
+                    .send(.view(.fetchData))
+                )
             case .fullScreenCover(.dismiss):
                 state.fullScreenCover = nil
                 state.selectedTodoCategory = nil
@@ -216,6 +235,21 @@ struct HomeFeature {
         .ifLet(\.$sheet, action: \.sheet) {
             HomeSheetFeature()
         }
+        .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
+            HomeFullScreenCoverFeature()
+        }
+    }
+}
+
+private struct HomeFullScreenCoverFeature: Reducer {
+    typealias State = HomeFeature.FullScreenCoverState
+    typealias Action = HomeFeature.FullScreenCover
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
+            .ifLet(\.todoEditor, action: \.todoEditor) {
+                TodoEditorFeature()
+            }
     }
 }
 

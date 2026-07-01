@@ -108,6 +108,11 @@ struct HomeStoreTestAdapter {
         await settle()
     }
 
+    func todoEditorCreated() async {
+        await store.send(.fullScreenCover(.presented(.todoEditor(.delegate(.created)))))
+        await drainReceivedActions()
+    }
+
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {
         await store.send(.view(.orderTodoCategory(items)))
         await drainReceivedActions()
@@ -150,6 +155,12 @@ struct HomeStoreTestAdapter {
 
 final class HomeTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
     private(set) var events = [AnalyticsEvent]()
+    var hasTrackedTodoCreate: Bool {
+        events.contains {
+            guard case .todoCreate = $0 else { return false }
+            return true
+        }
+    }
 
     func execute(_ event: AnalyticsEvent) {
         events.append(event)

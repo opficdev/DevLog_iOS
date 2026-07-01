@@ -165,15 +165,13 @@ struct TodoEditorFeatureTests {
         #expect(adapter.sheet == nil)
     }
 
-    @Test("새 Todo 저장 성공은 draft를 저장하고 생성 완료 상태를 남긴다")
-    func 새_Todo_저장_성공은_draft를_저장하고_생성_완료_상태를_남긴다() async {
+    @Test("새 Todo 저장 성공은 draft를 저장하고 생성 delegate를 전송한다")
+    func 새_Todo_저장_성공은_draft를_저장하고_생성_delegate를_전송한다() async {
         let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()
         upsertSpy.shouldSuspend = true
-        let analyticsSpy = TodoEditorTrackAnalyticsEventUseCaseSpy()
         let adapter = TodoEditorStoreTestAdapter(
             category: .system(.doc),
-            upsertTodoUseCase: upsertSpy,
-            trackAnalyticsEventUseCase: analyticsSpy
+            upsertTodoUseCase: upsertSpy
         )
         let dueDate = Date(timeIntervalSince1970: 4_102_444_800)
 
@@ -193,16 +191,18 @@ struct TodoEditorFeatureTests {
         #expect(upsertSpy.todoDrafts.first?.category == .system(.doc))
 
         upsertSpy.resume()
+        await adapter.receiveCreateSucceeded()
+        await adapter.receiveCreatedDelegate()
         await adapter.drainReceivedActions()
 
         #expect(adapter.saveResult == .created)
         #expect(adapter.isLoading == false)
-        #expect(analyticsSpy.hasTrackedTodoCreate)
     }
 
-    @Test("기존 Todo 저장 성공은 수정 Todo를 저장하고 수정 완료 상태를 남긴다")
-    func 기존_Todo_저장_성공은_수정_Todo를_저장하고_수정_완료_상태를_남긴다() async throws {
+    @Test("기존 Todo 저장 성공은 수정 Todo를 저장하고 수정 delegate를 전송한다")
+    func 기존_Todo_저장_성공은_수정_Todo를_저장하고_수정_delegate를_전송한다() async throws {
         let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()
+        upsertSpy.shouldSuspend = true
         let todo = makeTodoEditorTodo(
             id: "todo-1",
             number: 7,
@@ -216,9 +216,13 @@ struct TodoEditorFeatureTests {
         await adapter.setTitle("Changed")
         await adapter.setContent("Changed body")
         await adapter.upsertTodo()
-        await adapter.drainReceivedActions()
 
         let updated = try #require(upsertSpy.todos.first)
+
+        upsertSpy.resume()
+        await adapter.receiveUpdateSucceeded(updated)
+        await adapter.receiveUpdatedDelegate(updated)
+        await adapter.drainReceivedActions()
 
         #expect(updated.id == "todo-1")
         #expect(updated.number == 7)

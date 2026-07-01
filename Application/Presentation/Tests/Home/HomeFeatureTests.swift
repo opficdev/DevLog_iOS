@@ -42,6 +42,31 @@ struct HomeFeatureTests {
         try await verifyHomeTapTodoCategory(adapter: adapter)
     }
 
+    @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
+    func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
+        let context = makeHomeFetchDataContext()
+        let trackSpy = HomeTrackAnalyticsEventUseCaseSpy()
+        let adapter = HomeStoreTestAdapter(
+            fetchPreferencesUseCase: context.fetchPreferencesUseCaseSpy,
+            fetchTodosUseCase: context.fetchTodosUseCaseSpy,
+            fetchWebPagesUseCase: context.fetchWebPagesUseCaseSpy,
+            trackAnalyticsEventUseCase: trackSpy
+        )
+
+        await adapter.tapTodoCategory(.system(.feature))
+        await adapter.todoEditorCreated()
+
+        await waitUntil {
+            context.fetchTodosUseCaseSpy.queries.count == 1
+                && context.fetchWebPagesUseCaseSpy.calledQueries == [""]
+                && trackSpy.hasTrackedTodoCreate
+        }
+
+        #expect(!adapter.showTodoEditor)
+        #expect(adapter.recentTodos.map(\.id) == ["todo-1", "todo-2"])
+        #expect(adapter.webPages.map(\.url.absoluteString) == ["https://openai.com"])
+    }
+
     @Test("HomeFeature orderTodoCategory는 recentTodos category를 동기화하고 저장한다")
     func HomeFeature_orderTodoCategory는_recentTodos_category를_동기화하고_저장한다() async throws {
         let context = makeHomeOrderContext()

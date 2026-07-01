@@ -37,7 +37,6 @@ public struct TodoEditorWindowView: View {
                         )
                         $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
                         $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-                        $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
                     },
                     onCreateSuccess: create,
                     onClose: closeWindow

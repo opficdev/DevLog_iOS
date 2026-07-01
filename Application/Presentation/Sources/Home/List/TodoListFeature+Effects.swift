@@ -61,6 +61,12 @@ extension TodoListFeature {
         )
     }
 
+    func trackTodoCreateEffect() -> Effect<Action> {
+        .run { [trackAnalyticsEventUseCase] _ in
+            trackAnalyticsEventUseCase.execute(.todoCreate)
+        }
+    }
+
     func togglePinnedEffect(_ item: TodoListItem) -> Effect<Action> {
         .concatenate(
             .send(.loading(.begin(target: .default, mode: .delayed))),

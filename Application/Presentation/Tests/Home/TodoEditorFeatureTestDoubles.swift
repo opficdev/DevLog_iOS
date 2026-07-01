@@ -40,8 +40,7 @@ final class TodoEditorStoreTestAdapter {
         now: Date = todoEditorNow,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = TodoEditorFetchPreferencesUseCaseSpy(),
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase = TodoEditorFetchReferenceItemsUseCaseSpy(),
-        upsertTodoUseCase: UpsertTodoUseCase = TodoEditorUpsertTodoUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TodoEditorTrackAnalyticsEventUseCaseSpy()
+        upsertTodoUseCase: UpsertTodoUseCase = TodoEditorUpsertTodoUseCaseSpy()
     ) {
         self.now = now
         store = TestStore(
@@ -53,7 +52,6 @@ final class TodoEditorStoreTestAdapter {
             $0.fetchTodoCategoryPreferencesUseCase = fetchPreferencesUseCase
             $0.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
             $0.upsertTodoUseCase = upsertTodoUseCase
-            $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
     }
@@ -163,6 +161,26 @@ final class TodoEditorStoreTestAdapter {
             $0.saveResult = nil
         }
         await receiveBeginLoading()
+    }
+
+    func receiveCreateSucceeded() async {
+        await store.receive(.createSucceeded) {
+            $0.saveResult = .created
+        }
+    }
+
+    func receiveCreatedDelegate() async {
+        await store.receive(.delegate(.created))
+    }
+
+    func receiveUpdateSucceeded(_ todo: Todo) async {
+        await store.receive(.updateSucceeded(todo)) {
+            $0.saveResult = .updated(todo)
+        }
+    }
+
+    func receiveUpdatedDelegate(_ todo: Todo) async {
+        await store.receive(.delegate(.updated(todo)))
     }
 
     func drainReceivedActions() async {
@@ -277,20 +295,6 @@ final class TodoEditorUpsertTodoUseCaseSpy: UpsertTodoUseCase {
                 self.continuation = continuation
             }
         }
-    }
-}
-
-final class TodoEditorTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
-    private(set) var events: [AnalyticsEvent] = []
-    var hasTrackedTodoCreate: Bool {
-        events.contains {
-            guard case .todoCreate = $0 else { return false }
-            return true
-        }
-    }
-
-    func execute(_ event: AnalyticsEvent) {
-        events.append(event)
     }
 }
 

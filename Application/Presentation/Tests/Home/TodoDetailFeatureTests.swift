@@ -165,11 +165,12 @@ struct TodoDetailFeatureTests {
             showEditButton: false
         )
 
+        adapter.setTodo(makeTodo(id: "todo-edit"))
         adapter.setSheet(.info)
         adapter.setFullScreenCover(.editor)
 
         #expect(adapter.sheet == .info)
-        #expect(adapter.fullScreenCover == .editor)
+        #expect(adapter.fullScreenCoverDestination == .editor)
         #expect(!adapter.showEditButton)
 
         adapter.setSheet(.todo(TodoIdItem(id: "todo-2")))
@@ -193,6 +194,36 @@ struct TodoDetailFeatureTests {
         #expect(adapter.sheet == nil)
         #expect(adapter.fullScreenCover == nil)
     }
+
+    @Test("TodoEditor 수정 delegate는 editor를 닫고 Todo 상세 상태를 갱신한다")
+    func TodoEditor_수정_delegate는_editor를_닫고_Todo_상세_상태를_갱신한다() async {
+        let reference = makeTodoReference(id: "todo-7", title: "Reference 7")
+        let referenceSpy = FetchReferenceItemsUseCaseSpy(references: [7: reference])
+        let adapter = TodoDetailStoreTestAdapter(
+            fetchUseCase: FetchTodoByIdUseCaseSpy(todo: makeTodo()),
+            referenceUseCase: referenceSpy,
+            todoId: "todo-1"
+        )
+        let updatedTodo = makeTodo(
+            id: "todo-1",
+            title: "Updated",
+            content: "- refs #7"
+        )
+
+        adapter.setTodo(makeTodo(id: "todo-1"))
+        adapter.setFullScreenCover(.editor)
+        adapter.todoEditorUpdated(updatedTodo)
+
+        #expect(adapter.fullScreenCover == nil)
+        #expect(adapter.todo == updatedTodo)
+        #expect(adapter.referenceItems.isEmpty)
+
+        await waitUntil {
+            adapter.referenceItems[7] == TodoReferenceItem(from: reference)
+        }
+
+        #expect(referenceSpy.numbers == [[7]])
+    }
 }
 
 @MainActor
@@ -205,6 +236,7 @@ private protocol TodoDetailTestAdapter {
     var alert: AlertState<Never>? { get }
     var sheet: TodoDetailFeature.SheetState? { get }
     var fullScreenCover: TodoDetailFeature.FullScreenCoverState? { get }
+    var fullScreenCoverDestination: TodoDetailFeature.FullScreenCoverState.Destination? { get }
 
     func onAppear()
     func onSheetTodoAppear()
@@ -212,6 +244,7 @@ private protocol TodoDetailTestAdapter {
     func dismissSheet()
     func setFullScreenCover(_ cover: TodoDetailFeature.FullScreenCoverState?)
     func dismissFullScreenCover()
+    func todoEditorUpdated(_ todo: Todo)
     func setTodo(_ todo: Todo)
     func setReferenceItems(_ items: [Int: TodoReferenceItem])
 }
@@ -228,6 +261,9 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
     var alert: AlertState<Never>? { store.alert }
     var sheet: TodoDetailFeature.SheetState? { store.sheet }
     var fullScreenCover: TodoDetailFeature.FullScreenCoverState? { store.fullScreenCover }
+    var fullScreenCoverDestination: TodoDetailFeature.FullScreenCoverState.Destination? {
+        store.fullScreenCover?.destination
+    }
 
     init(
         fetchUseCase: FetchTodoByIdUseCase,
@@ -271,6 +307,10 @@ private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
 
     func dismissFullScreenCover() {
         store.send(.fullScreenCover(.dismiss))
+    }
+
+    func todoEditorUpdated(_ todo: Todo) {
+        store.send(.fullScreenCover(.presented(.todoEditor(.delegate(.updated(todo))))))
     }
 
     func setTodo(_ todo: Todo) {
