@@ -12,7 +12,6 @@ import Domain
 
 struct TodoListView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
-    @Environment(\.diContainer) var container: DIContainer
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
@@ -198,24 +197,15 @@ struct TodoListView: View {
 
     @ViewBuilder
     private func fullScreenCoverContent(
-        _ coverStore: Store<TodoListFeature.FullScreenCoverState, Never>
+        _ coverStore: Store<
+        TodoListFeature.FullScreenCoverState,
+        TodoListFeature.Action.FullScreenCover>
     ) -> some View {
         switch coverStore.destination {
         case .editor:
-            TodoEditorView(
-                store: Store(initialState: TodoEditorFeature.State(category: store.category)) {
-                    TodoEditorFeature()
-                } withDependencies: {
-                    $0.fetchTodoCategoryPreferencesUseCase = container.resolve(FetchTodoCategoryPreferencesUseCase.self)
-                    $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
-                    $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-                    $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
-                },
-                onCreateSuccess: {
-                    store.send(.store(.setFullScreenCover(nil)))
-                    store.send(.view(.refresh))
-                }
-            )
+            if let todoEditorStore = coverStore.scope(state: \.todoEditor, action: \.todoEditor) {
+                TodoEditorView(store: todoEditorStore)
+            }
         }
     }
 

@@ -44,6 +44,8 @@ final class TodoWindowCoordinator {
         let listStore = Store(initialState: TodoListFeature.State(category: category)) {
             TodoListFeature()
         } withDependencies: {
+            $0.fetchTodoCategoryPreferencesUseCase = self.container.resolve(FetchTodoCategoryPreferencesUseCase.self)
+            $0.fetchReferenceItemsUseCase = self.container.resolve(FetchReferenceItemsUseCase.self)
             $0.todoListFetchTodosUseCase = self.container.resolve(FetchTodosUseCase.self)
             $0.fetchTodoByIdUseCase = self.container.resolve(FetchTodoByIdUseCase.self)
             $0.upsertTodoUseCase = self.container.resolve(UpsertTodoUseCase.self)

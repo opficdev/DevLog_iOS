@@ -51,21 +51,34 @@ struct TodoListFeature {
     @ObservableState
     struct FullScreenCoverState: Equatable {
         var destination: Destination
+        var todoEditor: TodoEditorFeature.State?
 
         enum Destination: Equatable {
             case editor
         }
 
         static let editor = Self(destination: .editor)
+
+        static func editor(_ category: TodoCategory) -> Self {
+            Self(
+                destination: .editor,
+                todoEditor: TodoEditorFeature.State(category: category)
+            )
+        }
     }
 
     enum Action: BindableAction {
         case alert(PresentationAction<Never>)
-        case fullScreenCover(PresentationAction<Never>)
+        case fullScreenCover(PresentationAction<FullScreenCover>)
         case binding(BindingAction<State>)
         case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
+
+        @CasePathable
+        enum FullScreenCover: Equatable {
+            case todoEditor(TodoEditorFeature.Action)
+        }
 
         enum ViewAction: Equatable {
             case refresh
@@ -118,6 +131,9 @@ struct TodoListFeature {
             switch action {
             case .alert:
                 break
+            case .fullScreenCover(.presented(.todoEditor(.delegate(.created)))):
+                state.fullScreenCover = nil
+                return fetchEffect(query: state.query, cursor: nil, showsIndicator: false)
             case .fullScreenCover(.dismiss):
                 state.fullScreenCover = nil
             case .fullScreenCover:
@@ -147,6 +163,21 @@ struct TodoListFeature {
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
+            TodoListFullScreenCoverFeature()
+        }
+    }
+}
+
+private struct TodoListFullScreenCoverFeature: Reducer {
+    typealias State = TodoListFeature.FullScreenCoverState
+    typealias Action = TodoListFeature.Action.FullScreenCover
+
+    var body: some ReducerOf<Self> {
+        EmptyReducer()
+            .ifLet(\.todoEditor, action: \.todoEditor) {
+                TodoEditorFeature()
+            }
     }
 }
 
@@ -321,7 +352,7 @@ private extension TodoListFeature {
     ) -> Effect<Action> {
         switch action {
         case .setFullScreenCover(let cover):
-            state.fullScreenCover = cover
+            state.fullScreenCover = cover?.destination == .editor ? .editor(state.category) : nil
         case .setAlert(let value):
             Self.setAlert(&state, isPresented: value)
         case .applySearchQuery(let query):

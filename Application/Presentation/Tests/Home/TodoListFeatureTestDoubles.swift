@@ -25,6 +25,9 @@ final class TodoListStoreTestAdapter {
     var hasMore: Bool { store.state.hasMore }
     var alert: AlertState<Never>? { store.state.alert }
     var fullScreenCover: TodoListFeature.FullScreenCoverState? { store.state.fullScreenCover }
+    var fullScreenCoverDestination: TodoListFeature.FullScreenCoverState.Destination? {
+        store.state.fullScreenCover?.destination
+    }
     var showAlert: Bool { store.state.alert != nil }
     var appliedFilterCount: Int { store.state.appliedFilterCount }
 
@@ -122,6 +125,11 @@ final class TodoListStoreTestAdapter {
 
     func dismissFullScreenCover() async {
         await store.send(.fullScreenCover(.dismiss))
+    }
+
+    func todoEditorCreated() async {
+        await store.send(.fullScreenCover(.presented(.todoEditor(.delegate(.created)))))
+        await drainReceivedActions()
     }
 
     func swipeTodo(_ todo: TodoListItem) async {
