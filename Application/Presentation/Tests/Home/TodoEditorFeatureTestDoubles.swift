@@ -40,8 +40,7 @@ final class TodoEditorStoreTestAdapter {
         now: Date = todoEditorNow,
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = TodoEditorFetchPreferencesUseCaseSpy(),
         fetchReferenceItemsUseCase: FetchReferenceItemsUseCase = TodoEditorFetchReferenceItemsUseCaseSpy(),
-        upsertTodoUseCase: UpsertTodoUseCase = TodoEditorUpsertTodoUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TodoEditorTrackAnalyticsEventUseCaseSpy()
+        upsertTodoUseCase: UpsertTodoUseCase = TodoEditorUpsertTodoUseCaseSpy()
     ) {
         self.now = now
         store = TestStore(
@@ -53,7 +52,6 @@ final class TodoEditorStoreTestAdapter {
             $0.fetchTodoCategoryPreferencesUseCase = fetchPreferencesUseCase
             $0.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
             $0.upsertTodoUseCase = upsertTodoUseCase
-            $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
     }
@@ -297,20 +295,6 @@ final class TodoEditorUpsertTodoUseCaseSpy: UpsertTodoUseCase {
                 self.continuation = continuation
             }
         }
-    }
-}
-
-final class TodoEditorTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
-    private(set) var events: [AnalyticsEvent] = []
-    var hasTrackedTodoCreate: Bool {
-        events.contains {
-            guard case .todoCreate = $0 else { return false }
-            return true
-        }
-    }
-
-    func execute(_ event: AnalyticsEvent) {
-        events.append(event)
     }
 }
 

@@ -45,10 +45,12 @@ struct HomeFeatureTests {
     @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
         let context = makeHomeFetchDataContext()
+        let trackSpy = HomeTrackAnalyticsEventUseCaseSpy()
         let adapter = HomeStoreTestAdapter(
             fetchPreferencesUseCase: context.fetchPreferencesUseCaseSpy,
             fetchTodosUseCase: context.fetchTodosUseCaseSpy,
-            fetchWebPagesUseCase: context.fetchWebPagesUseCaseSpy
+            fetchWebPagesUseCase: context.fetchWebPagesUseCaseSpy,
+            trackAnalyticsEventUseCase: trackSpy
         )
 
         await adapter.tapTodoCategory(.system(.feature))
@@ -57,6 +59,7 @@ struct HomeFeatureTests {
         await waitUntil {
             context.fetchTodosUseCaseSpy.queries.count == 1
                 && context.fetchWebPagesUseCaseSpy.calledQueries == [""]
+                && trackSpy.hasTrackedTodoCreate
         }
 
         #expect(!adapter.showTodoEditor)

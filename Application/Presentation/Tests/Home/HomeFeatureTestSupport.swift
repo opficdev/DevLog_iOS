@@ -155,6 +155,12 @@ struct HomeStoreTestAdapter {
 
 final class HomeTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
     private(set) var events = [AnalyticsEvent]()
+    var hasTrackedTodoCreate: Bool {
+        events.contains {
+            guard case .todoCreate = $0 else { return false }
+            return true
+        }
+    }
 
     func execute(_ event: AnalyticsEvent) {
         events.append(event)

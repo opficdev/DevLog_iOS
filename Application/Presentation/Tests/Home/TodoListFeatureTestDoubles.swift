@@ -315,6 +315,12 @@ final class TodoListUndoDeleteTodoUseCaseSpy: UndoDeleteTodoUseCase {
 
 final class TodoListTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
     private(set) var events = [AnalyticsEvent]()
+    var hasTrackedTodoCreate: Bool {
+        events.contains {
+            guard case .todoCreate = $0 else { return false }
+            return true
+        }
+    }
     var hasTrackedTodoComplete: Bool {
         events.contains {
             guard case .todoComplete = $0 else { return false }

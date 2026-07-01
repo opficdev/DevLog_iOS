@@ -169,11 +169,9 @@ struct TodoEditorFeatureTests {
     func 새_Todo_저장_성공은_draft를_저장하고_생성_delegate를_전송한다() async {
         let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()
         upsertSpy.shouldSuspend = true
-        let analyticsSpy = TodoEditorTrackAnalyticsEventUseCaseSpy()
         let adapter = TodoEditorStoreTestAdapter(
             category: .system(.doc),
-            upsertTodoUseCase: upsertSpy,
-            trackAnalyticsEventUseCase: analyticsSpy
+            upsertTodoUseCase: upsertSpy
         )
         let dueDate = Date(timeIntervalSince1970: 4_102_444_800)
 
@@ -199,7 +197,6 @@ struct TodoEditorFeatureTests {
 
         #expect(adapter.saveResult == .created)
         #expect(adapter.isLoading == false)
-        #expect(analyticsSpy.hasTrackedTodoCreate)
     }
 
     @Test("기존 Todo 저장 성공은 수정 Todo를 저장하고 수정 delegate를 전송한다")

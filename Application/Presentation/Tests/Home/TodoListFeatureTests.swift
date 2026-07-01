@@ -165,13 +165,17 @@ struct TodoListFeatureTests {
     @Test("TodoEditor 생성 delegate는 editor를 닫고 목록을 새로 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_목록을_새로_조회한다() async {
         let fetchSpy = TodoListFetchTodosUseCaseSpy()
-        let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
+        let trackSpy = TodoListTrackAnalyticsEventUseCaseSpy()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            trackAnalyticsEventUseCase: trackSpy
+        )
 
         await adapter.setFullScreenCover(.editor)
         await adapter.todoEditorCreated()
 
         await waitUntil {
-            fetchSpy.queries.count == 1
+            fetchSpy.queries.count == 1 && trackSpy.hasTrackedTodoCreate
         }
 
         #expect(adapter.fullScreenCover == nil)
