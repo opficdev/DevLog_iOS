@@ -141,7 +141,6 @@ struct TodoEditorFeature {
     @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
     @Dependency(\.fetchReferenceItemsUseCase) var fetchReferenceItemsUseCase
     @Dependency(\.upsertTodoUseCase) var upsertTodoUseCase
-    @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
 
     var body: some ReducerOf<Self> {
         Scope(state: \.loading, action: \.loading) {
@@ -308,11 +307,10 @@ private extension TodoEditorFeature {
     }
 
     func createTodoEffect(_ draft: TodoDraft) -> Effect<Action> {
-        .run { [trackAnalyticsEventUseCase, upsertTodoUseCase] send in
+        .run { [upsertTodoUseCase] send in
             await send(.loading(.begin(target: .default, mode: .immediate)))
             do {
                 try await upsertTodoUseCase.execute(draft)
-                trackAnalyticsEventUseCase.execute(.todoCreate)
                 await send(.createSucceeded)
                 await send(.delegate(.created))
             } catch {
