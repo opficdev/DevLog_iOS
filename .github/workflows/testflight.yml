@@ -13,7 +13,7 @@ on:
           - "true"
 
 env:
-  SCHEME: DevLogApp
+  SCHEME: App
   RUBY_VERSION: "3.2"
   XCODE_VERSION: latest
   APP_STORE_TEAM_ID: ${{ secrets.APP_STORE_TEAM_ID }}
@@ -108,7 +108,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          google_service_info_path="Application/DevLogApp/Sources/Resource/GoogleService-Info.plist"
+          google_service_info_path="Application/App/Sources/Resource/GoogleService-Info.plist"
           dsym_zip_path="$(find fastlane/testflight_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
           upload_symbols_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" "$HOME/Library/Developer/Xcode/SourcePackages" "$GITHUB_WORKSPACE" -path '*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols' -type f -print -quit 2>/dev/null || true)"
 
