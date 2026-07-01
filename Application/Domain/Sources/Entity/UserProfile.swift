@@ -1,0 +1,30 @@
+//
+//  UserProfile.swift
+//  Domain
+//
+//  Created by 최윤진 on 1/5/26.
+//
+
+import Foundation
+
+public struct UserProfile {
+    public let name: String
+    public let email: String
+    public let statusMessage: String
+    public let avatarURL: URL?
+    public let createdAt: Date
+
+    public init(
+        name: String,
+        email: String,
+        statusMessage: String,
+        avatarURL: URL?,
+        createdAt: Date
+    ) {
+        self.name = name
+        self.email = email
+        self.statusMessage = statusMessage
+        self.avatarURL = avatarURL
+        self.createdAt = createdAt
+    }
+}

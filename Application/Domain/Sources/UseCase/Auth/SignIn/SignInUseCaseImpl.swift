@@ -1,0 +1,18 @@
+//
+//  SignInUseCaseImpl.swift
+//  Domain
+//
+//  Created by 최윤진 on 12/30/25.
+//
+
+public final class SignInUseCaseImpl: SignInUseCase {
+    private let repository: AuthenticationRepository
+
+    init(_ repository: AuthenticationRepository) {
+        self.repository = repository
+    }
+
+    public func execute(_ provider: AuthProvider) async throws -> Bool {
+        try await repository.signIn(provider)
+    }
+}
