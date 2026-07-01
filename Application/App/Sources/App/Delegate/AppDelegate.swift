@@ -34,12 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = container.resolve(WidgetSessionSyncHandler.self)
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleSceneDidActivate),
-            name: UIScene.didActivateNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
             selector: #selector(handleRemoteNotificationRegistrationRequest),
             name: .didRequestRemoteNotificationRegistration,
             object: nil
@@ -71,10 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return true
-    }
-
-    @objc private func handleSceneDidActivate() {
-        NotificationCenter.default.post(name: .didRequestFCMTokenSync, object: nil)
     }
 
     @objc private func handleRemoteNotificationRegistrationRequest() {
