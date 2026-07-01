@@ -86,6 +86,7 @@ final class TodoWindowCoordinator {
     private func handleTodoEditorSubmit(_ submit: TodoEditorWindowSubmit) {
         switch submit {
         case .create(let value):
+            container.resolve(TrackAnalyticsEventUseCase.self).execute(.todoCreate)
             if let listStore,
                value.matchesCreate(category: listStore.category, source: .list) {
                 listStore.send(.view(.refresh))

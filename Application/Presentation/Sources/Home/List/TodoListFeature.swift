@@ -133,7 +133,10 @@ struct TodoListFeature {
                 break
             case .fullScreenCover(.presented(.todoEditor(.delegate(.created)))):
                 state.fullScreenCover = nil
-                return fetchEffect(query: state.query, cursor: nil, showsIndicator: false)
+                return .merge(
+                    trackTodoCreateEffect(),
+                    fetchEffect(query: state.query, cursor: nil, showsIndicator: false)
+                )
             case .fullScreenCover(.dismiss):
                 state.fullScreenCover = nil
             case .fullScreenCover:
