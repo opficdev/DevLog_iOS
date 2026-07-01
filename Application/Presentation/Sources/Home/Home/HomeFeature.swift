@@ -28,8 +28,7 @@ struct HomeFeature {
 
         var showContentPicker: Bool { sheet?.contentPickerState != nil }
         var showTodoEditor: Bool {
-            guard case .todoEditor = fullScreenCover?.destination else { return false }
-            return true
+            fullScreenCover?.destination == .todoEditor
         }
 
         var isPreferencesLoading: Bool {
