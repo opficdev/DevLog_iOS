@@ -208,7 +208,10 @@ struct HomeFeature {
             case .fullScreenCover(.presented(.todoEditor(.delegate(.created)))):
                 state.fullScreenCover = nil
                 state.selectedTodoCategory = nil
-                return .send(.view(.fetchData))
+                return .merge(
+                    trackTodoCreateEffect(),
+                    .send(.view(.fetchData))
+                )
             case .fullScreenCover(.dismiss):
                 state.fullScreenCover = nil
                 state.selectedTodoCategory = nil

@@ -84,6 +84,12 @@ extension HomeFeature {
         }
     }
 
+    func trackTodoCreateEffect() -> Effect<Action> {
+        .run { [trackAnalyticsEventUseCase] _ in
+            trackAnalyticsEventUseCase.execute(.todoCreate)
+        }
+    }
+
     func deleteWebPageEffect(_ page: WebPageItem) -> Effect<Action> {
         .run { [deleteWebPageUseCase] send in
             do {
