@@ -1,22 +1,21 @@
 //
 //  NavigationRouter.swift
-//  Presentation
+//  PresentationShared
 //
 //  Created by 최윤진 on 1/1/26.
 //
 
 import SwiftUI
-import Domain
 
 @Observable
-final class NavigationRouter<Route: Hashable> {
-    var path: [Route] = []
+public final class NavigationRouter<Route: Hashable> {
+    public var path: [Route] = []
 
-    var root: Route? {
+    public var root: Route? {
         path.first
     }
 
-    var detailPath: [Route] {
+    public var detailPath: [Route] {
         get {
             Array(path.dropFirst())
         }
@@ -29,11 +28,13 @@ final class NavigationRouter<Route: Hashable> {
         }
     }
 
-    func replace(with route: Route) {
+    public init() {}
+
+    public func replace(with route: Route) {
         path = [route]
     }
 
-    func push(_ route: Route) {
+    public func push(_ route: Route) {
         path.append(route)
     }
 }

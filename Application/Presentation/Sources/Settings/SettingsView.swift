@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PresentationShared
 
 struct SettingsView: View {
     @Environment(NavigationRouter<ProfileRoute>.self) private var router

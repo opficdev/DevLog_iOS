@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 
 struct ProfileView: View {
     @Bindable var store: StoreOf<ProfileFeature>

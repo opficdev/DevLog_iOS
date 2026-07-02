@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

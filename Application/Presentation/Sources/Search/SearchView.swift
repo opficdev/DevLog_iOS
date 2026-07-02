@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
