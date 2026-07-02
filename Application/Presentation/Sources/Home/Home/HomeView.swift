@@ -164,8 +164,8 @@ struct HomeView: View {
 
     @ViewBuilder
     private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
-        if let contentPickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
-            @Bindable var contentPickerStore = contentPickerStore
+        if let pickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
+            @Bindable var pickerStore = pickerStore
             NavigationStack {
                 List {
                     Section {
@@ -193,7 +193,7 @@ struct HomeView: View {
 
                     Section {
                         Button {
-                            contentPickerStore.send(.tapWebPageInput)
+                            pickerStore.send(.tapWebPageInput)
                         } label: {
                             labelImage(
                                 text: "URL",
@@ -208,7 +208,7 @@ struct HomeView: View {
                     }
                 }
                 .navigationDestination(
-                    item: $contentPickerStore.scope(state: \.webPageInput, action: \.webPageInput)
+                    item: $pickerStore.scope(state: \.webPageInput, action: \.webPageInput)
                 ) { _ in
                     Form {
                         Section {
