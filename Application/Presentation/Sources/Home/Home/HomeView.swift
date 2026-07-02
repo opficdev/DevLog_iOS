@@ -214,10 +214,7 @@ struct HomeView: View {
                         Section {
                             TextField(
                                 "https://",
-                                text: Binding(
-                                    get: { store.webPageURLInput },
-                                    set: { store.send(.view(.updateWebPageURLInput($0))) }
-                                )
+                                text: $store.webPageURLInput
                             )
                             .textInputAutocapitalization(.never)
                             .keyboardType(.URL)

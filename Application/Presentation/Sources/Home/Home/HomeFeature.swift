@@ -53,10 +53,11 @@ struct HomeFeature {
         let urlString: String
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case fullScreenCover(PresentationAction<FullScreenCover>)
+        case binding(BindingAction<State>)
         case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
@@ -213,6 +214,7 @@ struct HomeFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
@@ -234,6 +236,8 @@ struct HomeFeature {
             case .sheet(.presented(.categoryManage(.delegate(.done(let preferences))))):
                 return orderTodoCategory(preferences, state: &state)
             case .sheet:
+                break
+            case .binding:
                 break
             case .view(let action):
                 return reduce(action, state: &state)
