@@ -353,6 +353,7 @@ platform :ios do
       skip_screenshots: true,
       submit_for_review: false,
       automatic_release: false,
+      precheck_include_in_app_purchases: false,
       force: true
     )
   end
