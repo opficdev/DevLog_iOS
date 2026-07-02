@@ -76,6 +76,16 @@ jobs:
           install: true
           cache: true
 
+      - name: Install SwiftLint
+        env:
+          HOMEBREW_REQUIRE_TAP_TRUST: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+          swiftlint version
+
       - name: Generate Xcode workspace with Tuist
         shell: bash
         run: |
