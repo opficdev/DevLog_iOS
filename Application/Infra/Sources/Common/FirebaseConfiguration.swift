@@ -8,7 +8,7 @@
 import FirebaseFirestore
 import Foundation
 
-enum FirebaseConfiguration {
+public enum FirebaseConfiguration {
     private enum InfoKey {
         static let databaseID = "FIRESTORE_DATABASE_ID"
         static let functionAPIBaseURL = "FUNCTION_API_BASE_URL"
@@ -16,7 +16,7 @@ enum FirebaseConfiguration {
 
     static let defaultDatabaseID = "staging"
 
-    static var databaseID: String {
+    public static var databaseID: String {
         let environmentValue = ProcessInfo.processInfo.environment[InfoKey.databaseID]?
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if let environmentValue, !environmentValue.isEmpty {
