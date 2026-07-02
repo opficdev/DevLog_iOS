@@ -23,6 +23,9 @@ struct HomeStoreTestAdapter {
     var webPages: [WebPageItem] { store.state.webPages }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var showContentPicker: Bool { store.state.showContentPicker }
+    var showCategoryManage: Bool {
+        store.state.sheet?.categoryManageState != nil
+    }
     var showWebPageInputNavigation: Bool {
         store.state.sheet?.contentPickerState?.webPageInput != nil
     }
@@ -113,8 +116,13 @@ struct HomeStoreTestAdapter {
         await drainReceivedActions()
     }
 
+    func tapManageTodoCategory() async {
+        await store.send(.view(.tapManageTodoCategory))
+        await drainReceivedActions()
+    }
+
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {
-        await store.send(.view(.orderTodoCategory(items)))
+        await store.send(.sheet(.presented(.categoryManage(.delegate(.done(items))))))
         await drainReceivedActions()
     }
 
