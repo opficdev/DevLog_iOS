@@ -38,6 +38,13 @@ final class FCMTokenSyncHandler {
         self.store = store
         self.notificationCenter = notificationCenter
 
+        authService.observeSignedIn()
+            .removeDuplicates()
+            .sink { [weak self] isSignedIn in
+                self?.handleSessionUpdate(isSignedIn: isSignedIn)
+            }
+            .store(in: &cancellables)
+
         notificationCenter.publisher(for: .didRefreshFCMToken)
             .compactMap { $0.userInfo?["fcmToken"] as? String }
             .sink { [weak self] fcmToken in
@@ -61,6 +68,15 @@ final class FCMTokenSyncHandler {
 }
 
 private extension FCMTokenSyncHandler {
+    func handleSessionUpdate(isSignedIn: Bool) {
+        guard isSignedIn else {
+            store.setString(nil, forKey: Key.fcmTokenHash)
+            return
+        }
+
+        requestFCMTokenSync()
+    }
+
     func requestFCMTokenSync() {
         Task { [weak self] in
             guard let self else { return }

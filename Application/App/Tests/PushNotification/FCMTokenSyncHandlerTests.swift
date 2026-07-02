@@ -173,6 +173,57 @@ struct FCMTokenSyncHandlerTests {
         _ = handler
     }
 
+    @Test("로그인 세션 전이 시 현재 FCM token을 저장한다")
+    func 로그인_세션_전이_시_현재_FCM_token을_저장한다() async throws {
+        let notificationCenter = NotificationCenter()
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
+        let userService = UserServiceSpy()
+        let authService = AuthServiceSpy(uid: nil)
+        let store = UserDefaultsStoreSpy()
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            store: store,
+            notificationCenter: notificationCenter
+        )
+
+        authService.updateSession(uid: "user-id")
+
+        try await waitUntil {
+            await userService.updatedFCMTokens == ["current-token"]
+        }
+        _ = handler
+    }
+
+    @Test("로그아웃 세션 전이 시 저장된 FCM token hash를 제거한다")
+    func 로그아웃_세션_전이_시_저장된_FCM_token_hash를_제거한다() async throws {
+        let notificationCenter = NotificationCenter()
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
+        let userService = UserServiceSpy()
+        let authService = AuthServiceSpy()
+        let store = UserDefaultsStoreSpy()
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            store: store,
+            notificationCenter: notificationCenter
+        )
+
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil {
+            store.hasStoredString
+        }
+
+        authService.updateSession(uid: nil)
+
+        try await waitUntil {
+            !store.hasStoredString
+        }
+        _ = handler
+    }
+
 }
 
 private actor UserServiceSpy: UserService {
