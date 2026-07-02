@@ -59,7 +59,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    store.send(.store(.setSheet(.reorderTodo)))
+                    store.send(.view(.tapManageTodoCategory))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -258,13 +258,8 @@ struct HomeView: View {
                     }
                 }
             }
-        } else {
-            CategoryManageView(
-                preferences: store.preferences,
-                onDismiss: { array in
-                    store.send(.view(.orderTodoCategory(array)), animation: .default)
-                }
-            )
+        } else if let store = sheetStore.scope(state: \.categoryManageState, action: \.categoryManage) {
+            CategoryManageView(store: store)
         }
     }
 
