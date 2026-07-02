@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import Domain
+import PresentationShared
 
 struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
