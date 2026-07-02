@@ -5,7 +5,7 @@
 //  Created by opfic on 6/14/26.
 //
 
-import ComposableArchitecture
+import PresentationShared
 import Domain
 
 extension DependencyValues {

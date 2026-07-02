@@ -6,7 +6,7 @@
 //
 
 import Combine
-import ComposableArchitecture
+import PresentationShared
 import Domain
 import Foundation
 import Testing

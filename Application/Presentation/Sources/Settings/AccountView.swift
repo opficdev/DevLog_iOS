@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import PresentationShared
 import Domain
 
 struct AccountView: View {

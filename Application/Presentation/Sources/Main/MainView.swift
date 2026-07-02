@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
 import Core
 import Domain
 import HomeTab

@@ -6,7 +6,7 @@
 //
 
 import Testing
-import ComposableArchitecture
+import PresentationShared
 @testable import Presentation
 
 @MainActor

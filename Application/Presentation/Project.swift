@@ -69,8 +69,7 @@ let project = Project(
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
-                .target(name: "PresentationShared"),
-                .package(product: "ComposableArchitecture")
+                .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings
         ),
@@ -116,7 +115,7 @@ let project = Project(
                 .project(target: "Core", path: "../Core"),
                 .target(name: "HomeTab"),
                 .target(name: "PresentationShared")
-            ] + DevLogPackages.presentationPackageDependencies,
+            ],
             settings: frameworkBuildSettings
         ),
         .target(
