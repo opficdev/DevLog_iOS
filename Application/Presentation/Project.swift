@@ -100,7 +100,7 @@ let project = Project(
         .target(
             name: "Presentation",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "com.opfic.DevLog.Presentation",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: [
