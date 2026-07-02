@@ -33,10 +33,10 @@
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="./docs/iPad_Login.png">
+      <img src="./docs/iPad_Login.png" alt="iPad 로그인 화면">
     </td>
     <td align="center" width="50%">
-      <img src="./docs/iPad_Home.png">
+      <img src="./docs/iPad_Home.png" alt="iPad 홈 화면">
     </td>
   </tr>
   <tr>
