@@ -10,7 +10,7 @@ import Combine
 import ComposableArchitecture
 import Core
 import Domain
-@testable import Presentation
+@testable import HomeTab
 import Foundation
 
 @MainActor
