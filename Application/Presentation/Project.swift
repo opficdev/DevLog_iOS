@@ -37,11 +37,11 @@ let project = Project(
             product: .staticFramework,
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
-            sources: ["Sources/Shared/**/*.swift"],
+            sources: ["PresentationShared/Sources/**/*.swift"],
             scripts: [
                 DevLogScripts.swiftLint(
-                    sourcePath: "Sources/Shared",
-                    configPath: "Sources/Shared/.swiftlint.yml"
+                    sourcePath: "PresentationShared/Sources",
+                    configPath: "PresentationShared/Sources/.swiftlint.yml"
                 )
             ],
             dependencies: [
@@ -104,14 +104,7 @@ let project = Project(
             product: .staticFramework,
             bundleId: "com.opfic.DevLog.Presentation",
             infoPlist: .file(path: frameworkInfoPlistPath),
-            sources: [
-                .glob(
-                    "Sources/**/*.swift",
-                    excluding: [
-                        "Sources/Shared/**"
-                    ]
-                )
-            ],
+            sources: ["Sources/**/*.swift"],
             scripts: [
                 DevLogScripts.swiftLint(
                     sourcePath: "Sources",
