@@ -227,7 +227,7 @@ jobs:
           - name: Persistence
             schemes: "Persistence"
           - name: Presentation
-            schemes: "Presentation"
+            schemes: "Presentation HomeTab"
           - name: Widget
             schemes: "Widget WidgetCore"
     steps:
@@ -397,6 +397,8 @@ jobs:
             LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
             if [ "$TEST_SCHEME" = "WidgetCore" ]; then
               TEST_SOURCE_DIR="Widget/WidgetCore/Tests"
+            elif [ -d "Application/Presentation/${TEST_SCHEME}/Tests" ]; then
+              TEST_SOURCE_DIR="Application/Presentation/${TEST_SCHEME}/Tests"
             else
               TEST_SOURCE_DIR="Application/${TEST_SCHEME}/Tests"
             fi
