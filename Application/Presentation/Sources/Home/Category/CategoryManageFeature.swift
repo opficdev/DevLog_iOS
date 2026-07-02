@@ -88,9 +88,10 @@ struct CategoryManageFeature {
         }
     }
 
-    enum Action {
+    enum Action: Equatable {
         case alert(PresentationAction<Alert>)
         case categorySheet(PresentationAction<CategorySheet>)
+        case delegate(Delegate)
         case tapAddUserCategory
         case moveItem(from: IndexSet, target: Int)
         case tapItem(TodoCategoryItem)
@@ -101,6 +102,10 @@ struct CategoryManageFeature {
 
         enum Alert: Equatable {
             case confirmDeleteUserCategory(TodoCategoryItem)
+        }
+
+        enum Delegate: Equatable {
+            case done([TodoCategoryItem])
         }
 
         enum CategorySheet: BindableAction, Equatable {
@@ -119,6 +124,8 @@ struct CategoryManageFeature {
                     state.preferences.remove(at: index)
                 }
             case .alert:
+                break
+            case .delegate:
                 break
             case .categorySheet(.dismiss):
                 state.categorySheet = nil
@@ -166,7 +173,7 @@ struct CategoryManageFeature {
                     state.alert = Self.deleteAlertState(for: item)
                 }
             case .tapDoneButton:
-                break
+                return .send(.delegate(.done(state.preferences)))
             case .setCategorySheet(let sheet):
                 state.categorySheet = sheet
             }

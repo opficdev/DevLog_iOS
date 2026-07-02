@@ -59,7 +59,7 @@ struct HomeView: View {
                     .bold()
                 Spacer()
                 Button(action: {
-                    store.send(.store(.setSheet(.reorderTodo)))
+                    store.send(.view(.tapManageTodoCategory))
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -164,8 +164,8 @@ struct HomeView: View {
 
     @ViewBuilder
     private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
-        if let contentPickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
-            @Bindable var contentPickerStore = contentPickerStore
+        if let pickerStore = sheetStore.scope(state: \.contentPickerState, action: \.contentPicker) {
+            @Bindable var pickerStore = pickerStore
             NavigationStack {
                 List {
                     Section {
@@ -193,7 +193,7 @@ struct HomeView: View {
 
                     Section {
                         Button {
-                            contentPickerStore.send(.tapWebPageInput)
+                            pickerStore.send(.tapWebPageInput)
                         } label: {
                             labelImage(
                                 text: "URL",
@@ -208,16 +208,13 @@ struct HomeView: View {
                     }
                 }
                 .navigationDestination(
-                    item: $contentPickerStore.scope(state: \.webPageInput, action: \.webPageInput)
+                    item: $pickerStore.scope(state: \.webPageInput, action: \.webPageInput)
                 ) { _ in
                     Form {
                         Section {
                             TextField(
                                 "https://",
-                                text: Binding(
-                                    get: { store.webPageURLInput },
-                                    set: { store.send(.view(.updateWebPageURLInput($0))) }
-                                )
+                                text: $store.webPageURLInput
                             )
                             .textInputAutocapitalization(.never)
                             .keyboardType(.URL)
@@ -258,13 +255,8 @@ struct HomeView: View {
                     }
                 }
             }
-        } else {
-            CategoryManageView(
-                preferences: store.preferences,
-                onDismiss: { array in
-                    store.send(.view(.orderTodoCategory(array)), animation: .default)
-                }
-            )
+        } else if let store = sheetStore.scope(state: \.categoryManageState, action: \.categoryManage) {
+            CategoryManageView(store: store)
         }
     }
 

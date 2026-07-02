@@ -53,10 +53,11 @@ struct HomeFeature {
         let urlString: String
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
         case sheet(PresentationAction<Sheet>)
         case fullScreenCover(PresentationAction<FullScreenCover>)
+        case binding(BindingAction<State>)
         case view(ViewAction)
         case store(StoreAction)
         case loading(LoadingFeature.Action)
@@ -67,9 +68,8 @@ struct HomeFeature {
             case refreshRecentTodos
             case refreshWebPages
             case finishDeleteWebPageToast(String)
+            case tapManageTodoCategory
             case tapTodoCategory(TodoCategory)
-            case orderTodoCategory([TodoCategoryItem])
-            case updateWebPageURLInput(String)
             case addWebPage
             case deleteWebPage(WebPageItem)
             case undoDeleteWebPage
@@ -106,8 +106,19 @@ struct HomeFeature {
     @ObservableState
     @CasePathable
     enum SheetState: Equatable {
-        case reorderTodo
+        case reorderTodo(CategoryManageFeature.State)
         case contentPicker(ContentPickerState)
+
+        var categoryManageState: CategoryManageFeature.State? {
+            get {
+                guard case .reorderTodo(let state) = self else { return nil }
+                return state
+            }
+            set {
+                guard let newValue else { return }
+                self = .reorderTodo(newValue)
+            }
+        }
 
         var contentPickerState: ContentPickerState? {
             get {
@@ -124,6 +135,7 @@ struct HomeFeature {
     @CasePathable
     enum Sheet: Equatable {
         case tapCloseButton
+        case categoryManage(CategoryManageFeature.Action)
         case contentPicker(ContentPicker)
 
         @CasePathable
@@ -201,6 +213,7 @@ struct HomeFeature {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert:
@@ -219,7 +232,11 @@ struct HomeFeature {
                 break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
+            case .sheet(.presented(.categoryManage(.delegate(.done(let preferences))))):
+                return orderTodoCategory(preferences, state: &state)
             case .sheet:
+                break
+            case .binding:
                 break
             case .view(let action):
                 return reduce(action, state: &state)
@@ -276,17 +293,12 @@ private extension HomeFeature {
             if state.deletedWebPage?.urlString == urlString {
                 state.deletedWebPage = nil
             }
+        case .tapManageTodoCategory:
+            state.sheet = .reorderTodo(CategoryManageFeature.State(preferences: state.preferences))
         case .tapTodoCategory(let category):
             state.selectedTodoCategory = category
             state.sheet = nil
             return delayedTodoEditorEffect()
-        case .orderTodoCategory(let preferences):
-            state.preferences = preferences
-            state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
-            state.sheet = nil
-            return updateTodoCategoryPreferencesEffect(preferences)
-        case .updateWebPageURLInput(let text):
-            state.webPageURLInput = text
         case .addWebPage:
             guard let normalizedURL = Self.normalizedWebPageURL(state.webPageURLInput) else {
                 Self.setAlert(&state, isPresented: true, type: .invalidURL)
@@ -314,6 +326,16 @@ private extension HomeFeature {
         }
 
         return .none
+    }
+
+    func orderTodoCategory(
+        _ preferences: [TodoCategoryItem],
+        state: inout State
+    ) -> Effect<Action> {
+        state.preferences = preferences
+        state.recentTodos = Self.syncRecentTodos(state.recentTodos, preferences: preferences)
+        state.sheet = nil
+        return updateTodoCategoryPreferencesEffect(preferences)
     }
 
     func reduce(
@@ -359,6 +381,9 @@ private struct HomeSheetFeature: Reducer {
 
     var body: some ReducerOf<Self> {
         EmptyReducer()
+        .ifCaseLet(\.reorderTodo, action: \.categoryManage) {
+            CategoryManageFeature()
+        }
         .ifCaseLet(\.contentPicker, action: \.contentPicker) {
             HomeContentPickerFeature()
         }

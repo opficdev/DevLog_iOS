@@ -87,11 +87,16 @@ func verifyHomeOrderTodoCategory(
         TodoCategoryItem(from: .system(.feature))
     ]
 
+    await adapter.tapManageTodoCategory()
+
+    #expect(adapter.showCategoryManage)
+
     await adapter.orderTodoCategory(items)
 
     #expect(adapter.preferences == items)
     #expect(adapter.recentTodos.last?.category == updatedCategory.category)
     #expect(updatePreferencesUseCaseSpy.updates == [items.map(\.preference)])
+    #expect(!adapter.showCategoryManage)
 }
 
 @MainActor

@@ -164,6 +164,19 @@ struct CategoryManageFeatureTests {
 
         #expect(driver.categorySheet == nil)
     }
+
+    @Test("완료 버튼을 누르면 현재 preferences를 delegate로 전달한다")
+    func 완료_버튼을_누르면_현재_preferences를_delegate로_전달한다() async {
+        let item = TodoCategoryItem(from: .system(.issue))
+        let store = TestStore(
+            initialState: CategoryManageFeature.State(preferences: [item])
+        ) {
+            CategoryManageFeature()
+        }
+
+        await store.send(.tapDoneButton)
+        await store.receive(.delegate(.done([item])))
+    }
 }
 
 @MainActor
