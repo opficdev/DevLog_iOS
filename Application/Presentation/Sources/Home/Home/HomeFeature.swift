@@ -70,7 +70,6 @@ struct HomeFeature {
             case finishDeleteWebPageToast(String)
             case tapManageTodoCategory
             case tapTodoCategory(TodoCategory)
-            case updateWebPageURLInput(String)
             case addWebPage
             case deleteWebPage(WebPageItem)
             case undoDeleteWebPage
@@ -300,8 +299,6 @@ private extension HomeFeature {
             state.selectedTodoCategory = category
             state.sheet = nil
             return delayedTodoEditorEffect()
-        case .updateWebPageURLInput(let text):
-            state.webPageURLInput = text
         case .addWebPage:
             guard let normalizedURL = Self.normalizedWebPageURL(state.webPageURLInput) else {
                 Self.setAlert(&state, isPresented: true, type: .invalidURL)

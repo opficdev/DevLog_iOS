@@ -127,7 +127,7 @@ struct HomeStoreTestAdapter {
     }
 
     func updateWebPageURLInput(_ input: String) async {
-        await store.send(.view(.updateWebPageURLInput(input)))
+        await store.send(.binding(.set(\.webPageURLInput, input)))
     }
 
     func addWebPage() async {
