@@ -74,6 +74,7 @@ struct TodoListFeatureTests {
         let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
 
         await adapter.onAppear()
+        await fetchSpy.waitForCallCount(1)
         await adapter.setSortTarget(.updatedAt)
 
         await waitUntil(timeout: .seconds(2)) {
@@ -81,7 +82,7 @@ struct TodoListFeatureTests {
         }
 
         let queries = await fetchSpy.calledQueries()
-        let cancelledCalls = await fetchSpy.cancelledCalls()
+        let cancelledCalls = await fetchSpy.waitForCancelledCalls([0])
 
         #expect(adapter.todos == [TodoListItem(from: secondTodo)!])
         #expect(queries.map(\.sortTarget) == [.createdAt, .updatedAt])

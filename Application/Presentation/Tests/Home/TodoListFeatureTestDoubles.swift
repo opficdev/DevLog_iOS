@@ -240,6 +240,26 @@ actor TodoListDelayedFirstFetchTodosUseCaseSpy: FetchTodosUseCase {
         cursors
     }
 
+    func waitForCallCount(_ count: Int, timeout: Duration = .seconds(2)) async {
+        let clock = ContinuousClock()
+        let deadline = clock.now + timeout
+
+        while queries.count < count && clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(20))
+        }
+    }
+
+    func waitForCancelledCalls(_ expected: [Int], timeout: Duration = .seconds(2)) async -> [Int] {
+        let clock = ContinuousClock()
+        let deadline = clock.now + timeout
+
+        while cancelledCallIndices != expected && clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(20))
+        }
+
+        return cancelledCallIndices
+    }
+
     func cancelledCalls() -> [Int] {
         cancelledCallIndices
     }
