@@ -11,6 +11,7 @@ import Testing
 import ComposableArchitecture
 import Foundation
 import Domain
+import PresentationShared
 @testable import Presentation
 
 @MainActor

@@ -8,6 +8,7 @@
 import Testing
 import Foundation
 import Domain
+import PresentationShared
 @testable import HomeTab
 
 @MainActor

@@ -14,9 +14,9 @@ import PresentationShared
 
 @MainActor
 @Observable
-final class HomeViewCoordinator {
+public final class HomeViewCoordinator {
     let store: StoreOf<HomeFeature>
-    let router = NavigationRouter<HomeRoute>()
+    public let router = NavigationRouter<HomeRoute>()
     private let container: DIContainer
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
@@ -25,7 +25,7 @@ final class HomeViewCoordinator {
     @ObservationIgnored
     private var isWindowEventBound = false
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         self.store = Store(initialState: HomeFeature.State()) {
             HomeFeature()
@@ -39,23 +39,23 @@ final class HomeViewCoordinator {
             $0.homeUndoDeleteWebPageUseCase = container.resolve(UndoDeleteWebPageUseCase.self)
             $0.homeFetchTodosUseCase = container.resolve(FetchTodosUseCase.self)
             $0.homeFetchWebPagesUseCase = container.resolve(FetchWebPagesUseCase.self)
-            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
             $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
             $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
+            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
             $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
         }
         self.store.send(.view(.startObserving))
     }
 
-    func fetchData() {
+    public func fetchData() {
         store.send(.view(.fetchData))
     }
 
-    func refreshRecentTodos() {
+    public func refreshRecentTodos() {
         store.send(.view(.refreshRecentTodos))
     }
 
-    func bindTodoMutationEvent() {
+    public func bindTodoMutationEvent() {
         guard isTodoMutationEventBound == false else { return }
         isTodoMutationEventBound = true
 
@@ -72,15 +72,16 @@ final class HomeViewCoordinator {
             .store(in: &cancellables)
     }
 
-    func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
+    public func bindWindowEvent(_ windowEvent: TodoEditorWindowEvent) {
         guard isWindowEventBound == false else { return }
         isWindowEventBound = true
 
         windowEvent.submits
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] submit in
                 guard case .create(let value) = submit,
                       value.matchesCreate(source: .home) else { return }
-                self?.store.send(.view(.fetchData))
+                self?.store.send(.view(.todoEditorCreated))
             }
             .store(in: &cancellables)
     }

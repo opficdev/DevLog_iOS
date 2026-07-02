@@ -10,6 +10,7 @@ import Combine
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 @testable import HomeTab
 import Foundation
 
@@ -112,7 +113,7 @@ struct HomeStoreTestAdapter {
     }
 
     func todoEditorCreated() async {
-        await store.send(.fullScreenCover(.presented(.todoEditor(.delegate(.created)))))
+        await store.send(.view(.todoEditorCreated))
         await drainReceivedActions()
     }
 

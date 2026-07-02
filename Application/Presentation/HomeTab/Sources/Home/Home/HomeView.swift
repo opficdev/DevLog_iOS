@@ -10,7 +10,7 @@ import ComposableArchitecture
 import Domain
 import PresentationShared
 
-struct HomeView: View {
+public struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
@@ -18,7 +18,7 @@ struct HomeView: View {
     let coordinator: HomeViewCoordinator
     let isCompactLayout: Bool
 
-    init(
+    public init(
         coordinator: HomeViewCoordinator,
         isCompactLayout: Bool
     ) {
@@ -27,7 +27,7 @@ struct HomeView: View {
         self.store = coordinator.store
     }
 
-    var body: some View {
+    public var body: some View {
         List {
             todoSection
             recentTodoSection
@@ -396,7 +396,7 @@ struct HomeView: View {
 
 }
 
-enum HomeRoute: Hashable {
+public enum HomeRoute: Hashable {
     case category(TodoCategoryItem)
     case todo(TodoIdItem)
     case webPage(WebPageItem)

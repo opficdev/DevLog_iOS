@@ -38,6 +38,11 @@ extension DependencyValues {
         get { self[HomeFetchWebPagesUseCaseKey.self] }
         set { self[HomeFetchWebPagesUseCaseKey.self] = newValue }
     }
+
+    var networkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
+        get { self[HomeNetworkConnectivityUseCaseKey.self] }
+        set { self[HomeNetworkConnectivityUseCaseKey.self] = newValue }
+    }
 }
 
 private enum HomeUpdatePreferencesUseCaseKey: DependencyKey {
@@ -96,6 +101,16 @@ private enum HomeFetchWebPagesUseCaseKey: DependencyKey {
     }
 
     static var testValue: FetchWebPagesUseCase {
+        liveValue
+    }
+}
+
+private enum HomeNetworkConnectivityUseCaseKey: DependencyKey {
+    static var liveValue: ObserveNetworkConnectivityUseCase {
+        preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
+    }
+
+    static var testValue: ObserveNetworkConnectivityUseCase {
         liveValue
     }
 }

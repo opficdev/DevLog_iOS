@@ -9,6 +9,7 @@ import Testing
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 @testable import Presentation
 
 @MainActor

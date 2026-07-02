@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Domain
 import Foundation
+import PresentationShared
 
 @Reducer
 struct HomeFeature {
@@ -27,8 +28,11 @@ struct HomeFeature {
         var loading = LoadingFeature.State()
 
         var showContentPicker: Bool { sheet?.contentPickerState != nil }
-        var showTodoEditor: Bool {
-            fullScreenCover?.destination == .todoEditor
+
+        var showTodoEditor: Bool { fullScreenCover?.todoEditor != nil }
+
+        var todoEditorCategory: TodoCategory? {
+            fullScreenCover?.todoEditor?.category.todoCategory
         }
 
         var isPreferencesLoading: Bool {
@@ -68,6 +72,7 @@ struct HomeFeature {
             case refreshRecentTodos
             case refreshWebPages
             case finishDeleteWebPageToast(String)
+            case todoEditorCreated
             case tapManageTodoCategory
             case tapTodoCategory(TodoCategory)
             case addWebPage
@@ -148,7 +153,6 @@ struct HomeFeature {
     @ObservableState
     struct FullScreenCoverState: Equatable {
         var destination: Destination
-        var selectedTodoCategory: TodoCategory?
         var todoEditor: TodoEditorFeature.State?
 
         enum Destination: Equatable {
@@ -159,7 +163,6 @@ struct HomeFeature {
         static func todoEditor(_ category: TodoCategory) -> Self {
             Self(
                 destination: .todoEditor,
-                selectedTodoCategory: category,
                 todoEditor: TodoEditorFeature.State(category: category)
             )
         }
@@ -293,6 +296,13 @@ private extension HomeFeature {
             if state.deletedWebPage?.urlString == urlString {
                 state.deletedWebPage = nil
             }
+        case .todoEditorCreated:
+            state.fullScreenCover = nil
+            state.selectedTodoCategory = nil
+            return .merge(
+                trackTodoCreateEffect(),
+                .send(.view(.fetchData))
+            )
         case .tapManageTodoCategory:
             state.sheet = .reorderTodo(CategoryManageFeature.State(preferences: state.preferences))
         case .tapTodoCategory(let category):

@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Core
 import Domain
+import HomeTab
 import PresentationShared
 
 struct MainView: View {
@@ -55,8 +56,8 @@ struct MainView: View {
         }
         .onAppear {
             store.send(.view(.onAppear))
-            homeViewCoordinator.bindWindowEvent(windowEvent)
             homeViewCoordinator.bindTodoMutationEvent()
+            homeViewCoordinator.bindWindowEvent(windowEvent)
             todoWindowCoordinator.bindWindowEvent(windowEvent)
         }
         .onChange(of: selectedTab, initial: true) { _, newValue in
@@ -229,7 +230,10 @@ struct MainView: View {
         switch homeRoute {
         case .category(let item):
             TodoListView(
-                store: todoWindowCoordinator.makeListStore(category: item.todoCategory)
+                store: todoWindowCoordinator.makeListStore(category: item.todoCategory),
+                onSelectTodo: { todoId in
+                    homeViewCoordinator.router.push(.todo(TodoIdItem(id: todoId)))
+                }
             )
             .id(item.id)
         case .todo(let item):

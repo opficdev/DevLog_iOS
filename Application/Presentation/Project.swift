@@ -33,7 +33,7 @@ let project = Project(
         .target(
             name: "PresentationShared",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["Sources/Shared/**/*.swift"],
@@ -43,12 +43,19 @@ let project = Project(
                     configPath: "Sources/Shared/.swiftlint.yml"
                 )
             ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .package(product: "ComposableArchitecture"),
+                .package(product: "MarkdownUI"),
+                .package(product: "OrderedCollections")
+            ],
             settings: frameworkBuildSettings
         ),
         .target(
             name: "HomeTab",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "com.opfic.DevLog.HomeTab",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["HomeTab/Sources/**/*.swift"],
@@ -80,7 +87,8 @@ let project = Project(
                 )
             ],
             dependencies: [
-                .target(name: "HomeTab")
+                .target(name: "HomeTab"),
+                .target(name: "PresentationShared")
             ],
             settings: .devlog(
                 base: [

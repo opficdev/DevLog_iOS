@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 
 public struct TodoEditorWindowView: View {
     @Environment(\.diContainer) private var container: DIContainer

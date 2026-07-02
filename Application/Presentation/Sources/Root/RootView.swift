@@ -10,6 +10,7 @@ import Combine
 import ComposableArchitecture
 import Core
 import Domain
+import PresentationShared
 
 public struct RootView: View {
     @Environment(\.diContainer) var container: DIContainer

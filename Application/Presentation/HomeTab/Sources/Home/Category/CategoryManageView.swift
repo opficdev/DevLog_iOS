@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PresentationShared
 
 struct CategoryManageView: View {
     @Bindable var store: StoreOf<CategoryManageFeature>
