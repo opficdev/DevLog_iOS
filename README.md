@@ -30,6 +30,21 @@
   </tr>
 </table>
 
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./docs/iPad_Login.png">
+    </td>
+    <td align="center" width="50%">
+      <img src="./docs/iPad_Home.png">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">로그인</td>
+    <td align="center">홈</td>
+  </tr>
+</table>
+
 ## 앱 사용해보기
 
 <a href="https://apps.apple.com/us/app/devlog/id6760288611">
