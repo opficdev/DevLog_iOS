@@ -7,23 +7,9 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Domain
 
 struct CategoryManageView: View {
-    @State private var store: StoreOf<CategoryManageFeature>
-    var onDismiss: (([TodoCategoryItem]) -> Void)?
-
-    init(
-        preferences: [TodoCategoryItem],
-        onDismiss: (([TodoCategoryItem]) -> Void)?
-    ) {
-        self._store = State(initialValue: Store(
-            initialState: CategoryManageFeature.State(preferences: preferences)
-        ) {
-            CategoryManageFeature()
-        })
-        self.onDismiss = onDismiss
-    }
+    @Bindable var store: StoreOf<CategoryManageFeature>
 
     var body: some View {
         NavigationStack {
@@ -81,8 +67,7 @@ struct CategoryManageView: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        store.send(.tapDoneButton)
-                        onDismiss?(store.preferences)
+                        store.send(.tapDoneButton, animation: .default)
                     } label: {
                         Text(String(localized: "profile_done"))
                     }
