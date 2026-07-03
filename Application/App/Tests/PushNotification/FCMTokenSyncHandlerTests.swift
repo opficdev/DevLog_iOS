@@ -38,6 +38,33 @@ struct FCMTokenSyncHandlerTests {
         _ = handler
     }
 
+    @Test("foreground 복귀 시 알림 권한이 있으면 APNs 등록을 요청하고 FCM token은 직접 저장하지 않는다")
+    func foreground_복귀_시_알림_권한이_있으면_APNs_등록을_요청하고_FCM_token은_직접_저장하지_않는다() async throws {
+        let notificationCenter = NotificationCenter()
+        let registrationObserver = NotificationObserver(
+            notificationCenter: notificationCenter,
+            name: .didRequestRemoteNotificationRegistration
+        )
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
+        let userService = UserServiceSpy()
+        let authService = AuthServiceSpy()
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            notificationCenter: notificationCenter
+        )
+
+        notificationCenter.post(name: .didRequestAPNsRegistration, object: nil)
+
+        try await waitUntil {
+            registrationObserver.didReceiveNotification
+        }
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(await userService.updatedFCMTokens.isEmpty)
+        _ = handler
+    }
+
     @Test("현재 FCM token 동기화 요청 시 token이 없으면 저장하지 않는다")
     func 현재_FCM_token_동기화_요청_시_token이_없으면_저장하지_않는다() async throws {
         let notificationCenter = NotificationCenter()

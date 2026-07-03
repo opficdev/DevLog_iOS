@@ -49,6 +49,14 @@ final class FCMTokenSyncHandler {
             }
             .store(in: &cancellables)
 
+        notificationCenter.publisher(for: .didRequestAPNsRegistration)
+            .sink { [weak self] _ in
+                Task {
+                    await self?.requestAPNsRegistrationIfAuthorized()
+                }
+            }
+            .store(in: &cancellables)
+
         notificationCenter.publisher(for: .didReceiveAPNSToken)
             .compactMap { $0.userInfo?["deviceToken"] as? Data }
             .sink { [weak self] deviceToken in
@@ -68,10 +76,15 @@ private extension FCMTokenSyncHandler {
     func requestFCMTokenSync() {
         Task { [weak self] in
             guard let self else { return }
-            guard await messagingService.isNotificationAuthorized() else { return }
-            notificationCenter.post(name: .didRequestRemoteNotificationRegistration, object: nil)
+            guard await requestAPNsRegistrationIfAuthorized() else { return }
             await syncCurrentFCMToken()
         }
+    }
+
+    func requestAPNsRegistrationIfAuthorized() async -> Bool {
+        guard await messagingService.isNotificationAuthorized() else { return false }
+        notificationCenter.post(name: .didRequestRemoteNotificationRegistration, object: nil)
+        return true
     }
 
     func handleAPNSToken(_ deviceToken: Data) {
