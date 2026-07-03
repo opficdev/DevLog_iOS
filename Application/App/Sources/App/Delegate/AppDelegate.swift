@@ -38,6 +38,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             name: .didRequestRemoteNotificationRegistration,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(requestUserTimeZoneSync),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
 
         // 알림 권한 요청
         UNUserNotificationCenter.current().delegate = self
@@ -75,6 +81,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         NotificationCenter.default.post(name: .didRequestAPNsRegistration, object: nil)
+    }
+
+    @objc private func requestUserTimeZoneSync() {
+        NotificationCenter.default.post(name: .didRequestUserTimeZoneSync, object: nil)
     }
 
     // APNs 등록 성공
