@@ -7,7 +7,7 @@
 
 import Domain
 import Foundation
-import PresentationShared
+import PresentationShare
 
 @Reducer
 struct HomeFeature {
