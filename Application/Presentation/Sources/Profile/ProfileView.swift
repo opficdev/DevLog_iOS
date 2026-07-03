@@ -7,7 +7,6 @@
 
 // swiftlint:disable file_length
 import SwiftUI
-import ComposableArchitecture
 import Core
 import Domain
 import PresentationShared

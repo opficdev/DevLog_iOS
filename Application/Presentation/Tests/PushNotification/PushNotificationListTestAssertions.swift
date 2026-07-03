@@ -8,6 +8,7 @@
 import Testing
 import Core
 import Domain
+import PresentationShared
 import Foundation
 @testable import Presentation
 

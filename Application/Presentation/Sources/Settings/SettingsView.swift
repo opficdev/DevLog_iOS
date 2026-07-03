@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
 import PresentationShared
 
 struct SettingsView: View {

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import PresentationShared
 import Core
 import Domain
 @testable import Presentation

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import PresentationShared
 
 struct PushNotificationSettingsView: View {
     @State var store: StoreOf<PushNotificationSettingsFeature>

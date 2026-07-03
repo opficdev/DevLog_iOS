@@ -10,7 +10,6 @@ let workspace = Workspace(
         "Application/Infra",
         "Application/Persistence",
         "Application/Presentation",
-        "Application/Presentation/Shared",
         "Application/Widget",
         "Widget/WidgetCore",
         "Widget/WidgetExtension",
