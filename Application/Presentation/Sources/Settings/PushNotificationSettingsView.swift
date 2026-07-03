@@ -28,6 +28,7 @@ struct PushNotificationSettingsView: View {
                 }
             }, footer: {
                 Text(String(localized: "push_settings_footer"))
+                    .multilineTextAlignment(.leading)
             })
             Section {
                 ForEach([9, 15, 18, 21], id: \.self) { hour in
