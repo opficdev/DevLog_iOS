@@ -73,6 +73,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        NotificationCenter.default.post(name: .didRequestAPNsRegistration, object: nil)
+    }
+
     // APNs 등록 성공
     func application(
         _ application: UIApplication,

@@ -1176,13 +1176,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Separate from your Settings app notification preference."
+            "value" : "Separate from the push notification permission in Settings.\nNotification list items are still created even when device notification permission is off."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "설정에서의 푸시 알람 설정과는 별개예요."
+            "value" : "설정의 푸시 알람 권한과는 별개예요.\n기기 알림 권한을 꺼도 알림 리스트는 생성돼요."
           }
         }
       }
