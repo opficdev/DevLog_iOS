@@ -14,8 +14,7 @@ final class AppLayerAssembler: Assembler {
             FCMTokenSyncHandler(
                 authService: container.resolve(AuthService.self),
                 messagingService: container.resolve(PushMessagingService.self),
-                userService: container.resolve(UserService.self),
-                store: container.resolve(UserDefaultsStore.self)
+                userService: container.resolve(UserService.self)
             )
         }
         container.register(UserTimeZoneSyncHandler.self) {

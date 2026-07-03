@@ -22,12 +22,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -46,12 +44,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: nil)
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -68,12 +64,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: nil)
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -95,12 +89,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
         let deviceToken = Data([0x01, 0x02, 0x03])
@@ -118,18 +110,16 @@ struct FCMTokenSyncHandlerTests {
         _ = handler
     }
 
-    @Test("같은 사용자와 같은 FCM token은 한 번만 저장한다")
-    func 같은_사용자와_같은_FCM_token은_한_번만_저장한다() async throws {
+    @Test("같은 사용자와 같은 FCM token도 매번 저장한다")
+    func 같은_사용자와_같은_FCM_token도_매번_저장한다() async throws {
         let notificationCenter = NotificationCenter()
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -139,9 +129,10 @@ struct FCMTokenSyncHandlerTests {
         }
 
         notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
-        try await Task.sleep(for: .milliseconds(100))
+        try await waitUntil {
+            await userService.updatedFCMTokens == ["current-token", "current-token"]
+        }
 
-        #expect(await userService.updatedFCMTokens == ["current-token"])
         _ = handler
     }
 
@@ -151,12 +142,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy(uid: "first-user")
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -179,12 +168,10 @@ struct FCMTokenSyncHandlerTests {
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy(uid: nil)
-        let store = UserDefaultsStoreSpy()
         let handler = FCMTokenSyncHandler(
             authService: authService,
             messagingService: messagingService,
             userService: userService,
-            store: store,
             notificationCenter: notificationCenter
         )
 
@@ -192,34 +179,6 @@ struct FCMTokenSyncHandlerTests {
 
         try await waitUntil {
             await userService.updatedFCMTokens == ["current-token"]
-        }
-        _ = handler
-    }
-
-    @Test("로그아웃 세션 전이 시 저장된 FCM token hash를 제거한다")
-    func 로그아웃_세션_전이_시_저장된_FCM_token_hash를_제거한다() async throws {
-        let notificationCenter = NotificationCenter()
-        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
-        let userService = UserServiceSpy()
-        let authService = AuthServiceSpy()
-        let store = UserDefaultsStoreSpy()
-        let handler = FCMTokenSyncHandler(
-            authService: authService,
-            messagingService: messagingService,
-            userService: userService,
-            store: store,
-            notificationCenter: notificationCenter
-        )
-
-        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
-        try await waitUntil {
-            store.hasStoredString
-        }
-
-        authService.updateSession(uid: nil)
-
-        try await waitUntil {
-            !store.hasStoredString
         }
         _ = handler
     }
@@ -285,46 +244,6 @@ private final class PushMessagingServiceSpy: PushMessagingService {
     func fetchFCMToken() async throws -> String? {
         currentFCMToken
     }
-}
-
-private final class UserDefaultsStoreSpy: UserDefaultsStore {
-    private var strings = [String: String]()
-
-    var hasStoredString: Bool {
-        !strings.isEmpty
-    }
-
-    func value<T: Codable>(forKey key: String) -> T? {
-        nil
-    }
-
-    func setValue<T: Codable>(_ value: T?, forKey key: String) { }
-
-    func removeValues(withPrefix prefix: String) {
-        strings.keys
-            .filter { $0.hasPrefix(prefix) }
-            .forEach { strings.removeValue(forKey: $0) }
-    }
-
-    func string(forKey key: String) -> String? {
-        strings[key]
-    }
-
-    func setString(_ value: String?, forKey key: String) {
-        strings[key] = value
-    }
-
-    func stringArray(forKey key: String) -> [String] {
-        []
-    }
-
-    func setStringArray(_ value: [String], forKey key: String) { }
-
-    func bool(forKey key: String) -> Bool {
-        false
-    }
-
-    func setBool(_ value: Bool, forKey key: String) { }
 }
 
 private final class NotificationObserver {
