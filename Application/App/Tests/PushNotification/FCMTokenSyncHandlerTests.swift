@@ -137,8 +137,8 @@ struct FCMTokenSyncHandlerTests {
         _ = handler
     }
 
-    @Test("같은 사용자와 같은 FCM token도 매번 저장한다")
-    func 같은_사용자와_같은_FCM_token도_매번_저장한다() async throws {
+    @Test("같은 사용자와 같은 FCM token은 한 번만 저장한다")
+    func 같은_사용자와_같은_FCM_token은_한_번만_저장한다() async throws {
         let notificationCenter = NotificationCenter()
         let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
         let userService = UserServiceSpy()
@@ -156,9 +156,8 @@ struct FCMTokenSyncHandlerTests {
         }
 
         notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
-        try await waitUntil {
-            await userService.updatedFCMTokens == ["current-token", "current-token"]
-        }
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(await userService.updatedFCMTokens == ["current-token"])
 
         _ = handler
     }
@@ -189,6 +188,72 @@ struct FCMTokenSyncHandlerTests {
         _ = handler
     }
 
+    @Test("FCM token이 바뀌면 같은 사용자도 다시 저장한다")
+    func FCM_token이_바뀌면_같은_사용자도_다시_저장한다() async throws {
+        let notificationCenter = NotificationCenter()
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "first-token")
+        let userService = UserServiceSpy()
+        let authService = AuthServiceSpy()
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            notificationCenter: notificationCenter
+        )
+
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil { await userService.updatedFCMTokens == ["first-token"] }
+
+        messagingService.currentFCMToken = "second-token"
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil { await userService.updatedFCMTokens == ["first-token", "second-token"] }
+        _ = handler
+    }
+
+    @Test("로그아웃 후 같은 사용자로 다시 로그인하면 같은 FCM token도 다시 저장한다")
+    func 로그아웃_후_같은_사용자로_다시_로그인하면_같은_FCM_token도_다시_저장한다() async throws {
+        let notificationCenter = NotificationCenter()
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
+        let userService = UserServiceSpy()
+        let authService = AuthServiceSpy(uid: "user-id")
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            notificationCenter: notificationCenter
+        )
+
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil { await userService.updatedFCMTokens == ["current-token"] }
+
+        authService.updateSession(uid: nil)
+        authService.updateSession(uid: "user-id")
+        try await waitUntil { await userService.updatedFCMTokens == ["current-token", "current-token"] }
+        _ = handler
+    }
+
+    @Test("FCM token 저장에 실패하면 같은 요청을 다시 저장한다")
+    func FCM_token_저장에_실패하면_같은_요청을_다시_저장한다() async throws {
+        let notificationCenter = NotificationCenter()
+        let messagingService = PushMessagingServiceSpy(currentFCMToken: "current-token")
+        let userService = UserServiceSpy(updateError: FCMTokenSyncTestError())
+        let authService = AuthServiceSpy()
+        let handler = FCMTokenSyncHandler(
+            authService: authService,
+            messagingService: messagingService,
+            userService: userService,
+            notificationCenter: notificationCenter
+        )
+
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil { await userService.updatedFCMTokens == ["current-token"] }
+
+        await userService.setUpdateError(nil)
+        notificationCenter.post(name: .didRequestFCMTokenSync, object: nil)
+        try await waitUntil { await userService.updatedFCMTokens == ["current-token", "current-token"] }
+        _ = handler
+    }
+
     @Test("로그인 세션 전이 시 현재 FCM token을 저장한다")
     func 로그인_세션_전이_시_현재_FCM_token을_저장한다() async throws {
         let notificationCenter = NotificationCenter()
@@ -214,6 +279,11 @@ struct FCMTokenSyncHandlerTests {
 
 private actor UserServiceSpy: UserService {
     private(set) var updatedFCMTokens = [String]()
+    private var updateError: Error?
+
+    init(updateError: Error? = nil) {
+        self.updateError = updateError
+    }
 
     func upsertUser(_ response: AuthDataResponse) async throws { }
     func fetchUserProfile() async throws -> UserProfileResponse { fatalError() }
@@ -221,9 +291,16 @@ private actor UserServiceSpy: UserService {
 
     func updateFCMToken(_ fcmToken: String) async throws {
         updatedFCMTokens.append(fcmToken)
+        if let updateError {
+            throw updateError
+        }
     }
 
     func updateUserTimeZone() async throws { }
+
+    func setUpdateError(_ error: Error?) {
+        updateError = error
+    }
 }
 
 private final class AuthServiceSpy: AuthService {
@@ -255,7 +332,7 @@ private final class AuthServiceSpy: AuthService {
 }
 
 private final class PushMessagingServiceSpy: PushMessagingService {
-    private let currentFCMToken: String?
+    var currentFCMToken: String?
     private(set) var apnsTokens = [Data]()
 
     init(currentFCMToken: String?) {
@@ -272,6 +349,8 @@ private final class PushMessagingServiceSpy: PushMessagingService {
         currentFCMToken
     }
 }
+
+private struct FCMTokenSyncTestError: Error { }
 
 private final class NotificationObserver {
     private(set) var didReceiveNotification = false
