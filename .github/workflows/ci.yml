@@ -528,15 +528,6 @@ jobs:
                 }
               }
 
-              if (selectedLines.length <= 0) {
-                for (const line of lines.slice(-25)) {
-                  const cleanedLine = cleanLine(line);
-                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
-                  seenLines.add(cleanedLine);
-                  selectedLines.push(cleanedLine);
-                }
-              }
-
               return selectedLines.slice(0, 30).join('\n');
             }
 
@@ -640,6 +631,8 @@ jobs:
                 section += `- ${summary.scheme} (${summary.artifactName})\n`;
                 if (summary.snippet) {
                   section += '\n```text\n' + summary.snippet + '\n```\n\n';
+                } else {
+                  section += '\nNo concise failure diagnostic was found in this scheme log.\n\n';
                 }
               }
 
