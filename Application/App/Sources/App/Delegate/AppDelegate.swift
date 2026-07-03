@@ -62,9 +62,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        // 앱이 온그라운드로 되었을 때, 로그인 세션이 존재한다면 현재 유저의 timeZone 저장
-        NotificationCenter.default.post(name: .didRequestUserTimeZoneSync, object: nil)
-
         // Firebase Messaging 설정
         container.resolve(PushMessagingService.self).setDelegate(self)
 

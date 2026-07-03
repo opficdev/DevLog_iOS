@@ -11,7 +11,7 @@ import Data
 import Foundation
 
 final class UserTimeZoneSyncHandler {
-    private struct SyncKey: Equatable {
+    private struct SyncKey: Hashable {
         let uid: String
         let timeZoneIdentifier: String
     }
@@ -20,6 +20,7 @@ final class UserTimeZoneSyncHandler {
     private let userService: UserService
     private let logger = Logger(category: "UserTimeZoneSyncHandler")
     private var lastSyncedKey: SyncKey?
+    private var syncingKeys = Set<SyncKey>()
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -31,6 +32,7 @@ final class UserTimeZoneSyncHandler {
         self.userService = userService
 
         authService.observeSignedIn()
+            .removeDuplicates()
             .sink { [weak self] isSignedIn in
                 self?.handleSessionUpdate(isSignedIn: isSignedIn)
             }
@@ -48,6 +50,7 @@ private extension UserTimeZoneSyncHandler {
     func handleSessionUpdate(isSignedIn: Bool) {
         guard isSignedIn else {
             lastSyncedKey = nil
+            syncingKeys.removeAll()
             return
         }
 
@@ -75,8 +78,14 @@ private extension UserTimeZoneSyncHandler {
             logger.info("Skipping timeZone update because the current user timeZone is already synced")
             return
         }
+        guard !syncingKeys.contains(key) else {
+            logger.info("Skipping timeZone update because the current user timeZone is already syncing")
+            return
+        }
 
         do {
+            syncingKeys.insert(key)
+            defer { syncingKeys.remove(key) }
             try await userService.updateUserTimeZone()
             lastSyncedKey = key
         } catch {

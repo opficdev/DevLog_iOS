@@ -49,6 +49,26 @@ struct UserTimeZoneSyncHandlerTests {
         _ = handler
     }
 
+    @Test("같은 로그인 상태가 연속 방출되면 현재 timeZone을 한 번만 저장한다")
+    func 같은_로그인_상태가_연속_방출되면_현재_timeZone을_한_번만_저장한다() async throws {
+        let userService = UserServiceSpy(updateDelay: .milliseconds(100))
+        let authService = AuthServiceSpy(uid: "user-id")
+        let handler = UserTimeZoneSyncHandler(
+            authService: authService,
+            userService: userService
+        )
+
+        authService.updateSession(uid: "user-id")
+        authService.updateSession(uid: "user-id")
+
+        try await waitUntil {
+            await userService.updateUserTimeZoneCallCount == 1
+        }
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(await userService.updateUserTimeZoneCallCount == 1)
+        _ = handler
+    }
+
     @Test("foreground 복귀 시 현재 timeZone을 요청하되 같은 사용자와 같은 timeZone은 중복 저장하지 않는다")
     func foreground_복귀_시_현재_timeZone을_요청하되_같은_사용자와_같은_timeZone은_중복_저장하지_않는다() async throws {
         let notificationCenter = NotificationCenter()
@@ -67,6 +87,28 @@ struct UserTimeZoneSyncHandlerTests {
 
         notificationCenter.post(name: .didRequestUserTimeZoneSync, object: nil)
         try await Task.sleep(for: .milliseconds(100))
+        #expect(await userService.updateUserTimeZoneCallCount == 1)
+        _ = handler
+    }
+
+    @Test("현재 timeZone 저장 중 foreground 요청이 들어오면 중복 저장하지 않는다")
+    func 현재_timeZone_저장_중_foreground_요청이_들어오면_중복_저장하지_않는다() async throws {
+        let notificationCenter = NotificationCenter()
+        let userService = UserServiceSpy(updateDelay: .milliseconds(100))
+        let authService = AuthServiceSpy(uid: "user-id")
+        let handler = UserTimeZoneSyncHandler(
+            authService: authService,
+            userService: userService,
+            notificationCenter: notificationCenter
+        )
+
+        authService.updateSession(uid: "user-id")
+        try await waitUntil {
+            await userService.updateUserTimeZoneCallCount == 1
+        }
+
+        notificationCenter.post(name: .didRequestUserTimeZoneSync, object: nil)
+        try await Task.sleep(for: .milliseconds(150))
         #expect(await userService.updateUserTimeZoneCallCount == 1)
         _ = handler
     }
@@ -142,10 +184,12 @@ struct UserTimeZoneSyncHandlerTests {
 
 private actor UserServiceSpy: UserService {
     private var updateError: Error?
+    private let updateDelay: Duration?
     private(set) var updateUserTimeZoneCallCount = 0
 
-    init(updateError: Error? = nil) {
+    init(updateError: Error? = nil, updateDelay: Duration? = nil) {
         self.updateError = updateError
+        self.updateDelay = updateDelay
     }
 
     func upsertUser(_ response: AuthDataResponse) async throws { }
@@ -155,6 +199,9 @@ private actor UserServiceSpy: UserService {
 
     func updateUserTimeZone() async throws {
         updateUserTimeZoneCallCount += 1
+        if let updateDelay {
+            try await Task.sleep(for: updateDelay)
+        }
         if let updateError {
             throw updateError
         }
