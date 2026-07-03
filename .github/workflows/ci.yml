@@ -455,17 +455,57 @@ jobs:
     name: Report
     runs-on: ubuntu-latest
     needs: [build, test]
-    if: always() && (needs.build.result == 'failure' || needs.test.result == 'failure') && github.event.pull_request.head.repo.fork == false
+    if: |
+      always()
+      && github.event.pull_request.head.repo.fork == false
+      && (
+        needs.build.result == 'failure'
+        || needs.test.result == 'failure'
+        || (needs.build.result == 'success' && needs.test.result == 'success')
+      )
     steps:
       - uses: actions/checkout@v5
 
       - name: Download CI logs
+        if: needs.build.result == 'failure' || needs.test.result == 'failure'
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
           path: test-artifacts
 
+      - name: Delete resolved CI failure comments
+        if: needs.build.result == 'success' && needs.test.result == 'success'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            if (!context.payload.pull_request) {
+              core.info('No PR context; skipping comment cleanup.');
+              return;
+            }
+
+            const issueNumber = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              per_page: 100,
+            });
+
+            const failureComments = comments.filter((comment) => {
+              return comment.user?.type === 'Bot'
+                && comment.body?.startsWith('❌ iOS CI failed.');
+            });
+
+            for (const comment of failureComments) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+              });
+            }
+
       - name: Comment CI failure on PR
+        if: needs.build.result == 'failure' || needs.test.result == 'failure'
         uses: actions/github-script@v8
         env:
           BUILD_RESULT: ${{ needs.build.result }}
@@ -521,15 +561,6 @@ jobs:
                 const start = Math.max(0, index - 2);
                 const end = Math.min(lines.length, index + 9);
                 for (const line of lines.slice(start, end)) {
-                  const cleanedLine = cleanLine(line);
-                  if (!cleanedLine || seenLines.has(cleanedLine)) continue;
-                  seenLines.add(cleanedLine);
-                  selectedLines.push(cleanedLine);
-                }
-              }
-
-              if (selectedLines.length <= 0) {
-                for (const line of lines.slice(-25)) {
                   const cleanedLine = cleanLine(line);
                   if (!cleanedLine || seenLines.has(cleanedLine)) continue;
                   seenLines.add(cleanedLine);
@@ -640,6 +671,8 @@ jobs:
                 section += `- ${summary.scheme} (${summary.artifactName})\n`;
                 if (summary.snippet) {
                   section += '\n```text\n' + summary.snippet + '\n```\n\n';
+                } else {
+                  section += '\nNo concise failure diagnostic was found in this scheme log.\n\n';
                 }
               }
 
