@@ -19,6 +19,7 @@ final class AppLayerAssembler: Assembler {
         }
         container.register(UserTimeZoneSyncHandler.self) {
             UserTimeZoneSyncHandler(
+                authService: container.resolve(AuthService.self),
                 userService: container.resolve(UserService.self)
             )
         }
