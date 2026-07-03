@@ -11,12 +11,18 @@ import Data
 import Foundation
 
 final class FCMTokenSyncHandler {
+    private struct SyncKey: Equatable {
+        let uid: String
+        let fcmToken: String
+    }
+
     private let authService: AuthService
     private let messagingService: PushMessagingService
     private let userService: UserService
     private let notificationCenter: NotificationCenter
     private let logger = Logger(category: "FCMTokenSyncHandler")
     private var cancellables = Set<AnyCancellable>()
+    private var lastSyncedKey: SyncKey?
 
     init(
         authService: AuthService,
@@ -68,7 +74,10 @@ final class FCMTokenSyncHandler {
 
 private extension FCMTokenSyncHandler {
     func handleSessionUpdate(isSignedIn: Bool) {
-        guard isSignedIn else { return }
+        guard isSignedIn else {
+            lastSyncedKey = nil
+            return
+        }
 
         requestFCMTokenSync()
     }
@@ -114,11 +123,18 @@ private extension FCMTokenSyncHandler {
     }
 
     func syncFCMTokenIfNeeded(_ fcmToken: String) async throws {
-        guard authService.uid != nil else {
+        guard let uid = authService.uid else {
             logger.info("Skipping FCM token update because no authenticated user exists")
             return
         }
 
+        let key = SyncKey(uid: uid, fcmToken: fcmToken)
+        guard lastSyncedKey != key else {
+            logger.info("Skipping FCM token update because the token was already synced")
+            return
+        }
+
         try await userService.updateFCMToken(fcmToken)
+        lastSyncedKey = key
     }
 }
