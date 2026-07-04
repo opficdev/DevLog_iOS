@@ -222,6 +222,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: App
+            schemes: "App"
           - name: Domain-Data
             schemes: "Domain Data"
           - name: Persistence
