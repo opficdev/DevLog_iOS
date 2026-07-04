@@ -113,8 +113,8 @@ struct UserTimeZoneSyncHandlerTests {
         _ = handler
     }
 
-    @Test("같은 timeZone이어도 사용자가 바뀌면 다시 저장한다")
-    func 같은_timeZone이어도_사용자가_바뀌면_다시_저장한다() async throws {
+    @Test("로그아웃 후 다른 사용자로 로그인하면 같은 timeZone이어도 다시 저장한다")
+    func 로그아웃_후_다른_사용자로_로그인하면_같은_timeZone이어도_다시_저장한다() async throws {
         let userService = UserServiceSpy()
         let authService = AuthServiceSpy(uid: "first-user")
         let handler = UserTimeZoneSyncHandler(
@@ -127,6 +127,7 @@ struct UserTimeZoneSyncHandlerTests {
             await userService.updateUserTimeZoneCallCount == 1
         }
 
+        authService.updateSession(uid: nil)
         authService.updateSession(uid: "second-user")
         try await waitUntil {
             await userService.updateUserTimeZoneCallCount == 2
@@ -161,11 +162,13 @@ struct UserTimeZoneSyncHandlerTests {
 
     @Test("timeZone 저장 실패 시 캐시를 갱신하지 않는다")
     func timeZone_저장_실패_시_캐시를_갱신하지_않는다() async throws {
+        let notificationCenter = NotificationCenter()
         let userService = UserServiceSpy(updateError: TestError.updateFailed)
         let authService = AuthServiceSpy(uid: "user-id")
         let handler = UserTimeZoneSyncHandler(
             authService: authService,
-            userService: userService
+            userService: userService,
+            notificationCenter: notificationCenter
         )
 
         authService.updateSession(uid: "user-id")
@@ -174,7 +177,7 @@ struct UserTimeZoneSyncHandlerTests {
         }
 
         await userService.setUpdateError(nil)
-        authService.updateSession(uid: "user-id")
+        notificationCenter.post(name: .didRequestUserTimeZoneSync, object: nil)
         try await waitUntil {
             await userService.updateUserTimeZoneCallCount == 2
         }
