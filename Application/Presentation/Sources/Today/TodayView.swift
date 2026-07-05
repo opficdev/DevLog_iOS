@@ -208,10 +208,6 @@ struct TodayView: View {
     }
 }
 
-enum TodayRoute: Hashable {
-    case todo(TodoIdItem)
-}
-
 private extension TodayDisplayOptions.DueDateVisibility {
     var title: String {
         switch self {
