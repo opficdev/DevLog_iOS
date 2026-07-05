@@ -188,6 +188,52 @@ let project = Project(
             )
         ),
         .target(
+            name: "ProfileTab",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.ProfileTab",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["ProfileTab/Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "ProfileTab/Sources",
+                    configPath: "ProfileTab/Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
+        ),
+        .target(
+            name: "ProfileTabTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.ProfileTabTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["ProfileTab/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "ProfileTab/Tests",
+                    configPath: "ProfileTab/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "ProfileTab"),
+                .target(name: "PresentationShared")
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "ProfileTab"
+                ]
+            )
+        ),
+        .target(
             name: "Presentation",
             destinations: .iOS,
             product: .staticFramework,
@@ -206,6 +252,7 @@ let project = Project(
                 .target(name: "HomeTab"),
                 .target(name: "TodayTab"),
                 .target(name: "NotificationTab"),
+                .target(name: "ProfileTab"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings
