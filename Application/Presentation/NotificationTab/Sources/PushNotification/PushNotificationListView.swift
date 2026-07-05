@@ -7,10 +7,9 @@
 
 import SwiftUI
 import Core
-import NotificationTab
 import PresentationShared
 
-struct PushNotificationListView: View {
+public struct PushNotificationListView: View {
     @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .body) private var headerHeight = 41
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
@@ -20,7 +19,7 @@ struct PushNotificationListView: View {
     let coordinator: PushNotificationListViewCoordinator
     let isCompactLayout: Bool
 
-    init(
+    public init(
         coordinator: PushNotificationListViewCoordinator,
         isCompactLayout: Bool
     ) {
@@ -29,7 +28,7 @@ struct PushNotificationListView: View {
         self.store = coordinator.store
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             notificationListContent
                 .background(Color(.systemGroupedBackground))

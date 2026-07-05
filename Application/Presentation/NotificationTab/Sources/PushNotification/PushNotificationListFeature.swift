@@ -9,7 +9,6 @@ import Combine
 import Core
 import Domain
 import Foundation
-import NotificationTab
 import PresentationShared
 
 @Reducer
