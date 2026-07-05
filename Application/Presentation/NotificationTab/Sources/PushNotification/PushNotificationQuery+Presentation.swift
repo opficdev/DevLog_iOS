@@ -9,7 +9,7 @@ import Core
 import Foundation
 
 extension PushNotificationQuery.SortOrder {
-    var title: String {
+    public var title: String {
         switch self {
         case .latest:
             return String(localized: "push_sort_latest")
@@ -20,7 +20,7 @@ extension PushNotificationQuery.SortOrder {
 }
 
 extension PushNotificationQuery.TimeFilter {
-    var title: String {
+    public var title: String {
         switch self {
         case .none:
             return String(localized: "push_timefilter_all")
@@ -37,7 +37,7 @@ extension PushNotificationQuery.TimeFilter {
         }
     }
 
-    static var availableOptions: [PushNotificationQuery.TimeFilter] { [
+    public static var availableOptions: [PushNotificationQuery.TimeFilter] { [
         .none,
         .hours(1),
         .hours(6),

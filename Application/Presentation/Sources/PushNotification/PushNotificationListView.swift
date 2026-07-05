@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Core
+import NotificationTab
 import PresentationShared
 
 struct PushNotificationListView: View {
