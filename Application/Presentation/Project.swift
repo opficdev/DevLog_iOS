@@ -34,7 +34,7 @@ let project = Project(
         .target(
             name: "PresentationShared",
             destinations: .iOS,
-            product: .staticFramework,
+            product: .framework,
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["PresentationShared/Sources/**/*.swift"],
@@ -131,8 +131,7 @@ let project = Project(
                 )
             ],
             dependencies: [
-                .target(name: "TodayTab"),
-                .target(name: "PresentationShared")
+                .target(name: "TodayTab")
             ],
             settings: .devlog(
                 base: [

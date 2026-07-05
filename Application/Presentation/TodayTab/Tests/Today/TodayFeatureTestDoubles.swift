@@ -9,7 +9,7 @@ import Foundation
 import PresentationShared
 import Core
 import Domain
-@testable import Presentation
+@testable import TodayTab
 
 enum TodayTestError: Error {
     case failure
