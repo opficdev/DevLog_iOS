@@ -8,7 +8,7 @@
 import Foundation
 import Core
 import Domain
-@testable import Presentation
+@testable import TodayTab
 
 final class TodayFetchTodosUseCaseSpy: FetchTodosUseCase {
     var pagesByFilter: [TodoQuery.DueDateFilter: TodoPage]

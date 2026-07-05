@@ -8,7 +8,7 @@
 import Testing
 import Core
 import Domain
-@testable import Presentation
+@testable import TodayTab
 
 @MainActor
 private func waitUntilTodayMainActor(

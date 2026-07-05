@@ -34,7 +34,7 @@ let project = Project(
         .target(
             name: "PresentationShared",
             destinations: .iOS,
-            product: .staticFramework,
+            product: .framework,
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["PresentationShared/Sources/**/*.swift"],
@@ -98,6 +98,50 @@ let project = Project(
             )
         ),
         .target(
+            name: "TodayTab",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.TodayTab",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["TodayTab/Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "TodayTab/Sources",
+                    configPath: "TodayTab/Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
+        ),
+        .target(
+            name: "TodayTabTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.TodayTabTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["TodayTab/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "TodayTab/Tests",
+                    configPath: "TodayTab/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .target(name: "TodayTab"),
+                .target(name: "PresentationShared")
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "TodayTab"
+                ]
+            )
+        ),
+        .target(
             name: "Presentation",
             destinations: .iOS,
             product: .staticFramework,
@@ -114,6 +158,7 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "HomeTab"),
+                .target(name: "TodayTab"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings

@@ -10,6 +10,7 @@ import Core
 import Domain
 import HomeTab
 import PresentationShared
+import TodayTab
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

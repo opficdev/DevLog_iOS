@@ -12,11 +12,11 @@ import PresentationShared
 
 @MainActor
 @Observable
-final class TodayViewCoordinator {
+public final class TodayViewCoordinator {
     let store: StoreOf<TodayFeature>
-    let router = NavigationRouter<TodayRoute>()
+    public let router = NavigationRouter<TodayRoute>()
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         let fetchDisplayOptionsUseCase = container.resolve(FetchTodayDisplayOptionsUseCase.self)
         self.store = Store(
             initialState: TodayFeature.State(
@@ -33,7 +33,7 @@ final class TodayViewCoordinator {
         }
     }
 
-    func fetchData() {
+    public func fetchData() {
         store.send(.fetchData)
     }
 }

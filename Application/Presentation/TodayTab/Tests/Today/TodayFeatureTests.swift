@@ -8,7 +8,7 @@
 import Testing
 import Foundation
 import Core
-@testable import Presentation
+@testable import TodayTab
 
 @MainActor
 struct TodayFeatureTests {
