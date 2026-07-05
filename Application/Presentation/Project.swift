@@ -131,7 +131,8 @@ let project = Project(
                 )
             ],
             dependencies: [
-                .target(name: "TodayTab")
+                .target(name: "TodayTab"),
+                .target(name: "PresentationShared")
             ],
             settings: .devlog(
                 base: [
