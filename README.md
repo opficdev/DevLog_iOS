@@ -67,6 +67,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 ## 아키텍처
 
 `DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
+`Presentation`은 tab shell/root composition을 유지하고, 공통 UI 흐름은 `PresentationShared`, 탭 단위 흐름은 `HomeTab`, `TodayTab` target이 소유함
 
 <table>
   <tr>
@@ -237,7 +238,11 @@ DevLog_iOS/
 │	├── Data/                  # Repository 구현, DTO, Mapper, Data 계층 Protocol
 │	├── Infra/                 # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
 │	├── Persistence/           # UserDefaults, 이미지 저장소, 앱 로컬 영속성 처리
-│	├── Presentation/          # SwiftUI 화면, ViewModel, Store, Coordinator
+│	├── Presentation/          # SwiftUI tab shell, root composition
+│	│	├── PresentationShared/ # 공통 UI 흐름, 공통 presentation structure
+│	│	├── HomeTab/           # Home 탭 화면, feature, coordinator, 테스트
+│	│	├── TodayTab/          # Today 탭 화면, feature, coordinator, 테스트
+│	│	└── Sources/           # Main, Root, Settings 등 앱 presentation shell
 │	└── Widget/                # 앱-위젯 브릿지, 위젯 동기화 이벤트, 스냅샷 갱신
 ├── Widget/
 │	├── WidgetCore/            # 위젯 스냅샷 모델, Factory, App Group 상수
