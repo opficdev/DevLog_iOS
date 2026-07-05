@@ -18,7 +18,7 @@ public struct PushNotificationItem: Identifiable, Hashable {
     public let todoId: String
     public let todoCategory: TodoCategory
 
-    init(from notification: PushNotification) {
+    public init(from notification: PushNotification) {
         self.id = notification.id
         self.title = notification.title
         self.body = notification.body

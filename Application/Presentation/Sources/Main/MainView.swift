@@ -9,6 +9,7 @@ import SwiftUI
 import Core
 import Domain
 import HomeTab
+import NotificationTab
 import PresentationShared
 import TodayTab
 
@@ -314,7 +315,7 @@ struct MainView: View {
 
     @ViewBuilder
     private var notificationRegularDetailView: some View {
-        if let todoId = pushNotificationListViewCoordinator.store.selectedTodoId?.id {
+        if let todoId = pushNotificationListViewCoordinator.selectedTodoId {
             TodoDetailView(
                 store: pushNotificationListViewCoordinator.makeTodoDetailStore(
                     todoId: todoId

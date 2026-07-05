@@ -12,13 +12,13 @@ import PresentationShared
 
 @MainActor
 @Observable
-final class PushNotificationListViewCoordinator {
+public final class PushNotificationListViewCoordinator {
     let store: StoreOf<PushNotificationListFeature>
     private let container: DIContainer
     @ObservationIgnored
     private var todoDetailStore: StoreOf<TodoDetailFeature>?
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         let fetchQueryUseCase = container.resolve(FetchPushNotificationQueryUseCase.self)
 
@@ -37,11 +37,15 @@ final class PushNotificationListViewCoordinator {
         }
     }
 
-    func fetchData() {
+    public var selectedTodoId: String? {
+        store.selectedTodoId?.id
+    }
+
+    public func fetchData() {
         store.send(.view(.fetchNotifications))
     }
 
-    func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
+    public func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {
         if let todoDetailStore,
            todoDetailStore.todoId == todoId,
            !todoDetailStore.showEditButton {

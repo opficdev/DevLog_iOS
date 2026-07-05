@@ -1,6 +1,6 @@
 //
 //  PushNotificationListTestSupport.swift
-//  PresentationTests
+//  NotificationTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -11,7 +11,7 @@ import Core
 import Domain
 import PresentationShared
 import Foundation
-@testable import Presentation
+@testable import NotificationTab
 
 @MainActor
 protocol PushNotificationListStateDriving {

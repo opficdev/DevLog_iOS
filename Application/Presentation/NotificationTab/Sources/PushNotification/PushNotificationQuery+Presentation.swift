@@ -8,7 +8,7 @@
 import Core
 import Foundation
 
-extension PushNotificationQuery.SortOrder {
+public extension PushNotificationQuery.SortOrder {
     var title: String {
         switch self {
         case .latest:
@@ -19,7 +19,7 @@ extension PushNotificationQuery.SortOrder {
     }
 }
 
-extension PushNotificationQuery.TimeFilter {
+public extension PushNotificationQuery.TimeFilter {
     var title: String {
         switch self {
         case .none:
