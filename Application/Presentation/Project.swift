@@ -118,6 +118,30 @@ let project = Project(
             settings: frameworkBuildSettings
         ),
         .target(
+            name: "TodayTabTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.TodayTabTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["TodayTab/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "TodayTab/Tests",
+                    configPath: "TodayTab/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .target(name: "TodayTab"),
+                .target(name: "PresentationShared")
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "TodayTab"
+                ]
+            )
+        ),
+        .target(
             name: "Presentation",
             destinations: .iOS,
             product: .staticFramework,
