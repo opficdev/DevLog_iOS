@@ -10,12 +10,12 @@ import Core
 import Domain
 import PresentationShared
 
-struct TodayView: View {
+public struct TodayView: View {
     @Bindable var store: StoreOf<TodayFeature>
     let coordinator: TodayViewCoordinator
     let isCompactLayout: Bool
 
-    init(
+    public init(
         coordinator: TodayViewCoordinator,
         isCompactLayout: Bool
     ) {
@@ -24,7 +24,7 @@ struct TodayView: View {
         self.store = coordinator.store
     }
 
-    var body: some View {
+    public var body: some View {
         List {
             summarySection
             if store.sections.isEmpty, !store.isLoading {

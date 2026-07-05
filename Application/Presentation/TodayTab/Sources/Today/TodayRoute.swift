@@ -7,6 +7,6 @@
 
 import PresentationShared
 
-enum TodayRoute: Hashable {
+public enum TodayRoute: Hashable {
     case todo(TodoIdItem)
 }

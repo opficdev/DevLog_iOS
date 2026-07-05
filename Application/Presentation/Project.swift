@@ -98,6 +98,26 @@ let project = Project(
             )
         ),
         .target(
+            name: "TodayTab",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.TodayTab",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["TodayTab/Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "TodayTab/Sources",
+                    configPath: "TodayTab/Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
+        ),
+        .target(
             name: "Presentation",
             destinations: .iOS,
             product: .staticFramework,
@@ -114,6 +134,7 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "HomeTab"),
+                .target(name: "TodayTab"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings
