@@ -1,6 +1,6 @@
 //
 //  SettingsFeature.swift
-//  Presentation
+//  ProfileTab
 //
 //  Created by opfic on 6/12/26.
 //

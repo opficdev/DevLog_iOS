@@ -1,6 +1,6 @@
 //
 //  ProfileAvatarImageData.swift
-//  Presentation
+//  ProfileTab
 //
 //  Created by opfic on 6/17/26.
 //

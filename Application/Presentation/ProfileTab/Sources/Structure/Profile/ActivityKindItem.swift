@@ -1,6 +1,6 @@
 //
 //  ActivityKindItem.swift
-//  Presentation
+//  ProfileTab
 //
 //  Created by opfic on 4/4/26.
 //
