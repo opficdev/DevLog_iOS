@@ -1,6 +1,6 @@
 //
 //  PushNotificationListFixtures.swift
-//  PresentationTests
+//  NotificationTabTests
 //
 //  Created by opfic on 6/12/26.
 //

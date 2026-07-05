@@ -1,13 +1,13 @@
 //
 //  PushNotificationListFeatureTests.swift
-//  PresentationTests
+//  NotificationTabTests
 //
 //  Created by opfic on 6/12/26.
 //
 
 import Testing
 import Domain
-@testable import Presentation
+@testable import NotificationTab
 
 @MainActor
 struct PushNotificationListFeatureTests {
