@@ -1,6 +1,6 @@
 //
 //  AccountFeatureTests.swift
-//  PresentationTests
+//  ProfileTabTests
 //
 //  Created by opfic on 6/11/26.
 //
@@ -11,7 +11,7 @@ import Testing
 import Foundation
 import Domain
 import PresentationShared
-@testable import Presentation
+@testable import ProfileTab
 
 @MainActor
 struct AccountFeatureTests {

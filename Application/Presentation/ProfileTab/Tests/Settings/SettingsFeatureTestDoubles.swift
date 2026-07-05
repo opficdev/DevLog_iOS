@@ -1,6 +1,6 @@
 //
 //  SettingsFeatureTestDoubles.swift
-//  PresentationTests
+//  ProfileTabTests
 //
 //  Created by opfic on 6/12/26.
 //

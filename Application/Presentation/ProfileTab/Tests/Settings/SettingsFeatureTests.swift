@@ -1,6 +1,6 @@
 //
 //  SettingsFeatureTests.swift
-//  PresentationTests
+//  ProfileTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -9,7 +9,7 @@ import Testing
 import Core
 import Domain
 import PresentationShared
-@testable import Presentation
+@testable import ProfileTab
 
 @MainActor
 struct SettingsFeatureTests {
