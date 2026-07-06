@@ -40,7 +40,7 @@ public final class HomeViewCoordinator {
             $0.homeFetchWebPagesUseCase = container.resolve(FetchWebPagesUseCase.self)
             $0.fetchReferenceItemsUseCase = container.resolve(FetchReferenceItemsUseCase.self)
             $0.upsertTodoUseCase = container.resolve(UpsertTodoUseCase.self)
-            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.homeNetworkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
             $0.trackAnalyticsEventUseCase = container.resolve(TrackAnalyticsEventUseCase.self)
         }
         self.store.send(.view(.startObserving))

@@ -73,7 +73,7 @@ struct HomeStoreTestAdapter {
             $0.homeUndoDeleteWebPageUseCase = undoDeleteWebPageUseCase
             $0.homeFetchTodosUseCase = fetchTodosUseCase
             $0.homeFetchWebPagesUseCase = fetchWebPagesUseCase
-            $0.networkConnectivityUseCase = networkConnectivityUseCase
+            $0.homeNetworkConnectivityUseCase = networkConnectivityUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.continuousClock = clock
             configureDependencies?(&$0)

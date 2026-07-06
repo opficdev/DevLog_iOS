@@ -55,8 +55,8 @@ struct RootFeature {
     }
 
     @Dependency(\.observeAuthSessionUseCase) var observeAuthSessionUseCase
-    @Dependency(\.networkConnectivityUseCase) var networkConnectivityUseCase
-    @Dependency(\.systemThemeUseCase) var systemThemeUseCase
+    @Dependency(\.rootNetworkConnectivityUseCase) var networkConnectivityUseCase
+    @Dependency(\.rootSystemThemeUseCase) var systemThemeUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
     @Dependency(\.setApplicationBadgeCount) var setApplicationBadgeCount
 
@@ -139,6 +139,16 @@ extension DependencyValues {
         get { self[ObserveAuthSessionUseCaseKey.self] }
         set { self[ObserveAuthSessionUseCaseKey.self] = newValue }
     }
+
+    var rootNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
+        get { self[RootNetworkConnectivityUseCaseKey.self] }
+        set { self[RootNetworkConnectivityUseCaseKey.self] = newValue }
+    }
+
+    var rootSystemThemeUseCase: ObserveSystemThemeUseCase {
+        get { self[RootSystemThemeUseCaseKey.self] }
+        set { self[RootSystemThemeUseCaseKey.self] = newValue }
+    }
 }
 
 private enum ObserveAuthSessionUseCaseKey: DependencyKey {
@@ -147,6 +157,26 @@ private enum ObserveAuthSessionUseCaseKey: DependencyKey {
     }
 
     static var testValue: ObserveAuthSessionUseCase {
+        liveValue
+    }
+}
+
+private enum RootNetworkConnectivityUseCaseKey: DependencyKey {
+    static var liveValue: ObserveNetworkConnectivityUseCase {
+        preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
+    }
+
+    static var testValue: ObserveNetworkConnectivityUseCase {
+        liveValue
+    }
+}
+
+private enum RootSystemThemeUseCaseKey: DependencyKey {
+    static var liveValue: ObserveSystemThemeUseCase {
+        preconditionFailure("ObserveSystemThemeUseCase must be provided.")
+    }
+
+    static var testValue: ObserveSystemThemeUseCase {
         liveValue
     }
 }

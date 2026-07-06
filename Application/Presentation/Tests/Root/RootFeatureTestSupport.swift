@@ -69,8 +69,8 @@ struct RootStoreTestAdapter: RootStateDriving {
             RootFeature()
         } withDependencies: {
             $0.observeAuthSessionUseCase = sessionUseCase
-            $0.networkConnectivityUseCase = networkConnectivityUseCase
-            $0.systemThemeUseCase = systemThemeUseCase
+            $0.rootNetworkConnectivityUseCase = networkConnectivityUseCase
+            $0.rootSystemThemeUseCase = systemThemeUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.setApplicationBadgeCount = { count in
                 try await badgeCountSpy.setBadgeCount(count)
