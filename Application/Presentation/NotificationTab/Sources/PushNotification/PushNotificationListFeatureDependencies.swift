@@ -1,6 +1,6 @@
 //
 //  PushNotificationListFeatureDependencies.swift
-//  Presentation
+//  NotificationTab
 //
 //  Created by opfic on 6/12/26.
 //

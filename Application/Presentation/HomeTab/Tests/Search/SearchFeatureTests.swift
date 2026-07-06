@@ -1,6 +1,6 @@
 //
 //  SearchFeatureTests.swift
-//  PresentationSharedTests
+//  HomeTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -9,7 +9,8 @@ import Testing
 import Foundation
 import Core
 import Domain
-@testable import PresentationShared
+import PresentationShared
+@testable import HomeTab
 
 @MainActor
 struct SearchFeatureTests {
