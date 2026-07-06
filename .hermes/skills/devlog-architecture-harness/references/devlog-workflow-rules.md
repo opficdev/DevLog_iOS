@@ -74,7 +74,7 @@ This reference holds DevLog-specific working rules that should live with the pro
 - Prefer a Data-side boundary value plus repository mapping when Infra should not import Domain.
 - For example, keep the app-facing Domain query separate from an Infra-facing Data query when that avoids Domain coupling in service protocols.
 - Firebase-specific error detection belongs in Infra; Data should handle domain-level errors after mapping.
-- Data and Presentation currently keep narrow social-login cancellation classification in `DataLayerError` and `Error+SocialLogin`. Do not expand that into concrete login implementation or broader SDK ownership without explicit approval.
+- Infra currently keeps narrow social-login cancellation classification in `InfraLayerError`. Do not expand that into concrete login implementation or broader SDK ownership outside Infra without explicit approval.
 
 ## Presentation StorePattern
 

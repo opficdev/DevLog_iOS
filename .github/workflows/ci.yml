@@ -229,7 +229,7 @@ jobs:
           - name: Persistence
             schemes: "Persistence"
           - name: Presentation
-            schemes: "Presentation HomeTab"
+            schemes: "Entry PresentationShared HomeTab"
           - name: Widget
             schemes: "Widget WidgetCore"
     steps:
