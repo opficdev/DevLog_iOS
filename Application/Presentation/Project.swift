@@ -239,11 +239,11 @@ let project = Project(
             product: .staticFramework,
             bundleId: "com.opfic.DevLog.Presentation",
             infoPlist: .file(path: frameworkInfoPlistPath),
-            sources: ["Sources/**/*.swift"],
+            sources: ["Entry/Sources/**/*.swift"],
             scripts: [
                 DevLogScripts.swiftLint(
-                    sourcePath: "Sources",
-                    configPath: "Sources/.swiftlint.yml"
+                    sourcePath: "Entry/Sources",
+                    configPath: "Entry/Sources/.swiftlint.yml"
                 )
             ],
             dependencies: [
@@ -263,11 +263,11 @@ let project = Project(
             product: .unitTests,
             bundleId: "com.opfic.DevLog.PresentationTests",
             infoPlist: .file(path: testsInfoPlistPath),
-            sources: ["Tests/**/*.swift"],
+            sources: ["Entry/Tests/**/*.swift"],
             scripts: [
                 DevLogScripts.swiftLint(
-                    sourcePath: "Tests",
-                    configPath: "Tests/.swiftlint.yml"
+                    sourcePath: "Entry/Tests",
+                    configPath: "Entry/Tests/.swiftlint.yml"
                 )
             ],
             dependencies: [
