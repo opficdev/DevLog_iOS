@@ -64,6 +64,66 @@ struct ProfileFeatureTests {
     }
 }
 
+private final class FetchTodosUseCaseSpy: FetchTodosUseCase {
+    var todoPage = TodoPage(items: [], nextCursor: nil)
+    private(set) var queries: [TodoQuery] = []
+
+    func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
+        queries.append(query)
+        return todoPage
+    }
+}
+
+private final class FetchUserDataUseCaseSpy: FetchUserDataUseCase {
+    var profile: UserProfile
+
+    init(profile: UserProfile) {
+        self.profile = profile
+    }
+
+    func execute() async throws -> UserProfile {
+        profile
+    }
+}
+
+private final class FetchProfileImageDataUseCaseSpy: FetchProfileImageDataUseCase {
+    var data: Data
+    private(set) var calledURLs: [URL] = []
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    func execute(from url: URL) async throws -> Data {
+        calledURLs.append(url)
+        return data
+    }
+}
+
+private final class UpsertStatusMessageUseCaseSpy: UpsertStatusMessageUseCase {
+    private(set) var messages: [String] = []
+
+    func execute(_ message: String) async throws {
+        messages.append(message)
+    }
+}
+
+private final class FetchHeatmapActivityTypesUseCaseSpy: FetchHeatmapActivityTypesUseCase {
+    var activityTypes: [String] = []
+
+    func execute() -> [String] {
+        activityTypes
+    }
+}
+
+private final class UpdateHeatmapActivityTypesUseCaseSpy: UpdateHeatmapActivityTypesUseCase {
+    private(set) var activityTypes: [[String]] = []
+
+    func execute(_ activityTypes: [String]) {
+        self.activityTypes.append(activityTypes)
+    }
+}
+
 @MainActor
 private struct ProfileStoreTestAdapter {
     private let store: TestStoreOf<ProfileFeature>

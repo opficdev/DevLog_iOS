@@ -9,6 +9,28 @@ import Combine
 import Core
 import Domain
 
+@MainActor
+func waitUntil(
+    timeout: Duration = .seconds(1),
+    pollInterval: Duration = .milliseconds(20),
+    _ condition: @escaping () -> Bool
+) async {
+    let continuousClock = ContinuousClock()
+    let deadline = continuousClock.now + timeout
+
+    while !condition() && continuousClock.now < deadline {
+        try? await Task.sleep(for: pollInterval)
+    }
+}
+
+final class ObserveNetworkConnectivityUseCaseSpy: ObserveNetworkConnectivityUseCase {
+    let currentValueSubject = CurrentValueSubject<Bool, Never>(true)
+
+    func observe() -> AnyPublisher<Bool, Never> {
+        currentValueSubject.eraseToAnyPublisher()
+    }
+}
+
 final class DeleteAuthUseCaseSpy: DeleteAuthUseCase {
     var error: Error?
     private(set) var executeCallCount = 0
