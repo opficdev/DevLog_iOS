@@ -8,15 +8,15 @@
 import SwiftUI
 import Domain
 
-struct TodoItemRow: View {
+public struct TodoItemRow: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     private let item: TodoListItem
 
-    init(_ item: TodoListItem) {
+    public init(_ item: TodoListItem) {
         self.item = item
     }
 
-    var body: some View {
+    public var body: some View {
         HStack {
             Image(systemName: "checkmark.circle")
                 .resizable()
