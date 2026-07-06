@@ -203,8 +203,8 @@ private struct SettingsStoreTestAdapter {
         } withDependencies: {
             $0.deleteAuthUseCase = deleteAuthUseCase
             $0.signOutUseCase = signOutUseCase
-            $0.networkConnectivityUseCase = networkUseCase
-            $0.systemThemeUseCase = themeUseCase
+            $0.profileNetworkConnectivityUseCase = networkUseCase
+            $0.profileSystemThemeUseCase = themeUseCase
             $0.updateSystemThemeUseCase = updateThemeUseCase
             $0.fetchWebPageImageDirSizeUseCase = fetchDirSizeUseCase
             $0.clearWebPageImageDirectoryUseCase = clearDirectoryUseCase

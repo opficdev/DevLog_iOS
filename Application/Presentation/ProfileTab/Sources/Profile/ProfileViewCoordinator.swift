@@ -27,7 +27,7 @@ public final class ProfileViewCoordinator {
             $0.profileFetchImageDataUseCase = container.resolve(FetchProfileImageDataUseCase.self)
             $0.profileFetchTodosUseCase = container.resolve(FetchTodosUseCase.self)
             $0.profileUpsertStatusMessageUseCase = container.resolve(UpsertStatusMessageUseCase.self)
-            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.profileNetworkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
             $0.profileFetchHeatmapActivityTypesUseCase = container.resolve(FetchHeatmapActivityTypesUseCase.self)
             $0.profileUpdateHeatmapActivityTypesUseCase = container.resolve(UpdateHeatmapActivityTypesUseCase.self)
         }
@@ -36,8 +36,8 @@ public final class ProfileViewCoordinator {
         } withDependencies: {
             $0.deleteAuthUseCase = container.resolve(DeleteAuthUseCase.self)
             $0.signOutUseCase = container.resolve(SignOutUseCase.self)
-            $0.networkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
-            $0.systemThemeUseCase = container.resolve(ObserveSystemThemeUseCase.self)
+            $0.profileNetworkConnectivityUseCase = container.resolve(ObserveNetworkConnectivityUseCase.self)
+            $0.profileSystemThemeUseCase = container.resolve(ObserveSystemThemeUseCase.self)
             $0.updateSystemThemeUseCase = container.resolve(UpdateSystemThemeUseCase.self)
             $0.fetchWebPageImageDirSizeUseCase = container.resolve(FetchWebPageImageDirSizeUseCase.self)
             $0.clearWebPageImageDirectoryUseCase = container.resolve(ClearWebPageImageDirectoryUseCase.self)

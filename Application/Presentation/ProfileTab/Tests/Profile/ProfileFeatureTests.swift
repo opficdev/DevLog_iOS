@@ -152,7 +152,7 @@ private struct ProfileStoreTestAdapter {
             $0.profileFetchImageDataUseCase = fetchProfileImageDataUseCase
             $0.profileFetchTodosUseCase = FetchTodosUseCaseSpy()
             $0.profileUpsertStatusMessageUseCase = upsertStatusMessageUseCase
-            $0.networkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy()
+            $0.profileNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy()
             $0.profileFetchHeatmapActivityTypesUseCase = fetchHeatmapActivityTypesUseCase
             $0.profileUpdateHeatmapActivityTypesUseCase = updateHeatmapActivityTypesUseCase
             $0.continuousClock = ImmediateClock()

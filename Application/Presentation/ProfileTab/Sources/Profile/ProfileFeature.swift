@@ -73,7 +73,7 @@ struct ProfileFeature {
     @Dependency(\.profileFetchImageDataUseCase) var fetchProfileImageDataUseCase
     @Dependency(\.profileFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.profileUpsertStatusMessageUseCase) var upsertStatusMessageUseCase
-    @Dependency(\.networkConnectivityUseCase) var networkConnectivityUseCase
+    @Dependency(\.profileNetworkConnectivityUseCase) var networkConnectivityUseCase
     @Dependency(\.profileFetchHeatmapActivityTypesUseCase) var fetchHeatmapActivityTypesUseCase
     @Dependency(\.profileUpdateHeatmapActivityTypesUseCase) var updateHeatmapActivityTypesUseCase
 

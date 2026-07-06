@@ -39,7 +39,7 @@ extension DependencyValues {
         set { self[HomeFetchWebPagesUseCaseKey.self] = newValue }
     }
 
-    var networkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
+    var homeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
         get { self[HomeNetworkConnectivityUseCaseKey.self] }
         set { self[HomeNetworkConnectivityUseCaseKey.self] = newValue }
     }

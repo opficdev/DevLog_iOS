@@ -79,8 +79,8 @@ struct SettingsFeature {
 
     @Dependency(\.deleteAuthUseCase) var deleteAuthUseCase
     @Dependency(\.signOutUseCase) var signOutUseCase
-    @Dependency(\.networkConnectivityUseCase) var networkConnectivityUseCase
-    @Dependency(\.systemThemeUseCase) var systemThemeUseCase
+    @Dependency(\.profileNetworkConnectivityUseCase) var networkConnectivityUseCase
+    @Dependency(\.profileSystemThemeUseCase) var systemThemeUseCase
     @Dependency(\.updateSystemThemeUseCase) var updateSystemThemeUseCase
     @Dependency(\.fetchWebPageImageDirSizeUseCase) var fetchWebPageImageDirSizeUseCase
     @Dependency(\.clearWebPageImageDirectoryUseCase) var clearWebPageImageDirectoryUseCase
@@ -158,12 +158,12 @@ extension DependencyValues {
         set { self[SignOutUseCaseKey.self] = newValue }
     }
 
-    var networkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
+    var profileNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
         get { self[ObserveNetworkConnectivityUseCaseKey.self] }
         set { self[ObserveNetworkConnectivityUseCaseKey.self] = newValue }
     }
 
-    var systemThemeUseCase: ObserveSystemThemeUseCase {
+    var profileSystemThemeUseCase: ObserveSystemThemeUseCase {
         get { self[ObserveSystemThemeUseCaseKey.self] }
         set { self[ObserveSystemThemeUseCaseKey.self] = newValue }
     }

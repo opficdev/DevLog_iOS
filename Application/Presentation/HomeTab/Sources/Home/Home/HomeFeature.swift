@@ -207,7 +207,7 @@ struct HomeFeature {
     @Dependency(\.homeUndoDeleteWebPageUseCase) var undoDeleteWebPageUseCase
     @Dependency(\.homeFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.homeFetchWebPagesUseCase) var fetchWebPagesUseCase
-    @Dependency(\.networkConnectivityUseCase) var networkConnectivityUseCase
+    @Dependency(\.homeNetworkConnectivityUseCase) var networkConnectivityUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
     @Dependency(\.continuousClock) var clock
 

@@ -33,8 +33,8 @@ public struct RootView: View {
             RootFeature()
         } withDependencies: {
             $0.observeAuthSessionUseCase = sessionUseCase
-            $0.networkConnectivityUseCase = networkConnectivityUseCase
-            $0.systemThemeUseCase = systemThemeUseCase
+            $0.rootNetworkConnectivityUseCase = networkConnectivityUseCase
+            $0.rootSystemThemeUseCase = systemThemeUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
         })
         self.widgetURLTab = widgetURLTab
