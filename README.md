@@ -67,7 +67,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 ## 아키텍처
 
 `DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
-`Presentation` target은 `Entry` 경로에서 root/auth/tab shell/window 흐름을 유지하고, 공통 Todo/Search/Loading 흐름은 `PresentationShared`, 탭 단위 흐름은 `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab` target이 소유함
+`Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할을 하고, root/auth/tab shell/window 흐름은 `Entry`, 공통 Todo/Search/Loading 흐름은 `PresentationShared`, 탭 단위 흐름은 `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab` target이 소유함
 
 <table>
   <tr>
@@ -238,8 +238,9 @@ DevLog_iOS/
 │	├── Data/                  # Repository 구현, DTO, Mapper, Data 계층 Protocol
 │	├── Infra/                 # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
 │	├── Persistence/           # UserDefaults, 이미지 저장소, 앱 로컬 영속성 처리
-│	├── Presentation/          # Presentation project, shell/shared/tab target 구성
-│	│	├── Entry/              # Presentation target root/auth/tab shell/window
+│	├── Presentation/          # Presentation project, re-export/shared/entry/tab target 구성
+│	│	├── Sources/            # Presentation target re-export source
+│	│	├── Entry/              # root/auth/tab shell/window target
 │	│	├── PresentationShared/ # 공통 Todo/Search/Loading UI, 공통 presentation structure
 │	│	├── HomeTab/           # Home 탭 화면, feature, coordinator, 테스트
 │	│	├── TodayTab/          # Today 탭 화면, feature, coordinator, 테스트

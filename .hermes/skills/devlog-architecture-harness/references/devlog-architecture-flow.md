@@ -132,8 +132,9 @@ flowchart TD
 
 ## Presentation target structure
 
-- `Presentation` uses `Application/Presentation/Entry/Sources/**/*.swift` as its source glob and validates through `PresentationTests` with `Entry/Tests/**/*.swift`.
-- `Entry` owns root, auth, login, main tab shell, window, and global route responsibilities.
+- `Presentation` preserves `App -> Presentation` imports and re-exports the entry API through `Application/Presentation/Sources/**/*.swift`.
+- `Entry` owns root, auth, login, main tab shell, window, and global route responsibilities. It owns the `Domain` references needed by those flows.
+- `EntryTests` validates `Entry` through `Application/Presentation/Entry/Tests/**/*.swift`.
 - `HomeTab`, `TodayTab`, `NotificationTab`, and `ProfileTab` remain tab-specific feature targets and each target owns the `Domain` references it needs.
 - `PresentationShared` owns shared Todo, Search, Loading UI, and presentation contracts.
 - `App` owns composition root, lifecycle, and assembler wiring. It must not take ownership of presentation feature or root flows.
