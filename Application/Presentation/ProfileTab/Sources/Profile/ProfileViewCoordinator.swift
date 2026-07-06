@@ -12,13 +12,13 @@ import PresentationShared
 
 @MainActor
 @Observable
-final class ProfileViewCoordinator {
+public final class ProfileViewCoordinator {
     let store: StoreOf<ProfileFeature>
     let settingsStore: StoreOf<SettingsFeature>
     var router = NavigationRouter<ProfileRoute>()
     private let container: DIContainer
 
-    init(container: DIContainer) {
+    public init(container: DIContainer) {
         self.container = container
         self.store = Store(initialState: ProfileFeature.State()) {
             ProfileFeature()
@@ -46,7 +46,7 @@ final class ProfileViewCoordinator {
         self.settingsStore.send(.startObserving)
     }
 
-    func fetchData() {
+    public func fetchData() {
         store.send(.fetchData)
     }
 

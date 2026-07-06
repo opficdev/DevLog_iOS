@@ -11,13 +11,13 @@ import Core
 import Domain
 import PresentationShared
 
-struct ProfileView: View {
+public struct ProfileView: View {
     @Bindable var store: StoreOf<ProfileFeature>
     @FocusState private var focused: Bool
     let coordinator: ProfileViewCoordinator
     let isCompactLayout: Bool
 
-    init(
+    public init(
         coordinator: ProfileViewCoordinator,
         isCompactLayout: Bool
     ) {
@@ -26,7 +26,7 @@ struct ProfileView: View {
         self.isCompactLayout = isCompactLayout
     }
 
-    var body: some View {
+    public var body: some View {
         Group {
             if isCompactLayout {
                 NavigationStack(path: navigationPath) {

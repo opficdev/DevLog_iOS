@@ -10,6 +10,7 @@ import Core
 import Domain
 import HomeTab
 import NotificationTab
+import ProfileTab
 import PresentationShared
 import TodayTab
 
@@ -339,46 +340,7 @@ struct MainView: View {
     }
 
     private var profileRegularDetailView: some View {
-        NavigationStack(path: Binding(
-            get: { profileViewCoordinator.router.detailPath },
-            set: { profileViewCoordinator.router.detailPath = $0 }
-        )) {
-            Group {
-                if let profileRoute = profileViewCoordinator.router.root {
-                    profileRegularDestinationView(profileRoute)
-                } else {
-                    ContentUnavailableView(
-                        String(localized: "profile_select_detail"),
-                        systemImage: "person.crop.circle"
-                    )
-                }
-            }
-            .navigationDestination(for: ProfileRoute.self) { route in
-                profileRegularDestinationView(route)
-            }
-        }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
-    }
-
-    @ViewBuilder
-    private func profileRegularDestinationView(_ route: ProfileRoute) -> some View {
-        switch route {
-        case .activity(let todoId):
-            TodoDetailView(store: profileViewCoordinator.makeTodoDetailStore(todoId: todoId))
-                .id(todoId)
-        case .settings:
-            SettingsView(store: profileViewCoordinator.settingsStore)
-                .environment(profileViewCoordinator.router)
-        case .theme:
-            @Bindable var settingsStore = profileViewCoordinator.settingsStore
-            ThemeView(theme: $settingsStore.theme)
-        case .pushNotification:
-            PushNotificationSettingsView(
-                store: profileViewCoordinator.makePushNotificationSettingsStore()
-            )
-        case .account:
-            AccountView(store: profileViewCoordinator.makeAccountStore())
-        }
+        ProfileRegularDetailView(coordinator: profileViewCoordinator)
     }
 }
 
