@@ -26,30 +26,6 @@ func waitUntil(
     }
 }
 
-final class FetchPushNotificationsUseCaseSpy: FetchPushNotificationsUseCase {
-    var pushNotificationPage: PushNotificationPage
-    private(set) var executeCallCount = 0
-
-    init(pushNotificationPage: PushNotificationPage) {
-        self.pushNotificationPage = pushNotificationPage
-    }
-
-    func execute(
-        _ query: PushNotificationQuery,
-        cursor: PushNotificationCursor?
-    ) async throws -> PushNotificationPage {
-        executeCallCount += 1
-        return pushNotificationPage
-    }
-
-    func observe(
-        _ query: PushNotificationQuery,
-        limit: Int
-    ) throws -> AnyPublisher<PushNotificationPage, Error> {
-        Empty().eraseToAnyPublisher()
-    }
-}
-
 final class SignInUseCaseSpy: SignInUseCase {
     var error: Error?
     var signedIn = true
@@ -91,50 +67,6 @@ final class SignInUseCaseSpy: SignInUseCase {
         }
         self.continuation = nil
         continuation.resume()
-    }
-}
-
-final class DeletePushNotificationUseCaseSpy: DeletePushNotificationUseCase {
-    private(set) var calledNotificationIds: [String] = []
-
-    func execute(_ notificationID: String) async throws {
-        calledNotificationIds.append(notificationID)
-    }
-}
-
-final class UndoDeletePushNotificationUseCaseSpy: UndoDeletePushNotificationUseCase {
-    private(set) var calledNotificationIds: [String] = []
-
-    func execute(_ notificationID: String) async throws {
-        calledNotificationIds.append(notificationID)
-    }
-}
-
-final class TogglePushNotificationReadUseCaseSpy: TogglePushNotificationReadUseCase {
-    private(set) var calledTodoIds: [String] = []
-    var error: Error?
-
-    func execute(_ todoId: String) async throws {
-        calledTodoIds.append(todoId)
-        if let error {
-            throw error
-        }
-    }
-}
-
-final class FetchPushNotificationQueryUseCaseSpy: FetchPushNotificationQueryUseCase {
-    var pushNotificationQuery = PushNotificationQuery.default
-
-    func execute() -> PushNotificationQuery {
-        pushNotificationQuery
-    }
-}
-
-final class UpdatePushNotificationQueryUseCaseSpy: UpdatePushNotificationQueryUseCase {
-    private(set) var queries: [PushNotificationQuery] = []
-
-    func execute(_ query: PushNotificationQuery) {
-        queries.append(query)
     }
 }
 
