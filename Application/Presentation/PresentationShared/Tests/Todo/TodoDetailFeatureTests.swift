@@ -1,15 +1,14 @@
 //
 //  TodoDetailFeatureTests.swift
-//  PresentationTests
+//  PresentationSharedTests
 //
 //  Created by opfic on 6/11/26.
 //
 
 import Testing
-import PresentationShared
 import Foundation
 import Domain
-@testable import Presentation
+@testable import PresentationShared
 
 @MainActor
 struct TodoDetailFeatureTests {

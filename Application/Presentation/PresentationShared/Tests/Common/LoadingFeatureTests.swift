@@ -1,13 +1,12 @@
 //
 //  LoadingFeatureTests.swift
-//  PresentationTests
+//  PresentationSharedTests
 //
 //  Created by opfic on 6/11/26.
 //
 
 import Testing
-import PresentationShared
-@testable import Presentation
+@testable import PresentationShared
 
 @MainActor
 struct LoadingFeatureTests {

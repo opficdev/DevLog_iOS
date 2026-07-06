@@ -54,6 +54,31 @@ let project = Project(
             settings: frameworkBuildSettings
         ),
         .target(
+            name: "PresentationSharedTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.PresentationSharedTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["PresentationShared/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "PresentationShared/Tests",
+                    configPath: "PresentationShared/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "PresentationShared")
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "PresentationShared"
+                ]
+            )
+        ),
+        .target(
             name: "HomeTab",
             destinations: .iOS,
             product: .staticFramework,

@@ -1,6 +1,6 @@
 //
 //  TestSupport.swift
-//  PresentationTests
+//  PresentationSharedTests
 //
 //  Created by opfic on 4/6/26.
 //
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import Core
 import Domain
-@testable import Presentation
+@testable import PresentationShared
 
 @MainActor
 func waitUntil(

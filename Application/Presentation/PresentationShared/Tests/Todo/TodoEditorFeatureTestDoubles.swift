@@ -1,15 +1,14 @@
 //
 //  TodoEditorFeatureTestDoubles.swift
-//  PresentationTests
+//  PresentationSharedTests
 //
 //  Created by opfic on 6/12/26.
 //
 
 import Testing
-import PresentationShared
 import Foundation
 import Domain
-@testable import Presentation
+@testable import PresentationShared
 
 let todoEditorNow = Date(timeIntervalSince1970: 1_000)
 
