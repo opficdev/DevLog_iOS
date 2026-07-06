@@ -1,6 +1,6 @@
 //
 //  PushNotificationItem.swift
-//  Presentation
+//  NotificationTab
 //
 //  Created by 최윤진 on 2/27/26.
 //

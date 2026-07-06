@@ -1,6 +1,6 @@
 //
 //  PushNotificationListViewCoordinator.swift
-//  Presentation
+//  NotificationTab
 //
 //  Created by opfic on 5/29/26.
 //
