@@ -5,11 +5,10 @@
 //  Created by opfic on 6/12/26.
 //
 
-import ComposableArchitecture
 import Foundation
-import OrderedCollections
 import Core
 import Domain
+import PresentationShared
 
 @Reducer
 public struct SearchFeature {
