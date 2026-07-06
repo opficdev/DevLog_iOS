@@ -10,17 +10,17 @@ import Core
 import Domain
 import PresentationShared
 
-public struct SearchView: View {
+struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container: DIContainer
     @State private var router = NavigationRouter<Path>()
     @State var store: StoreOf<SearchFeature>
 
-    public init(store: StoreOf<SearchFeature>) {
+    init(store: StoreOf<SearchFeature>) {
         self.store = store
     }
 
-    public var body: some View {
+    var body: some View {
         NavigationStack(path: $router.path) {
             searchableContent
                 .navigationDestination(for: Path.self) { path in

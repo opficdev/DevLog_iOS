@@ -11,29 +11,29 @@ import Domain
 import PresentationShared
 
 @Reducer
-public struct SearchFeature {
+struct SearchFeature {
     @ObservableState
-    public struct State: Equatable {
-        @Presents public var alert: AlertState<Never>?
-        public var loading = LoadingFeature.State()
-        public var isSearching = false
-        public var searchQuery = ""
-        public var webPages: [WebPageItem] = []
-        public var todos: [TodoListItem] = []
-        public var recentQueries = OrderedSet<String>()
-        public var showAllTodos = false
-        public var showAllWebPages = false
+    struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
+        var loading = LoadingFeature.State()
+        var isSearching = false
+        var searchQuery = ""
+        var webPages: [WebPageItem] = []
+        var todos: [TodoListItem] = []
+        var recentQueries = OrderedSet<String>()
+        var showAllTodos = false
+        var showAllWebPages = false
         let contentsLimit = 5
 
-        public init(recentQueries: [String] = []) {
+        init(recentQueries: [String] = []) {
             self.recentQueries = OrderedSet(recentQueries)
         }
 
-        public var isLoading: Bool {
+        var isLoading: Bool {
             loading.isLoading
         }
 
-        public var visibleTodos: [TodoListItem] {
+        var visibleTodos: [TodoListItem] {
             if showAllTodos {
                 return todos
             }
@@ -41,7 +41,7 @@ public struct SearchFeature {
             return Array(todos.prefix(contentsLimit))
         }
 
-        public var visibleWebPages: [WebPageItem] {
+        var visibleWebPages: [WebPageItem] {
             if showAllWebPages {
                 return webPages
             }
@@ -49,20 +49,20 @@ public struct SearchFeature {
             return Array(webPages.prefix(contentsLimit))
         }
 
-        public var shouldShowMoreTodos: Bool {
+        var shouldShowMoreTodos: Bool {
             !showAllTodos && contentsLimit < todos.count
         }
 
-        public var shouldShowMoreWebPages: Bool {
+        var shouldShowMoreWebPages: Bool {
             !showAllWebPages && contentsLimit < webPages.count
         }
 
-        public var isHashOnlyQuery: Bool {
+        var isHashOnlyQuery: Bool {
             searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) == "#"
         }
     }
 
-    public enum Action: BindableAction, Equatable {
+    enum Action: BindableAction, Equatable {
         case onAppear
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
@@ -74,7 +74,7 @@ public struct SearchFeature {
         case store(StoreAction)
         case loading(LoadingFeature.Action)
 
-        public enum StoreAction: Equatable {
+        enum StoreAction: Equatable {
             case fetchWebPage([WebPageItem])
             case fetchTodos([TodoListItem])
             case applySearchQuery(String)
@@ -95,9 +95,7 @@ public struct SearchFeature {
     private let maxRecentQueries = 20
     private let searchDebounceDelay = Duration.seconds(0.4)
 
-    public init() { }
-
-    public var body: some ReducerOf<Self> {
+    var body: some ReducerOf<Self> {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
@@ -178,7 +176,7 @@ public struct SearchFeature {
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var searchFetchTodosUseCase: FetchTodosUseCase {
         get { self[SearchFetchTodosUseCaseKey.self] }
         set { self[SearchFetchTodosUseCaseKey.self] = newValue }

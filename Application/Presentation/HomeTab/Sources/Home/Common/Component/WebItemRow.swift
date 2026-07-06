@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-public struct WebItemRow: View {
+struct WebItemRow: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     let item: WebPageItem
     let showsChevron: Bool
 
-    public init(
+    init(
         item: WebPageItem,
         showsChevron: Bool
     ) {
@@ -20,7 +20,7 @@ public struct WebItemRow: View {
         self.showsChevron = showsChevron
     }
 
-    public var body: some View {
+    var body: some View {
         HStack {
             thumbnail
                 .frame(width: labelWidth, height: labelWidth)
