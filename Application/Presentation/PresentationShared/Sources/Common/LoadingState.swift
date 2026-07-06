@@ -1,12 +1,11 @@
 //
 //  LoadingState.swift
-//  Presentation
+//  PresentationShared
 //
 //  Created by opfic on 3/16/26.
 //
 
 import Foundation
-import Domain
 
 @MainActor
 public final class LoadingState {
@@ -26,7 +25,7 @@ public final class LoadingState {
     private var visibleDelayedTargets = Set<AnyHashable>()
     private var visibleTargets = Set<AnyHashable>()
 
-    nonisolated init(delay: Duration = .seconds(0.3)) {
+    public nonisolated init(delay: Duration = .seconds(0.3)) {
         self.delay = delay
     }
 
