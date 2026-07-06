@@ -1,6 +1,6 @@
 //
 //  RootFeatureTestSupport.swift
-//  PresentationTests
+//  EntryTests
 //
 //  Created by opfic on 6/17/26.
 //
@@ -11,7 +11,7 @@ import Core
 import Domain
 import Foundation
 import Testing
-@testable import Presentation
+@testable import Entry
 
 @MainActor
 protocol RootStateDriving {

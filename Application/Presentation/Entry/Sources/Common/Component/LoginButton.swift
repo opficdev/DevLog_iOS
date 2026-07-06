@@ -1,12 +1,11 @@
 //
 //  LoginButton.swift
-//  Presentation
+//  Entry
 //
 //  Created by opfic on 4/25/25.
 //
 
 import SwiftUI
-import Domain
 
 struct LoginButton: View {
     @State private var logo: Image?
@@ -26,7 +25,7 @@ struct LoginButton: View {
         self.showsProgressView = showsProgressView
         self.action = action
     }
-    
+
     var body: some View {
         Button {
             action()

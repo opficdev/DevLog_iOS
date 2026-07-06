@@ -259,10 +259,10 @@ let project = Project(
             )
         ),
         .target(
-            name: "Presentation",
+            name: "Entry",
             destinations: .iOS,
             product: .staticFramework,
-            bundleId: "com.opfic.DevLog.Presentation",
+            bundleId: "com.opfic.DevLog.Entry",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["Entry/Sources/**/*.swift"],
             scripts: [
@@ -283,10 +283,10 @@ let project = Project(
             settings: frameworkBuildSettings
         ),
         .target(
-            name: "PresentationTests",
+            name: "EntryTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "com.opfic.DevLog.PresentationTests",
+            bundleId: "com.opfic.DevLog.EntryTests",
             infoPlist: .file(path: testsInfoPlistPath),
             sources: ["Entry/Tests/**/*.swift"],
             scripts: [
@@ -296,14 +296,36 @@ let project = Project(
                 )
             ],
             dependencies: [
-                .target(name: "Presentation")
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "Entry"),
+                .target(name: "PresentationShared")
             ],
             settings: .devlog(
                 base: [
                     "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
-                    "TEST_TARGET_NAME": "Presentation"
+                    "TEST_TARGET_NAME": "Entry"
                 ]
             )
+        ),
+        .target(
+            name: "Presentation",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.Presentation",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Sources",
+                    configPath: "Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .target(name: "Entry"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
         )
     ]
 )

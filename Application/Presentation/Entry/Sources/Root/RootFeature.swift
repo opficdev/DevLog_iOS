@@ -1,6 +1,6 @@
 //
 //  RootFeature.swift
-//  Presentation
+//  Entry
 //
 //  Created by opfic on 6/17/26.
 //

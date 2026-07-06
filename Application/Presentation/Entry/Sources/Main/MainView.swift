@@ -1,6 +1,6 @@
 //
 //  MainView.swift
-//  Presentation
+//  Entry
 //
 //  Created by opfic on 5/8/25.
 //

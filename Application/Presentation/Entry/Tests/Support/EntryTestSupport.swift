@@ -1,6 +1,6 @@
 //
 //  EntryTestSupport.swift
-//  PresentationTests
+//  EntryTests
 //
 //  Created by opfic on 7/6/26.
 //

@@ -1,6 +1,6 @@
 //
 //  MainFeatureTests.swift
-//  PresentationTests
+//  EntryTests
 //
 //  Created by opfic on 6/16/26.
 //
@@ -10,7 +10,7 @@ import PresentationShared
 import Domain
 import Foundation
 import Testing
-@testable import Presentation
+@testable import Entry
 
 @MainActor
 struct MainFeatureTests {

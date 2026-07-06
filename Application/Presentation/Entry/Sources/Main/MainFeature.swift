@@ -1,6 +1,6 @@
 //
 //  MainFeature.swift
-//  Presentation
+//  Entry
 //
 //  Created by opfic on 6/16/26.
 //

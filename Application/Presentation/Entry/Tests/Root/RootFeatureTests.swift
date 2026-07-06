@@ -1,6 +1,6 @@
 //
 //  RootFeatureTests.swift
-//  PresentationTests
+//  EntryTests
 //
 //  Created by opfic on 6/17/26.
 //

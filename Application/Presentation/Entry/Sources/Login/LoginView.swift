@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  Presentation
+//  Entry
 //
 //  Created by opfic on 12/30/24.
 //
