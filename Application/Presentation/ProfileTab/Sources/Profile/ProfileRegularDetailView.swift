@@ -16,13 +16,14 @@ public struct ProfileRegularDetailView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: Binding(
-            get: { coordinator.router.detailPath },
-            set: { coordinator.router.detailPath = $0 }
-        )) {
+        NavigationStack(path: navigationPath) {
             Group {
                 if let route = coordinator.router.root {
-                    profileDestinationView(route)
+                    ProfileDestinationView(
+                        route: route,
+                        coordinator: coordinator,
+                        identifiesActivityDetail: true
+                    )
                 } else {
                     ContentUnavailableView(
                         String(localized: "profile_select_detail"),
@@ -31,21 +32,46 @@ public struct ProfileRegularDetailView: View {
                 }
             }
             .navigationDestination(for: ProfileRoute.self) { route in
-                profileDestinationView(route)
+                ProfileDestinationView(
+                    route: route,
+                    coordinator: coordinator,
+                    identifiesActivityDetail: true
+                )
             }
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 
-    @ViewBuilder
-    private func profileDestinationView(_ route: ProfileRoute) -> some View {
+    private var navigationPath: Binding<[ProfileRoute]> {
+        Binding(
+            get: { coordinator.router.detailPath },
+            set: { coordinator.router.detailPath = $0 }
+        )
+    }
+}
+
+struct ProfileDestinationView: View {
+    let route: ProfileRoute
+    let coordinator: ProfileViewCoordinator
+    let identifiesActivityDetail: Bool
+
+    init(
+        route: ProfileRoute,
+        coordinator: ProfileViewCoordinator,
+        identifiesActivityDetail: Bool = false
+    ) {
+        self.route = route
+        self.coordinator = coordinator
+        self.identifiesActivityDetail = identifiesActivityDetail
+    }
+
+    var body: some View {
         switch route {
         case .settings:
             SettingsView(store: coordinator.settingsStore)
                 .environment(coordinator.router)
         case .activity(let todoId):
-            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: todoId))
-                .id(todoId)
+            activityDetailView(todoId: todoId)
         case .theme:
             @Bindable var settingsStore = coordinator.settingsStore
             ThemeView(theme: $settingsStore.theme)
@@ -53,6 +79,16 @@ public struct ProfileRegularDetailView: View {
             PushNotificationSettingsView(store: coordinator.makePushNotificationSettingsStore())
         case .account:
             AccountView(store: coordinator.makeAccountStore())
+        }
+    }
+
+    @ViewBuilder
+    private func activityDetailView(todoId: String) -> some View {
+        if identifiesActivityDetail {
+            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: todoId))
+                .id(todoId)
+        } else {
+            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: todoId))
         }
     }
 }

@@ -32,7 +32,7 @@ public struct ProfileView: View {
                 NavigationStack(path: navigationPath) {
                     profileContentView
                         .navigationDestination(for: ProfileRoute.self) { route in
-                            profileDestinationView(route)
+                            ProfileDestinationView(route: route, coordinator: coordinator)
                         }
                 }
             } else {
@@ -239,24 +239,6 @@ public struct ProfileView: View {
             } label: {
                 Image(systemName: "gearshape")
             }
-        }
-    }
-
-    @ViewBuilder
-    private func profileDestinationView(_ route: ProfileRoute) -> some View {
-        switch route {
-        case .settings:
-            SettingsView(store: coordinator.settingsStore)
-                .environment(coordinator.router)
-        case .activity(let todoId):
-            TodoDetailView(store: coordinator.makeTodoDetailStore(todoId: todoId))
-        case .theme:
-            @Bindable var settingsStore = coordinator.settingsStore
-            ThemeView(theme: $settingsStore.theme)
-        case .pushNotification:
-            PushNotificationSettingsView(store: coordinator.makePushNotificationSettingsStore())
-        case .account:
-            AccountView(store: coordinator.makeAccountStore())
         }
     }
 
