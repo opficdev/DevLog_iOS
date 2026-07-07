@@ -110,7 +110,7 @@ Use `Architecture risk: possible` when the task touches module boundaries, impor
 Use this template when assigning work to another AI model or sub-agent.
 
 ```md
-You are the `<Role Name>` for `/Users/opfic/Desktop/Github/App/DevLog/DevLog_iOS`.
+You are the `<Role Name>` for the DevLog iOS repository.
 
 Read `AGENTS.md` first. Then read `AGENT_ROLES.md` and follow the `<Role Name>` section.
 
