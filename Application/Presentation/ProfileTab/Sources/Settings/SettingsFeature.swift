@@ -34,11 +34,28 @@ struct SettingsFeature {
         var loading = LoadingFeature.State()
         var alertType: Action.AlertType?
         var appVersion = Self.appVersion()
-        var appstoreUrl = Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
+        var betaTestURL = Self.betaTestURL(
+            databaseID: Bundle.main.object(forInfoDictionaryKey: "FIRESTORE_DATABASE_ID") as? String,
+            testFlightURL: Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
+        )
         var policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
 
         var isLoading: Bool {
             loading.isLoading
+        }
+
+        static func betaTestURL(databaseID: String?, testFlightURL: String?) -> URL? {
+            guard databaseID?.trimmingCharacters(in: .whitespacesAndNewlines) == "prod",
+                  let rawValue = testFlightURL else {
+                return nil
+            }
+
+            let urlString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !urlString.isEmpty, !urlString.hasPrefix("$(") else {
+                return nil
+            }
+
+            return URL(string: urlString)
         }
 
         private static func appVersion() -> String? {
