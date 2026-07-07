@@ -16,6 +16,14 @@ These instructions apply only to the repository root.
 - Do not include full files, unrelated code, or explanatory text unless explicitly requested.
 - You do not need to paste code in the prompt after updating it in the repository.
 
+## AI role workflow
+
+- For non-trivial AI-assisted work, read `AGENT_ROLES.md` before planning, implementing, reviewing, or verifying the task.
+- Use `AGENT_ROLES.md` to assign model-specific roles, define handoff packets, and run review or verification gates.
+- Use `AGENT_WORKFLOWS.md` when a task should be executed through repeatable role-based workflows.
+- Treat `AGENT_ROLES.md` as an operational extension of this file. If it conflicts with `AGENTS.md`, follow `AGENTS.md`.
+- Keep `docs/` for README images and draw.io sources. Do not add AI workflow documents under `docs/`.
+
 ## Naming and Swift style
 
 - In Swift, do not write explicit type annotations unless required.

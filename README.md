@@ -253,3 +253,51 @@ DevLog_iOS/
 ├── docs/                     # README 이미지와 draw.io 원본
 └── README.md
 ```
+
+## AI 역할 분리
+
+```mermaid
+flowchart LR
+	subgraph Primary["Primary"]
+		Planner["Planner"]
+		Implementer["Implementer"]
+		Integrator["Final Integration"]
+	end
+
+	subgraph Spark["gpt-5.3-codex-spark"]
+		ArchitectureWatcher["Architecture Watcher"]
+		CodeReviewer["Code Reviewer"]
+		VerificationRunner["Verification Runner"]
+		GitHubCIAnalyst["GitHub/CI Analyst"]
+		DocumentationWriter["Documentation Writer"]
+	end
+
+	subgraph Gate["Gate"]
+		TaskPacket["Task Packet"]
+		ReviewGate["Review Gate"]
+		VerificationGate["Build-only Verification"]
+	end
+
+	TaskPacket --> Planner
+	Planner --> Implementer
+	Planner --> ArchitectureWatcher
+	ArchitectureWatcher -->|Pass| Implementer
+	ArchitectureWatcher -->|Block / Decision| Integrator
+	Implementer --> CodeReviewer
+	CodeReviewer --> ReviewGate
+	ReviewGate --> VerificationRunner
+	VerificationRunner --> VerificationGate
+	GitHubCIAnalyst --> Planner
+	DocumentationWriter --> Integrator
+	VerificationGate --> Integrator
+```
+
+| 역할 | 모델 | 담당 | 다음 흐름 |
+| --- | --- | --- | --- |
+| Planner | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
+| Implementer | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
+| Architecture Watcher | Spark -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
+| Code Reviewer | Spark -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
+| Verification Runner | gpt-5.3-codex-spark | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
+| GitHub/CI Analyst | gpt-5.3-codex-spark | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
+| Documentation Writer | gpt-5.3-codex-spark | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
