@@ -71,17 +71,16 @@ struct SettingsView: View {
                             .foregroundColor(Color.blue)
                     }
                 }
-                Button(action: {
-                    if let appStoreString = store.appstoreUrl,
-                       let url = URL(string: appStoreString) {
-                        UIApplication.shared.open(url)
-                    }
-                }) {
-                    VStack(alignment: .leading) {
-                        Text(String(localized: "settings_join_beta"))
-                        Text(String(localized: "settings_join_beta_subtitle"))
-                            .foregroundStyle(Color.gray)
-                            .font(.caption)
+                if let betaTestURL = store.betaTestURL {
+                    Button {
+                        UIApplication.shared.open(betaTestURL)
+                    } label: {
+                        VStack(alignment: .leading) {
+                            Text(String(localized: "settings_join_beta"))
+                            Text(String(localized: "settings_join_beta_subtitle"))
+                                .foregroundStyle(Color.gray)
+                                .font(.caption)
+                        }
                     }
                 }
             }
