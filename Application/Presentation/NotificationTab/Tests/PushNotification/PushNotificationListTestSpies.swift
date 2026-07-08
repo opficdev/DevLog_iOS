@@ -5,6 +5,7 @@
 //  Created by opfic on 7/6/26.
 //
 
+import Core
 import Domain
 
 final class DeletePushNotificationUseCaseSpy: DeletePushNotificationUseCase {

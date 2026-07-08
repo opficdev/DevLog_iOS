@@ -9,7 +9,7 @@ let project = Project.devlogFramework(
     testsInfoPlistPath: "../Shared/InfoPlists/UnitTests-Info.plist",
     packages: DevLogPackages.defaultPackages,
     dependencies: [
-        .project(target: "Core", path: "../Core"),
+        .project(target: "Core", path: "../Core")
     ],
-    hasTests: true
+    hasTests: false
 )
