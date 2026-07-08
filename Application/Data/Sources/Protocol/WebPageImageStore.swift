@@ -8,9 +8,9 @@
 import Foundation
 
 public protocol WebPageImageStore {
-    func cachedImageURL(for url: URL) async throws -> URL
-    func saveImage(_ data: Data, for url: URL) async throws -> URL
-    func dirSizeInBytes() async -> Int64
-    func clearDirectory() async throws
-    func removeImage(for url: URL) async throws -> Bool
+    func cachedImageURL(for url: URL, accountID: String?) async throws -> URL
+    func saveImage(_ data: Data, for url: URL, accountID: String?) async throws -> URL
+    func dirSizeInBytes(accountID: String?) async -> Int64
+    func clearDirectory(accountID: String?) async throws
+    func removeImage(for url: URL, accountID: String?) async throws -> Bool
 }

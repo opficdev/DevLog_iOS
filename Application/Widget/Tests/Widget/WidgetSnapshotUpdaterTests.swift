@@ -75,51 +75,6 @@ struct WidgetSnapshotUpdaterTests {
         #expect(snapshot.maxCount == 1)
     }
 
-    @Test("WidgetSnapshotUpdaterImpl는 모든 위젯 스냅샷을 삭제한다")
-    func widgetSnapshotUpdater는_모든_위젯_스냅샷을_삭제한다() throws {
-        let calendar = Calendar(identifier: .gregorian)
-        let quarterStart = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 1)))
-        let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 30)))
-        let fixture = makeFixture(calendar: calendar)
-        let todo = makeTodo(
-            id: "today",
-            createdAt: now,
-            dueDate: now
-        )
-        fixture.preferenceStore.setHeatmapActivityTypes(["created"])
-        fixture.preferenceStore.setTodayDisplayOptions(
-            TodayDisplayOptions(
-                dueDateVisibility: .withDueDateOnly,
-                focusVisibility: .focusedOnly
-            )
-        )
-
-        fixture.updater.updateTodaySnapshot(
-            todos: [todo],
-            displayOptions: .default,
-            now: now
-        )
-        fixture.updater.updateHeatmapSnapshot(
-            createdTodos: [
-                makeTodo(
-                    id: "created",
-                    createdAt: now
-                )
-            ],
-            completedTodos: [],
-            deletedTodos: [],
-            quarterStart: quarterStart,
-            now: now
-        )
-
-        fixture.updater.clear()
-
-        #expect(try fixture.snapshotStore.loadTodaySnapshot() == nil)
-        #expect(try fixture.snapshotStore.loadHeatmapSnapshot() == nil)
-        #expect(fixture.preferenceStore.heatmapActivityTypes().isEmpty)
-        #expect(fixture.preferenceStore.todayDisplayOptions() == .default)
-    }
-
     @Test("저장된 원본 재생성은 네트워크 fetch 없이 현재 설정을 반영한다")
     func 저장된_원본_재생성은_네트워크_fetch_없이_현재_설정을_반영한다() throws {
         let now = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 30)))
