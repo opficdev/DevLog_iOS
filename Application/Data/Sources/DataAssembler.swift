@@ -117,13 +117,15 @@ public final class DataAssembler: Assembler {
 
         container.register(WebPageRepository.self) {
             WebPageRepositoryImpl(
-                webPageService: container.resolve(WebPageService.self),
-                metadataService: container.resolve(WebPageMetadataService.self)
+                authService: container.resolve(AuthService.self),
+                metadataService: container.resolve(WebPageMetadataService.self),
+                webPageService: container.resolve(WebPageService.self)
             )
         }
 
         container.register(WebPageImageRepository.self) {
             WebPageImageRepositoryImpl(
+                authService: container.resolve(AuthService.self),
                 store: container.resolve(WebPageImageStore.self)
             )
         }

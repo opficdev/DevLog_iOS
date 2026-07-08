@@ -10,26 +10,30 @@ import UIKit
 import Domain
 
 final class WebPageRepositoryImpl: WebPageRepository {
-    private let webPageService: WebPageService
+    private let authService: AuthService
     private let metadataService: WebPageMetadataService
+    private let webPageService: WebPageService
 
     init(
-        webPageService: WebPageService,
-        metadataService: WebPageMetadataService
+        authService: AuthService,
+        metadataService: WebPageMetadataService,
+        webPageService: WebPageService
     ) {
-        self.webPageService = webPageService
+        self.authService = authService
         self.metadataService = metadataService
+        self.webPageService = webPageService
     }
 
     func fetch(_ query: String) async throws -> [WebPage] {
         do {
+            let accountID = authService.uid
             let responses = try await webPageService.fetchWebPages(query)
             var pages: [WebPage] = []
             pages.reserveCapacity(responses.count)
 
             for response in responses {
-                if await needsImageRestore(response) {
-                    if let restored = try? await restoreWebPage(response) {
+                if await needsImageRestore(response, accountID: accountID) {
+                    if let restored = try? await restoreWebPage(response, accountID: accountID) {
                         pages.append(restored)
                     } else if let page = try? responseWithoutImage(response).toDomain() {
                         pages.append(page)
@@ -49,7 +53,8 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func upsert(_ urlString: String) async throws {
         do {
-            let metadata = try await metadataService.fetchMetadata(from: urlString)
+            let accountID = authService.uid
+            let metadata = try await metadataService.fetchMetadata(from: urlString, accountID: accountID)
             let request = WebPageRequest(
                 title: metadata.title,
                 url: urlString,
@@ -65,8 +70,9 @@ final class WebPageRepositoryImpl: WebPageRepository {
 
     func delete(id: String, urlString: String) async throws {
         do {
+            let accountID = authService.uid
             try await webPageService.deleteWebPage(id)
-            await metadataService.removeCachedImage(for: urlString)
+            await metadataService.removeCachedImage(for: urlString, accountID: accountID)
         } catch {
             throw error.toDomain()
         }
@@ -82,7 +88,7 @@ final class WebPageRepositoryImpl: WebPageRepository {
 }
 
 private extension WebPageRepositoryImpl {
-    func needsImageRestore(_ response: WebPageResponse) async -> Bool {
+    func needsImageRestore(_ response: WebPageResponse, accountID: String?) async -> Bool {
         guard !response.imageURL.isEmpty,
               let imageURL = URL(string: response.imageURL),
               imageURL.isFileURL else {
@@ -91,7 +97,7 @@ private extension WebPageRepositoryImpl {
 
         let expectedImageURL: URL
         do {
-            expectedImageURL = try await metadataService.cachedImageURL(for: response.url)
+            expectedImageURL = try await metadataService.cachedImageURL(for: response.url, accountID: accountID)
         } catch {
             return true
         }
@@ -113,8 +119,8 @@ private extension WebPageRepositoryImpl {
         }.value
     }
 
-    func restoreWebPage(_ response: WebPageResponse) async throws -> WebPage? {
-        let metadata = try await metadataService.fetchMetadata(from: response.url)
+    func restoreWebPage(_ response: WebPageResponse, accountID: String?) async throws -> WebPage? {
+        let metadata = try await metadataService.fetchMetadata(from: response.url, accountID: accountID)
         let request = WebPageRequest(
             title: metadata.title,
             url: response.url,
