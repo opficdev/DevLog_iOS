@@ -15,37 +15,37 @@ final class WebPageImageStoreImpl: WebPageImageStore {
         qos: .utility
     )
 
-    func cachedImageURL(for url: URL) async throws -> URL {
+    func cachedImageURL(for url: URL, accountID: String? = nil) async throws -> URL {
         return try await perform {
-            try Self.cachedImageURL(for: url)
+            try Self.cachedImageURL(for: url, accountID: accountID)
         }
     }
 
-    func saveImage(_ data: Data, for url: URL) async throws -> URL {
+    func saveImage(_ data: Data, for url: URL, accountID: String? = nil) async throws -> URL {
         return try await perform {
-            try Self.saveImage(data, for: url)
+            try Self.saveImage(data, for: url, accountID: accountID)
         }
     }
 
-    func dirSizeInBytes() async -> Int64 {
+    func dirSizeInBytes(accountID: String? = nil) async -> Int64 {
         do {
             return try await perform {
-                try Self.dirSizeInBytes()
+                try Self.dirSizeInBytes(accountID: accountID)
             }
         } catch {
             return 0
         }
     }
 
-    func clearDirectory() async throws {
+    func clearDirectory(accountID: String? = nil) async throws {
         try await perform {
-            try Self.clearDirectory()
+            try Self.clearDirectory(accountID: accountID)
         }
     }
 
-    func removeImage(for url: URL) async throws -> Bool {
+    func removeImage(for url: URL, accountID: String? = nil) async throws -> Bool {
         return try await perform {
-            try Self.removeImage(for: url)
+            try Self.removeImage(for: url, accountID: accountID)
         }
     }
 }
@@ -68,9 +68,13 @@ private extension WebPageImageStoreImpl {
         return hashValue.map { String(format: "%02x", $0) }.joined()
     }
 
-    static func cachedImageURL(for url: URL) throws -> URL {
+    static func cachedImageURL(for url: URL, accountID: String?) throws -> URL {
         let fileManager = FileManager.default
-        let imageDirectoryURL = try imageDirectoryURL(create: true, fileManager: fileManager)
+        let imageDirectoryURL = try imageDirectoryURL(
+            accountID: accountID,
+            create: true,
+            fileManager: fileManager
+        )
         let fileName = hashedFileName(for: url)
 
         return imageDirectoryURL
@@ -78,15 +82,19 @@ private extension WebPageImageStoreImpl {
             .appendingPathExtension("jpeg")
     }
 
-    static func saveImage(_ data: Data, for url: URL) throws -> URL {
-        let fileURL = try cachedImageURL(for: url)
+    static func saveImage(_ data: Data, for url: URL, accountID: String?) throws -> URL {
+        let fileURL = try cachedImageURL(for: url, accountID: accountID)
         try data.write(to: fileURL, options: [.atomic])
         return fileURL
     }
 
-    static func dirSizeInBytes() throws -> Int64 {
+    static func dirSizeInBytes(accountID: String?) throws -> Int64 {
         let fileManager = FileManager.default
-        let imageDirectoryURL = try imageDirectoryURL(create: false, fileManager: fileManager)
+        let imageDirectoryURL = try imageDirectoryURL(
+            accountID: accountID,
+            create: false,
+            fileManager: fileManager
+        )
         guard fileManager.fileExists(atPath: imageDirectoryURL.path) else { return 0 }
         guard let enumerator = fileManager.enumerator(
             at: imageDirectoryURL,
@@ -108,9 +116,13 @@ private extension WebPageImageStoreImpl {
         return total
     }
 
-    static func clearDirectory() throws {
+    static func clearDirectory(accountID: String?) throws {
         let fileManager = FileManager.default
-        let imageDirectoryURL = try imageDirectoryURL(create: false, fileManager: fileManager)
+        let imageDirectoryURL = try imageDirectoryURL(
+            accountID: accountID,
+            create: false,
+            fileManager: fileManager
+        )
         guard fileManager.fileExists(atPath: imageDirectoryURL.path) else { return }
         let contentURLs = try fileManager.contentsOfDirectory(
             at: imageDirectoryURL,
@@ -122,22 +134,27 @@ private extension WebPageImageStoreImpl {
         }
     }
 
-    static func removeImage(for url: URL) throws -> Bool {
+    static func removeImage(for url: URL, accountID: String?) throws -> Bool {
         let fileManager = FileManager.default
-        let fileURL = try cachedImageURL(for: url)
+        let fileURL = try cachedImageURL(for: url, accountID: accountID)
         guard fileManager.fileExists(atPath: fileURL.path) else { return false }
         try fileManager.removeItem(at: fileURL)
         return true
     }
 
-    static func imageDirectoryURL(create: Bool, fileManager: FileManager) throws -> URL {
+    static func imageDirectoryURL(accountID: String?, create: Bool, fileManager: FileManager) throws -> URL {
         let directory = try fileManager.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: create
         )
-        let imageDirectory = directory.appendingPathComponent("webPageImages", isDirectory: true)
+        let imageBaseDirectory = directory.appendingPathComponent("webPageImages", isDirectory: true)
+        let imageDirectory = accountImageDirectoryURL(
+            in: imageBaseDirectory,
+            accountID: accountID
+        )
+
         if create && !fileManager.fileExists(atPath: imageDirectory.path) {
             try fileManager.createDirectory(at: imageDirectory, withIntermediateDirectories: true)
         }
@@ -149,5 +166,29 @@ private extension WebPageImageStoreImpl {
         }
 
         return imageDirectory
+    }
+
+    static func accountImageDirectoryURL(in imageBaseDirectory: URL, accountID: String?) -> URL {
+        guard let accountID = normalizedAccountID(accountID) else {
+            return imageBaseDirectory
+        }
+
+        return imageBaseDirectory.appendingPathComponent(
+            hashedDirectoryName(for: accountID),
+            isDirectory: true
+        )
+    }
+
+    static func normalizedAccountID(_ accountID: String?) -> String? {
+        guard let accountID = accountID?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !accountID.isEmpty else {
+            return nil
+        }
+        return accountID
+    }
+
+    static func hashedDirectoryName(for accountID: String) -> String {
+        let hashValue = SHA256.hash(data: Data(accountID.utf8))
+        return hashValue.map { String(format: "%02x", $0) }.joined()
     }
 }

@@ -29,7 +29,7 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
         self.imageStore = store
     }
 
-    func fetchMetadata(from urlString: String) async throws -> WebPageMetadataResponse {
+    func fetchMetadata(from urlString: String, accountID: String?) async throws -> WebPageMetadataResponse {
         logger.info("Fetching metadata for URL: \(urlString)")
         
         guard let url = URL(string: urlString) else {
@@ -42,7 +42,7 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
             provider.timeout = 10.0
 
             let metadata = try await provider.startFetchingMetadata(for: url)
-            let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url)
+            let imageURL = try await extractImageURL(from: metadata.imageProvider, url: url, accountID: accountID)
 
             logger.info("Successfully fetched metadata for: \(metadata.title ?? "Unknown")")
             return WebPageMetadataResponse(
@@ -57,14 +57,14 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
         }
     }
 
-    func removeCachedImage(for urlString: String) async {
+    func removeCachedImage(for urlString: String, accountID: String?) async {
         guard let url = URL(string: urlString) else {
             logger.error("Invalid URL for cached image removal: \(urlString)")
             return
         }
 
         do {
-            let removed = try await imageStore.removeImage(for: url)
+            let removed = try await imageStore.removeImage(for: url, accountID: accountID)
 
             if removed {
                 logger.info("Removed cached image for URL: \(urlString)")
@@ -75,13 +75,13 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
         }
     }
 
-    func cachedImageURL(for urlString: String) async throws -> URL {
+    func cachedImageURL(for urlString: String, accountID: String?) async throws -> URL {
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
 
         do {
-            return try await imageStore.cachedImageURL(for: url)
+            return try await imageStore.cachedImageURL(for: url, accountID: accountID)
         } catch {
             logger.error("Failed to fetch cached image URL", error: error)
             record(error, code: .cachedImageURL)
@@ -89,11 +89,15 @@ final class WebPageMetadataServiceImpl: WebPageMetadataService {
         }
     }
 
-    private func extractImageURL(from imageProvider: NSItemProvider?, url: URL) async throws -> URL? {
+    private func extractImageURL(
+        from imageProvider: NSItemProvider?,
+        url: URL,
+        accountID: String?
+    ) async throws -> URL? {
         guard let imageProvider else { return nil }
 
         guard let data = try await imageData(from: imageProvider) else { return nil }
-        return try await imageStore.saveImage(data, for: url)
+        return try await imageStore.saveImage(data, for: url, accountID: accountID)
     }
 
     private func imageData(from imageProvider: NSItemProvider) async throws -> Data? {
