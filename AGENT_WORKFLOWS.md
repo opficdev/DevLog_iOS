@@ -17,12 +17,14 @@ The main agent must run every workflow with this protocol.
 3. Create the task packet.
 4. Assign only the roles required by the selected workflow.
 5. Assign each role a model tier from `AGENT_ROLES.md`.
-6. Dispatch read-only `Spark` or `Fast` roles in parallel only when they do not depend on unfinished edits.
-7. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
-8. Integrate role outputs.
-9. Escalate any `Spark` or `Fast` blocker to a `Primary` model before editing.
-10. Run completion gates.
-11. Report changed files, architecture decision, verification result, and unresolved decisions.
+6. Dispatch each `Spark` or `Fast` role through a separate model or sub-agent call when tooling can select that assigned model.
+7. Dispatch read-only `Spark` or `Fast` roles in parallel only when they do not depend on unfinished edits.
+8. Do not complete a required `Spark` or `Fast` role directly in `Primary` unless the model or model-selecting tool is unavailable and the fallback policy in `AGENT_ROLES.md` applies.
+9. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
+10. Integrate role outputs.
+11. Escalate any `Spark` or `Fast` blocker to a `Primary` model before editing.
+12. Run completion gates.
+13. Report changed files, architecture decision, verification result, delegated roles, model tiers used, and unresolved decisions.
 
 Do not skip the task packet. The task packet is the contract between models.
 
@@ -33,6 +35,7 @@ Stop and ask the user before editing when:
 - The task packet conflicts with `AGENTS.md`.
 - The requested fix requires relaxing a layer boundary.
 - A role needs to run, launch, install, boot, or open the app or Simulator.
+- A required `Spark` or `Fast` role needs a separate model or sub-agent call, but current tool policy requires user permission that has not been granted.
 - The current issue or PR scope is unclear after live GitHub inspection.
 - Two editing roles would touch the same file.
 - A read-only role reports `Block` or `Needs Owner Decision`.
@@ -236,6 +239,9 @@ Use for PR body, issue text, release note, README wording, review reply draft, o
 ### Execution
 
 - Documentation Writer must inspect the actual diff before writing PR or release text.
+- When the Documentation Writer role is required and `Spark` is available, the main agent must dispatch the draft to `gpt-5.3-codex-spark` or the configured `Spark` fallback before writing the final response.
+- If dispatch requires explicit user permission and it has not been granted, ask before drafting, returning, or posting the Documentation Writer output.
+- `Primary` must review the Documentation Writer output against the template, issue scope, and diff before returning or posting it.
 - Do not write AI workflow documents under `docs/`.
 - If the user asks only for text, return text directly and do not create files.
 - If documentation files are changed, keep the change scoped to the requested document.
