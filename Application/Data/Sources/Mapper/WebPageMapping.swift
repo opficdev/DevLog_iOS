@@ -11,10 +11,10 @@ import Domain
 public extension WebPageResponse {
     func toDomain() throws -> WebPage {
         guard let url = URL(string: url) else {
-            throw DataError.invalidData("WebPageResponse.url is invalid: \(url)")
+            throw DataLayerError.invalidData("WebPageResponse.url is invalid: \(url)")
         }
         guard let displayURL = URL(string: displayURL) else {
-            throw DataError.invalidData("WebPageResponse.displayURL is invalid: \(displayURL)")
+            throw DataLayerError.invalidData("WebPageResponse.displayURL is invalid: \(displayURL)")
         }
         let imageURL: URL?
         if !self.imageURL.isEmpty {

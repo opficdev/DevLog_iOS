@@ -124,10 +124,10 @@ private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
         ) else { return nil }
 
         switch body.code {
-        case EmailFetchError.emailNotFound.code:
-            return EmailFetchError.emailNotFound
-        case EmailFetchError.emailMismatch.code:
-            return EmailFetchError.emailMismatch
+        case EmailError.notFound.code:
+            return EmailError.notFound
+        case EmailError.mismatch.code:
+            return EmailError.mismatch
         default:
             return nil
         }
@@ -145,7 +145,7 @@ private actor FirebaseAuthTokenProvider: NXAuthTokenProvider {
 }
 
 extension Error {
-    var apiEmailFetchError: EmailFetchError? {
+    var apiEmailError: EmailError? {
         guard let error = self as? NXError,
               case let .server(
             statusCode: _,
@@ -153,6 +153,6 @@ extension Error {
             underlying: underlying
         ) = error else { return nil }
 
-        return underlying as? EmailFetchError
+        return underlying as? EmailError
     }
 }

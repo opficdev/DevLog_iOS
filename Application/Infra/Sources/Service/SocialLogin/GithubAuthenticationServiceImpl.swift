@@ -135,13 +135,13 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             guard let githubEmail = githubUser.email else {
                 logger.error("GitHub email not found")
                 try await revokeAccessToken(accessToken: accessToken)
-                throw EmailFetchError.emailNotFound
+                throw EmailError.notFound
             }
 
             if githubEmail != email {
                 logger.error("Email mismatch - Expected: \(email), Got: \(githubEmail)")
                 try await revokeAccessToken(accessToken: accessToken)
-                throw EmailFetchError.emailMismatch
+                throw EmailError.mismatch
             }
 
             try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
@@ -310,8 +310,8 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
     }
 
     private func mapRequestTokensError(_ error: Error) -> Error {
-        if let emailFetchError = error.apiEmailFetchError {
-            return emailFetchError
+        if let emailError = error.apiEmailError {
+            return emailError
         }
 
         return error

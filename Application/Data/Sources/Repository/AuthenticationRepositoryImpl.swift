@@ -128,8 +128,8 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
 
 private extension AuthenticationRepositoryImpl {
     func mapSignInError(_ error: Error) -> Error {
-        if let emailFetchError = error as? EmailFetchError,
-           emailFetchError == .emailNotFound {
+        if let emailError = error as? EmailError,
+           emailError == .notFound {
             return AuthError.emailNotFound
         }
 

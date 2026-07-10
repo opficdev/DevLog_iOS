@@ -54,7 +54,7 @@ public extension TodoResponse {
         case .decoded(let category):
             todoCategory = category
         case .raw(let category):
-            throw DataError.invalidData("TodoResponse.category must be resolved before toDomain(): \(category)")
+            throw DataLayerError.invalidData("TodoResponse.category must be resolved before toDomain(): \(category)")
         }
 
         return Todo(

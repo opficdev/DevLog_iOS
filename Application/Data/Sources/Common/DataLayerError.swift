@@ -8,31 +8,33 @@
 import Foundation
 import Core
 
-public enum EmailFetchError: Error, Equatable {
-    case emailNotFound
-    case emailMismatch
+public enum EmailError: Error, Equatable {
+    case notFound
+    case mismatch
 
     public var code: String {
         switch self {
-        case .emailMismatch:
+        case .mismatch:
             "email_mismatch"
-        case .emailNotFound:
+        case .notFound:
             "email_not_found"
         }
     }
 }
 
-public enum DataError: Error {
+public enum DataLayerError: Error {
+    case notAuthenticated
+    case linkCredentialAlreadyInUse
     case invalidData(context: String)
 
-    private static let logger = Logger(category: "DataError")
+    private static let logger = Logger(category: "DataLayerError")
 
     public static func invalidData(
         _ context: String,
         file: String = #file,
         function: String = #function,
         line: Int = #line
-    ) -> DataError {
+    ) -> DataLayerError {
         logger.error(
             "Invalid data: \(context)",
             file: file,
@@ -41,9 +43,4 @@ public enum DataError: Error {
         )
         return .invalidData(context: context)
     }
-}
-
-public enum DataLayerError: Error {
-    case notAuthenticated
-    case linkCredentialAlreadyInUse
 }
