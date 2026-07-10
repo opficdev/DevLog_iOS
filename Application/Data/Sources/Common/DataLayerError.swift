@@ -12,17 +12,6 @@ public enum EmailError: Error, Equatable {
     case notFound
     case mismatch
     case githubEmailConflict
-
-    public var code: String {
-        switch self {
-        case .mismatch:
-            "email_mismatch"
-        case .notFound:
-            "email_not_found"
-        case .githubEmailConflict:
-            "github-email-changed-account-conflict"
-        }
-    }
 }
 
 public enum DataLayerError: Error {
