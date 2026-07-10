@@ -115,7 +115,7 @@ final class TodoRepositoryImpl: TodoRepository {
             return try responses.reduce(into: [Int: TodoReference]()) { partialResult, pair in
                 let response = try resolve(pair.value, userTodoCategories: userTodoCategories)
                 guard case let .decoded(category) = response.category else {
-                    throw DataError.invalidData("TodoReferenceResponse.category must be resolved before use")
+                    throw DataLayerError.invalidData("TodoReferenceResponse.category must be resolved before use")
                 }
 
                 partialResult[pair.key] = TodoReference(
@@ -208,7 +208,7 @@ private extension TodoRepositoryImpl {
         }) {
             category = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("TodoResponse.category is invalid: \(id)")
+            throw DataLayerError.invalidData("TodoResponse.category is invalid: \(id)")
         }
 
         return TodoResponse(
@@ -249,7 +249,7 @@ private extension TodoRepositoryImpl {
         }) {
             category = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("TodoReferenceResponse.category is invalid: \(categoryId)")
+            throw DataLayerError.invalidData("TodoReferenceResponse.category is invalid: \(categoryId)")
         }
 
         return TodoReferenceResponse(

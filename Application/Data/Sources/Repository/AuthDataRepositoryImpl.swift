@@ -85,12 +85,14 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
 
 private extension AuthDataRepositoryImpl {
     func mapLinkError(_ error: Error) -> Error {
-        if let emailFetchError = error as? EmailFetchError {
-            switch emailFetchError {
-            case .emailNotFound:
+        if let emailError = error as? EmailError {
+            switch emailError {
+            case .notFound:
                 return AuthError.linkEmailNotFound
-            case .emailMismatch:
+            case .mismatch:
                 return AuthError.linkEmailMismatch
+            case .githubEmailConflict:
+                return AuthError.githubEmailConflict
             }
         }
 

@@ -44,6 +44,15 @@ Default role-to-model assignment:
 
 Do not assign `Spark` as the only model for production Swift implementation, target dependency changes, DI assembly, repository/service contract changes, Firebase or SDK placement, Widget data-flow changes, StorePattern responsibility changes, commits, pushes, PR creation, or final integration.
 
+### Model dispatch requirements
+
+- A model tier assignment is an execution requirement, not a label for work the main agent already performed.
+- When a role is assigned to `Spark` or `Fast`, and tooling can select that model, the main agent must dispatch that role through a separate model or sub-agent call before using its result.
+- Do not satisfy a `Spark` or `Fast` role by completing the role directly in `Primary` and describing it as delegated work.
+- If the assigned model cannot be called because the model or model-selecting tool is unavailable, apply the fallback policy and report which role was not dispatched to its default tier.
+- If the assigned model is available but current tool policy requires explicit user permission before dispatch, missing permission is not fallback. Stop and ask for permission before continuing the required role.
+- `Primary` must integrate and verify delegated output, but must not skip the delegated role when the workflow requires it and the assigned model is available.
+
 ### Fallback policy
 
 - If `gpt-5.3-codex-spark` is unavailable, assign `Spark` roles to the fastest available read-only capable coding model.
@@ -123,6 +132,7 @@ Rules:
 - Stay inside the role permissions.
 - Do not edit files if this is a read-only role.
 - Do not run, launch, install, boot, or open the app or Simulator.
+- Perform this role in the assigned model context. Do not return work copied from a different model context as this role's own result.
 - Stop and report if the task packet conflicts with `AGENTS.md`.
 - Return only the output format defined for `<Role Name>`.
 ```

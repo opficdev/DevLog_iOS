@@ -139,6 +139,40 @@
         }
       }
     },
+    "account_alert_github_email_conflict_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A GitHub email change caused a conflict during the linking process. To protect existing data, linking cannot be completed."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 이메일 변경으로 연결 과정에서 충돌이 발생했습니다. 기존 데이터를 보호하기 위해 연결을 진행할 수 없습니다."
+          }
+        }
+      }
+    },
+    "account_alert_github_email_conflict_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Link Account"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정을 연결할 수 없음"
+          }
+        }
+      }
+    },
     "account_connect" : {
       "extractionState" : "manual",
       "localizations" : {

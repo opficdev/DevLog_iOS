@@ -208,7 +208,7 @@ private extension PushNotificationRepositoryImpl {
         }) {
             todoCategory = .user(userTodoCategory)
         } else {
-            throw DataError.invalidData("PushNotificationResponse.todoCategory is invalid: \(id)")
+            throw DataLayerError.invalidData("PushNotificationResponse.todoCategory is invalid: \(id)")
         }
 
         return PushNotificationResponse(

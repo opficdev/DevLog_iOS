@@ -15,7 +15,7 @@ public extension PushNotificationResponse {
         case .decoded(let category):
             todoCategory = category
         case .raw(let category):
-            throw DataError.invalidData(
+            throw DataLayerError.invalidData(
                 "PushNotificationResponse.todoCategory must be resolved before toDomain(): \(category)"
             )
         }

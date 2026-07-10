@@ -14,6 +14,8 @@ extension Error {
             return AuthError.notAuthenticated
         case .linkCredentialAlreadyInUse:
             return AuthError.linkCredentialAlreadyInUse
+        case .invalidData(let context):
+            return DomainLayerError.invalidData(context: context)
         case .none:
             return self
         }

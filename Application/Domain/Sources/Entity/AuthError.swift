@@ -12,5 +12,6 @@ public enum AuthError: Error {
     case linkEmailNotFound
     case linkEmailMismatch
     case linkCredentialAlreadyInUse
+    case githubEmailConflict
     case unsupportedProvider
 }

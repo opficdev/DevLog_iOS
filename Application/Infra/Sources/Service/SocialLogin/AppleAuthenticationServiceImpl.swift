@@ -150,12 +150,12 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
             guard let appleEmail = credential.email else {
                 try await revokeAppleAccessToken(token: refreshToken)
-                throw EmailFetchError.emailNotFound
+                throw EmailError.notFound
             }
 
             if appleEmail != email {
                 try await revokeAppleAccessToken(token: refreshToken)
-                throw EmailFetchError.emailMismatch
+                throw EmailError.mismatch
             }
 
             let appleCredential = OAuthProvider.credential(

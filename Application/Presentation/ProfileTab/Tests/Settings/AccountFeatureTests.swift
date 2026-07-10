@@ -173,6 +173,11 @@ struct AccountFeatureTests {
                 message: String(localized: "account_alert_already_linked_message")
             ),
             AccountLinkFailureScenario(
+                error: AuthError.githubEmailConflict,
+                title: String(localized: "account_alert_github_email_conflict_title"),
+                message: String(localized: "account_alert_github_email_conflict_message")
+            ),
+            AccountLinkFailureScenario(
                 error: AccountTestError.failure,
                 title: String(localized: "common_error_title"),
                 message: String(localized: "common_error_message")

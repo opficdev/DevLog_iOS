@@ -122,32 +122,16 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         }
     }
 
-    func link(uid: String, email: String) async throws -> Bool {
+    func link(uid: String, email _: String) async throws -> Bool {
         logger.info("Linking GitHub account for user: \(uid)")
         
         do {
             let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
             let authorizationCode = try await requestAuthorizationCode()
-            let (accessToken, _) = try await requestTokens(authorizationCode: authorizationCode)
-
-            let githubUser = try await requestUserProfile(accessToken: accessToken)
-
-            guard let githubEmail = githubUser.email else {
-                logger.error("GitHub email not found")
-                try await revokeAccessToken(accessToken: accessToken)
-                throw EmailFetchError.emailNotFound
-            }
-
-            if githubEmail != email {
-                logger.error("Email mismatch - Expected: \(email), Got: \(githubEmail)")
-                try await revokeAccessToken(accessToken: accessToken)
-                throw EmailFetchError.emailMismatch
-            }
+            let accessToken = try await requestProviderLink(authorizationCode: authorizationCode)
 
             try await tokensRef.setData(["githubAccessToken": accessToken], merge: true)
-
-            let credential = OAuthProvider.credential(providerID: providerID, accessToken: accessToken)
-            try await user?.link(with: credential)
+            try await user?.reload()
             
             logger.info("Successfully linked GitHub account")
             return true
@@ -257,7 +241,24 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
             }
             throw TokenError.invalidResponse
         } catch {
-            throw mapRequestTokensError(error)
+            throw mapAPIEmailError(error)
+        }
+    }
+
+    private func requestProviderLink(authorizationCode: String) async throws -> String {
+        do {
+            let response = try await FunctionAPIClient.shared.send(
+                .linkGithubProvider,
+                payload: ["code": authorizationCode],
+                requiresAuthentication: true
+            )
+
+            guard let accessToken = response.accessToken else {
+                throw TokenError.invalidResponse
+            }
+            return accessToken
+        } catch {
+            throw mapAPIEmailError(error)
         }
     }
     
@@ -309,9 +310,9 @@ final class GithubAuthenticationServiceImpl: NSObject, AuthenticationService {
         return gitHubEmails.first(where: { $0.verified })?.email
     }
 
-    private func mapRequestTokensError(_ error: Error) -> Error {
-        if let emailFetchError = error.apiEmailFetchError {
-            return emailFetchError
+    private func mapAPIEmailError(_ error: Error) -> Error {
+        if let emailError = error.apiEmailError {
+            return emailError
         }
 
         return error

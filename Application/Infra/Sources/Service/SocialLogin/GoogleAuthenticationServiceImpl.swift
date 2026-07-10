@@ -123,11 +123,11 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
 
             guard let googleEmail = signIn.user.profile?.email else {
-                throw EmailFetchError.emailNotFound
+                throw EmailError.notFound
             }
 
             if googleEmail != email {
-                throw EmailFetchError.emailMismatch
+                throw EmailError.mismatch
             }
 
             guard let idToken = signIn.user.idToken?.tokenString else {

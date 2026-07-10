@@ -112,6 +112,12 @@ private struct FunctionAPIErrorBody: Decodable {
     let message: String?
 }
 
+private enum FunctionAPIErrorCode: String {
+    case emailNotFound = "email-not-found"
+    case emailMismatch = "email-mismatch"
+    case githubEmailConflict = "github-email-changed-account-conflict"
+}
+
 private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
     func decodeServerError(
         data: Data,
@@ -121,15 +127,15 @@ private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
         guard let body = try? decoder.decode(
             FunctionAPIErrorBody.self,
             from: data
-        ) else { return nil }
+        ), let code = FunctionAPIErrorCode(rawValue: body.code) else { return nil }
 
-        switch body.code {
-        case EmailFetchError.emailNotFound.code:
-            return EmailFetchError.emailNotFound
-        case EmailFetchError.emailMismatch.code:
-            return EmailFetchError.emailMismatch
-        default:
-            return nil
+        switch code {
+        case .emailNotFound:
+            return EmailError.notFound
+        case .emailMismatch:
+            return EmailError.mismatch
+        case .githubEmailConflict:
+            return EmailError.githubEmailConflict
         }
     }
 }
@@ -145,7 +151,7 @@ private actor FirebaseAuthTokenProvider: NXAuthTokenProvider {
 }
 
 extension Error {
-    var apiEmailFetchError: EmailFetchError? {
+    var apiEmailError: EmailError? {
         guard let error = self as? NXError,
               case let .server(
             statusCode: _,
@@ -153,6 +159,6 @@ extension Error {
             underlying: underlying
         ) = error else { return nil }
 
-        return underlying as? EmailFetchError
+        return underlying as? EmailError
     }
 }
