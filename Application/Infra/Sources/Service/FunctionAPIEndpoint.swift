@@ -42,6 +42,7 @@ extension FunctionAPIEndpoint where Response == FunctionAPIResponse {
     static let requestAppleCustomToken = Self(method: .post, path: "/auth/apple/custom-token")
     static let refreshAppleAccessToken = Self(method: .post, path: "/auth/apple/access-token")
     static let requestAppleRefreshToken = Self(method: .post, path: "/auth/apple/refresh-token")
+    static let linkGithubProvider = Self(method: .post, path: "/auth/github/link")
     static let requestGithubTokens = Self(method: .post, path: "/auth/github/tokens")
 }
 
