@@ -39,6 +39,7 @@ struct AccountFeature {
         case linkEmailNotFound
         case linkEmailMismatch
         case linkCredentialAlreadyInUse
+        case githubEmailConflict
         case error
     }
 
@@ -201,6 +202,8 @@ private extension AccountFeature {
             return .linkEmailMismatch
         case .linkCredentialAlreadyInUse:
             return .linkCredentialAlreadyInUse
+        case .githubEmailConflict:
+            return .githubEmailConflict
         case .notAuthenticated, .failedToUnlinkLastProvider, .emailNotFound, .unsupportedProvider:
             return .error
         }
@@ -220,6 +223,9 @@ private extension AccountFeature {
         case .linkCredentialAlreadyInUse:
             title = String(localized: "account_alert_already_linked_title")
             message = String(localized: "account_alert_already_linked_message")
+        case .githubEmailConflict:
+            title = String(localized: "account_alert_github_email_conflict_title")
+            message = String(localized: "account_alert_github_email_conflict_message")
         case .error:
             title = String(localized: "common_error_title")
             message = String(localized: "common_error_message")
