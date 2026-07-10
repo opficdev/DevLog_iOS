@@ -128,6 +128,8 @@ private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
             return EmailError.notFound
         case EmailError.mismatch.code:
             return EmailError.mismatch
+        case EmailError.githubEmailConflict.code:
+            return EmailError.githubEmailConflict
         default:
             return nil
         }

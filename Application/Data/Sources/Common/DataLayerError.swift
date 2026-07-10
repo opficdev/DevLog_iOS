@@ -11,6 +11,7 @@ import Core
 public enum EmailError: Error, Equatable {
     case notFound
     case mismatch
+    case githubEmailConflict
 
     public var code: String {
         switch self {
@@ -18,6 +19,8 @@ public enum EmailError: Error, Equatable {
             "email_mismatch"
         case .notFound:
             "email_not_found"
+        case .githubEmailConflict:
+            "github-email-changed-account-conflict"
         }
     }
 }

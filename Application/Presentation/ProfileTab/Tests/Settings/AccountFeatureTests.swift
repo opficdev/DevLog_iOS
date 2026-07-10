@@ -173,7 +173,7 @@ struct AccountFeatureTests {
                 message: String(localized: "account_alert_already_linked_message")
             ),
             AccountLinkFailureScenario(
-                error: AuthError.githubEmailChangedAccountConflict,
+                error: AuthError.githubEmailConflict,
                 title: String(localized: "account_alert_github_email_conflict_title"),
                 message: String(localized: "account_alert_github_email_conflict_message")
             ),

@@ -91,6 +91,8 @@ private extension AuthDataRepositoryImpl {
                 return AuthError.linkEmailNotFound
             case .mismatch:
                 return AuthError.linkEmailMismatch
+            case .githubEmailConflict:
+                return AuthError.githubEmailConflict
             }
         }
 
