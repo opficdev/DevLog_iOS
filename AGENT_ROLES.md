@@ -27,38 +27,45 @@ Use these model tiers when assigning work to another LLM.
 | Tier | Use | Default model |
 | --- | --- | --- |
 | `Primary` | Planning, implementation, architecture decisions, final integration, failed-check triage | Strongest available Codex/GPT coding model |
-| `Spark` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | `gpt-5.3-codex-spark` when available |
-| `Fast` | Low-risk text cleanup, simple file presence checks, short summaries | Fastest low-cost model available |
+| `Lightweight` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | Best available lightweight coding model that is different from the active `Primary` model |
+| `Fast` | Low-risk text cleanup, simple file presence checks, short summaries | Fastest available coding model that is different from the active `Primary` model |
 
-Default role-to-model assignment:
+Default role-to-model and execution assignment:
 
-| Role | Default tier | Escalate to `Primary` when |
-| --- | --- | --- |
-| Planner | `Primary` | Always for live issues, PR scope, architecture scope, or implementation planning |
-| Implementer | `Primary` | Always for Swift production code, tests, target dependencies, DI, SDK placement, or GitHub writes |
-| Architecture Watcher | `Spark` for preflight, `Primary` for final boundary verdict | Any finding is `Block` or `Needs Owner Decision`, or the change touches module dependency, SDK placement, Widget flow, StorePattern, or DI |
-| Code Reviewer | `Spark` for first pass, `Primary` for final blocking review | Findings involve runtime behavior, concurrency, data loss, architecture, or test strategy |
-| Verification Runner | `Spark` | Verification fails, failure cause is unclear, or a fix is needed |
-| GitHub/CI Analyst | `Spark` | CI root cause requires code or workflow changes, or review comments conflict |
-| Documentation Writer | `Spark` | Text must explain complex architecture, release risk, or PR scope tradeoffs |
+| Role | Execution owner or custom agent | Default tier | Escalate to `Primary` when |
+| --- | --- | --- | --- |
+| Planner | active main agent | `Primary` | Always for live issues, PR scope, architecture scope, or implementation planning |
+| Implementer | active main agent | `Primary` | Always for Swift production code, tests, target dependencies, DI, SDK placement, or GitHub writes |
+| Architecture Watcher | `architecture_watcher` | `Lightweight` for preflight, `Primary` for final boundary verdict | Any finding is `Block` or `Needs Owner Decision`, or the change touches module dependency, SDK placement, Widget flow, StorePattern, or DI |
+| Code Reviewer | `code_reviewer` | `Lightweight` for first pass, `Primary` for final blocking review | Findings involve runtime behavior, concurrency, data loss, architecture, or test strategy |
+| Verification Runner | `verification_runner` | `Lightweight` | Verification fails, failure cause is unclear, or a fix is needed |
+| GitHub/CI Analyst | `github_ci_analyst` | `Lightweight` | CI root cause requires code or workflow changes, or review comments conflict |
+| Documentation Writer | `documentation_writer` | `Lightweight` | Text must explain complex architecture, release risk, CI root cause, or PR scope tradeoffs |
 
-Do not assign `Spark` as the only model for production Swift implementation, target dependency changes, DI assembly, repository/service contract changes, Firebase or SDK placement, Widget data-flow changes, StorePattern responsibility changes, commits, pushes, PR creation, or final integration.
+Project-scoped custom agents live in `.codex/agents/`. Their TOML files pin the concrete model and sandbox for spawned sessions; this table is the canonical role-to-agent routing map.
+
+Do not assign `Lightweight` as the only model for production Swift implementation, target dependency changes, DI assembly, repository/service contract changes, Firebase or SDK placement, Widget data-flow changes, StorePattern responsibility changes, commits, pushes, PR creation, or final integration.
 
 ### Model dispatch requirements
 
 - A model tier assignment is an execution requirement, not a label for work the main agent already performed.
-- When a role is assigned to `Spark` or `Fast`, and tooling can select that model, the main agent must dispatch that role through a separate model or sub-agent call before using its result.
-- Do not satisfy a `Spark` or `Fast` role by completing the role directly in `Primary` and describing it as delegated work.
-- If the assigned model cannot be called because the model or model-selecting tool is unavailable, apply the fallback policy and report which role was not dispatched to its default tier.
+- `Primary` roles belong to the active main agent and must not be delegated to a sub-agent that uses or inherits the active `Primary` model.
+- Every sub-agent created through this role workflow must use either a `Lightweight` or `Fast` model that is different from the active `Primary` model.
+- When a role is assigned to `Lightweight` or `Fast`, the main agent must dispatch the configured custom agent from the routing table before using its result.
+- A sub-agent that inherits the active `Primary` model does not satisfy a `Lightweight` or `Fast` assignment.
+- Do not satisfy a `Lightweight` or `Fast` role by completing the role directly in `Primary` and describing it as delegated work.
+- A generic sub-agent spawn that does not load the configured custom agent TOML does not satisfy the role assignment.
+- If the custom agent cannot be loaded, its pinned model is unavailable, or the dispatch surface cannot select that custom agent, stop before dispatch and report which role cannot run.
 - If the assigned model is available but current tool policy requires explicit user permission before dispatch, missing permission is not fallback. Stop and ask for permission before continuing the required role.
 - `Primary` must integrate and verify delegated output, but must not skip the delegated role when the workflow requires it and the assigned model is available.
 
 ### Fallback policy
 
-- If `gpt-5.3-codex-spark` is unavailable, assign `Spark` roles to the fastest available read-only capable coding model.
-- If no reliable read-only model is available, assign the role to `Primary`.
+- Choose the best available role-capable lightweight coding model without hardcoding a provider or model name.
+- If the preferred lightweight model is unavailable, choose another available role-capable model that is still different from the active `Primary` model.
+- If no eligible non-Primary model is available, do not fall back to `Primary`; stop and report the unavailable role.
 - If `Primary` is unavailable, do not perform implementation, architecture verdict, final integration, git write actions, or GitHub write actions.
-- Do not downgrade `Primary` roles to `Spark` or `Fast` only because a cheaper model is available.
+- Do not downgrade `Primary` roles to `Lightweight` or `Fast` only because a cheaper model is available.
 - For user-facing summaries, a lower tier may draft text, but `Primary` must check it when the text depends on architecture decisions, release risk, CI root cause, or exact diff behavior.
 
 ### Escalation rule
@@ -116,14 +123,15 @@ Use `Architecture risk: possible` when the task touches module boundaries, impor
 
 ## Role activation
 
-Use this template when assigning work to another AI model or sub-agent.
+Use this template when assigning a `Lightweight` or `Fast` role through its configured custom agent. `Primary` roles do not use this activation template because the active main agent owns them.
 
 ```md
 You are the `<Role Name>` for the DevLog iOS repository.
 
 Read `AGENTS.md` first. Then read `AGENT_ROLES.md` and follow the `<Role Name>` section.
 
-Assigned model tier: `<Primary | Spark | Fast>`
+Assigned model tier: `<Lightweight | Fast>`
+Custom agent: `<configured custom agent name>`
 
 Task packet:
 <paste Task Packet here>
