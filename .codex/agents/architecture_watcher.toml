@@ -1,0 +1,12 @@
+name = "architecture_watcher"
+description = "Read-only DevLog architecture boundary reviewer for module ownership, dependencies, DI, SDK placement, Widget flow, and StorePattern changes."
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+developer_instructions = """
+Read AGENTS.md and AGENT_ROLES.md before reviewing.
+Act only as the Architecture Watcher defined in AGENT_ROLES.md.
+Inspect the requested architecture scope and relevant manifests without editing files or changing GitHub state.
+Do not run, launch, install, boot, or open the app or Simulator.
+Return exactly the Architecture Watch Result format from AGENT_ROLES.md.
+"""

@@ -17,7 +17,7 @@ The main agent must run every workflow with this protocol.
 3. Create the task packet.
 4. Assign only the roles required by the selected workflow.
 5. Assign each role a model tier from `AGENT_ROLES.md`.
-6. Keep `Primary` roles with the active main agent, and dispatch every sub-agent as a `Lightweight` or `Fast` role with an explicitly selected model that is different from the active `Primary` model.
+6. Keep `Primary` roles with the active main agent, and dispatch every `Lightweight` or `Fast` role through the custom agent mapped in `AGENT_ROLES.md`.
 7. Dispatch read-only `Lightweight` or `Fast` roles in parallel only when they do not depend on unfinished edits.
 8. Do not complete a required `Lightweight` or `Fast` role directly in `Primary`, including when the dispatch tool would inherit the active `Primary` model.
 9. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
@@ -35,7 +35,7 @@ Stop and ask the user before editing when:
 - The task packet conflicts with `AGENTS.md`.
 - The requested fix requires relaxing a layer boundary.
 - A role needs to run, launch, install, boot, or open the app or Simulator.
-- A required `Lightweight` or `Fast` role cannot be dispatched with an explicitly selected non-Primary model, or current tool policy requires user permission that has not been granted.
+- A required `Lightweight` or `Fast` custom agent cannot be loaded or selected, its pinned model is unavailable, or current tool policy requires user permission that has not been granted.
 - The current issue or PR scope is unclear after live GitHub inspection.
 - Two editing roles would touch the same file.
 - A read-only role reports `Block` or `Needs Owner Decision`.
@@ -239,7 +239,7 @@ Use for PR body, issue text, release note, README wording, review reply draft, o
 ### Execution
 
 - Documentation Writer must inspect the actual diff before writing PR or release text.
-- When the Documentation Writer role is required, the main agent must dispatch the draft to an available `Lightweight` model that is different from the active `Primary` model before writing the final response.
+- When the Documentation Writer role is required, the main agent must dispatch the draft through `documentation_writer` before writing the final response.
 - If dispatch requires explicit user permission and it has not been granted, ask before drafting, returning, or posting the Documentation Writer output.
 - `Primary` must review the Documentation Writer output against the template, issue scope, and diff before returning or posting it.
 - Do not write AI workflow documents under `docs/`.
@@ -350,7 +350,7 @@ Include the selected workflow name in the task packet `Source` or `Goal` field s
 - Current owner: repository workflow documentation
 - Architecture risk: none
 - Required roles: Planner, Implementer, Code Reviewer, Verification Runner
-- Model assignment: Planner=Primary, Implementer=Primary, Code Reviewer=Lightweight, Verification Runner=Lightweight
+- Model assignment: Planner=Primary, Implementer=Primary, Code Reviewer=code_reviewer (Lightweight), Verification Runner=verification_runner (Lightweight)
 - Verification: `git diff --check -- AGENTS.md AGENT_ROLES.md AGENT_WORKFLOWS.md README.md`
 - Stop conditions: README `docs/` asset policy changes, Swift/iOS code changes, request to remove architecture harness immediately
 ```
@@ -368,7 +368,7 @@ Include the selected workflow name in the task packet `Source` or `Goal` field s
 - Current owner: <layer and target identified by Planner>
 - Architecture risk: none / possible / confirmed
 - Required roles: GitHub/CI Analyst, Planner, Implementer, Code Reviewer, Verification Runner
-- Model assignment: GitHub/CI Analyst=Lightweight, Planner=Primary, Implementer=Primary, Code Reviewer=Lightweight -> Primary if blocking, Verification Runner=Lightweight
+- Model assignment: GitHub/CI Analyst=github_ci_analyst (Lightweight), Planner=Primary, Implementer=Primary, Code Reviewer=code_reviewer (Lightweight) -> Primary if blocking, Verification Runner=verification_runner (Lightweight)
 - Verification: changed-file SwiftLint for Swift changes, targeted tests or build-only check when applicable
 - Stop conditions: unresolved thread requires owner decision, fix relaxes architecture boundary, two comments conflict, CI failure source is unrelated to review feedback
 ```
