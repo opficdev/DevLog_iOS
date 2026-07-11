@@ -264,7 +264,7 @@ flowchart LR
 		Integrator["Final Integration"]
 	end
 
-	subgraph Spark["gpt-5.3-codex-spark"]
+	subgraph Lightweight["gpt-5.3-codex-spark"]
 		ArchitectureWatcher["Architecture Watcher"]
 		CodeReviewer["Code Reviewer"]
 		VerificationRunner["Verification Runner"]
@@ -296,8 +296,8 @@ flowchart LR
 | --- | --- | --- | --- |
 | Planner | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
 | Implementer | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
-| Architecture Watcher | Spark -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
-| Code Reviewer | Spark -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
+| Architecture Watcher | Lightweight -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
+| Code Reviewer | Lightweight -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
 | Verification Runner | gpt-5.3-codex-spark | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
 | GitHub/CI Analyst | gpt-5.3-codex-spark | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
 | Documentation Writer | gpt-5.3-codex-spark | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
