@@ -12,6 +12,8 @@ extension Error {
         switch self as? DataLayerError {
         case .notAuthenticated:
             return AuthError.notAuthenticated
+        case .failedToUnlinkLastProvider:
+            return AuthError.failedToUnlinkLastProvider
         case .linkCredentialAlreadyInUse:
             return AuthError.linkCredentialAlreadyInUse
         case .invalidData(let context):

@@ -16,6 +16,7 @@ public enum EmailError: Error, Equatable {
 
 public enum DataLayerError: Error {
     case notAuthenticated
+    case failedToUnlinkLastProvider
     case linkCredentialAlreadyInUse
     case invalidData(context: String)
 

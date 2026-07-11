@@ -79,7 +79,11 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
             service = githubAuthService
         }
         
-        try await service.unlink(uid)
+        do {
+            try await service.unlink(uid)
+        } catch {
+            throw error.toDomain()
+        }
     }
 }
 
