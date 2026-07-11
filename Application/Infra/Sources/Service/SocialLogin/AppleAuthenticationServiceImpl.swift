@@ -6,7 +6,6 @@
 //
 
 import AuthenticationServices
-import CryptoKit
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
@@ -39,29 +38,24 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         logger.info("Starting Apple sign in")
         
         do {
-            let response = try await authenticateWithAppleAsync()
-            
-            let nonce = response.nonce
-            let credential = response.credential
-            let authorizationCode = response.authorizationCode
-            let idTokenString = response.idTokenString
+            let challenge = try await requestAppleChallenge()
+            let response = try await authenticateWithAppleAsync(
+                hashedNonce: challenge.hashedNonce
+            )
                     
-            // Firebase Function을 통해 customToken 요청
             logger.debug("Requesting custom token from Firebase Function")
             let customToken = try await requestAppleCustomToken(
-                idToken: idTokenString,
-                authorizationCode: authorizationCode
+                challengeId: challenge.challengeId,
+                authorizationCode: response.authorizationCode
             )
             
-            // customToken으로 Firebase 로그인
             logger.debug("Signing in with custom token")
             let result = try await Auth.auth().signIn(withCustomToken: customToken)
         
             let changeRequest = result.user.createProfileChangeRequest()
             var displayName: String?
 
-            // 최초 사용자 가입 시 사용자 이름 설정
-            if let fullName = credential.fullName {
+            if let fullName = response.fullName {
                 let formatter = PersonNameComponentsFormatter()
                 formatter.style = .long
                 let formattedName = formatter.string(from: fullName)
@@ -70,7 +64,6 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
                 }
             }
 
-            // 이미 가입된 사용자일 경우 Firestore에서 사용자 이름 가져오기
             if displayName == nil {
                 let doc = try await store
                     .document(FirestorePath.userData(result.user.uid, document: .info))
@@ -78,20 +71,9 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
                 displayName = doc.data()?["appleName"] as? String
             }
 
-            // FirebaseAuth 사용자 프로필 업데이트
             changeRequest.displayName = displayName ?? ""
-            changeRequest.photoURL = nil    //  Apple ID 프로필 사진 URL은 제공되지 않음
+            changeRequest.photoURL = nil //  Apple ID 프로필 사진 URL은 제공되지 않음
             try await changeRequest.commitChanges()
-        
-            // FirebaseAuth 계정에 Apple ID 연결
-            if !result.user.providerData.contains(where: { $0.providerID == providerID.rawValue }) {
-                let appleCredential = OAuthProvider.credential(
-                    providerID: providerID,
-                    idToken: idTokenString,
-                    rawNonce: nonce
-                )
-                try await result.user.link(with: appleCredential)
-            }
 
             logger.info("Successfully signed in with Apple")
             return result.user.makeResponse(providerID: .apple)
@@ -127,9 +109,9 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     func deleteAuth(_ uid: String) async throws {
         do {
-            let token = try await refreshAppleAccessToken()
-
-            try await revokeAppleAccessToken(token: token)
+            logger.info("Deleting Apple grant for user: \(uid)")
+            let response = try await FunctionAPIClient.shared.send(.revokeAppleAccessToken)
+            try validate(response)
         } catch {
             logger.error("Failed to delete Apple auth", error: error)
             record(error, code: .deleteAuth)
@@ -137,84 +119,55 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email: String) async throws -> Bool {
+    func link(uid: String, email _: String) async throws -> Bool {
         do {
-            let response = try await authenticateWithAppleAsync()
+            logger.info("Linking Apple account for user: \(uid)")
+            let challenge = try await requestAppleChallenge()
+            let response = try await authenticateWithAppleAsync(hashedNonce: challenge.hashedNonce)
 
-            let nonce = response.nonce
-            let credential = response.credential
-            let authorizationCode = response.authorizationCode
-            let idTokenString = response.idTokenString
-
-            let refreshToken = try await requestAppleRefreshToken(authorizationCode: authorizationCode)
-
-            guard let appleEmail = credential.email else {
-                try await revokeAppleAccessToken(token: refreshToken)
-                throw EmailError.notFound
-            }
-
-            if appleEmail != email {
-                try await revokeAppleAccessToken(token: refreshToken)
-                throw EmailError.mismatch
-            }
-
-            let appleCredential = OAuthProvider.credential(
-                providerID: providerID,
-                idToken: idTokenString,
-                rawNonce: nonce
+            let operation = try await FunctionAPIClient.shared.send(
+                .linkAppleAccount,
+                payload: AppleAccountLinkRequest(
+                    challengeId: challenge.challengeId,
+                    authorizationCode: response.authorizationCode,
+                    credentialEmail: response.email
+                )
             )
-
-            try await user?.link(with: appleCredential)
+            try validate(operation)
+            try await user?.reload()
             return true
         } catch {
             if error.isSocialLoginCancelled { return false }
 
-            logger.error("Failed to link Apple account", error: error)
-            record(error, code: .link)
-            if error.isFirebaseCredentialAlreadyInUse {
-                throw DataLayerError.linkCredentialAlreadyInUse
-            }
-            throw error
+            let mappedError = mapAppleAPIError(error)
+            logger.error("Failed to link Apple account", error: mappedError)
+            record(mappedError, code: .link)
+            throw mappedError
         }
     }
 
     func unlink(_ uid: String) async throws {
         do {
-            logger.info("Starting Apple access token refresh for unlink. uid: \(uid)")
-            let accessToken = try await refreshAppleAccessToken()
-
-            logger.info("Starting Apple access token revocation for unlink. uid: \(uid)")
-            try await revokeAppleAccessToken(token: accessToken)
-
-            let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
-
-            logger.info("Starting Apple refresh token deletion from Firestore for unlink. uid: \(uid)")
-            try await deleteAppleRefreshToken(from: tokensRef)
-
-            logger.info("Starting Firebase Apple provider unlink. uid: \(uid)")
-            _ = try await user?.unlink(fromProvider: providerID.rawValue)
+            logger.info("Unlinking Apple account for user: \(uid)")
+            let response = try await FunctionAPIClient.shared.send(.unlinkAppleAccount)
+            try validate(response)
+            try await user?.reload()
         } catch {
-            logger.error("Failed to unlink Apple account", error: error)
-            record(error, code: .unlink)
-            throw error
+            let mappedError = mapAppleAPIError(error)
+            logger.error("Failed to unlink Apple account", error: mappedError)
+            record(mappedError, code: .unlink)
+            throw mappedError
         }
     }
 
     // Apple 인증 메서드
     @MainActor
-    func authenticateWithAppleAsync() async throws -> AppleAuthResponse {
+    func authenticateWithAppleAsync(hashedNonce: String) async throws -> AppleAuthResponse {
         guard appleSignInDelegate == nil, appleSignInContinuation == nil else {
             throw SocialLoginError.authenticationAlreadyInProgress
         }
 
-        // 자체 nonce 생성 및 해시화
-        let nonce = UUID().uuidString
-        let hashedNonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
-        
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]   //  사용자 정보 요청
-        request.nonce = hashedNonce //  Apple API는 SHA256 해시값을 요구함
+        let request = Self.makeAuthorizationRequest(hashedNonce: hashedNonce)
         
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
@@ -229,20 +182,25 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             controller.performRequests()
         }
 
-        // Apple ID 인증 결과 처리
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-              let appleIdToken = credential.identityToken,
               let authorizationCode = credential.authorizationCode,
-              let idTokenString = String(data: appleIdToken, encoding: .utf8) else {
+              let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
             throw URLError(.badServerResponse)
         }
         
         return AppleAuthResponse(
-                nonce: nonce,
-                credential: credential,
-                authorizationCode: authorizationCode,
-                idTokenString: idTokenString
+            authorizationCode: authorizationCode,
+            fullName: credential.fullName,
+            email: credential.email
         )
+    }
+
+    @MainActor
+    static func makeAuthorizationRequest(hashedNonce: String) -> ASAuthorizationAppleIDRequest {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = hashedNonce
+        return request
     }
 
     @MainActor
@@ -260,84 +218,49 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
     
-    // Apple CustomToken 발급 메서드
-    private func requestAppleCustomToken(idToken: String, authorizationCode: Data) async throws -> String {
-        guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
-            throw URLError(.badServerResponse)
-        }
-        
+    private func requestAppleChallenge() async throws -> AppleChallengeResponse {
+        try await FunctionAPIClient.shared.send(
+            .requestAppleChallenge,
+            requiresAuthentication: false
+        )
+    }
+
+    private func requestAppleCustomToken(
+        challengeId: String,
+        authorizationCode: String
+    ) async throws -> String {
         let response = try await FunctionAPIClient.shared.send(
             .requestAppleCustomToken,
-            payload: [
-                "idToken": idToken,
-                "authorizationCode": authorizationCode
-            ],
+            payload: AppleCustomTokenRequest(
+                challengeId: challengeId,
+                authorizationCode: authorizationCode
+            ),
             requiresAuthentication: false
         )
         
-        if let customToken = response.customToken {
-            return customToken
-        }
-        throw URLError(.badServerResponse)
-    }
-
-    // Apple AceessToken 재발급 메서드
-    private func refreshAppleAccessToken() async throws -> String {
-        let response = try await FunctionAPIClient.shared.send(.refreshAppleAccessToken)
-
-        guard let accessToken = response.token else {
-            throw URLError(.cannotParseResponse)
-        }
-
-        return accessToken
-    }
-
-    // Apple RefreshToken 발급 메서드
-    func requestAppleRefreshToken(authorizationCode: Data) async throws -> String {
-        guard let authorizationCode = String(data: authorizationCode, encoding: .utf8) else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        
-        let response = try await FunctionAPIClient.shared.send(
-            .requestAppleRefreshToken,
-            payload: ["authorizationCode": authorizationCode]
-        )
-        
-        if let refreshToken = response.refreshToken {
-            return refreshToken
-        }
-        throw URLError(.badServerResponse)
-    }
-    
-    // Apple AccessToken 취소 메서드
-    func revokeAppleAccessToken(token: String) async throws {
-        try await FunctionAPIClient.shared.send(
-            .revokeAppleAccessToken,
-            payload: ["token": token]
-        )
+        return response.customToken
     }
 }
 
 private extension AppleAuthenticationServiceImpl {
-    func deleteAppleRefreshToken(from tokensRef: DocumentReference) async throws {
-        _ = try await store.runTransaction { transaction, errorPointer in
-            let snapshot: DocumentSnapshot
+    func validate(_ response: AppleOperationResponse) throws {
+        guard response.success else {
+            throw TokenError.invalidResponse
+        }
+    }
 
-            do {
-                snapshot = try transaction.getDocument(tokensRef)
-            } catch let error as NSError {
-                errorPointer?.pointee = error
-                return nil
-            }
+    func mapAppleAPIError(_ error: Error) -> Error {
+        if let emailError = error.apiEmailError {
+            return emailError
+        }
 
-            if snapshot.exists {
-                transaction.updateData(
-                    ["appleRefreshToken": FieldValue.delete()],
-                    forDocument: tokensRef
-                )
-            }
-
-            return nil
+        switch error.apiAppleAuthenticationError {
+        case .providerLinkConflict:
+            return DataLayerError.linkCredentialAlreadyInUse
+        case .lastProvider:
+            return DataLayerError.failedToUnlinkLastProvider
+        case .none:
+            return error
         }
     }
 

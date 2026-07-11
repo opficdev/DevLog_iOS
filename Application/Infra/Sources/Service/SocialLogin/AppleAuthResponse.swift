@@ -6,11 +6,9 @@
 //
 
 import Foundation
-import AuthenticationServices
 
 struct AppleAuthResponse {
-    let nonce: String
-    let credential: ASAuthorizationAppleIDCredential
-    let authorizationCode: Data
-    let idTokenString: String
+    let authorizationCode: String
+    let fullName: PersonNameComponents?
+    let email: String?
 }
