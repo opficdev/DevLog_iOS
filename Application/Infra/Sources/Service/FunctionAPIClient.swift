@@ -79,11 +79,14 @@ final class FunctionAPIClient {
         _ endpoint: FunctionAPIEndpoint<Response>,
         requiresAuthentication: Bool = true
     ) async throws -> Response {
-        try await send(
-            endpoint,
-            payload: EmptyPayload(),
-            requiresAuthentication: requiresAuthentication
-        )
+        var request = try client()
+            .request(endpoint)
+
+        if requiresAuthentication {
+            request = request.authorized()
+        }
+
+        return try await request.send()
     }
 
     private func client() throws -> NXAPIClient {
@@ -96,16 +99,36 @@ struct FunctionAPIEndpoint<Response: Decodable>: NXEndpoint {
     let path: String
 }
 
-struct FunctionAPIResponse: Decodable {
+struct GithubAuthenticationResponse: Decodable {
     let accessToken: String?
     let customToken: String?
-    let refreshToken: String?
-    let token: String?
+}
+
+struct AppleChallengeResponse: Decodable {
+    let challengeId: String
+    let hashedNonce: String
+}
+
+struct AppleCustomTokenResponse: Decodable {
+    let customToken: String
+}
+
+struct AppleOperationResponse: Decodable {
+    let success: Bool
+}
+
+struct AppleCustomTokenRequest: Encodable {
+    let challengeId: String
+    let authorizationCode: String
+}
+
+struct AppleAccountLinkRequest: Encodable {
+    let challengeId: String
+    let authorizationCode: String
+    let credentialEmail: String?
 }
 
 struct EmptyAPIResponse: Decodable {}
-
-private struct EmptyPayload: Encodable {}
 
 private struct FunctionAPIErrorBody: Decodable {
     let code: String
@@ -116,9 +139,16 @@ private enum FunctionAPIErrorCode: String {
     case emailNotFound = "email-not-found"
     case emailMismatch = "email-mismatch"
     case githubEmailConflict = "github-email-changed-account-conflict"
+    case appleProviderLinkConflict = "apple-provider-link-conflict"
+    case lastProvider = "last-provider"
 }
 
-private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
+enum AppleAuthenticationAPIError: Error, Equatable {
+    case providerLinkConflict
+    case lastProvider
+}
+
+struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
     func decodeServerError(
         data: Data,
         response: HTTPURLResponse,
@@ -136,6 +166,10 @@ private struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
             return EmailError.mismatch
         case .githubEmailConflict:
             return EmailError.githubEmailConflict
+        case .appleProviderLinkConflict:
+            return AppleAuthenticationAPIError.providerLinkConflict
+        case .lastProvider:
+            return AppleAuthenticationAPIError.lastProvider
         }
     }
 }
@@ -152,13 +186,19 @@ private actor FirebaseAuthTokenProvider: NXAuthTokenProvider {
 
 extension Error {
     var apiEmailError: EmailError? {
-        guard let error = self as? NXError,
-              case let .server(
-            statusCode: _,
-            data: _,
-            underlying: underlying
-        ) = error else { return nil }
+        functionAPIUnderlyingError as? EmailError
+    }
 
-        return underlying as? EmailError
+    var apiAppleAuthenticationError: AppleAuthenticationAPIError? {
+        functionAPIUnderlyingError as? AppleAuthenticationAPIError
+    }
+
+    private var functionAPIUnderlyingError: (any Error)? {
+        guard let error = self as? NXError,
+              case let .server(statusCode: _, data: _, underlying: underlying) = error else {
+            return nil
+        }
+
+        return underlying
     }
 }

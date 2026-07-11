@@ -34,14 +34,24 @@ extension FunctionAPIEndpoint where Response == EmptyAPIResponse {
         Self(method: .delete, path: "/push-notifications/\(functionAPIPathSegment(id))/deletion-request")
     }
 
-    static let revokeAppleAccessToken = Self(method: .delete, path: "/auth/apple/access-token")
     static let revokeGithubAccessToken = Self(method: .delete, path: "/auth/github/access-token")
 }
 
-extension FunctionAPIEndpoint where Response == FunctionAPIResponse {
+extension FunctionAPIEndpoint where Response == AppleChallengeResponse {
+    static let requestAppleChallenge = Self(method: .post, path: "/auth/apple/challenges")
+}
+
+extension FunctionAPIEndpoint where Response == AppleCustomTokenResponse {
     static let requestAppleCustomToken = Self(method: .post, path: "/auth/apple/custom-token")
-    static let refreshAppleAccessToken = Self(method: .post, path: "/auth/apple/access-token")
-    static let requestAppleRefreshToken = Self(method: .post, path: "/auth/apple/refresh-token")
+}
+
+extension FunctionAPIEndpoint where Response == AppleOperationResponse {
+    static let linkAppleAccount = Self(method: .put, path: "/auth/apple/account-link")
+    static let unlinkAppleAccount = Self(method: .delete, path: "/auth/apple/account-link")
+    static let revokeAppleAccessToken = Self(method: .delete, path: "/auth/apple/access-token")
+}
+
+extension FunctionAPIEndpoint where Response == GithubAuthenticationResponse {
     static let linkGithubProvider = Self(method: .post, path: "/auth/github/link")
     static let requestGithubTokens = Self(method: .post, path: "/auth/github/tokens")
 }
