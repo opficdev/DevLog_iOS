@@ -1,16 +1,52 @@
-# DevLog Architecture Flow
+# DevLog Architecture Rules
 
 ## Purpose
 
-This reference defines the DevLog-specific harness flow for AI-assisted architecture work.
+This reference defines the DevLog-specific flow and boundaries for AI-assisted architecture work.
 
 The goal is not to make the AI decide more architecture policy. The goal is to make the AI stop before it makes project-specific architecture decisions that should be confirmed by the user.
 
-Use this reference with `AGENTS.md` and `.hermes/skills/devlog-architecture-harness/SKILL.md`.
+Use this reference with `AGENTS.md`, `.agents/rules/general.md`, and `.agents/roles.md`.
 
 This repository is a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
 
-## High-level harness flow
+## When to use
+
+Read this file before work that changes any of these areas:
+
+- Module boundaries or file ownership across `Application/*` and `Widget/*` targets.
+- Swift imports or Tuist target dependencies.
+- DI assembler wiring or same-layer dependency injection.
+- Repository, service, store, or use case contracts.
+- Firebase, social login, network, link metadata, notification, or WidgetKit dependency placement.
+- Widget snapshot, App Group, or widget deep-link data flow.
+- Architecture diagrams, README architecture text, or PR architecture explanations.
+
+Before editing, also read `.gemini/styleguide.md` and `README.md`. Read `.agents/rules/project-workflows.md` when the task involves PR review, commits, Xcode project files, CI, widgets, Store reducers, localization, release, or build tooling.
+
+Then inspect the concrete files, Swift imports, and Tuist target dependencies related to the requested change. Do not rely on layer names alone.
+
+## Mandatory flow
+
+1. Identify the changed layer and owning target before editing.
+2. Inspect the current Swift import direction and Xcode target/framework dependency before deciding.
+3. Classify the change as mechanical, architectural, or ambiguous.
+4. Stop and ask the user before editing when the architecture boundary is ambiguous.
+5. Keep the diff limited to the requested architecture scope.
+6. Follow `.agents/rules/project-workflows.md` for verification after Swift or iOS project changes.
+7. Report the changed files, architecture decision, verification result, and unresolved user decisions.
+
+## Safe mechanical changes
+
+These may proceed after inspection when they do not change architecture meaning:
+
+- Removing unused imports.
+- Updating import statements after an already-approved file move.
+- Fixing access control needed by an already-approved module boundary.
+- Updating tests to match an already-approved public contract.
+- Editing docs to reflect the current verified architecture.
+
+## High-level architecture flow
 
 ```mermaid
 flowchart TD
@@ -309,7 +345,7 @@ Widget UI should consume snapshot data. It should not fetch app services or doma
 flowchart TD
 	Changed["Files changed"]
 	Swift{"Swift/iOS project code changed?"}
-	Docs{"Docs or harness only?"}
+	Docs{"Docs or architecture rules only?"}
 	Xcode["Build with Xcode Local MCP"]
 	Diff["Inspect git diff scope"]
 	NoBuild["No iOS build required"]
@@ -346,4 +382,4 @@ Before editing architecture code, the AI should be able to answer these question
 - Swift logic was preserved unless explicitly approved.
 - Diff scope was checked.
 - Xcode Local MCP build was used for Swift/iOS code changes.
-- Docs-only or harness-only changes were reported as such, without claiming app build verification.
+- Docs-only or architecture-rule-only changes were reported as such, without claiming app build verification.

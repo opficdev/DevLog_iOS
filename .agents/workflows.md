@@ -4,7 +4,7 @@
 
 This file defines executable AI workflows for DevLog work.
 
-Use this after reading `AGENTS.md` and `AGENT_ROLES.md`. `AGENT_ROLES.md` defines what each role may do. This file defines how to combine those roles for common project tasks.
+Use this after reading `AGENTS.md` and `.agents/roles.md`. `.agents/roles.md` defines what each role may do. This file defines how to combine those roles for common project tasks.
 
 If this file conflicts with `AGENTS.md`, follow `AGENTS.md`.
 
@@ -12,12 +12,12 @@ If this file conflicts with `AGENTS.md`, follow `AGENTS.md`.
 
 The main agent must run every workflow with this protocol.
 
-1. Read `AGENTS.md`, then `AGENT_ROLES.md`, then this file.
+1. Read `AGENTS.md`, then `.agents/roles.md`, then this file.
 2. Select one workflow from this file.
 3. Create the task packet.
 4. Assign only the roles required by the selected workflow.
-5. Assign each role a model tier from `AGENT_ROLES.md`.
-6. Keep `Primary` roles with the active main agent, and dispatch every `Lightweight` or `Fast` role through the custom agent mapped in `AGENT_ROLES.md`.
+5. Assign each role a model tier from `.agents/roles.md`.
+6. Keep `Primary` roles with the active main agent, and dispatch every `Lightweight` or `Fast` role through the custom agent mapped in `.agents/roles.md`.
 7. Dispatch read-only `Lightweight` or `Fast` roles in parallel only when they do not depend on unfinished edits.
 8. Do not complete a required `Lightweight` or `Fast` role directly in `Primary`, including when the dispatch tool would inherit the active `Primary` model.
 9. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
@@ -50,7 +50,7 @@ Stop and ask the user before editing when:
 | PR review comment, unresolved thread, requested changes | Review-thread follow-up |
 | Failing GitHub Actions, CI log, workflow failure | CI failure triage |
 | PR body, release note, README, issue wording | Documentation-only writing |
-| AI role, AGENTS, workflow, harness docs | AI workflow maintenance |
+| AI role, AGENTS, workflow, or architecture-rule docs | AI workflow maintenance |
 
 ## Issue-driven implementation
 
@@ -262,7 +262,7 @@ Report:
 
 ## AI workflow maintenance
 
-Use for `AGENTS.md`, `AGENT_ROLES.md`, this file, `.hermes` harness relationship, or AI role routing changes.
+Use for `AGENTS.md`, `.agents/roles.md`, this file, `.agents/rules`, or AI role routing changes.
 
 ### Role order
 
@@ -271,23 +271,24 @@ Use for `AGENTS.md`, `AGENT_ROLES.md`, this file, `.hermes` harness relationship
 3. Code Reviewer.
 4. Verification Runner.
 
-Architecture Watcher is required only if the change modifies architecture policy, layer maps, ambiguity gates, or harness architecture rules.
+Architecture Watcher is required only if the change modifies architecture policy, layer maps, ambiguity gates, or architecture rules.
 
 ### Execution
 
-- Keep AI workflow entry files at the repository root.
+- Keep `AGENTS.md` as the repository-root AI workflow entrypoint.
 - Do not add AI workflow documents under `docs/`.
 - `AGENTS.md` should stay the short canonical entrypoint.
-- `AGENT_ROLES.md` should define role permissions, output formats, and handoff packet shape.
-- `AGENT_WORKFLOWS.md` should define executable role sequences.
-- `.hermes/skills/devlog-architecture-harness` may remain as the detailed architecture reference unless the task explicitly removes or replaces it.
+- `.agents/roles.md` should define role permissions, output formats, and handoff packet shape.
+- `.agents/workflows.md` should define executable role sequences.
+- `.agents/rules/architecture.md` should define detailed architecture boundaries and ambiguity gates.
+- `.agents/rules/project-workflows.md` should define project-specific verification and delivery rules.
 
 ### Verification
 
 Verification Runner must run:
 
 ```sh
-git diff --check -- AGENTS.md AGENT_ROLES.md AGENT_WORKFLOWS.md
+git diff --check -- AGENTS.md .agents .codex/agents
 ```
 
 If only Markdown workflow files changed, no iOS build is required.
@@ -323,7 +324,7 @@ Do not parallelize:
 
 ## Role prompt snippets
 
-Use the activation template from `AGENT_ROLES.md`, then set `<Role Name>` to one of:
+Use the activation template from `.agents/roles.md`, then set `<Role Name>` to one of:
 
 - `Planner`
 - `Implementer`
@@ -345,14 +346,14 @@ Include the selected workflow name in the task packet `Source` or `Goal` field s
 - Source: https://github.com/opficdev/DevLog_iOS/issues/704
 - Goal: Define AI agent roles and executable role-based workflows for this repository.
 - Scope: Update root AI workflow files and README visual summary only.
-- Out of scope: Swift/iOS app code, target dependency changes, `.hermes` removal, GitHub Actions changes, app launch.
-- Expected changed files: `AGENTS.md`, `AGENT_ROLES.md`, `AGENT_WORKFLOWS.md`, `README.md`
+- Out of scope: Swift/iOS app code, target dependency changes, architecture rule relocation, GitHub Actions changes, app launch.
+- Expected changed files: `AGENTS.md`, `.agents/roles.md`, `.agents/workflows.md`, `README.md`
 - Current owner: repository workflow documentation
 - Architecture risk: none
 - Required roles: Planner, Implementer, Code Reviewer, Verification Runner
 - Model assignment: Planner=Primary, Implementer=Primary, Code Reviewer=code_reviewer (Lightweight), Verification Runner=verification_runner (Lightweight)
-- Verification: `git diff --check -- AGENTS.md AGENT_ROLES.md AGENT_WORKFLOWS.md README.md`
-- Stop conditions: README `docs/` asset policy changes, Swift/iOS code changes, request to remove architecture harness immediately
+- Verification: `git diff --check -- AGENTS.md .agents .codex/agents README.md`
+- Stop conditions: README `docs/` asset policy changes, Swift/iOS code changes, request to remove architecture rules immediately
 ```
 
 ### Review-thread follow-up example

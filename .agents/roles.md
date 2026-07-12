@@ -6,7 +6,7 @@ This file defines the runnable AI role workflow for DevLog work.
 
 It is not background documentation. Use it to split work across AI models, pass task packets between roles, and decide which review or verification gates must run before completion.
 
-Use `AGENT_WORKFLOWS.md` for task-specific runbooks that combine these roles into executable workflows.
+Use `.agents/workflows.md` for task-specific runbooks that combine these roles into executable workflows.
 
 `AGENTS.md` remains the canonical repository rule file. If this file conflicts with `AGENTS.md`, follow `AGENTS.md`.
 
@@ -18,7 +18,7 @@ Use `AGENT_WORKFLOWS.md` for task-specific runbooks that combine these roles int
 - The main agent owns integration, final diff inspection, and the final user report.
 - Build-only verification is allowed. Do not run, launch, install, boot, or open the app or Simulator unless the user explicitly requests it in the current turn.
 - Keep generated Xcode workspace/project and `Package.resolved` churn out of source control unless an approved dependency-lock policy requires it.
-- Keep AI workflow documents at the repository root, such as `AGENT_ROLES.md`. Do not put them under `docs/`.
+- Keep AI workflow and rule documents under `.agents/`. Do not put them under `docs/`.
 
 ## Model assignment
 
@@ -97,7 +97,7 @@ Use this sequence for non-trivial AI-assisted work.
 
 Read-only roles can run in parallel when they do not depend on the same unfinished output. Editing roles should run sequentially unless their assigned files and ownership boundaries are disjoint.
 
-For full issue, implementation, review, CI, and docs-only runbooks, use `AGENT_WORKFLOWS.md`.
+For full issue, implementation, review, CI, and docs-only runbooks, use `.agents/workflows.md`.
 
 ## Task packet
 
@@ -128,7 +128,7 @@ Use this template when assigning a `Lightweight` or `Fast` role through its conf
 ```md
 You are the `<Role Name>` for the DevLog iOS repository.
 
-Read `AGENTS.md` first. Then read `AGENT_ROLES.md` and follow the `<Role Name>` section.
+Read `AGENTS.md` first. Then read `.agents/roles.md` and follow the `<Role Name>` section.
 
 Assigned model tier: `<Lightweight | Fast>`
 Custom agent: `<configured custom agent name>`
@@ -153,7 +153,7 @@ The receiving model must start by identifying its active role and must end with 
 | --- | --- | --- |
 | Issue planning | Planner | Add GitHub/CI Analyst when live issue or PR state is the source of truth. |
 | Swift implementation | Planner, Implementer, Code Reviewer, Verification Runner | Add Architecture Watcher when boundary or dependency risk exists. |
-| Module, DI, SDK, Widget, StorePattern, or architecture docs | Planner, Architecture Watcher, Implementer, Code Reviewer, Verification Runner | Architecture Watcher must read `AGENTS.md`, `.gemini/styleguide.md`, `README.md`, and `.hermes/skills/devlog-architecture-harness/references/devlog-architecture-flow.md`. |
+| Module, DI, SDK, Widget, StorePattern, or architecture docs | Planner, Architecture Watcher, Implementer, Code Reviewer, Verification Runner | Architecture Watcher must read `AGENTS.md`, `.gemini/styleguide.md`, `README.md`, and `.agents/rules/architecture.md`. |
 | Review feedback | GitHub/CI Analyst, Planner, Implementer, Code Reviewer, Verification Runner | Use thread-aware review inspection when unresolved review threads matter. |
 | CI failure | GitHub/CI Analyst, Planner, Verification Runner | Add Implementer only after the failure source is identified. |
 | PR or release text | Documentation Writer | Add Code Reviewer when text must match actual diff. |
@@ -229,8 +229,8 @@ Must read before reviewing:
 - `AGENTS.md`
 - `.gemini/styleguide.md`
 - `README.md`
-- `.hermes/skills/devlog-architecture-harness/references/devlog-architecture-flow.md`
-- `.hermes/skills/devlog-architecture-harness/references/devlog-workflow-rules.md` when PR, commit, Xcode project, CI, widget, Store, localization, release, or build tooling is involved
+- `.agents/rules/architecture.md`
+- `.agents/rules/project-workflows.md` when PR, commit, Xcode project, CI, widget, Store, localization, release, or build tooling is involved
 
 Must inspect:
 
@@ -399,7 +399,7 @@ Before reporting completion:
 ### Docs-only AI workflow change
 
 1. Planner creates a task packet from the issue.
-2. Implementer edits `AGENTS.md` and `AGENT_ROLES.md`.
+2. Implementer edits `AGENTS.md` and `.agents/roles.md`.
 3. Code Reviewer checks whether the workflow is executable and scoped.
 4. Verification Runner runs `git diff --check` and file-presence checks.
 5. Main agent reports changed files, architecture boundary decision, and verification result.
