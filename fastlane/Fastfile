@@ -142,6 +142,19 @@ platform :ios do
       end
 
       UI.message("Verified FUNCTION_API_BASE_URL=#{actual_function_api_base_url}")
+
+      actual_crashlytics_collection_enabled = sh(
+        "/usr/libexec/PlistBuddy -c 'Print :FirebaseCrashlyticsCollectionEnabled' #{Shellwords.escape(plist_path)}",
+        log: false
+      ).strip
+
+      if actual_crashlytics_collection_enabled != "true"
+        UI.user_error!(
+          "Unexpected FirebaseCrashlyticsCollectionEnabled: expected true, got #{actual_crashlytics_collection_enabled}"
+        )
+      end
+
+      UI.message("Verified FirebaseCrashlyticsCollectionEnabled=#{actual_crashlytics_collection_enabled}")
     end
   end
 
@@ -240,7 +253,7 @@ platform :ios do
       output_directory: output_directory,
       output_name: "#{APP_PRODUCT_NAME}.ipa",
       include_symbols: true,
-      xcargs: "-skipPackagePluginValidation -skipMacroValidation"
+      xcargs: "CRASHLYTICS_COLLECTION_ENABLED=1 DEBUG_INFORMATION_FORMAT=dwarf-with-dsym -skipPackagePluginValidation -skipMacroValidation"
     )
 
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s

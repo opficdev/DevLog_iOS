@@ -46,26 +46,23 @@ let project = Project(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "CRASHLYTICS_COLLECTION_ENABLED": "0",
                     "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "INFOPLIST_PREPROCESS": "YES",
+                    "INFOPLIST_PREPROCESSOR_DEFINITIONS": "$(inherited) CRASHLYTICS_COLLECTION_ENABLED=$(CRASHLYTICS_COLLECTION_ENABLED)",
                     "PRODUCT_MODULE_NAME": "App",
                 ],
                 debug: [
                     "APS_ENVIRONMENT": "development",
-                    "DEBUG_INFORMATION_FORMAT": "dwarf",
                     "FIRESTORE_DATABASE_ID": "staging",
-                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "NO",
                 ],
                 staging: [
                     "APS_ENVIRONMENT": "production",
-                    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     "FIRESTORE_DATABASE_ID": "staging",
-                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ],
                 release: [
                     "APS_ENVIRONMENT": "production",
-                    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     "FIRESTORE_DATABASE_ID": "prod",
-                    "INFOPLIST_KEY_FirebaseCrashlyticsCollectionEnabled": "YES",
                 ]
             )
         ),

@@ -10,15 +10,6 @@ let frameworkBuildSettings = Settings.devlog(
     base: [
         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
         "OTHER_LIBTOOLFLAGS": "$(inherited) -no_warning_for_no_symbols"
-    ],
-    debug: [
-        "DEBUG_INFORMATION_FORMAT": "dwarf"
-    ],
-    staging: [
-        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
-    ],
-    release: [
-        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
     ]
 )
 

@@ -30,15 +30,6 @@ public extension Project {
                     versionXcconfigPath: versionXcconfigPath,
                     base: [
                         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
-                    ],
-                    debug: [
-                        "DEBUG_INFORMATION_FORMAT": "dwarf",
-                    ],
-                    staging: [
-                        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-                    ],
-                    release: [
-                        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     ]
                 )
             ),
