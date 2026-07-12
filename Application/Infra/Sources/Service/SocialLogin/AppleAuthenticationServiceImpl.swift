@@ -110,8 +110,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     func deleteAuth(_ uid: String) async throws {
         do {
             logger.info("Deleting Apple grant for user: \(uid)")
-            let response = try await FunctionAPIClient.shared.send(.revokeAppleAccessToken)
-            try validate(response)
+            try await FunctionAPIClient.shared.send(.revokeAppleAccessToken)
         } catch {
             logger.error("Failed to delete Apple auth", error: error)
             record(error, code: .deleteAuth)
@@ -125,7 +124,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             let challenge = try await requestAppleChallenge()
             let response = try await authenticateWithAppleAsync(hashedNonce: challenge.hashedNonce)
 
-            let operation = try await FunctionAPIClient.shared.send(
+            try await FunctionAPIClient.shared.send(
                 .linkAppleAccount,
                 payload: AppleAccountLinkRequest(
                     challengeId: challenge.challengeId,
@@ -133,7 +132,6 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
                     credentialEmail: response.email
                 )
             )
-            try validate(operation)
             try await user?.reload()
             return true
         } catch {
@@ -149,8 +147,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     func unlink(_ uid: String) async throws {
         do {
             logger.info("Unlinking Apple account for user: \(uid)")
-            let response = try await FunctionAPIClient.shared.send(.unlinkAppleAccount)
-            try validate(response)
+            try await FunctionAPIClient.shared.send(.unlinkAppleAccount)
             try await user?.reload()
         } catch {
             let mappedError = mapAppleAPIError(error)
@@ -243,22 +240,18 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 }
 
 private extension AppleAuthenticationServiceImpl {
-    func validate(_ response: AppleOperationResponse) throws {
-        guard response.success else {
-            throw TokenError.invalidResponse
-        }
-    }
-
     func mapAppleAPIError(_ error: Error) -> Error {
         if let emailError = error.apiEmailError {
             return emailError
         }
 
+        if error.apiAuthenticationError == .lastProvider {
+            return DataLayerError.failedToUnlinkLastProvider
+        }
+
         switch error.apiAppleAuthenticationError {
         case .providerLinkConflict:
             return DataLayerError.linkCredentialAlreadyInUse
-        case .lastProvider:
-            return DataLayerError.failedToUnlinkLastProvider
         case .none:
             return error
         }

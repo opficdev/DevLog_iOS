@@ -22,7 +22,7 @@ struct FunctionAPIEndpointTests {
 
     @Test("Apple custom token endpoint는 인증 custom token 경로를 사용한다")
     func Apple_custom_token_endpoint는_인증_custom_token_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<AppleCustomTokenResponse>.requestAppleCustomToken
+        let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>.requestAppleCustomToken
 
         #expect(endpoint.method.rawValue == "POST")
         #expect(endpoint.path == "/auth/apple/custom-token")
@@ -30,7 +30,7 @@ struct FunctionAPIEndpointTests {
 
     @Test("Apple 계정 연결 endpoint는 PUT 인증 account link 경로를 사용한다")
     func Apple_계정_연결_endpoint는_PUT_인증_account_link_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<AppleOperationResponse>.linkAppleAccount
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.linkAppleAccount
 
         #expect(endpoint.method.rawValue == "PUT")
         #expect(endpoint.path == "/auth/apple/account-link")
@@ -38,7 +38,7 @@ struct FunctionAPIEndpointTests {
 
     @Test("Apple 계정 연결 해제 endpoint는 DELETE 인증 account link 경로를 사용한다")
     func Apple_계정_연결_해제_endpoint는_DELETE_인증_account_link_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<AppleOperationResponse>.unlinkAppleAccount
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.unlinkAppleAccount
 
         #expect(endpoint.method.rawValue == "DELETE")
         #expect(endpoint.path == "/auth/apple/account-link")
@@ -46,7 +46,7 @@ struct FunctionAPIEndpointTests {
 
     @Test("Apple grant 정리 endpoint는 DELETE 인증 access token 경로를 사용한다")
     func Apple_grant_정리_endpoint는_DELETE_인증_access_token_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<AppleOperationResponse>.revokeAppleAccessToken
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.revokeAppleAccessToken
 
         #expect(endpoint.method.rawValue == "DELETE")
         #expect(endpoint.path == "/auth/apple/access-token")
@@ -104,8 +104,7 @@ struct FunctionAPIEndpointTests {
     @Test(
         "Apple 서버 오류를 앱 인증 오류 원인으로 분류한다",
         arguments: [
-            ("apple-provider-link-conflict", AppleAuthenticationAPIError.providerLinkConflict),
-            ("last-provider", AppleAuthenticationAPIError.lastProvider)
+            ("apple-provider-link-conflict", AppleAuthenticationAPIError.providerLinkConflict)
         ]
     )
     func Apple_서버_오류를_앱_인증_오류_원인으로_분류한다(
@@ -131,12 +130,87 @@ struct FunctionAPIEndpointTests {
         #expect(error as? AppleAuthenticationAPIError == expected)
     }
 
-    @Test("GitHub provider 연결 endpoint는 인증 link 경로를 사용한다")
-    func 깃허브_provider_연결_endpoint는_인증_link_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<GithubAuthenticationResponse>.linkGithubProvider
+    @Test("마지막 provider 서버 오류를 공통 인증 오류로 분류한다")
+    func 마지막_provider_서버_오류를_공통_인증_오류로_분류한다() throws {
+        let data = try JSONEncoder().encode(
+            FunctionAPIErrorFixture(code: "last-provider")
+        )
+        let response = try #require(
+            HTTPURLResponse(
+                url: URL(string: "https://example.com")!,
+                statusCode: 412,
+                httpVersion: nil,
+                headerFields: nil
+            )
+        )
+
+        let error = FunctionAPIServerErrorDecoder().decodeServerError(
+            data: data,
+            response: response,
+            decoder: JSONDecoder()
+        )
+
+        #expect(error as? AuthenticationAPIError == .lastProvider)
+    }
+
+    @Test("OAuth 인증 session 요청은 app challenge만 인코딩한다")
+    func OAuth_인증_session_요청은_app_challenge만_인코딩한다() throws {
+        let request = OAuthAuthenticationSessionRequest(appChallenge: "app-challenge")
+
+        #expect(try encodedKeys(request) == ["appChallenge"])
+    }
+
+    @Test("OAuth 인증 ticket 요청은 ticket과 app verifier만 인코딩한다")
+    func OAuth_인증_ticket_요청은_ticket과_app_verifier만_인코딩한다() throws {
+        let request = OAuthAuthenticationTicketRequest(
+            ticket: "ticket",
+            appVerifier: "app-verifier"
+        )
+
+        #expect(try encodedKeys(request) == ["ticket", "appVerifier"])
+    }
+
+    @Test("GitHub 로그인 session endpoint는 sign-in-sessions 경로를 사용한다")
+    func GitHub_로그인_session_endpoint는_sign_in_sessions_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
+            .requestGithubSignInSession
 
         #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/github/link")
+        #expect(endpoint.path == "/auth/github/sign-in-sessions")
+    }
+
+    @Test("GitHub custom token endpoint는 custom-token 경로를 사용한다")
+    func GitHub_custom_token_endpoint는_custom_token_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>
+            .requestGithubCustomToken
+
+        #expect(endpoint.method.rawValue == "POST")
+        #expect(endpoint.path == "/auth/github/custom-token")
+    }
+
+    @Test("GitHub 계정 연결 session endpoint는 account-link-sessions 경로를 사용한다")
+    func GitHub_계정_연결_session_endpoint는_account_link_sessions_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
+            .requestGithubAccountLinkSession
+
+        #expect(endpoint.method.rawValue == "POST")
+        #expect(endpoint.path == "/auth/github/account-link-sessions")
+    }
+
+    @Test("GitHub 계정 연결 endpoint는 PUT account-link 경로를 사용한다")
+    func GitHub_계정_연결_endpoint는_PUT_account_link_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.linkGithubAccount
+
+        #expect(endpoint.method.rawValue == "PUT")
+        #expect(endpoint.path == "/auth/github/account-link")
+    }
+
+    @Test("GitHub 계정 연결 해제 endpoint는 DELETE account-link 경로를 사용한다")
+    func GitHub_계정_연결_해제_endpoint는_DELETE_account_link_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.unlinkGithubAccount
+
+        #expect(endpoint.method.rawValue == "DELETE")
+        #expect(endpoint.path == "/auth/github/account-link")
     }
 }
 

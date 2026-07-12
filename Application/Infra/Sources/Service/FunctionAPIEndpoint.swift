@@ -35,25 +35,31 @@ extension FunctionAPIEndpoint where Response == EmptyAPIResponse {
     }
 
     static let revokeGithubAccessToken = Self(method: .delete, path: "/auth/github/access-token")
+    static let linkGithubAccount = Self(method: .put, path: "/auth/github/account-link")
+    static let unlinkGithubAccount = Self(method: .delete, path: "/auth/github/account-link")
+    static let linkAppleAccount = Self(method: .put, path: "/auth/apple/account-link")
+    static let unlinkAppleAccount = Self(method: .delete, path: "/auth/apple/account-link")
+    static let revokeAppleAccessToken = Self(method: .delete, path: "/auth/apple/access-token")
 }
 
 extension FunctionAPIEndpoint where Response == AppleChallengeResponse {
     static let requestAppleChallenge = Self(method: .post, path: "/auth/apple/challenges")
 }
 
-extension FunctionAPIEndpoint where Response == AppleCustomTokenResponse {
+extension FunctionAPIEndpoint where Response == FirebaseCustomTokenResponse {
     static let requestAppleCustomToken = Self(method: .post, path: "/auth/apple/custom-token")
+    static let requestGithubCustomToken = Self(method: .post, path: "/auth/github/custom-token")
 }
 
-extension FunctionAPIEndpoint where Response == AppleOperationResponse {
-    static let linkAppleAccount = Self(method: .put, path: "/auth/apple/account-link")
-    static let unlinkAppleAccount = Self(method: .delete, path: "/auth/apple/account-link")
-    static let revokeAppleAccessToken = Self(method: .delete, path: "/auth/apple/access-token")
-}
-
-extension FunctionAPIEndpoint where Response == GithubAuthenticationResponse {
-    static let linkGithubProvider = Self(method: .post, path: "/auth/github/link")
-    static let requestGithubTokens = Self(method: .post, path: "/auth/github/tokens")
+extension FunctionAPIEndpoint where Response == OAuthAuthenticationSessionResponse {
+    static let requestGithubSignInSession = Self(
+        method: .post,
+        path: "/auth/github/sign-in-sessions"
+    )
+    static let requestGithubAccountLinkSession = Self(
+        method: .post,
+        path: "/auth/github/account-link-sessions"
+    )
 }
 
 private func functionAPIPathSegment(_ value: String) -> String {
