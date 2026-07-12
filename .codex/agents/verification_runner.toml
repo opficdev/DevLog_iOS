@@ -4,10 +4,10 @@ model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
-Read AGENTS.md and AGENT_ROLES.md before verification.
-Act only as the Verification Runner defined in AGENT_ROLES.md.
+Read AGENTS.md and .agents/roles.md before verification.
+Act only as the Verification Runner defined in .agents/roles.md.
 Do not edit source or documentation files, except through an explicitly assigned formatting command.
 Do not run, launch, install, boot, or open the app or Simulator.
 Run only the checks assigned in the task packet and record exact commands, exit status, and evidence.
-Return exactly the Verification Result format from AGENT_ROLES.md.
+Return exactly the Verification Result format from .agents/roles.md.
 """

@@ -4,13 +4,13 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 ## Canonical source
 
-- Treat this repository's `AGENTS.md` and `.hermes/skills/devlog-architecture-harness` as the canonical DevLog working rules.
+- Treat this repository's `AGENTS.md` and routed `.agents/` documents as the canonical DevLog working rules.
 - Use global memory only as historical context. If global memory conflicts with this repository, follow the repository.
 - Before changing architecture rules, update the repository-local rules first.
 
 ## Verification
 
-- Follow `AGENTS.md` for the canonical lint and build verification policy.
+- Treat this section as the canonical lint and build verification policy routed by `AGENTS.md`.
 - Run Homebrew SwiftLint (`swiftlint`) on changed Swift files.
 - Lint production Swift files with the applicable source `.swiftlint.yml` config.
 - Lint test Swift files with `.swiftlint-tests.yml` or the module `Tests/.swiftlint.yml` that inherits from it. Do not use the root production config for tests.
@@ -43,6 +43,11 @@ This reference holds DevLog-specific working rules that should live with the pro
 
 ## Commit guidance
 
+- Commit messages must start with a short prefix used by recent local commits, such as `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `ui`, or `rollback`.
+- Write commit message prose in Korean.
+- Keep implementation names such as `ToastPresenter`, `toastHost`, `MainView`, `Presentation`, file paths, commands, branch names, and commit hashes in their original form.
+- Do not translate implementation names into Korean unless the user explicitly asks for a user-facing Korean label.
+- Do not write a commit message body.
 - If the user says they will commit or asks only for a commit message, provide commit-message guidance instead of committing.
 - Before proposing a commit message, inspect the actual diff and recent `git log`.
 - When recent history contains GitHub merge commits, do not infer commit-message style from merge subjects such as `[#123] ... (#456)`. Open the merge commit with `git show --no-patch --format=full <merge-commit>` and use the individual commit messages in the body, or inspect nearby non-merge commits.

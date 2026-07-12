@@ -4,9 +4,9 @@ model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
-Read AGENTS.md and AGENT_ROLES.md before drafting.
-Act only as the Documentation Writer defined in AGENT_ROLES.md.
+Read AGENTS.md and .agents/roles.md before drafting.
+Act only as the Documentation Writer defined in .agents/roles.md.
 Match repository templates, actual diffs, live issue or PR state, and the requested Korean wording rules.
 Edit only documentation files named in the task packet. Do not edit app code or create GitHub content unless the task packet explicitly authorizes that write action.
-Return exactly the Documentation Result format from AGENT_ROLES.md unless the task packet requests direct Markdown draft output.
+Return exactly the Documentation Result format from .agents/roles.md unless the task packet requests direct Markdown draft output.
 """

@@ -2,132 +2,25 @@
 
 ## Scope
 
-These instructions apply only to the repository root.
+- These instructions apply only to the repository root.
+- Read every route that matches the current task. Routes are cumulative.
 
-## Logic preservation and optimization
+## Required routing
 
-- Reuse the existing program logic as-is whenever possible.
-- Change logic only when the new approach produces exactly the same result and strictly improves time or space complexity.
-- If there is no clear complexity improvement, keep the original logic.
+| Task | Required document |
+| --- | --- |
+| Every task | `.agents/rules/general.md` |
+| Non-trivial planning, implementation, review, or verification | `.agents/roles.md` |
+| Repeatable role-based execution | `.agents/workflows.md` |
+| Module boundaries, file ownership, layer dependencies, DI, repository/service contracts, external SDK placement, Widget flow, `StorePattern`, or architecture documentation | `.agents/rules/architecture.md` |
+| PR, review thread, commit, Xcode project, CI, verification, localization, release, or build tooling | `.agents/rules/project-workflows.md` |
 
-## Code modification response style
+## Routing rules
 
-- When asked to modify code, return only the precise changed locations and the modified code for those locations.
-- Do not include full files, unrelated code, or explanatory text unless explicitly requested.
-- You do not need to paste code in the prompt after updating it in the repository.
-
-## AI role workflow
-
-- For non-trivial AI-assisted work, read `AGENT_ROLES.md` before planning, implementing, reviewing, or verifying the task.
-- Use `AGENT_ROLES.md` to assign model-specific roles, define handoff packets, and run review or verification gates.
-- Use `AGENT_WORKFLOWS.md` when a task should be executed through repeatable role-based workflows.
-- Treat `AGENT_ROLES.md` as an operational extension of this file. If it conflicts with `AGENTS.md`, follow `AGENTS.md`.
-- Keep `docs/` for README images and draw.io sources. Do not add AI workflow documents under `docs/`.
-
-## Naming and Swift style
-
-- In Swift, do not write explicit type annotations unless required.
-- Use `opfic` in new Swift file headers.
-- Prefer `<` and `<=` over `>` and `>=` when writing comparisons, if the condition can be expressed clearly that way.
-
-## DevLog Architecture Harness
-
-Use this harness before any task that changes module boundaries, file ownership, layer dependencies, DI assembly, repository/service contracts, widget data flow, Firebase dependency placement, or architecture documentation.
-
-Treat this repository as a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
-
-### Mandatory flow
-
-1. Read this file, `.gemini/styleguide.md`, `README.md`, and `.hermes/skills/devlog-architecture-harness/references/devlog-architecture-flow.md`.
-2. Identify the changed layer and owning target before editing.
-3. Inspect the current Swift import direction and Xcode target/framework dependency before deciding.
-4. Classify the change as mechanical, architectural, or ambiguous.
-5. For ambiguous architecture changes, stop and ask the user before editing.
-6. Keep the diff limited to the requested architecture scope.
-7. After Swift/iOS code changes, follow the Verification section.
-8. Report the changed files, architecture decision, and verification result.
-
-### Current layer map
-
-- `Application/Core`: shared app primitives such as DI, logging, query/value types, display options, activity kinds, and lightweight widget bridge values such as `WidgetTodoSnapshot`. Core is shared, but shared access alone is not enough reason to move domain entities into Core.
-- `Application/Domain`: entities, repository protocols, use case protocols, and use case implementations. Domain may depend on Core. Domain must not depend on Data, Infra, Persistence, Presentation, App, Widget extension UI, Firebase SDKs, or storage implementations.
-- `Application/Data`: repository implementations, DTOs, mappers, data-layer protocols for external services/stores, widget snapshot repository implementations, and widget sync/updater contracts. Data may depend on Domain and Core. Data should not own concrete widget sync handlers, event bus implementations, WidgetCore snapshot model/factory usage, or WidgetKit reload behavior, and should not gain direct Firebase, GoogleSignIn, WidgetKit, or concrete storage implementation details unless the user explicitly approves the boundary change.
-- `Application/Infra`: Firebase, social login, network, link metadata, messaging, and platform service implementations. Infra may depend on Data and Core. Infra must not depend on Domain even if a manifest-only target dependency exists. Firebase/Auth/Firestore/Functions/Messaging-specific behavior belongs here unless the user approves another boundary.
-- `Application/Persistence`: local persistence, user defaults, image store, and non-widget app persistence. Persistence may depend on Data and Core. Widget snapshot generation, widget snapshot persistence orchestration, and WidgetKit reload behavior belong to Widget.
-- `Application/Presentation`: SwiftUI views, view models, coordinators, UI state structures, presentation-only helpers, and narrow presentation-scoped platform side effects such as notification badge updates. Presentation may depend on Domain and Core. It must not depend on Data, Infra, Persistence, or App.
-- `Application/Widget`: app-side bridge between the app runtime and widget system, widget sync event bus implementation, widget sync/session handlers, auth-session sync provider, widget snapshot generation/persistence orchestration, WidgetKit reload bridge, and `WidgetAssembler`. Widget may depend on Data, Core, and WidgetCore. It must not depend on Domain, Infra, Persistence, Presentation, or App without explicit user approval.
-- `Application/App`: composition root, app lifecycle, app delegate, app-level routing, assembler wiring, and app target ownership for widget extension embedding. App may import concrete layers to assemble the dependency graph.
-- `Widget/WidgetCore`: widget snapshot models, factories, keys, app-group constants/defaults store, deep links, and widget-only pure helpers. WidgetCore may depend on Core. It must not depend on Domain, Data, Infra, Persistence, Presentation, App, or Widget without explicit user approval.
-- `Widget/WidgetExtension`: WidgetKit UI, widget providers, entries, timelines, and extension resources. It should consume WidgetCore outputs rather than app/domain services directly.
-
-### Layer-internal dependency injection
-
-- Do not inject dependencies between types that belong to the same layer.
-- This applies to initializer injection, stored-property injection, environment injection, and resolving same-layer types through `DIContainer`.
-- The only allowed exception is a SwiftUI `View` file in `Application/Presentation` receiving same-layer presentation objects such as a ViewModel, Coordinator, or Store for UI composition.
-- The exception does not apply to non-View files in Presentation, and does not apply to Core, Domain, Data, Infra, Persistence, Widget, App, WidgetCore, or WidgetExtension.
-
-### StorePattern flow
-
-- Preserve the existing Presentation `StorePattern`.
-- `StorePattern` is `@MainActor` and uses `State`, `Action`, `SideEffect`, and the `send -> reduce -> run` flow.
-- Reducers should compute state and return side effects.
-- I/O belongs in `run` or injected services, not in reducer state computation.
-- Ask before changing reducer, side-effect, or ViewModel responsibility boundaries.
-
-### Ambiguity gate
-
-Ask the user before editing when any of these are true:
-
-- A type could plausibly live in both Core and Domain.
-- A shared type is being moved only because multiple modules need access to it.
-- A new target dependency would make a lower-level module know a higher-level module.
-- A build fix would be achieved by loosening an architecture boundary.
-- Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, WidgetKit, or storage implementation details would move to another layer.
-- A repository protocol, service protocol, assembler, or DI ownership boundary would change.
-- WidgetCore would start depending on app/domain/data implementation concepts.
-- Widget would start depending on Domain, Infra, Persistence, Presentation, or App.
-- Widget would use WidgetKit for anything beyond the app-side widget reload bridge.
-- Widget sync ownership would move away from the preferred split: Data contracts and snapshot repositories, Widget app-side bridge/snapshot update orchestration, WidgetCore snapshot models/factories/store contracts, and WidgetExtension rendering.
-- Persistence would gain widget snapshot generation, WidgetCore, WidgetKit reload, or Widget bridge ownership.
-- Data or Presentation would expand platform SDK usage beyond the existing narrow cancellation-classification or notification-badge patterns.
-- Infra would add any Domain dependency, source import, or SDK service contract coupling.
-- A same-layer dependency would be injected outside a SwiftUI `View` file in `Application/Presentation`.
-- The requested change suggests cleanup outside the current issue or PR scope.
-
-### Safe mechanical changes
-
-These may proceed after inspection when they do not change architecture meaning:
-
-- Removing unused imports.
-- Updating import statements after an already-approved file move.
-- Fixing access control needed by an already-approved module boundary.
-- Updating tests to match an already-approved public contract.
-- Editing docs to reflect the current verified architecture.
-
-## Verification
-
-- If Swift files change, run Homebrew SwiftLint (`swiftlint`) on the changed Swift files.
-- For production Swift files, use the applicable source `.swiftlint.yml` config.
-- For test Swift files, use `.swiftlint-tests.yml` or the module `Tests/.swiftlint.yml` that inherits from it. Do not lint tests with the root production config.
-- If iOS project code changes, verify with Xcode Local MCP when it is available.
-- If Xcode Local MCP is unavailable, state that explicitly before using a fallback.
-- Do not claim architecture work is complete without checking the diff scope.
-- Do not spend time on unrelated generated project or lockfile churn. Keep generated workspace/project and `Package.resolved` changes out of source control unless they are part of an explicitly approved dependency-lock policy.
-
-## Git and commit rules
-
-- Commit messages must start with a short prefix used by recent local commits, such as `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `ui`, or `rollback`.
-- Write commit message prose in Korean.
-- Keep implementation names such as `ToastPresenter`, `toastHost`, `MainView`, `Presentation`, file paths, commands, branch names, and commit hashes in their original form.
-- Do not translate implementation names into Korean unless the user explicitly asks for a user-facing Korean label.
-- Do not write a commit message body.
-- When checking recent commit-message style, do not infer local commit style from GitHub merge or squash-merge subjects such as `[#123] ... (#456)`.
-- For squash-merge commits, inspect the commit body and use the individual bullet commit messages as the style reference.
-
-## Canonical project rules
-
-- DevLog-specific working rules belong in this repository, not in global agent memory.
-- Treat `AGENTS.md` and `.hermes/skills/devlog-architecture-harness` as the canonical DevLog AI working rules.
-- If global memory conflicts with this repository, follow this repository.
-- For PR, commit, Xcode project, CI, widget, Store, localization, or release workflow details, read `.hermes/skills/devlog-architecture-harness/references/devlog-workflow-rules.md`.
+- `AGENTS.md` is the repository entrypoint and routing source.
+- `.agents/rules/general.md` applies to every task.
+- Read all matching task-specific documents before planning, editing, reviewing, or verifying.
+- For architecture work, also read `.gemini/styleguide.md` and `README.md` before editing.
+- For a delegated role, read `.agents/roles.md` and follow the assigned role section and output format.
+- Use `.agents/workflows.md` when the task matches one of its executable workflows.
+- If repository-local instructions conflict with global memory, follow the repository-local instructions.
