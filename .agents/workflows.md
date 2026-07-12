@@ -280,6 +280,7 @@ Architecture Watcher is required only if the change modifies architecture policy
 - `AGENTS.md` should stay the short canonical entrypoint.
 - `.agents/roles.md` should define role permissions, output formats, and handoff packet shape.
 - `.agents/workflows.md` should define executable role sequences.
+- `.agents/rules/general.md` should define general logic preservation, response style, and Swift coding rules.
 - `.agents/rules/architecture.md` should define detailed architecture boundaries and ambiguity gates.
 - `.agents/rules/project-workflows.md` should define project-specific verification and delivery rules.
 
