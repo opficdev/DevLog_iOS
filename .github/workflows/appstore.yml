@@ -109,6 +109,8 @@ jobs:
 
           google_service_info_path="Application/App/Sources/Resource/GoogleService-Info.plist"
           dsym_zip_path="$(find fastlane/appstore_build -maxdepth 1 -name '*.dSYM.zip' -print -quit)"
+          dsym_manifest_path="fastlane/appstore_build/dsym-uuids.txt"
+          dsym_extract_path="$RUNNER_TEMP/appstore-dsym"
           upload_symbols_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" "$HOME/Library/Developer/Xcode/SourcePackages" "$GITHUB_WORKSPACE" -path '*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols' -type f -print -quit 2>/dev/null || true)"
 
           if [ ! -f "$google_service_info_path" ]; then
@@ -123,6 +125,18 @@ jobs:
 
           if [ -z "$upload_symbols_path" ]; then
             echo "Missing Firebase Crashlytics upload-symbols script" >&2
+            exit 1
+          fi
+
+          mkdir -p "$dsym_extract_path"
+          unzip -q "$dsym_zip_path" -d "$dsym_extract_path"
+
+          while IFS= read -r dsym_path; do
+            dwarfdump --uuid "$dsym_path"
+          done < <(find "$dsym_extract_path" -type d -name '*.dSYM' | sort) | tee "$dsym_manifest_path"
+
+          if [ ! -s "$dsym_manifest_path" ]; then
+            echo "Missing dSYM UUID manifest at $dsym_manifest_path" >&2
             exit 1
           fi
 
@@ -141,7 +155,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: appstore-dsym
-          path: fastlane/appstore_build/*.dSYM.zip
+          path: |
+            fastlane/appstore_build/*.dSYM.zip
+            fastlane/appstore_build/dsym-uuids.txt
           if-no-files-found: warn
 
       - name: Skip App Store Upload
