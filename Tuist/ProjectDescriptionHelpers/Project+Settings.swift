@@ -15,6 +15,7 @@ public extension Settings {
     ) -> Settings {
         var commonBase: SettingsDictionary = [
             "CURRENT_PROJECT_VERSION": "1",
+            "DEBUG_INFORMATION_FORMAT": "dwarf",
             "INFOPLIST_KEY_CFBundleShortVersionString": "$(MARKETING_VERSION)",
             "INFOPLIST_KEY_CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
             "SWIFT_VERSION": "5.0",
