@@ -15,7 +15,6 @@ public struct AuthDataResponse {
     public let providers: [String]
     public let providerID: String
     public let fcmToken: String?
-    public let accessToken: String?
 
     public init(
         uid: String,
@@ -23,8 +22,7 @@ public struct AuthDataResponse {
         email: String?,
         providers: [String],
         providerID: String,
-        fcmToken: String? = nil,
-        accessToken: String? = nil
+        fcmToken: String? = nil
     ) {
         self.uid = uid
         self.displayName = displayName
@@ -32,6 +30,5 @@ public struct AuthDataResponse {
         self.providers = providers
         self.providerID = providerID
         self.fcmToken = fcmToken
-        self.accessToken = accessToken
     }
 }
