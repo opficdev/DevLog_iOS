@@ -10,17 +10,13 @@ import FirebaseAuth
 import Data
 
 extension FirebaseAuth.User {
-    func makeResponse(
-        providerID: AuthProviderID,
-        accessToken: String? = nil
-    ) -> AuthDataResponse {
+    func makeResponse(providerID: AuthProviderID) -> AuthDataResponse {
         return AuthDataResponse(
             uid: self.uid,
             displayName: self.displayName,
             email: self.email,
             providers: self.providerData.map { $0.providerID },
-            providerID: providerID.rawValue,
-            accessToken: accessToken
+            providerID: providerID.rawValue
         )
     }
 }

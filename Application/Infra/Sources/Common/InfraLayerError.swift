@@ -30,6 +30,7 @@ enum TokenError: Error {
 
 enum SocialLoginError: Error {
     case invalidOAuthState
+    case invalidOAuthCallback
     case failedToStartWebAuthenticationSession
     case authenticationAlreadyInProgress
 }

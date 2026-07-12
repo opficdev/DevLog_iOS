@@ -62,11 +62,6 @@ final class UserServiceImpl: UserService {
                 tokenField["fcmToken"] = fcmToken
             }
 
-            // 깃헙 로그인 시 추가 정보 저장
-            if response.providerID == "github.com", let accessToken = response.accessToken {
-                tokenField["githubAccessToken"] = accessToken
-            }
-
             try await upsertUserDocuments(
                 uid: user.uid,
                 userField: userField,

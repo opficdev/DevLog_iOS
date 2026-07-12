@@ -99,9 +99,17 @@ struct FunctionAPIEndpoint<Response: Decodable>: NXEndpoint {
     let path: String
 }
 
-struct GithubAuthenticationResponse: Decodable {
-    let accessToken: String?
-    let customToken: String?
+struct OAuthAuthenticationSessionRequest: Encodable {
+    let appChallenge: String
+}
+
+struct OAuthAuthenticationSessionResponse: Decodable {
+    let authorizationURL: URL
+}
+
+struct OAuthAuthenticationTicketRequest: Encodable {
+    let ticket: String
+    let appVerifier: String
 }
 
 struct AppleChallengeResponse: Decodable {
@@ -109,12 +117,8 @@ struct AppleChallengeResponse: Decodable {
     let hashedNonce: String
 }
 
-struct AppleCustomTokenResponse: Decodable {
+struct FirebaseCustomTokenResponse: Decodable {
     let customToken: String
-}
-
-struct AppleOperationResponse: Decodable {
-    let success: Bool
 }
 
 struct AppleCustomTokenRequest: Encodable {
@@ -145,6 +149,9 @@ private enum FunctionAPIErrorCode: String {
 
 enum AppleAuthenticationAPIError: Error, Equatable {
     case providerLinkConflict
+}
+
+enum AuthenticationAPIError: Error, Equatable {
     case lastProvider
 }
 
@@ -169,7 +176,7 @@ struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
         case .appleProviderLinkConflict:
             return AppleAuthenticationAPIError.providerLinkConflict
         case .lastProvider:
-            return AppleAuthenticationAPIError.lastProvider
+            return AuthenticationAPIError.lastProvider
         }
     }
 }
@@ -191,6 +198,10 @@ extension Error {
 
     var apiAppleAuthenticationError: AppleAuthenticationAPIError? {
         functionAPIUnderlyingError as? AppleAuthenticationAPIError
+    }
+
+    var apiAuthenticationError: AuthenticationAPIError? {
+        functionAPIUnderlyingError as? AuthenticationAPIError
     }
 
     private var functionAPIUnderlyingError: (any Error)? {
