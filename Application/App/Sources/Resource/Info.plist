@@ -4,8 +4,6 @@
 <dict>
 	<key>TESTFLIGHT_URL</key>
 	<string>$(TESTFLIGHT_URL)</string>
-	<key>APP_REDIRECT_URL</key>
-	<string>$(APP_REDIRECT_URL)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -46,8 +44,6 @@
 	<string>$(FUNCTION_API_BASE_URL)</string>
 	<key>GIDClientID</key>
 	<string>$(CLIENT_ID)</string>
-	<key>GITHUB_CLIENT_ID</key>
-	<string>$(GITHUB_CLIENT_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
