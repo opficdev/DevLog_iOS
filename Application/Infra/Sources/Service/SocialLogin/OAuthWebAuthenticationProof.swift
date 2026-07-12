@@ -27,7 +27,7 @@ struct OAuthWebAuthenticationProof {
 
     func ticket(from callbackURL: URL) throws -> String {
         guard callbackURL.scheme?.caseInsensitiveCompare(Self.callbackURLScheme) == .orderedSame,
-              callbackURL.host == "oauth-callback",
+              callbackURL.host?.caseInsensitiveCompare("oauth-callback") == .orderedSame,
               let components = URLComponents(
                 url: callbackURL,
                 resolvingAgainstBaseURL: false
