@@ -10,22 +10,22 @@ enum OAuthAuthenticationTicketRequester {
         endpoint: FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>,
         requiresAuthentication: Bool
     ) async throws -> OAuthAuthenticationTicketRequest {
-        let proof = OAuthWebAuthenticationProof()
+        let handler = OAuthTicketExchangeHandler()
         let response = try await FunctionAPIClient.shared.send(
             endpoint,
             payload: OAuthAuthenticationSessionRequest(
-                appChallenge: proof.appChallenge
+                appChallenge: handler.appChallenge
             ),
             requiresAuthentication: requiresAuthentication
         )
         let callbackURL = try await OAuthWebAuthenticationSession.authenticate(
             url: response.authorizationURL,
-            callbackURLScheme: OAuthWebAuthenticationProof.callbackURLScheme
+            callbackURLScheme: OAuthTicketExchangeHandler.callbackURLScheme
         )
 
         return OAuthAuthenticationTicketRequest(
-            ticket: try proof.ticket(from: callbackURL),
-            appVerifier: proof.appVerifier
+            ticket: try handler.ticket(from: callbackURL),
+            appVerifier: handler.appVerifier
         )
     }
 }
