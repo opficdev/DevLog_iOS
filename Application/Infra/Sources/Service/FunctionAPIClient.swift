@@ -145,6 +145,7 @@ private enum FunctionAPIErrorCode: String {
     case emailMismatch = "email-mismatch"
     case githubEmailConflict = "github-email-changed-account-conflict"
     case appleProviderLinkConflict = "apple-provider-link-conflict"
+    case googleProviderLinkConflict = "google-provider-link-conflict"
     case lastProvider = "last-provider"
 }
 
@@ -171,7 +172,7 @@ struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
             return EmailError.mismatch
         case .githubEmailConflict:
             return EmailError.githubEmailConflict
-        case .appleProviderLinkConflict:
+        case .appleProviderLinkConflict, .googleProviderLinkConflict:
             return AuthenticationAPIError.providerLinkConflict
         case .lastProvider:
             return AuthenticationAPIError.lastProvider

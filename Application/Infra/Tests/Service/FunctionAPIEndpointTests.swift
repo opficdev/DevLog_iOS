@@ -154,6 +154,29 @@ struct FunctionAPIEndpointTests {
         #expect(error as? AuthenticationAPIError == .providerLinkConflict)
     }
 
+    @Test("Google provider 연결 충돌을 공통 인증 오류로 분류한다")
+    func Google_provider_연결_충돌을_공통_인증_오류로_분류한다() throws {
+        let data = try JSONEncoder().encode(
+            FunctionAPIErrorFixture(code: "google-provider-link-conflict")
+        )
+        let response = try #require(
+            HTTPURLResponse(
+                url: URL(string: "https://example.com")!,
+                statusCode: 409,
+                httpVersion: nil,
+                headerFields: nil
+            )
+        )
+
+        let error = FunctionAPIServerErrorDecoder().decodeServerError(
+            data: data,
+            response: response,
+            decoder: JSONDecoder()
+        )
+
+        #expect(error as? AuthenticationAPIError == .providerLinkConflict)
+    }
+
     @Test("마지막 provider 서버 오류를 공통 인증 오류로 분류한다")
     func 마지막_provider_서버_오류를_공통_인증_오류로_분류한다() throws {
         let data = try JSONEncoder().encode(
@@ -235,6 +258,57 @@ struct FunctionAPIEndpointTests {
 
         #expect(endpoint.method.rawValue == "DELETE")
         #expect(endpoint.path == "/auth/github/account-link")
+    }
+
+    @Test("Google 로그인 session endpoint는 sign-in-sessions 경로를 사용한다")
+    func Google_로그인_session_endpoint는_sign_in_sessions_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
+            .requestGoogleSignInSession
+
+        #expect(endpoint.method.rawValue == "POST")
+        #expect(endpoint.path == "/auth/google/sign-in-sessions")
+    }
+
+    @Test("Google custom token endpoint는 custom-token 경로를 사용한다")
+    func Google_custom_token_endpoint는_custom_token_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>
+            .requestGoogleCustomToken
+
+        #expect(endpoint.method.rawValue == "POST")
+        #expect(endpoint.path == "/auth/google/custom-token")
+    }
+
+    @Test("Google 계정 연결 session endpoint는 account-link-sessions 경로를 사용한다")
+    func Google_계정_연결_session_endpoint는_account_link_sessions_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
+            .requestGoogleAccountLinkSession
+
+        #expect(endpoint.method.rawValue == "POST")
+        #expect(endpoint.path == "/auth/google/account-link-sessions")
+    }
+
+    @Test("Google 계정 연결 endpoint는 PUT account-link 경로를 사용한다")
+    func Google_계정_연결_endpoint는_PUT_account_link_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.linkGoogleAccount
+
+        #expect(endpoint.method.rawValue == "PUT")
+        #expect(endpoint.path == "/auth/google/account-link")
+    }
+
+    @Test("Google 계정 연결 해제 endpoint는 DELETE account-link 경로를 사용한다")
+    func Google_계정_연결_해제_endpoint는_DELETE_account_link_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.unlinkGoogleAccount
+
+        #expect(endpoint.method.rawValue == "DELETE")
+        #expect(endpoint.path == "/auth/google/account-link")
+    }
+
+    @Test("Google access token endpoint는 DELETE access-token 경로를 사용한다")
+    func Google_access_token_endpoint는_DELETE_access_token_경로를_사용한다() {
+        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.revokeGoogleAccessToken
+
+        #expect(endpoint.method.rawValue == "DELETE")
+        #expect(endpoint.path == "/auth/google/access-token")
     }
 }
 
