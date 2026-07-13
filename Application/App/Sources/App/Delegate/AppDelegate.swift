@@ -16,14 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private let container = AppDIContainer.shared
 
     func application(
-        _ app: UIApplication,
-        open url: URL,
-        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
-        return GoogleSignInURLHandler.handle(url)
-    }
-
-    func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {

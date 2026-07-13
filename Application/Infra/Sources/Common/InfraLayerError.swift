@@ -43,8 +43,7 @@ extension Error {
         case let webAuthError as ASWebAuthenticationSessionError:
             return webAuthError.code == .canceledLogin
         default:
-            let nsError = self as NSError
-            return nsError.domain == "com.google.GIDSignIn" && nsError.code == -5
+            return false
         }
     }
 }
