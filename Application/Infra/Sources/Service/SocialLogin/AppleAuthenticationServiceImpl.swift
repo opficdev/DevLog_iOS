@@ -236,13 +236,11 @@ private extension AppleAuthenticationServiceImpl {
             return emailError
         }
 
-        if error.apiAuthenticationError == .lastProvider {
-            return DataLayerError.failedToUnlinkLastProvider
-        }
-
-        switch error.apiAppleAuthenticationError {
+        switch error.apiAuthenticationError {
         case .providerLinkConflict:
             return DataLayerError.linkCredentialAlreadyInUse
+        case .lastProvider:
+            return DataLayerError.failedToUnlinkLastProvider
         case .none:
             return error
         }

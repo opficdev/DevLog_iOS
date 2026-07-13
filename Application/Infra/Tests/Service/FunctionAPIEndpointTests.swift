@@ -132,16 +132,9 @@ struct FunctionAPIEndpointTests {
         #expect(request.requestedScopes == [.fullName, .email])
     }
 
-    @Test(
-        "Apple 서버 오류를 앱 인증 오류 원인으로 분류한다",
-        arguments: [
-            ("apple-provider-link-conflict", AppleAuthenticationAPIError.providerLinkConflict)
-        ]
-    )
-    func Apple_서버_오류를_앱_인증_오류_원인으로_분류한다(
-        code: String,
-        expected: AppleAuthenticationAPIError
-    ) throws {
+    @Test("Apple provider 연결 충돌을 공통 인증 오류로 분류한다")
+    func Apple_provider_연결_충돌을_공통_인증_오류로_분류한다() throws {
+        let code = "apple-provider-link-conflict"
         let data = try JSONEncoder().encode(FunctionAPIErrorFixture(code: code))
         let response = try #require(
             HTTPURLResponse(
@@ -158,7 +151,7 @@ struct FunctionAPIEndpointTests {
             decoder: JSONDecoder()
         )
 
-        #expect(error as? AppleAuthenticationAPIError == expected)
+        #expect(error as? AuthenticationAPIError == .providerLinkConflict)
     }
 
     @Test("마지막 provider 서버 오류를 공통 인증 오류로 분류한다")
