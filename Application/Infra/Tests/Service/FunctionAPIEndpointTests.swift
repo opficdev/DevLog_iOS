@@ -52,14 +52,50 @@ struct FunctionAPIEndpointTests {
         #expect(endpoint.path == "/auth/apple/access-token")
     }
 
-    @Test("Apple custom token 요청은 challenge와 authorization code만 인코딩한다")
-    func Apple_custom_token_요청은_challenge와_authorization_code만_인코딩한다() throws {
+    @Test("Apple custom token 요청은 display name을 포함할 수 있다")
+    func Apple_custom_token_요청은_display_name을_포함할_수_있다() throws {
         let request = AppleCustomTokenRequest(
             challengeId: "challenge-id",
-            authorizationCode: "authorization-code"
+            authorizationCode: "authorization-code",
+            displayName: "Apple User"
+        )
+
+        #expect(
+            try encodedKeys(request) == [
+                "challengeId",
+                "authorizationCode",
+                "displayName"
+            ]
+        )
+    }
+
+    @Test("Apple custom token 요청은 없는 display name을 인코딩하지 않는다")
+    func Apple_custom_token_요청은_없는_display_name을_인코딩하지_않는다() throws {
+        let request = AppleCustomTokenRequest(
+            challengeId: "challenge-id",
+            authorizationCode: "authorization-code",
+            displayName: nil
         )
 
         #expect(try encodedKeys(request) == ["challengeId", "authorizationCode"])
+    }
+
+    @Test("Apple 이름은 custom token 요청용 display name으로 변환한다")
+    func Apple_이름은_custom_token_요청용_display_name으로_변환한다() {
+        var fullName = PersonNameComponents()
+        fullName.givenName = "Apple"
+        fullName.familyName = "User"
+
+        #expect(AppleAuthenticationServiceImpl.makeDisplayName(from: fullName) == "Apple User")
+    }
+
+    @Test("비어 있는 Apple 이름은 display name으로 변환하지 않는다")
+    func 비어_있는_Apple_이름은_display_name으로_변환하지_않는다() {
+        #expect(
+            AppleAuthenticationServiceImpl.makeDisplayName(
+                from: PersonNameComponents()
+            ) == nil
+        )
     }
 
     @Test("Apple 계정 연결 요청은 credential email을 포함할 수 있다")

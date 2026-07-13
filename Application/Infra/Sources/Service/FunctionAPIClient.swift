@@ -124,6 +124,7 @@ struct FirebaseCustomTokenResponse: Decodable {
 struct AppleCustomTokenRequest: Encodable {
     let challengeId: String
     let authorizationCode: String
+    let displayName: String?
 }
 
 struct AppleAccountLinkRequest: Encodable {
