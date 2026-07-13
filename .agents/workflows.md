@@ -17,14 +17,19 @@ The main agent must run every workflow with this protocol.
 3. Create the task packet.
 4. Assign only the roles required by the selected workflow.
 5. Assign each role a model tier from `.agents/roles.md`.
-6. Keep `Primary` roles with the active main agent, and dispatch every `Lightweight` or `Fast` role through the custom agent mapped in `.agents/roles.md`.
-7. Dispatch read-only `Lightweight` or `Fast` roles in parallel only when they do not depend on unfinished edits.
-8. Do not complete a required `Lightweight` or `Fast` role directly in `Primary`, including when the dispatch tool would inherit the active `Primary` model.
-9. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
-10. Integrate role outputs.
-11. Escalate any `Lightweight` or `Fast` blocker to a `Primary` model before editing.
-12. Run completion gates.
-13. Report changed files, architecture decision, verification result, delegated roles, model tiers used, and unresolved decisions.
+6. Keep `Primary` roles with the active main agent.
+7. Find the exact custom agent name in `.agents/roles.md` and its matching `.codex/agents/<name>.toml` before dispatching a `Lightweight` or `Fast` role.
+8. Create the role as a side task connected to the current main task with `spawn_agent.task_name` set to that exact name, or use `Option-Command-S` from the UI sidebar for the same connected dispatch surface.
+9. Do not use external `codex exec`, a separate user-owned `create_thread`, or an arbitrary `task_name` for repository role dispatch.
+10. Reuse the existing role agent with `followup_task` when assigning later work to the same role.
+11. Return every delegated role result to the current main task for `Primary` review and integration.
+12. Do not complete a required `Lightweight` or `Fast` role directly in `Primary`, and do not substitute a generic sub-agent for the configured custom agent.
+13. Dispatch read-only `Lightweight` or `Fast` roles in parallel only when they do not depend on unfinished edits.
+14. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
+15. Integrate role outputs.
+16. Escalate any `Lightweight` or `Fast` blocker to a `Primary` model before editing.
+17. Run completion gates.
+18. Report changed files, architecture decision, verification result, delegated roles, model tiers used, and unresolved decisions.
 
 Do not skip the task packet. The task packet is the contract between models.
 
@@ -35,11 +40,13 @@ Stop and ask the user before editing when:
 - The task packet conflicts with `AGENTS.md`.
 - The requested fix requires relaxing a layer boundary.
 - A role needs to run, launch, install, boot, or open the app or Simulator.
-- A required `Lightweight` or `Fast` custom agent cannot be loaded or selected, its pinned model is unavailable, or current tool policy requires user permission that has not been granted.
+- A required `Lightweight` or `Fast` custom agent cannot be loaded or selected through the connected side-task surface with its exact `task_name`, its pinned model is unavailable, or current tool policy requires user permission that has not been granted.
 - The current issue or PR scope is unclear after live GitHub inspection.
 - Two editing roles would touch the same file.
 - A read-only role reports `Block` or `Needs Owner Decision`.
 - Verification fails for a reason that suggests a scope or architecture decision.
+
+Do not apply the custom-agent stop condition only because external `codex exec`, a separate `create_thread`, or an arbitrary `task_name` failed. Retry through the connected side-task surface with the exact configured name first.
 
 ## Workflow selection
 
@@ -289,7 +296,7 @@ Architecture Watcher is required only if the change modifies architecture policy
 Verification Runner must run:
 
 ```sh
-git diff --check -- AGENTS.md .agents .codex/agents
+git diff --check -- AGENTS.md .agents .codex/agents README.md
 ```
 
 If only Markdown workflow files changed, no iOS build is required.
@@ -309,6 +316,8 @@ Report:
 ```
 
 ## Parallel dispatch guide
+
+Use only side tasks connected to the current main task for parallel role dispatch. Create them with exact configured custom agent names through `spawn_agent` or with `Option-Command-S` in the UI sidebar.
 
 Parallelize only these combinations:
 
@@ -353,6 +362,8 @@ Include the selected workflow name in the task packet `Source` or `Goal` field s
 - Architecture risk: none
 - Required roles: Planner, Implementer, Code Reviewer, Verification Runner
 - Model assignment: Planner=Primary, Implementer=Primary, Code Reviewer=code_reviewer (Lightweight), Verification Runner=verification_runner (Lightweight)
+- Custom agent `task_name`: Code Reviewer=`code_reviewer`, Verification Runner=`verification_runner`
+- Result recipient: `Primary` of the current main task
 - Verification: `git diff --check -- AGENTS.md .agents .codex/agents README.md`
 - Stop conditions: README `docs/` asset policy changes, Swift/iOS code changes, request to remove architecture rules immediately
 ```
@@ -371,6 +382,8 @@ Include the selected workflow name in the task packet `Source` or `Goal` field s
 - Architecture risk: none / possible / confirmed
 - Required roles: GitHub/CI Analyst, Planner, Implementer, Code Reviewer, Verification Runner
 - Model assignment: GitHub/CI Analyst=github_ci_analyst (Lightweight), Planner=Primary, Implementer=Primary, Code Reviewer=code_reviewer (Lightweight) -> Primary if blocking, Verification Runner=verification_runner (Lightweight)
+- Custom agent `task_name`: GitHub/CI Analyst=`github_ci_analyst`, Code Reviewer=`code_reviewer`, Verification Runner=`verification_runner`
+- Result recipient: `Primary` of the current main task
 - Verification: changed-file SwiftLint for Swift changes, targeted tests or build-only check when applicable
 - Stop conditions: unresolved thread requires owner decision, fix relaxes architecture boundary, two comments conflict, CI failure source is unrelated to review feedback
 ```

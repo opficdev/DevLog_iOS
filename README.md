@@ -264,12 +264,12 @@ flowchart LR
 		Integrator["Final Integration"]
 	end
 
-	subgraph Lightweight["gpt-5.3-codex-spark"]
-		ArchitectureWatcher["Architecture Watcher"]
-		CodeReviewer["Code Reviewer"]
-		VerificationRunner["Verification Runner"]
-		GitHubCIAnalyst["GitHub/CI Analyst"]
-		DocumentationWriter["Documentation Writer"]
+	subgraph ConnectedSideTasks["현재 task 연결형 사이드 작업<br/>사이드바: Option-Command-S<br/>도구: spawn_agent"]
+		ArchitectureWatcher["Architecture Watcher<br/>architecture_watcher"]
+		CodeReviewer["Code Reviewer<br/>code_reviewer"]
+		VerificationRunner["Verification Runner<br/>verification_runner"]
+		GitHubCIAnalyst["GitHub/CI Analyst<br/>github_ci_analyst"]
+		DocumentationWriter["Documentation Writer<br/>documentation_writer"]
 	end
 
 	subgraph Gate["Gate"]
@@ -280,24 +280,24 @@ flowchart LR
 
 	TaskPacket --> Planner
 	Planner --> Implementer
-	Planner --> ArchitectureWatcher
+	Planner -->|"Architecture risk<br/>task_name 선택"| ArchitectureWatcher
 	ArchitectureWatcher -->|Pass| Implementer
 	ArchitectureWatcher -->|Block / Decision| Integrator
 	Implementer --> CodeReviewer
 	CodeReviewer --> ReviewGate
 	ReviewGate --> VerificationRunner
 	VerificationRunner --> VerificationGate
-	GitHubCIAnalyst --> Planner
-	DocumentationWriter --> Integrator
+	GitHubCIAnalyst -->|"현재 task로 결과 반환"| Planner
+	DocumentationWriter -->|"현재 task로 결과 반환"| Integrator
 	VerificationGate --> Integrator
 ```
 
-| 역할 | 모델 | 담당 | 다음 흐름 |
-| --- | --- | --- | --- |
-| Planner | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
-| Implementer | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
-| Architecture Watcher | Lightweight -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
-| Code Reviewer | Lightweight -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
-| Verification Runner | gpt-5.3-codex-spark | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
-| GitHub/CI Analyst | gpt-5.3-codex-spark | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
-| Documentation Writer | gpt-5.3-codex-spark | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
+| 역할 | 정확한 `task_name` / Custom Agent | 모델 | 담당 | 다음 흐름 |
+| --- | --- | --- | --- | --- |
+| Planner | active main agent | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
+| Implementer | active main agent | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
+| Architecture Watcher | `architecture_watcher` | `gpt-5.3-codex-spark` (`Lightweight`) -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
+| Code Reviewer | `code_reviewer` | `gpt-5.3-codex-spark` (`Lightweight`) -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
+| Verification Runner | `verification_runner` | `gpt-5.3-codex-spark` (`Lightweight`) | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
+| GitHub/CI Analyst | `github_ci_analyst` | `gpt-5.3-codex-spark` (`Lightweight`) | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
+| Documentation Writer | `documentation_writer` | `gpt-5.3-codex-spark` (`Lightweight`) | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
