@@ -93,11 +93,6 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         widgetSnapshotUpdater.clear()
     }
 
-    func restore() -> Bool {
-        // MARK: 후에 Google API를 사용 시 Google만의 restorePreviousSignIn 로직 추가
-        return authService.uid != nil
-    }
-
     func delete() async throws {
         guard let uid = authService.uid else {
             throw AuthError.notAuthenticated
