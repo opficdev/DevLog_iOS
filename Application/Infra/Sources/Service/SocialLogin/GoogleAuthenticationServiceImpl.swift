@@ -8,7 +8,6 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
-import Foundation
 import Core
 import Data
 

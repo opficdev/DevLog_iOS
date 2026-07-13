@@ -31,7 +31,6 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     private let store = FirebaseConfiguration.firestore
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
-    private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
     func signIn() async throws -> AuthDataResponse? {
