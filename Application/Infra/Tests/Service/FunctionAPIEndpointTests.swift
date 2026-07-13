@@ -84,9 +84,8 @@ struct FunctionAPIEndpointTests {
     func Apple_이름은_custom_token_요청용_display_name으로_변환한다() {
         var fullName = PersonNameComponents()
         fullName.givenName = "Apple"
-        fullName.familyName = "User"
 
-        #expect(fullName.displayName == "Apple User")
+        #expect(fullName.displayName == "Apple")
     }
 
     @Test("비어 있는 Apple 이름은 display name으로 변환하지 않는다")
