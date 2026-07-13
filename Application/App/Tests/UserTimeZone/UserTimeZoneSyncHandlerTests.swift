@@ -218,7 +218,6 @@ private actor UserServiceSpy: UserService {
 private final class AuthServiceSpy: AuthService {
     var uid: String?
     let providerIDs = [String]()
-    let currentUserEmail: String? = nil
     let providerCount = 0
     private let subject = PassthroughSubject<Bool, Never>()
 

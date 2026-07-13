@@ -33,7 +33,7 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
         logger.info("Starting GitHub sign in")
 
         do {
-            let request = try await requestAuthenticationTicket(
+            let request = try await OAuthAuthenticationTicketRequester.request(
                 endpoint: .requestGithubSignInSession,
                 requiresAuthentication: false
             )
@@ -89,11 +89,11 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email _: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         logger.info("Linking GitHub account for user: \(uid)")
 
         do {
-            let request = try await requestAuthenticationTicket(
+            let request = try await OAuthAuthenticationTicketRequester.request(
                 endpoint: .requestGithubAccountLinkSession,
                 requiresAuthentication: true
             )
@@ -130,29 +130,6 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
 }
 
 private extension GithubAuthenticationServiceImpl {
-    func requestAuthenticationTicket(
-        endpoint: FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>,
-        requiresAuthentication: Bool
-    ) async throws -> OAuthAuthenticationTicketRequest {
-        let proof = OAuthWebAuthenticationProof()
-        let response = try await FunctionAPIClient.shared.send(
-            endpoint,
-            payload: OAuthAuthenticationSessionRequest(
-                appChallenge: proof.appChallenge
-            ),
-            requiresAuthentication: requiresAuthentication
-        )
-        let callbackURL = try await OAuthWebAuthenticationSession.authenticate(
-            url: response.authorizationURL,
-            callbackURLScheme: OAuthWebAuthenticationProof.callbackURLScheme
-        )
-
-        return OAuthAuthenticationTicketRequest(
-            ticket: try proof.ticket(from: callbackURL),
-            appVerifier: proof.appVerifier
-        )
-    }
-
     func mapGithubAPIError(_ error: Error) -> Error {
         if let emailError = error.apiEmailError {
             return emailError

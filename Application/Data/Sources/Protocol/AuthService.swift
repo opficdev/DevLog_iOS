@@ -11,7 +11,6 @@ import Foundation
 public protocol AuthService {
     var uid: String? { get }
     var providerIDs: [String] { get }
-    var currentUserEmail: String? { get }
     var providerCount: Int { get }
 
     func observeSignedIn() -> AnyPublisher<Bool, Never>

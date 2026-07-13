@@ -131,7 +131,6 @@ private final class WebPageRepositoryAuthServiceSpy: AuthService {
 
     var uid: String?
     var providerIDs: [String] { [] }
-    var currentUserEmail: String? { nil }
     var providerCount: Int { 0 }
 
     init(uid: String?) {

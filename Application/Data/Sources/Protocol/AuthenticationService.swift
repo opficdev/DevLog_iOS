@@ -11,6 +11,6 @@ public protocol AuthenticationService {
     func signIn() async throws -> AuthDataResponse?
     func signOut(_ uid: String) async throws
     func deleteAuth(_ uid: String) async throws
-    func link(uid: String, email: String) async throws -> Bool
+    func link(uid: String) async throws -> Bool
     func unlink(_ uid: String) async throws
 }

@@ -175,14 +175,12 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
 
     var uid: String?
     let providerIDs: [String]
-    let currentUserEmail: String?
     let providerCount: Int
 
     init(
         uid: String?,
         providerID: String?,
         providerIDs: [String],
-        currentUserEmail: String? = nil,
         providerCount: Int? = nil,
         deleteCurrentUserError: Error? = nil,
         events: AuthenticationRepositoryEventRecorder
@@ -190,7 +188,6 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
         self.uid = uid
         self.providerID = providerID
         self.providerIDs = providerIDs
-        self.currentUserEmail = currentUserEmail
         self.providerCount = providerCount ?? providerIDs.count
         self.deleteCurrentUserError = deleteCurrentUserError
         self.events = events
@@ -263,7 +260,7 @@ actor AuthenticationServiceSpy: AuthenticationService {
         events.record("\(provider).deleteAuth")
     }
 
-    func link(uid: String, email: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         events.record("\(provider).link")
         return try linkResult.get()
     }

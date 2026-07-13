@@ -31,7 +31,6 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
     private let store = FirebaseConfiguration.firestore
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
-    private let providerID = AuthProviderID.apple
     private let logger = Logger(category: "AppleAuthService")
 
     func signIn() async throws -> AuthDataResponse? {
@@ -98,7 +97,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email _: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         do {
             logger.info("Linking Apple account for user: \(uid)")
             let challenge = try await requestAppleChallenge()
@@ -236,13 +235,11 @@ private extension AppleAuthenticationServiceImpl {
             return emailError
         }
 
-        if error.apiAuthenticationError == .lastProvider {
-            return DataLayerError.failedToUnlinkLastProvider
-        }
-
-        switch error.apiAppleAuthenticationError {
+        switch error.apiAuthenticationError {
         case .providerLinkConflict:
             return DataLayerError.linkCredentialAlreadyInUse
+        case .lastProvider:
+            return DataLayerError.failedToUnlinkLastProvider
         case .none:
             return error
         }

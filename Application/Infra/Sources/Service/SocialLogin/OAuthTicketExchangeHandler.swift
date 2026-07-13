@@ -1,5 +1,5 @@
 //
-//  OAuthWebAuthenticationProof.swift
+//  OAuthTicketExchangeHandler.swift
 //  Infra
 //
 //  Created by opfic on 7/12/26.
@@ -8,7 +8,7 @@
 import CryptoKit
 import Foundation
 
-struct OAuthWebAuthenticationProof {
+struct OAuthTicketExchangeHandler {
     static let callbackURLScheme = "DevLog"
 
     let appVerifier: String
@@ -44,7 +44,7 @@ struct OAuthWebAuthenticationProof {
     }
 }
 
-private extension OAuthWebAuthenticationProof {
+private extension OAuthTicketExchangeHandler {
     static func makeVerifier() -> String {
         [UUID().uuidString, UUID().uuidString]
             .joined()

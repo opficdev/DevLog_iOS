@@ -145,14 +145,12 @@ private enum FunctionAPIErrorCode: String {
     case emailMismatch = "email-mismatch"
     case githubEmailConflict = "github-email-changed-account-conflict"
     case appleProviderLinkConflict = "apple-provider-link-conflict"
+    case googleProviderLinkConflict = "google-provider-link-conflict"
     case lastProvider = "last-provider"
 }
 
-enum AppleAuthenticationAPIError: Error, Equatable {
-    case providerLinkConflict
-}
-
 enum AuthenticationAPIError: Error, Equatable {
+    case providerLinkConflict
     case lastProvider
 }
 
@@ -174,8 +172,8 @@ struct FunctionAPIServerErrorDecoder: NXServerErrorDecoder {
             return EmailError.mismatch
         case .githubEmailConflict:
             return EmailError.githubEmailConflict
-        case .appleProviderLinkConflict:
-            return AppleAuthenticationAPIError.providerLinkConflict
+        case .appleProviderLinkConflict, .googleProviderLinkConflict:
+            return AuthenticationAPIError.providerLinkConflict
         case .lastProvider:
             return AuthenticationAPIError.lastProvider
         }
@@ -195,10 +193,6 @@ private actor FirebaseAuthTokenProvider: NXAuthTokenProvider {
 extension Error {
     var apiEmailError: EmailError? {
         functionAPIUnderlyingError as? EmailError
-    }
-
-    var apiAppleAuthenticationError: AppleAuthenticationAPIError? {
-        functionAPIUnderlyingError as? AppleAuthenticationAPIError
     }
 
     var apiAuthenticationError: AuthenticationAPIError? {

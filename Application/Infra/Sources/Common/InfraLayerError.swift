@@ -7,7 +7,6 @@
 
 import AuthenticationServices
 import Foundation
-import Data
 
 enum FirestoreError: Error, LocalizedError {
     case dataNotFound(_ key: String)
@@ -20,16 +19,7 @@ enum FirestoreError: Error, LocalizedError {
     }
 }
 
-enum UIError: Error {
-    case notFoundTopViewController
-}
-
-enum TokenError: Error {
-    case invalidResponse
-}
-
 enum SocialLoginError: Error {
-    case invalidOAuthState
     case invalidOAuthCallback
     case failedToStartWebAuthenticationSession
     case authenticationAlreadyInProgress
@@ -43,8 +33,7 @@ extension Error {
         case let webAuthError as ASWebAuthenticationSessionError:
             return webAuthError.code == .canceledLogin
         default:
-            let nsError = self as NSError
-            return nsError.domain == "com.google.GIDSignIn" && nsError.code == -5
+            return false
         }
     }
 }

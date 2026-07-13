@@ -8,8 +8,6 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
-import Foundation
-import GoogleSignIn
 import Core
 import Data
 
@@ -29,48 +27,34 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
     private let store = FirebaseConfiguration.firestore
     private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
-    private let provider = TopViewControllerProvider()
     private let logger = Logger(category: "GoogleAuthService")
 
-    @MainActor
     func signIn() async throws -> AuthDataResponse? {
         logger.info("Starting Google sign in")
-        
-        guard let topViewController = provider.topViewController() else {
-            logger.error("Top view controller not found")
-            throw UIError.notFoundTopViewController
-        }
 
         do {
-            let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+            let request = try await OAuthAuthenticationTicketRequester.request(
+                endpoint: .requestGoogleSignInSession,
+                requiresAuthentication: false
+            )
+            let response = try await FunctionAPIClient.shared.send(
+                .requestGoogleCustomToken,
+                payload: request,
+                requiresAuthentication: false
+            )
 
-            guard let idToken = signIn.user.idToken?.tokenString else {
-                logger.error("ID token not found")
-                throw URLError(.badServerResponse)
-            }
-            
-            let accessToken = signIn.user.accessToken.tokenString
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            
-            logger.debug("Signing in with Google credential")
-            let result = try await Auth.auth().signIn(with: credential)
-            
-            if let photoURL = signIn.user.profile?.imageURL(withDimension: 200) {
-                let changeRequest = result.user.createProfileChangeRequest()
-                changeRequest.photoURL = photoURL
-                changeRequest.displayName = signIn.user.profile?.name
-
-                try await changeRequest.commitChanges()
-            }
+            logger.debug("Signing in with custom token")
+            let result = try await Auth.auth().signIn(withCustomToken: response.customToken)
 
             logger.info("Successfully signed in with Google")
             return result.user.makeResponse(providerID: .google)
         } catch {
             if error.isSocialLoginCancelled { return nil }
 
-            logger.error("Failed to sign in with Google", error: error)
-            record(error, code: .signIn)
-            throw error
+            let mappedError = mapGoogleAPIError(error)
+            logger.error("Failed to sign in with Google", error: mappedError)
+            record(mappedError, code: .signIn)
+            throw mappedError
         }
     }
 
@@ -78,9 +62,6 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         do {
             let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
             try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
-
-            GIDSignIn.sharedInstance.signOut()
-            try await GIDSignIn.sharedInstance.disconnect()
 
             if messaging.fcmToken != nil {
                 do {
@@ -100,8 +81,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 
     func deleteAuth(_ uid: String) async throws {
         do {
-            GIDSignIn.sharedInstance.signOut()
-            try await GIDSignIn.sharedInstance.disconnect()
+            try await FunctionAPIClient.shared.send(.revokeGoogleAccessToken)
         } catch {
             logger.error("Failed to delete Google auth", error: error)
             record(error, code: .deleteAuth)
@@ -109,65 +89,62 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    @MainActor
-    func link(uid: String, email: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
+        logger.info("Linking Google account for user: \(uid)")
+
         do {
-            guard let topViewController = provider.topViewController() else {
-                throw UIError.notFoundTopViewController
-            }
+            let request = try await OAuthAuthenticationTicketRequester.request(
+                endpoint: .requestGoogleAccountLinkSession,
+                requiresAuthentication: true
+            )
+            try await FunctionAPIClient.shared.send(
+                .linkGoogleAccount,
+                payload: request
+            )
+            try await user?.reload()
 
-            if GIDSignIn.sharedInstance.hasPreviousSignIn() {
-                GIDSignIn.sharedInstance.signOut()
-            }
-
-            let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
-
-            guard let googleEmail = signIn.user.profile?.email else {
-                throw EmailError.notFound
-            }
-
-            if googleEmail != email {
-                throw EmailError.mismatch
-            }
-
-            guard let idToken = signIn.user.idToken?.tokenString else {
-                throw URLError(.badServerResponse)
-            }
-
-            let accessToken = signIn.user.accessToken.tokenString
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-
-            try await user?.link(with: credential)
+            logger.info("Successfully linked Google account")
             return true
         } catch {
             if error.isSocialLoginCancelled { return false }
 
-            logger.error("Failed to link Google account", error: error)
-            record(error, code: .link)
-            if error.isFirebaseCredentialAlreadyInUse {
-                throw DataLayerError.linkCredentialAlreadyInUse
-            }
-            throw error
+            let mappedError = mapGoogleAPIError(error)
+            logger.error("Failed to link Google account", error: mappedError)
+            record(mappedError, code: .link)
+            throw mappedError
         }
     }
 
     func unlink(_ uid: String) async throws {
         do {
-            logger.info("Starting Google disconnect for unlink. uid: \(uid)")
-            GIDSignIn.sharedInstance.signOut()
-            try await GIDSignIn.sharedInstance.disconnect()
-
-            logger.info("Starting Firebase Google provider unlink. uid: \(uid)")
-            _ = try await user?.unlink(fromProvider: AuthProviderID.google.rawValue)
+            logger.info("Unlinking Google account for user: \(uid)")
+            try await FunctionAPIClient.shared.send(.unlinkGoogleAccount)
+            try await user?.reload()
         } catch {
-            logger.error("Failed to unlink Google account", error: error)
-            record(error, code: .unlink)
-            throw error
+            let mappedError = mapGoogleAPIError(error)
+            logger.error("Failed to unlink Google account", error: mappedError)
+            record(mappedError, code: .unlink)
+            throw mappedError
         }
     }
 }
 
 private extension GoogleAuthenticationServiceImpl {
+    func mapGoogleAPIError(_ error: Error) -> Error {
+        if let emailError = error.apiEmailError {
+            return emailError
+        }
+
+        switch error.apiAuthenticationError {
+        case .providerLinkConflict:
+            return DataLayerError.linkCredentialAlreadyInUse
+        case .lastProvider:
+            return DataLayerError.failedToUnlinkLastProvider
+        case .none:
+            return error
+        }
+    }
+
     private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
