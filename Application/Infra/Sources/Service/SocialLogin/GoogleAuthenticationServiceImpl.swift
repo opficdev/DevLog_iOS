@@ -90,7 +90,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email _: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         logger.info("Linking Google account for user: \(uid)")
 
         do {

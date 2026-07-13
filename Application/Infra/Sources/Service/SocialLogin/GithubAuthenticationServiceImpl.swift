@@ -89,7 +89,7 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email _: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         logger.info("Linking GitHub account for user: \(uid)")
 
         do {

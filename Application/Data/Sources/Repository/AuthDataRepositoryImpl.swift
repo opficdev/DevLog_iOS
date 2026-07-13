@@ -38,8 +38,7 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
     }
     
     func linkProvider(_ provider: AuthProvider) async throws -> Bool {
-        guard let uid = authService.uid,
-              let email = authService.currentUserEmail else {
+        guard let uid = authService.uid else {
             throw AuthError.notAuthenticated
         }
         
@@ -54,7 +53,7 @@ final class AuthDataRepositoryImpl: AuthDataRepository {
         }
 
         do {
-            return try await service.link(uid: uid, email: email)
+            return try await service.link(uid: uid)
         } catch {
             throw mapLinkError(error)
         }

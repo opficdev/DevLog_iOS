@@ -39,10 +39,6 @@ final class AuthServiceImpl: AuthService {
         Auth.auth().currentUser?.providerData.map { $0.providerID } ?? []
     }
 
-    var currentUserEmail: String? {
-        Auth.auth().currentUser?.email
-    }
-
     var providerCount: Int {
         Auth.auth().currentUser?.providerData.count ?? 0
     }

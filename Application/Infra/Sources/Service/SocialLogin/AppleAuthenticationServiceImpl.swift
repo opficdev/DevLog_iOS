@@ -98,7 +98,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func link(uid: String, email _: String) async throws -> Bool {
+    func link(uid: String) async throws -> Bool {
         do {
             logger.info("Linking Apple account for user: \(uid)")
             let challenge = try await requestAppleChallenge()

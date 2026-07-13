@@ -89,7 +89,6 @@ struct AuthDataRepositoryImplTests {
             uid: "user-id",
             providerID: "apple.com",
             providerIDs: ["apple.com", "google.com"],
-            currentUserEmail: "apple@example.com",
             providerCount: providerCount,
             events: events
         )
