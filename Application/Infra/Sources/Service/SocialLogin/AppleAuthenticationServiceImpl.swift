@@ -43,7 +43,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
                 hashedNonce: challenge.hashedNonce
             )
 
-            let displayName = Self.makeDisplayName(from: response.fullName)
+            let displayName = response.fullName?.displayName
 
             logger.debug("Requesting custom token from Firebase Function")
             let customToken = try await requestAppleCustomToken(
@@ -180,15 +180,6 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         return request
     }
 
-    static func makeDisplayName(from fullName: PersonNameComponents?) -> String? {
-        guard let fullName else { return nil }
-
-        let formatter = PersonNameComponentsFormatter()
-        formatter.style = .long
-        let displayName = formatter.string(from: fullName)
-        return displayName.isEmpty ? nil : displayName
-    }
-
     @MainActor
     private func completeAppleSignIn(with result: Result<ASAuthorization, Error>) {
         guard let continuation = appleSignInContinuation else { return }
@@ -227,6 +218,15 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         )
         
         return response.customToken
+    }
+}
+
+extension PersonNameComponents {
+    var displayName: String? {
+        let formatter = PersonNameComponentsFormatter()
+        formatter.style = .long
+        let name = formatter.string(from: self)
+        return name.isEmpty ? nil : name
     }
 }
 

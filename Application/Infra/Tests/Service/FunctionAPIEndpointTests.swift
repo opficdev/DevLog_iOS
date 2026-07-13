@@ -86,16 +86,12 @@ struct FunctionAPIEndpointTests {
         fullName.givenName = "Apple"
         fullName.familyName = "User"
 
-        #expect(AppleAuthenticationServiceImpl.makeDisplayName(from: fullName) == "Apple User")
+        #expect(fullName.displayName == "Apple User")
     }
 
     @Test("비어 있는 Apple 이름은 display name으로 변환하지 않는다")
     func 비어_있는_Apple_이름은_display_name으로_변환하지_않는다() {
-        #expect(
-            AppleAuthenticationServiceImpl.makeDisplayName(
-                from: PersonNameComponents()
-            ) == nil
-        )
+        #expect(PersonNameComponents().displayName == nil)
     }
 
     @Test("Apple 계정 연결 요청은 credential email을 포함할 수 있다")
