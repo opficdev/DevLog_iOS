@@ -27,8 +27,8 @@ Use these model tiers when assigning work to another LLM.
 | Tier | Use | Default model |
 | --- | --- | --- |
 | `Primary` | Planning, implementation, architecture decisions, final integration, failed-check triage | Strongest available Codex/GPT coding model |
-| `Lightweight` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | Best available lightweight coding model that is different from the active `Primary` model |
-| `Fast` | Low-risk text cleanup, simple file presence checks, short summaries | Fastest available coding model that is different from the active `Primary` model |
+| `Lightweight` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | Pinned non-Primary model from the configured custom agent TOML |
+| `Fast` | Low-risk text cleanup, simple file presence checks, short summaries | Pinned fast model from the configured custom agent TOML when a Fast role is defined |
 
 Default role-to-model and execution assignment:
 
@@ -59,11 +59,32 @@ Do not assign `Lightweight` as the only model for production Swift implementatio
 - If the assigned model is available but current tool policy requires explicit user permission before dispatch, missing permission is not fallback. Stop and ask for permission before continuing the required role.
 - `Primary` must integrate and verify delegated output, but must not skip the delegated role when the workflow requires it and the assigned model is available.
 
+### Connected side-task dispatch
+
+- Run every `Lightweight` or `Fast` role as a side task connected to the current main task.
+- Use `spawn_agent` from tools or `Option-Command-S` from the UI sidebar. Treat both as the same connected dispatch surface.
+- Set `spawn_agent.task_name` to the exact `.codex/agents/<name>.toml` filename without the extension and the exact TOML `name` value.
+- Do not add arbitrary prefixes or suffixes to `task_name`. Names such as `issue_documentation_writer` and `documentation_writer_issue` do not select the configured custom agent.
+- Return each role result to the current main task so `Primary` can review and integrate it.
+- Send later work for the same role to the existing agent with `followup_task` instead of creating another agent name.
+- Do not use external `codex exec` or a separate user-owned `create_thread` as a repository role dispatch surface.
+- Do not count a generic sub-agent that does not select the configured custom agent as a `Lightweight` or `Fast` role execution.
+- Do not treat a failure from external `codex exec`, `create_thread`, or an arbitrary `task_name` as proof that the configured custom agent or pinned model is unavailable.
+
+Use these exact role identifiers:
+
+| Role | Exact `task_name` | Configuration |
+| --- | --- | --- |
+| Architecture Watcher | `architecture_watcher` | `.codex/agents/architecture_watcher.toml` |
+| Code Reviewer | `code_reviewer` | `.codex/agents/code_reviewer.toml` |
+| Verification Runner | `verification_runner` | `.codex/agents/verification_runner.toml` |
+| GitHub/CI Analyst | `github_ci_analyst` | `.codex/agents/github_ci_analyst.toml` |
+| Documentation Writer | `documentation_writer` | `.codex/agents/documentation_writer.toml` |
+
 ### Fallback policy
 
-- Choose the best available role-capable lightweight coding model without hardcoding a provider or model name.
-- If the preferred lightweight model is unavailable, choose another available role-capable model that is still different from the active `Primary` model.
-- If no eligible non-Primary model is available, do not fall back to `Primary`; stop and report the unavailable role.
+- The configured custom agent TOML is the source of truth for the non-Primary role model and sandbox.
+- If a required custom agent or its pinned non-Primary model is unavailable, do not fall back to another model; stop and report the unavailable role.
 - If `Primary` is unavailable, do not perform implementation, architecture verdict, final integration, git write actions, or GitHub write actions.
 - Do not downgrade `Primary` roles to `Lightweight` or `Fast` only because a cheaper model is available.
 - For user-facing summaries, a lower tier may draft text, but `Primary` must check it when the text depends on architecture decisions, release risk, CI root cause, or exact diff behavior.
@@ -124,6 +145,8 @@ Use `Architecture risk: possible` when the task touches module boundaries, impor
 ## Role activation
 
 Use this template when assigning a `Lightweight` or `Fast` role through its configured custom agent. `Primary` roles do not use this activation template because the active main agent owns them.
+
+Create the connected side task with `spawn_agent.task_name` set to the exact identifier in the routing table. When using the UI sidebar, create the same connected side task with `Option-Command-S`. After the first dispatch, use `followup_task` for later work assigned to the same role.
 
 ```md
 You are the `<Role Name>` for the DevLog iOS repository.
