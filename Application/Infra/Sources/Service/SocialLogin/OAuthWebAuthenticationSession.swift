@@ -7,10 +7,9 @@
 
 import AuthenticationServices
 import Foundation
+import UIKit
 
-@MainActor
 final class OAuthWebAuthenticationSession: NSObject {
-    private let provider = TopViewControllerProvider()
     private var session: ASWebAuthenticationSession?
 
     static func authenticate(
@@ -24,6 +23,7 @@ final class OAuthWebAuthenticationSession: NSObject {
         )
     }
 
+    @MainActor
     private func authenticate(
         url: URL,
         callbackURLScheme: String
@@ -63,7 +63,11 @@ final class OAuthWebAuthenticationSession: NSObject {
 }
 
 extension OAuthWebAuthenticationSession: ASWebAuthenticationPresentationContextProviding {
+    @MainActor
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        provider.keyWindow() ?? ASPresentationAnchor()
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow } ?? ASPresentationAnchor()
     }
 }
