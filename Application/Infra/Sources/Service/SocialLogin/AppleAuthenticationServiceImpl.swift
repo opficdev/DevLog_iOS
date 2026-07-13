@@ -42,38 +42,18 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
             let response = try await authenticateWithAppleAsync(
                 hashedNonce: challenge.hashedNonce
             )
-                    
+
+            let displayName = response.fullName?.displayName
+
             logger.debug("Requesting custom token from Firebase Function")
             let customToken = try await requestAppleCustomToken(
                 challengeId: challenge.challengeId,
-                authorizationCode: response.authorizationCode
+                authorizationCode: response.authorizationCode,
+                displayName: displayName
             )
-            
+
             logger.debug("Signing in with custom token")
             let result = try await Auth.auth().signIn(withCustomToken: customToken)
-        
-            let changeRequest = result.user.createProfileChangeRequest()
-            var displayName: String?
-
-            if let fullName = response.fullName {
-                let formatter = PersonNameComponentsFormatter()
-                formatter.style = .long
-                let formattedName = formatter.string(from: fullName)
-                if !formattedName.isEmpty {
-                    displayName = formattedName
-                }
-            }
-
-            if displayName == nil {
-                let doc = try await store
-                    .document(FirestorePath.userData(result.user.uid, document: .info))
-                    .getDocument()
-                displayName = doc.data()?["appleName"] as? String
-            }
-
-            changeRequest.displayName = displayName ?? ""
-            changeRequest.photoURL = nil //  Apple ID 프로필 사진 URL은 제공되지 않음
-            try await changeRequest.commitChanges()
 
             logger.info("Successfully signed in with Apple")
             return result.user.makeResponse(providerID: .apple)
@@ -224,18 +204,29 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
 
     private func requestAppleCustomToken(
         challengeId: String,
-        authorizationCode: String
+        authorizationCode: String,
+        displayName: String?
     ) async throws -> String {
         let response = try await FunctionAPIClient.shared.send(
             .requestAppleCustomToken,
             payload: AppleCustomTokenRequest(
                 challengeId: challengeId,
-                authorizationCode: authorizationCode
+                authorizationCode: authorizationCode,
+                displayName: displayName
             ),
             requiresAuthentication: false
         )
         
         return response.customToken
+    }
+}
+
+extension PersonNameComponents {
+    var displayName: String? {
+        let formatter = PersonNameComponentsFormatter()
+        formatter.style = .long
+        let name = formatter.string(from: self)
+        return name.isEmpty ? nil : name
     }
 }
 
