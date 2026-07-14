@@ -13,7 +13,10 @@ TESTFLIGHT_DATABASE_ID = "staging"
 APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/stagingApi/api"
 APPSTORE_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/prodApi/api"
-VERSION_XCCONFIG_PATH = "Application/Shared/Version.xcconfig"
+VERSION_XCCONFIG_PATH = File.expand_path(
+  "../Application/Shared/Version.xcconfig",
+  __dir__
+)
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
