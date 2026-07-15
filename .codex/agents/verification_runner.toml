@@ -1,7 +1,7 @@
 name = "verification_runner"
 description = "DevLog verification runner for changed-file lint, build-only checks, tests that do not launch the app, and diff validation."
 model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Read AGENTS.md and .agents/roles.md before verification.
