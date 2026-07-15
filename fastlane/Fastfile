@@ -13,10 +13,42 @@ TESTFLIGHT_DATABASE_ID = "staging"
 APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/stagingApi/api"
 APPSTORE_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/prodApi/api"
+VERSION_XCCONFIG_PATH = File.expand_path(
+  "../Application/Shared/Version.xcconfig",
+  __dir__
+)
 TESTFLIGHT_BUILD_OUTPUT_DIRECTORY = File.expand_path("testflight_build", __dir__)
 TESTFLIGHT_IPA_OUTPUT_PATH = File.join(TESTFLIGHT_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
 APPSTORE_BUILD_OUTPUT_DIRECTORY = File.expand_path("appstore_build", __dir__)
 APPSTORE_IPA_OUTPUT_PATH = File.join(APPSTORE_BUILD_OUTPUT_DIRECTORY, "#{APP_PRODUCT_NAME}.ipa")
+
+# xcconfig의 MARKETING_VERSION을 읽고 App Store 버전 형식을 검증한다.
+def marketing_version_from_xcconfig(path)
+  expanded_path = File.expand_path(path)
+  UI.user_error!("Missing version configuration file: #{expanded_path}") if !File.file?(expanded_path)
+
+  version_assignments = File.foreach(expanded_path).filter_map do |line|
+    assignment = line.match(/^\s*MARKETING_VERSION\s*=(.*)$/)
+    next if assignment.nil?
+
+    assignment[1].sub(%r{\s*//.*$}, "").strip
+  end
+
+  UI.user_error!("Missing MARKETING_VERSION in #{expanded_path}") if version_assignments.empty?
+
+  version_number = version_assignments.last
+  UI.user_error!("Empty MARKETING_VERSION in #{expanded_path}") if version_number.empty?
+
+  if !version_number.match?(/\A[1-9]\d*(?:\.\d+){0,2}\z/)
+    UI.user_error!(
+      "Invalid MARKETING_VERSION in #{expanded_path}: #{version_number.inspect}. Expected one to three dot-separated integers beginning with a positive integer."
+    )
+  end
+
+  version_number
+rescue SystemCallError => error
+  UI.user_error!("Could not read version configuration file at #{expanded_path}: #{error.message}")
+end
 
 default_platform(:ios)
 
@@ -182,10 +214,7 @@ platform :ios do
 
     api_key = asc_api_key
 
-    version_number = get_version_number(
-      xcodeproj: XCODE_PROJ,
-      target: TARGET_NAME
-    )
+    version_number = marketing_version_from_xcconfig(VERSION_XCCONFIG_PATH)
 
     latest_build_number = fetch_latest_app_store_connect_build_number(
       api_key: api_key,
