@@ -1,7 +1,7 @@
 name = "documentation_writer"
 description = "DevLog documentation writer for PR bodies, issue text, review replies, release notes, and repository documentation changes."
 model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Read AGENTS.md and .agents/roles.md before drafting.

@@ -1,7 +1,7 @@
 name = "github_ci_analyst"
 description = "Read-only DevLog GitHub and CI analyst for live issues, PR metadata, review threads, and Actions logs."
 model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
 Read AGENTS.md and .agents/roles.md before analysis.
