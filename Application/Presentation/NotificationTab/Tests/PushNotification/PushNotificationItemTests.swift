@@ -53,6 +53,18 @@ struct PushNotificationItemTests {
         #expect(item.body == String(localized: "push_notification_todo_due_tomorrow_without_title"))
     }
 
+    @Test("공백만 있는 Todo 제목을 제목 없는 전용 문구로 변환한다")
+    func todoDueTomorrowWithWhitespaceOnlyTitleUsesDedicatedLocalizedContent() {
+        let notification = makePushNotification(
+            id: "notification-1",
+            number: 1,
+            content: .todoDueTomorrow(todoTitle: " \n\t ")
+        )
+        let item = PushNotificationItem(from: notification)
+
+        #expect(item.body == String(localized: "push_notification_todo_due_tomorrow_without_title"))
+    }
+
     @Test("기존 알림은 저장된 제목과 본문을 그대로 사용한다")
     func legacyNotificationUsesStoredTitleAndBody() {
         let notification = makePushNotification(id: "notification-1", number: 1)

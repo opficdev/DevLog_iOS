@@ -32,7 +32,8 @@ public struct PushNotificationItem: Identifiable, Hashable {
     public var body: String {
         switch content {
         case .todoDueTomorrow(let todoTitle):
-            guard let todoTitle, !todoTitle.isEmpty else {
+            guard let todoTitle,
+                  !todoTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 return String(localized: "push_notification_todo_due_tomorrow_without_title")
             }
             return String.localizedStringWithFormat(
