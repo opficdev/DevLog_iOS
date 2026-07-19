@@ -56,11 +56,7 @@ final class UserServiceImpl: UserService {
                 userField["appleName"] = user.displayName
             }
 
-            var tokenField: [String: Any] = [:]
-
-            if let fcmToken = response.fcmToken {
-                tokenField["fcmToken"] = fcmToken
-            }
+            let tokenField = Self.makeTokenField(fcmToken: response.fcmToken)
 
             try await upsertUserDocuments(
                 uid: user.uid,
@@ -144,7 +140,7 @@ final class UserServiceImpl: UserService {
 
         do {
             let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
+            try await tokensRef.setData(Self.makeTokenField(fcmToken: fcmToken), merge: true)
             logger.info("Successfully updated FCM token")
         } catch {
             logger.error("Failed to update FCM token", error: error)
@@ -173,6 +169,17 @@ final class UserServiceImpl: UserService {
             record(error, code: .updateUserTimeZone)
             throw error
         }
+    }
+}
+
+extension UserServiceImpl {
+    static func makeTokenField(fcmToken: String?) -> [String: Any] {
+        guard let fcmToken else { return [:] }
+
+        return [
+            "fcmToken": fcmToken,
+            "pushLocalizationVersion": 1
+        ]
     }
 }
 
