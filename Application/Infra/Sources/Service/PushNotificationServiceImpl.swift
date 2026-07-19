@@ -362,6 +362,8 @@ private extension PushNotificationServiceImpl {
             return nil
         }
 
+        let content = PushNotificationDecoder.decode(data)
+
         return PushNotificationResponse(
             id: snapshot.documentID,
             title: title,
@@ -369,7 +371,8 @@ private extension PushNotificationServiceImpl {
             receivedAt: receivedAt.dateValue(),
             isRead: isRead,
             todoId: todoId,
-            todoCategory: .raw(todoCategory)
+            todoCategory: .raw(todoCategory),
+            content: content
         )
     }
 
