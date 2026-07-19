@@ -46,7 +46,9 @@ fastlane/logs/
 .tmp/
 .spm/
 Tuist/.build/
-
 # drawio
 *.drawio
 *.drawio.bkp
+
+# AI
+.superpowers/
