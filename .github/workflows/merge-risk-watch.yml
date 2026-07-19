@@ -11,25 +11,11 @@ permissions:
 jobs:
   watch:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    uses: opficdev/Watcher/.github/workflows/merge-risk-watch.yml@0.2.1
+    uses: opficdev/Watcher/.github/workflows/merge-risk-watch.yml@0.3.0
     with:
       repository: ${{ github.repository }}
       base_branch: develop
       default_branch: main
-      critical_file_patterns: |
-        .github/workflows/**
-        .github/actions/**
-        .mise.toml
-        .package.resolved
-        Gemfile.lock
-        Tuist.swift
-        Workspace.swift
-        Tuist/ProjectDescriptionHelpers/**
-        Application/**/Project.swift
-        Application/Shared/**
-        Widget/**/Project.swift
-        fastlane/**
-        **/*.xcstrings
     secrets:
       watcher_github_token: ${{ secrets.WATCHER_GITHUB_TOKEN }}
       openai_api_key: ${{ secrets.OPENAI_API_KEY }}
