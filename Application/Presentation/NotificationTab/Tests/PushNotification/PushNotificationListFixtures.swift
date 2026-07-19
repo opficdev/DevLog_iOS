@@ -11,7 +11,8 @@ import Foundation
 func makePushNotification(
     id: String,
     number: Int,
-    isRead: Bool = false
+    isRead: Bool = false,
+    content: PushNotificationContent? = nil
 ) -> PushNotification {
     PushNotification(
         id: id,
@@ -20,7 +21,8 @@ func makePushNotification(
         receivedAt: Date(timeIntervalSince1970: Double(number)),
         isRead: isRead,
         todoId: "todo-\(number)",
-        todoCategory: .system(.feature)
+        todoCategory: .system(.feature),
+        content: content
     )
 }
 
