@@ -218,7 +218,8 @@ private extension PushNotificationRepositoryImpl {
             receivedAt: response.receivedAt,
             isRead: response.isRead,
             todoId: response.todoId,
-            todoCategory: .decoded(todoCategory)
+            todoCategory: .decoded(todoCategory),
+            content: response.content
         )
     }
 }

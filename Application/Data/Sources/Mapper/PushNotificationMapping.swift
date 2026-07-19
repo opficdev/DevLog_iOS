@@ -27,8 +27,18 @@ public extension PushNotificationResponse {
             receivedAt: self.receivedAt,
             isRead: self.isRead,
             todoId: self.todoId,
-            todoCategory: todoCategory
+            todoCategory: todoCategory,
+            content: content?.toDomain()
         )
+    }
+}
+
+public extension PushNotificationResponse.Content {
+    func toDomain() -> PushNotificationContent {
+        switch self {
+        case .todoDueTomorrow(let todoTitle):
+            return .todoDueTomorrow(todoTitle: todoTitle)
+        }
     }
 }
 

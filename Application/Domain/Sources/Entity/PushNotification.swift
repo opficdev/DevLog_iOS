@@ -15,6 +15,7 @@ public struct PushNotification: Hashable {
     public var isRead: Bool
     public let todoId: String
     public let todoCategory: TodoCategory
+    public let content: PushNotificationContent?
 
     public init(
         id: String,
@@ -23,7 +24,8 @@ public struct PushNotification: Hashable {
         receivedAt: Date,
         isRead: Bool,
         todoId: String,
-        todoCategory: TodoCategory
+        todoCategory: TodoCategory,
+        content: PushNotificationContent? = nil
     ) {
         self.id = id
         self.title = title
@@ -32,5 +34,6 @@ public struct PushNotification: Hashable {
         self.isRead = isRead
         self.todoId = todoId
         self.todoCategory = todoCategory
+        self.content = content
     }
 }

@@ -9,6 +9,10 @@ import Foundation
 import Domain
 
 public struct PushNotificationResponse {
+    public enum Content: Equatable {
+        case todoDueTomorrow(todoTitle: String?)
+    }
+
     public let id: String
     public let title: String
     public let body: String
@@ -16,6 +20,7 @@ public struct PushNotificationResponse {
     public let isRead: Bool
     public let todoId: String
     public let todoCategory: TodoCategoryResponse
+    public let content: Content?
 
     public init(
         id: String,
@@ -24,7 +29,8 @@ public struct PushNotificationResponse {
         receivedAt: Date,
         isRead: Bool,
         todoId: String,
-        todoCategory: TodoCategoryResponse
+        todoCategory: TodoCategoryResponse,
+        content: Content? = nil
     ) {
         self.id = id
         self.title = title
@@ -33,5 +39,6 @@ public struct PushNotificationResponse {
         self.isRead = isRead
         self.todoId = todoId
         self.todoCategory = todoCategory
+        self.content = content
     }
 }
