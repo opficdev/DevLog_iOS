@@ -20,10 +20,20 @@ public extension PushNotificationResponse {
             )
         }
 
+        if let legacy {
+            return PushNotification(
+                id: id,
+                legacy: .init(title: legacy.title, body: legacy.body),
+                receivedAt: self.receivedAt,
+                isRead: self.isRead,
+                todoId: self.todoId,
+                todoCategory: todoCategory
+            )
+        }
+
         return PushNotification(
             id: id,
-            title: self.title,
-            body: self.body,
+            todoTitle: todoTitle,
             receivedAt: self.receivedAt,
             isRead: self.isRead,
             todoId: self.todoId,

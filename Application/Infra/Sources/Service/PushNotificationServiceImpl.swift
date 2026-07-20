@@ -30,6 +30,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
 
     private let store = FirebaseConfiguration.firestore
     private let logger = Logger(category: "PushNotificationServiceImpl")
+    private let mapper = PushNotificationMapper()
 
     /// 푸시 알림 On/Off 설정
     func fetchPushNotificationEnabled() async throws -> Bool {
@@ -343,38 +344,6 @@ private extension PushNotificationServiceImpl {
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {
-        let data = snapshot.data()
-        if (data[PushNotificationFieldKey.isDeleted.rawValue] as? Bool) == true {
-            return nil
-        }
-        guard
-            let title = data[PushNotificationFieldKey.title.rawValue] as? String,
-            let body = data[PushNotificationFieldKey.body.rawValue] as? String,
-            let receivedAt = data[PushNotificationFieldKey.receivedAt.rawValue] as? Timestamp,
-            let isRead = data[PushNotificationFieldKey.isRead.rawValue] as? Bool,
-            let todoId = data[PushNotificationFieldKey.todoId.rawValue] as? String,
-            let todoCategory = data[PushNotificationFieldKey.todoCategory.rawValue] as? String else {
-            return nil
-        }
-
-        return PushNotificationResponse(
-            id: snapshot.documentID,
-            title: title,
-            body: body,
-            receivedAt: receivedAt.dateValue(),
-            isRead: isRead,
-            todoId: todoId,
-            todoCategory: .raw(todoCategory)
-        )
-    }
-
-    enum PushNotificationFieldKey: String {
-        case title
-        case body
-        case receivedAt
-        case isRead
-        case todoId
-        case todoCategory
-        case isDeleted  // 삭제 요청으로 서버에서 soft deletion이 된 상태
+        mapper.map(documentID: snapshot.documentID, data: snapshot.data())
     }
 }

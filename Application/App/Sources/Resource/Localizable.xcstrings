@@ -1083,6 +1083,57 @@
         }
       }
     },
+    "push_notification_todo_due_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo Reminder"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo 알림"
+          }
+        }
+      }
+    },
+    "push_notification_todo_due_tomorrow_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ is due tomorrow."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'%1$@'의 마감일이 내일입니다."
+          }
+        }
+      }
+    },
+    "push_notification_todo_due_tomorrow_without_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An untitled Todo is due tomorrow."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목 없는 Todo의 마감일이 내일입니다."
+          }
+        }
+      }
+    },
     "push_notifications_empty" : {
       "extractionState" : "manual",
       "localizations" : {
