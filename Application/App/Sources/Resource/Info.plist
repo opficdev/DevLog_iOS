@@ -43,6 +43,8 @@
 #else
 	<false/>
 #endif
+	<key>APP_ENVIRONMENT</key>
+	<string>$(APP_ENVIRONMENT)</string>
 	<key>FIRESTORE_DATABASE_ID</key>
 	<string>$(FIRESTORE_DATABASE_ID)</string>
 	<key>FUNCTION_API_BASE_URL</key>

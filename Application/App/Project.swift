@@ -53,14 +53,17 @@ let project = Project(
                     "PRODUCT_MODULE_NAME": "App",
                 ],
                 debug: [
+                    "APP_ENVIRONMENT": "staging",
                     "APS_ENVIRONMENT": "development",
                     "FIRESTORE_DATABASE_ID": "staging",
                 ],
                 staging: [
+                    "APP_ENVIRONMENT": "staging",
                     "APS_ENVIRONMENT": "production",
                     "FIRESTORE_DATABASE_ID": "staging",
                 ],
                 release: [
+                    "APP_ENVIRONMENT": "prod",
                     "APS_ENVIRONMENT": "production",
                     "FIRESTORE_DATABASE_ID": "prod",
                 ]

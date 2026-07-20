@@ -35,7 +35,7 @@ struct SettingsFeature {
         var alertType: Action.AlertType?
         var appVersion = Self.appVersion()
         var betaTestURL = Self.betaTestURL(
-            databaseID: Bundle.main.object(forInfoDictionaryKey: "FIRESTORE_DATABASE_ID") as? String,
+            appEnvironment: Bundle.main.object(forInfoDictionaryKey: "APP_ENVIRONMENT") as? String,
             testFlightURL: Bundle.main.object(forInfoDictionaryKey: "TESTFLIGHT_URL") as? String
         )
         var policyURL = Bundle.main.object(forInfoDictionaryKey: "PRIVACY_POLICY_URL") as? String
@@ -44,8 +44,8 @@ struct SettingsFeature {
             loading.isLoading
         }
 
-        static func betaTestURL(databaseID: String?, testFlightURL: String?) -> URL? {
-            guard databaseID?.trimmingCharacters(in: .whitespacesAndNewlines) == "prod",
+        static func betaTestURL(appEnvironment: String?, testFlightURL: String?) -> URL? {
+            guard appEnvironment?.trimmingCharacters(in: .whitespacesAndNewlines) == "prod",
                   let rawValue = testFlightURL else {
                 return nil
             }
