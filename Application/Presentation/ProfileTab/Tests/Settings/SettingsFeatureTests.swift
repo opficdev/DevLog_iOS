@@ -5,14 +5,45 @@
 //  Created by opfic on 6/12/26.
 //
 
-import Testing
 import Core
 import Domain
+import Foundation
 import PresentationShared
+import Testing
 @testable import ProfileTab
 
 @MainActor
 struct SettingsFeatureTests {
+    @Test("prod 환경이면 베타 테스트 URL을 제공한다")
+    func prod_환경이면_베타_테스트_URL을_제공한다() {
+        let url = SettingsFeature.State.betaTestURL(
+            appEnvironment: "prod",
+            testFlightURL: "https://testflight.apple.com/join/b8mpr4UN"
+        )
+
+        #expect(url == URL(string: "https://testflight.apple.com/join/b8mpr4UN"))
+    }
+
+    @Test("staging 환경이면 베타 테스트 URL을 제공하지 않는다")
+    func staging_환경이면_베타_테스트_URL을_제공하지_않는다() {
+        let url = SettingsFeature.State.betaTestURL(
+            appEnvironment: "staging",
+            testFlightURL: "https://testflight.apple.com/join/b8mpr4UN"
+        )
+
+        #expect(url == nil)
+    }
+
+    @Test("미치환 환경값이면 베타 테스트 URL을 제공하지 않는다")
+    func 미치환_환경값이면_베타_테스트_URL을_제공하지_않는다() {
+        let url = SettingsFeature.State.betaTestURL(
+            appEnvironment: "$(APP_ENVIRONMENT)",
+            testFlightURL: "https://testflight.apple.com/join/b8mpr4UN"
+        )
+
+        #expect(url == nil)
+    }
+
     @Test("네트워크 상태 관찰 결과를 상태에 반영한다")
     func 네트워크_상태_관찰_결과를_상태에_반영한다() async {
         let networkSpy = ObserveNetworkConnectivityUseCaseSpy()
