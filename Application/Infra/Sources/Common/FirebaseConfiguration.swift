@@ -8,31 +8,25 @@
 import FirebaseFirestore
 import Foundation
 
+enum FirebaseConfigurationError: Error, Equatable {
+    case unresolvedValue(String)
+}
+
 public enum FirebaseConfiguration {
     private enum InfoKey {
         static let databaseID = "FIRESTORE_DATABASE_ID"
         static let functionAPIBaseURL = "FUNCTION_API_BASE_URL"
     }
 
-    static let defaultDatabaseID = "staging"
-
     public static var databaseID: String {
-        let environmentValue = ProcessInfo.processInfo.environment[InfoKey.databaseID]?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        if let environmentValue, !environmentValue.isEmpty {
-            return environmentValue
+        do {
+            return try resolveDatabaseID(
+                environmentValue: ProcessInfo.processInfo.environment[InfoKey.databaseID],
+                bundleValue: Bundle.main.object(forInfoDictionaryKey: InfoKey.databaseID) as? String
+            )
+        } catch {
+            preconditionFailure("\(InfoKey.databaseID) is missing or unresolved.")
         }
-
-        guard let rawValue = Bundle.main.object(forInfoDictionaryKey: InfoKey.databaseID) as? String else {
-            return defaultDatabaseID
-        }
-
-        let databaseID = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        if databaseID.isEmpty || databaseID.hasPrefix("$(") {
-            return defaultDatabaseID
-        }
-
-        return databaseID
     }
 
     static var firestore: Firestore {
@@ -40,25 +34,53 @@ public enum FirebaseConfiguration {
     }
 
     static func functionAPIBaseURL() throws -> URL {
-        if let value = resolvedValue(for: InfoKey.functionAPIBaseURL),
-           let url = URL(string: value) {
-            return url
-        }
-
-        throw URLError(.badURL)
+        try resolveFunctionAPIBaseURL(
+            environmentValue: ProcessInfo.processInfo.environment[InfoKey.functionAPIBaseURL],
+            bundleValue: Bundle.main.object(forInfoDictionaryKey: InfoKey.functionAPIBaseURL) as? String
+        )
     }
 
-    private static func resolvedValue(for key: String) -> String? {
-        let environmentValue = ProcessInfo.processInfo.environment[key]?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        if let environmentValue, !environmentValue.isEmpty {
-            return environmentValue
+    static func resolveDatabaseID(
+        environmentValue: String?,
+        bundleValue: String?
+    ) throws -> String {
+        guard let value = resolvedValue(
+            environmentValue: environmentValue,
+            bundleValue: bundleValue
+        ) else {
+            throw FirebaseConfigurationError.unresolvedValue(InfoKey.databaseID)
         }
 
-        guard let rawValue = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
-            return nil
+        return value
+    }
+
+    static func resolveFunctionAPIBaseURL(
+        environmentValue: String?,
+        bundleValue: String?
+    ) throws -> URL {
+        guard let value = resolvedValue(
+            environmentValue: environmentValue,
+            bundleValue: bundleValue
+        ),
+        let url = URL(string: value),
+        let scheme = url.scheme?.lowercased(),
+        ["http", "https"].contains(scheme),
+        url.host != nil else {
+            throw URLError(.badURL)
         }
 
+        return url
+    }
+
+    private static func resolvedValue(
+        environmentValue: String?,
+        bundleValue: String?
+    ) -> String? {
+        normalizedValue(environmentValue) ?? normalizedValue(bundleValue)
+    }
+
+    private static func normalizedValue(_ rawValue: String?) -> String? {
+        guard let rawValue else { return nil }
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty, !value.hasPrefix("$(") else {
             return nil
