@@ -1,5 +1,5 @@
 name: Install Private Config
-description: Fetch Config.xcconfig and GoogleService-Info.plist from a private repository.
+description: Fetch Config.xcconfig and an environment-specific GoogleService-Info.plist from a private repository.
 
 inputs:
   git_url:
@@ -7,6 +7,9 @@ inputs:
     required: true
   git_basic_authorization:
     description: Base64-encoded basic authorization header value
+    required: true
+  environment:
+    description: Firebase environment to install (staging or prod)
     required: true
   ref:
     description: Git ref to fetch from the private repository
@@ -21,14 +24,29 @@ runs:
       env:
         PRIVATE_CONFIG_GIT_URL: ${{ inputs.git_url }}
         PRIVATE_CONFIG_GIT_BASIC_AUTHORIZATION: ${{ inputs.git_basic_authorization }}
+        PRIVATE_CONFIG_ENVIRONMENT: ${{ inputs.environment }}
         PRIVATE_CONFIG_REF: ${{ inputs.ref }}
       run: |
         set -euo pipefail
 
         privateConfigCheckoutPath="$RUNNER_TEMP/private-config"
         trap 'rm -rf "$privateConfigCheckoutPath"' EXIT
+
+        case "$PRIVATE_CONFIG_ENVIRONMENT" in
+          staging)
+            googleServiceInfoFileName="GoogleService-Info-Staging.plist"
+            ;;
+          prod)
+            googleServiceInfoFileName="GoogleService-Info-Prod.plist"
+            ;;
+          *)
+            echo "Invalid Firebase environment: $PRIVATE_CONFIG_ENVIRONMENT (expected staging or prod)" >&2
+            exit 1
+            ;;
+        esac
+
         configSourcePath="$privateConfigCheckoutPath/resources/DevLog/Config.xcconfig"
-        googleServiceInfoSourcePath="$privateConfigCheckoutPath/resources/DevLog/GoogleService-Info.plist"
+        googleServiceInfoSourcePath="$privateConfigCheckoutPath/resources/DevLog/$googleServiceInfoFileName"
         configDestinationPath="$GITHUB_WORKSPACE/Application/App/Sources/Resource/Config.xcconfig"
         googleServiceInfoDestinationPath="$GITHUB_WORKSPACE/Application/App/Sources/Resource/GoogleService-Info.plist"
 
@@ -40,7 +58,7 @@ runs:
         git -C "$privateConfigCheckoutPath" config core.sparseCheckout true
         printf '%s\n' \
           'resources/DevLog/Config.xcconfig' \
-          'resources/DevLog/GoogleService-Info.plist' \
+          "resources/DevLog/$googleServiceInfoFileName" \
           > "$privateConfigCheckoutPath/.git/info/sparse-checkout"
 
         git -C "$privateConfigCheckoutPath" \

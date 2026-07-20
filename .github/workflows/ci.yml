@@ -29,6 +29,7 @@ jobs:
         with:
           git_url: ${{ env.MATCH_GIT_URL }}
           git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+          environment: staging
 
       - name: Select Xcode
         shell: bash
@@ -240,6 +241,7 @@ jobs:
         with:
           git_url: ${{ env.MATCH_GIT_URL }}
           git_basic_authorization: ${{ env.MATCH_GIT_BASIC_AUTHORIZATION }}
+          environment: staging
 
       - name: Select Xcode
         shell: bash
