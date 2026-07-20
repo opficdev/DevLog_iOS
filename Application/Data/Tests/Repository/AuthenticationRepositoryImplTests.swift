@@ -332,7 +332,7 @@ private actor AuthenticationRepositoryUserServiceSpy: UserService {
     }
 
     func upsertStatusMessage(_ message: String) async throws { }
-    func updateFCMToken(_ fcmToken: String) async throws { }
+    func updateFCMToken(_ update: FCMTokenUpdate) async throws { }
     func updateUserTimeZone() async throws { }
 }
 

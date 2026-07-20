@@ -14,6 +14,7 @@ final class FCMTokenSyncHandler {
     private struct SyncKey: Equatable {
         let uid: String
         let fcmToken: String
+        let code: PushLanguageCode
     }
 
     private let authService: AuthService
@@ -128,13 +129,25 @@ private extension FCMTokenSyncHandler {
             return
         }
 
-        let key = SyncKey(uid: uid, fcmToken: fcmToken)
+        let pushLanguageCode = PushLanguageCode(
+            identifier: Bundle.main.preferredLocalizations.first
+        )
+        let key = SyncKey(
+            uid: uid,
+            fcmToken: fcmToken,
+            code: pushLanguageCode
+        )
         guard lastSyncedKey != key else {
             logger.info("Skipping FCM token update because the token was already synced")
             return
         }
 
-        try await userService.updateFCMToken(fcmToken)
+        try await userService.updateFCMToken(
+            FCMTokenUpdate(
+                fcmToken: fcmToken,
+                code: pushLanguageCode
+            )
+        )
         lastSyncedKey = key
     }
 }
