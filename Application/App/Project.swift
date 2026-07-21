@@ -55,12 +55,12 @@ let project = Project(
                 debug: [
                     "APP_ENVIRONMENT": "staging",
                     "APS_ENVIRONMENT": "development",
-                    "FIRESTORE_DATABASE_ID": "staging",
+                    "FIRESTORE_DATABASE_ID": "(default)",
                 ],
                 staging: [
                     "APP_ENVIRONMENT": "staging",
                     "APS_ENVIRONMENT": "production",
-                    "FIRESTORE_DATABASE_ID": "staging",
+                    "FIRESTORE_DATABASE_ID": "(default)",
                 ],
                 release: [
                     "APP_ENVIRONMENT": "prod",
