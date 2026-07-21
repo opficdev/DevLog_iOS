@@ -15,6 +15,8 @@ TESTFLIGHT_DATABASE_ID = "staging"
 APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/stagingApi/api"
 APPSTORE_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/prodApi/api"
+TESTFLIGHT_FIREBASE_PROJECT_ID = "devlog-staging"
+TESTFLIGHT_GOOGLE_APP_ID = "1:686659799179:ios:eba4e86096153f0539ec8e"
 VERSION_XCCONFIG_PATH = File.expand_path(
   "../Application/Shared/Version.xcconfig",
   __dir__
@@ -413,7 +415,9 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+      firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
+      google_app_id: TESTFLIGHT_GOOGLE_APP_ID
     )
 
     upload_testflight_build
@@ -423,7 +427,9 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+      firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
+      google_app_id: TESTFLIGHT_GOOGLE_APP_ID
     )
   end
 
@@ -474,7 +480,9 @@ platform :ios do
         app_environment: TESTFLIGHT_APP_ENVIRONMENT,
         bundle_id: APP_IDENTIFIER,
         database_id: TESTFLIGHT_DATABASE_ID,
-        function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+        function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+        firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
+        google_app_id: TESTFLIGHT_GOOGLE_APP_ID
       }
     )
 
