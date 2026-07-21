@@ -9,6 +9,8 @@ WIDGET_TARGET_NAME = "WidgetExtension"
 APP_PRODUCT_NAME = "DevLog"
 TESTFLIGHT_CONFIGURATION = "Staging"
 APPSTORE_CONFIGURATION = "Release"
+TESTFLIGHT_APP_ENVIRONMENT = "staging"
+APPSTORE_APP_ENVIRONMENT = "prod"
 TESTFLIGHT_DATABASE_ID = "staging"
 APPSTORE_DATABASE_ID = "prod"
 TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/stagingApi/api"
@@ -135,59 +137,156 @@ platform :ios do
     require "tmpdir"
 
     ipa_path = options[:ipa]
-    expected_database_id = options[:database_id]
-    expected_function_api_base_url = options[:function_api_base_url]
+    expected_configuration = options[:expected_configuration]
 
     UI.user_error!("Missing IPA path") if ipa_path.to_s.strip.empty?
-    UI.user_error!("Missing expected Firestore database ID") if expected_database_id.to_s.strip.empty?
-    UI.user_error!("Missing expected Function API base URL") if expected_function_api_base_url.to_s.strip.empty?
+    UI.user_error!("Missing expected store configuration") if !expected_configuration.is_a?(Hash)
     UI.user_error!("Missing built ipa at #{ipa_path}") if !File.exist?(ipa_path)
+
+    required_expectations = {
+      app_environment: "app environment",
+      bundle_id: "bundle ID",
+      database_id: "Firestore database ID",
+      function_api_base_url: "Function API base URL"
+    }
+
+    required_expectations.each do |key, name|
+      if expected_configuration[key].to_s.strip.empty?
+        UI.user_error!("Missing expected #{name}")
+      end
+    end
+
+    expected_firebase_project_id = expected_configuration[:firebase_project_id].to_s.strip
+    expected_google_app_id = expected_configuration[:google_app_id].to_s.strip
+
+    if expected_firebase_project_id.empty? != expected_google_app_id.empty?
+      UI.user_error!("Expected Firebase PROJECT_ID and GOOGLE_APP_ID must be provided together")
+    end
 
     Dir.mktmpdir("devlog-ipa") do |tmpdir|
       sh("unzip -q #{Shellwords.escape(ipa_path)} -d #{Shellwords.escape(tmpdir)}")
 
       plist_path = File.join(tmpdir, "Payload", "#{APP_PRODUCT_NAME}.app", "Info.plist")
+      google_service_info_plist_path = File.join(
+        tmpdir,
+        "Payload",
+        "#{APP_PRODUCT_NAME}.app",
+        "GoogleService-Info.plist"
+      )
       UI.user_error!("Missing app Info.plist in ipa") if !File.exist?(plist_path)
+      if !File.exist?(google_service_info_plist_path)
+        UI.user_error!("Missing GoogleService-Info.plist in ipa at #{google_service_info_plist_path}")
+      end
 
-      actual_database_id = sh(
-        "/usr/libexec/PlistBuddy -c 'Print :FIRESTORE_DATABASE_ID' #{Shellwords.escape(plist_path)}",
-        log: false
-      ).strip
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "APP_ENVIRONMENT",
+        expected: expected_configuration[:app_environment]
+      )
 
-      if actual_database_id != expected_database_id
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "CFBundleIdentifier",
+        expected: expected_configuration[:bundle_id]
+      )
+
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "FIRESTORE_DATABASE_ID",
+        expected: expected_configuration[:database_id]
+      )
+
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "FUNCTION_API_BASE_URL",
+        expected: expected_configuration[:function_api_base_url]
+      )
+
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "FirebaseCrashlyticsCollectionEnabled",
+        expected: "true"
+      )
+
+      actual_firebase_project_id = required_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "PROJECT_ID"
+      )
+
+      actual_google_app_id = required_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "GOOGLE_APP_ID"
+      )
+
+      verify_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "BUNDLE_ID",
+        expected: expected_configuration[:bundle_id]
+      )
+
+      if !expected_firebase_project_id.empty? && actual_firebase_project_id != expected_firebase_project_id
         UI.user_error!(
-          "Unexpected FIRESTORE_DATABASE_ID: expected #{expected_database_id}, got #{actual_database_id}"
+          "Unexpected PROJECT_ID in GoogleService-Info.plist: expected #{expected_firebase_project_id}, got #{actual_firebase_project_id}"
         )
       end
 
-      UI.message("Verified FIRESTORE_DATABASE_ID=#{actual_database_id}")
-
-      actual_function_api_base_url = sh(
-        "/usr/libexec/PlistBuddy -c 'Print :FUNCTION_API_BASE_URL' #{Shellwords.escape(plist_path)}",
-        log: false
-      ).strip
-
-      if actual_function_api_base_url != expected_function_api_base_url
+      if !expected_google_app_id.empty? && actual_google_app_id != expected_google_app_id
         UI.user_error!(
-          "Unexpected FUNCTION_API_BASE_URL: expected #{expected_function_api_base_url}, got #{actual_function_api_base_url}"
+          "Unexpected GOOGLE_APP_ID in GoogleService-Info.plist: expected #{expected_google_app_id}, got #{actual_google_app_id}"
         )
       end
 
-      UI.message("Verified FUNCTION_API_BASE_URL=#{actual_function_api_base_url}")
-
-      actual_crashlytics_collection_enabled = sh(
-        "/usr/libexec/PlistBuddy -c 'Print :FirebaseCrashlyticsCollectionEnabled' #{Shellwords.escape(plist_path)}",
-        log: false
-      ).strip
-
-      if actual_crashlytics_collection_enabled != "true"
-        UI.user_error!(
-          "Unexpected FirebaseCrashlyticsCollectionEnabled: expected true, got #{actual_crashlytics_collection_enabled}"
-        )
-      end
-
-      UI.message("Verified FirebaseCrashlyticsCollectionEnabled=#{actual_crashlytics_collection_enabled}")
+      UI.message("Verified PROJECT_ID in GoogleService-Info.plist")
+      UI.message("Verified GOOGLE_APP_ID in GoogleService-Info.plist")
     end
+  end
+
+  private_lane :required_plist_value do |options|
+    require "shellwords"
+
+    path = options[:path]
+    source = options[:source]
+    key = options[:key]
+
+    value = begin
+      sh(
+        "/usr/libexec/PlistBuddy -c 'Print :#{key}' #{Shellwords.escape(path)}",
+        log: false
+      ).strip
+    rescue StandardError
+      UI.user_error!("Missing #{key} in #{source} at #{path}")
+    end
+
+    UI.user_error!("Empty #{key} in #{source} at #{path}") if value.empty?
+
+    next value
+  end
+
+  private_lane :verify_plist_value do |options|
+    actual_value = required_plist_value(
+      path: options[:path],
+      source: options[:source],
+      key: options[:key]
+    )
+    expected_value = options[:expected].to_s.strip
+
+    UI.user_error!("Missing expected #{options[:key]}") if expected_value.empty?
+
+    if actual_value != expected_value
+      UI.user_error!(
+        "Unexpected #{options[:key]} in #{options[:source]}: expected #{expected_value}, got #{actual_value}"
+      )
+    end
+
+    UI.message("Verified #{options[:key]} in #{options[:source]}")
   end
 
   private_lane :build_for_store do |options|
@@ -197,6 +296,8 @@ platform :ios do
       (configuration == APPSTORE_CONFIGURATION ? APPSTORE_DATABASE_ID : TESTFLIGHT_DATABASE_ID)
     expected_function_api_base_url = options[:function_api_base_url] ||
       (configuration == APPSTORE_CONFIGURATION ? APPSTORE_FUNCTION_API_BASE_URL : TESTFLIGHT_FUNCTION_API_BASE_URL)
+    expected_app_environment = configuration == APPSTORE_CONFIGURATION ?
+      APPSTORE_APP_ENVIRONMENT : TESTFLIGHT_APP_ENVIRONMENT
 
     verify_store_configuration(
       configuration: configuration,
@@ -290,8 +391,14 @@ platform :ios do
 
     verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: expected_database_id,
-      function_api_base_url: expected_function_api_base_url
+      expected_configuration: {
+        app_environment: expected_app_environment,
+        bundle_id: APP_IDENTIFIER,
+        database_id: expected_database_id,
+        function_api_base_url: expected_function_api_base_url,
+        firebase_project_id: options[:firebase_project_id],
+        google_app_id: options[:google_app_id]
+      }
     )
 
     dsym_output_path = lane_context[SharedValues::DSYM_OUTPUT_PATH]
@@ -363,8 +470,12 @@ platform :ios do
 
     verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+      expected_configuration: {
+        app_environment: TESTFLIGHT_APP_ENVIRONMENT,
+        bundle_id: APP_IDENTIFIER,
+        database_id: TESTFLIGHT_DATABASE_ID,
+        function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+      }
     )
 
     upload_to_testflight(
@@ -384,8 +495,12 @@ platform :ios do
 
     verify_store_info_plist(
       ipa: ipa_output_path,
-      database_id: APPSTORE_DATABASE_ID,
-      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+      expected_configuration: {
+        app_environment: APPSTORE_APP_ENVIRONMENT,
+        bundle_id: APP_IDENTIFIER,
+        database_id: APPSTORE_DATABASE_ID,
+        function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+      }
     )
 
     upload_to_app_store(
