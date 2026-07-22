@@ -15,6 +15,10 @@ struct FirebaseCrashlyticsCollectionPolicy {
 
     let isCollectionEnabled: Bool
 
+    var shouldRemoveStoredOverride: Bool {
+        !isCollectionEnabled
+    }
+
     init(infoDictionaryValue: Any?) {
         guard let value = infoDictionaryValue as? NSNumber,
               CFGetTypeID(value) == CFBooleanGetTypeID() else {

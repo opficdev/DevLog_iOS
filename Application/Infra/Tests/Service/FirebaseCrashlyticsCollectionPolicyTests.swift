@@ -15,6 +15,7 @@ struct FirebaseCrashlyticsCollectionPolicyTests {
         let policy = FirebaseCrashlyticsCollectionPolicy(infoDictionaryValue: true)
 
         #expect(policy.isCollectionEnabled)
+        #expect(!policy.shouldRemoveStoredOverride)
     }
 
     @Test("Info.plist false 값을 수집 비활성 상태로 해석한다")
@@ -22,6 +23,7 @@ struct FirebaseCrashlyticsCollectionPolicyTests {
         let policy = FirebaseCrashlyticsCollectionPolicy(infoDictionaryValue: false)
 
         #expect(!policy.isCollectionEnabled)
+        #expect(policy.shouldRemoveStoredOverride)
     }
 
     @Test("Info.plist 값이 누락되면 수집 비활성 상태로 해석한다")

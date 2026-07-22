@@ -20,14 +20,23 @@ final class FirebaseAppServiceImpl: FirebaseAppService {
     func configure() {
         guard !Self.isConfigured else { return }
 
-        FirebaseApp.configure()
-
-        let crashlytics = Crashlytics.crashlytics()
         let policy = FirebaseCrashlyticsCollectionPolicy(
             infoDictionaryValue: Bundle.main.object(
                 forInfoDictionaryKey: InfoKey.crashlyticsCollectionEnabled
             )
         )
+
+        if policy.shouldRemoveStoredOverride {
+            do {
+                try FirebaseCrashlyticsOverrideMigrator().removeStoredOverride()
+            } catch {
+                preconditionFailure("Failed to migrate Crashlytics collection state: \(error)")
+            }
+        }
+
+        FirebaseApp.configure()
+
+        let crashlytics = Crashlytics.crashlytics()
         let actions = policy.actions(
             currentCollectionEnabled: crashlytics.isCrashlyticsCollectionEnabled()
         )
