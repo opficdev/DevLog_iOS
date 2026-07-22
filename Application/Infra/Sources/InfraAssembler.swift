@@ -16,6 +16,10 @@ public final class InfraAssembler: Assembler {
             FirebaseAppServiceImpl()
         }
 
+        container.register(AppVersionConfigurationService.self) {
+            RemoteConfigAppVersionServiceImpl()
+        }
+
         container.register(AnalyticsService.self) {
             FirebaseAnalyticsServiceImpl()
         }
