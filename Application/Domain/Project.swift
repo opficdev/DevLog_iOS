@@ -11,5 +11,5 @@ let project = Project.devlogFramework(
     dependencies: [
         .project(target: "Core", path: "../Core")
     ],
-    hasTests: false
+    hasTests: true
 )
