@@ -5,35 +5,27 @@
 //  Created by opfic on 7/22/26.
 //
 
+import Foundation
 import Testing
 @testable import Domain
 
 struct CheckAppUpdateUseCaseImplTests {
-    @Test(
-        "현재 마케팅 버전과 빌드 번호를 필수 버전과 비교한다",
-        arguments: [
-            ("1.4", "9", "1.5.1", true),
-            ("1.5", "127", "1.5.128", true),
-            ("1.5", "128", "1.5.128", false),
-            ("1.5", "129", "1.5.128", false),
-            ("1.9", "9", "1.10.1", true),
-            ("1.5", "1", "1.5.0", false)
-        ]
-    )
-    func 현재_마케팅_버전과_빌드_번호를_필수_버전과_비교한다(
-        marketingVersion: String,
-        buildNumber: String,
-        requiredVersion: String,
-        expectedResult: Bool
-    ) async throws {
+    @Test("Bundle의 현재 버전보다 필수 버전이 높으면 업데이트가 필요하다")
+    func Bundle의_현재_버전보다_필수_버전이_높으면_업데이트가_필요하다() async throws {
+        let requiredVersion = "\(try currentVersionValue()).1"
         let repository = AppVersionRepositorySpy(result: .success(requiredVersion))
         let useCase = CheckAppUpdateUseCaseImpl(repository)
-        let currentVersion = try AppVersion(
-            marketingVersion: marketingVersion,
-            buildNumber: buildNumber
-        )
 
-        #expect(try await useCase.execute(currentVersion) == expectedResult)
+        #expect(try await useCase.execute())
+        #expect(await repository.fetchCallCount() == 1)
+    }
+
+    @Test("Bundle의 현재 버전과 필수 버전이 같으면 업데이트가 필요하지 않다")
+    func Bundle의_현재_버전과_필수_버전이_같으면_업데이트가_필요하지_않다() async throws {
+        let repository = AppVersionRepositorySpy(result: .success(try currentVersionValue()))
+        let useCase = CheckAppUpdateUseCaseImpl(repository)
+
+        #expect(try await !useCase.execute())
         #expect(await repository.fetchCallCount() == 1)
     }
 
@@ -41,10 +33,8 @@ struct CheckAppUpdateUseCaseImplTests {
     func 필수_버전_형식이_잘못되면_invalidData_오류를_반환한다() async throws {
         let repository = AppVersionRepositorySpy(result: .success("latest"))
         let useCase = CheckAppUpdateUseCaseImpl(repository)
-        let currentVersion = try AppVersion(marketingVersion: "1.5", buildNumber: "127")
-
         await #expect(throws: DomainLayerError.self) {
-            try await useCase.execute(currentVersion)
+            try await useCase.execute()
         }
     }
 
@@ -54,12 +44,20 @@ struct CheckAppUpdateUseCaseImplTests {
             result: .failure(AppVersionRepositoryTestError.fetchFailed)
         )
         let useCase = CheckAppUpdateUseCaseImpl(repository)
-        let currentVersion = try AppVersion(marketingVersion: "1.5", buildNumber: "127")
-
         await #expect(throws: AppVersionRepositoryTestError.fetchFailed) {
-            try await useCase.execute(currentVersion)
+            try await useCase.execute()
         }
     }
+}
+
+private func currentVersionValue() throws -> String {
+    let marketingVersion = try #require(
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    )
+    let buildNumber = try #require(
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    )
+    return "\(marketingVersion).\(buildNumber)"
 }
 
 private actor AppVersionRepositorySpy: AppVersionRepository {

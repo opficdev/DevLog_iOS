@@ -5,6 +5,8 @@
 //  Created by opfic on 7/22/26.
 //
 
+import Foundation
+
 public final class CheckAppUpdateUseCaseImpl: CheckAppUpdateUseCase {
     private let repository: AppVersionRepository
 
@@ -12,9 +14,24 @@ public final class CheckAppUpdateUseCaseImpl: CheckAppUpdateUseCase {
         self.repository = repository
     }
 
-    public func execute(_ currentVersion: AppVersion) async throws -> Bool {
+    public func execute() async throws -> Bool {
         let requiredVersionValue = try await repository.fetchRequiredVersion()
         let requiredVersion = try AppVersion(requiredVersionValue)
+        let currentVersion = try currentVersion()
         return currentVersion < requiredVersion
+    }
+
+    private func currentVersion() throws -> AppVersion {
+        guard let marketingVersion = Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String,
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
+            throw DomainLayerError.invalidData(context: "appVersion")
+        }
+
+        return try AppVersion(
+            marketingVersion: marketingVersion,
+            buildNumber: buildNumber
+        )
     }
 }

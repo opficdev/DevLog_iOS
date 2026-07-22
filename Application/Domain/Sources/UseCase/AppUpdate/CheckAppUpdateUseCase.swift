@@ -6,5 +6,5 @@
 //
 
 public protocol CheckAppUpdateUseCase {
-    func execute(_ currentVersion: AppVersion) async throws -> Bool
+    func execute() async throws -> Bool
 }
