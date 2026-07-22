@@ -65,6 +65,7 @@ struct RootStoreTestAdapter: RootStateDriving {
         ),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = RootTrackAnalyticsEventUseCaseSpy(),
         checkAppUpdateUseCase: CheckAppUpdateUseCase = RootCheckAppUpdateUseCaseSpy(),
+        appStoreURL: URL? = URL(string: "https://apps.apple.com/us/app/devlog/id6760288611"),
         openURLSpy: RootOpenURLSpy = RootOpenURLSpy(),
         badgeCountSpy: RootApplicationBadgeCountSpy = RootApplicationBadgeCountSpy()
     ) {
@@ -76,6 +77,7 @@ struct RootStoreTestAdapter: RootStateDriving {
             $0.rootSystemThemeUseCase = systemThemeUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.checkAppUpdateUseCase = checkAppUpdateUseCase
+            $0.appStoreURL = appStoreURL
             $0.openURL = .init { url in
                 await openURLSpy.open(url)
                 return true
@@ -338,6 +340,10 @@ actor RootOpenURLSpy {
 
     func openCallCount() -> Int {
         urls.count
+    }
+
+    func openedURLs() -> [URL] {
+        urls
     }
 }
 

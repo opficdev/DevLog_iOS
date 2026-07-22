@@ -66,6 +66,7 @@ struct RootFeature {
     @Dependency(\.rootSystemThemeUseCase) var systemThemeUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
     @Dependency(\.checkAppUpdateUseCase) var checkAppUpdateUseCase
+    @Dependency(\.appStoreURL) var appStoreURL
     @Dependency(\.openURL) var openURL
     @Dependency(\.setApplicationBadgeCount) var setApplicationBadgeCount
 
@@ -155,6 +156,11 @@ private struct RootSheetFeature: Reducer {
 }
 
 extension DependencyValues {
+    var appStoreURL: URL? {
+        get { self[AppStoreURLKey.self] }
+        set { self[AppStoreURLKey.self] = newValue }
+    }
+
     var checkAppUpdateUseCase: CheckAppUpdateUseCase {
         get { self[CheckAppUpdateUseCaseKey.self] }
         set { self[CheckAppUpdateUseCaseKey.self] = newValue }
@@ -174,6 +180,21 @@ extension DependencyValues {
         get { self[RootSystemThemeUseCaseKey.self] }
         set { self[RootSystemThemeUseCaseKey.self] = newValue }
     }
+}
+
+private enum AppStoreURLKey: DependencyKey {
+    static let liveValue = configuredAppStoreURL()
+    static let testValue: URL? = nil
+}
+
+private func configuredAppStoreURL() -> URL? {
+    guard let rawValue = Bundle.main.object(forInfoDictionaryKey: "APP_STORE_URL") as? String else {
+        return nil
+    }
+
+    let urlString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !urlString.isEmpty, !urlString.hasPrefix("$(") else { return nil }
+    return URL(string: urlString)
 }
 
 private enum CheckAppUpdateUseCaseKey: DependencyKey {
@@ -225,9 +246,9 @@ private extension RootFeature {
     }
 
     func openAppStoreEffect() -> Effect<Action> {
-        .run { [openURL] _ in
-            guard let url = URL(string: "https://apps.apple.com/us/app/devlog/id6760288611") else { return }
-            await openURL(url)
+        .run { [appStoreURL, openURL] _ in
+            guard let appStoreURL else { return }
+            await openURL(appStoreURL)
         }
     }
 

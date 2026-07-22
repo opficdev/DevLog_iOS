@@ -132,10 +132,12 @@ struct RootFeatureTests {
     }
 
     @Test("업데이트 버튼은 App Store 열기를 요청한다")
-    func 업데이트_버튼은_App_Store_열기를_요청한다() async {
+    func 업데이트_버튼은_App_Store_열기를_요청한다() async throws {
+        let appStoreURL = try #require(URL(string: "https://apps.apple.com/us/app/devlog/id6760288611"))
         let openSpy = RootOpenURLSpy()
         let adapter = RootStoreTestAdapter(
             checkAppUpdateUseCase: RootCheckAppUpdateUseCaseSpy(result: .success(true)),
+            appStoreURL: appStoreURL,
             openURLSpy: openSpy
         )
 
@@ -146,6 +148,7 @@ struct RootFeatureTests {
         }
 
         #expect(await openSpy.openCallCount() == 1)
+        #expect(await openSpy.openedURLs() == [appStoreURL])
     }
 
     @Test("RootFeature는 TodoDetail sheet 표시와 해제를 store state로 관리한다")
