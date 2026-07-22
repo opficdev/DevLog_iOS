@@ -72,6 +72,12 @@ public final class DataAssembler: Assembler {
             )
         }
 
+        container.register(AppVersionRepository.self) {
+            AppVersionRepositoryImpl(
+                service: container.resolve(AppVersionConfigurationService.self)
+            )
+        }
+
         container.register(AuthDataRepository.self) {
             AuthDataRepositoryImpl(
                 authService: container.resolve(AuthService.self),

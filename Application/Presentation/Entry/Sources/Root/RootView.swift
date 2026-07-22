@@ -24,6 +24,7 @@ public struct RootView: View {
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase,
         systemThemeUseCase: ObserveSystemThemeUseCase,
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase,
+        checkAppUpdateUseCase: CheckAppUpdateUseCase,
         widgetURLTab: @escaping (URL) -> MainTab?,
         windowEvent: TodoEditorWindowEvent,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
@@ -36,6 +37,7 @@ public struct RootView: View {
             $0.rootNetworkConnectivityUseCase = networkConnectivityUseCase
             $0.rootSystemThemeUseCase = systemThemeUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+            $0.checkAppUpdateUseCase = checkAppUpdateUseCase
         })
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent

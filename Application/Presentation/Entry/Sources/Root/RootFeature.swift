@@ -21,8 +21,10 @@ struct RootFeature {
 
     @ObservableState
     struct State: Equatable {
-        @Presents var alert: AlertState<Never>?
+        @Presents var alert: AlertState<Action.Alert>?
         @Presents var sheet: SheetState?
+        var hasCheckedAppUpdate = false
+        var isAppUpdateRequired = false
         var isNetworkConnected = true
         var signIn: Bool?
         var theme: SystemTheme = .automatic
@@ -39,7 +41,8 @@ struct RootFeature {
     }
 
     enum Action: BindableAction, Equatable {
-        case alert(PresentationAction<Never>)
+        case alert(PresentationAction<Alert>)
+        case appUpdateCheckCompleted(Bool)
         case binding(BindingAction<State>)
         case sheet(PresentationAction<Sheet>)
         case onAppear
@@ -48,6 +51,10 @@ struct RootFeature {
         case networkStatusChanged(Bool)
         case setTheme(SystemTheme)
         case didLogined(Bool)
+
+        enum Alert: Equatable {
+            case tapUpdateButton
+        }
 
         enum Sheet: Equatable {
             case tapCloseButton
@@ -58,14 +65,23 @@ struct RootFeature {
     @Dependency(\.rootNetworkConnectivityUseCase) var networkConnectivityUseCase
     @Dependency(\.rootSystemThemeUseCase) var systemThemeUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
+    @Dependency(\.checkAppUpdateUseCase) var checkAppUpdateUseCase
+    @Dependency(\.appStoreURL) var appStoreURL
+    @Dependency(\.openURL) var openURL
     @Dependency(\.setApplicationBadgeCount) var setApplicationBadgeCount
 
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .alert(.presented(.tapUpdateButton)):
+                return openAppStoreEffect()
             case .alert:
                 break
+            case .appUpdateCheckCompleted(let isRequired):
+                guard isRequired else { break }
+                state.isAppUpdateRequired = true
+                state.alert = Self.appUpdateAlertState()
             case .binding:
                 break
             case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
@@ -74,6 +90,11 @@ struct RootFeature {
                 break
             case .onAppear:
                 var effect = clearApplicationBadgeCountEffect()
+
+                if !state.hasCheckedAppUpdate {
+                    state.hasCheckedAppUpdate = true
+                    effect = .merge(effect, checkAppUpdateEffect())
+                }
 
                 if !state.isObservingNetworkConnectivity {
                     state.isObservingNetworkConnectivity = true
@@ -99,8 +120,8 @@ struct RootFeature {
             case .networkStatusChanged(let isConnected):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
-                if wasConnected && !isConnected {
-                    state.alert = Self.alertState()
+                if wasConnected && !isConnected && !state.isAppUpdateRequired {
+                    state.alert = Self.networkDisconnectedAlertState()
                 }
             case .setTheme(let theme):
                 state.theme = theme
@@ -135,6 +156,16 @@ private struct RootSheetFeature: Reducer {
 }
 
 extension DependencyValues {
+    var appStoreURL: URL? {
+        get { self[AppStoreURLKey.self] }
+        set { self[AppStoreURLKey.self] = newValue }
+    }
+
+    var checkAppUpdateUseCase: CheckAppUpdateUseCase {
+        get { self[CheckAppUpdateUseCaseKey.self] }
+        set { self[CheckAppUpdateUseCaseKey.self] = newValue }
+    }
+
     var observeAuthSessionUseCase: ObserveAuthSessionUseCase {
         get { self[ObserveAuthSessionUseCaseKey.self] }
         set { self[ObserveAuthSessionUseCaseKey.self] = newValue }
@@ -148,6 +179,31 @@ extension DependencyValues {
     var rootSystemThemeUseCase: ObserveSystemThemeUseCase {
         get { self[RootSystemThemeUseCaseKey.self] }
         set { self[RootSystemThemeUseCaseKey.self] = newValue }
+    }
+}
+
+private enum AppStoreURLKey: DependencyKey {
+    static let liveValue = configuredAppStoreURL()
+    static let testValue: URL? = nil
+}
+
+private func configuredAppStoreURL() -> URL? {
+    guard let rawValue = Bundle.main.object(forInfoDictionaryKey: "APP_STORE_URL") as? String else {
+        return nil
+    }
+
+    let urlString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !urlString.isEmpty, !urlString.hasPrefix("$(") else { return nil }
+    return URL(string: urlString)
+}
+
+private enum CheckAppUpdateUseCaseKey: DependencyKey {
+    static var liveValue: CheckAppUpdateUseCase {
+        preconditionFailure("CheckAppUpdateUseCase must be provided.")
+    }
+
+    static var testValue: CheckAppUpdateUseCase {
+        liveValue
     }
 }
 
@@ -182,6 +238,20 @@ private enum RootSystemThemeUseCaseKey: DependencyKey {
 }
 
 private extension RootFeature {
+    func checkAppUpdateEffect() -> Effect<Action> {
+        .run { [checkAppUpdateUseCase] send in
+            let isRequired = (try? await checkAppUpdateUseCase.execute()) ?? false
+            await send(.appUpdateCheckCompleted(isRequired))
+        }
+    }
+
+    func openAppStoreEffect() -> Effect<Action> {
+        .run { [appStoreURL, openURL] _ in
+            guard let appStoreURL else { return }
+            await openURL(appStoreURL)
+        }
+    }
+
     func clearApplicationBadgeCountEffect() -> Effect<Action> {
         .run { [setApplicationBadgeCount] _ in
             try? await setApplicationBadgeCount(0)
@@ -220,7 +290,19 @@ private extension RootFeature {
         }
     }
 
-    static func alertState() -> AlertState<Never> {
+    static func appUpdateAlertState() -> AlertState<Action.Alert> {
+        AlertState {
+            TextState(String(localized: "root_app_update_title"))
+        } actions: {
+            ButtonState(action: .tapUpdateButton) {
+                TextState(String(localized: "root_app_update_action"))
+            }
+        } message: {
+            TextState(String(localized: "root_app_update_message"))
+        }
+    }
+
+    static func networkDisconnectedAlertState() -> AlertState<Action.Alert> {
         AlertState {
             TextState(String(localized: "root_network_disconnected_title"))
         } actions: {

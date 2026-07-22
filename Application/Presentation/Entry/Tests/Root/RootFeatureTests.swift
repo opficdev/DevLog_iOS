@@ -6,6 +6,7 @@
 //
 
 import Core
+import Foundation
 import Testing
 
 @MainActor
@@ -102,6 +103,53 @@ struct RootFeatureTests {
         }
 
         #expect(badgeSpy.counts == [0, 0])
+    }
+
+    @Test("RootFeature onAppear는 로그인 상태와 무관하게 업데이트를 한 번만 확인한다")
+    func RootFeature_onAppear는_로그인_상태와_무관하게_업데이트를_한_번만_확인한다() async {
+        let checkSpy = RootCheckAppUpdateUseCaseSpy()
+        let adapter = RootStoreTestAdapter(
+            sessionUseCase: ObserveAuthSessionUseCaseSpy(currentValue: false),
+            checkAppUpdateUseCase: checkSpy
+        )
+
+        await adapter.onAppear()
+        await adapter.onAppear()
+
+        #expect(await checkSpy.executeCallCount() == 1)
+    }
+
+    @Test("필수 업데이트 알림은 네트워크 연결 알림보다 우선한다")
+    func 필수_업데이트_알림은_네트워크_연결_알림보다_우선한다() async {
+        let adapter = RootStoreTestAdapter(
+            networkConnectivityUseCase: RootObserveNetworkConnectivityUseCaseSpy(currentValue: false),
+            checkAppUpdateUseCase: RootCheckAppUpdateUseCaseSpy(result: .success(true))
+        )
+
+        await adapter.onAppear()
+
+        #expect(adapter.snapshot.alertTitle == String(localized: "root_app_update_title"))
+        #expect(adapter.snapshot.alertMessage == String(localized: "root_app_update_message"))
+    }
+
+    @Test("업데이트 버튼은 App Store 열기를 요청한다")
+    func 업데이트_버튼은_App_Store_열기를_요청한다() async throws {
+        let appStoreURL = try #require(URL(string: "https://apps.apple.com/us/app/devlog/id6760288611"))
+        let openSpy = RootOpenURLSpy()
+        let adapter = RootStoreTestAdapter(
+            checkAppUpdateUseCase: RootCheckAppUpdateUseCaseSpy(result: .success(true)),
+            appStoreURL: appStoreURL,
+            openURLSpy: openSpy
+        )
+
+        await adapter.onAppear()
+        await adapter.tapUpdateButton()
+        await waitUntil {
+            await openSpy.openCallCount() == 1
+        }
+
+        #expect(await openSpy.openCallCount() == 1)
+        #expect(await openSpy.openedURLs() == [appStoreURL])
     }
 
     @Test("RootFeature는 TodoDetail sheet 표시와 해제를 store state로 관리한다")

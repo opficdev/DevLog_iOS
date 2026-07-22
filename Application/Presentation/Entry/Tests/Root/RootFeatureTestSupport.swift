@@ -27,6 +27,7 @@ protocol RootStateDriving {
     func dismissSheet() async
     func selectMainTab(_ tab: MainTab) async
     func openWidgetRoute(_ tab: MainTab) async
+    func tapUpdateButton() async
 }
 
 struct RootStateSnapshot: Equatable {
@@ -63,6 +64,9 @@ struct RootStoreTestAdapter: RootStateDriving {
             currentValue: .automatic
         ),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = RootTrackAnalyticsEventUseCaseSpy(),
+        checkAppUpdateUseCase: CheckAppUpdateUseCase = RootCheckAppUpdateUseCaseSpy(),
+        appStoreURL: URL? = URL(string: "https://apps.apple.com/us/app/devlog/id6760288611"),
+        openURLSpy: RootOpenURLSpy = RootOpenURLSpy(),
         badgeCountSpy: RootApplicationBadgeCountSpy = RootApplicationBadgeCountSpy()
     ) {
         store = TestStore(initialState: RootFeature.State()) {
@@ -72,6 +76,12 @@ struct RootStoreTestAdapter: RootStateDriving {
             $0.rootNetworkConnectivityUseCase = networkConnectivityUseCase
             $0.rootSystemThemeUseCase = systemThemeUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+            $0.checkAppUpdateUseCase = checkAppUpdateUseCase
+            $0.appStoreURL = appStoreURL
+            $0.openURL = .init { url in
+                await openURLSpy.open(url)
+                return true
+            }
             $0.setApplicationBadgeCount = { count in
                 try await badgeCountSpy.setBadgeCount(count)
             }
@@ -118,6 +128,10 @@ struct RootStoreTestAdapter: RootStateDriving {
 
     func openWidgetRoute(_ tab: MainTab) async {
         await store.send(.openWidgetRoute(tab))
+    }
+
+    func tapUpdateButton() async {
+        await store.send(.alert(.presented(.tapUpdateButton)))
     }
 
     private func drainReceivedActions() async {
@@ -296,6 +310,40 @@ final class RootTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
 
     func execute(_ event: AnalyticsEvent) {
         events.append(event)
+    }
+}
+
+actor RootCheckAppUpdateUseCaseSpy: CheckAppUpdateUseCase {
+    private let result: Result<Bool, Error>
+    private var count = 0
+
+    init(result: Result<Bool, Error> = .success(false)) {
+        self.result = result
+    }
+
+    func execute() async throws -> Bool {
+        count += 1
+        return try result.get()
+    }
+
+    func executeCallCount() -> Int {
+        count
+    }
+}
+
+actor RootOpenURLSpy {
+    private var urls = [URL]()
+
+    func open(_ url: URL) {
+        urls.append(url)
+    }
+
+    func openCallCount() -> Int {
+        urls.count
+    }
+
+    func openedURLs() -> [URL] {
+        urls
     }
 }
 
