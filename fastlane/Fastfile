@@ -13,6 +13,7 @@ TESTFLIGHT_APP_ENVIRONMENT = "staging"
 APPSTORE_APP_ENVIRONMENT = "prod"
 TESTFLIGHT_DATABASE_ID = "(default)"
 APPSTORE_DATABASE_ID = "(default)"
+SHARED_FUNCTION_API_PATH = "/api/api"
 TESTFLIGHT_FIREBASE_PROJECT_ID = "devlog-staging"
 TESTFLIGHT_GOOGLE_APP_ID = "1:686659799179:ios:eba4e86096153f0539ec8e"
 APP_CONFIG_XCCONFIG_PATH = File.expand_path(
@@ -84,6 +85,21 @@ rescue SystemCallError => error
   UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
 end
 
+def verify_function_api_base_url_policy(function_api_base_url)
+  require "uri"
+
+  uri = URI.parse(function_api_base_url)
+  is_valid = uri.is_a?(URI::HTTPS) &&
+    !uri.host.to_s.empty? &&
+    uri.path == SHARED_FUNCTION_API_PATH &&
+    uri.query.nil? &&
+    uri.fragment.nil?
+
+  UI.user_error!("Invalid FUNCTION_API_BASE_URL for store build") if !is_valid
+rescue URI::InvalidURIError
+  UI.user_error!("Invalid FUNCTION_API_BASE_URL for store build")
+end
+
 default_platform(:ios)
 
 platform :ios do
@@ -148,6 +164,8 @@ platform :ios do
 
     UI.user_error!("Missing Firestore database ID for #{configuration}") if database_id.empty?
     UI.user_error!("Missing Function API base URL for #{configuration}") if function_api_base_url.empty?
+
+    verify_function_api_base_url_policy(function_api_base_url)
 
     if database_id != expected_configuration[:database_id]
       UI.user_error!(
