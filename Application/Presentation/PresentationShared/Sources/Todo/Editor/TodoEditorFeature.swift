@@ -55,7 +55,13 @@ public struct TodoEditorFeature {
         }
         public var hasChanges: Bool {
             guard let originalDraft else { return true }
-            return originalDraft != makeTodoDraft(now: Date())
+            var draft = makeTodoDraft(now: Date())
+            if let originalDueDate = originalDraft.dueDate,
+               let dueDate = draft.dueDate,
+               Calendar.current.isDate(originalDueDate, inSameDayAs: dueDate) {
+                draft.dueDate = originalDueDate
+            }
+            return originalDraft != draft
         }
         public var isReadyToSubmit: Bool {
             isValidToSave && hasChanges
