@@ -1193,13 +1193,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable Push Notifications"
+            "value" : "Push Notifications"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "푸시 알람 활성화"
+            "value" : "푸시 알람"
           }
         }
       }
