@@ -65,7 +65,7 @@ let project = Project(
                 release: [
                     "APP_ENVIRONMENT": "prod",
                     "APS_ENVIRONMENT": "production",
-                    "FIRESTORE_DATABASE_ID": "prod",
+                    "FIRESTORE_DATABASE_ID": "(default)",
                 ]
             )
         ),

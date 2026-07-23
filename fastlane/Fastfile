@@ -12,11 +12,13 @@ APPSTORE_CONFIGURATION = "Release"
 TESTFLIGHT_APP_ENVIRONMENT = "staging"
 APPSTORE_APP_ENVIRONMENT = "prod"
 TESTFLIGHT_DATABASE_ID = "(default)"
-APPSTORE_DATABASE_ID = "prod"
-TESTFLIGHT_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-staging.cloudfunctions.net/api/api"
-APPSTORE_FUNCTION_API_BASE_URL = "https://asia-northeast3-devlog-c87b6.cloudfunctions.net/prodApi/api"
+APPSTORE_DATABASE_ID = "(default)"
 TESTFLIGHT_FIREBASE_PROJECT_ID = "devlog-staging"
 TESTFLIGHT_GOOGLE_APP_ID = "1:686659799179:ios:eba4e86096153f0539ec8e"
+APP_CONFIG_XCCONFIG_PATH = File.expand_path(
+  "../Application/App/Sources/Resource/Config.xcconfig",
+  __dir__
+)
 VERSION_XCCONFIG_PATH = File.expand_path(
   "../Application/Shared/Version.xcconfig",
   __dir__
@@ -52,6 +54,34 @@ def marketing_version_from_xcconfig(path)
   version_number
 rescue SystemCallError => error
   UI.user_error!("Could not read version configuration file at #{expanded_path}: #{error.message}")
+end
+
+def function_api_base_url_from_xcconfig(configuration)
+  expanded_path = File.expand_path(APP_CONFIG_XCCONFIG_PATH)
+  UI.user_error!("Missing app configuration file: #{expanded_path}") if !File.file?(expanded_path)
+
+  escaped_configuration = Regexp.escape(configuration)
+  assignments = File.foreach(expanded_path).filter_map do |line|
+    assignment = line.match(
+      /^\s*FUNCTION_API_BASE_URL\s*\[\s*config\s*=\s*#{escaped_configuration}\s*\]\s*=\s*(.*)$/
+    )
+    next if assignment.nil?
+
+    assignment[1].strip
+  end
+
+  if assignments.empty?
+    UI.user_error!("Missing FUNCTION_API_BASE_URL for #{configuration} in #{expanded_path}")
+  end
+
+  function_api_base_url = assignments.last.gsub("/$()/", "//")
+  if function_api_base_url.empty?
+    UI.user_error!("Empty FUNCTION_API_BASE_URL for #{configuration} in #{expanded_path}")
+  end
+
+  function_api_base_url
+rescue SystemCallError => error
+  UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
 end
 
 default_platform(:ios)
@@ -105,12 +135,12 @@ platform :ios do
       when TESTFLIGHT_CONFIGURATION
         {
           database_id: TESTFLIGHT_DATABASE_ID,
-          function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL
+          function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION)
         }
       when APPSTORE_CONFIGURATION
         {
           database_id: APPSTORE_DATABASE_ID,
-          function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+          function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
         }
       else
         UI.user_error!("Unsupported store configuration: #{configuration}")
@@ -127,11 +157,11 @@ platform :ios do
 
     if function_api_base_url != expected_configuration[:function_api_base_url]
       UI.user_error!(
-        "Invalid store configuration: #{configuration} must use FUNCTION_API_BASE_URL=#{expected_configuration[:function_api_base_url]}, got #{function_api_base_url}"
+        "Invalid store configuration: #{configuration} uses an unexpected FUNCTION_API_BASE_URL"
       )
     end
 
-    UI.message("Verified store configuration: #{configuration}/#{database_id}/#{function_api_base_url}")
+    UI.message("Verified store configuration: #{configuration}/#{database_id}")
   end
 
   private_lane :verify_store_info_plist do |options|
@@ -205,7 +235,8 @@ platform :ios do
         path: plist_path,
         source: "app Info.plist",
         key: "FUNCTION_API_BASE_URL",
-        expected: expected_configuration[:function_api_base_url]
+        expected: expected_configuration[:function_api_base_url],
+        redact_values: true
       )
 
       verify_plist_value(
@@ -283,9 +314,11 @@ platform :ios do
     UI.user_error!("Missing expected #{options[:key]}") if expected_value.empty?
 
     if actual_value != expected_value
-      UI.user_error!(
-        "Unexpected #{options[:key]} in #{options[:source]}: expected #{expected_value}, got #{actual_value}"
-      )
+      message = "Unexpected #{options[:key]} in #{options[:source]}"
+      if options[:redact_values] != true
+        message += ": expected #{expected_value}, got #{actual_value}"
+      end
+      UI.user_error!(message)
     end
 
     UI.message("Verified #{options[:key]} in #{options[:source]}")
@@ -297,7 +330,7 @@ platform :ios do
     expected_database_id = options[:database_id] ||
       (configuration == APPSTORE_CONFIGURATION ? APPSTORE_DATABASE_ID : TESTFLIGHT_DATABASE_ID)
     expected_function_api_base_url = options[:function_api_base_url] ||
-      (configuration == APPSTORE_CONFIGURATION ? APPSTORE_FUNCTION_API_BASE_URL : TESTFLIGHT_FUNCTION_API_BASE_URL)
+      function_api_base_url_from_xcconfig(configuration)
     expected_app_environment = configuration == APPSTORE_CONFIGURATION ?
       APPSTORE_APP_ENVIRONMENT : TESTFLIGHT_APP_ENVIRONMENT
 
@@ -415,7 +448,7 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
       firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
       google_app_id: TESTFLIGHT_GOOGLE_APP_ID
     )
@@ -427,7 +460,7 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
       firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
       google_app_id: TESTFLIGHT_GOOGLE_APP_ID
     )
@@ -438,7 +471,7 @@ platform :ios do
       configuration: APPSTORE_CONFIGURATION,
       output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
       database_id: APPSTORE_DATABASE_ID,
-      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+      function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
     )
   end
 
@@ -447,7 +480,7 @@ platform :ios do
       configuration: APPSTORE_CONFIGURATION,
       output_directory: APPSTORE_BUILD_OUTPUT_DIRECTORY,
       database_id: APPSTORE_DATABASE_ID,
-      function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+      function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
     )
 
     upload_appstore_build
@@ -480,7 +513,7 @@ platform :ios do
         app_environment: TESTFLIGHT_APP_ENVIRONMENT,
         bundle_id: APP_IDENTIFIER,
         database_id: TESTFLIGHT_DATABASE_ID,
-        function_api_base_url: TESTFLIGHT_FUNCTION_API_BASE_URL,
+        function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
         firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
         google_app_id: TESTFLIGHT_GOOGLE_APP_ID
       }
@@ -507,7 +540,7 @@ platform :ios do
         app_environment: APPSTORE_APP_ENVIRONMENT,
         bundle_id: APP_IDENTIFIER,
         database_id: APPSTORE_DATABASE_ID,
-        function_api_base_url: APPSTORE_FUNCTION_API_BASE_URL
+        function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
       }
     )
 
