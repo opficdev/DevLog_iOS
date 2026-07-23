@@ -56,6 +56,27 @@ struct TodoEditorFeatureTests {
         #expect(adapter.isReadyToSubmit)
     }
 
+    @Test("마감일을 원본과 같은 날짜로 되돌리면 변경되지 않은 상태가 된다")
+    func 마감일을_원본과_같은_날짜로_되돌리면_변경되지_않은_상태가_된다() async throws {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: Date(timeIntervalSince1970: 4_102_444_800))
+        let originalDueDate = day.addingTimeInterval(43_200)
+        let restoredDueDate = day.addingTimeInterval(3_600)
+        let changedDueDate = try #require(calendar.date(byAdding: .day, value: 1, to: originalDueDate))
+        let todo = makeTodoEditorTodo(title: "Original", dueDate: originalDueDate)
+        let adapter = TodoEditorStoreTestAdapter(todo: todo)
+
+        await adapter.setDueDate(changedDueDate)
+
+        #expect(adapter.hasChanges)
+        #expect(adapter.isReadyToSubmit)
+
+        await adapter.setDueDate(restoredDueDate)
+
+        #expect(adapter.hasChanges == false)
+        #expect(adapter.isReadyToSubmit == false)
+    }
+
     @Test("onAppear는 Todo 카테고리 설정을 가져와 상태에 반영한다")
     func onAppear는_Todo_카테고리_설정을_가져와_상태에_반영한다() async {
         let fetchSpy = TodoEditorFetchPreferencesUseCaseSpy(preferences: [
