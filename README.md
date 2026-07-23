@@ -190,16 +190,16 @@ Application/App/Sources/Resource/
 └── GoogleService-Info.plist
 ```
 
-Firestore database는 build configuration 기준으로 분리함
+Firebase 프로젝트와 Firestore database는 build configuration 기준으로 분리함
 
 ```text
-Debug, Staging -> staging
-Release -> prod
+Debug, Staging -> staging Firebase project / Firestore (default)
+Release -> prod Firebase project / Firestore (default)
 ```
 
 TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
 GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행함
-TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release/prod` build로 생성함
+TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release` configuration build로 생성함
 build number는 TestFlight와 App Store upload가 공유하는 App Store Connect build number 공간에서 자동 증가함
 
 - TestFlight build: `bundle exec fastlane testflight_build_only`
