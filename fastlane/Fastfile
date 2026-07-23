@@ -14,8 +14,6 @@ APPSTORE_APP_ENVIRONMENT = "prod"
 TESTFLIGHT_DATABASE_ID = "(default)"
 APPSTORE_DATABASE_ID = "(default)"
 SHARED_FUNCTION_API_PATH = "/api/api"
-TESTFLIGHT_FIREBASE_PROJECT_ID = "devlog-staging"
-TESTFLIGHT_GOOGLE_APP_ID = "1:686659799179:ios:eba4e86096153f0539ec8e"
 APP_CONFIG_XCCONFIG_PATH = File.expand_path(
   "../Application/App/Sources/Resource/Config.xcconfig",
   __dir__
@@ -81,6 +79,36 @@ def function_api_base_url_from_xcconfig(configuration)
   end
 
   function_api_base_url
+rescue SystemCallError => error
+  UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
+end
+
+def expected_firebase_configuration_from_xcconfig(configuration)
+  expanded_path = File.expand_path(APP_CONFIG_XCCONFIG_PATH)
+  UI.user_error!("Missing app configuration file: #{expanded_path}") if !File.file?(expanded_path)
+
+  escaped_configuration = Regexp.escape(configuration)
+  expected_settings = {
+    firebase_project_id: "EXPECTED_FIREBASE_PROJECT_ID",
+    google_app_id: "EXPECTED_GOOGLE_APP_ID"
+  }
+
+  expected_settings.to_h do |key, setting|
+    assignments = File.foreach(expanded_path).filter_map do |line|
+      assignment = line.match(
+        /^\s*#{setting}\s*\[\s*config\s*=\s*#{escaped_configuration}\s*\]\s*=\s*(.*)$/
+      )
+      next if assignment.nil?
+
+      assignment[1].strip
+    end
+
+    if assignments.empty? || assignments.last.empty?
+      UI.user_error!("Missing #{setting} for #{configuration} in #{expanded_path}")
+    end
+
+    [key, assignments.last]
+  end
 rescue SystemCallError => error
   UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
 end
@@ -284,15 +312,11 @@ platform :ios do
       )
 
       if !expected_firebase_project_id.empty? && actual_firebase_project_id != expected_firebase_project_id
-        UI.user_error!(
-          "Unexpected PROJECT_ID in GoogleService-Info.plist: expected #{expected_firebase_project_id}, got #{actual_firebase_project_id}"
-        )
+        UI.user_error!("Unexpected PROJECT_ID in GoogleService-Info.plist")
       end
 
       if !expected_google_app_id.empty? && actual_google_app_id != expected_google_app_id
-        UI.user_error!(
-          "Unexpected GOOGLE_APP_ID in GoogleService-Info.plist: expected #{expected_google_app_id}, got #{actual_google_app_id}"
-        )
+        UI.user_error!("Unexpected GOOGLE_APP_ID in GoogleService-Info.plist")
       end
 
       UI.message("Verified PROJECT_ID in GoogleService-Info.plist")
@@ -357,6 +381,8 @@ platform :ios do
       database_id: expected_database_id,
       function_api_base_url: expected_function_api_base_url
     )
+
+    firebase_configuration = expected_firebase_configuration_from_xcconfig(configuration)
 
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
       ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
@@ -449,8 +475,8 @@ platform :ios do
         bundle_id: APP_IDENTIFIER,
         database_id: expected_database_id,
         function_api_base_url: expected_function_api_base_url,
-        firebase_project_id: options[:firebase_project_id],
-        google_app_id: options[:google_app_id]
+        firebase_project_id: firebase_configuration[:firebase_project_id],
+        google_app_id: firebase_configuration[:google_app_id]
       }
     )
 
@@ -466,9 +492,7 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
-      firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
-      google_app_id: TESTFLIGHT_GOOGLE_APP_ID
+      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION)
     )
 
     upload_testflight_build
@@ -478,9 +502,7 @@ platform :ios do
     build_for_store(
       configuration: TESTFLIGHT_CONFIGURATION,
       database_id: TESTFLIGHT_DATABASE_ID,
-      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
-      firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
-      google_app_id: TESTFLIGHT_GOOGLE_APP_ID
+      function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION)
     )
   end
 
@@ -519,6 +541,7 @@ platform :ios do
 
   lane :upload_testflight_build do
     api_key = asc_api_key
+    firebase_configuration = expected_firebase_configuration_from_xcconfig(TESTFLIGHT_CONFIGURATION)
     # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
     ipa_output_path = TESTFLIGHT_IPA_OUTPUT_PATH if ipa_output_path.empty?
@@ -532,8 +555,8 @@ platform :ios do
         bundle_id: APP_IDENTIFIER,
         database_id: TESTFLIGHT_DATABASE_ID,
         function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
-        firebase_project_id: TESTFLIGHT_FIREBASE_PROJECT_ID,
-        google_app_id: TESTFLIGHT_GOOGLE_APP_ID
+        firebase_project_id: firebase_configuration[:firebase_project_id],
+        google_app_id: firebase_configuration[:google_app_id]
       }
     )
 
@@ -546,6 +569,7 @@ platform :ios do
 
   lane :upload_appstore_build do
     api_key = asc_api_key
+    firebase_configuration = expected_firebase_configuration_from_xcconfig(APPSTORE_CONFIGURATION)
     # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
     ipa_output_path = APPSTORE_IPA_OUTPUT_PATH if ipa_output_path.empty?
@@ -558,7 +582,9 @@ platform :ios do
         app_environment: APPSTORE_APP_ENVIRONMENT,
         bundle_id: APP_IDENTIFIER,
         database_id: APPSTORE_DATABASE_ID,
-        function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
+        function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION),
+        firebase_project_id: firebase_configuration[:firebase_project_id],
+        google_app_id: firebase_configuration[:google_app_id]
       }
     )
 
