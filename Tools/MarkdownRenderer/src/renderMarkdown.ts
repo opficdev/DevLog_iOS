@@ -16,6 +16,7 @@ import type { TodoReferences } from "./types.ts";
 
 const sanitizeSchema: SanitizeSchema = {
   ...defaultSchema,
+  clobberPrefix: "",
   attributes: {
     ...defaultSchema.attributes,
     button: [
@@ -31,7 +32,8 @@ const sanitizeSchema: SanitizeSchema = {
   },
   protocols: {
     ...defaultSchema.protocols,
-    href: ["http", "https", "mailto"]
+    href: ["http", "https", "mailto"],
+    src: ["https"]
   },
   tagNames: [...(defaultSchema.tagNames ?? []), "button"]
 };

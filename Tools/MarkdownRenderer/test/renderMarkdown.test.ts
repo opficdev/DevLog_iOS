@@ -51,6 +51,25 @@ https://example.com
   assert.match(html, /data-footnotes/);
 });
 
+test("각주 링크와 이동 대상 ID를 일치시킨다", () => {
+  const html = renderMarkdown(`
+각주[^1]
+
+[^1]: 설명
+`);
+  const referenceMatch = html.match(
+    /<a href="#([^"]+)"[^>]*data-footnote-ref/
+  );
+  const backReferenceMatch = html.match(
+    /<a href="#([^"]+)"[^>]*data-footnote-backref/
+  );
+
+  assert.notEqual(referenceMatch, null);
+  assert.notEqual(backReferenceMatch, null);
+  assert.ok(html.includes(`id="${referenceMatch?.[1]}"`));
+  assert.ok(html.includes(`id="${backReferenceMatch?.[1]}"`));
+});
+
 test("raw HTML과 위험한 URL scheme을 제거한다", () => {
   const html = renderMarkdown(`
 <script>alert("xss")</script>
@@ -74,7 +93,24 @@ test("raw HTML과 위험한 URL scheme을 제거한다", () => {
   assert.match(html, /href="mailto:test@example.com"/);
 });
 
-test("renderer 문서는 원격 자원과 임의의 inline 실행을 차단한다", () => {
+test("HTTPS 이미지만 원격 이미지로 유지한다", () => {
+  const html = renderMarkdown(`
+![HTTPS](https://example.com/image.png)
+
+![HTTP](http://example.com/image.png)
+
+![스크립트](javascript:alert('xss'))
+
+![파일](file:///private/image.png)
+`);
+
+  assert.match(html, /src="https:\/\/example.com\/image.png"/);
+  assert.doesNotMatch(html, /src="http:\/\/example.com\/image.png"/);
+  assert.doesNotMatch(html, /javascript:/i);
+  assert.doesNotMatch(html, /file:/i);
+});
+
+test("renderer 문서는 HTTPS 이미지 외 원격 자원과 임의의 inline 실행을 차단한다", () => {
   const document = readFileSync(
     new URL("../src/index.html", import.meta.url),
     "utf8"
@@ -83,7 +119,8 @@ test("renderer 문서는 원격 자원과 임의의 inline 실행을 차단한�
   assert.match(document, /default-src 'none'/);
   assert.match(document, /script-src 'self'/);
   assert.match(document, /style-src 'self' 'nonce-devlog-renderer'/);
+  assert.match(document, /img-src https: data:/);
   assert.match(document, /connect-src 'none'/);
   assert.doesNotMatch(document, /unsafe-inline/);
-  assert.doesNotMatch(document, /https?:\/\//);
+  assert.doesNotMatch(document, /img-src[^;]*http:/);
 });
