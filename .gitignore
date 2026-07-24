@@ -23,7 +23,7 @@ ContentView.swift
 # NPM
 node_modules/
 *.log
-lib/
+*.js
 
 # Gem
 .bundle/
