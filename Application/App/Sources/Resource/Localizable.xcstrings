@@ -1479,14 +1479,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Update to the latest version to continue using DevLog."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "DevLog를 계속 사용하려면 최신 버전으로 업데이트해주세요."
+            "value" : "DevLog를 계속 사용하려면 최신 버전으로 업데이트 해주세요."
           }
         }
       }
