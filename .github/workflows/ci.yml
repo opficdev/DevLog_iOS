@@ -227,6 +227,8 @@ jobs:
             schemes: "App"
           - name: Domain-Data
             schemes: "Domain Data"
+          - name: Infra
+            schemes: "Infra"
           - name: Persistence
             schemes: "Persistence"
           - name: Presentation
