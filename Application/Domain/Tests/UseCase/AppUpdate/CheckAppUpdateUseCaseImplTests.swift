@@ -51,13 +51,9 @@ struct CheckAppUpdateUseCaseImplTests {
 }
 
 private func currentVersionValue() throws -> String {
-    let marketingVersion = try #require(
+    try #require(
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
     )
-    let buildNumber = try #require(
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-    )
-    return "\(marketingVersion).\(buildNumber)"
 }
 
 private actor AppVersionRepositorySpy: AppVersionRepository {

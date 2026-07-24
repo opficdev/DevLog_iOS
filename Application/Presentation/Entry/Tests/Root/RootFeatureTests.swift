@@ -119,6 +119,20 @@ struct RootFeatureTests {
         #expect(await checkSpy.executeCallCount() == 1)
     }
 
+    @Test("업데이트 확인에 실패하면 업데이트 알림을 표시하지 않는다")
+    func 업데이트_확인에_실패하면_업데이트_알림을_표시하지_않는다() async {
+        let checkSpy = RootCheckAppUpdateUseCaseSpy(
+            result: .failure(RootCheckAppUpdateUseCaseTestError.fetchFailed)
+        )
+        let adapter = RootStoreTestAdapter(checkAppUpdateUseCase: checkSpy)
+
+        await adapter.onAppear()
+
+        #expect(await checkSpy.executeCallCount() == 1)
+        #expect(adapter.snapshot.alertTitle == nil)
+        #expect(adapter.snapshot.alertMessage == nil)
+    }
+
     @Test("필수 업데이트 알림은 네트워크 연결 알림보다 우선한다")
     func 필수_업데이트_알림은_네트워크_연결_알림보다_우선한다() async {
         let adapter = RootStoreTestAdapter(
@@ -165,4 +179,8 @@ struct RootFeatureTests {
 
         await verifyWidgetRouteOpensWhenSignedIn(adapter: adapter)
     }
+}
+
+private enum RootCheckAppUpdateUseCaseTestError: Error {
+    case fetchFailed
 }

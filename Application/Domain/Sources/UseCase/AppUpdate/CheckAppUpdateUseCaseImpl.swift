@@ -24,14 +24,10 @@ public final class CheckAppUpdateUseCaseImpl: CheckAppUpdateUseCase {
     private func currentVersion() throws -> AppVersion {
         guard let marketingVersion = Bundle.main.object(
             forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String,
-        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
+        ) as? String else {
             throw DomainLayerError.invalidData(context: "appVersion")
         }
 
-        return try AppVersion(
-            marketingVersion: marketingVersion,
-            buildNumber: buildNumber
-        )
+        return try AppVersion(marketingVersion)
     }
 }

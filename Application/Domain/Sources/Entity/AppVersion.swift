@@ -8,12 +8,8 @@
 public struct AppVersion: Comparable {
     private let components: [Int]
 
-    public init(marketingVersion: String, buildNumber: String) throws {
-        try self.init("\(marketingVersion).\(buildNumber)")
-    }
-
-    init(_ value: String) throws {
-        let rawComponents = value.split(separator: ".", omittingEmptySubsequences: false)
+    public init(_ marketingVersion: String) throws {
+        let rawComponents = marketingVersion.split(separator: ".", omittingEmptySubsequences: false)
         guard !rawComponents.isEmpty,
               rawComponents.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else {
             throw DomainLayerError.invalidData(context: "appVersion")

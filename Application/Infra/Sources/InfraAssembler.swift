@@ -17,7 +17,7 @@ public final class InfraAssembler: Assembler {
         }
 
         container.register(AppVersionConfigurationService.self) {
-            RemoteConfigAppVersionServiceImpl()
+            ITunesAppVersionServiceImpl()
         }
 
         container.register(AnalyticsService.self) {
