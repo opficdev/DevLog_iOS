@@ -15,23 +15,19 @@ public final class CheckAppUpdateUseCaseImpl: CheckAppUpdateUseCase {
     }
 
     public func execute() async throws -> Bool {
-        let requiredVersionValue = try await repository.fetchRequiredVersion()
-        let requiredVersion = try AppVersion(requiredVersionValue)
+        let latestVersionValue = try await repository.fetchLatestVersion()
+        let latestVersion = try AppVersion(latestVersionValue)
         let currentVersion = try currentVersion()
-        return currentVersion < requiredVersion
+        return currentVersion < latestVersion
     }
 
     private func currentVersion() throws -> AppVersion {
         guard let marketingVersion = Bundle.main.object(
             forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String,
-        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
+        ) as? String else {
             throw DomainLayerError.invalidData(context: "appVersion")
         }
 
-        return try AppVersion(
-            marketingVersion: marketingVersion,
-            buildNumber: buildNumber
-        )
+        return try AppVersion(marketingVersion)
     }
 }

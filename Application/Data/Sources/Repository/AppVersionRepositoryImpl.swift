@@ -8,13 +8,13 @@
 import Domain
 
 final class AppVersionRepositoryImpl: AppVersionRepository {
-    private let service: AppVersionConfigurationService
+    private let service: AppStoreVersionService
 
-    init(service: AppVersionConfigurationService) {
+    init(service: AppStoreVersionService) {
         self.service = service
     }
 
-    func fetchRequiredVersion() async throws -> String {
-        try await service.fetchRequiredVersion()
+    func fetchLatestVersion() async throws -> String {
+        try await service.fetchLatestVersion()
     }
 }

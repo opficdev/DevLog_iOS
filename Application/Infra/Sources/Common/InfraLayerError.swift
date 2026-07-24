@@ -25,6 +25,13 @@ enum SocialLoginError: Error {
     case authenticationAlreadyInProgress
 }
 
+enum AppVersionServiceError: Error, Equatable {
+    case missingLookupURL
+    case invalidLookupURL
+    case missingVersion
+    case invalidVersion
+}
+
 extension Error {
     var isSocialLoginCancelled: Bool {
         switch self {
