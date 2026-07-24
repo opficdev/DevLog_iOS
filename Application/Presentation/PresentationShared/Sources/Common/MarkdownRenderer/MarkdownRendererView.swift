@@ -24,7 +24,7 @@ struct MarkdownRendererView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let contentController = WKUserContentController()
 
-        for name in MarkdownRendererMessage.Name.allCases {
+        for name in MarkdownRendererBridge.JavaScriptMessage.Name.allCases {
             contentController.add(
                 context.coordinator,
                 name: name.rawValue
@@ -70,7 +70,7 @@ struct MarkdownRendererView: UIViewRepresentable {
         _ webView: WKWebView,
         coordinator: Coordinator
     ) {
-        for name in MarkdownRendererMessage.Name.allCases {
+        for name in MarkdownRendererBridge.JavaScriptMessage.Name.allCases {
             webView.configuration.userContentController
                 .removeScriptMessageHandler(forName: name.rawValue)
         }
@@ -85,9 +85,9 @@ struct MarkdownRendererView: UIViewRepresentable {
 
         private var view: MarkdownRendererView
         private var isRendererLoaded = false
-        private var pendingPayload: Payload?
-        private var inFlightPayload: Payload?
-        private var renderedPayload: Payload?
+        private var pendingPayload: MarkdownRendererBridge.RenderPayload?
+        private var inFlightPayload: MarkdownRendererBridge.RenderPayload?
+        private var renderedPayload: MarkdownRendererBridge.RenderPayload?
 
         init(view: MarkdownRendererView) {
             self.view = view
@@ -98,7 +98,7 @@ struct MarkdownRendererView: UIViewRepresentable {
             webView: WKWebView
         ) {
             self.view = view
-            pendingPayload = Payload(view: view)
+            pendingPayload = MarkdownRendererBridge.RenderPayload(view: view)
             renderIfNeeded(in: webView)
         }
 
@@ -147,7 +147,9 @@ struct MarkdownRendererView: UIViewRepresentable {
             )
         }
 
-        private func receive(_ message: MarkdownRendererMessage) {
+        private func receive(
+            _ message: MarkdownRendererBridge.JavaScriptMessage
+        ) {
             switch message {
             case .contentHeight(let height):
                 guard height != view.contentHeight else {
@@ -172,34 +174,16 @@ struct MarkdownRendererView: UIViewRepresentable {
             }
         }
     }
+}
 
-    private struct Payload: Equatable {
-        let markdown: String
-        let references: [Int: MarkdownRendererReference]
-        let colorScheme: String
-        let fontSize: CGFloat
-
-        init(view: MarkdownRendererView) {
-            self.markdown = view.markdown
-            self.references = view.references
-            self.colorScheme = view.colorScheme == .dark ? "dark" : "light"
-            self.fontSize = view.fontSize
-        }
-
-        var javaScriptValue: [String: Any] {
-            let referenceValues = references.reduce(
-                into: [String: [String: String]]()
-            ) { values, element in
-                values[String(element.key)] = element.value.javaScriptValue
-            }
-
-            return [
-                "markdown": markdown,
-                "references": referenceValues,
-                "colorScheme": colorScheme,
-                "fontSize": Double(fontSize)
-            ]
-        }
+private extension MarkdownRendererBridge.RenderPayload {
+    init(view: MarkdownRendererView) {
+        self.init(
+            markdown: view.markdown,
+            references: view.references,
+            colorScheme: view.colorScheme == .dark ? "dark" : "light",
+            fontSize: view.fontSize
+        )
     }
 }
 
@@ -208,14 +192,14 @@ extension MarkdownRendererView.Coordinator: WKScriptMessageHandler {
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage
     ) {
-        guard let message = MarkdownRendererMessage(
+        guard let javaScriptMessage = MarkdownRendererBridge.JavaScriptMessage(
             name: message.name,
             body: message.body
         ) else {
             return
         }
 
-        receive(message)
+        receive(javaScriptMessage)
     }
 }
 
@@ -230,7 +214,7 @@ extension MarkdownRendererView.Coordinator: WKNavigationDelegate {
 
         isRendererLoaded = true
         renderedPayload = nil
-        pendingPayload = MarkdownRendererView.Payload(view: view)
+        pendingPayload = MarkdownRendererBridge.RenderPayload(view: view)
         renderIfNeeded(in: webView)
     }
 
