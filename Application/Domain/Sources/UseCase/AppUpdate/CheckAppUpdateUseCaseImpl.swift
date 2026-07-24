@@ -15,10 +15,10 @@ public final class CheckAppUpdateUseCaseImpl: CheckAppUpdateUseCase {
     }
 
     public func execute() async throws -> Bool {
-        let requiredVersionValue = try await repository.fetchRequiredVersion()
-        let requiredVersion = try AppVersion(requiredVersionValue)
+        let latestVersionValue = try await repository.fetchLatestVersion()
+        let latestVersion = try AppVersion(latestVersionValue)
         let currentVersion = try currentVersion()
-        return currentVersion < requiredVersion
+        return currentVersion < latestVersion
     }
 
     private func currentVersion() throws -> AppVersion {

@@ -9,12 +9,12 @@ import Data
 import Foundation
 import Nexa
 
-final class ITunesAppVersionServiceImpl: AppVersionConfigurationService {
+final class ITunesAppVersionServiceImpl: AppStoreVersionService {
     private enum InfoKey {
         static let lookupURL = "APP_STORE_LOOKUP_URL"
     }
 
-    func fetchRequiredVersion() async throws -> String {
+    func fetchLatestVersion() async throws -> String {
         let url = try Self.lookupURL(
             from: Bundle.main.object(
                 forInfoDictionaryKey: InfoKey.lookupURL

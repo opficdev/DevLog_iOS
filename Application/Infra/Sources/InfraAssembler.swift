@@ -16,7 +16,7 @@ public final class InfraAssembler: Assembler {
             FirebaseAppServiceImpl()
         }
 
-        container.register(AppVersionConfigurationService.self) {
+        container.register(AppStoreVersionService.self) {
             ITunesAppVersionServiceImpl()
         }
 

@@ -74,7 +74,7 @@ public final class DataAssembler: Assembler {
 
         container.register(AppVersionRepository.self) {
             AppVersionRepositoryImpl(
-                service: container.resolve(AppVersionConfigurationService.self)
+                service: container.resolve(AppStoreVersionService.self)
             )
         }
 
