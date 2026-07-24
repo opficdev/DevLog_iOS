@@ -1,0 +1,265 @@
+//
+//  MarkdownRendererView.swift
+//  PresentationShared
+//
+//  Created by opfic on 7/25/26.
+//
+
+import SwiftUI
+import WebKit
+
+struct MarkdownRendererView: UIViewRepresentable {
+    let markdown: String
+    let references: [Int: MarkdownRendererReference]
+    let colorScheme: ColorScheme
+    let fontSize: CGFloat
+    @Binding var contentHeight: CGFloat
+    var onOpenTodoID: ((String) -> Void)?
+    var onOpenURL: ((URL) -> Void)?
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(view: self)
+    }
+
+    func makeUIView(context: Context) -> WKWebView {
+        let contentController = WKUserContentController()
+
+        for name in MarkdownRendererMessage.Name.allCases {
+            contentController.add(
+                context.coordinator,
+                name: name.rawValue
+            )
+        }
+
+        let configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        configuration.userContentController = contentController
+        configuration.websiteDataStore = .nonPersistent()
+
+        let webView = WKWebView(
+            frame: .zero,
+            configuration: configuration
+        )
+        webView.backgroundColor = .clear
+        webView.isOpaque = false
+        webView.navigationDelegate = context.coordinator
+        webView.scrollView.backgroundColor = .clear
+        webView.scrollView.bounces = false
+        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.showsHorizontalScrollIndicator = false
+        webView.scrollView.showsVerticalScrollIndicator = false
+
+        if let indexURL = context.coordinator.indexURL {
+            webView.loadFileURL(
+                indexURL,
+                allowingReadAccessTo: indexURL.deletingLastPathComponent()
+            )
+        }
+
+        return webView
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        context.coordinator.update(
+            view: self,
+            webView: webView
+        )
+    }
+
+    static func dismantleUIView(
+        _ webView: WKWebView,
+        coordinator: Coordinator
+    ) {
+        for name in MarkdownRendererMessage.Name.allCases {
+            webView.configuration.userContentController
+                .removeScriptMessageHandler(forName: name.rawValue)
+        }
+
+        coordinator.dismantle()
+        webView.navigationDelegate = nil
+        webView.stopLoading()
+    }
+
+    final class Coordinator: NSObject {
+        fileprivate let indexURL = MarkdownRendererBundle.indexURL
+
+        private var view: MarkdownRendererView
+        private var isRendererLoaded = false
+        private var pendingPayload: Payload?
+        private var inFlightPayload: Payload?
+        private var renderedPayload: Payload?
+
+        init(view: MarkdownRendererView) {
+            self.view = view
+        }
+
+        fileprivate func update(
+            view: MarkdownRendererView,
+            webView: WKWebView
+        ) {
+            self.view = view
+            pendingPayload = Payload(view: view)
+            renderIfNeeded(in: webView)
+        }
+
+        fileprivate func dismantle() {
+            isRendererLoaded = false
+            pendingPayload = nil
+        }
+
+        private func renderIfNeeded(in webView: WKWebView) {
+            guard
+                isRendererLoaded,
+                inFlightPayload == nil,
+                let payload = pendingPayload
+            else {
+                return
+            }
+
+            guard payload != renderedPayload else {
+                pendingPayload = nil
+                return
+            }
+
+            pendingPayload = nil
+            inFlightPayload = payload
+
+            webView.callAsyncJavaScript(
+                "window.renderMarkdown(payload)",
+                arguments: ["payload": payload.javaScriptValue],
+                in: nil,
+                in: .page,
+                completionHandler: { [weak self, weak webView] result in
+                    guard let self else {
+                        return
+                    }
+
+                    inFlightPayload = nil
+
+                    if case .success = result {
+                        renderedPayload = payload
+                    }
+
+                    if let webView {
+                        renderIfNeeded(in: webView)
+                    }
+                }
+            )
+        }
+
+        private func receive(_ message: MarkdownRendererMessage) {
+            switch message {
+            case .contentHeight(let height):
+                guard height != view.contentHeight else {
+                    return
+                }
+
+                view.contentHeight = height
+
+            case .todoReference(let number):
+                guard let reference = view.references[number] else {
+                    return
+                }
+
+                view.onOpenTodoID?(reference.todoID)
+
+            case .externalLink(let value):
+                guard let url = MarkdownRendererURLPolicy.externalURL(from: value) else {
+                    return
+                }
+
+                view.onOpenURL?(url)
+            }
+        }
+    }
+
+    private struct Payload: Equatable {
+        let markdown: String
+        let references: [Int: MarkdownRendererReference]
+        let colorScheme: String
+        let fontSize: CGFloat
+
+        init(view: MarkdownRendererView) {
+            self.markdown = view.markdown
+            self.references = view.references
+            self.colorScheme = view.colorScheme == .dark ? "dark" : "light"
+            self.fontSize = view.fontSize
+        }
+
+        var javaScriptValue: [String: Any] {
+            let referenceValues = references.reduce(
+                into: [String: [String: String]]()
+            ) { values, element in
+                values[String(element.key)] = element.value.javaScriptValue
+            }
+
+            return [
+                "markdown": markdown,
+                "references": referenceValues,
+                "colorScheme": colorScheme,
+                "fontSize": Double(fontSize)
+            ]
+        }
+    }
+}
+
+extension MarkdownRendererView.Coordinator: WKScriptMessageHandler {
+    func userContentController(
+        _ userContentController: WKUserContentController,
+        didReceive message: WKScriptMessage
+    ) {
+        guard let message = MarkdownRendererMessage(
+            name: message.name,
+            body: message.body
+        ) else {
+            return
+        }
+
+        receive(message)
+    }
+}
+
+extension MarkdownRendererView.Coordinator: WKNavigationDelegate {
+    func webView(
+        _ webView: WKWebView,
+        didFinish navigation: WKNavigation?
+    ) {
+        guard !isRendererLoaded else {
+            return
+        }
+
+        isRendererLoaded = true
+        renderedPayload = nil
+        pendingPayload = MarkdownRendererView.Payload(view: view)
+        renderIfNeeded(in: webView)
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.cancel)
+            return
+        }
+
+        if let indexURL,
+           MarkdownRendererURLPolicy.allowsRendererNavigation(
+               url,
+               indexURL: indexURL
+           ) {
+            decisionHandler(.allow)
+            return
+        }
+
+        if navigationAction.navigationType == .linkActivated,
+           let url = MarkdownRendererURLPolicy.externalURL(
+               from: url.absoluteString
+           ) {
+            view.onOpenURL?(url)
+        }
+
+        decisionHandler(.cancel)
+    }
+}
