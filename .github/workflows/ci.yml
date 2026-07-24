@@ -24,6 +24,33 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: Tools/MarkdownRenderer/.node-version
+          cache: npm
+          cache-dependency-path: Tools/MarkdownRenderer/package-lock.json
+
+      - name: Check Markdown renderer
+        working-directory: Tools/MarkdownRenderer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          npm ci
+          npm run verify
+
+          RENDERER_OUTPUT="../../Application/Presentation/PresentationShared/Resources/MarkdownRenderer"
+          cp "$RENDERER_OUTPUT/renderer.js" "$RUNNER_TEMP/renderer.js"
+
+          npm run build
+
+          cmp "$RUNNER_TEMP/renderer.js" "$RENDERER_OUTPUT/renderer.js"
+          node --check "$RENDERER_OUTPUT/renderer.js"
+          git -C ../.. diff --exit-code -- \
+            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/index.html \
+            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.css
+
       - name: Install private config files
         uses: ./.github/actions/install-private-config
         with:
