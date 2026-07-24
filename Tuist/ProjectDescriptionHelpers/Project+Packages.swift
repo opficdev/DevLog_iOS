@@ -36,7 +36,6 @@ public enum DevLogPackages {
         .package(product: "FirebaseCrashlytics"),
         .package(product: "FirebaseMessaging"),
         .package(product: "FirebaseFirestore"),
-        .package(product: "FirebaseRemoteConfig"),
         .package(product: "Nexa"),
     ]
 
