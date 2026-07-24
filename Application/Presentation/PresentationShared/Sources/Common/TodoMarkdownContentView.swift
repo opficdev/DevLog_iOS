@@ -12,8 +12,6 @@ struct TodoMarkdownContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
     @ScaledMetric(relativeTo: .body) private var fontSize = 17
-    // 로직이 간단한 편이므로 TCA를 적용하지 않음
-    @State private var contentHeight: CGFloat = 1
 
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
@@ -25,11 +23,11 @@ struct TodoMarkdownContentView: View {
             references: rendererReferences,
             colorScheme: colorScheme,
             fontSize: fontSize,
-            contentHeight: $contentHeight,
             onOpenTodoID: onOpenTodoID,
             onOpenURL: { openURL($0) }
         )
-        .frame(height: contentHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 
     private var rendererReferences: [Int: MarkdownRendererReference] {

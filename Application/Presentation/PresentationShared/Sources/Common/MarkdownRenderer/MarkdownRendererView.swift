@@ -13,7 +13,6 @@ struct MarkdownRendererView: UIViewRepresentable {
     let references: [Int: MarkdownRendererReference]
     let colorScheme: ColorScheme
     let fontSize: CGFloat
-    @Binding var contentHeight: CGFloat
     var onOpenTodoID: ((String) -> Void)?
     var onOpenURL: ((URL) -> Void)?
 
@@ -44,10 +43,9 @@ struct MarkdownRendererView: UIViewRepresentable {
         webView.isOpaque = false
         webView.navigationDelegate = context.coordinator
         webView.scrollView.backgroundColor = .clear
-        webView.scrollView.bounces = false
-        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.isScrollEnabled = true
         webView.scrollView.showsHorizontalScrollIndicator = false
-        webView.scrollView.showsVerticalScrollIndicator = false
+        webView.scrollView.showsVerticalScrollIndicator = true
 
         if let indexURL = context.coordinator.indexURL {
             webView.loadFileURL(
@@ -151,13 +149,6 @@ struct MarkdownRendererView: UIViewRepresentable {
             _ message: MarkdownRendererBridge.JavaScriptMessage
         ) {
             switch message {
-            case .contentHeight(let height):
-                guard height != view.contentHeight else {
-                    return
-                }
-
-                view.contentHeight = height
-
             case .todoReference(let number):
                 guard let reference = view.references[number] else {
                     return

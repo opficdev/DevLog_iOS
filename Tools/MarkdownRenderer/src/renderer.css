@@ -14,7 +14,7 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: transparent;
 }
 
@@ -22,7 +22,7 @@ body {
   box-sizing: border-box;
   min-width: 0;
   max-width: none;
-  padding: 0;
+  padding: 0 16px;
   overflow-wrap: anywhere;
   color: #1f2328;
   background: transparent;

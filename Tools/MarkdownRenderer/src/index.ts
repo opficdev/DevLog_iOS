@@ -12,27 +12,12 @@ const dynamicStyleElement = document.getElementById(
   "renderer-dynamic-style"
 ) as HTMLStyleElement;
 
-let heightFrame: number | undefined;
-
 function postMessage(name: string, payload: unknown) {
   const handler = window.webkit?.messageHandlers?.[name];
 
   if (typeof handler?.postMessage === "function") {
     handler.postMessage(payload);
   }
-}
-
-function reportContentHeight() {
-  if (heightFrame !== undefined) {
-    cancelAnimationFrame(heightFrame);
-  }
-
-  heightFrame = requestAnimationFrame(() => {
-    heightFrame = undefined;
-    postMessage("contentHeight", {
-      height: documentElement.scrollHeight
-    });
-  });
 }
 
 function referenceStyleRules(references: TodoReferences) {
@@ -150,8 +135,4 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
 
   hydrateTodoReferences(references);
   configureLinks();
-  reportContentHeight();
 };
-
-new ResizeObserver(reportContentHeight).observe(contentElement);
-window.addEventListener("load", reportContentHeight);

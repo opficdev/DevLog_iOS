@@ -33,12 +33,10 @@ enum MarkdownRendererBridge {
 
     enum JavaScriptMessage: Equatable {
         enum Name: String, CaseIterable {
-            case contentHeight
             case todoReference
             case externalLink
         }
 
-        case contentHeight(CGFloat)
         case todoReference(Int)
         case externalLink(String)
 
@@ -51,17 +49,6 @@ enum MarkdownRendererBridge {
             }
 
             switch name {
-            case .contentHeight:
-                guard
-                    let number = Self.number(from: payload["height"]),
-                    number.doubleValue.isFinite,
-                    0 < number.doubleValue
-                else {
-                    return nil
-                }
-
-                self = .contentHeight(CGFloat(number.doubleValue))
-
             case .todoReference:
                 guard
                     let number = Self.number(from: payload["number"]),

@@ -18,25 +18,22 @@ struct TodoDetailContentView: View {
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(title)
-                        Text("#\(number)")
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: true, vertical: false)
-                        Spacer()
-                    }
-                    .font(.title3.bold())
-                    .padding(.horizontal)
-                    Divider()
-                    TodoMarkdownContentView(
-                        content: content,
-                        referenceItems: referenceItems,
-                        onOpenTodoID: onOpenTodoID
-                    )
-                        .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(title)
+                    Text("#\(number)")
+                        .foregroundStyle(.gray)
+                        .fixedSize(horizontal: true, vertical: false)
+                    Spacer()
                 }
+                .font(.title3.bold())
+                .padding(.horizontal)
+                Divider()
+                TodoMarkdownContentView(
+                    content: content,
+                    referenceItems: referenceItems,
+                    onOpenTodoID: onOpenTodoID
+                )
             }
         }
     }

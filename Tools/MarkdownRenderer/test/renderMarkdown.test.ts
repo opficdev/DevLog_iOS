@@ -124,3 +124,18 @@ test("renderer 문서는 HTTPS 이미지 외 원격 자원과 임의의 inline �
   assert.doesNotMatch(document, /unsafe-inline/);
   assert.doesNotMatch(document, /img-src[^;]*http:/);
 });
+
+test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨긴다", () => {
+  const stylesheet = readFileSync(
+    new URL("../src/renderer.css", import.meta.url),
+    "utf8"
+  );
+  const pageRule = stylesheet.match(/html,\s*body\s*\{([^}]*)\}/s);
+  const markdownBodyRule = stylesheet.match(/\.markdown-body\s*\{([^}]*)\}/s);
+
+  assert.notEqual(pageRule, null);
+  assert.match(pageRule?.[1] ?? "", /overflow-x:\s*hidden/);
+  assert.doesNotMatch(pageRule?.[1] ?? "", /overflow:\s*hidden/);
+  assert.notEqual(markdownBodyRule, null);
+  assert.match(markdownBodyRule?.[1] ?? "", /padding:\s*0 16px/);
+});

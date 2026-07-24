@@ -9,36 +9,12 @@ import Testing
 @testable import PresentationShared
 
 struct MarkdownRendererJavaScriptMessageTests {
-    @Test("유한한 양수 높이만 변환한다")
-    func 유한한_양수_높이만_변환한다() {
-        let message = MarkdownRendererBridge.JavaScriptMessage(
-            name: "contentHeight",
-            body: ["height": 240.5]
-        )
-
-        #expect(message == .contentHeight(240.5))
+    @Test("지원하지 않는 contentHeight 메시지를 무시한다")
+    func 지원하지_않는_contentHeight_메시지를_무시한다() {
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
                 name: "contentHeight",
-                body: ["height": 0]
-            ) == nil
-        )
-        #expect(
-            MarkdownRendererBridge.JavaScriptMessage(
-                name: "contentHeight",
-                body: ["height": -1]
-            ) == nil
-        )
-        #expect(
-            MarkdownRendererBridge.JavaScriptMessage(
-                name: "contentHeight",
-                body: ["height": Double.infinity]
-            ) == nil
-        )
-        #expect(
-            MarkdownRendererBridge.JavaScriptMessage(
-                name: "contentHeight",
-                body: ["height": true]
+                body: ["height": 240.5]
             ) == nil
         )
     }
@@ -91,7 +67,7 @@ struct MarkdownRendererJavaScriptMessageTests {
         )
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
-                name: "contentHeight",
+                name: "todoReference",
                 body: "invalid"
             ) == nil
         )
