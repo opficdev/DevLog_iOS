@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MarkdownUI
 import Domain
 
 struct TodoDetailContentView: View {

@@ -44,7 +44,6 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .package(product: "ComposableArchitecture"),
-                .package(product: "MarkdownUI"),
                 .package(product: "OrderedCollections")
             ],
             settings: frameworkBuildSettings
