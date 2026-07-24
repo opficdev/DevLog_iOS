@@ -1,42 +1,6 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
-    "" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : ""
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
-    "#%lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "#%lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
-    "%lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "account_alert_already_linked_message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -565,7 +529,7 @@
       }
     },
     "https://" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2531,7 +2495,7 @@
       }
     },
     "TODO" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2577,7 +2541,7 @@
     },
     "todo_category_doc" : {
       "comment" : "Todo category: Documentation",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2595,7 +2559,7 @@
     },
     "todo_category_etc" : {
       "comment" : "Todo category: Etc",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2613,7 +2577,7 @@
     },
     "todo_category_feature" : {
       "comment" : "Todo category: Feature",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2631,7 +2595,7 @@
     },
     "todo_category_improvement" : {
       "comment" : "Todo category: Improvement",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2649,7 +2613,7 @@
     },
     "todo_category_issue" : {
       "comment" : "Todo category: Issue",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2667,7 +2631,7 @@
     },
     "todo_category_research" : {
       "comment" : "Todo category: Research",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2685,7 +2649,7 @@
     },
     "todo_category_review" : {
       "comment" : "Todo category: Review",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2703,7 +2667,7 @@
     },
     "todo_category_test" : {
       "comment" : "Todo category: Test",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3536,7 +3500,7 @@
       }
     },
     "Todos" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3547,7 +3511,7 @@
       }
     },
     "Web Page" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3558,7 +3522,7 @@
       }
     },
     "Web Pages" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
