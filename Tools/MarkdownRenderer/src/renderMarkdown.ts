@@ -1,3 +1,4 @@
+import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize, {
   defaultSchema,
   type Options as SanitizeSchema
@@ -14,6 +15,49 @@ import {
 } from "./todoReferencePlugin.ts";
 import type { TodoReferences } from "./types.ts";
 
+const highlightTokenClassNames = [
+  "hljs-addition",
+  "hljs-attr",
+  "hljs-attribute",
+  "hljs-built_in",
+  "hljs-bullet",
+  "hljs-char",
+  "hljs-code",
+  "hljs-comment",
+  "hljs-deletion",
+  "hljs-doctag",
+  "hljs-emphasis",
+  "hljs-formula",
+  "hljs-keyword",
+  "hljs-link",
+  "hljs-literal",
+  "hljs-meta",
+  "hljs-name",
+  "hljs-number",
+  "hljs-operator",
+  "hljs-params",
+  "hljs-property",
+  "hljs-punctuation",
+  "hljs-quote",
+  "hljs-regexp",
+  "hljs-section",
+  "hljs-selector-attr",
+  "hljs-selector-class",
+  "hljs-selector-id",
+  "hljs-selector-pseudo",
+  "hljs-selector-tag",
+  "hljs-string",
+  "hljs-strong",
+  "hljs-subst",
+  "hljs-symbol",
+  "hljs-tag",
+  "hljs-template-tag",
+  "hljs-template-variable",
+  "hljs-title",
+  "hljs-type",
+  "hljs-variable"
+] as const;
+
 const sanitizeSchema: SanitizeSchema = {
   ...defaultSchema,
   clobberPrefix: "",
@@ -24,6 +68,11 @@ const sanitizeSchema: SanitizeSchema = {
       ["className", "todo-reference"],
       ["type", "button"],
       "dataTodoReferenceNumber"
+    ],
+    code: [["className", "hljs", /^language-./]],
+    span: [
+      ...(defaultSchema.attributes?.span ?? []),
+      ["className", ...highlightTokenClassNames]
     ]
   },
   protocols: {
@@ -49,6 +98,7 @@ export function renderMarkdown(
         todoReference: todoReferenceHandler
       }
     })
+    .use(rehypeHighlight)
     .use(rehypeSanitize, sanitizeSchema)
     .use(rehypeStringify)
     .processSync(source);

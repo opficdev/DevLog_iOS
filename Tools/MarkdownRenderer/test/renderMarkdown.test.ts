@@ -23,7 +23,10 @@ let value = 1
   assert.match(html, /<strong>강조<\/strong>/);
   assert.match(html, /<blockquote>/);
   assert.match(html, /<code>inline<\/code>/);
-  assert.match(html, /<code class="language-swift">let value = 1\n<\/code>/);
+  assert.match(
+    html,
+    /<code class="hljs language-swift"><span class="hljs-keyword">let<\/span> value <span class="hljs-operator">=<\/span> <span class="hljs-number">1<\/span>\n<\/code>/
+  );
 });
 
 test("GFM 표와 취소선, 자동 링크, 각주, 작업 목록을 변환한다", () => {
@@ -139,4 +142,17 @@ test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨
   assert.notEqual(markdownBodyRule, null);
   assert.match(markdownBodyRule?.[1] ?? "", /padding:\s*0 16px/);
   assert.doesNotMatch(stylesheet, /todo-reference-item/);
+});
+
+test("코드 구문 토큰을 GitHub 색상 변수로 표시한다", () => {
+  const stylesheet = readFileSync(
+    new URL("../src/renderer.css", import.meta.url),
+    "utf8"
+  );
+
+  assert.match(stylesheet, /\.markdown-body \.hljs-keyword/);
+  assert.match(
+    stylesheet,
+    /color:\s*var\(--color-prettylights-syntax-keyword\)/
+  );
 });
