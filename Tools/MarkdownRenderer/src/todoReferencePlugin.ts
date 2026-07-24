@@ -66,11 +66,6 @@ export const todoReferencePlugin: Plugin<
         return;
       }
 
-      node.data = {
-        hProperties: {
-          className: ["todo-reference-item"]
-        }
-      };
       node.children = [
         {
           type: "todoReference",

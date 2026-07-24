@@ -40,16 +40,6 @@ body {
   word-break: break-word;
 }
 
-.markdown-body .todo-reference-item {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.markdown-body .todo-reference-item::before {
-  display: none;
-}
-
 .markdown-body .todo-reference {
   display: flex;
   width: 100%;

@@ -24,10 +24,6 @@ const sanitizeSchema: SanitizeSchema = {
       ["className", "todo-reference"],
       ["type", "button"],
       "dataTodoReferenceNumber"
-    ],
-    li: [
-      ...(defaultSchema.attributes?.li ?? []),
-      ["className", "todo-reference-item"]
     ]
   },
   protocols: {

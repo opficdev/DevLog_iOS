@@ -62,7 +62,7 @@ function hydrateTodoReferences(references: TodoReferences) {
 
     const prefix = document.createElement("span");
     prefix.className = "todo-reference-prefix";
-    prefix.textContent = "- refs";
+    prefix.textContent = "refs";
 
     const icon = document.createElement("span");
     icon.className = "todo-reference-icon";

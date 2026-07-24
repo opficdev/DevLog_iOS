@@ -18,6 +18,7 @@ test("알려진 Todo 참조만 전용 요소로 변환한다", () => {
     }
   );
 
+  assert.doesNotMatch(html, /todo-reference-item/);
   assert.match(
     html,
     /<button type="button" class="todo-reference" data-todo-reference-number="42">refs #42<\/button>/
