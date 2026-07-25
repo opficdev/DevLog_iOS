@@ -41,15 +41,12 @@ jobs:
           npm run verify
 
           RENDERER_OUTPUT="../../Application/Presentation/PresentationShared/Resources/MarkdownRenderer"
-          cp "$RENDERER_OUTPUT/renderer.js" "$RUNNER_TEMP/renderer.js"
 
-          npm run build
-
-          cmp "$RUNNER_TEMP/renderer.js" "$RENDERER_OUTPUT/renderer.js"
           node --check "$RENDERER_OUTPUT/renderer.js"
           git -C ../.. diff --exit-code -- \
             Application/Presentation/PresentationShared/Resources/MarkdownRenderer/index.html \
-            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.css
+            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.css \
+            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.js
 
       - name: Install private config files
         uses: ./.github/actions/install-private-config

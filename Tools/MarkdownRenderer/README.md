@@ -39,8 +39,8 @@ Xcode 빌드 전에 bundle을 생성해야 합니다.
 Application/Presentation/PresentationShared/Resources/MarkdownRenderer/
 ```
 
-컴파일된 `renderer.js`는 Git에서 추적하지 않습니다.
-`index.html`과 `renderer.css`는 앱 자원으로 추적합니다.
+컴파일된 `renderer.js`, `index.html`, `renderer.css`는 앱 자원으로 추적합니다.
+CI에서는 bundle을 다시 생성하고 추적된 파일과 일치하는지 검사합니다.
 
 의존성 버전은 `package.json`과 `package-lock.json`으로 고정합니다.
 포함된 패키지는 모두 각 패키지의 라이선스 조건을 따릅니다.

@@ -24,6 +24,8 @@ ContentView.swift
 node_modules/
 *.log
 *.js
+# 배포 앱에 필요한 Markdown renderer 산출물이므로 Git에서 추적
+!Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.js
 
 # Gem
 .bundle/
