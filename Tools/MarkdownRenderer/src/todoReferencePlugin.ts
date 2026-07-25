@@ -39,7 +39,7 @@ export const todoReferencePlugin: Plugin<
     options.references !== null && typeof options.references === "object"
       ? options.references
       : {};
-  const referenceNumbers = new Set(Object.keys(references));
+  const referenceNumbers = new Set(Object.keys(references).map(Number));
 
   return (tree, file) => {
     const source = String(file);
@@ -85,14 +85,16 @@ export const todoReferencePlugin: Plugin<
 
       const match = todoReferencePattern.exec(paragraph.children[0].value);
 
-      if (match === null || !referenceNumbers.has(match[1])) {
-        return;
-      }
+      if (match === null) { return; }
+
+      const number = Number(match[1]);
+
+      if (!referenceNumbers.has(number)) { return; }
 
       node.children = [
         {
           type: "todoReference",
-          number: Number(match[1])
+          number
         }
       ];
     });

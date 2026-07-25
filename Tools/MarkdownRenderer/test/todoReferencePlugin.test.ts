@@ -26,6 +26,38 @@ test("알려진 Todo 참조만 전용 요소로 변환한다", () => {
   assert.match(html, /<li>refs #7<\/li>/);
 });
 
+test("앞에 0이 붙은 Todo 참조 번호를 정규화한다", () => {
+  const html = renderMarkdown(
+    "- refs #042",
+    {
+      42: {
+        title: "연결된 Todo"
+      }
+    }
+  );
+  const legacyHTML = renderMarkdown(
+    `
+    before
+        - refs #042
+    after
+`,
+    {
+      42: {
+        title: "연결된 Todo"
+      }
+    }
+  );
+
+  assert.match(
+    html,
+    /data-todo-reference-number="42">refs #42<\/button>/
+  );
+  assert.match(
+    legacyHTML,
+    /data-todo-reference-number="42">refs #42<\/button>/
+  );
+});
+
 test("Todo 참조 문법이 아닌 항목은 변경하지 않는다", () => {
   const html = renderMarkdown(
     `
