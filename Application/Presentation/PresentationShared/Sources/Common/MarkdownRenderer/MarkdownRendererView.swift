@@ -13,6 +13,7 @@ struct MarkdownRendererView: UIViewRepresentable {
     let references: [Int: MarkdownRendererReference]
     let colorScheme: ColorScheme
     let fontSize: CGFloat
+    let obscuredBottomInset: CGFloat
     var onOpenTodoID: ((String) -> Void)?
     var onOpenURL: ((URL) -> Void)?
 
@@ -96,6 +97,7 @@ struct MarkdownRendererView: UIViewRepresentable {
             webView: WKWebView
         ) {
             self.view = view
+            updateObscuredContentInsets(in: webView)
             pendingPayload = MarkdownRendererBridge.RenderPayload(view: view)
             renderIfNeeded(in: webView)
         }
@@ -103,6 +105,14 @@ struct MarkdownRendererView: UIViewRepresentable {
         fileprivate func dismantle() {
             isRendererLoaded = false
             pendingPayload = nil
+        }
+
+        private func updateObscuredContentInsets(in webView: WKWebView) {
+            guard #available(iOS 26.0, *) else { return }
+
+            var insets = webView.obscuredContentInsets
+            insets.bottom = view.obscuredBottomInset
+            webView.obscuredContentInsets = insets
         }
 
         private func renderIfNeeded(in webView: WKWebView) {

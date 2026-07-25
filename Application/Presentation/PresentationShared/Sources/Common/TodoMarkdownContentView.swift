@@ -12,6 +12,7 @@ struct TodoMarkdownContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
     @ScaledMetric(relativeTo: .body) private var fontSize = 17
+    @State private var tabBarHeight = CGFloat.zero
 
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
@@ -23,11 +24,19 @@ struct TodoMarkdownContentView: View {
             references: rendererReferences,
             colorScheme: colorScheme,
             fontSize: fontSize,
+            obscuredBottomInset: tabBarHeight,
             onOpenTodoID: onOpenTodoID,
             onOpenURL: { openURL($0) }
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea(.container, edges: .bottom)
+        .ignoresSafeArea(.container, edges: ignoredSafeAreaEdges)
+        .onAppear { updateTabBarHeight() }
+    }
+
+    private var ignoredSafeAreaEdges: Edge.Set {
+        if #available(iOS 26.0, *) { return .bottom }
+
+        return []
     }
 
     private var rendererReferences: [Int: MarkdownRendererReference] {
@@ -58,5 +67,17 @@ struct TodoMarkdownContentView: View {
         }
 
         return "data:image/png;base64,\(data.base64EncodedString())"
+    }
+
+    @MainActor
+    private func updateTabBarHeight() {
+        guard #available(iOS 26.0, *) else { return }
+
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0.isKeyWindow }
+
+        tabBarHeight = window?.rootViewController?.visibleTabBarHeight ?? .zero
     }
 }

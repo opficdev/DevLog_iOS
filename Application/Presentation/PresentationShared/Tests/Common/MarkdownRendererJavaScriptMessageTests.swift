@@ -9,6 +9,18 @@ import Testing
 @testable import PresentationShared
 
 struct MarkdownRendererJavaScriptMessageTests {
+    @Test("renderer payload는 하단 문서 여백을 포함하지 않는다")
+    func renderer_payload는_하단_문서_여백을_포함하지_않는다() {
+        let payload = MarkdownRendererBridge.RenderPayload(
+            markdown: "",
+            references: [:],
+            colorScheme: "light",
+            fontSize: 17
+        )
+
+        #expect(payload.javaScriptValue["bottomContentInset"] == nil)
+    }
+
     @Test("지원하지 않는 contentHeight 메시지를 무시한다")
     func 지원하지_않는_contentHeight_메시지를_무시한다() {
         #expect(

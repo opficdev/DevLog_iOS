@@ -141,6 +141,8 @@ test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨
   assert.doesNotMatch(pageRule?.[1] ?? "", /overflow:\s*hidden/);
   assert.notEqual(markdownBodyRule, null);
   assert.match(markdownBodyRule?.[1] ?? "", /padding:\s*0 16px/);
+  assert.doesNotMatch(stylesheet, /markdown-bottom-inset/);
+  assert.doesNotMatch(stylesheet, /footnote-scroll-inset/);
   assert.doesNotMatch(stylesheet, /todo-reference-item/);
 });
 
