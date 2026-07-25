@@ -10,6 +10,7 @@ import Domain
 
 struct TodoMarkdownContentView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.locale) private var locale
     @Environment(\.openURL) private var openURL
     @ScaledMetric(relativeTo: .body) private var fontSize = 17
     @State private var tabBarHeight = CGFloat.zero
@@ -23,6 +24,7 @@ struct TodoMarkdownContentView: View {
             markdown: content,
             references: rendererReferences,
             colorScheme: colorScheme,
+            languageCode: locale.language.languageCode?.identifier ?? "und",
             fontSize: fontSize,
             obscuredBottomInset: tabBarHeight,
             onOpenTodoID: onOpenTodoID,

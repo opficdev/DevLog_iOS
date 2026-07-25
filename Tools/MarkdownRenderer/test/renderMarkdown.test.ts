@@ -128,6 +128,20 @@ test("renderer 문서는 HTTPS 이미지 외 원격 자원과 임의의 inline �
   assert.doesNotMatch(document, /img-src[^;]*http:/);
 });
 
+test("renderer 문서 언어를 payload에서 설정한다", () => {
+  const document = readFileSync(
+    new URL("../src/index.html", import.meta.url),
+    "utf8"
+  );
+  const renderer = readFileSync(
+    new URL("../src/index.ts", import.meta.url),
+    "utf8"
+  );
+
+  assert.doesNotMatch(document, /<html[^>]*\slang=/);
+  assert.match(renderer, /documentElement\.lang\s*=\s*languageCode/);
+});
+
 test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨긴다", () => {
   const stylesheet = readFileSync(
     new URL("../src/renderer.css", import.meta.url),

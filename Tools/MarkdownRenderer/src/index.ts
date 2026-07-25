@@ -118,6 +118,10 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
       ? (payload.references as TodoReferences)
       : {};
   const colorScheme = payload.colorScheme === "dark" ? "dark" : "light";
+  const languageCode =
+    typeof payload.languageCode === "string" && payload.languageCode !== ""
+      ? payload.languageCode
+      : "und";
   const requestedFontSize = payload.fontSize;
   const fontSize =
     typeof requestedFontSize === "number" &&
@@ -127,6 +131,7 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
       : 17;
 
   documentElement.dataset.colorScheme = colorScheme;
+  documentElement.lang = languageCode;
   dynamicStyleElement.textContent = [
     `:root{--markdown-font-size:${fontSize}px}`,
     ...referenceStyleRules(references)

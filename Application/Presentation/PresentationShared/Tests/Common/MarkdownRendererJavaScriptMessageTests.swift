@@ -15,10 +15,24 @@ struct MarkdownRendererJavaScriptMessageTests {
             markdown: "",
             references: [:],
             colorScheme: "light",
+            languageCode: "ko",
             fontSize: 17
         )
 
         #expect(payload.javaScriptValue["bottomContentInset"] == nil)
+    }
+
+    @Test("renderer payload에 현재 언어 코드를 포함한다")
+    func renderer_payload에_현재_언어_코드를_포함한다() {
+        let payload = MarkdownRendererBridge.RenderPayload(
+            markdown: "",
+            references: [:],
+            colorScheme: "light",
+            languageCode: "en",
+            fontSize: 17
+        )
+
+        #expect(payload.javaScriptValue["languageCode"] as? String == "en")
     }
 
     @Test("지원하지 않는 contentHeight 메시지를 무시한다")

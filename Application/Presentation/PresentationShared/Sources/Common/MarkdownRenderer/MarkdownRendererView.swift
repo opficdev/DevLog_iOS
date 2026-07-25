@@ -12,6 +12,7 @@ struct MarkdownRendererView: UIViewRepresentable {
     let markdown: String
     let references: [Int: MarkdownRendererReference]
     let colorScheme: ColorScheme
+    let languageCode: String
     let fontSize: CGFloat
     let obscuredBottomInset: CGFloat
     var onOpenTodoID: ((String) -> Void)?
@@ -187,6 +188,7 @@ private extension MarkdownRendererBridge.RenderPayload {
             markdown: view.markdown,
             references: view.references,
             colorScheme: view.colorScheme == .dark ? "dark" : "light",
+            languageCode: view.languageCode,
             fontSize: view.fontSize
         )
     }

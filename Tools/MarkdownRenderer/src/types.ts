@@ -9,6 +9,7 @@ export type TodoReferences = Record<string, TodoReference>;
 export interface RenderMarkdownPayload {
   colorScheme?: unknown;
   fontSize?: unknown;
+  languageCode?: unknown;
   markdown?: unknown;
   references?: unknown;
 }

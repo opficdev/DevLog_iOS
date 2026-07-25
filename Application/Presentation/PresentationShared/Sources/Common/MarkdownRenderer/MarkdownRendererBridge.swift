@@ -13,6 +13,7 @@ enum MarkdownRendererBridge {
         let markdown: String
         let references: [Int: MarkdownRendererReference]
         let colorScheme: String
+        let languageCode: String
         let fontSize: CGFloat
 
         var javaScriptValue: [String: Any] {
@@ -26,6 +27,7 @@ enum MarkdownRendererBridge {
                 "markdown": markdown,
                 "references": referenceValues,
                 "colorScheme": colorScheme,
+                "languageCode": languageCode,
                 "fontSize": Double(fontSize)
             ]
         }
