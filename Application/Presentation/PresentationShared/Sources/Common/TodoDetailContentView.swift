@@ -9,6 +9,7 @@ import SwiftUI
 import Domain
 
 struct TodoDetailContentView: View {
+    @ScaledMetric(relativeTo: .title3) private var fontSize = 20
     let title: String
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
@@ -19,15 +20,19 @@ struct TodoDetailContentView: View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
             VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(title)
-                    Text("#\(number)")
-                        .foregroundStyle(.gray)
-                        .fixedSize(horizontal: true, vertical: false)
-                    Spacer()
+                ScrollView(.horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(title)
+                        Text("#\(number)")
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .lineLimit(1)
+                    .font(.title3.bold())
                 }
-                .font(.title3.bold())
-                .padding(.horizontal)
+                .frame(height: fontSize + 10)
+                .scrollIndicators(.hidden)
+                .contentMargins(16, for: .scrollContent)
                 Divider()
                 TodoMarkdownContentView(
                     content: content,
