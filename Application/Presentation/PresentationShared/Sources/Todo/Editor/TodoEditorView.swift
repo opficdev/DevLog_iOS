@@ -5,7 +5,6 @@
 //  Created by opfic on 5/31/25.
 //
 
-import MarkdownUI
 import SwiftUI
 import ComposableArchitecture
 import Core
@@ -36,23 +35,11 @@ public struct TodoEditorView: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    titleSection
-                    LazyVStack(
-                        alignment: .leading,
-                        spacing: 0,
-                        pinnedViews: [.sectionHeaders]
-                    ) {
-                        Section {
-                            tabView
-                        } header: {
-                            if !isiOSAppOnMac {
-                                tabPicker
-                                    .padding(.horizontal)
-                            }
-                        }
-                    }
+            Group {
+                if store.tabViewTag == .editor {
+                    editorContent
+                } else {
+                    previewContent
                 }
             }
             .onTapGesture {
@@ -94,6 +81,39 @@ public struct TodoEditorView: View {
                 }
             }
             .alert($store.scope(state: \.alert, action: \.alert))
+        }
+    }
+
+    private var editorContent: some View {
+        ScrollView {
+            LazyVStack(spacing: 10) {
+                titleSection
+                LazyVStack(
+                    alignment: .leading,
+                    spacing: 0,
+                    pinnedViews: [.sectionHeaders]
+                ) {
+                    Section {
+                        tabView
+                    } header: {
+                        if !isiOSAppOnMac {
+                            tabPicker
+                                .padding(.horizontal)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var previewContent: some View {
+        VStack(spacing: 10) {
+            titleSection
+            if !isiOSAppOnMac {
+                tabPicker
+                    .padding(.horizontal)
+            }
+            tabView
         }
     }
 
@@ -158,9 +178,11 @@ public struct TodoEditorView: View {
                     )
                     .focused($field, equals: .content)
                 }
+                .padding(.horizontal)
             } else {
                 if store.content.isEmpty {
                     previewPlaceholder
+                        .padding(.horizontal)
                 } else {
                     TodoMarkdownContentView(
                         content: store.content,
@@ -170,7 +192,6 @@ public struct TodoEditorView: View {
                 }
             }
         }
-        .padding(.horizontal)
         .padding(.top, 10)
     }
 
@@ -188,7 +209,7 @@ public struct TodoEditorView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.vertical, 8)
     }
 

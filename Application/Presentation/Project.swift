@@ -29,6 +29,11 @@ let project = Project(
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["PresentationShared/Sources/**/*.swift"],
+            resources: [
+                .folderReference(
+                    path: "PresentationShared/Resources/MarkdownRenderer"
+                )
+            ],
             scripts: [
                 DevLogScripts.swiftLint(
                     sourcePath: "PresentationShared/Sources",
@@ -39,7 +44,6 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .package(product: "ComposableArchitecture"),
-                .package(product: "MarkdownUI"),
                 .package(product: "OrderedCollections")
             ],
             settings: frameworkBuildSettings

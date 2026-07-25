@@ -1,10 +1,6 @@
 import ProjectDescription
 
 public enum DevLogPackages {
-    public static let markdownUIPackage: Package = .package(
-        url: "https://github.com/gonzalezreal/swift-markdown-ui.git",
-        .exact("2.4.1")
-    )
     public static let swiftCollectionsPackage: Package = .package(
         url: "https://github.com/apple/swift-collections.git",
         .exact("1.3.0")
@@ -24,7 +20,6 @@ public enum DevLogPackages {
 
     public static let presentationPackageDependencies: [TargetDependency] = [
         .package(product: "ComposableArchitecture"),
-        .package(product: "MarkdownUI"),
         .package(product: "OrderedCollections"),
     ]
 
@@ -43,7 +38,6 @@ public enum DevLogPackages {
 
     public static let presentationPackages: [Package] = [
         composableArchitecturePackage,
-        markdownUIPackage,
         swiftCollectionsPackage,
     ]
 

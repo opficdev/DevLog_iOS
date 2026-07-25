@@ -345,27 +345,3 @@ private struct ToastCardView<Label: View>: View {
             .shadow(color: Color(.systemGray2).opacity(0.4), radius: 18, x: 0, y: 10)
     }
 }
-
-@MainActor
-private extension UIViewController {
-    var visibleTabBarHeight: CGFloat {
-        var topViewController = self
-
-        while let presentedViewController = topViewController.presentedViewController {
-            topViewController = presentedViewController
-        }
-
-        if let tabBarController = (topViewController as? UITabBarController) ?? topViewController.tabBarController {
-            return tabBarController.tabBar.isHidden ? .zero : tabBarController.tabBar.frame.height
-        }
-
-        for child in topViewController.children {
-            let childHeight = child.visibleTabBarHeight
-            if 0 < childHeight {
-                return childHeight
-            }
-        }
-
-        return .zero
-    }
-}

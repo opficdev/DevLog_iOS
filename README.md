@@ -143,12 +143,12 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 | Deployment Target | iOS / iPadOS 17.0+ |
 | Platform Support | iPhone, iPad, Apple Silicon Mac (App Store, Designed for iPad) |
 | Architecture | Tuist Modular based Clean Architecture |
-| UI | SwiftUI, MarkdownUI, WidgetKit, AppIntents |
+| UI | SwiftUI, WidgetKit, AppIntents |
 | State & Async | Observable, Combine, async/await, The Composable Architecture |
 | Backend | Firebase Authentication, Firestore, Cloud Functions, Cloud Messaging |
 | Monitoring | Firebase Analytics, Crashlytics |
 | Apple Frameworks | AuthenticationServices, UserNotifications, LinkPresentation, Network, CryptoKit, os.log |
-| External Packages | ComposableArchitecture, MarkdownUI, OrderedCollections, Nexa |
+| External Packages | ComposableArchitecture, OrderedCollections, Nexa |
 | Testing | swift-testing, TCA TestStore |
 | Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
 

@@ -5,130 +5,81 @@
 //  Created by opfic on 3/25/26.
 //
 
-import MarkdownUI
 import SwiftUI
 import Domain
 
-private enum TodoMarkdownSection: Equatable {
-    case markdown(String)
-    case reference(Int)
-}
-
 struct TodoMarkdownContentView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.locale) private var locale
+    @Environment(\.openURL) private var openURL
+    @ScaledMetric(relativeTo: .body) private var fontSize = 17
+    @State private var tabBarHeight = CGFloat.zero
+
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-            let sections = makeSections(from: content)
-            ForEach(Array(zip(sections.indices, sections)), id: \.0) { _, section in
-                switch section {
-                case .markdown(let markdown):
-                    if !markdown.isEmpty {
-                        Markdown(markdown)
-                    }
-                case .reference(let number):
-                    if let item = referenceItems[number] {
-                        TodoReferenceRow(
-                            item: item,
-                            number: number,
-                            onOpenTodoID: onOpenTodoID
-                        )
-                    } else {
-                        Markdown("- refs #\(number)")
-                    }
-                }
-            }
+        MarkdownRendererView(
+            markdown: content,
+            references: rendererReferences,
+            colorScheme: colorScheme,
+            languageCode: locale.language.languageCode?.identifier ?? "und",
+            fontSize: fontSize,
+            obscuredBottomInset: tabBarHeight,
+            onOpenTodoID: onOpenTodoID,
+            onOpenURL: { openURL($0) }
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: ignoredSafeAreaEdges)
+        .onAppear { updateTabBarHeight() }
+    }
+
+    private var ignoredSafeAreaEdges: Edge.Set {
+        if #available(iOS 26.0, *) { return .bottom }
+
+        return []
+    }
+
+    private var rendererReferences: [Int: MarkdownRendererReference] {
+        referenceItems.mapValues { item in
+            MarkdownRendererReference(
+                todoID: item.id,
+                title: item.title,
+                colorHex: item.category.color.hexValue ?? "#808080",
+                iconDataURL: iconDataURL(for: item.category.symbolName)
+            )
         }
     }
 
-    private func makeSections(from content: String) -> [TodoMarkdownSection] {
-        let lines = content.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        var sections = [TodoMarkdownSection]()
-        var markdownBuffer = [String]()
+    private func iconDataURL(for symbolName: String) -> String? {
+        let configuration = UIImage.SymbolConfiguration(
+            pointSize: 11,
+            weight: .bold
+        )
 
-        func flushMarkdownBuffer() {
-            guard !markdownBuffer.isEmpty else { return }
-            sections.append(.markdown(markdownBuffer.joined(separator: "\n")))
-            markdownBuffer.removeAll(keepingCapacity: true)
-        }
-
-        for line in lines {
-            if let number = todoReferenceLineNumber(from: line) {
-                flushMarkdownBuffer()
-                sections.append(.reference(number))
-            } else {
-                markdownBuffer.append(line)
-            }
-        }
-
-        flushMarkdownBuffer()
-        return sections
-    }
-
-    private func todoReferenceLineNumber(from line: String) -> Int? {
-        guard let expression = try? NSRegularExpression(pattern: #"^([ \t]*)-[ \t]+refs[ \t]+#(\d+)[ \t]*$"#) else {
-            return nil
-        }
-
-        let range = NSRange(line.startIndex..., in: line)
         guard
-            let match = expression.firstMatch(in: line, options: [], range: range),
-            match.range == range,
-            let numberRange = Range(match.range(at: 2), in: line),
-            let number = Int(line[numberRange])
+            let image = UIImage(
+                systemName: symbolName,
+                withConfiguration: configuration
+            )?.withTintColor(.white, renderingMode: .alwaysOriginal),
+            let data = image.pngData()
         else {
             return nil
         }
 
-        return number
+        return "data:image/png;base64,\(data.base64EncodedString())"
     }
-}
 
-private struct TodoReferenceRow: View {
-    let item: TodoReferenceItem
-    let number: Int
-    var onOpenTodoID: ((String) -> Void)?
+    @MainActor
+    private func updateTabBarHeight() {
+        guard #available(iOS 26.0, *) else { return }
 
-    var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Markdown("- refs")
-            Button {
-                onOpenTodoID?(item.id)
-            } label: {
-                HStack(alignment: .center, spacing: 8) {
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(item.category.color)
-                        .frame(width: 18, height: 18)
-                        .overlay {
-                            Image(systemName: item.category.symbolName)
-                                .font(.caption2.weight(.bold))
-                                .foregroundStyle(.white)
-                        }
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0.isKeyWindow }
 
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(item.title)
-                            .foregroundStyle(.blue)
-                        Text("#\(number)")
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: true, vertical: false)
-
-                    }
-                    .lineLimit(1)
-                    .overlay(alignment: .bottomLeading) {
-                        Rectangle()
-                            .fill(Color.blue)
-                            .frame(height: 1)
-                            .offset(y: 1)
-                    }
-
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.vertical, 2)
+        tabBarHeight = window?.rootViewController?.visibleTabBarHeight ?? .zero
     }
 }
