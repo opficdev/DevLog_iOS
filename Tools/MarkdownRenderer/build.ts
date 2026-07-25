@@ -32,7 +32,7 @@ await Promise.all([
     bundle: true,
     charset: "utf8",
     legalComments: "eof",
-    minify: true,
+    minify: false,
     sourcemap: false,
     target: ["safari17"]
   }),
