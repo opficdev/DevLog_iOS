@@ -48,12 +48,7 @@ struct MarkdownRendererView: UIViewRepresentable {
         webView.scrollView.showsHorizontalScrollIndicator = false
         webView.scrollView.showsVerticalScrollIndicator = true
 
-        if let indexURL = context.coordinator.indexURL {
-            webView.loadFileURL(
-                indexURL,
-                allowingReadAccessTo: indexURL.deletingLastPathComponent()
-            )
-        }
+        context.coordinator.loadRenderer(in: webView)
 
         return webView
     }
@@ -90,6 +85,15 @@ struct MarkdownRendererView: UIViewRepresentable {
 
         init(view: MarkdownRendererView) {
             self.view = view
+        }
+
+        fileprivate func loadRenderer(in webView: WKWebView) {
+            guard let indexURL else { return }
+
+            webView.loadFileURL(
+                indexURL,
+                allowingReadAccessTo: indexURL.deletingLastPathComponent()
+            )
         }
 
         fileprivate func update(
@@ -205,6 +209,14 @@ extension MarkdownRendererView.Coordinator: WKScriptMessageHandler {
 }
 
 extension MarkdownRendererView.Coordinator: WKNavigationDelegate {
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        isRendererLoaded = false
+        pendingPayload = MarkdownRendererBridge.RenderPayload(view: view)
+        inFlightPayload = nil
+        renderedPayload = nil
+        loadRenderer(in: webView)
+    }
+
     func webView(
         _ webView: WKWebView,
         didFinish navigation: WKNavigation?
