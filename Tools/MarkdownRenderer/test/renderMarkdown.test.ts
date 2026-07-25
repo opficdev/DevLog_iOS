@@ -146,6 +146,27 @@ test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨
   assert.doesNotMatch(stylesheet, /todo-reference-item/);
 });
 
+test("각주 크기를 SwiftUI footnote와 body 비율로 표시한다", () => {
+  const stylesheet = readFileSync(
+    new URL("../src/renderer.css", import.meta.url),
+    "utf8"
+  );
+  const footnotesRule = stylesheet.match(
+    /\.markdown-body \.footnotes\s*\{([^}]*)\}/s
+  );
+  const fontSize = footnotesRule?.[1].match(
+    /font-size:\s*([\d.]+)%/
+  );
+  const bodyPointSize = 17;
+  const footnotePointSize = 13;
+
+  assert.notEqual(footnotesRule, null);
+  assert.equal(
+    Number(fontSize?.[1]) / 100,
+    footnotePointSize / bodyPointSize
+  );
+});
+
 test("코드 구문 토큰을 GitHub 색상 변수로 표시한다", () => {
   const stylesheet = readFileSync(
     new URL("../src/renderer.css", import.meta.url),

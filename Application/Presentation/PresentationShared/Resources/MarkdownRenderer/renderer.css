@@ -1102,6 +1102,9 @@ body {
   font-size: var(--markdown-font-size);
   line-height: 1.5;
 }
+.markdown-body .footnotes {
+  font-size: 76.47058823529412%;
+}
 :root[data-color-scheme=dark] .markdown-body {
   color: #f0f6fc;
 }
