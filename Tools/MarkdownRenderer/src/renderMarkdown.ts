@@ -13,6 +13,7 @@ import {
   todoReferenceHandler,
   todoReferencePlugin
 } from "./todoReferencePlugin.ts";
+import { normalizeTodoReferences } from "./todoReferenceNormalizer.ts";
 import type { TodoReferences } from "./types.ts";
 
 const highlightTokenClassNames = [
@@ -87,7 +88,9 @@ export function renderMarkdown(
   markdown: unknown,
   references: TodoReferences = {}
 ) {
-  const source = typeof markdown === "string" ? markdown : "";
+  const source = normalizeTodoReferences(
+    typeof markdown === "string" ? markdown : ""
+  );
 
   const file = unified()
     .use(remarkParse)
