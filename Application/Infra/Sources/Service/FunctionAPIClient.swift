@@ -112,6 +112,10 @@ struct OAuthAuthenticationTicketRequest: Encodable {
     let appVerifier: String
 }
 
+struct GoogleAuthorizationCodeRequest: Encodable {
+    let serverAuthCode: String
+}
+
 struct AppleChallengeResponse: Decodable {
     let challengeId: String
     let hashedNonce: String
