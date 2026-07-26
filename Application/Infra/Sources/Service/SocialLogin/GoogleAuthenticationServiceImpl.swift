@@ -142,9 +142,7 @@ private extension GoogleAuthenticationServiceImpl {
             GIDSignIn.sharedInstance.signOut()
         }
 
-        let signIn = try await GIDSignIn.sharedInstance.signIn(
-            withPresenting: topViewController
-        )
+        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
 
         guard let serverAuthCode = signIn.serverAuthCode else {
             throw URLError(.badServerResponse)
