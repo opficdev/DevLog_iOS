@@ -73,6 +73,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
             }
 
             try Auth.auth().signOut()
+            GIDSignIn.sharedInstance.signOut()
         } catch {
             logger.error("Failed to sign out with Google", error: error)
             record(error, code: .signOut)
