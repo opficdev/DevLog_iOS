@@ -55,7 +55,6 @@ extension FunctionAPIEndpoint where Response == AppleChallengeResponse {
 extension FunctionAPIEndpoint where Response == FirebaseCustomTokenResponse {
     static let requestAppleCustomToken = Self(method: .post, path: "/auth/apple/custom-token")
     static let requestGithubCustomToken = Self(method: .post, path: "/auth/github/custom-token")
-    static let requestGoogleCustomToken = Self(method: .post, path: "/auth/google/custom-token")
     static let requestGoogleAuthorizationCustomToken = Self(
         method: .post,
         path: "/auth/google/authorization-code/custom-token"
@@ -70,14 +69,6 @@ extension FunctionAPIEndpoint where Response == OAuthAuthenticationSessionRespon
     static let requestGithubAccountLinkSession = Self(
         method: .post,
         path: "/auth/github/account-link-sessions"
-    )
-    static let requestGoogleSignInSession = Self(
-        method: .post,
-        path: "/auth/google/sign-in-sessions"
-    )
-    static let requestGoogleAccountLinkSession = Self(
-        method: .post,
-        path: "/auth/google/account-link-sessions"
     )
 }
 

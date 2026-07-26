@@ -269,24 +269,6 @@ struct FunctionAPIEndpointTests {
         #expect(endpoint.path == "/auth/github/account-link")
     }
 
-    @Test("Google 로그인 session endpoint는 sign-in-sessions 경로를 사용한다")
-    func Google_로그인_session_endpoint는_sign_in_sessions_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
-            .requestGoogleSignInSession
-
-        #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/sign-in-sessions")
-    }
-
-    @Test("Google custom token endpoint는 custom-token 경로를 사용한다")
-    func Google_custom_token_endpoint는_custom_token_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>
-            .requestGoogleCustomToken
-
-        #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/custom-token")
-    }
-
     @Test("Google authorization code custom token endpoint는 인증 코드 경로를 사용한다")
     func Google_authorization_code_custom_token_endpoint는_인증_코드_경로를_사용한다() {
         let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>
@@ -294,15 +276,6 @@ struct FunctionAPIEndpointTests {
 
         #expect(endpoint.method.rawValue == "POST")
         #expect(endpoint.path == "/auth/google/authorization-code/custom-token")
-    }
-
-    @Test("Google 계정 연결 session endpoint는 account-link-sessions 경로를 사용한다")
-    func Google_계정_연결_session_endpoint는_account_link_sessions_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
-            .requestGoogleAccountLinkSession
-
-        #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/account-link-sessions")
     }
 
     @Test("Google 계정 연결 endpoint는 PUT 인증 코드 경로를 사용한다")
