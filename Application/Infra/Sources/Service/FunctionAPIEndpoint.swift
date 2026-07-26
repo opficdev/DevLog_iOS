@@ -38,8 +38,7 @@ extension FunctionAPIEndpoint where Response == EmptyAPIResponse {
     static let linkGithubAccount = Self(method: .put, path: "/auth/github/account-link")
     static let unlinkGithubAccount = Self(method: .delete, path: "/auth/github/account-link")
     static let revokeGoogleAccessToken = Self(method: .delete, path: "/auth/google/access-token")
-    static let linkGoogleAccount = Self(method: .put, path: "/auth/google/account-link")
-    static let linkGoogleAccountWithAuthorizationCode = Self(
+    static let linkGoogleAccount = Self(
         method: .put,
         path: "/auth/google/authorization-code/account-link"
     )

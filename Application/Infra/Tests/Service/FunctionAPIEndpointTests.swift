@@ -305,18 +305,9 @@ struct FunctionAPIEndpointTests {
         #expect(endpoint.path == "/auth/google/account-link-sessions")
     }
 
-    @Test("Google 계정 연결 endpoint는 PUT account-link 경로를 사용한다")
-    func Google_계정_연결_endpoint는_PUT_account_link_경로를_사용한다() {
+    @Test("Google 계정 연결 endpoint는 PUT 인증 코드 경로를 사용한다")
+    func Google_계정_연결_endpoint는_PUT_인증_코드_경로를_사용한다() {
         let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.linkGoogleAccount
-
-        #expect(endpoint.method.rawValue == "PUT")
-        #expect(endpoint.path == "/auth/google/account-link")
-    }
-
-    @Test("Google authorization code 계정 연결 endpoint는 PUT 인증 코드 경로를 사용한다")
-    func Google_authorization_code_계정_연결_endpoint는_PUT_인증_코드_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>
-            .linkGoogleAccountWithAuthorizationCode
 
         #expect(endpoint.method.rawValue == "PUT")
         #expect(endpoint.path == "/auth/google/authorization-code/account-link")

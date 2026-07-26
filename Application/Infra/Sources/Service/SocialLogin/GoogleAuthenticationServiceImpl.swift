@@ -94,13 +94,10 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         logger.info("Linking Google account for user: \(uid)")
 
         do {
-            let request = try await OAuthAuthenticationTicketRequester.request(
-                endpoint: .requestGoogleAccountLinkSession,
-                requiresAuthentication: true
-            )
+            let serverAuthCode = try await Self.requestGoogleServerAuthCode(signOutPreviousSession: true)
             try await FunctionAPIClient.shared.send(
                 .linkGoogleAccount,
-                payload: request
+                payload: GoogleAuthorizationCodeRequest(serverAuthCode: serverAuthCode)
             )
             try await user?.reload()
 
@@ -132,9 +129,16 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 
 private extension GoogleAuthenticationServiceImpl {
     @MainActor
-    static func requestGoogleServerAuthCode() async throws -> String {
+    static func requestGoogleServerAuthCode(
+        signOutPreviousSession: Bool = false
+    ) async throws -> String {
         guard let topViewController = TopViewControllerProvider.topViewController() else {
             throw UIError.notFoundTopViewController
+        }
+
+        if signOutPreviousSession,
+           GIDSignIn.sharedInstance.hasPreviousSignIn() {
+            GIDSignIn.sharedInstance.signOut()
         }
 
         let signIn = try await GIDSignIn.sharedInstance.signIn(
