@@ -8,6 +8,8 @@
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
+import Foundation
+import GoogleSignIn
 import Core
 import Data
 
@@ -33,13 +35,12 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         logger.info("Starting Google sign in")
 
         do {
-            let request = try await OAuthAuthenticationTicketRequester.request(
-                endpoint: .requestGoogleSignInSession,
-                requiresAuthentication: false
-            )
+            let serverAuthCode = try await Self.requestGoogleServerAuthCode()
             let response = try await FunctionAPIClient.shared.send(
-                .requestGoogleCustomToken,
-                payload: request,
+                .requestGoogleAuthorizationCustomToken,
+                payload: GoogleAuthorizationCodeRequest(
+                    serverAuthCode: serverAuthCode
+                ),
                 requiresAuthentication: false
             )
 
@@ -130,6 +131,23 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 }
 
 private extension GoogleAuthenticationServiceImpl {
+    @MainActor
+    static func requestGoogleServerAuthCode() async throws -> String {
+        guard let topViewController = TopViewControllerProvider.topViewController() else {
+            throw UIError.notFoundTopViewController
+        }
+
+        let signIn = try await GIDSignIn.sharedInstance.signIn(
+            withPresenting: topViewController
+        )
+
+        guard let serverAuthCode = signIn.serverAuthCode else {
+            throw URLError(.badServerResponse)
+        }
+
+        return serverAuthCode
+    }
+
     func mapGoogleAPIError(_ error: Error) -> Error {
         if let emailError = error.apiEmailError {
             return emailError
