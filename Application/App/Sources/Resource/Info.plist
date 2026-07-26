@@ -31,6 +31,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>$(REVERSED_CLIENT_ID)</string>
 				<string>DevLog</string>
 			</array>
 		</dict>
@@ -53,6 +54,10 @@
 	<string>$(FIRESTORE_DATABASE_ID)</string>
 	<key>FUNCTION_API_BASE_URL</key>
 	<string>$(FUNCTION_API_BASE_URL)</string>
+	<key>GIDClientID</key>
+	<string>$(CLIENT_ID)</string>
+	<key>GIDServerClientID</key>
+	<string>$(GID_SERVER_CLIENT_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
