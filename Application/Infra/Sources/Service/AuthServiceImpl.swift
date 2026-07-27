@@ -119,6 +119,11 @@ final class AuthServiceImpl: AuthService {
     func clearCurrentSession() async throws {
         logger.info("Clearing current auth session")
 
+        if let uid {
+            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
+            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
+        }
+
         do {
             if messaging.fcmToken != nil {
                 try await messaging.deleteToken()

@@ -64,29 +64,22 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func signOut() async throws {
-        guard let uid = authService.uid,
-              let providerID = try await authService.getProviderID(),
-              let provider = AuthProvider(rawValue: providerID)
-        else {
-            try await authService.clearCurrentSession()
-            widgetSnapshotUpdater.clear()
-            return
-        }
+        let providers = authService.providerIDs.compactMap { AuthProvider(rawValue: $0) }
 
         do {
+            try await authService.clearCurrentSession()
+        } catch {
+            throw error.toDomain()
+        }
+
+        for provider in providers {
             switch provider {
             case .apple:
-                try await appleAuthService.signOut(uid)
+                appleAuthService.signOut()
             case .github:
-                try await githubAuthService.signOut(uid)
+                githubAuthService.signOut()
             case .google:
-                try await googleAuthService.signOut(uid)
-            }
-        } catch {
-            if case AuthError.notAuthenticated = error.toDomain() {
-                try await authService.clearCurrentSession()
-            } else {
-                throw error.toDomain()
+                googleAuthService.signOut()
             }
         }
 

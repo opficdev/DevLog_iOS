@@ -6,8 +6,6 @@
 //
 
 import FirebaseAuth
-import FirebaseFirestore
-import FirebaseMessaging
 import Foundation
 import GoogleSignIn
 import Core
@@ -19,15 +17,12 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 
         enum Code: Int {
             case signIn = 1
-            case signOut
             case deleteAuth
             case link
             case unlink
         }
     }
 
-    private let store = FirebaseConfiguration.firestore
-    private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let logger = Logger(category: "GoogleAuthService")
 
@@ -59,26 +54,8 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func signOut(_ uid: String) async throws {
-        do {
-            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
-
-            if messaging.fcmToken != nil {
-                do {
-                    try await messaging.deleteToken()
-                } catch {
-                    logger.error("Failed to delete FCM token while signing out with Google", error: error)
-                }
-            }
-
-            try Auth.auth().signOut()
-            GIDSignIn.sharedInstance.signOut()
-        } catch {
-            logger.error("Failed to sign out with Google", error: error)
-            record(error, code: .signOut)
-            throw error
-        }
+    func signOut() {
+        GIDSignIn.sharedInstance.signOut()
     }
 
     func deleteAuth(_ uid: String) async throws {
