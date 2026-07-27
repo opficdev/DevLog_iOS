@@ -54,7 +54,7 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func signOut() {
+    func clearLocalSession() {
         GIDSignIn.sharedInstance.signOut()
     }
 

@@ -72,17 +72,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
             throw error.toDomain()
         }
 
-        for provider in providers {
-            switch provider {
-            case .apple:
-                appleAuthService.signOut()
-            case .github:
-                githubAuthService.signOut()
-            case .google:
-                googleAuthService.signOut()
-            }
-        }
-
+        clearProviderSessions(providers)
         widgetSnapshotUpdater.clear()
     }
 
@@ -107,6 +97,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         do {
             try await authService.deleteCurrentUser()
             try await authService.clearCurrentSession()
+            clearProviderSessions(providers)
             widgetSnapshotUpdater.clear()
         } catch {
             throw error.toDomain()
@@ -115,6 +106,19 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
 }
 
 private extension AuthenticationRepositoryImpl {
+    func clearProviderSessions(_ providers: [AuthProvider]) {
+        for provider in providers {
+            switch provider {
+            case .apple:
+                appleAuthService.clearLocalSession()
+            case .github:
+                githubAuthService.clearLocalSession()
+            case .google:
+                googleAuthService.clearLocalSession()
+            }
+        }
+    }
+
     func mapSignInError(_ error: Error) -> Error {
         if let emailError = error as? EmailError,
            emailError == .notFound {

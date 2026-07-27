@@ -60,7 +60,7 @@ final class AppleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func signOut() { }
+    func clearLocalSession() { }
 
     func deleteAuth(_ uid: String) async throws {
         do {
