@@ -64,32 +64,15 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
     }
 
     func signOut() async throws {
-        guard let uid = authService.uid,
-              let providerID = try await authService.getProviderID(),
-              let provider = AuthProvider(rawValue: providerID)
-        else {
-            try await authService.clearCurrentSession()
-            widgetSnapshotUpdater.clear()
-            return
-        }
+        let providers = authService.providerIDs.compactMap { AuthProvider(rawValue: $0) }
 
         do {
-            switch provider {
-            case .apple:
-                try await appleAuthService.signOut(uid)
-            case .github:
-                try await githubAuthService.signOut(uid)
-            case .google:
-                try await googleAuthService.signOut(uid)
-            }
+            try await authService.clearCurrentSession()
         } catch {
-            if case AuthError.notAuthenticated = error.toDomain() {
-                try await authService.clearCurrentSession()
-            } else {
-                throw error.toDomain()
-            }
+            throw error.toDomain()
         }
 
+        clearProviderSessions(providers)
         widgetSnapshotUpdater.clear()
     }
 
@@ -114,6 +97,7 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
         do {
             try await authService.deleteCurrentUser()
             try await authService.clearCurrentSession()
+            clearProviderSessions(providers)
             widgetSnapshotUpdater.clear()
         } catch {
             throw error.toDomain()
@@ -122,6 +106,19 @@ final class AuthenticationRepositoryImpl: AuthenticationRepository {
 }
 
 private extension AuthenticationRepositoryImpl {
+    func clearProviderSessions(_ providers: [AuthProvider]) {
+        for provider in providers {
+            switch provider {
+            case .apple:
+                appleAuthService.clearLocalSession()
+            case .github:
+                githubAuthService.clearLocalSession()
+            case .google:
+                googleAuthService.clearLocalSession()
+            }
+        }
+    }
+
     func mapSignInError(_ error: Error) -> Error {
         if let emailError = error as? EmailError,
            emailError == .notFound {

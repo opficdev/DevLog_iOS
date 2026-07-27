@@ -6,8 +6,6 @@
 //
 
 import FirebaseAuth
-import FirebaseFirestore
-import FirebaseMessaging
 import Core
 import Data
 
@@ -17,15 +15,12 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
 
         enum Code: Int {
             case signIn = 1
-            case signOut
             case deleteAuth
             case link
             case unlink
         }
     }
 
-    private let store = FirebaseConfiguration.firestore
-    private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let logger = Logger(category: "GithubAuthService")
 
@@ -58,26 +53,7 @@ final class GithubAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func signOut(_ uid: String) async throws {
-        do {
-            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
-
-            if messaging.fcmToken != nil {
-                do {
-                    try await messaging.deleteToken()
-                } catch {
-                    logger.error("Failed to delete FCM token while signing out with GitHub", error: error)
-                }
-            }
-
-            try Auth.auth().signOut()
-        } catch {
-            logger.error("Failed to sign out with GitHub", error: error)
-            record(error, code: .signOut)
-            throw error
-        }
-    }
+    func clearLocalSession() { }
 
     func deleteAuth(_ uid: String) async throws {
         do {

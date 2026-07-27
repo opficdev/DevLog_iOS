@@ -19,6 +19,10 @@ enum FirestoreError: Error, LocalizedError {
     }
 }
 
+enum UIError: Error {
+    case notFoundTopViewController
+}
+
 enum SocialLoginError: Error {
     case invalidOAuthCallback
     case failedToStartWebAuthenticationSession
@@ -40,7 +44,8 @@ extension Error {
         case let webAuthError as ASWebAuthenticationSessionError:
             return webAuthError.code == .canceledLogin
         default:
-            return false
+            let error = self as NSError
+            return error.domain == "com.google.GIDSignIn" && error.code == -5
         }
     }
 }

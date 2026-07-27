@@ -5,6 +5,7 @@
 //  Created by opfic on 7/6/26.
 //
 
+import Core
 import Domain
 
 @MainActor
@@ -26,12 +27,16 @@ final class SignInUseCaseSpy: SignInUseCase {
     var signedIn = true
     var shouldSuspend = false
     private(set) var calledProviders = [AuthProvider]()
+    private(set) var calledPresentationContextIdentifiers = [String]()
     private(set) var successfulProviders = [AuthProvider]()
     private var continuation: CheckedContinuation<Void, Never>?
     private var shouldResume = false
 
     func execute(_ provider: AuthProvider) async throws -> Bool {
         calledProviders.append(provider)
+        calledPresentationContextIdentifiers.append(
+            AuthPresentationContext.current?.identifier ?? ""
+        )
 
         if shouldSuspend {
             await withCheckedContinuation { continuation in

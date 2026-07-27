@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Core
 import PresentationShared
 import Domain
 
@@ -47,7 +48,10 @@ struct AccountView: View {
                             .clipShape(.capsule)
                         }
                         .buttonStyle(.plain)
-                        .disabled(store.isLoading)
+                        .disabled(
+                            store.isLoading ||
+                            (!isConnected && store.presentationContext == nil)
+                        )
                         .opacity(showProgressView ? 0 : 1)
                         .overlay {
                             if showProgressView {
@@ -63,6 +67,13 @@ struct AccountView: View {
         .navigationTitle(String(localized: "nav_account"))
         .onAppear { store.send(.onAppear) }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .background {
+            WindowSceneIdentifierReader {
+                store.send(.setPresentationContext(
+                    $0.map(AuthPresentationContext.init(identifier:))
+                ))
+            }
+        }
     }
     
     private func formattedProviderName(_ provider: AuthProvider) -> String {

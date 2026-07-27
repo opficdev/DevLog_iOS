@@ -113,6 +113,37 @@ rescue SystemCallError => error
   UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
 end
 
+def expected_google_sign_in_configuration_from_xcconfig(configuration)
+  expanded_path = File.expand_path(APP_CONFIG_XCCONFIG_PATH)
+  UI.user_error!("Missing app configuration file: #{expanded_path}") if !File.file?(expanded_path)
+
+  escaped_configuration = Regexp.escape(configuration)
+  expected_settings = {
+    client_id: "CLIENT_ID",
+    reversed_client_id: "REVERSED_CLIENT_ID",
+    server_client_id: "GID_SERVER_CLIENT_ID"
+  }
+
+  expected_settings.to_h do |key, setting|
+    assignments = File.foreach(expanded_path).filter_map do |line|
+      assignment = line.match(
+        /^\s*#{setting}\s*\[\s*config\s*=\s*#{escaped_configuration}\s*\]\s*=\s*(.*)$/
+      )
+      next if assignment.nil?
+
+      assignment[1].strip
+    end
+
+    if assignments.empty? || assignments.last.empty?
+      UI.user_error!("Missing #{setting} for #{configuration} in #{expanded_path}")
+    end
+
+    [key, assignments.last]
+  end
+rescue SystemCallError => error
+  UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
+end
+
 def verify_function_api_base_url_policy(function_api_base_url)
   require "uri"
 
@@ -225,7 +256,10 @@ platform :ios do
       app_environment: "app environment",
       bundle_id: "bundle ID",
       database_id: "Firestore database ID",
-      function_api_base_url: "Function API base URL"
+      function_api_base_url: "Function API base URL",
+      client_id: "Google client ID",
+      reversed_client_id: "Google reversed client ID",
+      server_client_id: "Google server client ID"
     }
 
     required_expectations.each do |key, name|
@@ -288,6 +322,28 @@ platform :ios do
       verify_plist_value(
         path: plist_path,
         source: "app Info.plist",
+        key: "GIDClientID",
+        expected: expected_configuration[:client_id],
+        redact_values: true
+      )
+
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
+        key: "GIDServerClientID",
+        expected: expected_configuration[:server_client_id],
+        redact_values: true
+      )
+
+      verify_plist_url_scheme(
+        path: plist_path,
+        source: "app Info.plist",
+        expected: expected_configuration[:reversed_client_id]
+      )
+
+      verify_plist_value(
+        path: plist_path,
+        source: "app Info.plist",
         key: "FirebaseCrashlyticsCollectionEnabled",
         expected: "true"
       )
@@ -311,6 +367,22 @@ platform :ios do
         expected: expected_configuration[:bundle_id]
       )
 
+      verify_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "CLIENT_ID",
+        expected: expected_configuration[:client_id],
+        redact_values: true
+      )
+
+      verify_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "REVERSED_CLIENT_ID",
+        expected: expected_configuration[:reversed_client_id],
+        redact_values: true
+      )
+
       if !expected_firebase_project_id.empty? && actual_firebase_project_id != expected_firebase_project_id
         UI.user_error!("Unexpected PROJECT_ID in GoogleService-Info.plist")
       end
@@ -322,6 +394,45 @@ platform :ios do
       UI.message("Verified PROJECT_ID in GoogleService-Info.plist")
       UI.message("Verified GOOGLE_APP_ID in GoogleService-Info.plist")
     end
+  end
+
+  private_lane :verify_plist_url_scheme do |options|
+    require "json"
+    require "shellwords"
+
+    path = options[:path]
+    source = options[:source]
+    expected_value = options[:expected].to_s.strip
+
+    UI.user_error!("Missing expected Google URL scheme") if expected_value.empty?
+
+    url_types = begin
+      JSON.parse(
+        sh(
+          "/usr/bin/plutil -extract CFBundleURLTypes json -o - #{Shellwords.escape(path)}",
+          log: false
+        )
+      )
+    rescue StandardError
+      UI.user_error!("Missing CFBundleURLTypes in #{source} at #{path}")
+    end
+
+    if !url_types.is_a?(Array)
+      UI.user_error!("Invalid CFBundleURLTypes in #{source} at #{path}")
+    end
+
+    url_schemes = url_types.flat_map do |url_type|
+      next [] if !url_type.is_a?(Hash)
+
+      schemes = url_type["CFBundleURLSchemes"]
+      schemes.is_a?(Array) ? schemes : []
+    end
+
+    if !url_schemes.include?(expected_value)
+      UI.user_error!("Missing expected Google URL scheme in #{source}")
+    end
+
+    UI.message("Verified Google URL scheme in #{source}")
   end
 
   private_lane :required_plist_value do |options|
@@ -383,6 +494,7 @@ platform :ios do
     )
 
     firebase_configuration = expected_firebase_configuration_from_xcconfig(configuration)
+    google_sign_in_configuration = expected_google_sign_in_configuration_from_xcconfig(configuration)
 
     if ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"].to_s.strip.empty?
       ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
@@ -476,7 +588,10 @@ platform :ios do
         database_id: expected_database_id,
         function_api_base_url: expected_function_api_base_url,
         firebase_project_id: firebase_configuration[:firebase_project_id],
-        google_app_id: firebase_configuration[:google_app_id]
+        google_app_id: firebase_configuration[:google_app_id],
+        client_id: google_sign_in_configuration[:client_id],
+        reversed_client_id: google_sign_in_configuration[:reversed_client_id],
+        server_client_id: google_sign_in_configuration[:server_client_id]
       }
     )
 
@@ -542,6 +657,7 @@ platform :ios do
   lane :upload_testflight_build do
     api_key = asc_api_key
     firebase_configuration = expected_firebase_configuration_from_xcconfig(TESTFLIGHT_CONFIGURATION)
+    google_sign_in_configuration = expected_google_sign_in_configuration_from_xcconfig(TESTFLIGHT_CONFIGURATION)
     # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
     ipa_output_path = TESTFLIGHT_IPA_OUTPUT_PATH if ipa_output_path.empty?
@@ -556,7 +672,10 @@ platform :ios do
         database_id: TESTFLIGHT_DATABASE_ID,
         function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
         firebase_project_id: firebase_configuration[:firebase_project_id],
-        google_app_id: firebase_configuration[:google_app_id]
+        google_app_id: firebase_configuration[:google_app_id],
+        client_id: google_sign_in_configuration[:client_id],
+        reversed_client_id: google_sign_in_configuration[:reversed_client_id],
+        server_client_id: google_sign_in_configuration[:server_client_id]
       }
     )
 
@@ -570,6 +689,7 @@ platform :ios do
   lane :upload_appstore_build do
     api_key = asc_api_key
     firebase_configuration = expected_firebase_configuration_from_xcconfig(APPSTORE_CONFIGURATION)
+    google_sign_in_configuration = expected_google_sign_in_configuration_from_xcconfig(APPSTORE_CONFIGURATION)
     # lane_context는 같은 fastlane 실행 내에서만 유지되므로, 별도 CI step에서는 고정 ipa 경로를 사용한다.
     ipa_output_path = lane_context[SharedValues::IPA_OUTPUT_PATH].to_s
     ipa_output_path = APPSTORE_IPA_OUTPUT_PATH if ipa_output_path.empty?
@@ -584,7 +704,10 @@ platform :ios do
         database_id: APPSTORE_DATABASE_ID,
         function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION),
         firebase_project_id: firebase_configuration[:firebase_project_id],
-        google_app_id: firebase_configuration[:google_app_id]
+        google_app_id: firebase_configuration[:google_app_id],
+        client_id: google_sign_in_configuration[:client_id],
+        reversed_client_id: google_sign_in_configuration[:reversed_client_id],
+        server_client_id: google_sign_in_configuration[:server_client_id]
       }
     )
 

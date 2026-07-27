@@ -6,8 +6,8 @@
 //
 
 import FirebaseAuth
-import FirebaseFirestore
-import FirebaseMessaging
+import Foundation
+import GoogleSignIn
 import Core
 import Data
 
@@ -17,15 +17,12 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 
         enum Code: Int {
             case signIn = 1
-            case signOut
             case deleteAuth
             case link
             case unlink
         }
     }
 
-    private let store = FirebaseConfiguration.firestore
-    private let messaging = Messaging.messaging()
     private var user: User? { Auth.auth().currentUser }
     private let logger = Logger(category: "GoogleAuthService")
 
@@ -33,13 +30,12 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         logger.info("Starting Google sign in")
 
         do {
-            let request = try await OAuthAuthenticationTicketRequester.request(
-                endpoint: .requestGoogleSignInSession,
-                requiresAuthentication: false
-            )
+            let serverAuthCode = try await Self.requestGoogleServerAuthCode()
             let response = try await FunctionAPIClient.shared.send(
-                .requestGoogleCustomToken,
-                payload: request,
+                .requestGoogleAuthorizationCustomToken,
+                payload: GoogleAuthorizationCodeRequest(
+                    serverAuthCode: serverAuthCode
+                ),
                 requiresAuthentication: false
             )
 
@@ -58,25 +54,8 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         }
     }
 
-    func signOut(_ uid: String) async throws {
-        do {
-            let infoRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            try? await infoRef.updateData(["fcmToken": FieldValue.delete()])
-
-            if messaging.fcmToken != nil {
-                do {
-                    try await messaging.deleteToken()
-                } catch {
-                    logger.error("Failed to delete FCM token while signing out with Google", error: error)
-                }
-            }
-
-            try Auth.auth().signOut()
-        } catch {
-            logger.error("Failed to sign out with Google", error: error)
-            record(error, code: .signOut)
-            throw error
-        }
+    func clearLocalSession() {
+        GIDSignIn.sharedInstance.signOut()
     }
 
     func deleteAuth(_ uid: String) async throws {
@@ -93,13 +72,10 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
         logger.info("Linking Google account for user: \(uid)")
 
         do {
-            let request = try await OAuthAuthenticationTicketRequester.request(
-                endpoint: .requestGoogleAccountLinkSession,
-                requiresAuthentication: true
-            )
+            let serverAuthCode = try await Self.requestGoogleServerAuthCode(signOutPreviousSession: true)
             try await FunctionAPIClient.shared.send(
                 .linkGoogleAccount,
-                payload: request
+                payload: GoogleAuthorizationCodeRequest(serverAuthCode: serverAuthCode)
             )
             try await user?.reload()
 
@@ -130,6 +106,31 @@ final class GoogleAuthenticationServiceImpl: AuthenticationService {
 }
 
 private extension GoogleAuthenticationServiceImpl {
+    @MainActor
+    static func requestGoogleServerAuthCode(
+        signOutPreviousSession: Bool = false
+    ) async throws -> String {
+        guard let identifier = AuthPresentationContext.current?.identifier,
+              let controller = TopViewControllerProvider.topViewController(
+            identifier: identifier
+        ) else {
+            throw UIError.notFoundTopViewController
+        }
+
+        if signOutPreviousSession,
+           GIDSignIn.sharedInstance.hasPreviousSignIn() {
+            GIDSignIn.sharedInstance.signOut()
+        }
+
+        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: controller)
+
+        guard let serverAuthCode = signIn.serverAuthCode else {
+            throw URLError(.badServerResponse)
+        }
+
+        return serverAuthCode
+    }
+
     func mapGoogleAPIError(_ error: Error) -> Error {
         if let emailError = error.apiEmailError {
             return emailError

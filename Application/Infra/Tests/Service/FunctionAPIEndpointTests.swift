@@ -217,6 +217,15 @@ struct FunctionAPIEndpointTests {
         #expect(try encodedKeys(request) == ["ticket", "appVerifier"])
     }
 
+    @Test("Google authorization code 요청은 server auth code만 인코딩한다")
+    func Google_authorization_code_요청은_server_auth_code만_인코딩한다() throws {
+        let request = GoogleAuthorizationCodeRequest(
+            serverAuthCode: "server-auth-code"
+        )
+
+        #expect(try encodedKeys(request) == ["serverAuthCode"])
+    }
+
     @Test("GitHub 로그인 session endpoint는 sign-in-sessions 경로를 사용한다")
     func GitHub_로그인_session_endpoint는_sign_in_sessions_경로를_사용한다() {
         let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
@@ -260,39 +269,21 @@ struct FunctionAPIEndpointTests {
         #expect(endpoint.path == "/auth/github/account-link")
     }
 
-    @Test("Google 로그인 session endpoint는 sign-in-sessions 경로를 사용한다")
-    func Google_로그인_session_endpoint는_sign_in_sessions_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
-            .requestGoogleSignInSession
-
-        #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/sign-in-sessions")
-    }
-
-    @Test("Google custom token endpoint는 custom-token 경로를 사용한다")
-    func Google_custom_token_endpoint는_custom_token_경로를_사용한다() {
+    @Test("Google authorization code custom token endpoint는 인증 코드 경로를 사용한다")
+    func Google_authorization_code_custom_token_endpoint는_인증_코드_경로를_사용한다() {
         let endpoint = FunctionAPIEndpoint<FirebaseCustomTokenResponse>
-            .requestGoogleCustomToken
+            .requestGoogleAuthorizationCustomToken
 
         #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/custom-token")
+        #expect(endpoint.path == "/auth/google/authorization-code/custom-token")
     }
 
-    @Test("Google 계정 연결 session endpoint는 account-link-sessions 경로를 사용한다")
-    func Google_계정_연결_session_endpoint는_account_link_sessions_경로를_사용한다() {
-        let endpoint = FunctionAPIEndpoint<OAuthAuthenticationSessionResponse>
-            .requestGoogleAccountLinkSession
-
-        #expect(endpoint.method.rawValue == "POST")
-        #expect(endpoint.path == "/auth/google/account-link-sessions")
-    }
-
-    @Test("Google 계정 연결 endpoint는 PUT account-link 경로를 사용한다")
-    func Google_계정_연결_endpoint는_PUT_account_link_경로를_사용한다() {
+    @Test("Google 계정 연결 endpoint는 PUT 인증 코드 경로를 사용한다")
+    func Google_계정_연결_endpoint는_PUT_인증_코드_경로를_사용한다() {
         let endpoint = FunctionAPIEndpoint<EmptyAPIResponse>.linkGoogleAccount
 
         #expect(endpoint.method.rawValue == "PUT")
-        #expect(endpoint.path == "/auth/google/account-link")
+        #expect(endpoint.path == "/auth/google/authorization-code/account-link")
     }
 
     @Test("Google 계정 연결 해제 endpoint는 DELETE account-link 경로를 사용한다")

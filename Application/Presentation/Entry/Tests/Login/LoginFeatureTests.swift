@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Core
 import PresentationShared
 import Foundation
 import Domain
@@ -25,6 +26,7 @@ struct LoginFeatureTests {
         }
 
         #expect(spy.calledProviders == [.github])
+        #expect(spy.calledPresentationContextIdentifiers == ["scene-id"])
     }
 
     @Test("로그인 성공 후에도 메인 화면 전환 전까지 로딩 상태를 유지한다")
@@ -173,8 +175,10 @@ private struct LoginTestDriver {
     }
 
     init(useCase: SignInUseCase) {
+        var state = LoginFeature.State()
+        state.presentationContext = AuthPresentationContext(identifier: "scene-id")
         feature = ComposableArchitecture.Store(
-            initialState: LoginFeature.State()
+            initialState: state
         ) {
             LoginFeature()
         } withDependencies: {

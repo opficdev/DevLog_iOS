@@ -44,34 +44,68 @@ struct AuthenticationRepositoryImplTests {
         ])
     }
 
-    @Test("Apple 로그아웃은 provider 로그아웃 뒤 위젯 데이터를 정리한다")
-    func Apple_로그아웃은_provider_로그아웃_뒤_위젯_데이터를_정리한다() async throws {
+    @Test("로그아웃은 공통 세션 정리 후 연결된 모든 provider 세션과 위젯 데이터를 정리한다")
+    func 로그아웃은_공통_세션_정리_후_연결된_모든_provider_세션과_위젯_데이터를_정리한다() async throws {
         let fixture = makeAuthenticationRepositoryFixture(
             uid: "user-id",
-            providerID: "apple.com"
+            providerIDs: ["apple.com", "github.com", "google.com"]
         )
 
         try await fixture.repository.signOut()
 
         #expect(fixture.events.values() == [
-            "apple.signOut",
+            "auth.clearCurrentSession",
+            "apple.clearLocalSession",
+            "github.clearLocalSession",
+            "google.clearLocalSession",
             "widget.clear"
         ])
     }
 
-    @Test("Apple 회원탈퇴는 grant 정리 후 사용자와 세션과 위젯 데이터를 정리한다")
-    func Apple_회원탈퇴는_grant_정리_후_사용자와_세션과_위젯_데이터를_정리한다() async throws {
+    @Test("공통 세션 정리 실패는 provider 세션과 위젯 데이터를 정리하지 않고 오류를 전달한다")
+    func 공통_세션_정리_실패는_provider_세션과_위젯_데이터를_정리하지_않고_오류를_전달한다() async {
         let fixture = makeAuthenticationRepositoryFixture(
             uid: "user-id",
-            providerIDs: ["apple.com"]
+            providerIDs: ["apple.com", "github.com", "google.com"],
+            clearCurrentSessionError: AuthenticationRepositoryTestError.clearCurrentSession
+        )
+
+        await #expect(throws: AuthenticationRepositoryTestError.clearCurrentSession) {
+            try await fixture.repository.signOut()
+        }
+        #expect(fixture.events.values() == ["auth.clearCurrentSession"])
+    }
+
+    @Test("provider 목록이 없어도 공통 세션과 위젯 데이터를 정리한다")
+    func provider_목록이_없어도_공통_세션과_위젯_데이터를_정리한다() async throws {
+        let fixture = makeAuthenticationRepositoryFixture(uid: "user-id")
+
+        try await fixture.repository.signOut()
+
+        #expect(fixture.events.values() == [
+            "auth.clearCurrentSession",
+            "widget.clear"
+        ])
+    }
+
+    @Test("회원탈퇴는 provider grant 정리 후 사용자와 로컬 세션과 위젯 데이터를 정리한다")
+    func 회원탈퇴는_provider_grant_정리_후_사용자와_로컬_세션과_위젯_데이터를_정리한다() async throws {
+        let fixture = makeAuthenticationRepositoryFixture(
+            uid: "user-id",
+            providerIDs: ["apple.com", "github.com", "google.com"]
         )
 
         try await fixture.repository.delete()
 
         #expect(fixture.events.values() == [
             "apple.deleteAuth",
+            "github.deleteAuth",
+            "google.deleteAuth",
             "auth.deleteCurrentUser",
             "auth.clearCurrentSession",
+            "apple.clearLocalSession",
+            "github.clearLocalSession",
+            "google.clearLocalSession",
             "widget.clear"
         ])
     }
@@ -98,7 +132,8 @@ struct AuthenticationRepositoryImplTests {
         providerID: String? = nil,
         providerIDs: [String] = [],
         signInResult: Result<AuthDataResponse?, Error> = .success(nil),
-        deleteCurrentUserError: Error? = nil
+        deleteCurrentUserError: Error? = nil,
+        clearCurrentSessionError: Error? = nil
     ) -> AuthenticationRepositoryFixture {
         let events = AuthenticationRepositoryEventRecorder()
         let authService = AuthenticationRepositoryAuthServiceSpy(
@@ -106,6 +141,7 @@ struct AuthenticationRepositoryImplTests {
             providerID: providerID,
             providerIDs: providerIDs,
             deleteCurrentUserError: deleteCurrentUserError,
+            clearCurrentSessionError: clearCurrentSessionError,
             events: events
         )
         let appleAuthService = AuthenticationServiceSpy(
@@ -149,6 +185,7 @@ private struct AuthenticationRepositoryFixture {
 }
 
 private enum AuthenticationRepositoryTestError: Error, Equatable {
+    case clearCurrentSession
     case requiresRecentLogin
 }
 
@@ -171,6 +208,7 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
     private let subject: CurrentValueSubject<Bool, Never>
     private let providerID: String?
     private let deleteCurrentUserError: Error?
+    private let clearCurrentSessionError: Error?
     private let events: AuthenticationRepositoryEventRecorder
 
     var uid: String?
@@ -183,6 +221,7 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
         providerIDs: [String],
         providerCount: Int? = nil,
         deleteCurrentUserError: Error? = nil,
+        clearCurrentSessionError: Error? = nil,
         events: AuthenticationRepositoryEventRecorder
     ) {
         self.uid = uid
@@ -190,6 +229,7 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
         self.providerIDs = providerIDs
         self.providerCount = providerCount ?? providerIDs.count
         self.deleteCurrentUserError = deleteCurrentUserError
+        self.clearCurrentSessionError = clearCurrentSessionError
         self.events = events
         self.subject = CurrentValueSubject<Bool, Never>(uid != nil)
     }
@@ -223,10 +263,13 @@ final class AuthenticationRepositoryAuthServiceSpy: AuthService {
 
     func clearCurrentSession() async throws {
         events.record("auth.clearCurrentSession")
+        if let clearCurrentSessionError {
+            throw clearCurrentSessionError
+        }
     }
 }
 
-actor AuthenticationServiceSpy: AuthenticationService {
+final class AuthenticationServiceSpy: AuthenticationService {
     private let provider: String
     private let signInResult: Result<AuthDataResponse?, Error>
     private let linkResult: Result<Bool, Error>
@@ -252,8 +295,8 @@ actor AuthenticationServiceSpy: AuthenticationService {
         return try signInResult.get()
     }
 
-    func signOut(_ uid: String) async throws {
-        events.record("\(provider).signOut")
+    func clearLocalSession() {
+        events.record("\(provider).clearLocalSession")
     }
 
     func deleteAuth(_ uid: String) async throws {

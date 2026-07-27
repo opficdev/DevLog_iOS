@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Core
 import PresentationShared
 import Domain
 
@@ -59,6 +60,13 @@ struct LoginView: View {
                 .padding(.vertical)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .background {
+            WindowSceneIdentifierReader {
+                store.send(.setPresentationContext(
+                    $0.map(AuthPresentationContext.init(identifier:))
+                ))
+            }
+        }
     }
 
     private func signInButton(
@@ -73,7 +81,7 @@ struct LoginView: View {
         ) {
             store.send(.tapSignInButton(provider))
         }
-        .disabled(store.isLoading)
+        .disabled(store.isLoading || store.presentationContext == nil)
         .opacity(store.isLoading ? 0.5 : 1)
     }
 }

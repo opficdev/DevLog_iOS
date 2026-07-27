@@ -38,7 +38,10 @@ extension FunctionAPIEndpoint where Response == EmptyAPIResponse {
     static let linkGithubAccount = Self(method: .put, path: "/auth/github/account-link")
     static let unlinkGithubAccount = Self(method: .delete, path: "/auth/github/account-link")
     static let revokeGoogleAccessToken = Self(method: .delete, path: "/auth/google/access-token")
-    static let linkGoogleAccount = Self(method: .put, path: "/auth/google/account-link")
+    static let linkGoogleAccount = Self(
+        method: .put,
+        path: "/auth/google/authorization-code/account-link"
+    )
     static let unlinkGoogleAccount = Self(method: .delete, path: "/auth/google/account-link")
     static let linkAppleAccount = Self(method: .put, path: "/auth/apple/account-link")
     static let unlinkAppleAccount = Self(method: .delete, path: "/auth/apple/account-link")
@@ -52,7 +55,10 @@ extension FunctionAPIEndpoint where Response == AppleChallengeResponse {
 extension FunctionAPIEndpoint where Response == FirebaseCustomTokenResponse {
     static let requestAppleCustomToken = Self(method: .post, path: "/auth/apple/custom-token")
     static let requestGithubCustomToken = Self(method: .post, path: "/auth/github/custom-token")
-    static let requestGoogleCustomToken = Self(method: .post, path: "/auth/google/custom-token")
+    static let requestGoogleAuthorizationCustomToken = Self(
+        method: .post,
+        path: "/auth/google/authorization-code/custom-token"
+    )
 }
 
 extension FunctionAPIEndpoint where Response == OAuthAuthenticationSessionResponse {
@@ -63,14 +69,6 @@ extension FunctionAPIEndpoint where Response == OAuthAuthenticationSessionRespon
     static let requestGithubAccountLinkSession = Self(
         method: .post,
         path: "/auth/github/account-link-sessions"
-    )
-    static let requestGoogleSignInSession = Self(
-        method: .post,
-        path: "/auth/google/sign-in-sessions"
-    )
-    static let requestGoogleAccountLinkSession = Self(
-        method: .post,
-        path: "/auth/google/account-link-sessions"
     )
 }
 
