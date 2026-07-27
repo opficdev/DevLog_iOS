@@ -133,7 +133,10 @@ private extension GoogleAuthenticationServiceImpl {
     static func requestGoogleServerAuthCode(
         signOutPreviousSession: Bool = false
     ) async throws -> String {
-        guard let topViewController = TopViewControllerProvider.topViewController() else {
+        guard let identifier = AuthPresentationContext.current?.identifier,
+              let controller = TopViewControllerProvider.topViewController(
+            identifier: identifier
+        ) else {
             throw UIError.notFoundTopViewController
         }
 
@@ -142,7 +145,7 @@ private extension GoogleAuthenticationServiceImpl {
             GIDSignIn.sharedInstance.signOut()
         }
 
-        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: topViewController)
+        let signIn = try await GIDSignIn.sharedInstance.signIn(withPresenting: controller)
 
         guard let serverAuthCode = signIn.serverAuthCode else {
             throw URLError(.badServerResponse)

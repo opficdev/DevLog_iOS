@@ -5,6 +5,7 @@
 //  Created by opfic on 6/11/26.
 //
 
+import Core
 import Domain
 import Foundation
 import PresentationShared
@@ -19,6 +20,7 @@ struct AccountFeature {
         var disconnectedProviders: [AuthProvider] = []
         var activeLoadingProvider: AuthProvider?
         var loading = LoadingFeature.State()
+        var presentationContext: AuthPresentationContext?
 
         var isLoading: Bool {
             loading.isLoading
@@ -29,6 +31,7 @@ struct AccountFeature {
         case alert(PresentationAction<Never>)
         case onAppear
         case linkWithProvider(AuthProvider)
+        case setPresentationContext(AuthPresentationContext?)
         case unlinkFromProvider(AuthProvider)
         case setAlert(AlertType)
         case setProviders(currentProvider: AuthProvider?, allProviders: [AuthProvider])
@@ -58,9 +61,18 @@ struct AccountFeature {
             case .onAppear:
                 return fetchProvidersEffect()
             case .linkWithProvider(let provider):
-                guard !state.isLoading else { return .none }
+                guard !state.isLoading,
+                      let context = state.presentationContext
+                else {
+                    return .none
+                }
                 state.activeLoadingProvider = provider
-                return linkProviderEffect(provider)
+                return linkProviderEffect(
+                    provider,
+                    context: context
+                )
+            case .setPresentationContext(let context):
+                state.presentationContext = context
             case .unlinkFromProvider(let provider):
                 guard !state.isLoading else { return .none }
                 state.activeLoadingProvider = provider
@@ -147,11 +159,18 @@ private extension AccountFeature {
         }
     }
 
-    func linkProviderEffect(_ provider: AuthProvider) -> Effect<Action> {
+    func linkProviderEffect(
+        _ provider: AuthProvider,
+        context: AuthPresentationContext
+    ) -> Effect<Action> {
         .run { [fetchProvidersUseCase, linkProviderUseCase] send in
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
-                let linked = try await linkProviderUseCase.execute(provider)
+                let linked = try await AuthPresentationContext
+                    .$current
+                    .withValue(context) {
+                        try await linkProviderUseCase.execute(provider)
+                    }
                 guard linked else {
                     await send(.loading(.end(target: .default, mode: .delayed)))
                     return

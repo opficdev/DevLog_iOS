@@ -8,6 +8,7 @@
 // swiftlint:disable file_length
 
 import Testing
+import Core
 import Foundation
 import Domain
 import PresentationShared
@@ -55,6 +56,7 @@ struct AccountFeatureTests {
         #expect(driver.currentProvider == .google)
         #expect(driver.connectedProviders == [.github])
         #expect(driver.disconnectedProviders == [.apple])
+        #expect(linkSpy.presentationContextIdentifiers == ["scene-id"])
     }
 
     @Test("연동 해제에 성공하면 선택한 제공자를 해제하고 제공자 목록을 다시 가져온다")
@@ -90,7 +92,9 @@ struct AccountFeatureTests {
         let linkSpy = LinkAuthProviderUseCaseSpy()
         linkSpy.shouldSuspend = true
         let target = LoadingFeature.Target.default
-        let store = TestStore(initialState: AccountFeature.State()) {
+        var state = AccountFeature.State()
+        state.presentationContext = AuthPresentationContext(identifier: "scene-id")
+        let store = TestStore(initialState: state) {
             AccountFeature()
         } withDependencies: {
             $0.fetchAuthProvidersUseCase = fetchSpy
@@ -282,7 +286,9 @@ private struct AccountTestDriver {
         linkUseCase: LinkAuthProviderUseCase = LinkAuthProviderUseCaseSpy(),
         unlinkUseCase: UnlinkAuthProviderUseCase = UnlinkAuthProviderUseCaseSpy()
     ) {
-        feature = Store(initialState: AccountFeature.State()) {
+        var state = AccountFeature.State()
+        state.presentationContext = AuthPresentationContext(identifier: "scene-id")
+        feature = Store(initialState: state) {
             AccountFeature()
         } withDependencies: {
             $0.fetchAuthProvidersUseCase = fetchUseCase
@@ -345,11 +351,15 @@ private final class LinkAuthProviderUseCaseSpy: LinkAuthProviderUseCase {
     var linked = true
     var shouldSuspend = false
     private(set) var providers = [AuthProvider]()
+    private(set) var presentationContextIdentifiers = [String]()
     private var continuation: CheckedContinuation<Void, Never>?
     private var shouldResume = false
 
     func execute(_ provider: AuthProvider) async throws -> Bool {
         providers.append(provider)
+        presentationContextIdentifiers.append(
+            AuthPresentationContext.current?.identifier ?? ""
+        )
 
         if shouldSuspend {
             await withCheckedContinuation { continuation in
