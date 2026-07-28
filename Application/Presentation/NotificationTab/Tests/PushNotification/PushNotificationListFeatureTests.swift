@@ -119,8 +119,8 @@ struct PushNotificationListFeatureTests {
         #expect(adapter.query.referenceDate == now)
     }
 
-    @Test("fetchNotifications는 첫 페이지를 조회하고 목록과 hasMore 상태를 갱신한다")
-    func fetchNotifications는_첫_페이지를_조회하고_목록과_hasMore_상태를_갱신한다() async throws {
+    @Test("fetchNotifications는 첫 페이지를 조회하고 목록과 nextCursor 상태를 갱신한다")
+    func fetchNotifications는_첫_페이지를_조회하고_목록과_nextCursor_상태를_갱신한다() async throws {
         let cursor = makePushNotificationCursor(documentID: "cursor-1")
         let notifications = (0..<20).map {
             makePushNotification(id: "notification-\($0)", number: $0, isRead: $0.isMultiple(of: 2))
@@ -151,6 +151,22 @@ struct PushNotificationListFeatureTests {
             fetchUseCaseSpy: fetchSpy,
             nextNotification: nextNotification
         )
+    }
+
+    @Test("nextCursor가 없으면 페이지 크기만큼 조회해도 다음 페이지를 요청하지 않는다")
+    func nextCursor가_없으면_페이지_크기만큼_조회해도_다음_페이지를_요청하지_않는다() async {
+        let notifications = (0..<20).map {
+            makePushNotification(id: "notification-\($0)", number: $0)
+        }
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [
+            PushNotificationPage(items: notifications, nextCursor: nil)
+        ])
+        let adapter = PushNotificationListStoreTestAdapter(fetchUseCase: fetchSpy)
+
+        await adapter.fetchNotifications()
+        await adapter.loadNextPage()
+
+        #expect(fetchSpy.cursors.count == 1)
     }
 
     @Test("필터 액션은 query와 적용 필터 수를 갱신한다")

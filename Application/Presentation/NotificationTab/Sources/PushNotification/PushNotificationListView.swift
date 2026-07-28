@@ -128,7 +128,7 @@ public struct PushNotificationListView: View {
         )
         .onAppear {
             let lastId = notifications.last?.id
-            if notification.id == lastId, store.hasMore {
+            if notification.id == lastId, store.nextCursor != nil {
                 store.send(.view(.loadNextPage))
             }
         }

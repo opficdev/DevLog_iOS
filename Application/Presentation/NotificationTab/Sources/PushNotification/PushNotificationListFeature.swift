@@ -18,7 +18,6 @@ struct PushNotificationListFeature {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         var notifications: [PushNotificationItem] = []
-        var hasMore = false
         var nextCursor: PushNotificationCursor?
         var query: PushNotificationQuery
         var selectedNotificationId: String?
@@ -82,8 +81,7 @@ struct PushNotificationListFeature {
             case setAlert
             case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
             case resetPagination
-            case setHasMore(Bool)
-            case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
+            case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
             case setNotificationHidden(String, Bool)
             case setNotificationRead(String, Bool)
         }
@@ -174,7 +172,7 @@ private extension PushNotificationListFeature {
             state.nextCursor = nil
             return fetchNotificationsPageEffect(query: state.query, cursor: nil)
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading else { return .none }
+            guard state.nextCursor != nil, !state.isLoading else { return .none }
             return fetchNotificationsPageEffect(
                 query: state.query,
                 cursor: state.nextCursor
@@ -258,15 +256,12 @@ private extension PushNotificationListFeature {
         case .resetPagination:
             state.notifications = []
             state.nextCursor = nil
-        case .setHasMore(let value):
-            state.hasMore = value
-        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+        case .syncNotifications(let notifications, let nextCursor):
             state.notifications = Self.mergedHiddenNotifications(
                 currentNotifications: state.notifications,
                 incomingNotifications: notifications
             )
             state.nextCursor = nextCursor
-            state.hasMore = hasMore
         case .setNotificationHidden(let notificationId, let isHidden):
             Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
         case .setNotificationRead(let notificationId, let isRead):
@@ -309,7 +304,6 @@ private extension PushNotificationListFeature {
                         nextCursor: page.nextCursor
                     ))
                 )
-                await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
                 if showsIndicator {
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
@@ -332,8 +326,7 @@ private extension PushNotificationListFeature {
                 let publisher = try fetchPushNotificationsUseCase.observe(query, limit: limit)
                 for try await page in publisher.values {
                     let items = page.items.map(PushNotificationItem.init(from:))
-                    let hasMore = items.count == max(query.pageSize, limit) && page.nextCursor != nil
-                    await send(.store(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore)))
+                    await send(.store(.syncNotifications(items, nextCursor: page.nextCursor)))
                 }
             } catch is CancellationError {
             } catch {

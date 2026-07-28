@@ -17,7 +17,7 @@ import Foundation
 protocol PushNotificationListStateDriving {
     var notifications: [PushNotificationItem] { get }
     var query: PushNotificationQuery { get }
-    var hasMore: Bool { get }
+    var nextCursor: PushNotificationCursor? { get }
     var selectedNotificationId: String? { get }
     var selectedTodoId: TodoIdItem? { get }
     var appliedFilterCount: Int { get }
@@ -43,7 +43,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
 
     var notifications: [PushNotificationItem] { store.state.notifications }
     var query: PushNotificationQuery { store.state.query }
-    var hasMore: Bool { store.state.hasMore }
+    var nextCursor: PushNotificationCursor? { store.state.nextCursor }
     var selectedNotificationId: String? { store.state.selectedNotificationId }
     var selectedTodoId: TodoIdItem? { store.state.selectedTodoId }
     var appliedFilterCount: Int { store.state.appliedFilterCount }

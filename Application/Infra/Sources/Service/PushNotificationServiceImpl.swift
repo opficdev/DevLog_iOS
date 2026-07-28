@@ -135,25 +135,12 @@ final class PushNotificationServiceImpl: PushNotificationService {
                 ])
             }
 
+            let pageLimit = notificationQuery.pageSize
             let snapshot = try await firestoreQuery
-                .limit(to: notificationQuery.pageSize)
+                .limit(to: pageLimit + 1)
                 .getDocuments()
 
-            let items = snapshot.documents.compactMap { makeResponse(from: $0) }
-
-            let nextCursor: PushNotificationCursorDTO? = snapshot.documents.last.map { document in
-                guard let receivedAt = document.data()[PushNotificationFieldKey.receivedAt.rawValue] as? Timestamp
-                else {
-                    return nil
-                }
-
-                return PushNotificationCursorDTO(
-                    receivedAt: receivedAt.dateValue(),
-                    documentID: document.documentID
-                )
-            } ?? nil
-
-            return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
+            return makePageResponse(from: snapshot.documents, limit: pageLimit)
         } catch {
             logger.error("Failed to request notifications", error: error)
             record(error, code: .requestNotifications)
@@ -170,7 +157,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
         let subject = PassthroughSubject<PushNotificationPageResponse, Error>()
         let pageLimit = max(query.pageSize, limit)
         let listener = makeQuery(uid: uid, query: query)
-            .limit(to: pageLimit)
+            .limit(to: pageLimit + 1)
             .addSnapshotListener { [weak self] snapshot, error in
                 if let error {
                     Self.record(error, code: .observeNotifications)
@@ -180,14 +167,7 @@ final class PushNotificationServiceImpl: PushNotificationService {
 
                 guard let self, let snapshot else { return }
 
-                let items = snapshot.documents.compactMap { self.makeResponse(from: $0) }
-                let nextCursor = self.makeNextCursor(from: snapshot.documents.last)
-                subject.send(
-                    PushNotificationPageResponse(
-                        items: items,
-                        nextCursor: nextCursor
-                    )
-                )
+                subject.send(self.makePageResponse(from: snapshot.documents, limit: pageLimit))
             }
 
         return subject
@@ -347,6 +327,19 @@ private extension PushNotificationServiceImpl {
             receivedAt: receivedAt.dateValue(),
             documentID: document.documentID
         )
+    }
+
+    func makePageResponse(
+        from documents: [QueryDocumentSnapshot],
+        limit: Int
+    ) -> PushNotificationPageResponse {
+        let pageDocuments = Array(documents.prefix(limit))
+        let items = pageDocuments.compactMap { makeResponse(from: $0) }
+        let nextCursor = limit < documents.count
+            ? makeNextCursor(from: pageDocuments.last)
+            : nil
+
+        return PushNotificationPageResponse(items: items, nextCursor: nextCursor)
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> PushNotificationResponse? {

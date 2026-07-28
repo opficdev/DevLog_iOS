@@ -40,11 +40,10 @@ func verifyFetchNotifications<Adapter: PushNotificationListStateDriving>(
     }
 
     let notifications = adapter.notifications
-    let hasMore = adapter.hasMore
     #expect(fetchUseCaseSpy.queries.map(\.pageSize) == [20])
     #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil])
     #expect(notifications == expectedItems)
-    #expect(hasMore)
+    #expect(adapter.nextCursor == fetchUseCaseSpy.pages[0].nextCursor)
 }
 
 @MainActor
@@ -68,10 +67,9 @@ func verifyLoadNextPage<Adapter: PushNotificationListStateDriving>(
     }
 
     let notifications = adapter.notifications
-    let hasMore = adapter.hasMore
     #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil, nextCursorId])
     #expect(notifications.last == PushNotificationItem(from: nextNotification))
-    #expect(!hasMore)
+    #expect(adapter.nextCursor == nil)
 }
 
 @MainActor
