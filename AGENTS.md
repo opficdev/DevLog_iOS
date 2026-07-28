@@ -24,3 +24,4 @@
 - For a delegated role, read `.agents/roles.md` and follow the assigned role section and output format.
 - Use `.agents/workflows.md` when the task matches one of its executable workflows.
 - If repository-local instructions conflict with global memory, follow the repository-local instructions.
+- Write DevLog PR and review text in Korean.
