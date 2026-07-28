@@ -119,6 +119,57 @@ struct PushNotificationListFeatureTests {
         #expect(adapter.query.referenceDate == now)
     }
 
+    @Test("refresh는 listener를 중단하고 조회 완료 후 재구독한 결과를 반영한다")
+    func refresh는_listener를_중단하고_조회_완료_후_재구독한_결과를_반영한다() async {
+        let subject = PassthroughSubject<PushNotificationPage, Error>()
+        let cancellationSpy = ObservationCancellationSpy()
+        let initialNotification = makePushNotification(id: "initial", number: 0)
+        let refreshingNotification = makePushNotification(id: "refreshing", number: 1)
+        let fetchedNotification = makePushNotification(id: "fetched", number: 2)
+        let observedNotification = makePushNotification(id: "observed", number: 3)
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(
+            pages: [
+                PushNotificationPage(items: [fetchedNotification], nextCursor: nil)
+            ],
+            observePublisher: subject
+                .handleEvents(receiveCancel: cancellationSpy.call)
+                .eraseToAnyPublisher()
+        )
+        fetchSpy.shouldSuspend = true
+        let adapter = PushNotificationListStoreTestAdapter(fetchUseCase: fetchSpy)
+
+        await adapter.startObserving()
+        subject.send(PushNotificationPage(items: [initialNotification], nextCursor: nil))
+        await waitUntilMainActor {
+            adapter.notifications.map(\.id) == [initialNotification.id]
+        }
+
+        let task = Task { await adapter.refresh() }
+        await waitUntilMainActor {
+            fetchSpy.queries.count == 1
+        }
+
+        #expect(cancellationSpy.callCount == 1)
+
+        subject.send(PushNotificationPage(items: [refreshingNotification], nextCursor: nil))
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(adapter.notifications.map(\.id) == [initialNotification.id])
+
+        fetchSpy.resume()
+        await task.value
+
+        #expect(adapter.notifications.map(\.id) == [fetchedNotification.id])
+
+        await adapter.startObserving()
+        subject.send(PushNotificationPage(items: [observedNotification], nextCursor: nil))
+        await waitUntilMainActor {
+            adapter.notifications.map(\.id) == [observedNotification.id]
+        }
+
+        subject.send(completion: .finished)
+        await adapter.finishEffects()
+    }
+
     @Test("fetchNotifications는 첫 페이지를 조회하고 목록과 nextCursor 상태를 갱신한다")
     func fetchNotifications는_첫_페이지를_조회하고_목록과_nextCursor_상태를_갱신한다() async throws {
         let cursor = makePushNotificationCursor(documentID: "cursor-1")

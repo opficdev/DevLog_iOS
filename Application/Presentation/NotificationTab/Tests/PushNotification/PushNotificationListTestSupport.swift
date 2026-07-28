@@ -191,10 +191,13 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
     var pages: [PushNotificationPage]
     var error: Error?
     var observePublisher: AnyPublisher<PushNotificationPage, Error>
+    var shouldSuspend = false
     private(set) var queries = [PushNotificationQuery]()
     private(set) var cursors = [PushNotificationCursor?]()
     private(set) var observedQueries = [PushNotificationQuery]()
     private(set) var observedLimits = [Int]()
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var shouldResume = false
 
     init(
         pages: [PushNotificationPage] = [PushNotificationPage(items: [], nextCursor: nil)],
@@ -210,6 +213,17 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
     ) async throws -> PushNotificationPage {
         queries.append(query)
         cursors.append(cursor)
+
+        if shouldSuspend {
+            await withCheckedContinuation { continuation in
+                if shouldResume {
+                    shouldResume = false
+                    continuation.resume()
+                } else {
+                    self.continuation = continuation
+                }
+            }
+        }
 
         if let error {
             throw error
@@ -229,5 +243,23 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
         observedQueries.append(query)
         observedLimits.append(limit)
         return observePublisher
+    }
+
+    func resume() {
+        guard let continuation else {
+            shouldResume = true
+            return
+        }
+
+        self.continuation = nil
+        continuation.resume()
+    }
+}
+
+final class ObservationCancellationSpy {
+    private(set) var callCount = 0
+
+    func call() {
+        callCount += 1
     }
 }

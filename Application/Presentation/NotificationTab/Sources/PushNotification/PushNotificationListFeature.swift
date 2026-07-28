@@ -80,8 +80,7 @@ struct PushNotificationListFeature {
         enum StoreAction: Equatable {
             case setAlert
             case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
-            case resetPagination
-            case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
+            case replaceNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
             case setNotificationHidden(String, Bool)
             case setNotificationRead(String, Bool)
         }
@@ -163,10 +162,13 @@ private extension PushNotificationListFeature {
         case .refresh:
             state.nextCursor = nil
             state.query.referenceDate = now
-            return fetchNotificationsPageEffect(
-                query: state.query,
-                cursor: nil,
-                showsIndicator: false
+            return .concatenate(
+                .cancel(id: CancelID.observeNotifications),
+                fetchNotificationsPageEffect(
+                    query: state.query,
+                    cursor: nil,
+                    showsIndicator: false
+                )
             )
         case .fetchNotifications:
             state.nextCursor = nil
@@ -253,10 +255,7 @@ private extension PushNotificationListFeature {
                 incomingNotifications: notifications
             ))
             state.nextCursor = nextCursor
-        case .resetPagination:
-            state.notifications = []
-            state.nextCursor = nil
-        case .syncNotifications(let notifications, let nextCursor):
+        case .replaceNotifications(let notifications, let nextCursor):
             state.notifications = Self.mergedHiddenNotifications(
                 currentNotifications: state.notifications,
                 incomingNotifications: notifications
@@ -295,15 +294,22 @@ private extension PushNotificationListFeature {
             }
             do {
                 let page = try await fetchPushNotificationsUseCase.execute(query, cursor: cursor)
+                let notifications = page.items.map(PushNotificationItem.init(from:))
                 if cursor == nil {
-                    await send(.store(.resetPagination))
+                    await send(
+                        .store(.replaceNotifications(
+                            notifications,
+                            nextCursor: page.nextCursor
+                        ))
+                    )
+                } else {
+                    await send(
+                        .store(.appendNotifications(
+                            notifications,
+                            nextCursor: page.nextCursor
+                        ))
+                    )
                 }
-                await send(
-                    .store(.appendNotifications(
-                        page.items.map(PushNotificationItem.init(from:)),
-                        nextCursor: page.nextCursor
-                    ))
-                )
                 if showsIndicator {
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
@@ -326,7 +332,7 @@ private extension PushNotificationListFeature {
                 let publisher = try fetchPushNotificationsUseCase.observe(query, limit: limit)
                 for try await page in publisher.values {
                     let items = page.items.map(PushNotificationItem.init(from:))
-                    await send(.store(.syncNotifications(items, nextCursor: page.nextCursor)))
+                    await send(.store(.replaceNotifications(items, nextCursor: page.nextCursor)))
                 }
             } catch is CancellationError {
             } catch {
