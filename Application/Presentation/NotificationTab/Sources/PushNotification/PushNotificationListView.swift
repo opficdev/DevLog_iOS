@@ -38,7 +38,11 @@ public struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { await store.send(.view(.refresh)).finish() }
+                .refreshable(isEnabled: PullToRefreshAvailability.isEnabled) {
+                    let task = store.send(.view(.refresh))
+                    await task.finish()
+                    store.send(.view(.startObserving))
+                }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
@@ -124,7 +128,7 @@ public struct PushNotificationListView: View {
         )
         .onAppear {
             let lastId = notifications.last?.id
-            if notification.id == lastId, store.hasMore {
+            if notification.id == lastId, store.nextCursor != nil {
                 store.send(.view(.loadNextPage))
             }
         }

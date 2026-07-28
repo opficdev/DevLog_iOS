@@ -17,6 +17,8 @@ public final class PushNotificationListViewCoordinator {
     private let container: DIContainer
     @ObservationIgnored
     private var todoDetailStore: StoreOf<TodoDetailFeature>?
+    @ObservationIgnored
+    private var fetchNotificationsTask: Task<Void, Never>?
 
     public init(container: DIContainer) {
         self.container = container
@@ -42,7 +44,15 @@ public final class PushNotificationListViewCoordinator {
     }
 
     public func fetchData() {
-        store.send(.view(.fetchNotifications))
+        fetchNotificationsTask?.cancel()
+        store.send(.view(.stopObserving))
+        let query = store.query
+        let task = store.send(.view(.fetchNotifications))
+        fetchNotificationsTask = Task { [store] in
+            await task.finish()
+            guard !Task.isCancelled, store.query == query else { return }
+            store.send(.view(.startObserving))
+        }
     }
 
     public func makeTodoDetailStore(todoId: String) -> StoreOf<TodoDetailFeature> {

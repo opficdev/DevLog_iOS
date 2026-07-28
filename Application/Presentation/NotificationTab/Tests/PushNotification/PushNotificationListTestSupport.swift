@@ -17,11 +17,13 @@ import Foundation
 protocol PushNotificationListStateDriving {
     var notifications: [PushNotificationItem] { get }
     var query: PushNotificationQuery { get }
-    var hasMore: Bool { get }
+    var nextCursor: PushNotificationCursor? { get }
     var selectedNotificationId: String? { get }
     var selectedTodoId: TodoIdItem? { get }
     var appliedFilterCount: Int { get }
 
+    func startObserving() async
+    func refresh() async
     func fetchNotifications() async
     func loadNextPage() async
     func toggleSortOption() async
@@ -41,7 +43,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
 
     var notifications: [PushNotificationItem] { store.state.notifications }
     var query: PushNotificationQuery { store.state.query }
-    var hasMore: Bool { store.state.hasMore }
+    var nextCursor: PushNotificationCursor? { store.state.nextCursor }
     var selectedNotificationId: String? { store.state.selectedNotificationId }
     var selectedTodoId: TodoIdItem? { store.state.selectedTodoId }
     var appliedFilterCount: Int { store.state.appliedFilterCount }
@@ -54,6 +56,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
         toggleReadUseCase: TogglePushNotificationReadUseCase = TogglePushNotificationReadUseCaseSpy(),
         fetchQueryUseCase: FetchPushNotificationQueryUseCase = FetchPushNotificationQueryUseCaseSpy(),
         updateQueryUseCase: UpdatePushNotificationQueryUseCase = UpdatePushNotificationQueryUseCaseSpy(),
+        now: Date? = nil,
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
         store = TestStore(
@@ -69,9 +72,23 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
             $0.togglePushNotificationReadUseCase = toggleReadUseCase
             $0.updatePushNotificationQueryUseCase = updateQueryUseCase
             $0.continuousClock = ContinuousClock()
+            if let now {
+                $0.date.now = now
+            }
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
+    }
+
+    func startObserving() async {
+        await store.send(.view(.startObserving))
+        await drainReceivedActions()
+    }
+
+    func refresh() async {
+        let task = await store.send(.view(.refresh))
+        await drainReceivedActions()
+        await task.finish()
     }
 
     func fetchNotifications() async {
@@ -137,6 +154,11 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
         await store.send(.sheet(.dismiss))
     }
 
+    func finishEffects() async {
+        await drainReceivedActions()
+        await store.finish()
+    }
+
     private func presentDeleteNotificationToast(_ notificationId: String) {
         ToastPresenter.present(
             message: String(localized: "common_undo"),
@@ -169,8 +191,13 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
     var pages: [PushNotificationPage]
     var error: Error?
     var observePublisher: AnyPublisher<PushNotificationPage, Error>
+    var shouldSuspend = false
     private(set) var queries = [PushNotificationQuery]()
     private(set) var cursors = [PushNotificationCursor?]()
+    private(set) var observedQueries = [PushNotificationQuery]()
+    private(set) var observedLimits = [Int]()
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var shouldResume = false
 
     init(
         pages: [PushNotificationPage] = [PushNotificationPage(items: [], nextCursor: nil)],
@@ -187,6 +214,17 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
         queries.append(query)
         cursors.append(cursor)
 
+        if shouldSuspend {
+            await withCheckedContinuation { continuation in
+                if shouldResume {
+                    shouldResume = false
+                    continuation.resume()
+                } else {
+                    self.continuation = continuation
+                }
+            }
+        }
+
         if let error {
             throw error
         }
@@ -202,6 +240,26 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPage, Error> {
-        observePublisher
+        observedQueries.append(query)
+        observedLimits.append(limit)
+        return observePublisher
+    }
+
+    func resume() {
+        guard let continuation else {
+            shouldResume = true
+            return
+        }
+
+        self.continuation = nil
+        continuation.resume()
+    }
+}
+
+final class ObservationCancellationSpy {
+    private(set) var callCount = 0
+
+    func call() {
+        callCount += 1
     }
 }

@@ -40,11 +40,10 @@ func verifyFetchNotifications<Adapter: PushNotificationListStateDriving>(
     }
 
     let notifications = adapter.notifications
-    let hasMore = adapter.hasMore
     #expect(fetchUseCaseSpy.queries.map(\.pageSize) == [20])
     #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil])
     #expect(notifications == expectedItems)
-    #expect(hasMore)
+    #expect(adapter.nextCursor == fetchUseCaseSpy.pages[0].nextCursor)
 }
 
 @MainActor
@@ -68,16 +67,16 @@ func verifyLoadNextPage<Adapter: PushNotificationListStateDriving>(
     }
 
     let notifications = adapter.notifications
-    let hasMore = adapter.hasMore
     #expect(fetchUseCaseSpy.cursors.map { $0?.documentID } == [nil, nextCursorId])
     #expect(notifications.last == PushNotificationItem(from: nextNotification))
-    #expect(!hasMore)
+    #expect(adapter.nextCursor == nil)
 }
 
 @MainActor
 func verifyFilterStateTransitions<Adapter: PushNotificationListStateDriving>(
     adapter: Adapter,
-    updateQueryUseCaseSpy: UpdatePushNotificationQueryUseCaseSpy
+    updateQueryUseCaseSpy: UpdatePushNotificationQueryUseCaseSpy,
+    referenceDate: Date
 ) async throws {
     await adapter.toggleSortOption()
     await adapter.setTimeFilter(.hours(24))
@@ -90,18 +89,40 @@ func verifyFilterStateTransitions<Adapter: PushNotificationListStateDriving>(
     #expect(query.unreadOnly)
     #expect(appliedFilterCount == 3)
     #expect(updateQueryUseCaseSpy.queries == [
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .none, unreadOnly: false, pageSize: 20),
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: false, pageSize: 20),
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: true, pageSize: 20)
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .none,
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        ),
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .hours(24),
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        ),
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .hours(24),
+            unreadOnly: true,
+            pageSize: 20,
+            referenceDate: referenceDate
+        )
     ])
 
     await adapter.resetFilters()
 
     let resetQuery = adapter.query
     let resetAppliedFilterCount = adapter.appliedFilterCount
-    #expect(resetQuery == .default)
+    #expect(resetQuery.sortOrder == .latest)
+    #expect(resetQuery.timeFilter == .none)
+    #expect(!resetQuery.unreadOnly)
+    #expect(resetQuery.pageSize == 20)
+    #expect(resetQuery.referenceDate == referenceDate)
     #expect(resetAppliedFilterCount == 0)
-    #expect(updateQueryUseCaseSpy.queries.last == .default)
+    #expect(updateQueryUseCaseSpy.queries.last == resetQuery)
 }
 
 @MainActor

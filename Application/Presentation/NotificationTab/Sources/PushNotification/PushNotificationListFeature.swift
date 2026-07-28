@@ -18,7 +18,6 @@ struct PushNotificationListFeature {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         var notifications: [PushNotificationItem] = []
-        var hasMore = false
         var nextCursor: PushNotificationCursor?
         var query: PushNotificationQuery
         var selectedNotificationId: String?
@@ -58,6 +57,8 @@ struct PushNotificationListFeature {
         case loading(LoadingFeature.Action)
 
         enum ViewAction: Equatable {
+            case stopObserving
+            case startObserving
             case refresh
             case fetchNotifications
             case loadNextPage
@@ -79,9 +80,7 @@ struct PushNotificationListFeature {
         enum StoreAction: Equatable {
             case setAlert
             case appendNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
-            case resetPagination
-            case setHasMore(Bool)
-            case syncNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?, hasMore: Bool)
+            case replaceNotifications([PushNotificationItem], nextCursor: PushNotificationCursor?)
             case setNotificationHidden(String, Bool)
             case setNotificationRead(String, Bool)
         }
@@ -98,6 +97,7 @@ struct PushNotificationListFeature {
     @Dependency(\.undoDeletePushNotificationUseCase) var undoDeletePushNotificationUseCase
     @Dependency(\.togglePushNotificationReadUseCase) var togglePushNotificationReadUseCase
     @Dependency(\.updatePushNotificationQueryUseCase) var updatePushNotificationQueryUseCase
+    @Dependency(\.date.now) var now
 
     var body: some ReducerOf<Self> {
         Scope(state: \.loading, action: \.loading) {
@@ -116,6 +116,7 @@ struct PushNotificationListFeature {
                 break
             case .binding(\.query.timeFilter):
                 state.nextCursor = nil
+                state.query.referenceDate = now
                 return refreshForQueryChangeEffect(query: state.query)
             case .binding:
                 break
@@ -151,23 +152,32 @@ private extension PushNotificationListFeature {
         state: inout State
     ) -> Effect<Action> {
         switch action {
+        case .stopObserving:
+            return .cancel(id: CancelID.observeNotifications)
+        case .startObserving:
+            return observeNotificationsEffect(
+                query: state.query,
+                limit: state.query.pageSize
+            )
         case .refresh:
             state.nextCursor = nil
-            return fetchNotificationsEffect(
-                query: state.query,
-                cursor: nil,
-                existingCount: 0,
-                showsIndicator: false
+            state.query.referenceDate = now
+            return .concatenate(
+                .cancel(id: CancelID.observeNotifications),
+                fetchNotificationsPageEffect(
+                    query: state.query,
+                    cursor: nil,
+                    showsIndicator: false
+                )
             )
         case .fetchNotifications:
             state.nextCursor = nil
-            return fetchNotificationsEffect(query: state.query, cursor: nil, existingCount: 0)
+            return fetchNotificationsPageEffect(query: state.query, cursor: nil)
         case .loadNextPage:
-            guard state.hasMore, !state.isLoading else { return .none }
-            return fetchNotificationsEffect(
+            guard state.nextCursor != nil, !state.isLoading else { return .none }
+            return fetchNotificationsPageEffect(
                 query: state.query,
-                cursor: state.nextCursor,
-                existingCount: state.notifications.count
+                cursor: state.nextCursor
             )
         case .deleteNotification(let item):
             guard state.notifications.contains(where: { $0.id == item.id }) else { return .none }
@@ -193,14 +203,17 @@ private extension PushNotificationListFeature {
             }
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .toggleUnreadOnly:
             state.query.unreadOnly.toggle()
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .resetFilters:
             state.query = .default
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .selectNotification(let notificationId):
@@ -242,18 +255,12 @@ private extension PushNotificationListFeature {
                 incomingNotifications: notifications
             ))
             state.nextCursor = nextCursor
-        case .resetPagination:
-            state.notifications = []
-            state.nextCursor = nil
-        case .setHasMore(let value):
-            state.hasMore = value
-        case .syncNotifications(let notifications, let nextCursor, let hasMore):
+        case .replaceNotifications(let notifications, let nextCursor):
             state.notifications = Self.mergedHiddenNotifications(
                 currentNotifications: state.notifications,
                 incomingNotifications: notifications
             )
             state.nextCursor = nextCursor
-            state.hasMore = hasMore
         case .setNotificationHidden(let notificationId, let isHidden):
             Self.setNotificationHidden(&state, notificationId: notificationId, isHidden: isHidden)
         case .setNotificationRead(let notificationId, let isRead):
@@ -268,32 +275,12 @@ private extension PushNotificationListFeature {
     func refreshForQueryChangeEffect(query: PushNotificationQuery) -> Effect<Action> {
         .merge(
             updateQueryEffect(query: query),
-            fetchNotificationsEffect(query: query, cursor: nil, existingCount: 0)
-        )
-    }
-
-    func fetchNotificationsEffect(
-        query: PushNotificationQuery,
-        cursor: PushNotificationCursor?,
-        existingCount: Int,
-        showsIndicator: Bool = true
-    ) -> Effect<Action> {
-        let limit = max(query.pageSize, existingCount)
-        let fetchEffect = fetchNotificationsPageEffect(query: query, cursor: cursor, showsIndicator: showsIndicator)
-        let observeEffect = observeNotificationsEffect(
-            query: query,
-            limit: max(limit, existingCount + query.pageSize)
-        )
-
-        if cursor == nil {
-            return .concatenate(
-                .cancel(id: CancelID.observeNotifications),
-                fetchEffect,
-                observeEffect
+            .concatenate(
+                .send(.view(.stopObserving)),
+                fetchNotificationsPageEffect(query: query, cursor: nil),
+                .send(.view(.startObserving))
             )
-        }
-
-        return fetchEffect
+        )
     }
 
     func fetchNotificationsPageEffect(
@@ -307,16 +294,22 @@ private extension PushNotificationListFeature {
             }
             do {
                 let page = try await fetchPushNotificationsUseCase.execute(query, cursor: cursor)
+                let notifications = page.items.map(PushNotificationItem.init(from:))
                 if cursor == nil {
-                    await send(.store(.resetPagination))
+                    await send(
+                        .store(.replaceNotifications(
+                            notifications,
+                            nextCursor: page.nextCursor
+                        ))
+                    )
+                } else {
+                    await send(
+                        .store(.appendNotifications(
+                            notifications,
+                            nextCursor: page.nextCursor
+                        ))
+                    )
                 }
-                await send(
-                    .store(.appendNotifications(
-                        page.items.map(PushNotificationItem.init(from:)),
-                        nextCursor: page.nextCursor
-                    ))
-                )
-                await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
                 if showsIndicator {
                     await send(.loading(.end(target: .default, mode: .delayed)))
                 }
@@ -339,8 +332,7 @@ private extension PushNotificationListFeature {
                 let publisher = try fetchPushNotificationsUseCase.observe(query, limit: limit)
                 for try await page in publisher.values {
                     let items = page.items.map(PushNotificationItem.init(from:))
-                    let hasMore = items.count == max(query.pageSize, limit) && page.nextCursor != nil
-                    await send(.store(.syncNotifications(items, nextCursor: page.nextCursor, hasMore: hasMore)))
+                    await send(.store(.replaceNotifications(items, nextCursor: page.nextCursor)))
                 }
             } catch is CancellationError {
             } catch {
