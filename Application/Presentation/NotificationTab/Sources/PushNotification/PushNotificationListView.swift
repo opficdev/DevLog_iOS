@@ -39,7 +39,9 @@ public struct PushNotificationListView: View {
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
                 .refreshable(isEnabled: PullToRefreshAvailability.isEnabled) {
-                    await store.send(.view(.refresh)).finish()
+                    let task = store.send(.view(.refresh))
+                    store.send(.view(.startObserving))
+                    await task.finish()
                 }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)

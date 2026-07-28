@@ -317,7 +317,9 @@ private extension PushNotificationServiceImpl {
         var firestoreQuery: Query = store.collection(FirestorePath.notifications(uid))
             .whereField(PushNotificationFieldKey.isDeleted.rawValue, isEqualTo: false)
 
-        if let thresholdDate = query.timeFilter.thresholdDate {
+        if let thresholdDate = query.timeFilter.thresholdDate(
+            relativeTo: query.referenceDate
+        ) {
             firestoreQuery = firestoreQuery.whereField(
                 "receivedAt",
                 isGreaterThanOrEqualTo: Timestamp(date: thresholdDate)

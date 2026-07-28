@@ -77,7 +77,8 @@ func verifyLoadNextPage<Adapter: PushNotificationListStateDriving>(
 @MainActor
 func verifyFilterStateTransitions<Adapter: PushNotificationListStateDriving>(
     adapter: Adapter,
-    updateQueryUseCaseSpy: UpdatePushNotificationQueryUseCaseSpy
+    updateQueryUseCaseSpy: UpdatePushNotificationQueryUseCaseSpy,
+    referenceDate: Date
 ) async throws {
     await adapter.toggleSortOption()
     await adapter.setTimeFilter(.hours(24))
@@ -90,18 +91,40 @@ func verifyFilterStateTransitions<Adapter: PushNotificationListStateDriving>(
     #expect(query.unreadOnly)
     #expect(appliedFilterCount == 3)
     #expect(updateQueryUseCaseSpy.queries == [
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .none, unreadOnly: false, pageSize: 20),
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: false, pageSize: 20),
-        PushNotificationQuery(sortOrder: .oldest, timeFilter: .hours(24), unreadOnly: true, pageSize: 20)
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .none,
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        ),
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .hours(24),
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        ),
+        PushNotificationQuery(
+            sortOrder: .oldest,
+            timeFilter: .hours(24),
+            unreadOnly: true,
+            pageSize: 20,
+            referenceDate: referenceDate
+        )
     ])
 
     await adapter.resetFilters()
 
     let resetQuery = adapter.query
     let resetAppliedFilterCount = adapter.appliedFilterCount
-    #expect(resetQuery == .default)
+    #expect(resetQuery.sortOrder == .latest)
+    #expect(resetQuery.timeFilter == .none)
+    #expect(!resetQuery.unreadOnly)
+    #expect(resetQuery.pageSize == 20)
+    #expect(resetQuery.referenceDate == referenceDate)
     #expect(resetAppliedFilterCount == 0)
-    #expect(updateQueryUseCaseSpy.queries.last == .default)
+    #expect(updateQueryUseCaseSpy.queries.last == resetQuery)
 }
 
 @MainActor

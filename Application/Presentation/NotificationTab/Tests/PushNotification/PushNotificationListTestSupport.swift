@@ -56,6 +56,7 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
         toggleReadUseCase: TogglePushNotificationReadUseCase = TogglePushNotificationReadUseCaseSpy(),
         fetchQueryUseCase: FetchPushNotificationQueryUseCase = FetchPushNotificationQueryUseCaseSpy(),
         updateQueryUseCase: UpdatePushNotificationQueryUseCase = UpdatePushNotificationQueryUseCaseSpy(),
+        now: Date? = nil,
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
         store = TestStore(
@@ -71,6 +72,9 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
             $0.togglePushNotificationReadUseCase = toggleReadUseCase
             $0.updatePushNotificationQueryUseCase = updateQueryUseCase
             $0.continuousClock = ContinuousClock()
+            if let now {
+                $0.date.now = now
+            }
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)

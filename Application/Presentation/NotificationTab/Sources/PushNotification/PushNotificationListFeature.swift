@@ -100,6 +100,7 @@ struct PushNotificationListFeature {
     @Dependency(\.undoDeletePushNotificationUseCase) var undoDeletePushNotificationUseCase
     @Dependency(\.togglePushNotificationReadUseCase) var togglePushNotificationReadUseCase
     @Dependency(\.updatePushNotificationQueryUseCase) var updatePushNotificationQueryUseCase
+    @Dependency(\.date.now) var now
 
     var body: some ReducerOf<Self> {
         Scope(state: \.loading, action: \.loading) {
@@ -118,6 +119,7 @@ struct PushNotificationListFeature {
                 break
             case .binding(\.query.timeFilter):
                 state.nextCursor = nil
+                state.query.referenceDate = now
                 return refreshForQueryChangeEffect(query: state.query)
             case .binding:
                 break
@@ -162,6 +164,7 @@ private extension PushNotificationListFeature {
             )
         case .refresh:
             state.nextCursor = nil
+            state.query.referenceDate = now
             return fetchNotificationsPageEffect(
                 query: state.query,
                 cursor: nil,
@@ -200,14 +203,17 @@ private extension PushNotificationListFeature {
             }
         case .toggleSortOption:
             state.query.sortOrder = state.query.sortOrder == .latest ? .oldest : .latest
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .toggleUnreadOnly:
             state.query.unreadOnly.toggle()
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .resetFilters:
             state.query = .default
+            state.query.referenceDate = now
             state.nextCursor = nil
             return refreshForQueryChangeEffect(query: state.query)
         case .selectNotification(let notificationId):

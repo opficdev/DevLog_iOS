@@ -23,17 +23,20 @@ public struct PushNotificationQuery: Equatable {
     public var timeFilter: TimeFilter
     public var unreadOnly: Bool
     public var pageSize: Int
+    public var referenceDate: Date
 
     public init(
         sortOrder: SortOrder,
         timeFilter: TimeFilter,
         unreadOnly: Bool,
-        pageSize: Int
+        pageSize: Int,
+        referenceDate: Date = Date()
     ) {
         self.sortOrder = sortOrder
         self.timeFilter = timeFilter
         self.unreadOnly = unreadOnly
         self.pageSize = pageSize
+        self.referenceDate = referenceDate
     }
 
     public static let `default` = PushNotificationQuery(
@@ -67,14 +70,14 @@ public extension PushNotificationQuery.TimeFilter {
         }
     }
 
-    var thresholdDate: Date? {
+    func thresholdDate(relativeTo referenceDate: Date) -> Date? {
         switch self {
         case .none:
             return nil
         case .hours(let value):
-            return Date().addingTimeInterval(-Double(value) * 3600.0)
+            return referenceDate.addingTimeInterval(-Double(value) * 3600.0)
         case .days(let value):
-            return Date().addingTimeInterval(-Double(value) * 86400.0)
+            return referenceDate.addingTimeInterval(-Double(value) * 86400.0)
         }
     }
 }

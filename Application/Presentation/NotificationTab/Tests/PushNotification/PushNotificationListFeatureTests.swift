@@ -6,37 +6,117 @@
 //
 
 import Combine
+import Foundation
 import Testing
+import Core
 import Domain
 @testable import NotificationTab
 
 @MainActor
 struct PushNotificationListFeatureTests {
-    @Test("refresh는 listener와 분리되어 첫 페이지 조회 후 끝난다")
-    func refresh는_listener와_분리되어_첫_페이지_조회_후_끝난다() async {
+    @Test("시간 필터는 query 기준 Date로 threshold를 계산한다")
+    func 시간_필터는_query_기준_Date로_threshold를_계산한다() {
+        let referenceDate = Date(timeIntervalSince1970: 100_000)
+
+        #expect(
+            PushNotificationQuery.TimeFilter.hours(24)
+                .thresholdDate(relativeTo: referenceDate)
+                == referenceDate.addingTimeInterval(-86_400)
+        )
+    }
+
+    @Test("refresh는 기준 Date를 갱신한 query로 첫 페이지를 조회한다")
+    func refresh는_기준_Date를_갱신한_query로_첫_페이지를_조회한다() async {
+        let referenceDate = Date(timeIntervalSince1970: 1_000)
+        let now = Date(timeIntervalSince1970: 2_000)
+        let query = PushNotificationQuery(
+            sortOrder: .latest,
+            timeFilter: .hours(24),
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        )
+        let querySpy = FetchPushNotificationQueryUseCaseSpy()
+        querySpy.pushNotificationQuery = query
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(pages: [
+            PushNotificationPage(items: [], nextCursor: nil)
+        ])
+        let adapter = PushNotificationListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            fetchQueryUseCase: querySpy,
+            now: now
+        )
+
+        await adapter.refresh()
+
+        let refreshedQuery = adapter.query
+        #expect(refreshedQuery.referenceDate == now)
+        #expect(fetchSpy.queries == [refreshedQuery])
+        #expect(fetchSpy.cursors == [nil])
+    }
+
+    @Test("refresh 후 listener는 조회와 같은 기준 Date를 사용한다")
+    func refresh_후_listener는_조회와_같은_기준_Date를_사용한다() async {
         let subject = PassthroughSubject<PushNotificationPage, Error>()
-        let notification = makePushNotification(id: "observed", number: 1)
+        let referenceDate = Date(timeIntervalSince1970: 1_000)
+        let now = Date(timeIntervalSince1970: 2_000)
+        let query = PushNotificationQuery(
+            sortOrder: .latest,
+            timeFilter: .hours(24),
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        )
+        let querySpy = FetchPushNotificationQueryUseCaseSpy()
+        querySpy.pushNotificationQuery = query
         let fetchSpy = PushNotificationListFetchUseCaseSpy(
             pages: [PushNotificationPage(items: [], nextCursor: nil)],
             observePublisher: subject.eraseToAnyPublisher()
         )
-        let adapter = PushNotificationListStoreTestAdapter(fetchUseCase: fetchSpy)
-
-        await adapter.startObserving()
-        subject.send(PushNotificationPage(items: [notification], nextCursor: nil))
-        await waitUntilMainActor {
-            adapter.notifications.first?.id == notification.id
-        }
+        let adapter = PushNotificationListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            fetchQueryUseCase: querySpy,
+            now: now
+        )
 
         await adapter.refresh()
+        await adapter.startObserving()
 
-        #expect(fetchSpy.queries == [.default])
-        #expect(fetchSpy.cursors == [nil])
-        #expect(fetchSpy.observedQueries == [.default])
-        #expect(fetchSpy.observedLimits == [adapter.query.pageSize])
+        let refreshedQuery = adapter.query
+        #expect(fetchSpy.queries == [refreshedQuery])
+        #expect(fetchSpy.observedQueries == [refreshedQuery])
+        #expect(fetchSpy.observedLimits == [refreshedQuery.pageSize])
 
         subject.send(completion: .finished)
         await adapter.finishEffects()
+    }
+
+    @Test("refresh 실패와 관계없이 기준 Date를 갱신한다")
+    func refresh_실패와_관계없이_기준_Date를_갱신한다() async {
+        struct DummyError: Error {}
+
+        let referenceDate = Date(timeIntervalSince1970: 1_000)
+        let now = Date(timeIntervalSince1970: 2_000)
+        let query = PushNotificationQuery(
+            sortOrder: .latest,
+            timeFilter: .hours(24),
+            unreadOnly: false,
+            pageSize: 20,
+            referenceDate: referenceDate
+        )
+        let querySpy = FetchPushNotificationQueryUseCaseSpy()
+        querySpy.pushNotificationQuery = query
+        let fetchSpy = PushNotificationListFetchUseCaseSpy()
+        fetchSpy.error = DummyError()
+        let adapter = PushNotificationListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            fetchQueryUseCase: querySpy,
+            now: now
+        )
+
+        await adapter.refresh()
+
+        #expect(adapter.query.referenceDate == now)
     }
 
     @Test("fetchNotifications는 첫 페이지를 조회하고 목록과 hasMore 상태를 갱신한다")
@@ -75,12 +155,17 @@ struct PushNotificationListFeatureTests {
 
     @Test("필터 액션은 query와 적용 필터 수를 갱신한다")
     func 필터_액션은_query와_적용_필터_수를_갱신한다() async throws {
+        let now = Date(timeIntervalSince1970: 2_000)
         let updateSpy = UpdatePushNotificationQueryUseCaseSpy()
-        let adapter = PushNotificationListStoreTestAdapter(updateQueryUseCase: updateSpy)
+        let adapter = PushNotificationListStoreTestAdapter(
+            updateQueryUseCase: updateSpy,
+            now: now
+        )
 
         try await verifyFilterStateTransitions(
             adapter: adapter,
-            updateQueryUseCaseSpy: updateSpy
+            updateQueryUseCaseSpy: updateSpy,
+            referenceDate: now
         )
     }
 
