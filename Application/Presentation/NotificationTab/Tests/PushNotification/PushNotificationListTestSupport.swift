@@ -22,6 +22,8 @@ protocol PushNotificationListStateDriving {
     var selectedTodoId: TodoIdItem? { get }
     var appliedFilterCount: Int { get }
 
+    func startObserving() async
+    func refresh() async
     func fetchNotifications() async
     func loadNextPage() async
     func toggleSortOption() async
@@ -72,6 +74,17 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
+    }
+
+    func startObserving() async {
+        await store.send(.view(.startObserving))
+        await drainReceivedActions()
+    }
+
+    func refresh() async {
+        let task = await store.send(.view(.refresh))
+        await drainReceivedActions()
+        await task.finish()
     }
 
     func fetchNotifications() async {
@@ -137,6 +150,11 @@ struct PushNotificationListStoreTestAdapter: PushNotificationListStateDriving {
         await store.send(.sheet(.dismiss))
     }
 
+    func finishEffects() async {
+        await drainReceivedActions()
+        await store.finish()
+    }
+
     private func presentDeleteNotificationToast(_ notificationId: String) {
         ToastPresenter.present(
             message: String(localized: "common_undo"),
@@ -171,6 +189,8 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
     var observePublisher: AnyPublisher<PushNotificationPage, Error>
     private(set) var queries = [PushNotificationQuery]()
     private(set) var cursors = [PushNotificationCursor?]()
+    private(set) var observedQueries = [PushNotificationQuery]()
+    private(set) var observedLimits = [Int]()
 
     init(
         pages: [PushNotificationPage] = [PushNotificationPage(items: [], nextCursor: nil)],
@@ -202,6 +222,8 @@ final class PushNotificationListFetchUseCaseSpy: FetchPushNotificationsUseCase {
         _ query: PushNotificationQuery,
         limit: Int
     ) throws -> AnyPublisher<PushNotificationPage, Error> {
-        observePublisher
+        observedQueries.append(query)
+        observedLimits.append(limit)
+        return observePublisher
     }
 }

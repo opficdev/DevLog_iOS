@@ -38,7 +38,7 @@ public struct PushNotificationListView: View {
                     headerOffset = max(0, -offset)
                 }
                 .safeAreaInset(edge: .top) { safeAreaHeader }
-                .refreshable { await store.send(.view(.refresh)).finish() }
+                .refreshableFromiOS18 { await store.send(.view(.refresh)).finish() }
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
@@ -394,5 +394,18 @@ public struct PushNotificationListView: View {
                 store.send(.view(.finishDeleteToast(notificationId)))
             }
         )
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func refreshableFromiOS18(
+        action: @escaping @Sendable () async -> Void
+    ) -> some View {
+        if #available(iOS 18.0, *) {
+            refreshable(action: action)
+        } else {
+            self
+        }
     }
 }

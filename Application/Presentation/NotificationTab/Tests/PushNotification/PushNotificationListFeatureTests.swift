@@ -5,12 +5,40 @@
 //  Created by opfic on 6/12/26.
 //
 
+import Combine
 import Testing
 import Domain
 @testable import NotificationTab
 
 @MainActor
 struct PushNotificationListFeatureTests {
+    @Test("refresh는 listener와 분리되어 첫 페이지 조회 후 끝난다")
+    func refresh는_listener와_분리되어_첫_페이지_조회_후_끝난다() async {
+        let subject = PassthroughSubject<PushNotificationPage, Error>()
+        let notification = makePushNotification(id: "observed", number: 1)
+        let fetchSpy = PushNotificationListFetchUseCaseSpy(
+            pages: [PushNotificationPage(items: [], nextCursor: nil)],
+            observePublisher: subject.eraseToAnyPublisher()
+        )
+        let adapter = PushNotificationListStoreTestAdapter(fetchUseCase: fetchSpy)
+
+        await adapter.startObserving()
+        subject.send(PushNotificationPage(items: [notification], nextCursor: nil))
+        await waitUntilMainActor {
+            adapter.notifications.first?.id == notification.id
+        }
+
+        await adapter.refresh()
+
+        #expect(fetchSpy.queries == [.default])
+        #expect(fetchSpy.cursors == [nil])
+        #expect(fetchSpy.observedQueries == [.default])
+        #expect(fetchSpy.observedLimits == [adapter.query.pageSize])
+
+        subject.send(completion: .finished)
+        await adapter.finishEffects()
+    }
+
     @Test("fetchNotifications는 첫 페이지를 조회하고 목록과 hasMore 상태를 갱신한다")
     func fetchNotifications는_첫_페이지를_조회하고_목록과_hasMore_상태를_갱신한다() async throws {
         let cursor = makePushNotificationCursor(documentID: "cursor-1")
