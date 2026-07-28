@@ -157,81 +157,78 @@ public struct PushNotificationListView: View {
     }
 
     private var headerView: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                if 0 < store.appliedFilterCount {
-                    Menu {
-                        Text(
-                            String.localizedStringWithFormat(
-                                String(localized: "push_filters_applied_format"),
-                                Int64(store.appliedFilterCount)
-                            )
-                        )
-                        Button(role: .destructive) {
-                            store.send(.view(.resetFilters))
-                        } label: {
-                            Text(String(localized: "push_clear_all_filters"))
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "line.3.horizontal.decrease")
-                            filterBadge
-                        }
-                        .adaptiveButtonStyle()
-                    }
-                }
-
-                Button {
-                    DispatchQueue.main.async {
-                        store.send(.view(.toggleSortOption))
-                    }
-                } label: {
-                    let condition = store.query.sortOrder == .oldest
+        HStack(spacing: 8) {
+            if 0 < store.appliedFilterCount {
+                Menu {
                     Text(
                         String.localizedStringWithFormat(
-                            String(localized: "push_sort_format"),
-                            store.query.sortOrder.title
+                            String(localized: "push_filters_applied_format"),
+                            Int64(store.appliedFilterCount)
                         )
                     )
+                    Button(role: .destructive) {
+                        store.send(.view(.resetFilters))
+                    } label: {
+                        Text(String(localized: "push_clear_all_filters"))
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        filterBadge
+                    }
+                    .adaptiveButtonStyle()
+                }
+            }
+
+            Button {
+                DispatchQueue.main.async {
+                    store.send(.view(.toggleSortOption))
+                }
+            } label: {
+                let condition = store.query.sortOrder == .oldest
+                Text(
+                    String.localizedStringWithFormat(
+                        String(localized: "push_sort_format"),
+                        store.query.sortOrder.title
+                    )
+                )
+                .foregroundStyle(condition ? .white : Color(.label))
+                .adaptiveButtonStyle(color: condition ? .blue : .clear)
+            }
+            .frame(height: headerHeight)
+
+            Menu {
+                Picker(selection: $store.query.timeFilter) {
+                    ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
+                        Text(option.title).tag(option)
+                    }
+                } label: {
+                    Text(String(localized: "push_period"))
+                }
+            } label: {
+                let condition = store.query.timeFilter == .none
+                HStack {
+                    Text(String(localized: "push_period"))
+                    Image(systemName: "chevron.down")
+                }
+                .foregroundStyle(condition ? Color(.label) : .white)
+                .adaptiveButtonStyle(color: condition ? .clear : .blue)
+            }
+
+            Button {
+                DispatchQueue.main.async {
+                    store.send(.view(.toggleUnreadOnly))
+                }
+            } label: {
+                let condition = store.query.unreadOnly
+                Text(String(localized: "push_unread"))
                     .foregroundStyle(condition ? .white : Color(.label))
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
-                }
-                .frame(height: headerHeight)
-
-                Menu {
-                    Picker(selection: $store.query.timeFilter) {
-                        ForEach(PushNotificationQuery.TimeFilter.availableOptions, id: \.self) { option in
-                            Text(option.title).tag(option)
-                        }
-                    } label: {
-                        Text(String(localized: "push_period"))
-                    }
-                } label: {
-                    let condition = store.query.timeFilter == .none
-                    HStack {
-                        Text(String(localized: "push_period"))
-                        Image(systemName: "chevron.down")
-                    }
-                    .foregroundStyle(condition ? Color(.label) : .white)
-                    .adaptiveButtonStyle(color: condition ? .clear : .blue)
-                }
-
-                Button {
-                    DispatchQueue.main.async {
-                        store.send(.view(.toggleUnreadOnly))
-                    }
-                } label: {
-                    let condition = store.query.unreadOnly
-                    Text(String(localized: "push_unread"))
-                        .foregroundStyle(condition ? .white : Color(.label))
-                        .adaptiveButtonStyle(color: condition ? .blue : .clear)
-                }
-                .frame(height: headerHeight)
             }
+            .frame(height: headerHeight)
         }
-        .scrollIndicators(.never)
-        .scrollDisabled(!isScrollTrackingEnabled)
-        .contentMargins(.leading, 16, for: .scrollContent)
+        .padding(.leading, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: headerHeight)
         .onAppear {
             headerOffset = 0
