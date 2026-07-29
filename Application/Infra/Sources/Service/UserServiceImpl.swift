@@ -56,16 +56,9 @@ final class UserServiceImpl: UserService {
                 userField["appleName"] = user.displayName
             }
 
-            var tokenField: [String: Any] = [:]
-
-            if let fcmToken = response.fcmToken {
-                tokenField["fcmToken"] = fcmToken
-            }
-
             try await upsertUserDocuments(
                 uid: user.uid,
-                userField: userField,
-                tokenField: tokenField
+                userField: userField
             )
             
             logger.info("Successfully upserted user: \(user.uid)")
@@ -134,7 +127,7 @@ final class UserServiceImpl: UserService {
         }
     }
     
-    func updateFCMToken(_ fcmToken: String) async throws {
+    func updateFCMToken(_ update: FCMTokenUpdate) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             logger.info("Skipping FCM token update because no authenticated user exists")
             return
@@ -144,7 +137,7 @@ final class UserServiceImpl: UserService {
 
         do {
             let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
-            try await tokensRef.setData(["fcmToken": fcmToken], merge: true)
+            try await tokensRef.setData(update.firestoreData, merge: true)
             logger.info("Successfully updated FCM token")
         } catch {
             logger.error("Failed to update FCM token", error: error)
@@ -191,12 +184,10 @@ private extension UserServiceImpl {
 
     func upsertUserDocuments(
         uid: String,
-        userField: [String: Any],
-        tokenField: [String: Any]
+        userField: [String: Any]
     ) async throws {
         let userRef = store.document(FirestorePath.user(uid))
         let infoRef = store.document(FirestorePath.userData(uid, document: .info))
-        let tokensRef = store.document(FirestorePath.userData(uid, document: .tokens))
         let settingsRef = store.document(FirestorePath.userData(uid, document: .settings))
         let todoCounterRef = store.document(FirestorePath.counter(uid, document: .todo))
 
@@ -233,10 +224,6 @@ private extension UserServiceImpl {
                 merge: true
             )
             transaction.setData(infoField, forDocument: infoRef, merge: true)
-
-            if !tokenField.isEmpty {
-                transaction.setData(tokenField, forDocument: tokensRef, merge: true)
-            }
 
             transaction.setData(settingsField, forDocument: settingsRef, merge: true)
 

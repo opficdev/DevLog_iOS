@@ -211,10 +211,20 @@ private extension PushNotificationRepositoryImpl {
             throw DataLayerError.invalidData("PushNotificationResponse.todoCategory is invalid: \(id)")
         }
 
+        if let legacy = response.legacy {
+            return PushNotificationResponse(
+                id: response.id,
+                legacy: legacy,
+                receivedAt: response.receivedAt,
+                isRead: response.isRead,
+                todoId: response.todoId,
+                todoCategory: .decoded(todoCategory)
+            )
+        }
+
         return PushNotificationResponse(
             id: response.id,
-            title: response.title,
-            body: response.body,
+            todoTitle: response.todoTitle,
             receivedAt: response.receivedAt,
             isRead: response.isRead,
             todoId: response.todoId,

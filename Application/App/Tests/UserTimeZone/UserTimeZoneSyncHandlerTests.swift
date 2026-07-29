@@ -198,7 +198,7 @@ private actor UserServiceSpy: UserService {
     func upsertUser(_ response: AuthDataResponse) async throws { }
     func fetchUserProfile() async throws -> UserProfileResponse { fatalError() }
     func upsertStatusMessage(_ message: String) async throws { }
-    func updateFCMToken(_ fcmToken: String) async throws { }
+    func updateFCMToken(_ update: FCMTokenUpdate) async throws { }
 
     func updateUserTimeZone() async throws {
         updateUserTimeZoneCallCount += 1
