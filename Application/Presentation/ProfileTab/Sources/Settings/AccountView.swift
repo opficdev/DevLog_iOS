@@ -53,7 +53,7 @@ struct AccountView: View {
                             (!isConnected && store.presentationContext == nil)
                         )
                         .opacity(showProgressView ? 0 : 1)
-                        .overlay {
+                        .overlay(alignment: .trailing) {
                             if showProgressView {
                                 ProgressView()
                             }
