@@ -55,7 +55,7 @@ struct CategoryManageView: View {
             .sheet(item: $store.scope(state: \.categorySheet, action: \.categorySheet)) { sheetStore in
                 sheetContent(sheetStore)
             }
-            .alert($store.scope(state: \.alert, action: \.alert))
+            .prominentAlert(store, state: \.alert, action: \.alert)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {

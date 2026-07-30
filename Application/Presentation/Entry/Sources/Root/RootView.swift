@@ -66,7 +66,7 @@ public struct RootView: View {
             guard let mainTab = widgetURLTab(url) else { return }
             store.send(.openWidgetRoute(mainTab))
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
             sheetContent(todoId: sheetStore.todoId) {
                 sheetStore.send(.tapCloseButton)

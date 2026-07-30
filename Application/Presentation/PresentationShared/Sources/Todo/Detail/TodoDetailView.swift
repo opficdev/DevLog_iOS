@@ -37,7 +37,7 @@ public struct TodoDetailView: View {
         }
         .onAppear { store.send(.onAppear) }
         .navigationBarTitleDisplayMode(.inline)
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { store in
             sheetContent(store)
         }

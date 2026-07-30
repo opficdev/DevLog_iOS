@@ -42,7 +42,7 @@ public struct ProfileView: View {
         .onChange(of: focused) { _, newValue in
             store.send(.updateStatusTextFieldFocus(newValue), animation: .default)
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(isPresented: $store.showQuarterPicker) { quarterPickerSheet }
         .overlay {
             if store.isLoading {

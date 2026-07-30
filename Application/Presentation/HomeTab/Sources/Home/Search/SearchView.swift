@@ -55,7 +55,7 @@ struct SearchView: View {
                         dismiss()
                     }
                 }
-                .alert($store.scope(state: \.alert, action: \.alert))
+                .prominentAlert(store, state: \.alert, action: \.alert)
         }
     }
 

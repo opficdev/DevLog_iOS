@@ -46,7 +46,7 @@ public struct PushNotificationListView: View {
                 .navigationTitle(String(localized: "nav_push_notifications"))
                 .listStyle(.plain)
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: sheetStore) { store in
             sheetContent(store)
         }

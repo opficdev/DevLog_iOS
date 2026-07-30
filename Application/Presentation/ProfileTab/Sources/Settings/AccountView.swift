@@ -66,7 +66,7 @@ struct AccountView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_account"))
         .onAppear { store.send(.onAppear) }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .background {
             WindowSceneIdentifierReader {
                 store.send(.setPresentationContext(

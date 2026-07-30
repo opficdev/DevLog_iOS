@@ -70,7 +70,7 @@ struct PushNotificationSettingsView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_push_settings"))
         .onAppear { store.send(.fetchSettings) }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.timePicker, action: \.timePicker)) { timePickerStore in
             TimePickerView(
                 store: timePickerStore,
