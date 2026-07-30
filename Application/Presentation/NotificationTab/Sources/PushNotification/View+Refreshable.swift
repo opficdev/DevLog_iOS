@@ -21,10 +21,10 @@ extension View {
     @ViewBuilder
     func refreshable(
         isEnabled: Bool,
-        action: @escaping @Sendable () async -> Void
+        action: @escaping @MainActor @Sendable () async -> Void
     ) -> some View {
         if isEnabled {
-            refreshable(action: action)
+            refreshable { await action() }
         } else {
             self
         }
