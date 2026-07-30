@@ -161,6 +161,30 @@ public struct PushNotificationListView: View {
     }
 
     private var headerView: some View {
+        Group {
+            if #available(iOS 18.0, *) {
+                ScrollView(.horizontal) {
+                    headerContent
+                }
+                .scrollIndicators(.never)
+                .contentMargins(.leading, 16, for: .scrollContent)
+            } else {
+                headerContent
+                    .padding(.leading, 16)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: headerHeight)
+        .onAppear {
+            headerOffset = 0
+            isScrollTrackingEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isScrollTrackingEnabled = true
+            }
+        }
+    }
+
+    private var headerContent: some View {
         HStack(spacing: 8) {
             if 0 < store.appliedFilterCount {
                 Menu {
@@ -230,16 +254,6 @@ public struct PushNotificationListView: View {
                     .adaptiveButtonStyle(color: condition ? .blue : .clear)
             }
             .frame(height: headerHeight)
-        }
-        .padding(.leading, 16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: headerHeight)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
-            }
         }
     }
 
