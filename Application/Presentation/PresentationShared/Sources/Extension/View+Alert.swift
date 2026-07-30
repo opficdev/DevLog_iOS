@@ -28,10 +28,9 @@ public extension View {
             actions: { alertState in
                 ForEach(alertState.buttons) { button in
                     let usesDefaultAction = alertState.usesDefaultAction(for: button)
-                    let role = usesDefaultAction ? nil : button.role.map(ButtonRole.init)
 
                     Button(
-                        role: role,
+                        role: alertState.buttonRole(for: button),
                         action: {
                             button.withAction { action in
                                 if let action {
@@ -55,6 +54,12 @@ public extension View {
 }
 
 extension AlertState {
+    func buttonRole(for button: ButtonState<Action>) -> ButtonRole? {
+        if #available(iOS 26, *), usesDefaultAction(for: button) { return .confirm }
+        if buttons.count == 1 { return nil }
+        return button.role.map(ButtonRole.init)
+    }
+
     func usesDefaultAction(for button: ButtonState<Action>) -> Bool {
         guard 1 < buttons.count else { return true }
         return buttons.first { $0.role == .destructive }?.id == button.id
