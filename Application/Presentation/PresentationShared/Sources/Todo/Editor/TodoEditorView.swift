@@ -80,7 +80,7 @@ public struct TodoEditorView: View {
                     .disabled(!store.isReadyToSubmit)
                 }
             }
-            .alert($store.scope(state: \.alert, action: \.alert))
+            .prominentAlert(store, state: \.alert, action: \.alert)
         }
     }
 

@@ -126,7 +126,7 @@ struct SettingsView: View {
         }
         .navigationTitle(String(localized: "nav_settings"))
         .navigationBarTitleDisplayMode(.inline)
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .onAppear {
             store.send(.updateDirSize)
         }

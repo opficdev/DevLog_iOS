@@ -35,7 +35,7 @@ public struct HomeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(String(localized: "nav_home"))
         .toolbar { toolbar }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet), content: sheetContent)
         .fullScreenCover(item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover), content: coverContent)
     }

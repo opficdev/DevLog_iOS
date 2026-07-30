@@ -40,7 +40,7 @@ public struct TodayView: View {
         .toolbar { toolbarContent }
         .background(NavigationBarConfigurator())
         .refreshable { await store.send(.refresh).finish() }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .overlay {
             if store.isLoading {
                 LoadingView()

@@ -57,7 +57,7 @@ public struct TodoListView: View {
                 )
             }
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
         .fullScreenCover(
             item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)

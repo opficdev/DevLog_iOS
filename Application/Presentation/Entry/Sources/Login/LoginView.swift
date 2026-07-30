@@ -59,7 +59,7 @@ struct LoginView: View {
                 .multilineTextAlignment(.center)
                 .padding(.vertical)
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .prominentAlert(store, state: \.alert, action: \.alert)
         .background {
             WindowSceneIdentifierReader {
                 store.send(.setPresentationContext(
