@@ -311,6 +311,18 @@ platform :ios do
         expected: "true"
       )
 
+      required_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "PROJECT_ID"
+      )
+
+      required_plist_value(
+        path: google_service_info_plist_path,
+        source: "GoogleService-Info.plist",
+        key: "GOOGLE_APP_ID"
+      )
+
       verify_plist_value(
         path: google_service_info_plist_path,
         source: "GoogleService-Info.plist",
@@ -334,6 +346,8 @@ platform :ios do
         redact_values: true
       )
 
+      UI.message("Verified PROJECT_ID in GoogleService-Info.plist")
+      UI.message("Verified GOOGLE_APP_ID in GoogleService-Info.plist")
     end
   end
 
