@@ -1,13 +1,13 @@
 //
 //  MarkdownRendererURLPolicyTests.swift
-//  PresentationSharedTests
+//  MarkdownRendererTests
 //
 //  Created by opfic on 7/25/26.
 //
 
 import Foundation
 import Testing
-@testable import PresentationShared
+@testable import MarkdownRenderer
 
 struct MarkdownRendererURLPolicyTests {
     @Test(
@@ -27,7 +27,7 @@ struct MarkdownRendererURLPolicyTests {
         arguments: [
             "javascript:alert(1)",
             "file:///private/data",
-            "devlog://todo/1",
+            "example://reference/1",
             "https:example.com",
             "example.com"
         ]

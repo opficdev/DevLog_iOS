@@ -5,31 +5,31 @@ import type { Plugin } from "unified";
 import type { Node } from "unist";
 import { visit } from "unist-util-visit";
 
-import type { TodoReferences } from "./types.ts";
+import type { MarkdownReferences } from "./types.ts";
 
-interface TodoReferenceNode extends Node {
-  type: "todoReference";
+interface ReferenceNode extends Node {
+  type: "reference";
   number: number;
 }
 
 declare module "mdast" {
   interface BlockContentMap {
-    todoReference: TodoReferenceNode;
+    reference: ReferenceNode;
   }
 
   interface RootContentMap {
-    todoReference: TodoReferenceNode;
+    reference: ReferenceNode;
   }
 }
 
-interface TodoReferencePluginOptions {
-  references?: TodoReferences;
+interface ReferencePluginOptions {
+  references?: MarkdownReferences;
 }
 
-const todoReferencePattern = /^refs[ \t]+#([0-9]+)$/;
+const referencePattern = /^refs[ \t]+#([0-9]+)$/;
 
-export const todoReferencePlugin: Plugin<
-  [options?: TodoReferencePluginOptions],
+export const referencePlugin: Plugin<
+  [options?: ReferencePluginOptions],
   Root
 > = (options = {}) => {
   const references =
@@ -60,7 +60,7 @@ export const todoReferencePlugin: Plugin<
         return;
       }
 
-      const match = todoReferencePattern.exec(paragraph.children[0].value);
+      const match = referencePattern.exec(paragraph.children[0].value);
 
       if (match === null) { return; }
 
@@ -70,7 +70,7 @@ export const todoReferencePlugin: Plugin<
 
       node.children = [
         {
-          type: "todoReference",
+          type: "reference",
           number
         }
       ];
@@ -78,9 +78,9 @@ export const todoReferencePlugin: Plugin<
   };
 };
 
-export const todoReferenceHandler: Handler = (
+export const referenceHandler: Handler = (
   _state,
-  node: TodoReferenceNode
+  node: ReferenceNode
 ) => {
   const number = String(node.number);
 
@@ -89,8 +89,8 @@ export const todoReferenceHandler: Handler = (
     tagName: "button",
     properties: {
       type: "button",
-      className: ["todo-reference"],
-      dataTodoReferenceNumber: number
+      className: ["markdown-reference"],
+      dataReferenceNumber: number
     },
     children: [
       {

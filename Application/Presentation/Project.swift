@@ -29,11 +29,6 @@ let project = Project(
             bundleId: "com.opfic.DevLog.PresentationShared",
             infoPlist: .file(path: frameworkInfoPlistPath),
             sources: ["PresentationShared/Sources/**/*.swift"],
-            resources: [
-                .folderReference(
-                    path: "PresentationShared/Resources/MarkdownRenderer"
-                )
-            ],
             scripts: [
                 DevLogScripts.swiftLint(
                     sourcePath: "PresentationShared/Sources",
@@ -43,6 +38,10 @@ let project = Project(
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
+                .project(
+                    target: "MarkdownRenderer",
+                    path: "../../Libraries/MarkdownRenderer"
+                ),
                 .package(product: "ComposableArchitecture"),
                 .package(product: "OrderedCollections")
             ],

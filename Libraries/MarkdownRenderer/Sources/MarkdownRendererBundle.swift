@@ -1,6 +1,6 @@
 //
 //  MarkdownRendererBundle.swift
-//  PresentationShared
+//  MarkdownRenderer
 //
 //  Created by opfic on 7/25/26.
 //
@@ -8,15 +8,16 @@
 import Foundation
 
 enum MarkdownRendererBundle {
+    static let bundle = Bundle(for: MarkdownRendererBundleToken.self)
+
     static var indexURL: URL? {
-        indexURL(in: Bundle(for: MarkdownRendererBundleToken.self))
+        indexURL(in: bundle)
     }
 
     static func indexURL(in bundle: Bundle) -> URL? {
         bundle.url(
             forResource: "index",
-            withExtension: "html",
-            subdirectory: "MarkdownRenderer"
+            withExtension: "html"
         )
     }
 }

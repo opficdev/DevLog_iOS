@@ -1,6 +1,6 @@
 # MarkdownRenderer
 
-Todo Markdown을 앱에 포함할 HTML, JavaScript, CSS로 변환하는 도구입니다.
+Markdown을 앱에 포함할 HTML, JavaScript, CSS로 변환하는 도구입니다.
 renderer source와 build script, 테스트는 TypeScript로 작성합니다.
 
 ## 환경
@@ -36,7 +36,7 @@ Xcode 빌드 전에 bundle을 생성해야 합니다.
 생성 결과는 다음 경로에 저장합니다.
 
 ```text
-Application/Presentation/PresentationShared/Resources/MarkdownRenderer/
+Libraries/MarkdownRenderer/Resources/MarkdownRenderer/
 ```
 
 컴파일된 `renderer.js`, `index.html`, `renderer.css`는 앱 자원으로 추적합니다.

@@ -1,7 +1,7 @@
 import { renderMarkdown } from "./renderMarkdown.ts";
 import type {
-  RenderMarkdownPayload,
-  TodoReferences
+  MarkdownReferences,
+  RenderMarkdownPayload
 } from "./types.ts";
 
 const documentElement = document.documentElement;
@@ -20,7 +20,7 @@ function postMessage(name: string, payload: unknown) {
   }
 }
 
-function referenceStyleRules(references: TodoReferences) {
+function referenceStyleRules(references: MarkdownReferences) {
   const rules = [];
 
   for (const [number, reference] of Object.entries(references)) {
@@ -35,20 +35,20 @@ function referenceStyleRules(references: TodoReferences) {
     }
 
     rules.push(
-      `.todo-reference[data-todo-reference-number="${number}"] .todo-reference-icon{background-color:${color}}`
+      `.markdown-reference[data-reference-number="${number}"] .markdown-reference-icon{background-color:${color}}`
     );
   }
 
   return rules;
 }
 
-function hydrateTodoReferences(references: TodoReferences) {
+function hydrateReferences(references: MarkdownReferences) {
   const buttons = contentElement.querySelectorAll<HTMLButtonElement>(
-    ".todo-reference[data-todo-reference-number]"
+    ".markdown-reference[data-reference-number]"
   );
 
   for (const button of buttons) {
-    const number = button.dataset.todoReferenceNumber;
+    const number = button.dataset.referenceNumber;
 
     if (number === undefined) {
       continue;
@@ -61,11 +61,11 @@ function hydrateTodoReferences(references: TodoReferences) {
     }
 
     const prefix = document.createElement("span");
-    prefix.className = "todo-reference-prefix";
+    prefix.className = "markdown-reference-prefix";
     prefix.textContent = "refs";
 
     const icon = document.createElement("span");
-    icon.className = "todo-reference-icon";
+    icon.className = "markdown-reference-icon";
 
     if (
       typeof reference.iconDataURL === "string" &&
@@ -78,16 +78,16 @@ function hydrateTodoReferences(references: TodoReferences) {
     }
 
     const title = document.createElement("span");
-    title.className = "todo-reference-title";
+    title.className = "markdown-reference-title";
     title.textContent = reference.title ?? "";
 
     const numberLabel = document.createElement("span");
-    numberLabel.className = "todo-reference-number";
+    numberLabel.className = "markdown-reference-number";
     numberLabel.textContent = `#${number}`;
 
     button.replaceChildren(prefix, icon, title, numberLabel);
     button.addEventListener("click", () => {
-      postMessage("todoReference", {
+      postMessage("reference", {
         number: Number(number)
       });
     });
@@ -115,7 +115,7 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
   const markdown = typeof payload.markdown === "string" ? payload.markdown : "";
   const references =
     payload.references !== null && typeof payload.references === "object"
-      ? (payload.references as TodoReferences)
+      ? (payload.references as MarkdownReferences)
       : {};
   const colorScheme = payload.colorScheme === "dark" ? "dark" : "light";
   const languageCode =
@@ -138,6 +138,6 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
   ].join("\n");
   contentElement.innerHTML = renderMarkdown(markdown, references);
 
-  hydrateTodoReferences(references);
+  hydrateReferences(references);
   configureLinks();
 };

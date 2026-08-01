@@ -129,7 +129,7 @@ body {
   background-color: var(--color-prettylights-syntax-markup-deleted-bg);
 }
 
-.markdown-body .todo-reference {
+.markdown-body .markdown-reference {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -144,12 +144,12 @@ body {
   cursor: pointer;
 }
 
-.todo-reference-prefix,
-.todo-reference-number {
+.markdown-reference-prefix,
+.markdown-reference-number {
   flex: none;
 }
 
-.todo-reference-icon {
+.markdown-reference-icon {
   display: inline-flex;
   width: 18px;
   height: 18px;
@@ -160,13 +160,13 @@ body {
   border-radius: 5px;
 }
 
-.todo-reference-icon img {
+.markdown-reference-icon img {
   width: 12px;
   height: 12px;
   object-fit: contain;
 }
 
-.todo-reference-title {
+.markdown-reference-title {
   min-width: 0;
   overflow: hidden;
   color: #0969da;
@@ -175,14 +175,14 @@ body {
   white-space: nowrap;
 }
 
-:root[data-color-scheme="dark"] .todo-reference-title {
+:root[data-color-scheme="dark"] .markdown-reference-title {
   color: #4493f8;
 }
 
-.todo-reference-number {
+.markdown-reference-number {
   color: #59636e;
 }
 
-:root[data-color-scheme="dark"] .todo-reference-number {
+:root[data-color-scheme="dark"] .markdown-reference-number {
   color: #9198a1;
 }

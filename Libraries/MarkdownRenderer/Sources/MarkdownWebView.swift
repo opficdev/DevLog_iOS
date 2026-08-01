@@ -1,6 +1,6 @@
 //
-//  MarkdownRendererView.swift
-//  PresentationShared
+//  MarkdownWebView.swift
+//  MarkdownRenderer
 //
 //  Created by opfic on 7/25/26.
 //
@@ -8,14 +8,14 @@
 import SwiftUI
 import WebKit
 
-struct MarkdownRendererView: UIViewRepresentable {
+struct MarkdownWebView: UIViewRepresentable {
     let markdown: String
     let references: [Int: MarkdownRendererReference]
     let colorScheme: ColorScheme
     let languageCode: String
     let fontSize: CGFloat
     let obscuredBottomInset: CGFloat
-    var onOpenTodoID: ((String) -> Void)?
+    var onOpenReferenceID: ((String) -> Void)?
     var onOpenURL: ((URL) -> Void)?
 
     func makeCoordinator() -> Coordinator {
@@ -78,13 +78,13 @@ struct MarkdownRendererView: UIViewRepresentable {
     final class Coordinator: NSObject {
         fileprivate let indexURL = MarkdownRendererBundle.indexURL
 
-        private var view: MarkdownRendererView
+        private var view: MarkdownWebView
         private var isRendererLoaded = false
         private var pendingPayload: MarkdownRendererBridge.RenderPayload?
         private var inFlightPayload: MarkdownRendererBridge.RenderPayload?
         private var renderedPayload: MarkdownRendererBridge.RenderPayload?
 
-        init(view: MarkdownRendererView) {
+        init(view: MarkdownWebView) {
             self.view = view
         }
 
@@ -98,7 +98,7 @@ struct MarkdownRendererView: UIViewRepresentable {
         }
 
         fileprivate func update(
-            view: MarkdownRendererView,
+            view: MarkdownWebView,
             webView: WKWebView
         ) {
             self.view = view
@@ -164,12 +164,12 @@ struct MarkdownRendererView: UIViewRepresentable {
             _ message: MarkdownRendererBridge.JavaScriptMessage
         ) {
             switch message {
-            case .todoReference(let number):
+            case .reference(let number):
                 guard let reference = view.references[number] else {
                     return
                 }
 
-                view.onOpenTodoID?(reference.todoID)
+                view.onOpenReferenceID?(reference.referenceID)
 
             case .externalLink(let value):
                 guard let url = MarkdownRendererURLPolicy.externalURL(from: value) else {
@@ -183,7 +183,7 @@ struct MarkdownRendererView: UIViewRepresentable {
 }
 
 private extension MarkdownRendererBridge.RenderPayload {
-    init(view: MarkdownRendererView) {
+    init(view: MarkdownWebView) {
         self.init(
             markdown: view.markdown,
             references: view.references,
@@ -194,7 +194,7 @@ private extension MarkdownRendererBridge.RenderPayload {
     }
 }
 
-extension MarkdownRendererView.Coordinator: WKScriptMessageHandler {
+extension MarkdownWebView.Coordinator: WKScriptMessageHandler {
     func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage
@@ -210,7 +210,7 @@ extension MarkdownRendererView.Coordinator: WKScriptMessageHandler {
     }
 }
 
-extension MarkdownRendererView.Coordinator: WKNavigationDelegate {
+extension MarkdownWebView.Coordinator: WKNavigationDelegate {
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         isRendererLoaded = false
         pendingPayload = MarkdownRendererBridge.RenderPayload(view: view)

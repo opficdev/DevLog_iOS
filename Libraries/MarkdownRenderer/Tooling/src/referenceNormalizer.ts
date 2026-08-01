@@ -8,17 +8,17 @@ interface SourceRange {
   end: number;
 }
 
-const todoReferenceLinePattern =
+const referenceLinePattern =
   /^([ \t]*)-[ \t]+refs[ \t]+#([0-9]+)[ \t]*(\r?)$/gm;
-const todoReferenceBoundary = "<!-- todo-reference-boundary -->";
+const referenceBoundary = "<!-- reference-boundary -->";
 const fencePattern = /^(?:`{3,}|~{3,})/;
 
-export function normalizeTodoReferences(source: string) {
+export function normalizeReferences(source: string) {
   const fencedCodeRanges = makeFencedCodeRanges(source);
   let rangeIndex = 0;
 
   return source.replace(
-    todoReferenceLinePattern,
+    referenceLinePattern,
     (
       line: string,
       leadingWhitespace: string,
@@ -48,7 +48,7 @@ export function normalizeTodoReferences(source: string) {
 
       const lineEnding = carriageReturn === "\r" ? "\r\n" : "\n";
 
-      return `${normalizedLine}${lineEnding}${todoReferenceBoundary}${carriageReturn}`;
+      return `${normalizedLine}${lineEnding}${referenceBoundary}${carriageReturn}`;
     }
   );
 }

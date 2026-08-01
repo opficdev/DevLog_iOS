@@ -10,11 +10,11 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
 import {
-  todoReferenceHandler,
-  todoReferencePlugin
-} from "./todoReferencePlugin.ts";
-import { normalizeTodoReferences } from "./todoReferenceNormalizer.ts";
-import type { TodoReferences } from "./types.ts";
+  referenceHandler,
+  referencePlugin
+} from "./referencePlugin.ts";
+import { normalizeReferences } from "./referenceNormalizer.ts";
+import type { MarkdownReferences } from "./types.ts";
 
 const highlightTokenClassNames = [
   "hljs-addition",
@@ -66,9 +66,9 @@ const sanitizeSchema: SanitizeSchema = {
     ...defaultSchema.attributes,
     button: [
       ...(defaultSchema.attributes?.button ?? []),
-      ["className", "todo-reference"],
+      ["className", "markdown-reference"],
       ["type", "button"],
-      "dataTodoReferenceNumber"
+      "dataReferenceNumber"
     ],
     code: [["className", "hljs", /^language-./]],
     span: [
@@ -86,19 +86,19 @@ const sanitizeSchema: SanitizeSchema = {
 
 export function renderMarkdown(
   markdown: unknown,
-  references: TodoReferences = {}
+  references: MarkdownReferences = {}
 ) {
-  const source = normalizeTodoReferences(
+  const source = normalizeReferences(
     typeof markdown === "string" ? markdown : ""
   );
 
   const file = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(todoReferencePlugin, { references })
+    .use(referencePlugin, { references })
     .use(remarkRehype, {
       handlers: {
-        todoReference: todoReferenceHandler
+        reference: referenceHandler
       }
     })
     .use(rehypeHighlight)

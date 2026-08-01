@@ -14,7 +14,7 @@ This repository is a Tuist-generated, workspace-based modular iOS app. There is 
 
 Read this file before work that changes any of these areas:
 
-- Module boundaries or file ownership across `Application/*` and `Widget/*` targets.
+- Module boundaries or file ownership across `Application/*`, `Libraries/*`, and `Widget/*` targets.
 - Swift imports or Tuist target dependencies.
 - DI assembler wiring or same-layer dependency injection.
 - Repository, service, store, or use case contracts.
@@ -22,7 +22,7 @@ Read this file before work that changes any of these areas:
 - Widget snapshot, App Group, or widget deep-link data flow.
 - Architecture diagrams, README architecture text, or PR architecture explanations.
 
-Before editing, also read `.gemini/styleguide.md` and `README.md`. Read `.agents/rules/project-workflows.md` when the task involves PR review, commits, Xcode project files, CI, widgets, Store reducers, localization, release, or build tooling.
+Before editing, also read `README.md`. Read `.agents/rules/project-workflows.md` when the task involves PR review, commits, Xcode project files, CI, widgets, Store reducers, localization, release, or build tooling.
 
 Then inspect the concrete files, Swift imports, and Tuist target dependencies related to the requested change. Do not rely on layer names alone.
 
@@ -118,6 +118,7 @@ flowchart TD
 	Core["Core\nDI\nLogger\nShared value/query types\nLightweight widget values"]
 	WidgetCore["WidgetCore\nWidget snapshot models\nFactories\nApp Group constants"]
 	WidgetExtension["WidgetExtension\nWidgetKit UI\nProviders\nTimelines"]
+	MarkdownRenderer["MarkdownRenderer\nSwiftUI renderer API\nInternal WebKit bridge\nRenderer resources and Tooling"]
 
 	App --> Presentation
 	App --> Domain
@@ -131,6 +132,7 @@ flowchart TD
 
 	Presentation --> Domain
 	Presentation --> Core
+	Presentation --> MarkdownRenderer
 
 	Domain --> Core
 
@@ -161,6 +163,7 @@ flowchart TD
 | `Infra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra; adding any Domain dependency, source import, or SDK service contract coupling |
 | `Persistence` | local stores, image cache, non-widget app persistence | Data, Core | Adding WidgetCore, WidgetKit reload, Widget, widget snapshot generation, or widget bridge ownership |
 | `Presentation` | UI, view models, coordinators, presentation state, narrow presentation-scoped platform side effects | Domain, Core | Adding Data, Infra, Persistence, or App dependency; expanding platform service ownership beyond UI-side effects |
+| `MarkdownRenderer` | public SwiftUI renderer and reference value, internal WebKit bridge, renderer resources, TypeScript Tooling, renderer tests | system frameworks only | Adding a DevLog application layer dependency, exposing WebKit bridge types, adding another Presentation importer, or re-exporting the module |
 | `Widget` | app-side widget bridge, sync bus implementation, sync/session handlers, snapshot generation/persistence orchestration, WidgetKit reload bridge, widget assembler | Data, Core, WidgetCore | Adding Domain, Infra, Persistence, Presentation, or App dependency |
 | `App` | composition root, lifecycle, assembler wiring, app target ownership for widget extension embedding | Concrete app layers | Moving feature logic into App |
 | `WidgetCore` | widget snapshot models, factories, app-group keys/defaults store, deep links, pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, App, or Widget dependency |
@@ -174,6 +177,15 @@ flowchart TD
 - `HomeTab`, `TodayTab`, `NotificationTab`, and `ProfileTab` remain tab-specific feature targets and each target owns the `Domain` references it needs.
 - `PresentationShared` owns shared Todo, Search, Loading UI, and presentation contracts.
 - `App` owns composition root, lifecycle, and assembler wiring. It must not take ownership of presentation feature or root flows.
+
+## MarkdownRenderer module boundary
+
+- `Libraries/MarkdownRenderer` owns `MarkdownRendererView`, `MarkdownRendererReference`, the internal `MarkdownWebView` and Coordinator, URL/message policy, renderer resources, renderer tests, and TypeScript Tooling.
+- `MarkdownRenderer` may depend on system frameworks such as `SwiftUI`, `WebKit`, `Foundation`, and `CoreGraphics`. It must not import `Core`, `Domain`, `Data`, `Infra`, `Persistence`, `Presentation`, `App`, `Widget`, or `WidgetCore`.
+- `PresentationShared` depends on `MarkdownRenderer`. `Application/Presentation/PresentationShared/Sources/Common/TodoMarkdownContentView.swift` is the only direct Presentation importer and must not use `@_exported import MarkdownRenderer`.
+- `TodoMarkdownContentView` owns `TodoReferenceItem` conversion, symbol image data URL creation, tab bar and safe-area adaptation, and `onOpenTodoID` callback adaptation. These DevLog concerns must not move into `MarkdownRenderer`.
+- `MarkdownRendererView` owns color scheme, locale, external URL opening, scaled font size, and the public renderer input. The internal `MarkdownWebView` keeps `WKWebView` lifecycle, message handling, internal scroll ownership, and `obscuredContentInsets.bottom` handling out of the public API.
+- `Libraries/MarkdownRenderer/Tooling` generates the tracked files under `Libraries/MarkdownRenderer/Resources/MarkdownRenderer`. CI must verify that generated and tracked resources remain synchronized.
 
 ## Layer-internal dependency injection
 

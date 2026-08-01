@@ -7,12 +7,9 @@
 
 import SwiftUI
 import Domain
+import MarkdownRenderer
 
 struct TodoMarkdownContentView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.locale) private var locale
-    @Environment(\.openURL) private var openURL
-    @ScaledMetric(relativeTo: .body) private var fontSize = 17
     @State private var tabBarHeight = CGFloat.zero
 
     let content: String
@@ -23,12 +20,8 @@ struct TodoMarkdownContentView: View {
         MarkdownRendererView(
             markdown: content,
             references: rendererReferences,
-            colorScheme: colorScheme,
-            languageCode: locale.language.languageCode?.identifier ?? "und",
-            fontSize: fontSize,
             obscuredBottomInset: tabBarHeight,
-            onOpenTodoID: onOpenTodoID,
-            onOpenURL: { openURL($0) }
+            onOpenReferenceID: onOpenTodoID
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: ignoredSafeAreaEdges)
@@ -44,7 +37,7 @@ struct TodoMarkdownContentView: View {
     private var rendererReferences: [Int: MarkdownRendererReference] {
         referenceItems.mapValues { item in
             MarkdownRendererReference(
-                todoID: item.id,
+                referenceID: item.id,
                 title: item.title,
                 colorHex: item.category.color.hexValue ?? "#808080",
                 iconDataURL: iconDataURL(for: item.category.symbolName)

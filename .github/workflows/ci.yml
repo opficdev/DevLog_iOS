@@ -27,12 +27,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version-file: Tools/MarkdownRenderer/.node-version
+          node-version-file: Libraries/MarkdownRenderer/Tooling/.node-version
           cache: npm
-          cache-dependency-path: Tools/MarkdownRenderer/package-lock.json
+          cache-dependency-path: Libraries/MarkdownRenderer/Tooling/package-lock.json
 
       - name: Check Markdown renderer
-        working-directory: Tools/MarkdownRenderer
+        working-directory: Libraries/MarkdownRenderer/Tooling
         shell: bash
         run: |
           set -euo pipefail
@@ -40,13 +40,13 @@ jobs:
           npm ci
           npm run verify
 
-          RENDERER_OUTPUT="../../Application/Presentation/PresentationShared/Resources/MarkdownRenderer"
+          RENDERER_OUTPUT="../Resources/MarkdownRenderer"
 
           node --check "$RENDERER_OUTPUT/renderer.js"
-          git -C ../.. diff --exit-code -- \
-            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/index.html \
-            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.css \
-            Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.js
+          git -C ../../.. diff --exit-code -- \
+            Libraries/MarkdownRenderer/Resources/MarkdownRenderer/index.html \
+            Libraries/MarkdownRenderer/Resources/MarkdownRenderer/renderer.css \
+            Libraries/MarkdownRenderer/Resources/MarkdownRenderer/renderer.js
 
       - name: Install private config files
         uses: ./.github/actions/install-private-config
@@ -101,7 +101,7 @@ jobs:
             ~/Library/Caches/org.swift.swiftpm
             ~/Library/Developer/Xcode/SourcePackages
             .spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Widget/**/Project.swift') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Libraries/**/Project.swift', 'Widget/**/Project.swift') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
@@ -255,6 +255,8 @@ jobs:
             schemes: "Infra"
           - name: Persistence
             schemes: "Persistence"
+          - name: Libraries
+            schemes: "MarkdownRenderer"
           - name: Presentation
             schemes: "Entry PresentationShared HomeTab"
           - name: Widget
@@ -315,7 +317,7 @@ jobs:
             ~/Library/Caches/org.swift.swiftpm
             ~/Library/Developer/Xcode/SourcePackages
             .spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Widget/**/Project.swift') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('.mise.toml', 'Tuist.swift', 'Workspace.swift', 'Tuist/ProjectDescriptionHelpers/*.swift', 'Application/**/Project.swift', 'Libraries/**/Project.swift', 'Widget/**/Project.swift') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
@@ -427,6 +429,8 @@ jobs:
             LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
             if [ "$TEST_SCHEME" = "WidgetCore" ]; then
               TEST_SOURCE_DIR="Widget/WidgetCore/Tests"
+            elif [ -d "Libraries/${TEST_SCHEME}/Tests" ]; then
+              TEST_SOURCE_DIR="Libraries/${TEST_SCHEME}/Tests"
             elif [ -d "Application/Presentation/${TEST_SCHEME}/Tests" ]; then
               TEST_SOURCE_DIR="Application/Presentation/${TEST_SCHEME}/Tests"
             else

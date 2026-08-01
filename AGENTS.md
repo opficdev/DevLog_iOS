@@ -20,7 +20,7 @@
 - `AGENTS.md` is the repository entrypoint and routing source.
 - `.agents/rules/general.md` applies to every task.
 - Read all matching task-specific documents before planning, editing, reviewing, or verifying.
-- For architecture work, also read `.gemini/styleguide.md` and `README.md` before editing.
+- For architecture work, also read `README.md` before editing.
 - For a delegated role, read `.agents/roles.md` and follow the assigned role section and output format.
 - Use `.agents/workflows.md` when the task matches one of its executable workflows.
 - If repository-local instructions conflict with global memory, follow the repository-local instructions.
