@@ -15,7 +15,7 @@ struct MarkdownRendererBundleTests {
         let url = try #require(MarkdownRendererBundle.indexURL)
 
         #expect(url.lastPathComponent == "index.html")
-        #expect(url.deletingLastPathComponent().lastPathComponent == "MarkdownRenderer")
+        #expect(url.deletingLastPathComponent() == MarkdownRendererBundle.bundle.bundleURL)
         #expect(FileManager.default.fileExists(atPath: url.path))
     }
 }

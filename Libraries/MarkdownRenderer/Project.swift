@@ -25,7 +25,9 @@ let project = Project(
             ),
             sources: ["Sources/**/*.swift"],
             resources: [
-                .folderReference(path: "Resources/MarkdownRenderer"),
+                "Resources/MarkdownRenderer/index.html",
+                "Resources/MarkdownRenderer/renderer.css",
+                "Resources/MarkdownRenderer/renderer.js",
             ],
             scripts: [
                 DevLogScripts.swiftLint(
@@ -38,8 +40,6 @@ let project = Project(
                 base: deploymentSettings.merging(
                     [
                         "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
-                        "INFOPLIST_PATH": "$(WRAPPER_NAME)/Info.plist",
-                        "UNLOCALIZED_RESOURCES_FOLDER_PATH": "$(WRAPPER_NAME)/Resources",
                     ]
                 ) { _, new in new }
             )
