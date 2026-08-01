@@ -66,8 +66,9 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 
 ## 아키텍처
 
-`DevLog.xcworkspace` 안에서 Application, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
+`DevLog.xcworkspace` 안에서 Application, Libraries, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
 `Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할을 하고, root/auth/tab shell/window 흐름은 `Entry`, 공통 Todo/Search/Loading 흐름은 `PresentationShared`, 탭 단위 흐름은 `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab` target이 소유함
+`MarkdownRenderer` target은 SwiftUI 공개 화면과 참조 값, 내부 `WKWebView` 연결, HTML/JavaScript/CSS 자원과 TypeScript Tooling을 소유함. `PresentationShared`에서는 `TodoMarkdownContentView`만 이를 직접 import하며 재노출하지 않음
 
 <table>
   <tr>
@@ -247,6 +248,8 @@ DevLog_iOS/
 │	│	├── NotificationTab/   # Notification 탭 화면, feature, coordinator, 테스트
 │	│	└── ProfileTab/        # Profile/Settings 탭 화면, feature, coordinator, 테스트
 │	└── Widget/                # 앱-위젯 브릿지, 위젯 동기화 이벤트, 스냅샷 갱신
+├── Libraries/
+│	└── MarkdownRenderer/      # 독립 Markdown 렌더링 화면, WebKit 연결, 자원, 테스트, Tooling
 ├── Widget/
 │	├── WidgetCore/            # 위젯 스냅샷 모델, Factory, App Group 상수
 │	└── WidgetExtension/       # WidgetKit UI, Provider, Timeline
