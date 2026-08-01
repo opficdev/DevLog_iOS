@@ -22,7 +22,7 @@ Read this file before work that changes any of these areas:
 - Widget snapshot, App Group, or widget deep-link data flow.
 - Architecture diagrams, README architecture text, or PR architecture explanations.
 
-Before editing, also read `.gemini/styleguide.md` and `README.md`. Read `.agents/rules/project-workflows.md` when the task involves PR review, commits, Xcode project files, CI, widgets, Store reducers, localization, release, or build tooling.
+Before editing, also read `README.md`. Read `.agents/rules/project-workflows.md` when the task involves PR review, commits, Xcode project files, CI, widgets, Store reducers, localization, release, or build tooling.
 
 Then inspect the concrete files, Swift imports, and Tuist target dependencies related to the requested change. Do not rely on layer names alone.
 

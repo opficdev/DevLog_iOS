@@ -176,7 +176,7 @@ The receiving model must start by identifying its active role and must end with 
 | --- | --- | --- |
 | Issue planning | Planner | Add GitHub/CI Analyst when live issue or PR state is the source of truth. |
 | Swift implementation | Planner, Implementer, Code Reviewer, Verification Runner | Add Architecture Watcher when boundary or dependency risk exists. |
-| Module, DI, SDK, Widget, StorePattern, or architecture docs | Planner, Architecture Watcher, Implementer, Code Reviewer, Verification Runner | Architecture Watcher must read `AGENTS.md`, `.gemini/styleguide.md`, `README.md`, and `.agents/rules/architecture.md`. |
+| Module, DI, SDK, Widget, StorePattern, or architecture docs | Planner, Architecture Watcher, Implementer, Code Reviewer, Verification Runner | Architecture Watcher must read `AGENTS.md`, `README.md`, and `.agents/rules/architecture.md`. |
 | Review feedback | GitHub/CI Analyst, Planner, Implementer, Code Reviewer, Verification Runner | Use thread-aware review inspection when unresolved review threads matter. |
 | CI failure | GitHub/CI Analyst, Planner, Verification Runner | Add Implementer only after the failure source is identified. |
 | PR or release text | Documentation Writer | Add Code Reviewer when text must match actual diff. |
@@ -250,7 +250,6 @@ Use it when a task touches module boundaries, file ownership, layer dependencies
 Must read before reviewing:
 
 - `AGENTS.md`
-- `.gemini/styleguide.md`
 - `README.md`
 - `.agents/rules/architecture.md`
 - `.agents/rules/project-workflows.md` when PR, commit, Xcode project, CI, widget, Store, localization, release, or build tooling is involved
