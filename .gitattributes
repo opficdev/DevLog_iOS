@@ -1,2 +1,2 @@
 # 컴파일된 JavaScript 문자열의 공백을 보존
-Application/Presentation/PresentationShared/Resources/MarkdownRenderer/renderer.js -whitespace
+Libraries/MarkdownRenderer/Resources/MarkdownRenderer/renderer.js -whitespace
