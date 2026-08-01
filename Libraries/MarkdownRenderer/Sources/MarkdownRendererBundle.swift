@@ -1,6 +1,6 @@
 //
 //  MarkdownRendererBundle.swift
-//  PresentationShared
+//  MarkdownRenderer
 //
 //  Created by opfic on 7/25/26.
 //
@@ -16,7 +16,7 @@ enum MarkdownRendererBundle {
         bundle.url(
             forResource: "index",
             withExtension: "html",
-            subdirectory: "MarkdownRenderer"
+            subdirectory: "Resources/MarkdownRenderer"
         )
     }
 }

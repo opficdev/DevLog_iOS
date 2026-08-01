@@ -1,12 +1,12 @@
 //
 //  MarkdownRendererJavaScriptMessageTests.swift
-//  PresentationSharedTests
+//  MarkdownRendererTests
 //
 //  Created by opfic on 7/25/26.
 //
 
 import Testing
-@testable import PresentationShared
+@testable import MarkdownRenderer
 
 struct MarkdownRendererJavaScriptMessageTests {
     @Test("renderer payload는 하단 문서 여백을 포함하지 않는다")

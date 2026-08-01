@@ -1,6 +1,6 @@
 //
 //  MarkdownRendererURLPolicy.swift
-//  PresentationShared
+//  MarkdownRenderer
 //
 //  Created by opfic on 7/25/26.
 //

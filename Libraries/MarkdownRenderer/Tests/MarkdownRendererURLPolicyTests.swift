@@ -1,13 +1,13 @@
 //
 //  MarkdownRendererURLPolicyTests.swift
-//  PresentationSharedTests
+//  MarkdownRendererTests
 //
 //  Created by opfic on 7/25/26.
 //
 
 import Foundation
 import Testing
-@testable import PresentationShared
+@testable import MarkdownRenderer
 
 struct MarkdownRendererURLPolicyTests {
     @Test(
