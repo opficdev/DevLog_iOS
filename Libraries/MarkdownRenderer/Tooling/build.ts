@@ -5,10 +5,7 @@ import { build } from "esbuild";
 
 const rendererDirectory = fileURLToPath(new URL(".", import.meta.url));
 const outputDirectory = fileURLToPath(
-  new URL(
-    "../../Application/Presentation/PresentationShared/Resources/MarkdownRenderer/",
-    import.meta.url
-  )
+  new URL("../Resources/MarkdownRenderer/", import.meta.url)
 );
 
 await mkdir(outputDirectory, { recursive: true });

@@ -36,7 +36,7 @@ Xcode 빌드 전에 bundle을 생성해야 합니다.
 생성 결과는 다음 경로에 저장합니다.
 
 ```text
-Application/Presentation/PresentationShared/Resources/MarkdownRenderer/
+Libraries/MarkdownRenderer/Resources/MarkdownRenderer/
 ```
 
 컴파일된 `renderer.js`, `index.html`, `renderer.css`는 앱 자원으로 추적합니다.
