@@ -157,7 +157,7 @@ test("renderer 문서는 세로 스크롤을 허용하고 가로 overflow만 숨
   assert.match(markdownBodyRule?.[1] ?? "", /padding:\s*0 16px/);
   assert.doesNotMatch(stylesheet, /markdown-bottom-inset/);
   assert.doesNotMatch(stylesheet, /footnote-scroll-inset/);
-  assert.doesNotMatch(stylesheet, /todo-reference-item/);
+  assert.doesNotMatch(stylesheet, /markdown-reference-item/);
 });
 
 test("각주 크기를 SwiftUI footnote와 body 비율로 표시한다", () => {

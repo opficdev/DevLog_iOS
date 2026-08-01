@@ -1,6 +1,6 @@
 # MarkdownRenderer
 
-Todo Markdown을 앱에 포함할 HTML, JavaScript, CSS로 변환하는 도구입니다.
+Markdown을 앱에 포함할 HTML, JavaScript, CSS로 변환하는 도구입니다.
 renderer source와 build script, 테스트는 TypeScript로 작성합니다.
 
 ## 환경

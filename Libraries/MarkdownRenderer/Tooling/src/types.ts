@@ -1,10 +1,10 @@
-export interface TodoReference {
+export interface MarkdownReference {
   color?: string;
   iconDataURL?: string;
   title?: string;
 }
 
-export type TodoReferences = Record<string, TodoReference>;
+export type MarkdownReferences = Record<string, MarkdownReference>;
 
 export interface RenderMarkdownPayload {
   colorScheme?: unknown;

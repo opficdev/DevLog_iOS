@@ -27,7 +27,7 @@ struct MarkdownRendererURLPolicyTests {
         arguments: [
             "javascript:alert(1)",
             "file:///private/data",
-            "devlog://todo/1",
+            "example://reference/1",
             "https:example.com",
             "example.com"
         ]

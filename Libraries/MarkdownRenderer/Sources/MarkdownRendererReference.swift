@@ -8,18 +8,18 @@
 import Foundation
 
 public struct MarkdownRendererReference: Equatable {
-    let todoID: String
+    let referenceID: String
     let title: String
     let colorHex: String
     let iconDataURL: String?
 
     public init(
-        todoID: String,
+        referenceID: String,
         title: String,
         colorHex: String,
         iconDataURL: String?
     ) {
-        self.todoID = todoID
+        self.referenceID = referenceID
         self.title = title
         self.colorHex = colorHex
         self.iconDataURL = iconDataURL

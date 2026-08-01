@@ -20,7 +20,7 @@ struct TodoMarkdownContentView: View {
             markdown: content,
             references: rendererReferences,
             obscuredBottomInset: tabBarHeight,
-            onOpenTodoID: onOpenTodoID
+            onOpenReferenceID: onOpenTodoID
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: ignoredSafeAreaEdges)
@@ -36,7 +36,7 @@ struct TodoMarkdownContentView: View {
     private var rendererReferences: [Int: MarkdownRendererReference] {
         referenceItems.mapValues { item in
             MarkdownRendererReference(
-                todoID: item.id,
+                referenceID: item.id,
                 title: item.title,
                 colorHex: item.category.color.hexValue ?? "#808080",
                 iconDataURL: iconDataURL(for: item.category.symbolName)

@@ -45,23 +45,23 @@ struct MarkdownRendererJavaScriptMessageTests {
         )
     }
 
-    @Test("정수 Todo 번호만 변환한다")
-    func 정수_Todo_번호만_변환한다() {
+    @Test("정수 참조 번호만 변환한다")
+    func 정수_참조_번호만_변환한다() {
         let message = MarkdownRendererBridge.JavaScriptMessage(
-            name: "todoReference",
+            name: "reference",
             body: ["number": 42]
         )
 
-        #expect(message == .todoReference(42))
+        #expect(message == .reference(42))
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
-                name: "todoReference",
+                name: "reference",
                 body: ["number": 4.2]
             ) == nil
         )
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
-                name: "todoReference",
+                name: "reference",
                 body: ["number": true]
             ) == nil
         )
@@ -93,7 +93,7 @@ struct MarkdownRendererJavaScriptMessageTests {
         )
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
-                name: "todoReference",
+                name: "reference",
                 body: "invalid"
             ) == nil
         )

@@ -35,11 +35,11 @@ enum MarkdownRendererBridge {
 
     enum JavaScriptMessage: Equatable {
         enum Name: String, CaseIterable {
-            case todoReference
+            case reference
             case externalLink
         }
 
-        case todoReference(Int)
+        case reference(Int)
         case externalLink(String)
 
         init?(name: String, body: Any) {
@@ -51,7 +51,7 @@ enum MarkdownRendererBridge {
             }
 
             switch name {
-            case .todoReference:
+            case .reference:
                 guard
                     let number = Self.number(from: payload["number"]),
                     number.doubleValue.isFinite,
@@ -62,7 +62,7 @@ enum MarkdownRendererBridge {
                     return nil
                 }
 
-                self = .todoReference(number.intValue)
+                self = .reference(number.intValue)
 
             case .externalLink:
                 guard let url = payload["url"] as? String else {

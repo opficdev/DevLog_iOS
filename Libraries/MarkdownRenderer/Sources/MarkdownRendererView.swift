@@ -16,18 +16,18 @@ public struct MarkdownRendererView: View {
     private let markdown: String
     private let references: [Int: MarkdownRendererReference]
     private let obscuredBottomInset: CGFloat
-    private let onOpenTodoID: ((String) -> Void)?
+    private let onOpenReferenceID: ((String) -> Void)?
 
     public init(
         markdown: String,
         references: [Int: MarkdownRendererReference] = [:],
         obscuredBottomInset: CGFloat = .zero,
-        onOpenTodoID: ((String) -> Void)? = nil
+        onOpenReferenceID: ((String) -> Void)? = nil
     ) {
         self.markdown = markdown
         self.references = references
         self.obscuredBottomInset = obscuredBottomInset
-        self.onOpenTodoID = onOpenTodoID
+        self.onOpenReferenceID = onOpenReferenceID
     }
 
     public var body: some View {
@@ -38,7 +38,7 @@ public struct MarkdownRendererView: View {
             languageCode: locale.language.languageCode?.identifier ?? "und",
             fontSize: fontSize,
             obscuredBottomInset: obscuredBottomInset,
-            onOpenTodoID: onOpenTodoID,
+            onOpenReferenceID: onOpenReferenceID,
             onOpenURL: { openURL($0) }
         )
     }

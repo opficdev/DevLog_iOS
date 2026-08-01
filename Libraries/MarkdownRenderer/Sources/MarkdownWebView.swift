@@ -15,7 +15,7 @@ struct MarkdownWebView: UIViewRepresentable {
     let languageCode: String
     let fontSize: CGFloat
     let obscuredBottomInset: CGFloat
-    var onOpenTodoID: ((String) -> Void)?
+    var onOpenReferenceID: ((String) -> Void)?
     var onOpenURL: ((URL) -> Void)?
 
     func makeCoordinator() -> Coordinator {
@@ -164,12 +164,12 @@ struct MarkdownWebView: UIViewRepresentable {
             _ message: MarkdownRendererBridge.JavaScriptMessage
         ) {
             switch message {
-            case .todoReference(let number):
+            case .reference(let number):
                 guard let reference = view.references[number] else {
                     return
                 }
 
-                view.onOpenTodoID?(reference.todoID)
+                view.onOpenReferenceID?(reference.referenceID)
 
             case .externalLink(let value):
                 guard let url = MarkdownRendererURLPolicy.externalURL(from: value) else {
