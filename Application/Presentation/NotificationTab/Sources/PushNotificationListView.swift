@@ -31,20 +31,20 @@ public struct PushNotificationListView: View {
     public var body: some View {
         NavigationStack {
             notificationListContent
+                .listStyle(.plain)
                 .background(Color(.systemGroupedBackground))
                 .background(NavigationBarConfigurator(alwaysVisible: true))
-                .onScrollOffsetChange { offset in
-                    guard isScrollTrackingEnabled else { return }
-                    headerOffset = max(0, -offset)
-                }
-                .safeAreaInset(edge: .top) { safeAreaHeader }
                 .refreshable(isEnabled: PullToRefreshAvailability.isEnabled) {
                     let task = store.send(.view(.refresh))
                     await task.finish()
                     store.send(.view(.startObserving))
                 }
+                .onScrollOffsetChange { offset in
+                    guard isScrollTrackingEnabled else { return }
+                    headerOffset = max(0, -offset)
+                }
+                .safeAreaInset(edge: .top) { safeAreaHeader }
                 .navigationTitle(String(localized: "nav_push_notifications"))
-                .listStyle(.plain)
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: sheetStore) { store in
@@ -144,7 +144,20 @@ public struct PushNotificationListView: View {
 
     private var safeAreaHeader: some View {
         VStack(spacing: 4) {
-            headerView
+            ScrollView(.horizontal) {
+                headerContent
+            }
+            .scrollIndicators(.never)
+            .contentMargins(.leading, 16, for: .scrollContent)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: headerHeight)
+            .onAppear {
+                headerOffset = 0
+                isScrollTrackingEnabled = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isScrollTrackingEnabled = true
+                }
+            }
             if #unavailable(iOS 26) {
                 Divider()
                     .padding(.horizontal, -16)
@@ -158,30 +171,6 @@ public struct PushNotificationListView: View {
             }
         }
         .offset(y: headerOffset)
-    }
-
-    private var headerView: some View {
-        Group {
-            if #available(iOS 18.0, *) {
-                ScrollView(.horizontal) {
-                    headerContent
-                }
-                .scrollIndicators(.never)
-                .contentMargins(.leading, 16, for: .scrollContent)
-            } else {
-                headerContent
-                    .padding(.leading, 16)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: headerHeight)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
-            }
-        }
     }
 
     private var headerContent: some View {
