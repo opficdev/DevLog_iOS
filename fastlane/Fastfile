@@ -1,3 +1,5 @@
+require_relative "function_api_base_url_policy"
+
 XCODE_WORKSPACE = "DevLog.xcworkspace"
 XCODE_PROJ = "Application/App/App.xcodeproj"
 WIDGET_XCODE_PROJ = "Widget/WidgetExtension/WidgetExtension.xcodeproj"
@@ -13,7 +15,8 @@ TESTFLIGHT_APP_ENVIRONMENT = "staging"
 APPSTORE_APP_ENVIRONMENT = "prod"
 TESTFLIGHT_DATABASE_ID = "(default)"
 APPSTORE_DATABASE_ID = "(default)"
-SHARED_FUNCTION_API_PATH = "/api/api"
+TESTFLIGHT_FUNCTION_API_PATH = "/api"
+APPSTORE_FUNCTION_API_PATH = "/api/api"
 APP_CONFIG_XCCONFIG_PATH = File.expand_path(
   "../Application/App/Sources/Resource/Config.xcconfig",
   __dir__
@@ -114,19 +117,13 @@ rescue SystemCallError => error
   UI.user_error!("Could not read app configuration file at #{expanded_path}: #{error.message}")
 end
 
-def verify_function_api_base_url_policy(function_api_base_url)
-  require "uri"
-
-  uri = URI.parse(function_api_base_url)
-  is_valid = uri.is_a?(URI::HTTPS) &&
-    !uri.host.to_s.empty? &&
-    uri.path == SHARED_FUNCTION_API_PATH &&
-    uri.query.nil? &&
-    uri.fragment.nil?
+def verify_function_api_base_url_policy(function_api_base_url, expected_path:)
+  is_valid = FunctionAPIBaseURLPolicy.valid?(
+    function_api_base_url,
+    expected_path: expected_path
+  )
 
   UI.user_error!("Invalid FUNCTION_API_BASE_URL for store build") if !is_valid
-rescue URI::InvalidURIError
-  UI.user_error!("Invalid FUNCTION_API_BASE_URL for store build")
 end
 
 default_platform(:ios)
@@ -180,12 +177,14 @@ platform :ios do
       when TESTFLIGHT_CONFIGURATION
         {
           database_id: TESTFLIGHT_DATABASE_ID,
-          function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION)
+          function_api_base_url: function_api_base_url_from_xcconfig(TESTFLIGHT_CONFIGURATION),
+          function_api_path: TESTFLIGHT_FUNCTION_API_PATH
         }
       when APPSTORE_CONFIGURATION
         {
           database_id: APPSTORE_DATABASE_ID,
-          function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION)
+          function_api_base_url: function_api_base_url_from_xcconfig(APPSTORE_CONFIGURATION),
+          function_api_path: APPSTORE_FUNCTION_API_PATH
         }
       else
         UI.user_error!("Unsupported store configuration: #{configuration}")
@@ -194,7 +193,10 @@ platform :ios do
     UI.user_error!("Missing Firestore database ID for #{configuration}") if database_id.empty?
     UI.user_error!("Missing Function API base URL for #{configuration}") if function_api_base_url.empty?
 
-    verify_function_api_base_url_policy(function_api_base_url)
+    verify_function_api_base_url_policy(
+      function_api_base_url,
+      expected_path: expected_configuration[:function_api_path]
+    )
 
     if database_id != expected_configuration[:database_id]
       UI.user_error!(
