@@ -31,20 +31,20 @@ public struct PushNotificationListView: View {
     public var body: some View {
         NavigationStack {
             notificationListContent
+                .listStyle(.plain)
                 .background(Color(.systemGroupedBackground))
                 .background(NavigationBarConfigurator(alwaysVisible: true))
-                .onScrollOffsetChange { offset in
-                    guard isScrollTrackingEnabled else { return }
-                    headerOffset = max(0, -offset)
-                }
-                .safeAreaInset(edge: .top) { safeAreaHeader }
                 .refreshable(isEnabled: PullToRefreshAvailability.isEnabled) {
                     let task = store.send(.view(.refresh))
                     await task.finish()
                     store.send(.view(.startObserving))
                 }
+                .onScrollOffsetChange { offset in
+                    guard isScrollTrackingEnabled else { return }
+                    headerOffset = max(0, -offset)
+                }
+                .safeAreaInset(edge: .top) { safeAreaHeader }
                 .navigationTitle(String(localized: "nav_push_notifications"))
-                .listStyle(.plain)
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: sheetStore) { store in
