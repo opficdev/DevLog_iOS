@@ -144,7 +144,20 @@ public struct PushNotificationListView: View {
 
     private var safeAreaHeader: some View {
         VStack(spacing: 4) {
-            headerView
+            ScrollView(.horizontal) {
+                headerContent
+            }
+            .scrollIndicators(.never)
+            .contentMargins(.leading, 16, for: .scrollContent)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: headerHeight)
+            .onAppear {
+                headerOffset = 0
+                isScrollTrackingEnabled = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isScrollTrackingEnabled = true
+                }
+            }
             if #unavailable(iOS 26) {
                 Divider()
                     .padding(.horizontal, -16)
@@ -158,30 +171,6 @@ public struct PushNotificationListView: View {
             }
         }
         .offset(y: headerOffset)
-    }
-
-    private var headerView: some View {
-        Group {
-            if #available(iOS 18.0, *) {
-                ScrollView(.horizontal) {
-                    headerContent
-                }
-                .scrollIndicators(.never)
-                .contentMargins(.leading, 16, for: .scrollContent)
-            } else {
-                headerContent
-                    .padding(.leading, 16)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: headerHeight)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
-            }
-        }
     }
 
     private var headerContent: some View {
