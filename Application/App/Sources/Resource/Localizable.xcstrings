@@ -290,6 +290,23 @@
         }
       }
     },
+    "common_copy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사"
+          }
+        }
+      }
+    },
     "common_delete" : {
       "extractionState" : "manual",
       "localizations" : {
