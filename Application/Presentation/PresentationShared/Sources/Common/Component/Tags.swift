@@ -123,6 +123,9 @@ public struct TagList: View {
             Tag(tagText, isEditing: isEditing) {
                 action?(tagText)
             }
+            .overlay {
+                TagCopyMenuView(tagText: tagText)
+            }
         }
     }
 }
