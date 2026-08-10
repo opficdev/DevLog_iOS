@@ -12,11 +12,31 @@ public struct Tag: View {
     @State private var height: CGFloat = 0
     private let name: String
     private let isEditing: Bool
+    private let isCopyEnabled: Bool
     private var action: (() -> Void)?
 
-    public init(_ name: String, isEditing: Bool, action: (() -> Void)? = nil) {
+    public init(
+        _ name: String,
+        isEditing: Bool,
+        action: (() -> Void)? = nil
+    ) {
+        self.init(
+            name,
+            isEditing: isEditing,
+            isCopyEnabled: false,
+            action: action
+        )
+    }
+
+    init(
+        _ name: String,
+        isEditing: Bool,
+        isCopyEnabled: Bool,
+        action: (() -> Void)?
+    ) {
         self.name = name
         self.isEditing = isEditing
+        self.isCopyEnabled = isCopyEnabled
         self.action = action
     }
 
@@ -30,6 +50,11 @@ public struct Tag: View {
                 .padding(.vertical, 4)
                 .padding(.leading, 8)
                 .padding(.trailing, isEditing ? 0 : 8)
+                .overlay {
+                    if isCopyEnabled {
+                        TagCopyMenuView(tagText: name)
+                    }
+                }
                 .background {
                     GeometryReader { geo in
                         Color.clear
@@ -120,11 +145,12 @@ public struct TagList: View {
     @ViewBuilder
     private var contentTags: some View {
         ForEach(tags, id: \.self) { tagText in
-            Tag(tagText, isEditing: isEditing) {
+            Tag(
+                tagText,
+                isEditing: isEditing,
+                isCopyEnabled: true
+            ) {
                 action?(tagText)
-            }
-            .overlay {
-                TagCopyMenuView(tagText: tagText)
             }
         }
     }
