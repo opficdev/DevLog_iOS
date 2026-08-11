@@ -114,6 +114,38 @@ extension TodoDetailPreviewInteractionCoordinator: UIContextMenuInteractionDeleg
         )
     }
 
+    // 미리보기가 표시될 때 원본 행에 기본 배경색이 적용되는 현상 방지
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configuration: UIContextMenuConfiguration,
+        highlightPreviewForItemWithIdentifier identifier: any NSCopying
+    ) -> UITargetedPreview? {
+        targetedPreview()
+    }
+
+    // 미리보기가 닫힐 때 원본 행에 기본 배경색이 적용되는 현상 방지
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configuration: UIContextMenuConfiguration,
+        dismissalPreviewForItemWithIdentifier identifier: any NSCopying
+    ) -> UITargetedPreview? {
+        targetedPreview()
+    }
+
+    // iOS 18 이하에서 투명한 원본 뷰의 기본 전환 배경이 흰색으로 표시되는 현상 방지
+    private func targetedPreview() -> UITargetedPreview? {
+        guard let view else { return nil }
+
+        let parameters = UIPreviewParameters()
+        parameters.backgroundColor = .clear
+        parameters.shadowPath = UIBezierPath()
+
+        return UITargetedPreview(
+            view: view,
+            parameters: parameters
+        )
+    }
+
     private func preferredContentSize(for view: UIView?) -> CGSize {
         let bounds = view?.window?.bounds ?? view?.bounds ?? .zero
         let width = min(420, max(280, bounds.width - 32))
