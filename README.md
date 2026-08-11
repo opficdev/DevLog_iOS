@@ -49,7 +49,7 @@
 
 <a href="https://apps.apple.com/us/app/devlog/id6760288611">
   <img src="https://img.shields.io/badge/App%20Store-0D96F6?style=flat&logo=appstore&logoColor=white" />
-
+</a>
 
 ## 프로젝트 개요
 
@@ -66,9 +66,14 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 
 ## 아키텍처
 
-`DevLog.xcworkspace` 안에서 Application, Libraries, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
-`Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할을 하고, root/auth/tab shell/window 흐름은 `Entry`, 공통 Todo/Search/Loading 흐름은 `PresentationShared`, 탭 단위 흐름은 `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab` target이 소유함
-`MarkdownRenderer` target은 SwiftUI 공개 화면과 참조 값, 내부 `WKWebView` 연결, HTML/JavaScript/CSS 자원과 TypeScript Tooling을 소유함. `PresentationShared`에서는 `TodoMarkdownContentView`만 이를 직접 import하며 재노출하지 않음
+- `DevLog.xcworkspace` 안에서 Application, Libraries, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
+- `Domain`을 중심으로 계층별 책임과 의존 방향을 분리해 비즈니스 규칙이 UI, 데이터 저장소, 외부 SDK 구현에 의존하지 않도록 구성
+- `Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할
+	- `Entry`: root/auth/tab shell/window 흐름 소유
+	- `PresentationShared`: 공통 Todo/Search/Loading 흐름 소유
+	- `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab`: 탭 단위 흐름 소유
+- `MarkdownRenderer` target은 SwiftUI 공개 화면과 참조 값, 내부 `WKWebView` 연결, HTML/JavaScript/CSS 자원과 TypeScript Tooling을 소유함
+- `PresentationShared`에서는 `TodoMarkdownContentView`만 `MarkdownRenderer`를 직접 import하며 재노출하지 않음
 
 <table>
   <tr>
@@ -198,10 +203,10 @@ Debug, Staging -> staging Firebase project / Firestore (default)
 Release -> prod Firebase project / Firestore (default)
 ```
 
-TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
-GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행함
-TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release` configuration build로 생성함
-build number는 TestFlight와 App Store upload가 공유하는 App Store Connect build number 공간에서 자동 증가함
+- TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
+- GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행함
+- TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release` configuration build로 생성함
+- build number는 TestFlight와 App Store upload가 공유하는 App Store Connect build number 공간에서 자동 증가함
 
 - TestFlight build: `bundle exec fastlane testflight_build_only`
 - TestFlight upload: `bundle exec fastlane deploy_testflight`
