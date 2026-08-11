@@ -67,6 +67,7 @@ Todo, 저장 링크, 오늘 할 일, 받은 알림, 누적 활동을 하나의 �
 ## 아키텍처
 
 - `DevLog.xcworkspace` 안에서 Application, Libraries, Widget 모듈을 분리하고 화면, 상태, 비즈니스 로직, 외부 의존성 경계를 나눈 `Clean Architecture` 기반 구성
+- `Domain`을 중심으로 계층별 책임과 의존 방향을 분리해 비즈니스 규칙이 UI, 데이터 저장소, 외부 SDK 구현에 의존하지 않도록 구성
 - `Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할
 	- `Entry`: root/auth/tab shell/window 흐름 소유
 	- `PresentationShared`: 공통 Todo/Search/Loading 흐름 소유
