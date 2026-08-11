@@ -49,7 +49,7 @@
 
 <a href="https://apps.apple.com/us/app/devlog/id6760288611">
   <img src="https://img.shields.io/badge/App%20Store-0D96F6?style=flat&logo=appstore&logoColor=white" />
-
+</a>
 
 ## 프로젝트 개요
 
