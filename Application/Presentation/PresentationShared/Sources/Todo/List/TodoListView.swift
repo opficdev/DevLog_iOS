@@ -112,6 +112,7 @@ public struct TodoListView: View {
                             } label: {
                                 TodoItemRow(todo)
                             }
+                            .todoDetailPreview(todoId: todo.id)
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                             .alignmentGuide(.listRowSeparatorLeading) { _ in return 0 }
                             .overlay(alignment: .top) {
@@ -279,6 +280,7 @@ public struct TodoListView: View {
                                 Divider()
                             }
                         }
+                        .todoDetailPreview(todoId: todo.id)
                     }
                     .padding(.horizontal, 16)
 

@@ -155,20 +155,23 @@ public struct TodayView: View {
 
     @ViewBuilder
     private func todoRow(_ item: TodayTodoItem) -> some View {
-        if isCompactLayout {
-            NavigationLink(value: TodayRoute.todo(TodoIdItem(id: item.id))) {
-                TodayTodoRow(item: item)
+        Group {
+            if isCompactLayout {
+                NavigationLink(value: TodayRoute.todo(TodoIdItem(id: item.id))) {
+                    TodayTodoRow(item: item)
+                }
+            } else {
+                Button {
+                    coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
+                } label: {
+                    TodayTodoRow(item: item)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
             }
-        } else {
-            Button {
-                coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
-            } label: {
-                TodayTodoRow(item: item)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
         }
+        .todoDetailPreview(todoId: item.id)
     }
 
     private var emptyStateContent: EmptyStateContent {

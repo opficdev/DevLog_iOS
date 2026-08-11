@@ -300,20 +300,23 @@ public struct HomeView: View {
 
     @ViewBuilder
     private func recentTodoRow(_ item: RecentTodoItem) -> some View {
-        if isCompactLayout {
-            NavigationLink(value: HomeRoute.todo(TodoIdItem(id: item.id))) {
-                RecentTodoRow(todo: item)
+        Group {
+            if isCompactLayout {
+                NavigationLink(value: HomeRoute.todo(TodoIdItem(id: item.id))) {
+                    RecentTodoRow(todo: item)
+                }
+            } else {
+                Button {
+                    coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
+                } label: {
+                    RecentTodoRow(todo: item)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
             }
-        } else {
-            Button {
-                coordinator.router.replace(with: .todo(TodoIdItem(id: item.id)))
-            } label: {
-                RecentTodoRow(todo: item)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
         }
+        .todoDetailPreview(todoId: item.id)
     }
 
     @ViewBuilder
