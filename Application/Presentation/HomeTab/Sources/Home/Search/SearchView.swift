@@ -205,6 +205,7 @@ struct SearchView: View {
                 Divider()
             }
         }
+        .todoDetailPreview(todoId: item.id)
     }
 
     private func webResultRow(_ item: WebPageItem) -> some View {
