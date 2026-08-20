@@ -31,13 +31,17 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     public let sections: [Section]
     // 같은 식별자를 유지한 채 다시 구성할 item 식별자 집합
     public let reconfiguredItemIdentifiers: Set<ItemIdentifier>
+    // 같은 식별자를 유지한 채 다시 구성할 section 식별자 집합
+    public let reconfiguredSectionIdentifiers: Set<SectionIdentifier>
 
     // section 순서와 다시 구성할 item 식별자를 지정한 rendering snapshot 생성
     public init(
         sections: [Section],
-        reconfiguredItemIdentifiers: Set<ItemIdentifier> = []
+        reconfiguredItemIdentifiers: Set<ItemIdentifier> = [],
+        reconfiguredSectionIdentifiers: Set<SectionIdentifier> = []
     ) {
         self.sections = sections
         self.reconfiguredItemIdentifiers = reconfiguredItemIdentifiers
+        self.reconfiguredSectionIdentifiers = reconfiguredSectionIdentifiers
     }
 }

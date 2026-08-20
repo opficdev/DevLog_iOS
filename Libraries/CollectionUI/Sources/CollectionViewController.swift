@@ -154,7 +154,8 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         let snapshot = configuration.snapshot
         let requiresStructuralUpdate = !hasSameStructure(snapshot, appliedSnapshot)
         let hasReconfiguredItems = !snapshot.reconfiguredItemIdentifiers.isEmpty
-        guard requiresStructuralUpdate || hasReconfiguredItems else {
+        let hasReconfiguredSections = !snapshot.reconfiguredSectionIdentifiers.isEmpty
+        guard requiresStructuralUpdate || hasReconfiguredItems || hasReconfiguredSections else {
             return
         }
 
@@ -195,6 +196,10 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             snapshot.indexOfItem($0) != nil
         }
         snapshot.reconfigureItems(Array(identifiers))
+        let sectionIdentifiers = renderingSnapshot.reconfiguredSectionIdentifiers.filter {
+            snapshot.indexOfSection($0) != nil
+        }
+        snapshot.reloadSections(Array(sectionIdentifiers))
         return snapshot
     }
 

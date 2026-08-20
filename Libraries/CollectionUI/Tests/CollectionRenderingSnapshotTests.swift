@@ -46,4 +46,14 @@ struct CollectionRenderingSnapshotTests {
 
         #expect(lhs == rhs)
     }
+
+    @Test("내용이 변경된 section 식별자를 별도로 보관한다")
+    func storesReconfiguredSectionIdentifiers() {
+        let snapshot = CollectionRenderingSnapshot<String, String>(
+            sections: [.init(identifier: "default", itemIdentifiers: [])],
+            reconfiguredSectionIdentifiers: ["default"]
+        )
+
+        #expect(snapshot.reconfiguredSectionIdentifiers == ["default"])
+    }
 }
