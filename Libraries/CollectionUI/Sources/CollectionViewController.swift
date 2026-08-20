@@ -157,7 +157,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         appliedSnapshot = configuration.snapshot
     }
 
-    private func makeDiffableSnapshot(
+    func makeDiffableSnapshot(
         from renderingSnapshot: CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>
     ) -> NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier> {
         var snapshot = NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier>()

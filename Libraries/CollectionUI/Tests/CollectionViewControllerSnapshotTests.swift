@@ -27,21 +27,15 @@ struct CollectionViewControllerSnapshotTests {
 
     @Test("다시 구성할 item만 diffable snapshot에 표시한다")
     func reconfiguresSpecifiedItems() {
-        let controller = CollectionViewController(configuration: configuration(
-            snapshot: .init(sections: [
+        let renderingSnapshot = CollectionRenderingSnapshot<String, String>(
+            sections: [
                 .init(identifier: "default", itemIdentifiers: ["todo-1", "todo-2"])
-            ])
-        ))
-        controller.update(configuration: configuration(
-            snapshot: .init(
-                sections: [
-                    .init(identifier: "default", itemIdentifiers: ["todo-1", "todo-2"])
-                ],
-                reconfiguredItemIdentifiers: ["todo-2"]
-            )
-        ))
+            ],
+            reconfiguredItemIdentifiers: ["todo-2"]
+        )
+        let controller = CollectionViewController(configuration: configuration(snapshot: renderingSnapshot))
 
-        #expect(controller.snapshot().reconfiguredItemIdentifiers == ["todo-2"])
+        #expect(controller.makeDiffableSnapshot(from: renderingSnapshot).reconfiguredItemIdentifiers == ["todo-2"])
     }
 
     private func configuration(
