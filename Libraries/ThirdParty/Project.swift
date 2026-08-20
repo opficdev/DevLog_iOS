@@ -13,6 +13,10 @@ let project = Project(
             url: "https://github.com/firebase/firebase-ios-sdk",
             .exact("11.15.0")
         ),
+        .package(
+            url: "https://github.com/google/GoogleSignIn-iOS",
+            .revision("02616ac6b469e8f00212436d2cac16e6efad7954")
+        ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),
     targets: [
@@ -43,6 +47,7 @@ let project = Project(
                 .package(product: "FirebaseCrashlytics"),
                 .package(product: "FirebaseMessaging"),
                 .package(product: "FirebaseFirestore"),
+                .package(product: "GoogleSignIn"),
             ],
             settings: .devlog(
                 base: deploymentSettings

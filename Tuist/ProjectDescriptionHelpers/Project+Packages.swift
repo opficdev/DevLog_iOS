@@ -9,10 +9,6 @@ public enum DevLogPackages {
         url: "https://github.com/pointfreeco/swift-composable-architecture",
         .exact("1.25.5")
     )
-    public static let googleSignInPackage: Package = .package(
-        url: "https://github.com/google/GoogleSignIn-iOS",
-        .revision("02616ac6b469e8f00212436d2cac16e6efad7954")
-    )
     public static let nexaPackage: Package = .package(
         url: "https://github.com/opficdev/Nexa",
         .upToNextMinor(from: "1.1.1")
@@ -24,7 +20,6 @@ public enum DevLogPackages {
     ]
 
     public static let infraPackageDependencies: [TargetDependency] = [
-        .package(product: "GoogleSignIn"),
         .package(product: "Nexa"),
     ]
 
@@ -36,7 +31,6 @@ public enum DevLogPackages {
     ]
 
     public static let infraPackages: [Package] = [
-        googleSignInPackage,
         nexaPackage,
     ]
 }
