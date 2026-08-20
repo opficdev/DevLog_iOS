@@ -87,10 +87,14 @@ export async function decideCandidates({
 }) {
   const candidates = packages.filter(packageInfo => packageInfo.candidateVersion)
   const automaticCandidates = candidates.filter(
-    packageInfo => packageInfo.releaseNotes?.status === "available"
+    packageInfo => packageInfo.releaseHistory?.every(
+      release => release.status === "available"
+    )
   )
   const manualPackages = candidates
-    .filter(packageInfo => packageInfo.releaseNotes?.status !== "available")
+    .filter(packageInfo => !packageInfo.releaseHistory?.every(
+      release => release.status === "available"
+    ))
     .map(packageInfo => manualReview(packageInfo, packageInfo.manualReviewReason))
 
   if (!apiKey) {
@@ -233,18 +237,22 @@ export async function discoverCandidates({
     }
 
     try {
-      const releaseNotes = await releaseNotesFor(
+      const releaseHistory = await releaseHistoryFor(
         packageInfo.repository,
+        packageInfo.version,
         candidateVersion,
+        tags,
         githubToken,
         fetcher
       )
+      const releaseNotes = releaseHistory.at(-1)
 
       return {
         ...publicPackageInfo(packageInfo),
         candidateVersion,
         releaseNotes,
-        manualReviewReason: releaseNotes.status === "available"
+        releaseHistory,
+        manualReviewReason: releaseHistory.every(release => release.status === "available")
           ? undefined
           : "변경 이력을 확인하지 못했으므로 수동 확인 필요",
       }
@@ -261,6 +269,7 @@ export async function discoverCandidates({
           body: undefined,
           truncated: false,
         },
+        releaseHistory: [],
       }
     }
   }))
@@ -281,6 +290,45 @@ async function tagsFor(repository, githubToken, fetcher) {
   return value
     .map(tag => tag?.name)
     .filter(isStableVersion)
+}
+
+// 현재 버전부터 후보 버전까지의 모든 정식 변경 이력 수집
+async function releaseHistoryFor(
+  repository,
+  currentVersion,
+  candidateVersion,
+  tags,
+  githubToken,
+  fetcher
+) {
+  const current = versionParts(currentVersion)
+  const candidate = versionParts(candidateVersion)
+  const releaseTags = tags
+    .map(tag => ({ tag, parts: versionParts(tag) }))
+    .filter(({ parts }) => parts && parts.major === current.major)
+    .filter(({ parts }) => 0 < compareVersions(parts, current))
+    .filter(({ parts }) => compareVersions(parts, candidate) <= 0)
+    .sort((left, right) => compareVersions(left.parts, right.parts))
+
+  return Promise.all(releaseTags.map(async ({ tag }) => {
+    try {
+      return {
+        tag,
+        ...await releaseNotesFor(repository, tag, githubToken, fetcher),
+      }
+    } catch (error) {
+      return {
+        tag,
+        status: "unavailable",
+        url: `https://github.com/${repository}/releases/tag/${tag}`,
+        body: undefined,
+        truncated: false,
+        manualReviewReason: error instanceof Error
+          ? error.message
+          : "변경 이력 조회 실패",
+      }
+    }
+  }))
 }
 
 // 특정 버전의 GitHub 변경 이력을 제한된 길이로 읽기
@@ -382,9 +430,12 @@ function openAiRequest(packages) {
           repository: packageInfo.repository,
           currentVersion: packageInfo.currentVersion,
           candidateVersion: packageInfo.candidateVersion,
-          releaseNoteUrl: packageInfo.releaseNotes.url,
-          releaseNote: packageInfo.releaseNotes.body,
-          releaseNoteTruncated: packageInfo.releaseNotes.truncated,
+          releaseHistory: packageInfo.releaseHistory.map(release => ({
+            tag: release.tag,
+            url: release.url,
+            note: release.body,
+            truncated: release.truncated,
+          })),
         }))),
       },
     ],

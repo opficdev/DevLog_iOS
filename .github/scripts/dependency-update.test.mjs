@@ -154,7 +154,41 @@ test("keeps a discovered candidate when release note retrieval fails", async () 
     })
 
     assert.equal(packages[0]?.candidateVersion, "11.16.0")
-    assert.match(packages[0]?.manualReviewReason, /변경 이력 조회 실패/)
+    assert.match(packages[0]?.manualReviewReason, /수동 확인 필요/)
+    assert.match(
+        packages[0]?.releaseHistory[0]?.manualReviewReason,
+        /변경 이력 조회 실패/
+    )
+})
+
+test("collects every release note between the current and candidate versions", async () => {
+    const requestedTags = []
+    const packages = await discoverCandidates({
+        manifest,
+        fetcher: async url => {
+            if (url.endsWith("/tags?per_page=100")) {
+                return jsonResponse([
+                    { name: "11.17.0" },
+                    { name: "11.16.0" },
+                ])
+            }
+
+            const tag = url.split("/").at(-1)
+            requestedTags.push(tag)
+            return jsonResponse({
+                html_url: url,
+                body: `${tag} 변경 이력`,
+            })
+        },
+    })
+
+    const firebase = packages[0]
+    assert.equal(firebase?.candidateVersion, "11.17.0")
+    assert.deepEqual(requestedTags, ["11.16.0", "11.17.0"])
+    assert.deepEqual(
+        firebase?.releaseHistory.map(release => release.tag),
+        ["11.16.0", "11.17.0"]
+    )
 })
 
 test("renders an append-only PR section for approved and manual-review results", () => {
@@ -195,6 +229,15 @@ function candidatePackage() {
             body: "Bug fixes",
             truncated: false,
         },
+        releaseHistory: [
+            {
+                tag: "1.2.0",
+                status: "available",
+                url: "https://github.com/opficdev/Nexa/releases/tag/1.2.0",
+                body: "Bug fixes",
+                truncated: false,
+            },
+        ],
         manualReviewReason: null,
     }
 }
