@@ -137,24 +137,34 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     }
 
     private func applySnapshotIfNeeded() {
-        guard configuration.snapshot != appliedSnapshot else {
+        let snapshot = configuration.snapshot
+        let requiresStructuralUpdate = !hasSameStructure(snapshot, appliedSnapshot)
+        let hasReconfiguredItems = !snapshot.reconfiguredItemIdentifiers.isEmpty
+        guard requiresStructuralUpdate || hasReconfiguredItems else {
             return
         }
 
-        guard validates(configuration.snapshot) else {
+        guard validates(snapshot) else {
             return
         }
 
-        let snapshot = makeDiffableSnapshot(from: configuration.snapshot)
+        let diffableSnapshot = makeDiffableSnapshot(from: snapshot)
         if appliedSnapshot == nil {
-            dataSource.applySnapshotUsingReloadData(snapshot)
+            dataSource.applySnapshotUsingReloadData(diffableSnapshot)
         } else {
             let preservedState = makePreservedState()
-            dataSource.apply(snapshot, animatingDifferences: true) { [weak self] in
+            dataSource.apply(diffableSnapshot, animatingDifferences: true) { [weak self] in
                 self?.restore(preservedState)
             }
         }
-        appliedSnapshot = configuration.snapshot
+        appliedSnapshot = CollectionRenderingSnapshot(sections: snapshot.sections)
+    }
+
+    private func hasSameStructure(
+        _ lhs: CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>,
+        _ rhs: CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>?
+    ) -> Bool {
+        lhs.sections == rhs?.sections
     }
 
     func makeDiffableSnapshot(
