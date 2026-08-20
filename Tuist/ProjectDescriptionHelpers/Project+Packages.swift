@@ -9,10 +9,6 @@ public enum DevLogPackages {
         url: "https://github.com/pointfreeco/swift-composable-architecture",
         .exact("1.25.5")
     )
-    public static let firebasePackage: Package = .package(
-        url: "https://github.com/firebase/firebase-ios-sdk",
-        .exact("11.15.0")
-    )
     public static let googleSignInPackage: Package = .package(
         url: "https://github.com/google/GoogleSignIn-iOS",
         .revision("02616ac6b469e8f00212436d2cac16e6efad7954")
@@ -28,13 +24,6 @@ public enum DevLogPackages {
     ]
 
     public static let infraPackageDependencies: [TargetDependency] = [
-        .package(product: "FirebaseAnalyticsCore"),
-        .package(product: "FirebaseCore"),
-        .package(product: "FirebaseFunctions"),
-        .package(product: "FirebaseAuth"),
-        .package(product: "FirebaseCrashlytics"),
-        .package(product: "FirebaseMessaging"),
-        .package(product: "FirebaseFirestore"),
         .package(product: "GoogleSignIn"),
         .package(product: "Nexa"),
     ]
@@ -47,7 +36,6 @@ public enum DevLogPackages {
     ]
 
     public static let infraPackages: [Package] = [
-        firebasePackage,
         googleSignInPackage,
         nexaPackage,
     ]

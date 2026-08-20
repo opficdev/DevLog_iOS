@@ -13,6 +13,7 @@ let workspace = Workspace(
         "Application/Widget",
         "Libraries/CollectionUI",
         "Libraries/MarkdownRenderer",
+        "Libraries/ThirdParty",
         "Widget/WidgetCore",
         "Widget/WidgetExtension",
     ],
