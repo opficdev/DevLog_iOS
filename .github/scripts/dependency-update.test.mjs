@@ -4,6 +4,7 @@ import test from "node:test"
 import {
     applyUpdates,
     decideCandidates,
+    discoverCandidates,
     latestCompatibleVersion,
     parsePackages,
     renderPrBodySection,
@@ -134,6 +135,26 @@ test("records OpenAI request failures as manual review without raw error output"
         decisions.packages[0]?.manualReviewReason,
         /api response must not be retained/
     )
+})
+
+test("keeps a discovered candidate when release note retrieval fails", async () => {
+    const packages = await discoverCandidates({
+        manifest,
+        fetcher: async url => {
+            if (url.endsWith("/tags?per_page=100")) {
+                return jsonResponse([{ name: "11.16.0" }])
+            }
+
+            return {
+                ok: false,
+                status: 503,
+                json: async () => ({}),
+            }
+        },
+    })
+
+    assert.equal(packages[0]?.candidateVersion, "11.16.0")
+    assert.match(packages[0]?.manualReviewReason, /변경 이력 조회 실패/)
 })
 
 test("renders an append-only PR section for approved and manual-review results", () => {

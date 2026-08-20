@@ -204,18 +204,29 @@ export async function discoverCandidates({
       }
     }
 
+    let tags
     try {
-      const tags = await tagsFor(packageInfo.repository, githubToken, fetcher)
-      const candidateVersion = latestCompatibleVersion(packageInfo.version, tags)
-
-      if (!candidateVersion) {
-        return {
-          ...publicPackageInfo(packageInfo),
-          candidateVersion: undefined,
-          manualReviewReason: undefined,
-        }
+      tags = await tagsFor(packageInfo.repository, githubToken, fetcher)
+    } catch (error) {
+      return {
+        ...publicPackageInfo(packageInfo),
+        candidateVersion: undefined,
+        manualReviewReason: error instanceof Error
+          ? error.message
+          : "후보 버전 조회 실패",
       }
+    }
 
+    const candidateVersion = latestCompatibleVersion(packageInfo.version, tags)
+    if (!candidateVersion) {
+      return {
+        ...publicPackageInfo(packageInfo),
+        candidateVersion: undefined,
+        manualReviewReason: undefined,
+      }
+    }
+
+    try {
       const releaseNotes = await releaseNotesFor(
         packageInfo.repository,
         candidateVersion,
@@ -234,10 +245,16 @@ export async function discoverCandidates({
     } catch (error) {
       return {
         ...publicPackageInfo(packageInfo),
-        candidateVersion: undefined,
+        candidateVersion,
         manualReviewReason: error instanceof Error
           ? error.message
-          : "후보 버전 조회 실패",
+          : "변경 이력 조회 실패",
+        releaseNotes: {
+          status: "missing",
+          url: `https://github.com/${packageInfo.repository}/releases/tag/${candidateVersion}`,
+          body: undefined,
+          truncated: false,
+        },
       }
     }
   }))
@@ -494,13 +511,16 @@ async function main() {
   const manifestPath = option(argumentsList, "--manifest")
   const outputPath = option(argumentsList, "--output")
 
-  if (!manifestPath || !outputPath) {
-    throw new Error("--manifest와 --output이 필요")
+  if (!outputPath) {
+    throw new Error("--output이 필요")
   }
 
-  const manifest = await readFile(manifestPath, "utf8")
-
   if (command === "discover") {
+    if (!manifestPath) {
+      throw new Error("discover에는 --manifest가 필요")
+    }
+
+    const manifest = await readFile(manifestPath, "utf8")
     const packages = await discoverCandidates({
       manifest,
       githubToken: process.env.GITHUB_TOKEN,
@@ -544,10 +564,11 @@ async function main() {
   if (command === "apply") {
     const updatesPath = option(argumentsList, "--updates")
 
-    if (!updatesPath) {
-      throw new Error("apply에는 --updates가 필요")
+    if (!manifestPath || !updatesPath) {
+      throw new Error("apply에는 --manifest와 --updates가 필요")
     }
 
+    const manifest = await readFile(manifestPath, "utf8")
     const updates = await readJson(updatesPath)
     const nextManifest = applyUpdates(manifest, updates.packages ?? updates)
     await writeFile(outputPath, nextManifest)
