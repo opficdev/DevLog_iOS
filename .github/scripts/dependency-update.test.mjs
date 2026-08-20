@@ -218,6 +218,33 @@ test("collects every release note between the current and candidate versions", a
     )
 })
 
+test("removes a v tag prefix before applying the candidate to the manifest", async () => {
+    const packages = await discoverCandidates({
+        manifest,
+        fetcher: async url => {
+            if (url.endsWith("/tags?per_page=100")) {
+                return jsonResponse([{ name: "v11.16.0" }])
+            }
+
+            return jsonResponse({
+                html_url: url,
+                body: "변경 이력",
+            })
+        },
+    })
+
+    assert.equal(packages[0]?.candidateTag, "v11.16.0")
+    assert.equal(packages[0]?.candidateVersion, "11.16.0")
+    assert.match(
+        applyUpdates(manifest, [{
+            repository: "firebase/firebase-ios-sdk",
+            action: "apply",
+            candidateVersion: packages[0]?.candidateVersion,
+        }]),
+        /\.exact\("11\.16\.0"\)/
+    )
+})
+
 test("renders an append-only PR section for approved and manual-review results", () => {
     const section = renderPrBodySection({
         runId: "123",

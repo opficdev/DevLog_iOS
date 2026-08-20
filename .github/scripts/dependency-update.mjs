@@ -234,20 +234,21 @@ export async function discoverCandidates({
       }
     }
 
-    const candidateVersion = latestCompatibleVersion(packageInfo.version, tags)
-    if (!candidateVersion) {
+    const candidateTag = latestCompatibleVersion(packageInfo.version, tags)
+    if (!candidateTag) {
       return {
         ...publicPackageInfo(packageInfo),
         candidateVersion: undefined,
         manualReviewReason: undefined,
       }
     }
+    const candidateVersion = normalizedVersion(candidateTag)
 
     try {
       const releaseHistory = await releaseHistoryFor(
         packageInfo.repository,
         packageInfo.version,
-        candidateVersion,
+        candidateTag,
         tags,
         githubToken,
         fetcher
@@ -256,6 +257,7 @@ export async function discoverCandidates({
 
       return {
         ...publicPackageInfo(packageInfo),
+        candidateTag,
         candidateVersion,
         releaseNotes,
         releaseHistory,
@@ -266,13 +268,14 @@ export async function discoverCandidates({
     } catch (error) {
       return {
         ...publicPackageInfo(packageInfo),
+        candidateTag,
         candidateVersion,
         manualReviewReason: error instanceof Error
           ? error.message
           : "변경 이력 조회 실패",
         releaseNotes: {
           status: "missing",
-          url: `https://github.com/${packageInfo.repository}/releases/tag/${candidateVersion}`,
+          url: `https://github.com/${packageInfo.repository}/releases/tag/${candidateTag}`,
           body: undefined,
           truncated: false,
         },
@@ -570,6 +573,17 @@ function versionParts(value) {
     minor: Number(match[2]),
     patch: Number(match[3]),
   }
+}
+
+// 정식 태그 문자열을 manifest에 쓸 semantic version으로 정규화
+function normalizedVersion(value) {
+  const parts = versionParts(value)
+
+  if (!parts) {
+    throw new Error(`정식 버전으로 정규화할 수 없음: ${value}`)
+  }
+
+  return `${parts.major}.${parts.minor}.${parts.patch}`
 }
 
 // 두 버전 숫자 묶음의 앞뒤 순서 비교
