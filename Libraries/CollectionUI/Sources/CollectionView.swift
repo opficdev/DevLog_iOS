@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 // SwiftUI 화면과 UIKit collection controller 연결
 @MainActor
