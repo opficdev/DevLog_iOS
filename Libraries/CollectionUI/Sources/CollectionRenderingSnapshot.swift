@@ -1,0 +1,47 @@
+//
+//  CollectionRenderingSnapshot.swift
+//  CollectionUI
+//
+//  Created by opfic on 8/20/26.
+//
+
+import Foundation
+
+// Collection 화면에 적용할 section과 item 식별자 상태
+public struct CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>: Equatable, Sendable
+where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendable {
+    // 하나의 section과 그 안의 item 식별자 순서
+    public struct Section: Equatable, Sendable {
+        // section을 구분하는 고유 식별자
+        public let identifier: SectionIdentifier
+        // section 안에 표시할 item의 순서가 있는 식별자 목록
+        public let itemIdentifiers: [ItemIdentifier]
+
+        // section 식별자와 표시 순서를 지정한 section 값 생성
+        public init(
+            identifier: SectionIdentifier,
+            itemIdentifiers: [ItemIdentifier]
+        ) {
+            self.identifier = identifier
+            self.itemIdentifiers = itemIdentifiers
+        }
+    }
+
+    // 표시할 section과 item 식별자의 전체 순서
+    public let sections: [Section]
+    // 같은 식별자를 유지한 채 다시 구성할 item 식별자 집합
+    public let reconfiguredItemIdentifiers: Set<ItemIdentifier>
+    // 같은 식별자를 유지한 채 다시 구성할 section 식별자 집합
+    public let reconfiguredSectionIdentifiers: Set<SectionIdentifier>
+
+    // section 순서와 다시 구성할 item 식별자를 지정한 rendering snapshot 생성
+    public init(
+        sections: [Section],
+        reconfiguredItemIdentifiers: Set<ItemIdentifier> = [],
+        reconfiguredSectionIdentifiers: Set<SectionIdentifier> = []
+    ) {
+        self.sections = sections
+        self.reconfiguredItemIdentifiers = reconfiguredItemIdentifiers
+        self.reconfiguredSectionIdentifiers = reconfiguredSectionIdentifiers
+    }
+}

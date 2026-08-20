@@ -304,8 +304,8 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | Planner | active main agent | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
 | Implementer | active main agent | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
-| Architecture Watcher | `architecture_watcher` | `gpt-5.3-codex-spark` (`Lightweight`) -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
-| Code Reviewer | `code_reviewer` | `gpt-5.3-codex-spark` (`Lightweight`) -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
-| Verification Runner | `verification_runner` | `gpt-5.3-codex-spark` (`Lightweight`) | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
-| GitHub/CI Analyst | `github_ci_analyst` | `gpt-5.3-codex-spark` (`Lightweight`) | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
-| Documentation Writer | `documentation_writer` | `gpt-5.3-codex-spark` (`Lightweight`) | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
+| Architecture Watcher | `architecture_watcher` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
+| Code Reviewer | `code_reviewer` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
+| Verification Runner | `verification_runner` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
+| GitHub/CI Analyst | `github_ci_analyst` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
+| Documentation Writer | `documentation_writer` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |

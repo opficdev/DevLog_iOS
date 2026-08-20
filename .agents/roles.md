@@ -27,7 +27,7 @@ Use these model tiers when assigning work to another LLM.
 | Tier | Use | Default model |
 | --- | --- | --- |
 | `Primary` | Planning, implementation, architecture decisions, final integration, failed-check triage | Strongest available Codex/GPT coding model |
-| `Lightweight` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | Pinned non-Primary model from the configured custom agent TOML |
+| `Lightweight` | Read-only review, checklist validation, log summarization, documentation draft, first-pass architecture preflight | `gpt-5.3-codex-spark`, unavailable 시 `gpt-5.6-luna`와 `high` 추론 |
 | `Fast` | Low-risk text cleanup, simple file presence checks, short summaries | Pinned fast model from the configured custom agent TOML when a Fast role is defined |
 
 Default role-to-model and execution assignment:
@@ -55,7 +55,8 @@ Do not assign `Lightweight` as the only model for production Swift implementatio
 - A sub-agent that inherits the active `Primary` model does not satisfy a `Lightweight` or `Fast` assignment.
 - Do not satisfy a `Lightweight` or `Fast` role by completing the role directly in `Primary` and describing it as delegated work.
 - A generic sub-agent spawn that does not load the configured custom agent TOML does not satisfy the role assignment.
-- If the custom agent cannot be loaded, its pinned model is unavailable, or the dispatch surface cannot select that custom agent, stop before dispatch and report which role cannot run.
+- If the custom agent cannot be loaded or the dispatch surface cannot select that custom agent, stop before dispatch and report which role cannot run.
+- A configured `gpt-5.3-codex-spark` model is unavailable only when the connected side-task surface cannot select it after an exact `task_name` retry. In that case, dispatch the matching `*_luna` custom role with `gpt-5.6-luna` and `high` reasoning effort. Do not select another fallback model.
 - If the assigned model is available but current tool policy requires explicit user permission before dispatch, missing permission is not fallback. Stop and ask for permission before continuing the required role.
 - `Primary` must integrate and verify delegated output, but must not skip the delegated role when the workflow requires it and the assigned model is available.
 
@@ -81,10 +82,13 @@ Use these exact role identifiers:
 | GitHub/CI Analyst | `github_ci_analyst` | `.codex/agents/github_ci_analyst.toml` |
 | Documentation Writer | `documentation_writer` | `.codex/agents/documentation_writer.toml` |
 
+Spark fallback custom agents use the same role suffix with `_luna`: `architecture_watcher_luna`, `code_reviewer_luna`, `verification_runner_luna`, `github_ci_analyst_luna`, and `documentation_writer_luna`.
+
 ### Fallback policy
 
 - The configured custom agent TOML is the source of truth for the non-Primary role model and sandbox.
-- If a required custom agent or its pinned non-Primary model is unavailable, do not fall back to another model; stop and report the unavailable role.
+- The configured custom agent TOML keeps `gpt-5.3-codex-spark` as the default non-Primary model. If Spark is unavailable, use only the matching `*_luna` custom agent with `gpt-5.6-luna` and `high` reasoning effort, preserving the same sandbox and developer instructions.
+- If `gpt-5.6-luna` with `high` reasoning effort is also unavailable, do not fall back to another model; stop and report the unavailable role.
 - If `Primary` is unavailable, do not perform implementation, architecture verdict, final integration, git write actions, or GitHub write actions.
 - Do not downgrade `Primary` roles to `Lightweight` or `Fast` only because a cheaper model is available.
 - For user-facing summaries, a lower tier may draft text, but `Primary` must check it when the text depends on architecture decisions, release risk, CI root cause, or exact diff behavior.
