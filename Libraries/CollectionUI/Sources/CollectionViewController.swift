@@ -60,6 +60,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             return
         }
         self.configuration = configuration
+        collectionView.collectionViewLayout.invalidateLayout()
         applySnapshotIfNeeded()
     }
 
