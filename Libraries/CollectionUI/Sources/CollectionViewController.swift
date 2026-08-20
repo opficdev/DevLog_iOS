@@ -70,6 +70,18 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             }
             return cell
         }
+        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
+            guard
+                let self,
+                let sectionIdentifier = self.sectionIdentifier(at: indexPath.section)
+            else { return nil }
+            return self.configuration.supplementaryViewProvider?(
+                collectionView,
+                kind,
+                indexPath,
+                sectionIdentifier
+            )
+        }
     }
 
     private func configureLayout() {

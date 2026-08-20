@@ -19,4 +19,5 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     var onScroll: ((CGPoint) -> Void)?
     var swipeActions: [CollectionSwipeActions<ItemIdentifier>] = []
     var refreshAction: (() async -> Void)?
+    var supplementaryViewProvider: ((UICollectionView, String, IndexPath, SectionIdentifier) -> UICollectionReusableView?)?
 }
