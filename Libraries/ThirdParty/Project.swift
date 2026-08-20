@@ -25,6 +25,10 @@ let project = Project(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .exact("1.25.5")
         ),
+        .package(
+            url: "https://github.com/apple/swift-collections.git",
+            .exact("1.3.0")
+        ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),
     targets: [
@@ -58,6 +62,7 @@ let project = Project(
                 .package(product: "GoogleSignIn"),
                 .package(product: "Nexa"),
                 .package(product: "ComposableArchitecture"),
+                .package(product: "OrderedCollections"),
             ],
             settings: .devlog(
                 base: deploymentSettings

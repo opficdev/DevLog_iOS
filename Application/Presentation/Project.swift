@@ -19,9 +19,7 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
-    packages: [
-        DevLogPackages.swiftCollectionsPackage,
-    ],
+    packages: [],
     settings: .devlogProject(versionXcconfigPath: versionXcconfigPath),
     targets: [
         .target(
@@ -48,7 +46,6 @@ let project = Project(
                     target: "ThirdParty",
                     path: "../../Libraries/ThirdParty"
                 ),
-                .package(product: "OrderedCollections")
             ],
             settings: frameworkBuildSettings
         ),

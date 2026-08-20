@@ -1,20 +1,7 @@
 import ProjectDescription
 
 public enum DevLogPackages {
-    public static let swiftCollectionsPackage: Package = .package(
-        url: "https://github.com/apple/swift-collections.git",
-        .exact("1.3.0")
-    )
-    public static let presentationPackageDependencies: [TargetDependency] = [
-        .package(product: "OrderedCollections"),
-    ]
-
     public static let defaultPackages: [Package] = []
-
-    public static let presentationPackages: [Package] = [
-        swiftCollectionsPackage,
-    ]
-
 }
 
 public enum DevLogScripts {
