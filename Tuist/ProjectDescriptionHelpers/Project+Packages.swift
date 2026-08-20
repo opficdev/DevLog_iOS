@@ -5,19 +5,13 @@ public enum DevLogPackages {
         url: "https://github.com/apple/swift-collections.git",
         .exact("1.3.0")
     )
-    public static let composableArchitecturePackage: Package = .package(
-        url: "https://github.com/pointfreeco/swift-composable-architecture",
-        .exact("1.25.5")
-    )
     public static let presentationPackageDependencies: [TargetDependency] = [
-        .package(product: "ComposableArchitecture"),
         .package(product: "OrderedCollections"),
     ]
 
     public static let defaultPackages: [Package] = []
 
     public static let presentationPackages: [Package] = [
-        composableArchitecturePackage,
         swiftCollectionsPackage,
     ]
 

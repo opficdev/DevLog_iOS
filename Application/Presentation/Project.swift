@@ -19,7 +19,9 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
-    packages: DevLogPackages.presentationPackages,
+    packages: [
+        DevLogPackages.swiftCollectionsPackage,
+    ],
     settings: .devlogProject(versionXcconfigPath: versionXcconfigPath),
     targets: [
         .target(
@@ -42,7 +44,10 @@ let project = Project(
                     target: "MarkdownRenderer",
                     path: "../../Libraries/MarkdownRenderer"
                 ),
-                .package(product: "ComposableArchitecture"),
+                .project(
+                    target: "ThirdParty",
+                    path: "../../Libraries/ThirdParty"
+                ),
                 .package(product: "OrderedCollections")
             ],
             settings: frameworkBuildSettings

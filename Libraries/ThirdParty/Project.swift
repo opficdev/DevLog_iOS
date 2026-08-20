@@ -21,6 +21,10 @@ let project = Project(
             url: "https://github.com/opficdev/Nexa",
             .upToNextMinor(from: "1.1.1")
         ),
+        .package(
+            url: "https://github.com/pointfreeco/swift-composable-architecture",
+            .exact("1.25.5")
+        ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),
     targets: [
@@ -53,6 +57,7 @@ let project = Project(
                 .package(product: "FirebaseFirestore"),
                 .package(product: "GoogleSignIn"),
                 .package(product: "Nexa"),
+                .package(product: "ComposableArchitecture"),
             ],
             settings: .devlog(
                 base: deploymentSettings
