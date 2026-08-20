@@ -36,4 +36,9 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         (uiViewController as? CollectionViewController)?.update(configuration: configuration)
     }
+
+    // UIKit controller의 delegate와 진행 중인 작업을 정리한다.
+    public static func dismantleUIViewController(_ uiViewController: UIViewController, coordinator: ()) {
+        (uiViewController as? CollectionViewController<SectionIdentifier, ItemIdentifier>)?.dismantle()
+    }
 }

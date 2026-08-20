@@ -50,6 +50,14 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         applySnapshotIfNeeded()
     }
 
+    func dismantle() {
+        refreshTask?.cancel()
+        collectionView.delegate = nil
+        collectionView.prefetchDataSource = nil
+        collectionView.refreshControl = nil
+        dataSource.supplementaryViewProvider = nil
+    }
+
     func snapshot() -> NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier> {
         dataSource.snapshot()
     }
