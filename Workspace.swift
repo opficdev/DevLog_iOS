@@ -11,6 +11,7 @@ let workspace = Workspace(
         "Application/Persistence",
         "Application/Presentation",
         "Application/Widget",
+        "Libraries/CollectionUI",
         "Libraries/MarkdownRenderer",
         "Widget/WidgetCore",
         "Widget/WidgetExtension",
