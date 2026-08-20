@@ -40,7 +40,7 @@ Stop and ask the user before editing when:
 - The task packet conflicts with `AGENTS.md`.
 - The requested fix requires relaxing a layer boundary.
 - A role needs to run, launch, install, boot, or open the app or Simulator.
-- A required `Lightweight` or `Fast` custom agent cannot be loaded or selected through the connected side-task surface with its exact `task_name`, its pinned model is unavailable, or current tool policy requires user permission that has not been granted.
+- A required `Lightweight` or `Fast` custom agent cannot be loaded or selected through the connected side-task surface with its exact `task_name`, the matching `*_luna` fallback cannot be selected after Spark is unavailable, or current tool policy requires user permission that has not been granted.
 - The current issue or PR scope is unclear after live GitHub inspection.
 - Two editing roles would touch the same file.
 - A read-only role reports `Block` or `Needs Owner Decision`.
