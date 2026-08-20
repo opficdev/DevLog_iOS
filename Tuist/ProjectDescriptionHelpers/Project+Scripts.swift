@@ -1,9 +1,5 @@
 import ProjectDescription
 
-public enum DevLogPackages {
-    public static let defaultPackages: [Package] = []
-}
-
 public enum DevLogScripts {
     public static func swiftLint(
         sourcePath: String,

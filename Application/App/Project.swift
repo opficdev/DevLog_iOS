@@ -7,7 +7,7 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
-    packages: DevLogPackages.defaultPackages,
+    packages: [],
     settings: .devlogProject(versionXcconfigPath: "../Shared/Version.xcconfig"),
     targets: [
         .target(
