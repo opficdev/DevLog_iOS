@@ -2,9 +2,9 @@ import UIKit
 
 // UIKit swipe action을 적용할 방향
 public enum CollectionSwipeActionsEdge: Equatable, Sendable {
-    // cell의 앞쪽 swipe action
+    // cell의 좌측에서 우측 방향 swipe action
     case leading
-    // cell의 뒤쪽 swipe action
+    // cell의 우측에서 좌측 방향 swipe action
     case trailing
 }
 
