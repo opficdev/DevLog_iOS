@@ -9,18 +9,9 @@ public enum DevLogPackages {
         url: "https://github.com/pointfreeco/swift-composable-architecture",
         .exact("1.25.5")
     )
-    public static let nexaPackage: Package = .package(
-        url: "https://github.com/opficdev/Nexa",
-        .upToNextMinor(from: "1.1.1")
-    )
-
     public static let presentationPackageDependencies: [TargetDependency] = [
         .package(product: "ComposableArchitecture"),
         .package(product: "OrderedCollections"),
-    ]
-
-    public static let infraPackageDependencies: [TargetDependency] = [
-        .package(product: "Nexa"),
     ]
 
     public static let defaultPackages: [Package] = []
@@ -30,9 +21,6 @@ public enum DevLogPackages {
         swiftCollectionsPackage,
     ]
 
-    public static let infraPackages: [Package] = [
-        nexaPackage,
-    ]
 }
 
 public enum DevLogScripts {
