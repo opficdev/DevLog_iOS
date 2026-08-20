@@ -9,6 +9,7 @@ const MAX_RELEASE_NOTE_LENGTH = 16_000
 const STABLE_VERSION_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/
 const DIRECT_PACKAGE_PATTERN = /\.package\(\s*url:\s*"(?<url>[^"]+)"\s*,\s*(?<requirement>\.exact\("(?<exact>[^"]+)"\)|\.upToNextMinor\(from:\s*"(?<upToNextMinor>[^"]+)"\))\s*\)/gs
 
+// ThirdParty에 직접 선언한 외부 라이브러리 요구 조건 읽기
 export function parsePackages(manifest) {
   return [...manifest.matchAll(DIRECT_PACKAGE_PATTERN)].map(match => {
     const requirement = match.groups.exact === undefined
@@ -27,6 +28,7 @@ export function parsePackages(manifest) {
   })
 }
 
+// 현재 메이저 범위에서 가장 높은 정식 버전 태그 찾기
 export function latestCompatibleVersion(currentVersion, tags) {
   const current = versionParts(currentVersion)
 
@@ -43,6 +45,7 @@ export function latestCompatibleVersion(currentVersion, tags) {
     ?.tag
 }
 
+// apply 판정된 외부 라이브러리만 manifest 문자열에 반영
 export function applyUpdates(manifest, updates) {
   const approvedByRepository = new Map(
     updates
@@ -76,6 +79,7 @@ export function applyUpdates(manifest, updates) {
   )
 }
 
+// 변경 이력이 있는 후보를 OpenAI로 판정하고 실패 시 수동 검토로 전환
 export async function decideCandidates({
   packages,
   apiKey,
@@ -149,6 +153,7 @@ export async function decideCandidates({
   }
 }
 
+// 이번 실행 결과를 기존 PR 본문 뒤에 붙일 Markdown 생성
 export function renderPrBodySection({ runId, packages, now = new Date() }) {
   const applied = packages.filter(packageInfo => packageInfo.action === "apply")
   const manual = packages.filter(packageInfo => packageInfo.action === "manual_review")
@@ -186,6 +191,7 @@ export function renderPrBodySection({ runId, packages, now = new Date() }) {
   return `${lines.join("\n").trimEnd()}\n`
 }
 
+// 직접 선언한 외부 라이브러리의 동일 메이저 후보와 변경 이력 수집
 export async function discoverCandidates({
   manifest,
   githubToken,
@@ -260,6 +266,7 @@ export async function discoverCandidates({
   }))
 }
 
+// GitHub 태그 목록에서 정식 버전 문자열만 추출
 async function tagsFor(repository, githubToken, fetcher) {
   const value = await githubJson(
     `/repos/${repository}/tags?per_page=100`,
@@ -276,6 +283,7 @@ async function tagsFor(repository, githubToken, fetcher) {
     .filter(isStableVersion)
 }
 
+// 특정 버전의 GitHub 변경 이력을 제한된 길이로 읽기
 async function releaseNotesFor(repository, version, githubToken, fetcher) {
   const url = `${GITHUB_API_URL}/repos/${repository}/releases/tags/${encodeURIComponent(version)}`
   const response = await fetcher(url, {
@@ -319,6 +327,7 @@ async function releaseNotesFor(repository, version, githubToken, fetcher) {
   }
 }
 
+// GitHub API 요청의 성공 상태와 JSON 응답 확인
 async function githubJson(path, githubToken, fetcher) {
   const response = await fetcher(`${GITHUB_API_URL}${path}`, {
     headers: githubHeaders(githubToken),
@@ -331,6 +340,7 @@ async function githubJson(path, githubToken, fetcher) {
   return response.json()
 }
 
+// GitHub API 요청에 필요한 헤더 구성
 function githubHeaders(githubToken) {
   return {
     Accept: "application/vnd.github+json",
@@ -338,6 +348,7 @@ function githubHeaders(githubToken) {
   }
 }
 
+// 내부 위치 정보 없이 보고서에 쓸 외부 라이브러리 정보만 남기기
 function publicPackageInfo(packageInfo) {
   return {
     repository: packageInfo.repository,
@@ -346,6 +357,7 @@ function publicPackageInfo(packageInfo) {
   }
 }
 
+// OpenAI Responses API의 의존성 판정 요청 본문 생성
 function openAiRequest(packages) {
   return {
     model: OPENAI_MODEL,
@@ -387,6 +399,7 @@ function openAiRequest(packages) {
   }
 }
 
+// OpenAI가 반환할 의존성 판정 JSON 형식 정의
 function decisionSchema() {
   return {
     type: "object",
@@ -419,6 +432,7 @@ function decisionSchema() {
   }
 }
 
+// Responses API 응답에서 JSON 문자열 추출
 function openAiTextFor(value) {
   if (typeof value.output_text === "string" && value.output_text.trim()) {
     return value.output_text
@@ -436,6 +450,7 @@ function openAiTextFor(value) {
   return text
 }
 
+// 한 외부 라이브러리의 AI 응답을 검증된 판정 값으로 변환
 function decisionFor(packageInfo, decisions) {
   const decision = decisions?.find(value => value?.repository === packageInfo.repository)
 
@@ -453,6 +468,7 @@ function decisionFor(packageInfo, decisions) {
   }
 }
 
+// 자동 반영할 수 없는 외부 라이브러리의 수동 검토 결과 생성
 function manualReview(packageInfo, reason) {
   return {
     ...packageInfo,
@@ -462,10 +478,12 @@ function manualReview(packageInfo, reason) {
   }
 }
 
+// Markdown 표 안에서 깨질 수 있는 문자 정리
 function escapeTable(value) {
   return String(value).replaceAll("|", "\\|").replaceAll("\n", " ")
 }
 
+// GitHub repository URL을 owner/name 형식으로 변환
 function repositoryFor(url) {
   const match = url.match(/^https:\/\/github\.com\/(?<owner>[^/]+)\/(?<name>[^/]+?)(?:\.git)?$/)
 
@@ -476,10 +494,12 @@ function repositoryFor(url) {
   return `${match.groups.owner}/${match.groups.name}`
 }
 
+// 값이 정식 배포 전 버전이 아닌지 확인
 function isStableVersion(value) {
   return versionParts(value) !== undefined
 }
 
+// 버전 문자열을 비교 가능한 숫자 묶음으로 변환
 function versionParts(value) {
   const match = value.match(STABLE_VERSION_PATTERN)
 
@@ -494,6 +514,7 @@ function versionParts(value) {
   }
 }
 
+// 두 버전 숫자 묶음의 앞뒤 순서 비교
 function compareVersions(left, right) {
   if (left.major !== right.major) {
     return left.major - right.major
@@ -506,6 +527,7 @@ function compareVersions(left, right) {
   return left.patch - right.patch
 }
 
+// CLI 명령에 따라 탐색, 판정, 반영, PR 본문 생성 실행
 async function main() {
   const [command, ...argumentsList] = process.argv.slice(2)
   const manifestPath = option(argumentsList, "--manifest")
@@ -578,15 +600,18 @@ async function main() {
   throw new Error(`지원하지 않는 명령: ${command}`)
 }
 
+// 명령 인자 목록에서 지정한 옵션 값 읽기
 function option(argumentsList, name) {
   const index = argumentsList.indexOf(name)
   return 0 <= index ? argumentsList[index + 1] : undefined
 }
 
+// JSON 파일을 읽어 JavaScript 값으로 변환
 async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"))
 }
 
+// JavaScript 값을 줄바꿈이 있는 JSON 파일로 저장
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`)
 }
