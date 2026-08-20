@@ -92,6 +92,23 @@ jobs:
 
             git merge --no-edit "origin/$BASE_BRANCH"
           else
+            if git ls-remote --exit-code --heads origin "$UPDATE_BRANCH" >/dev/null; then
+              MERGED_PR_NUMBER="$(gh pr list \
+                --repo "$GITHUB_REPOSITORY" \
+                --base "$BASE_BRANCH" \
+                --head "$UPDATE_BRANCH" \
+                --state merged \
+                --json number \
+                --jq '.[0].number // empty')"
+
+              if [ -z "$MERGED_PR_NUMBER" ]; then
+                echo "병합되지 않은 자동 갱신 branch가 남아 있어 수동 확인 필요" >&2
+                exit 1
+              fi
+
+              git push origin --delete "$UPDATE_BRANCH"
+            fi
+
             git switch --create "$UPDATE_BRANCH" "origin/$BASE_BRANCH"
           fi
 
@@ -155,6 +172,20 @@ jobs:
           set -o pipefail
           tuist generate --no-open 2>&1 | tee dependency-update-report/tuist-generate.log
 
+      - name: Resolve Swift package dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath .spm \
+            -resolvePackageDependencies \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            2>&1 | tee dependency-update-report/package-resolve.log
+
       - name: Build App
         shell: bash
         run: |
@@ -165,7 +196,6 @@ jobs:
             -configuration Debug \
             -destination "generic/platform=iOS Simulator" \
             -clonedSourcePackagesDirPath .spm \
-            -resolvePackageDependencies \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -resultBundlePath dependency-update-report/dependency-update.xcresult \
@@ -276,6 +306,7 @@ jobs:
             dependency-update-report/decisions.json
             dependency-update-report/Project.swift
             dependency-update-report/tuist-generate.log
+            dependency-update-report/package-resolve.log
             dependency-update-report/xcodebuild.log
           if-no-files-found: ignore
           retention-days: 14
