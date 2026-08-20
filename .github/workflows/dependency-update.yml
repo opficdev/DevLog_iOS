@@ -66,6 +66,7 @@ jobs:
         id: branch
         env:
           GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
         shell: bash
         run: |
           set -euo pipefail
@@ -109,7 +110,11 @@ jobs:
                 exit 1
               fi
 
-              git push origin --delete "$UPDATE_BRANCH"
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "dry-run에서는 병합된 자동 갱신 branch를 삭제하지 않음"
+              else
+                git push origin --delete "$UPDATE_BRANCH"
+              fi
             fi
 
             git switch --create "$UPDATE_BRANCH" "origin/$BASE_BRANCH"
