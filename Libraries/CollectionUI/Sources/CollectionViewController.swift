@@ -21,6 +21,16 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     private var prefetchedItemIdentifiers = Set<ItemIdentifier>()
     private var refreshTask: Task<Void, Never>?
 
+    private struct ScrollAnchor {
+        let itemIdentifier: ItemIdentifier
+        let relativeOffset: CGPoint
+    }
+
+    private struct PreservedState {
+        let selectedItemIdentifiers: [ItemIdentifier]
+        let scrollAnchor: ScrollAnchor?
+    }
+
     init(configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>) {
         self.configuration = configuration
         collectionView = UICollectionView(
@@ -52,6 +62,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
 
     func dismantle() {
         refreshTask?.cancel()
+        refreshTask = nil
         collectionView.delegate = nil
         collectionView.prefetchDataSource = nil
         collectionView.refreshControl = nil
@@ -138,7 +149,10 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         if appliedSnapshot == nil {
             dataSource.applySnapshotUsingReloadData(snapshot)
         } else {
-            dataSource.apply(snapshot, animatingDifferences: true)
+            let preservedState = makePreservedState()
+            dataSource.apply(snapshot, animatingDifferences: true) { [weak self] in
+                self?.restore(preservedState)
+            }
         }
         appliedSnapshot = configuration.snapshot
     }
@@ -188,6 +202,75 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             return nil
         }
         return sections[index].identifier
+    }
+
+    private func makePreservedState() -> PreservedState {
+        let selectedItemIdentifiers = (collectionView.indexPathsForSelectedItems ?? []).compactMap {
+            dataSource.itemIdentifier(for: $0)
+        }
+        return PreservedState(
+            selectedItemIdentifiers: selectedItemIdentifiers,
+            scrollAnchor: makeScrollAnchor()
+        )
+    }
+
+    private func makeScrollAnchor() -> ScrollAnchor? {
+        collectionView.layoutIfNeeded()
+        let indexPaths = collectionView.indexPathsForVisibleItems
+        let indexPath = indexPaths.min { lhs, rhs in
+            let lhsOrigin = collectionView.layoutAttributesForItem(at: lhs)?.frame.origin ?? .zero
+            let rhsOrigin = collectionView.layoutAttributesForItem(at: rhs)?.frame.origin ?? .zero
+            return lhsOrigin.y == rhsOrigin.y ? lhsOrigin.x < rhsOrigin.x : lhsOrigin.y < rhsOrigin.y
+        }
+        guard
+            let indexPath,
+            let itemIdentifier = dataSource.itemIdentifier(for: indexPath),
+            let attributes = collectionView.layoutAttributesForItem(at: indexPath)
+        else { return nil }
+        return ScrollAnchor(
+            itemIdentifier: itemIdentifier,
+            relativeOffset: CGPoint(
+                x: attributes.frame.minX - collectionView.contentOffset.x,
+                y: attributes.frame.minY - collectionView.contentOffset.y
+            )
+        )
+    }
+
+    private func restore(_ state: PreservedState) {
+        collectionView.layoutIfNeeded()
+        restoreSelection(state.selectedItemIdentifiers)
+        restoreScrollPosition(state.scrollAnchor)
+    }
+
+    private func restoreSelection(_ itemIdentifiers: [ItemIdentifier]) {
+        for itemIdentifier in itemIdentifiers {
+            guard let indexPath = dataSource.indexPath(for: itemIdentifier) else { continue }
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        }
+    }
+
+    private func restoreScrollPosition(_ anchor: ScrollAnchor?) {
+        guard
+            let anchor,
+            let indexPath = dataSource.indexPath(for: anchor.itemIdentifier),
+            let attributes = collectionView.layoutAttributesForItem(at: indexPath)
+        else { return }
+        let adjustedInset = collectionView.adjustedContentInset
+        let maximumOffset = CGPoint(
+            x: max(
+                -adjustedInset.left,
+                collectionView.contentSize.width - collectionView.bounds.width + adjustedInset.right
+            ),
+            y: max(
+                -adjustedInset.top,
+                collectionView.contentSize.height - collectionView.bounds.height + adjustedInset.bottom
+            )
+        )
+        let offset = CGPoint(
+            x: min(maximumOffset.x, max(-adjustedInset.left, attributes.frame.minX - anchor.relativeOffset.x)),
+            y: min(maximumOffset.y, max(-adjustedInset.top, attributes.frame.minY - anchor.relativeOffset.y))
+        )
+        collectionView.setContentOffset(offset, animated: false)
     }
 
     private func emptyCell(
