@@ -17,4 +17,5 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     var onPrefetch: (([ItemIdentifier]) -> Void)?
     var onCancelPrefetch: (([ItemIdentifier]) -> Void)?
     var onScroll: ((CGPoint) -> Void)?
+    var swipeActions: [CollectionSwipeActions<ItemIdentifier>] = []
 }

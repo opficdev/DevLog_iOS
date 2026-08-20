@@ -179,6 +179,20 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         configuration.onScroll?(scrollView.contentOffset)
     }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        leadingSwipeActionsConfigurationForItemAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        swipeActionsConfiguration(for: indexPath, edge: .leading)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        trailingSwipeActionsConfigurationForItemAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        swipeActionsConfiguration(for: indexPath, edge: .trailing)
+    }
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         let identifiers = indexPaths.compactMap(dataSource.itemIdentifier).filter {
             prefetchedItemIdentifiers.insert($0).inserted
@@ -193,5 +207,18 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         }
         guard !identifiers.isEmpty else { return }
         configuration.onCancelPrefetch?(identifiers)
+    }
+
+    private func swipeActionsConfiguration(
+        for indexPath: IndexPath,
+        edge: CollectionSwipeActionsEdge
+    ) -> UISwipeActionsConfiguration? {
+        guard let itemIdentifier = dataSource.itemIdentifier(for: indexPath) else { return nil }
+        let configurations = configuration.swipeActions.filter { $0.edge == edge }
+        let actions = configurations.flatMap { $0.actions(itemIdentifier) }
+        guard !actions.isEmpty else { return nil }
+        let configuration = UISwipeActionsConfiguration(actions: actions)
+        configuration.performsFirstActionWithFullSwipe = configurations.allSatisfy(\.allowsFullSwipe)
+        return configuration
     }
 }
