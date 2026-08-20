@@ -97,16 +97,24 @@ jobs:
             git merge --no-edit "origin/$BASE_BRANCH"
           else
             if git ls-remote --exit-code --heads origin "$UPDATE_BRANCH" >/dev/null; then
-              MERGED_PR_NUMBER="$(gh pr list \
+              MERGED_PR="$(gh pr list \
                 --repo "$GITHUB_REPOSITORY" \
                 --base "$BASE_BRANCH" \
                 --head "$UPDATE_BRANCH" \
                 --state merged \
-                --json number \
-                --jq '.[0].number // empty')"
+                --json number,headRefOid \
+                --jq 'if length == 0 then empty else .[0].number + " " + .[0].headRefOid end')"
+              read -r MERGED_PR_NUMBER MERGED_PR_HEAD_SHA <<< "$MERGED_PR"
 
-              if [ -z "$MERGED_PR_NUMBER" ]; then
+              if [ -z "$MERGED_PR_NUMBER" ] || [ -z "$MERGED_PR_HEAD_SHA" ]; then
                 echo "병합되지 않은 자동 갱신 branch가 남아 있어 수동 확인 필요" >&2
+                exit 1
+              fi
+
+              git fetch origin "$UPDATE_BRANCH"
+              REMOTE_HEAD_SHA="$(git rev-parse "origin/$UPDATE_BRANCH")"
+              if [ "$REMOTE_HEAD_SHA" != "$MERGED_PR_HEAD_SHA" ]; then
+                echo "현재 원격 branch가 마지막 병합 PR과 달라 수동 확인 필요" >&2
                 exit 1
               fi
 
