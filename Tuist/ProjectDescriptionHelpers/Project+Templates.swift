@@ -7,7 +7,7 @@ public extension Project {
         versionXcconfigPath: Path,
         frameworkInfoPlistPath: Path,
         testsInfoPlistPath: Path,
-        packages: [Package] = DevLogPackages.defaultPackages,
+        packages: [Package] = [],
         dependencies: [TargetDependency] = [],
         hasTests: Bool
     ) -> Project {
