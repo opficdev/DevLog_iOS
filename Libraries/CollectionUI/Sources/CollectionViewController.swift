@@ -43,7 +43,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         configureLayout()
         collectionView.delegate = self
         collectionView.prefetchDataSource = self
-        configureRefreshControl()
+        updateRefreshControl()
         applySnapshotIfNeeded()
     }
 
@@ -61,6 +61,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         }
         self.configuration = configuration
         collectionView.collectionViewLayout.invalidateLayout()
+        updateRefreshControl()
         applySnapshotIfNeeded()
     }
 
@@ -119,7 +120,15 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         )
     }
 
-    private func configureRefreshControl() {
+    private func updateRefreshControl() {
+        guard configuration.refreshAction != nil else {
+            collectionView.refreshControl = nil
+            return
+        }
+
+        guard collectionView.refreshControl == nil else {
+            return
+        }
         let refreshControl = UIRefreshControl()
         refreshControl.addAction(UIAction { [weak self] _ in
             self?.refresh()
