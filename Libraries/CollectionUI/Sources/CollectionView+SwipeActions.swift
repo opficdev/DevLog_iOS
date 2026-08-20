@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 public extension CollectionView {
-    // item 식별자로 UIKit swipe action을 만들 동작을 추가한다.
+    // item 식별자로 UIKit swipe action을 만들 동작 추가
     func swipeActions(
         edge: CollectionSwipeActionsEdge = .trailing,
         allowsFullSwipe: Bool = true,

@@ -1,10 +1,10 @@
 import UIKit
 
-// UIKit swipe action을 적용할 방향을 나타낸다.
+// UIKit swipe action을 적용할 방향
 public enum CollectionSwipeActionsEdge: Equatable, Sendable {
-    // cell의 앞쪽 swipe action을 나타낸다.
+    // cell의 앞쪽 swipe action
     case leading
-    // cell의 뒤쪽 swipe action을 나타낸다.
+    // cell의 뒤쪽 swipe action
     case trailing
 }
 
