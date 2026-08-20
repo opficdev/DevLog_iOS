@@ -70,6 +70,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           PR_NUMBER="$(gh pr list \
             --repo "$GITHUB_REPOSITORY" \
             --base "$BASE_BRANCH" \
@@ -232,8 +235,6 @@ jobs:
 
           if [ "$changed" = "true" ]; then
             git diff --check
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add Libraries/ThirdParty/Project.swift
             git commit -m "chore: ThirdParty 의존성 갱신"
             git push origin "HEAD:$UPDATE_BRANCH"
