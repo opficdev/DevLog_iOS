@@ -29,6 +29,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     private struct PreservedState {
         let selectedItemIdentifiers: [ItemIdentifier]
         let scrollAnchor: ScrollAnchor?
+        let contentOffset: CGPoint
     }
 
     init(configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>) {
@@ -233,7 +234,8 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         }
         return PreservedState(
             selectedItemIdentifiers: selectedItemIdentifiers,
-            scrollAnchor: makeScrollAnchor()
+            scrollAnchor: makeScrollAnchor(),
+            contentOffset: collectionView.contentOffset
         )
     }
 
@@ -260,9 +262,20 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     }
 
     private func restore(_ state: PreservedState) {
+        guard hasSameUserState(as: state) else {
+            return
+        }
         collectionView.layoutIfNeeded()
         restoreSelection(state.selectedItemIdentifiers)
         restoreScrollPosition(state.scrollAnchor)
+    }
+
+    private func hasSameUserState(as state: PreservedState) -> Bool {
+        let selectedItemIdentifiers = (collectionView.indexPathsForSelectedItems ?? []).compactMap {
+            dataSource.itemIdentifier(for: $0)
+        }
+        return selectedItemIdentifiers == state.selectedItemIdentifiers
+            && collectionView.contentOffset == state.contentOffset
     }
 
     private func restoreSelection(_ itemIdentifiers: [ItemIdentifier]) {
