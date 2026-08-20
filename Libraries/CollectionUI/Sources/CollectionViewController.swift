@@ -8,7 +8,9 @@
 import UIKit
 
 @MainActor
-final class CollectionViewController<SectionIdentifier, ItemIdentifier>: UIViewController
+final class CollectionViewController<SectionIdentifier, ItemIdentifier>: UIViewController,
+    UICollectionViewDelegate,
+    UICollectionViewDataSourcePrefetching
 where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendable {
     private static var emptyCellReuseIdentifier: String { "CollectionViewEmptyCell" }
 
@@ -16,6 +18,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     private var configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>
     private var dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>!
     private var appliedSnapshot: CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>?
+    private var prefetchedItemIdentifiers = Set<ItemIdentifier>()
 
     init(configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>) {
         self.configuration = configuration
@@ -27,6 +30,8 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         configureCollectionView()
         configureDataSource()
         configureLayout()
+        collectionView.delegate = self
+        collectionView.prefetchDataSource = self
         applySnapshotIfNeeded()
     }
 
@@ -154,5 +159,39 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             withReuseIdentifier: Self.emptyCellReuseIdentifier,
             for: indexPath
         )
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let itemIdentifier = dataSource.itemIdentifier(for: indexPath) else { return }
+        configuration.onSelect?(itemIdentifier)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        willDisplay cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
+        guard let itemIdentifier = dataSource.itemIdentifier(for: indexPath) else { return }
+        prefetchedItemIdentifiers.remove(itemIdentifier)
+        configuration.onWillDisplay?(itemIdentifier)
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        configuration.onScroll?(scrollView.contentOffset)
+    }
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        let identifiers = indexPaths.compactMap(dataSource.itemIdentifier).filter {
+            prefetchedItemIdentifiers.insert($0).inserted
+        }
+        guard !identifiers.isEmpty else { return }
+        configuration.onPrefetch?(identifiers)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+        let identifiers = indexPaths.compactMap(dataSource.itemIdentifier).filter {
+            prefetchedItemIdentifiers.remove($0) != nil
+        }
+        guard !identifiers.isEmpty else { return }
+        configuration.onCancelPrefetch?(identifiers)
     }
 }

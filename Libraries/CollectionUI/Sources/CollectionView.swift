@@ -12,7 +12,7 @@ import UIKit
 @MainActor
 public struct CollectionView<SectionIdentifier, ItemIdentifier>: UIViewControllerRepresentable
 where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendable {
-    private var configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>
+    var configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>
 
     // 표시할 식별자 snapshot과 UIKit layout·cell provider를 지정해 container를 생성한다.
     public init(
