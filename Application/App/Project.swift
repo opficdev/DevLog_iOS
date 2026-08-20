@@ -7,7 +7,7 @@ let project = Project(
         disableBundleAccessors: true,
         disableSynthesizedResourceAccessors: true
     ),
-    packages: DevLogPackages.defaultPackages,
+    packages: [],
     settings: .devlogProject(versionXcconfigPath: "../Shared/Version.xcconfig"),
     targets: [
         .target(
@@ -32,6 +32,7 @@ let project = Project(
             ],
             dependencies: [
                 .project(target: "Presentation", path: "../Presentation"),
+                .project(target: "ThirdParty", path: "../../Libraries/ThirdParty"),
                 .project(target: "Persistence", path: "../Persistence"),
                 .project(target: "Infra", path: "../Infra"),
                 .project(target: "Widget", path: "../Widget"),

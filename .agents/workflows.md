@@ -140,7 +140,7 @@ Implementer must not proceed on `Block` or `Needs Owner Decision`.
 - Changed Swift imports.
 - `Workspace.swift` and relevant `Project.swift` files.
 - Current owner and proposed owner.
-- External SDK placement.
+- `ThirdParty` package linkage and external import policy.
 - Same-layer DI.
 - Widget and WidgetCore boundaries when touched.
 - StorePattern reducer, side effect, and run responsibility when Presentation feature logic is touched.

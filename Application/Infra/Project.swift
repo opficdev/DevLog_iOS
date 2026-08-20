@@ -7,10 +7,14 @@ let project = Project.devlogFramework(
     versionXcconfigPath: "../Shared/Version.xcconfig",
     frameworkInfoPlistPath: "../Shared/InfoPlists/Framework-Info.plist",
     testsInfoPlistPath: "../Shared/InfoPlists/UnitTests-Info.plist",
-    packages: DevLogPackages.infraPackages,
+    packages: [],
     dependencies: [
         .project(target: "Data", path: "../Data"),
         .project(target: "Core", path: "../Core"),
-    ] + DevLogPackages.infraPackageDependencies,
+        .project(target: "ThirdParty", path: "../../Libraries/ThirdParty"),
+    ],
+    testDependencies: [
+        .project(target: "ThirdParty", path: "../../Libraries/ThirdParty"),
+    ],
     hasTests: true
 )

@@ -7,7 +7,7 @@ let project = Project.devlogFramework(
     versionXcconfigPath: "../../Application/Shared/Version.xcconfig",
     frameworkInfoPlistPath: "../../Application/Shared/InfoPlists/Framework-Info.plist",
     testsInfoPlistPath: "../../Application/Shared/InfoPlists/UnitTests-Info.plist",
-    packages: DevLogPackages.defaultPackages,
+    packages: [],
     dependencies: [
         .project(target: "Core", path: "../../Application/Core"),
     ],

@@ -7,8 +7,9 @@ public extension Project {
         versionXcconfigPath: Path,
         frameworkInfoPlistPath: Path,
         testsInfoPlistPath: Path,
-        packages: [Package] = DevLogPackages.defaultPackages,
+        packages: [Package] = [],
         dependencies: [TargetDependency] = [],
+        testDependencies: [TargetDependency] = [],
         hasTests: Bool
     ) -> Project {
         var targets: [Target] = [
@@ -52,7 +53,7 @@ public extension Project {
                     ],
                     dependencies: [
                         .target(name: name),
-                    ],
+                    ] + testDependencies,
                     settings: .devlog(
                         base: [
                             "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
