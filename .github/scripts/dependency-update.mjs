@@ -96,6 +96,9 @@ export async function decideCandidates({
       release => release.status === "available"
     ))
     .map(packageInfo => manualReview(packageInfo, packageInfo.manualReviewReason))
+  const lookupFailures = packages
+    .filter(packageInfo => !packageInfo.candidateVersion && packageInfo.manualReviewReason)
+    .map(packageInfo => manualReview(packageInfo, packageInfo.manualReviewReason))
 
   if (!apiKey) {
     return {
@@ -105,12 +108,13 @@ export async function decideCandidates({
           "OpenAI API key가 없어 수동 확인 필요"
         )),
         ...manualPackages,
+        ...lookupFailures,
       ],
     }
   }
 
   if (automaticCandidates.length === 0) {
-    return { packages: manualPackages }
+    return { packages: [...manualPackages, ...lookupFailures] }
   }
 
   try {
@@ -131,6 +135,7 @@ export async function decideCandidates({
             `OpenAI 판정 요청 실패: HTTP ${response.status}`
           )),
           ...manualPackages,
+          ...lookupFailures,
         ],
       }
     }
@@ -142,6 +147,7 @@ export async function decideCandidates({
       packages: [
         ...automaticCandidates.map(packageInfo => decisionFor(packageInfo, parsed.packages)),
         ...manualPackages,
+        ...lookupFailures,
       ],
     }
   } catch {
@@ -152,6 +158,7 @@ export async function decideCandidates({
           "OpenAI 판정 응답을 처리하지 못했으므로 수동 확인 필요"
         )),
         ...manualPackages,
+        ...lookupFailures,
       ],
     }
   }

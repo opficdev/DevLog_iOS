@@ -137,6 +137,33 @@ test("records OpenAI request failures as manual review without raw error output"
     )
 })
 
+test("keeps candidate lookup failures as manual review results", async () => {
+    const decisions = await decideCandidates({
+        packages: [
+            {
+                repository: "opficdev/Nexa",
+                requirement: "upToNextMinor",
+                currentVersion: "1.1.1",
+                candidateVersion: undefined,
+                manualReviewReason: "GitHub API 조회 실패: HTTP 503",
+            },
+        ],
+        apiKey: undefined,
+    })
+
+    assert.deepEqual(decisions.packages, [
+        {
+            repository: "opficdev/Nexa",
+            requirement: "upToNextMinor",
+            currentVersion: "1.1.1",
+            candidateVersion: undefined,
+            manualReviewReason: "GitHub API 조회 실패: HTTP 503",
+            action: "manual_review",
+            evidence: "",
+        },
+    ])
+})
+
 test("keeps a discovered candidate when release note retrieval fails", async () => {
     const packages = await discoverCandidates({
         manifest,
