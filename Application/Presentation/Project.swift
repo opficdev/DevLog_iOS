@@ -13,6 +13,11 @@ let frameworkBuildSettings = Settings.devlog(
     ]
 )
 
+let thirdPartyDependency: TargetDependency = .project(
+    target: "ThirdParty",
+    path: "../../Libraries/ThirdParty"
+)
+
 let project = Project(
     name: "Presentation",
     options: .options(
@@ -42,10 +47,7 @@ let project = Project(
                     target: "MarkdownRenderer",
                     path: "../../Libraries/MarkdownRenderer"
                 ),
-                .project(
-                    target: "ThirdParty",
-                    path: "../../Libraries/ThirdParty"
-                ),
+                thirdPartyDependency,
             ],
             settings: frameworkBuildSettings
         ),
@@ -65,7 +67,8 @@ let project = Project(
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
@@ -109,7 +112,8 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "HomeTab"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
@@ -153,7 +157,8 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "TodayTab"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
@@ -199,7 +204,8 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "NotificationTab"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
@@ -245,7 +251,8 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "ProfileTab"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
@@ -295,7 +302,8 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "Entry"),
-                .target(name: "PresentationShared")
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
             ],
             settings: .devlog(
                 base: [
