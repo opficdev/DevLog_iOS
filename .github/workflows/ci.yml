@@ -256,7 +256,7 @@ jobs:
           - name: Persistence
             schemes: "Persistence"
           - name: Libraries
-            schemes: "MarkdownRenderer"
+            schemes: "MarkdownRenderer CollectionUI"
           - name: Presentation
             schemes: "Entry PresentationShared HomeTab"
           - name: Widget
