@@ -10,6 +10,8 @@ Use this reference with `AGENTS.md`, `.agents/rules/general.md`, and `.agents/ro
 
 This repository is a Tuist-generated, workspace-based modular iOS app. There is no root `Package.swift`; module projects are generated from `Workspace.swift` and each module's `Project.swift`.
 
+`ThirdParty` is an external package registry, not a DevLog application layer. It owns Swift Package declarations and product linkage only, has no DevLog target dependency, and any target including `Domain` may depend on it when that target imports an external package product.
+
 ## When to use
 
 Read this file before work that changes any of these areas:
@@ -157,17 +159,18 @@ flowchart TD
 
 | Layer | Owns | Allowed direction | Ask before |
 | --- | --- | --- | --- |
-| `Core` | DI primitives, logger, shared value/query types, display options, activity kinds, lightweight widget bridge values | No DevLog layer dependency | Moving domain entities into Core |
-| `Domain` | entities, repository protocols, use cases | Core only | Adding Data, Infra, Persistence, Presentation, App, Widget UI, or SDK dependency |
-| `Data` | repository implementations, DTOs, mappers, data protocols, widget repository/updater/sync contracts | Domain, Core | Adding concrete Firebase, GoogleSignIn, WidgetKit, storage, WidgetCore snapshot model/factory usage, or platform implementation details; moving concrete widget handlers into Data |
-| `Infra` | Firebase, social login, network, metadata, messaging implementations | Data, Core | Moving SDK-specific behavior out of Infra; adding any Domain dependency, source import, or SDK service contract coupling |
-| `Persistence` | local stores, image cache, non-widget app persistence | Data, Core | Adding WidgetCore, WidgetKit reload, Widget, widget snapshot generation, or widget bridge ownership |
-| `Presentation` | UI, view models, coordinators, presentation state, narrow presentation-scoped platform side effects | Domain, Core | Adding Data, Infra, Persistence, or App dependency; expanding platform service ownership beyond UI-side effects |
-| `MarkdownRenderer` | public SwiftUI renderer and reference value, internal WebKit bridge, renderer resources, TypeScript Tooling, renderer tests | system frameworks only | Adding a DevLog application layer dependency, exposing WebKit bridge types, adding another Presentation importer, or re-exporting the module |
-| `Widget` | app-side widget bridge, sync bus implementation, sync/session handlers, snapshot generation/persistence orchestration, WidgetKit reload bridge, widget assembler | Data, Core, WidgetCore | Adding Domain, Infra, Persistence, Presentation, or App dependency |
-| `App` | composition root, lifecycle, assembler wiring, app target ownership for widget extension embedding | Concrete app layers | Moving feature logic into App |
-| `WidgetCore` | widget snapshot models, factories, app-group keys/defaults store, deep links, pure snapshot logic | Core | Adding Domain, Data, Infra, Persistence, Presentation, App, or Widget dependency |
-| `WidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore | Calling app/domain services directly |
+| `ThirdParty` | external package declarations, product linkage, marker sources | No DevLog target dependency; may be depended on by any target | Adding DevLog feature, service, adapter, or layer dependency; changing package versions or products outside the requested scope |
+| `Core` | DI primitives, logger, shared value/query types, display options, activity kinds, lightweight widget bridge values | No DevLog layer dependency; `ThirdParty` when needed | Moving domain entities into Core |
+| `Domain` | entities, repository protocols, use cases | Core, `ThirdParty` when needed | Adding Data, Infra, Persistence, Presentation, App, or Widget UI dependency |
+| `Data` | repository implementations, DTOs, mappers, data protocols, widget repository/updater/sync contracts | Domain, Core, `ThirdParty` when needed | Adding WidgetKit, storage, WidgetCore snapshot model/factory usage, or platform implementation details; moving concrete widget handlers into Data |
+| `Infra` | application infrastructure service implementations for social login, network, metadata, and messaging | Data, Core, `ThirdParty` when needed | Adding any Domain dependency or SDK service contract coupling |
+| `Persistence` | local stores, image cache, non-widget app persistence | Data, Core, `ThirdParty` when needed | Adding WidgetCore, WidgetKit reload, Widget, widget snapshot generation, or widget bridge ownership |
+| `Presentation` | UI, view models, coordinators, presentation state, narrow presentation-scoped platform side effects | Domain, Core, `ThirdParty` when needed | Adding Data, Infra, Persistence, or App dependency; expanding platform service ownership beyond UI-side effects |
+| `MarkdownRenderer` | public SwiftUI renderer and reference value, internal WebKit bridge, renderer resources, TypeScript Tooling, renderer tests | system frameworks, `ThirdParty` when needed | Adding a DevLog application layer dependency, exposing WebKit bridge types, adding another Presentation importer, or re-exporting the module |
+| `Widget` | app-side widget bridge, sync bus implementation, sync/session handlers, snapshot generation/persistence orchestration, WidgetKit reload bridge, widget assembler | Data, Core, WidgetCore, `ThirdParty` when needed | Adding Domain, Infra, Persistence, Presentation, or App dependency |
+| `App` | composition root, lifecycle, assembler wiring, app target ownership for widget extension embedding | Concrete app layers, `ThirdParty` for framework linking | Moving feature logic into App |
+| `WidgetCore` | widget snapshot models, factories, app-group keys/defaults store, deep links, pure snapshot logic | Core, `ThirdParty` when needed | Adding Domain, Data, Infra, Persistence, Presentation, App, or Widget dependency |
+| `WidgetExtension` | WidgetKit rendering and timeline plumbing | WidgetCore, `ThirdParty` when needed | Calling app/domain services directly |
 
 ## Presentation target structure
 
@@ -286,29 +289,33 @@ flowchart TD
 	OnlyShared -->|No| Ask
 ```
 
-## External dependency flow
+## System framework and ThirdParty dependency flow
 
-Use this flow before introducing or moving imports such as Firebase, GoogleSignIn, AuthenticationServices, UserNotifications, LinkPresentation, Network, or WidgetKit.
+Use this flow before introducing or moving framework imports. A Swift Package product declared by `ThirdParty` is available to any target including `Domain`; it requires that target's direct `ThirdParty` dependency but does not change DevLog layer ownership.
 
 ```mermaid
 flowchart TD
-	Import["External framework import"]
-	Firebase{"Firebase/Auth/Firestore/Functions/Messaging?"}
-	SocialLogin{"GoogleSignIn or AuthenticationServices?"}
+	Import["Framework import"]
+	ThirdPartyProduct{"ThirdParty package product?"}
+	ThirdParty["Add direct ThirdParty target dependency"]
+	SystemFramework{"System framework?"}
+	SocialLogin{"AuthenticationServices?"}
 	SocialLoginClassification{"Existing presentation/data cancellation/error classification?"}
 	NetworkMeta{"Network or LinkPresentation implementation?"}
 	UserNotifications{"UserNotifications?"}
 	WidgetKit{"WidgetKit?"}
-	Infra["Prefer Infra"]
+	Infra["Prefer Infra implementation"]
 	ErrorClassification["Keep narrow in Data or Presentation only when matching the existing cancellation-classification pattern"]
 	PresentationBadge["Allow in Presentation only for established badge/UI side effects"]
 	Widget["Allow in Widget for app-side snapshot update/reload orchestration"]
 	WidgetExtension["Allow in WidgetExtension rendering/timeline code"]
 	Ask["Ask user before crossing layer"]
 
-	Import --> Firebase
-	Firebase -->|Yes| Infra
-	Firebase -->|No| SocialLogin
+	Import --> ThirdPartyProduct
+	ThirdPartyProduct -->|Yes| ThirdParty
+	ThirdPartyProduct -->|No| SystemFramework
+	SystemFramework -->|No| Ask
+	SystemFramework -->|Yes| SocialLogin
 	SocialLogin -->|Login implementation| Infra
 	SocialLogin -->|Presentation/data error classification| SocialLoginClassification
 	SocialLoginClassification -->|Matches existing pattern| ErrorClassification
@@ -381,7 +388,7 @@ Before editing architecture code, the AI should be able to answer these question
 2. What layer should own it after the change?
 3. Which imports prove the current dependency direction?
 4. Which target dependency will change?
-5. Does the change expose an external SDK outside its current boundary?
+5. Does the change add a `ThirdParty` dependency or move DevLog behavior into `ThirdParty`?
 6. Does the change affect WidgetCore or WidgetExtension boundaries?
 7. Is this change inside the current issue or PR scope?
 8. Is user confirmation required before editing?
@@ -391,6 +398,7 @@ Before editing architecture code, the AI should be able to answer these question
 - DevLog-specific rules were loaded.
 - Current files and imports were inspected.
 - Ambiguous architecture decisions were confirmed by the user.
+- `ThirdParty` remains free of DevLog target dependencies and application behavior.
 - Swift logic was preserved unless explicitly approved.
 - Diff scope was checked.
 - Xcode Local MCP build was used for Swift/iOS code changes.

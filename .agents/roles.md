@@ -144,7 +144,7 @@ Planner must produce this packet before handing work to another role.
 - Stop conditions:
 ```
 
-Use `Architecture risk: possible` when the task touches module boundaries, imports, target dependencies, DI, repository or service contracts, Widget flow, Firebase or SDK placement, StorePattern boundaries, or architecture documentation.
+Use `Architecture risk: possible` when the task touches module boundaries, imports, target dependencies, DI, repository or service contracts, Widget flow, `ThirdParty` package linkage, StorePattern boundaries, or architecture documentation.
 
 ## Role activation
 
@@ -249,7 +249,7 @@ Output:
 
 Architecture Watcher is a read-only gate for DevLog boundaries.
 
-Use it when a task touches module boundaries, file ownership, layer dependencies, DI assembly, repository or service contracts, widget data flow, Firebase dependency placement, external SDK placement, StorePattern responsibilities, or architecture documentation.
+Use it when a task touches module boundaries, file ownership, layer dependencies, DI assembly, repository or service contracts, widget data flow, `ThirdParty` package linkage, StorePattern responsibilities, or architecture documentation.
 
 Must read before reviewing:
 
@@ -263,7 +263,7 @@ Must inspect:
 - Source imports in changed Swift files.
 - Relevant `Project.swift`, `Workspace.swift`, or target dependency changes.
 - Layer ownership before and after the change.
-- External SDK exposure.
+- `ThirdParty` package product linkage and whether it remains free of DevLog application behavior.
 - Same-layer dependency injection.
 - Widget, WidgetCore, and WidgetExtension boundaries when widget flow is touched.
 - Presentation `StorePattern` responsibility boundaries when Presentation feature logic is touched.
@@ -272,7 +272,7 @@ Must not:
 
 - Edit files.
 - Approve ambiguous ownership by assumption.
-- Treat a manifest-only target dependency as permission for a source-level architecture dependency.
+- Treat a manifest-only target dependency as permission for a source-level DevLog architecture dependency. A direct `ThirdParty` dependency permits only imports of its external package products.
 - Hide architecture decisions inside build-fix wording.
 
 Output:
@@ -285,7 +285,7 @@ Output:
 - Owning target:
 - Dependency direction:
 - Target dependency impact:
-- SDK placement:
+- ThirdParty linkage:
 - Same-layer DI:
 - Widget boundary:
 - StorePattern:
