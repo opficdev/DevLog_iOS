@@ -19,6 +19,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     private var dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>!
     private var appliedSnapshot: CollectionRenderingSnapshot<SectionIdentifier, ItemIdentifier>?
     private var prefetchedItemIdentifiers = Set<ItemIdentifier>()
+    private var refreshTask: Task<Void, Never>?
 
     init(configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>) {
         self.configuration = configuration
@@ -32,6 +33,7 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         configureLayout()
         collectionView.delegate = self
         collectionView.prefetchDataSource = self
+        configureRefreshControl()
         applySnapshotIfNeeded()
     }
 
@@ -80,6 +82,27 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             },
             animated: false
         )
+    }
+
+    private func configureRefreshControl() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addAction(UIAction { [weak self] _ in
+            self?.refresh()
+        }, for: .valueChanged)
+        collectionView.refreshControl = refreshControl
+    }
+
+    private func refresh() {
+        guard let action = configuration.refreshAction else {
+            collectionView.refreshControl?.endRefreshing()
+            return
+        }
+        refreshTask?.cancel()
+        refreshTask = Task { [weak self] in
+            await action()
+            guard !Task.isCancelled else { return }
+            self?.collectionView.refreshControl?.endRefreshing()
+        }
     }
 
     private func applySnapshotIfNeeded() {
