@@ -56,6 +56,9 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
     }
 
     func update(configuration: CollectionViewConfiguration<SectionIdentifier, ItemIdentifier>) {
+        guard validates(configuration.snapshot) else {
+            return
+        }
         self.configuration = configuration
         applySnapshotIfNeeded()
     }
