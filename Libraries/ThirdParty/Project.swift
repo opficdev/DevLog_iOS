@@ -15,7 +15,7 @@ let project = Project(
         ),
         .package(
             url: "https://github.com/google/GoogleSignIn-iOS",
-            .revision("02616ac6b469e8f00212436d2cac16e6efad7954")
+            .exact("9.2.0")
         ),
         .package(
             url: "https://github.com/opficdev/Nexa",
