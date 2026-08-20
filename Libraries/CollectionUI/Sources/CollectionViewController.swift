@@ -254,7 +254,10 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
             let anchor,
             let indexPath = dataSource.indexPath(for: anchor.itemIdentifier),
             let attributes = collectionView.layoutAttributesForItem(at: indexPath)
-        else { return }
+        else {
+            clampContentOffset()
+            return
+        }
         let adjustedInset = collectionView.adjustedContentInset
         let maximumOffset = CGPoint(
             x: max(
@@ -269,6 +272,25 @@ where SectionIdentifier: Hashable & Sendable, ItemIdentifier: Hashable & Sendabl
         let offset = CGPoint(
             x: min(maximumOffset.x, max(-adjustedInset.left, attributes.frame.minX - anchor.relativeOffset.x)),
             y: min(maximumOffset.y, max(-adjustedInset.top, attributes.frame.minY - anchor.relativeOffset.y))
+        )
+        collectionView.setContentOffset(offset, animated: false)
+    }
+
+    private func clampContentOffset() {
+        let adjustedInset = collectionView.adjustedContentInset
+        let maximumOffset = CGPoint(
+            x: max(
+                -adjustedInset.left,
+                collectionView.contentSize.width - collectionView.bounds.width + adjustedInset.right
+            ),
+            y: max(
+                -adjustedInset.top,
+                collectionView.contentSize.height - collectionView.bounds.height + adjustedInset.bottom
+            )
+        )
+        let offset = CGPoint(
+            x: min(maximumOffset.x, max(-adjustedInset.left, collectionView.contentOffset.x)),
+            y: min(maximumOffset.y, max(-adjustedInset.top, collectionView.contentOffset.y))
         )
         collectionView.setContentOffset(offset, animated: false)
     }
