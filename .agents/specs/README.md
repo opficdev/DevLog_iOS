@@ -1,6 +1,6 @@
 # DevLog Spec Format
 
-`Designer Result`를 사용자가 승인한 뒤, Planner가 비단순 설계 또는 구현 작업마다 이 디렉터리에 Spec을 작성한다. Spec 이름은 `<issue-number>-<short-topic>.md` 형식을 사용한다.
+`Designer Result`를 사용자가 승인한 뒤, Planner가 비단순 설계 또는 구현 작업마다 이 디렉터리에 Spec을 작성한다. 이슈 기반 작업은 `<issue-number>-<short-topic>.md`, 이슈 없는 사용자 요청은 `user-<YYYYMMDD>-<short-topic>.md` 형식을 사용한다.
 
 ## Responsibility
 
