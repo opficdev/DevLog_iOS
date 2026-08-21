@@ -54,9 +54,9 @@ Do not assign `Lightweight` as the only model for production Swift implementatio
 
 - A model tier assignment is an execution requirement, not a label for work the main agent already performed.
 - `Primary` roles belong to the active main agent and must not be delegated to a sub-agent that uses or inherits the active `Primary` model.
-- Every sub-agent created through this role workflow must use the configured `SDD Gate`, `Lightweight`, or `Fast` model that is different from the active `Primary` model.
+- Every sub-agent created through this role workflow must use the configured `SDD Gate`, `Lightweight`, or `Fast` model that is different from the active `Primary` model. The exact `designer` and `code_reviewer` custom agent dispatches are the only exception when the active `Primary` also uses their required Sol model.
 - When a role is assigned to `SDD Gate`, `Lightweight`, or `Fast`, the main agent must dispatch the configured custom agent from the routing table before using its result.
-- A sub-agent that inherits the active `Primary` model does not satisfy an `SDD Gate`, `Lightweight`, or `Fast` assignment.
+- A sub-agent that inherits the active `Primary` model does not satisfy an `SDD Gate`, `Lightweight`, or `Fast` assignment. The Sol exception applies only to the exact `designer` and `code_reviewer` custom agent dispatches; it does not permit an inherited or generic sub-agent.
 - Do not satisfy an `SDD Gate`, `Lightweight`, or `Fast` role by completing the role directly in `Primary` and describing it as delegated work.
 - A generic sub-agent spawn that does not load the configured custom agent TOML does not satisfy an `SDD Gate`, `Lightweight`, or `Fast` role execution.
 - If the custom agent cannot be loaded or the dispatch surface cannot select that custom agent, stop before dispatch and report which role cannot run.
