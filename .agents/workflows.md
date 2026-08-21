@@ -14,25 +14,27 @@ The main agent must run every workflow with this protocol.
 
 1. Read `AGENTS.md`, then `.agents/roles.md`, then this file.
 2. Select one workflow from this file.
-3. For non-trivial work, have Planner create a `Design Brief`.
-4. Dispatch `Designer` and obtain its `Designer Result`.
-5. Obtain user approval, then persist the approved result as a Spec under `.agents/specs/`.
-6. Have Planner create a `Task Packet` from only the approved Spec.
-7. Assign only the roles required by the selected workflow.
-8. Assign each role a model tier from `.agents/roles.md`.
-9. Keep `Primary` roles with the active main agent.
-10. Find the exact custom agent name in `.agents/roles.md` and its matching `.codex/agents/<name>.toml` before dispatching an `SDD Gate`, `Lightweight`, or `Fast` role.
-11. Create the role as a side task connected to the current main task with `spawn_agent.task_name` set to that exact name, or use `Option-Command-S` from the UI sidebar for the same connected dispatch surface.
-12. Do not use external `codex exec`, a separate user-owned `create_thread`, or an arbitrary `task_name` for repository role dispatch.
-13. Reuse the existing role agent with `followup_task` when assigning later work to the same role.
-14. Return every delegated role result to the current main task for `Primary` review and integration.
-15. Do not complete a required `SDD Gate`, `Lightweight`, or `Fast` role directly in `Primary`, and do not substitute a generic sub-agent for the configured custom agent.
-16. Dispatch read-only `SDD Gate`, `Lightweight`, or `Fast` roles in parallel only when they do not depend on unfinished edits.
-17. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
-18. Integrate role outputs.
-19. Escalate any `SDD Gate`, `Lightweight`, or `Fast` blocker to a `Primary` model before editing.
-20. Run completion gates.
-21. Report changed files, Spec path, acceptance-criterion evidence, architecture decision, verification result, delegated roles, model tiers used, and unresolved decisions.
+3. Classify the work as simple or non-trivial.
+4. For non-trivial work, have Planner create a `Design Brief`.
+5. For non-trivial work, dispatch `Designer` and obtain its `Designer Result`.
+6. For non-trivial work, obtain user approval, then persist the approved result as a Spec under `.agents/specs/`.
+7. For non-trivial work, have Planner create a `Task Packet` from only the approved Spec.
+8. For simple work, have Planner create a `Task Packet` directly from the request and record its scope and execution authority.
+9. Assign only the roles required by the selected workflow.
+10. Assign each role a model tier from `.agents/roles.md`.
+11. Keep `Primary` roles with the active main agent.
+12. Find the exact custom agent name in `.agents/roles.md` and its matching `.codex/agents/<name>.toml` before dispatching an `SDD Gate`, `Lightweight`, or `Fast` role.
+13. Create the role as a side task connected to the current main task with `spawn_agent.task_name` set to that exact name, or use `Option-Command-S` from the UI sidebar for the same connected dispatch surface.
+14. Do not use external `codex exec`, a separate user-owned `create_thread`, or an arbitrary `task_name` for repository role dispatch.
+15. Reuse the existing role agent with `followup_task` when assigning later work to the same role.
+16. Return every delegated role result to the current main task for `Primary` review and integration.
+17. Do not complete a required `SDD Gate`, `Lightweight`, or `Fast` role directly in `Primary`, and do not substitute a generic sub-agent for the configured custom agent.
+18. Dispatch read-only `SDD Gate`, `Lightweight`, or `Fast` roles in parallel only when they do not depend on unfinished edits.
+19. Keep `Primary` editing roles sequential unless the files and ownership boundaries are disjoint.
+20. Integrate role outputs.
+21. Escalate any `SDD Gate`, `Lightweight`, or `Fast` blocker to a `Primary` model before editing.
+22. Run completion gates.
+23. Report changed files, Spec path, acceptance-criterion evidence, architecture decision, verification result, delegated roles, model tiers used, and unresolved decisions.
 
 Do not skip the task packet. The task packet is the contract between models.
 
