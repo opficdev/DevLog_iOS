@@ -275,22 +275,32 @@ flowchart LR
 	end
 
 	subgraph ConnectedSideTasks["현재 task 연결형 사이드 작업<br/>사이드바: Option-Command-S<br/>도구: spawn_agent"]
+		Designer["Designer<br/>designer<br/>gpt-5.6-sol · xhigh"]
 		ArchitectureWatcher["Architecture Watcher<br/>architecture_watcher"]
-		CodeReviewer["Code Reviewer<br/>code_reviewer"]
+		CodeReviewer["Code Reviewer<br/>code_reviewer<br/>gpt-5.6-sol · xhigh"]
 		VerificationRunner["Verification Runner<br/>verification_runner"]
 		GitHubCIAnalyst["GitHub/CI Analyst<br/>github_ci_analyst"]
 		DocumentationWriter["Documentation Writer<br/>documentation_writer"]
 	end
 
 	subgraph Gate["Gate"]
+		DesignBrief["Design Brief"]
+		UserApproval["사용자 승인"]
+		Spec["Approved Spec"]
 		TaskPacket["Task Packet"]
 		ReviewGate["Review Gate"]
 		VerificationGate["Build-only Verification"]
 	end
 
-	TaskPacket --> Planner
-	Planner --> Implementer
-	Planner -->|"Architecture risk<br/>task_name 선택"| ArchitectureWatcher
+	Planner -->|"비단순 작업"| DesignBrief
+	DesignBrief --> Designer
+	Designer --> UserApproval
+	UserApproval --> Spec
+	Spec --> Planner
+	Planner -->|"Approved Spec"| TaskPacket
+	Planner -->|"단순 작업"| TaskPacket
+	TaskPacket -->|"Architecture risk<br/>task_name 선택"| ArchitectureWatcher
+	TaskPacket -->|"No architecture risk"| Implementer
 	ArchitectureWatcher -->|Pass| Implementer
 	ArchitectureWatcher -->|Block / Decision| Integrator
 	Implementer --> CodeReviewer
@@ -304,10 +314,11 @@ flowchart LR
 
 | 역할 | 정확한 `task_name` / Custom Agent | 모델 | 담당 | 다음 흐름 |
 | --- | --- | --- | --- | --- |
-| Planner | active main agent | Primary | 이슈, 요청, 변경 범위, role routing 정리 | Implementer / Architecture Watcher |
+| Planner | active main agent | Primary | 이슈, 요청, 변경 범위, `Design Brief`, 승인된 Spec 기반 `Task Packet` 정리 | Designer / Implementer / Architecture Watcher |
+| Designer | `designer` | `gpt-5.6-sol` (`SDD Gate`, `xhigh`), 대체 없음 | `Design Brief`의 제약, 대안, 변경 경계, 수용 기준, 검증, 최소 커밋 단위 분석 | 사용자 승인 / Spec |
 | Implementer | active main agent | Primary | task packet 기준 코드 또는 문서 수정 | Code Reviewer |
 | Architecture Watcher | `architecture_watcher` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) -> Primary | layer, target, dependency, SDK placement, Widget/StorePattern 경계 감시 | Implementer / Final Integration |
-| Code Reviewer | `code_reviewer` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) -> Primary | diff 기준 버그, 회귀, 테스트 누락, scope drift 검토 | Verification Runner |
+| Code Reviewer | `code_reviewer` | `gpt-5.6-sol` (`SDD Gate`, `xhigh`), 대체 없음 | 승인된 Spec과 최종 diff의 수용 기준, 버그, 회귀, scope drift 검토 | Verification Runner |
 | Verification Runner | `verification_runner` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | SwiftLint, test, build-only, docs check 결과 기록 | Final Integration |
 | GitHub/CI Analyst | `github_ci_analyst` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | issue, PR thread, review comment, workflow run, CI log 분석 | Planner |
 | Documentation Writer | `documentation_writer` | `gpt-5.3-codex-spark` (`Lightweight`), 불가 시 `gpt-5.6-luna` (`high`) | PR 본문, release note, README, issue/comment 문안 작성 | Final Integration |
