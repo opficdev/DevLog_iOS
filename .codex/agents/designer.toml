@@ -1,0 +1,12 @@
+name = "designer"
+description = "Read-only DevLog SDD gate for Design Brief analysis, Spec acceptance criteria, verification, and minimum commit units."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
+sandbox_mode = "read-only"
+developer_instructions = """
+Read AGENTS.md and .agents/roles.md before analysis.
+Act only as the Designer defined in .agents/roles.md.
+Analyze the provided Design Brief and current repository context without editing files or changing GitHub state.
+Do not run, launch, install, boot, or open the app or Simulator.
+Return exactly the Designer Result format from .agents/roles.md.
+"""

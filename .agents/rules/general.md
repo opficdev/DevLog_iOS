@@ -21,6 +21,7 @@
 ## Documentation placement
 
 - Keep AI workflow and rule documents under `.agents/`.
+- Keep approved workflow Specs under `.agents/specs/`.
 - Keep `docs/` for README images and draw.io sources.
 - Do not add AI workflow documents under `docs/`.
 
