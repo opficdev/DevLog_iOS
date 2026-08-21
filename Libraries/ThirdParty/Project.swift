@@ -19,15 +19,15 @@ let project = Project(
         ),
         .package(
             url: "https://github.com/opficdev/Nexa",
-            .upToNextMinor(from: "1.1.1")
+            .upToNextMinor(from: "1.2.0")
         ),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
-            .exact("1.25.5")
+            .exact("1.26.1")
         ),
         .package(
             url: "https://github.com/apple/swift-collections.git",
-            .exact("1.3.0")
+            .exact("1.6.0")
         ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),
