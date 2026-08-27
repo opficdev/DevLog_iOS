@@ -17,6 +17,7 @@ public final class DomainAssembler: Assembler {
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
         registerDevelopmentGoalUseCases(container)
+        registerDevelopmentRecordUseCases(container)
         registerTodoUseCases(container)
         registerTodoCategoryUseCases(container)
         registerUserDataUseCases(container)
@@ -42,6 +43,46 @@ private extension DomainAssembler {
 
         container.register(UpdateDevelopmentGoalStatusUseCase.self) {
             UpdateDevelopmentGoalStatusUseCaseImpl(
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+    }
+
+    func registerDevelopmentRecordUseCases(_ container: any DIContainer) {
+        container.register(CreateDevelopmentRecordUseCase.self) {
+            CreateDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(FetchDevelopmentRecordsUseCase.self) {
+            FetchDevelopmentRecordsUseCaseImpl(container.resolve(DevelopmentRecordRepository.self))
+        }
+
+        container.register(FetchDevelopmentRecordHistoryUseCase.self) {
+            FetchDevelopmentRecordHistoryUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self)
+            )
+        }
+
+        container.register(SaveDevelopmentRecordDraftUseCase.self) {
+            SaveDevelopmentRecordDraftUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(ConfirmDevelopmentRecordUseCase.self) {
+            ConfirmDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(RestoreDevelopmentRecordUseCase.self) {
+            RestoreDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
                 container.resolve(DevelopmentGoalRepository.self)
             )
         }
