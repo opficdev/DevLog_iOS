@@ -9,6 +9,7 @@ import Foundation
 
 public struct TodoRequest: Encodable {
     public let id: String
+    public let goalId: String?
     public let isPinned: Bool
     public let isCompleted: Bool
     public let isChecked: Bool
@@ -35,9 +36,11 @@ public struct TodoRequest: Encodable {
         deletedAt: Date?,
         dueDate: Date?,
         tags: [String],
-        category: String
+        category: String,
+        goalId: String? = nil
     ) {
         self.id = id
+        self.goalId = goalId
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked
@@ -55,6 +58,7 @@ public struct TodoRequest: Encodable {
 
 public struct TodoResponse {
     public let id: String
+    public let goalId: String?
     public let isPinned: Bool
     public let isCompleted: Bool
     public let isChecked: Bool
@@ -83,9 +87,11 @@ public struct TodoResponse {
         deletedAt: Date?,
         dueDate: Date?,
         tags: [String],
-        category: TodoCategoryResponse
+        category: TodoCategoryResponse,
+        goalId: String? = nil
     ) {
         self.id = id
+        self.goalId = goalId
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked

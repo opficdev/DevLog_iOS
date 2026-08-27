@@ -182,17 +182,7 @@ final class TodoServiceImpl: TodoService {
         do {
             let collection = store.collection(FirestorePath.todos(uid))
             let docRef = collection.document(request.id)
-            var data = try encoder.encode(request)
-            data.removeValue(forKey: TodoFieldKey.id.rawValue)
-            if request.completedAt == nil {
-                data[TodoFieldKey.completedAt.rawValue] = NSNull()
-            }
-            if request.deletedAt == nil {
-                data[TodoFieldKey.deletedAt.rawValue] = NSNull()
-            }
-            if request.dueDate == nil {
-                data[TodoFieldKey.dueDate.rawValue] = NSNull()
-            }
+            let data = try Self.makeDocumentData(from: request, encoder: encoder)
             try await upsertTodoWithNumberOnCreate(
                 data,
                 for: docRef,
@@ -500,56 +490,19 @@ private extension TodoServiceImpl {
     }
 
     func makeResponse(from snapshot: QueryDocumentSnapshot) -> TodoResponse? {
-        return makeResponse(documentID: snapshot.documentID, data: snapshot.data())
+        Self.makeResponse(documentID: snapshot.documentID, data: snapshot.data())
     }
 
     func makeResponse(from snapshot: DocumentSnapshot) -> TodoResponse? {
         guard let data = snapshot.data() else {
             return nil
         }
-        return makeResponse(documentID: snapshot.documentID, data: data)
-    }
-
-    func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
-        guard
-            let number = data[TodoFieldKey.number.rawValue] as? Int,
-            let title = data[TodoFieldKey.title.rawValue] as? String,
-            let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
-            let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
-            let category = data[TodoFieldKey.category.rawValue] as? String else {
-            return nil
-        }
-
-        let completedAt = (data[TodoFieldKey.completedAt.rawValue] as? Timestamp)?.dateValue()
-        let deletedAt = (data[TodoFieldKey.deletedAt.rawValue] as? Timestamp)?.dateValue()
-        let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
-
-        let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool ?? false
-        let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool ?? (completedAt != nil)
-        let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool ?? false
-        let content = data[TodoFieldKey.content.rawValue] as? String ?? ""
-        let tags = data[TodoFieldKey.tags.rawValue] as? [String] ?? []
-
-        return TodoResponse(
-            id: documentID,
-            isPinned: isPinned,
-            isCompleted: isCompleted,
-            isChecked: isChecked,
-            number: number,
-            title: title,
-            content: content,
-            createdAt: createdAtTimestamp.dateValue(),
-            updatedAt: updatedAtTimestamp.dateValue(),
-            completedAt: completedAt,
-            deletedAt: deletedAt,
-            dueDate: dueDate,
-            tags: tags,
-            category: .raw(category)
-        )
+        return Self.makeResponse(documentID: snapshot.documentID, data: data)
     }
 
     enum TodoFieldKey: String {
         case id
+        case goalId
         case isPinned
         case isCompleted
         case isChecked
@@ -568,6 +521,69 @@ private extension TodoServiceImpl {
     enum CounterFieldKey: String {
         case nextNumber
         case updatedAt
+    }
+}
+
+extension TodoServiceImpl {
+    static func makeDocumentData(
+        from request: TodoRequest,
+        encoder: Firestore.Encoder = .init()
+    ) throws -> [String: Any] {
+        var data = try encoder.encode(request)
+        data.removeValue(forKey: TodoFieldKey.id.rawValue)
+        if request.completedAt == nil {
+            data[TodoFieldKey.completedAt.rawValue] = NSNull()
+        }
+        if request.deletedAt == nil {
+            data[TodoFieldKey.deletedAt.rawValue] = NSNull()
+        }
+        if request.dueDate == nil {
+            data[TodoFieldKey.dueDate.rawValue] = NSNull()
+        }
+        if request.goalId == nil {
+            data[TodoFieldKey.goalId.rawValue] = FieldValue.delete()
+        }
+        return data
+    }
+
+    static func makeResponse(documentID: String, data: [String: Any]) -> TodoResponse? {
+        guard
+            let number = data[TodoFieldKey.number.rawValue] as? Int,
+            let title = data[TodoFieldKey.title.rawValue] as? String,
+            let createdAtTimestamp = data[TodoFieldKey.createdAt.rawValue] as? Timestamp,
+            let updatedAtTimestamp = data[TodoFieldKey.updatedAt.rawValue] as? Timestamp,
+            let category = data[TodoFieldKey.category.rawValue] as? String else {
+            return nil
+        }
+
+        let completedAt = (data[TodoFieldKey.completedAt.rawValue] as? Timestamp)?.dateValue()
+        let deletedAt = (data[TodoFieldKey.deletedAt.rawValue] as? Timestamp)?.dateValue()
+        let dueDate = (data[TodoFieldKey.dueDate.rawValue] as? Timestamp)?.dateValue()
+
+        let isPinned = data[TodoFieldKey.isPinned.rawValue] as? Bool ?? false
+        let isCompleted = data[TodoFieldKey.isCompleted.rawValue] as? Bool ?? (completedAt != nil)
+        let isChecked = data[TodoFieldKey.isChecked.rawValue] as? Bool ?? false
+        let content = data[TodoFieldKey.content.rawValue] as? String ?? ""
+        let tags = data[TodoFieldKey.tags.rawValue] as? [String] ?? []
+        let goalId = data[TodoFieldKey.goalId.rawValue] as? String
+
+        return TodoResponse(
+            id: documentID,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            number: number,
+            title: title,
+            content: content,
+            createdAt: createdAtTimestamp.dateValue(),
+            updatedAt: updatedAtTimestamp.dateValue(),
+            completedAt: completedAt,
+            deletedAt: deletedAt,
+            dueDate: dueDate,
+            tags: tags,
+            category: .raw(category),
+            goalId: goalId
+        )
     }
 }
 

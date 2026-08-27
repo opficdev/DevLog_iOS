@@ -225,7 +225,8 @@ private extension TodoRepositoryImpl {
             deletedAt: response.deletedAt,
             dueDate: response.dueDate,
             tags: response.tags,
-            category: .decoded(category)
+            category: .decoded(category),
+            goalId: response.goalId
         )
     }
 
