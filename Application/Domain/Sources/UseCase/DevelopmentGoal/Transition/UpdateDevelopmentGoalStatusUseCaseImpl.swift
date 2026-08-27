@@ -19,6 +19,7 @@ public final class UpdateDevelopmentGoalStatusUseCaseImpl: UpdateDevelopmentGoal
         let snapshot: DevelopmentGoal.CompletionSnapshot?
         if status == .completed {
             let completionSnapshot = try await repository.fetchCompletionSnapshot(for: goalID)
+            try completionSnapshot.goal.validateTransition(to: status)
             try validate(completionSnapshot, for: goal)
             snapshot = completionSnapshot
         } else {

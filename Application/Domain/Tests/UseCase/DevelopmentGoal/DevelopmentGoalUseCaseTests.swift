@@ -82,6 +82,21 @@ struct DevelopmentGoalUseCaseTests {
         ])
     }
 
+    @Test("완료 스냅샷의 목표 상태가 전환을 허용하지 않으면 완료를 거부한다")
+    func 완료_스냅샷의_목표_상태가_전환을_허용하지_않으면_완료를_거부한다() async throws {
+        let goal = try makeGoal(id: "goal-1")
+        let archivedGoal = try makeGoal(id: "goal-1", status: .archived)
+        let record = try makeConfirmedRecord(id: "record-1", createdAt: .distantPast)
+        let snapshot = DevelopmentGoal.CompletionSnapshot(goal: archivedGoal, records: [record])
+        let repository = DevelopmentGoalRepositorySpy(goal: goal, snapshot: snapshot)
+        let useCase = UpdateDevelopmentGoalStatusUseCaseImpl(repository)
+
+        await expectDomainError(.invalidDevelopmentGoalTransition) {
+            try await useCase.execute("goal-1", to: .completed)
+        }
+        #expect(await repository.transitions().isEmpty)
+    }
+
     @Test("기록이 없으면 완료 전환을 거부한다")
     func 기록이_없으면_완료_전환을_거부한다() async throws {
         let goal = try makeGoal(id: "goal-1")
