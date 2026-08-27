@@ -16,6 +16,7 @@ public final class DomainAssembler: Assembler {
         registerAuthUseCases(container)
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
+        registerDevelopmentGoalUseCases(container)
         registerTodoUseCases(container)
         registerTodoCategoryUseCases(container)
         registerUserDataUseCases(container)
@@ -26,6 +27,26 @@ public final class DomainAssembler: Assembler {
 }
 
 private extension DomainAssembler {
+    func registerDevelopmentGoalUseCases(_ container: any DIContainer) {
+        container.register(CreateDevelopmentGoalUseCase.self) {
+            CreateDevelopmentGoalUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(FetchDevelopmentGoalUseCase.self) {
+            FetchDevelopmentGoalUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(FetchDevelopmentGoalsUseCase.self) {
+            FetchDevelopmentGoalsUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(UpdateDevelopmentGoalStatusUseCase.self) {
+            UpdateDevelopmentGoalStatusUseCaseImpl(
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+    }
+
     func registerAppUpdateUseCases(_ container: any DIContainer) {
         container.register(CheckAppUpdateUseCase.self) {
             CheckAppUpdateUseCaseImpl(container.resolve(AppVersionRepository.self))
