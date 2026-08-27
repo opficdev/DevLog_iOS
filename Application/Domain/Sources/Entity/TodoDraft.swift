@@ -34,39 +34,8 @@ public struct TodoDraft: Equatable {
         completedAt: Date?,
         dueDate: Date?,
         tags: [String],
-        category: TodoCategory
-    ) {
-        self.init(
-            id: id,
-            isPinned: isPinned,
-            isCompleted: isCompleted,
-            isChecked: isChecked,
-            title: title,
-            content: content,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            completedAt: completedAt,
-            dueDate: dueDate,
-            tags: tags,
-            category: category,
-            goalId: nil
-        )
-    }
-
-    public init(
-        id: String,
-        isPinned: Bool,
-        isCompleted: Bool,
-        isChecked: Bool,
-        title: String,
-        content: String,
-        createdAt: Date,
-        updatedAt: Date,
-        completedAt: Date?,
-        dueDate: Date?,
-        tags: [String],
         category: TodoCategory,
-        goalId: String?
+        goalId: String? = nil
     ) {
         self.id = id
         self.goalId = goalId
