@@ -36,6 +36,18 @@ public final class DataAssembler: Assembler {
             TodoMutationEventBusImpl()
         }
 
+        container.register(DevelopmentGoalRepository.self) {
+            DevelopmentGoalRepositoryImpl(
+                service: container.resolve(DevelopmentGoalService.self)
+            )
+        }
+
+        container.register(DevelopmentRecordRepository.self) {
+            DevelopmentRecordRepositoryImpl(
+                service: container.resolve(DevelopmentRecordService.self)
+            )
+        }
+
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
                 todoService: container.resolve(TodoService.self),

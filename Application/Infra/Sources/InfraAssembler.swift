@@ -57,6 +57,14 @@ public final class InfraAssembler: Assembler {
             TodoServiceImpl()
         }
 
+        container.register(DevelopmentGoalService.self) {
+            DevelopmentGoalServiceImpl()
+        }
+
+        container.register(DevelopmentRecordService.self) {
+            DevelopmentRecordServiceImpl()
+        }
+
         container.register(TodoCategoryService.self) {
             TodoCategoryServiceImpl()
         }
