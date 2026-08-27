@@ -34,7 +34,7 @@ public struct DevelopmentGoal: Hashable {
 
     public let id: String
     public let title: String
-    public let markdownDescription: String
+    public let description: String
     public let status: Status
     public let createdAt: Date
     public let updatedAt: Date
@@ -43,7 +43,7 @@ public struct DevelopmentGoal: Hashable {
     public init(
         id: String,
         title: String,
-        markdownDescription: String,
+        description: String,
         status: Status,
         createdAt: Date,
         updatedAt: Date,
@@ -55,7 +55,7 @@ public struct DevelopmentGoal: Hashable {
 
         self.id = id
         self.title = title
-        self.markdownDescription = markdownDescription
+        self.description = description
         self.status = status
         self.createdAt = createdAt
         self.updatedAt = updatedAt

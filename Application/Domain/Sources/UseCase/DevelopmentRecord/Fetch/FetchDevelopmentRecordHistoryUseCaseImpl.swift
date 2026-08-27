@@ -13,9 +13,9 @@ public final class FetchDevelopmentRecordHistoryUseCaseImpl: FetchDevelopmentRec
     }
 
     public func execute(
-        goalID: String,
-        recordID: String
+        goalId: String,
+        recordId: String
     ) async throws -> [DevelopmentRecord.Version] {
-        try await repository.fetchVersions(goalID: goalID, recordID: recordID)
+        try await repository.fetchVersions(goalId: goalId, recordId: recordId)
     }
 }

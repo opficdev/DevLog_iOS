@@ -17,13 +17,13 @@ public final class UpdateTodoGoalUseCaseImpl: UpdateTodoGoalUseCase {
         self.goalRepository = goalRepository
     }
 
-    public func execute(todoID: String, goalID: String?) async throws {
-        if let goalID {
-            _ = try await goalRepository.fetchGoal(goalID)
+    public func execute(todoId: String, goalId: String?) async throws {
+        if let goalId {
+            _ = try await goalRepository.fetchGoal(goalId)
         }
 
-        var todo = try await todoRepository.fetchTodo(todoID)
-        todo.goalID = goalID
+        var todo = try await todoRepository.fetchTodo(todoId)
+        todo.goalId = goalId
         try await todoRepository.upsertTodo(todo)
     }
 }

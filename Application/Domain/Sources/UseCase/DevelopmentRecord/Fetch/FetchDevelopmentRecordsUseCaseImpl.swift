@@ -12,7 +12,7 @@ public final class FetchDevelopmentRecordsUseCaseImpl: FetchDevelopmentRecordsUs
         self.repository = repository
     }
 
-    public func execute(goalID: String) async throws -> [DevelopmentRecord] {
-        try await repository.fetchRecords(goalID: goalID)
+    public func execute(goalId: String) async throws -> [DevelopmentRecord] {
+        try await repository.fetchRecords(goalId: goalId)
     }
 }

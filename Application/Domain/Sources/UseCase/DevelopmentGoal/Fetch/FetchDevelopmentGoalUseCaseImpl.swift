@@ -12,7 +12,7 @@ public final class FetchDevelopmentGoalUseCaseImpl: FetchDevelopmentGoalUseCase 
         self.repository = repository
     }
 
-    public func execute(_ goalID: String) async throws -> DevelopmentGoal {
-        try await repository.fetchGoal(goalID)
+    public func execute(_ goalId: String) async throws -> DevelopmentGoal {
+        try await repository.fetchGoal(goalId)
     }
 }

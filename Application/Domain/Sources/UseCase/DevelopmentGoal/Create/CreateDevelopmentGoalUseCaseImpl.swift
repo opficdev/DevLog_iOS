@@ -19,11 +19,11 @@ public final class CreateDevelopmentGoalUseCaseImpl: CreateDevelopmentGoalUseCas
         self.idProvider = idProvider
     }
 
-    public func execute(title: String, markdownDescription: String) async throws -> DevelopmentGoal {
+    public func execute(title: String, description: String) async throws -> DevelopmentGoal {
         try await repository.createGoal(
             id: idProvider(),
             title: title,
-            markdownDescription: markdownDescription
+            description: description
         )
     }
 }

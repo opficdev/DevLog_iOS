@@ -6,5 +6,5 @@
 //
 
 public protocol UpdateDevelopmentGoalStatusUseCase {
-    func execute(_ goalID: String, to status: DevelopmentGoal.Status) async throws
+    func execute(_ goalId: String, to status: DevelopmentGoal.Status) async throws
 }

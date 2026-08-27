@@ -17,33 +17,33 @@ struct UpdateTodoGoalUseCaseImplTests {
         let goalRepository = DevelopmentGoalRepositorySpy(goal: try makeGoal(id: "goal-1"))
         let useCase = UpdateTodoGoalUseCaseImpl(todoRepository, goalRepository)
 
-        try await useCase.execute(todoID: "todo-1", goalID: "goal-1")
+        try await useCase.execute(todoId: "todo-1", goalId: "goal-1")
 
-        #expect(await goalRepository.fetchedGoalIDs() == ["goal-1"])
-        #expect(await todoRepository.savedTodos().map(\.goalID) == ["goal-1"])
+        #expect(await goalRepository.fetchedGoalIds() == ["goal-1"])
+        #expect(await todoRepository.savedTodos().map(\.goalId) == ["goal-1"])
     }
 
     @Test("목표 변경은 기존 Todo의 연결 대상을 대체한다")
     func 목표_변경은_기존_Todo의_연결_대상을_대체한다() async throws {
-        let todoRepository = TodoRepositorySpy(todo: makeTodo(goalID: "goal-1"))
+        let todoRepository = TodoRepositorySpy(todo: makeTodo(goalId: "goal-1"))
         let goalRepository = DevelopmentGoalRepositorySpy(goal: try makeGoal(id: "goal-2"))
         let useCase = UpdateTodoGoalUseCaseImpl(todoRepository, goalRepository)
 
-        try await useCase.execute(todoID: "todo-1", goalID: "goal-2")
+        try await useCase.execute(todoId: "todo-1", goalId: "goal-2")
 
-        #expect(await todoRepository.savedTodos().map(\.goalID) == ["goal-2"])
+        #expect(await todoRepository.savedTodos().map(\.goalId) == ["goal-2"])
     }
 
     @Test("목표 해제는 목표 조회 없이 Todo를 저장한다")
     func 목표_해제는_목표_조회_없이_Todo를_저장한다() async throws {
-        let todoRepository = TodoRepositorySpy(todo: makeTodo(goalID: "goal-1"))
+        let todoRepository = TodoRepositorySpy(todo: makeTodo(goalId: "goal-1"))
         let goalRepository = DevelopmentGoalRepositorySpy(goal: try makeGoal(id: "goal-1"))
         let useCase = UpdateTodoGoalUseCaseImpl(todoRepository, goalRepository)
 
-        try await useCase.execute(todoID: "todo-1", goalID: nil)
+        try await useCase.execute(todoId: "todo-1", goalId: nil)
 
-        #expect(await goalRepository.fetchedGoalIDs().isEmpty)
-        #expect(await todoRepository.savedTodos().map(\.goalID) == [nil])
+        #expect(await goalRepository.fetchedGoalIds().isEmpty)
+        #expect(await todoRepository.savedTodos().map(\.goalId) == [nil])
     }
 
     @Test("존재하지 않는 목표는 Todo 저장 전에 거부한다")
@@ -53,7 +53,7 @@ struct UpdateTodoGoalUseCaseImplTests {
         let useCase = UpdateTodoGoalUseCaseImpl(todoRepository, goalRepository)
 
         await #expect(throws: DevelopmentGoalRepositorySpyError.notFound) {
-            try await useCase.execute(todoID: "todo-1", goalID: "missing-goal")
+            try await useCase.execute(todoId: "todo-1", goalId: "missing-goal")
         }
         #expect(await todoRepository.savedTodos().isEmpty)
     }
@@ -71,7 +71,7 @@ private actor TodoRepositorySpy: TodoRepository {
         fatalError()
     }
 
-    func fetchTodo(_ todoID: String) async throws -> Todo {
+    func fetchTodo(_ todoId: String) async throws -> Todo {
         todo
     }
 
@@ -87,11 +87,11 @@ private actor TodoRepositorySpy: TodoRepository {
         fatalError()
     }
 
-    func deleteTodo(_ todoID: String) async throws {
+    func deleteTodo(_ todoId: String) async throws {
         fatalError()
     }
 
-    func undoDeleteTodo(_ todoID: String) async throws {
+    func undoDeleteTodo(_ todoId: String) async throws {
         fatalError()
     }
 
@@ -102,7 +102,7 @@ private actor TodoRepositorySpy: TodoRepository {
 
 private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     private let result: Result<DevelopmentGoal, DevelopmentGoalRepositorySpyError>
-    private var recordedFetchedGoalIDs = [String]()
+    private var recordedFetchedGoalIds = [String]()
 
     init(goal: DevelopmentGoal) {
         self.result = .success(goal)
@@ -115,13 +115,13 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     func createGoal(
         id: String,
         title: String,
-        markdownDescription: String
+        description: String
     ) async throws -> DevelopmentGoal {
         try result.get()
     }
 
-    func fetchGoal(_ goalID: String) async throws -> DevelopmentGoal {
-        recordedFetchedGoalIDs.append(goalID)
+    func fetchGoal(_ goalId: String) async throws -> DevelopmentGoal {
+        recordedFetchedGoalIds.append(goalId)
         return try result.get()
     }
 
@@ -129,18 +129,18 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
         [try result.get()]
     }
 
-    func fetchCompletionSnapshot(for goalID: String) async throws -> DevelopmentGoal.CompletionSnapshot {
+    func fetchCompletionSnapshot(for goalId: String) async throws -> DevelopmentGoal.CompletionSnapshot {
         .init(goal: try result.get(), records: [])
     }
 
     func transitionGoalStatus(
-        _ goalID: String,
+        _ goalId: String,
         to status: DevelopmentGoal.Status,
         completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     ) async throws { }
 
-    func fetchedGoalIDs() -> [String] {
-        recordedFetchedGoalIDs
+    func fetchedGoalIds() -> [String] {
+        recordedFetchedGoalIds
     }
 }
 
@@ -148,7 +148,7 @@ private enum DevelopmentGoalRepositorySpyError: Error, Equatable {
     case notFound
 }
 
-private func makeTodo(goalID: String? = nil) -> Todo {
+private func makeTodo(goalId: String? = nil) -> Todo {
     Todo(
         id: "todo-1",
         isPinned: false,
@@ -164,7 +164,7 @@ private func makeTodo(goalID: String? = nil) -> Todo {
         dueDate: nil,
         tags: [],
         category: .system(.feature),
-        goalID: goalID
+        goalId: goalId
     )
 }
 
@@ -172,7 +172,7 @@ private func makeGoal(id: String) throws -> DevelopmentGoal {
     try DevelopmentGoal(
         id: id,
         title: "개발 목표",
-        markdownDescription: "설명",
+        description: "설명",
         status: .inProgress,
         createdAt: .distantPast,
         updatedAt: .distantPast,

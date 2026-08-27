@@ -11,25 +11,25 @@ public struct DevelopmentRecord: Hashable {
     public struct Draft: Hashable {
         public let title: String
         public let markdownContent: String
-        public let baseVersionID: String?
+        public let baseVersionId: String?
         public let updatedAt: Date
 
         public init(
             title: String,
             markdownContent: String,
-            baseVersionID: String?,
+            baseVersionId: String?,
             updatedAt: Date
         ) throws {
             guard title.containsMeaningfulCharacter else {
                 throw DomainLayerError.invalidDevelopmentRecordTitle
             }
-            guard baseVersionID?.containsMeaningfulCharacter != false else {
+            guard baseVersionId?.containsMeaningfulCharacter != false else {
                 throw DomainLayerError.invalidDevelopmentRecordVersion
             }
 
             self.title = title
             self.markdownContent = markdownContent
-            self.baseVersionID = baseVersionID
+            self.baseVersionId = baseVersionId
             self.updatedAt = updatedAt
         }
     }
@@ -56,26 +56,26 @@ public struct DevelopmentRecord: Hashable {
         }
 
         public let id: String
-        public let recordID: String
+        public let recordId: String
         public let number: Int
         public let title: String
         public let markdownContent: String
         public let kind: Kind
-        public let sourceVersionID: String?
+        public let sourceVersionId: String?
         public let confirmedAt: Date
 
         public init(
             id: String,
-            recordID: String,
+            recordId: String,
             number: Int,
             title: String,
             markdownContent: String,
             kind: Kind,
-            sourceVersionID: String?,
+            sourceVersionId: String?,
             confirmedAt: Date
         ) throws {
             guard id.containsMeaningfulCharacter,
-                  recordID.containsMeaningfulCharacter,
+                  recordId.containsMeaningfulCharacter,
                   title.containsMeaningfulCharacter,
                   0 < number else {
                 throw DomainLayerError.invalidDevelopmentRecordVersion
@@ -83,43 +83,43 @@ public struct DevelopmentRecord: Hashable {
 
             switch kind {
             case .initial:
-                guard number == 1, sourceVersionID == nil else {
+                guard number == 1, sourceVersionId == nil else {
                     throw DomainLayerError.invalidDevelopmentRecordVersion
                 }
             case .correction, .rollback:
                 guard 1 < number,
-                      let sourceVersionID,
-                      sourceVersionID.containsMeaningfulCharacter,
-                      sourceVersionID != id else {
+                      let sourceVersionId,
+                      sourceVersionId.containsMeaningfulCharacter,
+                      sourceVersionId != id else {
                     throw DomainLayerError.invalidDevelopmentRecordVersion
                 }
             }
 
             self.id = id
-            self.recordID = recordID
+            self.recordId = recordId
             self.number = number
             self.title = title
             self.markdownContent = markdownContent
             self.kind = kind
-            self.sourceVersionID = sourceVersionID
+            self.sourceVersionId = sourceVersionId
             self.confirmedAt = confirmedAt
         }
     }
 
     public let id: String
-    public let goalID: String
+    public let goalId: String
     public let currentVersion: CurrentVersion?
     public let draft: Draft?
     public let createdAt: Date
 
     public init(
         id: String,
-        goalID: String,
+        goalId: String,
         currentVersion: CurrentVersion?,
         draft: Draft?,
         createdAt: Date
     ) throws {
-        guard id.containsMeaningfulCharacter, goalID.containsMeaningfulCharacter else {
+        guard id.containsMeaningfulCharacter, goalId.containsMeaningfulCharacter else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
         guard currentVersion != nil || draft != nil else {
@@ -127,17 +127,17 @@ public struct DevelopmentRecord: Hashable {
         }
 
         if let currentVersion, let draft {
-            guard draft.baseVersionID == currentVersion.id else {
+            guard draft.baseVersionId == currentVersion.id else {
                 throw DomainLayerError.invalidDevelopmentRecordCurrentVersion
             }
         } else if currentVersion == nil {
-            guard draft?.baseVersionID == nil else {
+            guard draft?.baseVersionId == nil else {
                 throw DomainLayerError.invalidDevelopmentRecordCurrentVersion
             }
         }
 
         self.id = id
-        self.goalID = goalID
+        self.goalId = goalId
         self.currentVersion = currentVersion
         self.draft = draft
         self.createdAt = createdAt

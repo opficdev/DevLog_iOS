@@ -7,7 +7,7 @@
 
 public protocol CreateDevelopmentRecordUseCase {
     func execute(
-        goalID: String,
+        goalId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord

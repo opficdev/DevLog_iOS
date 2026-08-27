@@ -6,5 +6,5 @@
 //
 
 public protocol CreateDevelopmentGoalUseCase {
-    func execute(title: String, markdownDescription: String) async throws -> DevelopmentGoal
+    func execute(title: String, description: String) async throws -> DevelopmentGoal
 }

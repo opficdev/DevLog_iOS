@@ -6,5 +6,5 @@
 //
 
 public protocol UpdateTodoGoalUseCase {
-    func execute(todoID: String, goalID: String?) async throws
+    func execute(todoId: String, goalId: String?) async throws
 }

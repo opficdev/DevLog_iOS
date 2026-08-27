@@ -23,17 +23,17 @@ public final class RestoreDevelopmentRecordUseCaseImpl: RestoreDevelopmentRecord
     }
 
     public func execute(
-        goalID: String,
-        recordID: String,
-        sourceVersionID: String
+        goalId: String,
+        recordId: String,
+        sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version {
-        let goal = try await goalRepository.fetchGoal(goalID)
+        let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
         }
 
-        let record = try await repository.fetchRecord(goalID: goalID, recordID: recordID)
-        guard record.id == recordID, record.goalID == goalID else {
+        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
+        guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
         guard record.draft == nil else {
@@ -43,20 +43,20 @@ public final class RestoreDevelopmentRecordUseCaseImpl: RestoreDevelopmentRecord
             throw DomainLayerError.developmentRecordVersionNotFound
         }
 
-        let versions = try await repository.fetchVersions(goalID: goalID, recordID: recordID)
+        let versions = try await repository.fetchVersions(goalId: goalId, recordId: recordId)
         guard versions.contains(where: {
-            $0.id == sourceVersionID
-                && $0.recordID == recordID
+            $0.id == sourceVersionId
+                && $0.recordId == recordId
                 && $0.number < currentVersion.number
         }) else {
             throw DomainLayerError.developmentRecordVersionNotFound
         }
 
         return try await repository.restoreVersion(
-            goalID: goalID,
-            recordID: recordID,
-            versionID: idProvider(),
-            sourceVersionID: sourceVersionID
+            goalId: goalId,
+            recordId: recordId,
+            versionId: idProvider(),
+            sourceVersionId: sourceVersionId
         )
     }
 }

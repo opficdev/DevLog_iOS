@@ -22,14 +22,14 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
         self.idProvider = idProvider
     }
 
-    public func execute(goalID: String, recordID: String) async throws -> DevelopmentRecord.Version {
-        let goal = try await goalRepository.fetchGoal(goalID)
+    public func execute(goalId: String, recordId: String) async throws -> DevelopmentRecord.Version {
+        let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
         }
 
-        let record = try await repository.fetchRecord(goalID: goalID, recordID: recordID)
-        guard record.id == recordID, record.goalID == goalID else {
+        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
+        guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
         guard record.draft != nil else {
@@ -38,20 +38,20 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
 
         if let currentVersion = record.currentVersion {
             return try await repository.confirmDraft(
-                goalID: goalID,
-                recordID: recordID,
-                versionID: idProvider(),
+                goalId: goalId,
+                recordId: recordId,
+                versionId: idProvider(),
                 kind: .correction,
-                sourceVersionID: currentVersion.id
+                sourceVersionId: currentVersion.id
             )
         }
 
         return try await repository.confirmDraft(
-            goalID: goalID,
-            recordID: recordID,
-            versionID: idProvider(),
+            goalId: goalId,
+            recordId: recordId,
+            versionId: idProvider(),
             kind: .initial,
-            sourceVersionID: nil
+            sourceVersionId: nil
         )
     }
 }

@@ -9,13 +9,13 @@ public protocol DevelopmentGoalRepository {
     func createGoal(
         id: String,
         title: String,
-        markdownDescription: String
+        description: String
     ) async throws -> DevelopmentGoal
-    func fetchGoal(_ goalID: String) async throws -> DevelopmentGoal
+    func fetchGoal(_ goalId: String) async throws -> DevelopmentGoal
     func fetchGoals(_ query: DevelopmentGoal.Query) async throws -> [DevelopmentGoal]
-    func fetchCompletionSnapshot(for goalID: String) async throws -> DevelopmentGoal.CompletionSnapshot
+    func fetchCompletionSnapshot(for goalId: String) async throws -> DevelopmentGoal.CompletionSnapshot
     func transitionGoalStatus(
-        _ goalID: String,
+        _ goalId: String,
         to status: DevelopmentGoal.Status,
         completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     ) async throws

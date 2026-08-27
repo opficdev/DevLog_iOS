@@ -9,7 +9,7 @@ import Foundation
 
 public struct Todo: Hashable {
     public let id: String
-    public var goalID: String?
+    public var goalId: String?
     public var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     public var isCompleted: Bool   //  해당 할 일의 완료 여부
     public var isChecked: Bool     //  해당 할 일의 체크 여부
@@ -55,7 +55,7 @@ public struct Todo: Hashable {
             dueDate: dueDate,
             tags: tags,
             category: category,
-            goalID: nil
+            goalId: nil
         )
     }
 
@@ -74,10 +74,10 @@ public struct Todo: Hashable {
         dueDate: Date?,
         tags: [String],
         category: TodoCategory,
-        goalID: String?
+        goalId: String?
     ) {
         self.id = id
-        self.goalID = goalID
+        self.goalId = goalId
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked

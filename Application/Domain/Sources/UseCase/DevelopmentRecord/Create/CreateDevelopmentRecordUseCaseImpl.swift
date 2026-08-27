@@ -26,11 +26,11 @@ public final class CreateDevelopmentRecordUseCaseImpl: CreateDevelopmentRecordUs
     }
 
     public func execute(
-        goalID: String,
+        goalId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
-        let goal = try await goalRepository.fetchGoal(goalID)
+        let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
         }
@@ -38,12 +38,12 @@ public final class CreateDevelopmentRecordUseCaseImpl: CreateDevelopmentRecordUs
         let draft = try DevelopmentRecord.Draft(
             title: title,
             markdownContent: markdownContent,
-            baseVersionID: nil,
+            baseVersionId: nil,
             updatedAt: now()
         )
         return try await repository.createRecord(
             id: idProvider(),
-            goalID: goalID,
+            goalId: goalId,
             draft: draft
         )
     }

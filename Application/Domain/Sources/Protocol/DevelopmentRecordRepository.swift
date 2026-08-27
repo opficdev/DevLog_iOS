@@ -8,28 +8,28 @@
 public protocol DevelopmentRecordRepository {
     func createRecord(
         id: String,
-        goalID: String,
+        goalId: String,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord
-    func fetchRecords(goalID: String) async throws -> [DevelopmentRecord]
-    func fetchRecord(goalID: String, recordID: String) async throws -> DevelopmentRecord
-    func fetchVersions(goalID: String, recordID: String) async throws -> [DevelopmentRecord.Version]
+    func fetchRecords(goalId: String) async throws -> [DevelopmentRecord]
+    func fetchRecord(goalId: String, recordId: String) async throws -> DevelopmentRecord
+    func fetchVersions(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version]
     func saveDraft(
-        goalID: String,
-        recordID: String,
+        goalId: String,
+        recordId: String,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord
     func confirmDraft(
-        goalID: String,
-        recordID: String,
-        versionID: String,
+        goalId: String,
+        recordId: String,
+        versionId: String,
         kind: DevelopmentRecord.Version.Kind,
-        sourceVersionID: String?
+        sourceVersionId: String?
     ) async throws -> DevelopmentRecord.Version
     func restoreVersion(
-        goalID: String,
-        recordID: String,
-        versionID: String,
-        sourceVersionID: String
+        goalId: String,
+        recordId: String,
+        versionId: String,
+        sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version
 }

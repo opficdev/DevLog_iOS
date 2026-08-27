@@ -6,5 +6,5 @@
 //
 
 public protocol FetchDevelopmentRecordHistoryUseCase {
-    func execute(goalID: String, recordID: String) async throws -> [DevelopmentRecord.Version]
+    func execute(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version]
 }

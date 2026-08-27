@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import Domain
 
-actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
+actor DevelopmentRecordGoalRepositorySpy: DevelopmentGoalRepository {
     private let goal: DevelopmentGoal
 
     init(goal: DevelopmentGoal) {
@@ -19,12 +19,12 @@ actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     func createGoal(
         id: String,
         title: String,
-        markdownDescription: String
+        description: String
     ) async throws -> DevelopmentGoal {
         goal
     }
 
-    func fetchGoal(_ goalID: String) async throws -> DevelopmentGoal {
+    func fetchGoal(_ goalId: String) async throws -> DevelopmentGoal {
         goal
     }
 
@@ -32,12 +32,12 @@ actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
         [goal]
     }
 
-    func fetchCompletionSnapshot(for goalID: String) async throws -> DevelopmentGoal.CompletionSnapshot {
+    func fetchCompletionSnapshot(for goalId: String) async throws -> DevelopmentGoal.CompletionSnapshot {
         .init(goal: goal, records: [])
     }
 
     func transitionGoalStatus(
-        _ goalID: String,
+        _ goalId: String,
         to status: DevelopmentGoal.Status,
         completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     ) async throws { }
@@ -46,34 +46,34 @@ actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
 actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     struct CreateRequest: Equatable {
         let id: String
-        let goalID: String
+        let goalId: String
         let draft: DevelopmentRecord.Draft
     }
 
     struct RecordQuery: Equatable {
-        let goalID: String
-        let recordID: String
+        let goalId: String
+        let recordId: String
     }
 
     struct DraftRequest: Equatable {
-        let goalID: String
-        let recordID: String
+        let goalId: String
+        let recordId: String
         let draft: DevelopmentRecord.Draft
     }
 
     struct ConfirmRequest: Equatable {
-        let goalID: String
-        let recordID: String
-        let versionID: String
+        let goalId: String
+        let recordId: String
+        let versionId: String
         let kind: DevelopmentRecord.Version.Kind
-        let sourceVersionID: String?
+        let sourceVersionId: String?
     }
 
     struct RestoreRequest: Equatable {
-        let goalID: String
-        let recordID: String
-        let versionID: String
-        let sourceVersionID: String
+        let goalId: String
+        let recordId: String
+        let versionId: String
+        let sourceVersionId: String
     }
 
     private let createResult: DevelopmentRecord?
@@ -110,66 +110,66 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
 
     func createRecord(
         id: String,
-        goalID: String,
+        goalId: String,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord {
-        recordedCreateRequests.append(.init(id: id, goalID: goalID, draft: draft))
-        return try required(createResult)
+        recordedCreateRequests.append(.init(id: id, goalId: goalId, draft: draft))
+        return try requiredDevelopmentRecordRepositoryResult(createResult)
     }
 
-    func fetchRecords(goalID: String) async throws -> [DevelopmentRecord] {
-        recordedRecordQueries.append(goalID)
+    func fetchRecords(goalId: String) async throws -> [DevelopmentRecord] {
+        recordedRecordQueries.append(goalId)
         return records
     }
 
-    func fetchRecord(goalID: String, recordID: String) async throws -> DevelopmentRecord {
-        try required(record)
+    func fetchRecord(goalId: String, recordId: String) async throws -> DevelopmentRecord {
+        try requiredDevelopmentRecordRepositoryResult(record)
     }
 
-    func fetchVersions(goalID: String, recordID: String) async throws -> [DevelopmentRecord.Version] {
-        recordedVersionQueries.append(.init(goalID: goalID, recordID: recordID))
+    func fetchVersions(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version] {
+        recordedVersionQueries.append(.init(goalId: goalId, recordId: recordId))
         return versions
     }
 
     func saveDraft(
-        goalID: String,
-        recordID: String,
+        goalId: String,
+        recordId: String,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord {
-        recordedDraftRequests.append(.init(goalID: goalID, recordID: recordID, draft: draft))
-        return try required(savedRecord)
+        recordedDraftRequests.append(.init(goalId: goalId, recordId: recordId, draft: draft))
+        return try requiredDevelopmentRecordRepositoryResult(savedRecord)
     }
 
     func confirmDraft(
-        goalID: String,
-        recordID: String,
-        versionID: String,
+        goalId: String,
+        recordId: String,
+        versionId: String,
         kind: DevelopmentRecord.Version.Kind,
-        sourceVersionID: String?
+        sourceVersionId: String?
     ) async throws -> DevelopmentRecord.Version {
         recordedConfirmRequests.append(
             .init(
-                goalID: goalID,
-                recordID: recordID,
-                versionID: versionID,
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId,
                 kind: kind,
-                sourceVersionID: sourceVersionID
+                sourceVersionId: sourceVersionId
             )
         )
-        return try required(confirmedVersion)
+        return try requiredDevelopmentRecordRepositoryResult(confirmedVersion)
     }
 
     func restoreVersion(
-        goalID: String,
-        recordID: String,
-        versionID: String,
-        sourceVersionID: String
+        goalId: String,
+        recordId: String,
+        versionId: String,
+        sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version {
         recordedRestoreRequests.append(
             .init(
-                goalID: goalID, recordID: recordID, versionID: versionID, sourceVersionID: sourceVersionID)
+                goalId: goalId, recordId: recordId, versionId: versionId, sourceVersionId: sourceVersionId)
         )
-        return try required(restoredVersion)
+        return try requiredDevelopmentRecordRepositoryResult(restoredVersion)
     }
 
     func createRequests() -> [CreateRequest] {
@@ -201,20 +201,20 @@ enum DevelopmentRecordRepositorySpyError: Error {
     case unconfigured
 }
 
-func required<Value>(_ value: Value?) throws -> Value {
+func requiredDevelopmentRecordRepositoryResult<Value>(_ value: Value?) throws -> Value {
     guard let value else {
         throw DevelopmentRecordRepositorySpyError.unconfigured
     }
     return value
 }
 
-func makeGoal(
+func makeDevelopmentRecordGoal(
     status: DevelopmentGoal.Status = .inProgress
 ) throws -> DevelopmentGoal {
     try DevelopmentGoal(
         id: "goal-1",
         title: "개발 목표",
-        markdownDescription: "설명",
+        description: "설명",
         status: status,
         createdAt: .distantPast,
         updatedAt: .distantPast,
@@ -222,71 +222,71 @@ func makeGoal(
     )
 }
 
-func makeInitialDraftRecord(
+func makeDevelopmentRecordInitialDraft(
     updatedAt: Date = .distantPast
 ) throws -> DevelopmentRecord {
-    try makeRecord(
+    try makeDevelopmentRecord(
         currentVersion: nil,
         draft: DevelopmentRecord.Draft(
             title: "기록",
             markdownContent: "본문",
-            baseVersionID: nil,
+            baseVersionId: nil,
             updatedAt: updatedAt
         )
     )
 }
 
-func makeConfirmedRecord() throws -> DevelopmentRecord {
-    try makeRecord(
+func makeDevelopmentRecordConfirmed() throws -> DevelopmentRecord {
+    try makeDevelopmentRecord(
         currentVersion: DevelopmentRecord.CurrentVersion(id: "version-1", number: 1),
         draft: nil
     )
 }
 
-func makeRecord(
+func makeDevelopmentRecord(
     currentVersion: DevelopmentRecord.CurrentVersion?,
     draft: DevelopmentRecord.Draft?
 ) throws -> DevelopmentRecord {
     try DevelopmentRecord(
         id: "record-1",
-        goalID: "goal-1",
+        goalId: "goal-1",
         currentVersion: currentVersion,
         draft: draft,
         createdAt: .distantPast
     )
 }
 
-func makeInitialVersion() throws -> DevelopmentRecord.Version {
+func makeDevelopmentRecordInitialVersion() throws -> DevelopmentRecord.Version {
     try DevelopmentRecord.Version(
         id: "version-1",
-        recordID: "record-1",
+        recordId: "record-1",
         number: 1,
         title: "기록",
         markdownContent: "본문",
         kind: .initial,
-        sourceVersionID: nil,
+        sourceVersionId: nil,
         confirmedAt: .distantPast
     )
 }
 
-func makeCorrectionVersion(
+func makeDevelopmentRecordCorrectionVersion(
     id: String,
     number: Int = 2,
-    sourceVersionID: String
+    sourceVersionId: String
 ) throws -> DevelopmentRecord.Version {
     try DevelopmentRecord.Version(
         id: id,
-        recordID: "record-1",
+        recordId: "record-1",
         number: number,
         title: "정정 기록",
         markdownContent: "본문",
         kind: .correction,
-        sourceVersionID: sourceVersionID,
+        sourceVersionId: sourceVersionId,
         confirmedAt: .distantPast
     )
 }
 
-func expectDomainError<Value>(
+func expectDevelopmentRecordDomainError<Value>(
     _ expected: DomainLayerError,
     operation: () async throws -> Value
 ) async {

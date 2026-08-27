@@ -7,8 +7,8 @@
 
 public protocol SaveDevelopmentRecordDraftUseCase {
     func execute(
-        goalID: String,
-        recordID: String,
+        goalId: String,
+        recordId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord

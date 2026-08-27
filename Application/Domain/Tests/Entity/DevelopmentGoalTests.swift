@@ -68,7 +68,7 @@ private func makeGoal(
     try DevelopmentGoal(
         id: "goal-1",
         title: title,
-        markdownDescription: "설명",
+        description: "설명",
         status: status,
         createdAt: .distantPast,
         updatedAt: .distantPast,
@@ -80,12 +80,12 @@ private func makeInitialDraftRecord() throws -> DevelopmentRecord {
     let draft = try DevelopmentRecord.Draft(
         title: "초안",
         markdownContent: "본문",
-        baseVersionID: nil,
+        baseVersionId: nil,
         updatedAt: .distantPast
     )
     return try DevelopmentRecord(
         id: "record-1",
-        goalID: "goal-1",
+        goalId: "goal-1",
         currentVersion: nil,
         draft: draft,
         createdAt: .distantPast

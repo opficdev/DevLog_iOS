@@ -12,13 +12,13 @@ public final class UpdateDevelopmentGoalStatusUseCaseImpl: UpdateDevelopmentGoal
         self.repository = repository
     }
 
-    public func execute(_ goalID: String, to status: DevelopmentGoal.Status) async throws {
-        let goal = try await repository.fetchGoal(goalID)
+    public func execute(_ goalId: String, to status: DevelopmentGoal.Status) async throws {
+        let goal = try await repository.fetchGoal(goalId)
         try goal.validateTransition(to: status)
 
         let snapshot: DevelopmentGoal.CompletionSnapshot?
         if status == .completed {
-            let completionSnapshot = try await repository.fetchCompletionSnapshot(for: goalID)
+            let completionSnapshot = try await repository.fetchCompletionSnapshot(for: goalId)
             try completionSnapshot.goal.validateTransition(to: status)
             try validate(completionSnapshot, for: goal)
             snapshot = completionSnapshot
@@ -27,7 +27,7 @@ public final class UpdateDevelopmentGoalStatusUseCaseImpl: UpdateDevelopmentGoal
         }
 
         try await repository.transitionGoalStatus(
-            goalID,
+            goalId,
             to: status,
             completionSnapshot: snapshot
         )
@@ -40,7 +40,7 @@ private extension UpdateDevelopmentGoalStatusUseCaseImpl {
         for goal: DevelopmentGoal
     ) throws {
         guard snapshot.goal.id == goal.id,
-              snapshot.records.allSatisfy({ $0.goalID == goal.id }) else {
+              snapshot.records.allSatisfy({ $0.goalId == goal.id }) else {
             throw DomainLayerError.invalidData(context: "developmentGoalCompletionSnapshot")
         }
         guard !snapshot.records.isEmpty else {

@@ -16,11 +16,11 @@ struct DevelopmentGoalUseCaseTests {
         let repository = DevelopmentGoalRepositorySpy(goal: goal)
         let useCase = CreateDevelopmentGoalUseCaseImpl(repository, idProvider: { "goal-1" })
 
-        let result = try await useCase.execute(title: "목표", markdownDescription: "설명")
+        let result = try await useCase.execute(title: "목표", description: "설명")
 
         #expect(result == goal)
         #expect(await repository.createRequests() == [
-            .init(id: "goal-1", title: "목표", markdownDescription: "설명")
+            .init(id: "goal-1", title: "목표", description: "설명")
         ])
     }
 
@@ -33,7 +33,7 @@ struct DevelopmentGoalUseCaseTests {
         let result = try await useCase.execute("goal-1")
 
         #expect(result == goal)
-        #expect(await repository.fetchedGoalIDs() == ["goal-1"])
+        #expect(await repository.fetchedGoalIds() == ["goal-1"])
     }
 
     @Test("목표 목록 조회는 상태를 필터링하고 생성 시각과 ID 오름차순으로 정렬한다")
@@ -62,7 +62,7 @@ struct DevelopmentGoalUseCaseTests {
         try await useCase.execute("goal-1", to: .archived)
 
         #expect(await repository.transitions() == [
-            .init(goalID: "goal-1", status: .archived, completionSnapshot: nil)
+            .init(goalId: "goal-1", status: .archived, completionSnapshot: nil)
         ])
     }
 
@@ -76,9 +76,9 @@ struct DevelopmentGoalUseCaseTests {
 
         try await useCase.execute("goal-1", to: .completed)
 
-        #expect(await repository.completionSnapshotGoalIDs() == ["goal-1"])
+        #expect(await repository.completionSnapshotGoalIds() == ["goal-1"])
         #expect(await repository.transitions() == [
-            .init(goalID: "goal-1", status: .completed, completionSnapshot: snapshot)
+            .init(goalId: "goal-1", status: .completed, completionSnapshot: snapshot)
         ])
     }
 
@@ -147,11 +147,11 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     struct CreateRequest: Equatable {
         let id: String
         let title: String
-        let markdownDescription: String
+        let description: String
     }
 
     struct TransitionRequest: Equatable {
-        let goalID: String
+        let goalId: String
         let status: DevelopmentGoal.Status
         let completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     }
@@ -160,9 +160,9 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     private let goals: [DevelopmentGoal]
     private let snapshot: DevelopmentGoal.CompletionSnapshot?
     private var recordedCreateRequests = [CreateRequest]()
-    private var recordedFetchedGoalIDs = [String]()
+    private var recordedFetchedGoalIds = [String]()
     private var recordedQueries = [DevelopmentGoal.Query]()
-    private var recordedCompletionSnapshotGoalIDs = [String]()
+    private var recordedCompletionSnapshotGoalIds = [String]()
     private var recordedTransitions = [TransitionRequest]()
 
     init(
@@ -178,14 +178,14 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     func createGoal(
         id: String,
         title: String,
-        markdownDescription: String
+        description: String
     ) async throws -> DevelopmentGoal {
-        recordedCreateRequests.append(.init(id: id, title: title, markdownDescription: markdownDescription))
+        recordedCreateRequests.append(.init(id: id, title: title, description: description))
         return goal
     }
 
-    func fetchGoal(_ goalID: String) async throws -> DevelopmentGoal {
-        recordedFetchedGoalIDs.append(goalID)
+    func fetchGoal(_ goalId: String) async throws -> DevelopmentGoal {
+        recordedFetchedGoalIds.append(goalId)
         return goal
     }
 
@@ -194,8 +194,8 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
         return goals
     }
 
-    func fetchCompletionSnapshot(for goalID: String) async throws -> DevelopmentGoal.CompletionSnapshot {
-        recordedCompletionSnapshotGoalIDs.append(goalID)
+    func fetchCompletionSnapshot(for goalId: String) async throws -> DevelopmentGoal.CompletionSnapshot {
+        recordedCompletionSnapshotGoalIds.append(goalId)
         guard let snapshot else {
             throw DevelopmentGoalRepositorySpyError.snapshotNotFound
         }
@@ -203,13 +203,13 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
     }
 
     func transitionGoalStatus(
-        _ goalID: String,
+        _ goalId: String,
         to status: DevelopmentGoal.Status,
         completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     ) async throws {
         recordedTransitions.append(
             .init(
-                goalID: goalID,
+                goalId: goalId,
                 status: status,
                 completionSnapshot: completionSnapshot
             )
@@ -220,16 +220,16 @@ private actor DevelopmentGoalRepositorySpy: DevelopmentGoalRepository {
         recordedCreateRequests
     }
 
-    func fetchedGoalIDs() -> [String] {
-        recordedFetchedGoalIDs
+    func fetchedGoalIds() -> [String] {
+        recordedFetchedGoalIds
     }
 
     func queries() -> [DevelopmentGoal.Query] {
         recordedQueries
     }
 
-    func completionSnapshotGoalIDs() -> [String] {
-        recordedCompletionSnapshotGoalIDs
+    func completionSnapshotGoalIds() -> [String] {
+        recordedCompletionSnapshotGoalIds
     }
 
     func transitions() -> [TransitionRequest] {
@@ -249,7 +249,7 @@ private func makeGoal(
     try DevelopmentGoal(
         id: id,
         title: "개발 목표",
-        markdownDescription: "설명",
+        description: "설명",
         status: status,
         createdAt: createdAt,
         updatedAt: createdAt,
@@ -261,12 +261,12 @@ private func makeInitialDraftRecord(id: String, createdAt: Date) throws -> Devel
     let draft = try DevelopmentRecord.Draft(
         title: "기록",
         markdownContent: "본문",
-        baseVersionID: nil,
+        baseVersionId: nil,
         updatedAt: createdAt
     )
     return try DevelopmentRecord(
         id: id,
-        goalID: "goal-1",
+        goalId: "goal-1",
         currentVersion: nil,
         draft: draft,
         createdAt: createdAt
@@ -277,7 +277,7 @@ private func makeConfirmedRecord(id: String, createdAt: Date) throws -> Developm
     let currentVersion = try DevelopmentRecord.CurrentVersion(id: "version-\(id)", number: 1)
     return try DevelopmentRecord(
         id: id,
-        goalID: "goal-1",
+        goalId: "goal-1",
         currentVersion: currentVersion,
         draft: nil,
         createdAt: createdAt
@@ -289,12 +289,12 @@ private func makeDraftRecord(id: String, createdAt: Date) throws -> DevelopmentR
     let draft = try DevelopmentRecord.Draft(
         title: "정정 초안",
         markdownContent: "본문",
-        baseVersionID: currentVersion.id,
+        baseVersionId: currentVersion.id,
         updatedAt: createdAt
     )
     return try DevelopmentRecord(
         id: id,
-        goalID: "goal-1",
+        goalId: "goal-1",
         currentVersion: currentVersion,
         draft: draft,
         createdAt: createdAt

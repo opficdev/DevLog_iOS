@@ -6,5 +6,5 @@
 //
 
 public protocol FetchDevelopmentGoalUseCase {
-    func execute(_ goalID: String) async throws -> DevelopmentGoal
+    func execute(_ goalId: String) async throws -> DevelopmentGoal
 }

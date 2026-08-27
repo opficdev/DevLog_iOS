@@ -23,29 +23,29 @@ public final class SaveDevelopmentRecordDraftUseCaseImpl: SaveDevelopmentRecordD
     }
 
     public func execute(
-        goalID: String,
-        recordID: String,
+        goalId: String,
+        recordId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
-        let goal = try await goalRepository.fetchGoal(goalID)
+        let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
         }
 
-        let record = try await repository.fetchRecord(goalID: goalID, recordID: recordID)
-        guard record.id == recordID, record.goalID == goalID else {
+        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
+        guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
         let updatedDraft = try DevelopmentRecord.Draft(
             title: title,
             markdownContent: markdownContent,
-            baseVersionID: record.currentVersion?.id,
+            baseVersionId: record.currentVersion?.id,
             updatedAt: now()
         )
         return try await repository.saveDraft(
-            goalID: goalID,
-            recordID: recordID,
+            goalId: goalId,
+            recordId: recordId,
             draft: updatedDraft
         )
     }
