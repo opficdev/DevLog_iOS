@@ -56,6 +56,31 @@ struct DevelopmentRecordDocumentMapper {
             createdAt: createdAt.dateValue()
         )
     }
+
+    func mapVersion(
+        recordId: String,
+        documentId: String,
+        data: [String: Any]
+    ) -> DevelopmentRecordVersionResponse? {
+        guard
+            let number = data[DevelopmentRecordVersionFieldKey.versionNumber.rawValue] as? Int,
+            let title = data[DevelopmentRecordVersionFieldKey.title.rawValue] as? String,
+            let markdownContent = data[DevelopmentRecordVersionFieldKey.markdownContent.rawValue] as? String,
+            let kind = data[DevelopmentRecordVersionFieldKey.changeKind.rawValue] as? String,
+            let confirmedAt = data[DevelopmentRecordVersionFieldKey.confirmedAt.rawValue] as? Timestamp else {
+            return nil
+        }
+        return DevelopmentRecordVersionResponse(
+            id: documentId,
+            recordId: recordId,
+            number: number,
+            title: title,
+            markdownContent: markdownContent,
+            kind: kind,
+            sourceVersionId: data[DevelopmentRecordVersionFieldKey.sourceVersionId.rawValue] as? String,
+            confirmedAt: confirmedAt.dateValue()
+        )
+    }
 }
 
 enum DevelopmentRecordFieldKey: String {
@@ -70,4 +95,13 @@ enum DevelopmentRecordDraftFieldKey: String {
     case markdownContent
     case baseVersionId
     case updatedAt
+}
+
+enum DevelopmentRecordVersionFieldKey: String {
+    case versionNumber
+    case title
+    case markdownContent
+    case changeKind
+    case sourceVersionId
+    case confirmedAt
 }

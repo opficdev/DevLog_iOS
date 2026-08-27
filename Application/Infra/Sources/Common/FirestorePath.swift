@@ -13,6 +13,7 @@ enum FirestorePath {
         case todoLists
         case developmentGoals
         case records
+        case versions
         case notifications
         case webPages
     }
@@ -68,6 +69,23 @@ enum FirestorePath {
         recordId: String
     ) -> String {
         "\(developmentRecords(uid, goalId: goalId))/\(recordId)"
+    }
+
+    static func developmentRecordVersions(
+        _ uid: String,
+        goalId: String,
+        recordId: String
+    ) -> String {
+        "\(developmentRecord(uid, goalId: goalId, recordId: recordId))/\(Collection.versions.rawValue)"
+    }
+
+    static func developmentRecordVersion(
+        _ uid: String,
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) -> String {
+        "\(developmentRecordVersions(uid, goalId: goalId, recordId: recordId))/\(versionId)"
     }
 
     static func notifications(_ uid: String) -> String {
