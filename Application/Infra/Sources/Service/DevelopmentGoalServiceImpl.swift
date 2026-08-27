@@ -176,7 +176,7 @@ extension DevelopmentGoalServiceImpl {
 }
 
 private extension DevelopmentGoalServiceImpl {
-    static func record(_ error: Error, code: CrashlyticsError.Code) {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
             domain: "\(CrashlyticsError.domain).\(code)",
@@ -184,11 +184,11 @@ private extension DevelopmentGoalServiceImpl {
         )
     }
 
-    func record(_ error: Error, code: CrashlyticsError.Code) {
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
         Self.record(error, code: code)
     }
 
-    func fetchGoal(uid: String, goalId: String) async throws -> DevelopmentGoalResponse {
+    private func fetchGoal(uid: String, goalId: String) async throws -> DevelopmentGoalResponse {
         let snapshot = try await store.document(
             FirestorePath.developmentGoal(uid, goalId: goalId)
         )

@@ -185,7 +185,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
 
                     if let sourceVersionId = mutation.sourceVersionId {
                         let sourceSnapshot = try transaction.getDocument(
-                            store.document(
+                            self.store.document(
                                 FirestorePath.developmentRecordVersion(
                                     uid,
                                     goalId: goalId,
@@ -303,7 +303,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
 }
 
 private extension DevelopmentRecordServiceImpl {
-    static func record(_ error: Error, code: CrashlyticsError.Code) {
+    private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,
             domain: "\(CrashlyticsError.domain).\(code)",
@@ -311,7 +311,7 @@ private extension DevelopmentRecordServiceImpl {
         )
     }
 
-    static func transactionError(_ context: String) -> NSError {
+    private static func transactionError(_ context: String) -> NSError {
         NSError(
             domain: "DevelopmentRecordServiceImpl",
             code: 1,
@@ -319,11 +319,11 @@ private extension DevelopmentRecordServiceImpl {
         )
     }
 
-    func record(_ error: Error, code: CrashlyticsError.Code) {
+    private func record(_ error: Error, code: CrashlyticsError.Code) {
         Self.record(error, code: code)
     }
 
-    func fetchRecord(
+    private func fetchRecord(
         uid: String,
         goalId: String,
         recordId: String
@@ -342,7 +342,7 @@ private extension DevelopmentRecordServiceImpl {
         return response
     }
 
-    func fetchVersion(
+    private func fetchVersion(
         uid: String,
         goalId: String,
         recordId: String,
