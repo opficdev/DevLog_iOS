@@ -164,6 +164,13 @@ private extension DomainAssembler {
         container.register(UndoDeleteTodoUseCase.self) {
             UndoDeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
         }
+
+        container.register(UpdateTodoGoalUseCase.self) {
+            UpdateTodoGoalUseCaseImpl(
+                container.resolve(TodoRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
     }
 
     func registerTodoCategoryUseCases(_ container: any DIContainer) {

@@ -9,6 +9,7 @@ import Foundation
 
 public struct TodoDraft: Equatable {
     public var id: String
+    public var goalID: String?
     public var isPinned: Bool
     public var isCompleted: Bool
     public var isChecked: Bool
@@ -35,7 +36,40 @@ public struct TodoDraft: Equatable {
         tags: [String],
         category: TodoCategory
     ) {
+        self.init(
+            id: id,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            title: title,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            completedAt: completedAt,
+            dueDate: dueDate,
+            tags: tags,
+            category: category,
+            goalID: nil
+        )
+    }
+
+    public init(
+        id: String,
+        isPinned: Bool,
+        isCompleted: Bool,
+        isChecked: Bool,
+        title: String,
+        content: String,
+        createdAt: Date,
+        updatedAt: Date,
+        completedAt: Date?,
+        dueDate: Date?,
+        tags: [String],
+        category: TodoCategory,
+        goalID: String?
+    ) {
         self.id = id
+        self.goalID = goalID
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked
@@ -51,6 +85,7 @@ public struct TodoDraft: Equatable {
 
     public init(todo: Todo) {
         self.id = todo.id
+        self.goalID = todo.goalID
         self.isPinned = todo.isPinned
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -66,6 +101,7 @@ public struct TodoDraft: Equatable {
 
     public static func == (lhs: TodoDraft, rhs: TodoDraft) -> Bool {
         lhs.id == rhs.id &&
+        lhs.goalID == rhs.goalID &&
         lhs.isPinned == rhs.isPinned &&
         lhs.isCompleted == rhs.isCompleted &&
         lhs.isChecked == rhs.isChecked &&

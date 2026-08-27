@@ -9,6 +9,7 @@ import Foundation
 
 public struct Todo: Hashable {
     public let id: String
+    public var goalID: String?
     public var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
     public var isCompleted: Bool   //  해당 할 일의 완료 여부
     public var isChecked: Bool     //  해당 할 일의 체크 여부
@@ -39,7 +40,44 @@ public struct Todo: Hashable {
         tags: [String],
         category: TodoCategory
     ) {
+        self.init(
+            id: id,
+            isPinned: isPinned,
+            isCompleted: isCompleted,
+            isChecked: isChecked,
+            number: number,
+            title: title,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            completedAt: completedAt,
+            deletedAt: deletedAt,
+            dueDate: dueDate,
+            tags: tags,
+            category: category,
+            goalID: nil
+        )
+    }
+
+    public init(
+        id: String,
+        isPinned: Bool,
+        isCompleted: Bool,
+        isChecked: Bool,
+        number: Int,
+        title: String,
+        content: String,
+        createdAt: Date,
+        updatedAt: Date,
+        completedAt: Date?,
+        deletedAt: Date?,
+        dueDate: Date?,
+        tags: [String],
+        category: TodoCategory,
+        goalID: String?
+    ) {
         self.id = id
+        self.goalID = goalID
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked
