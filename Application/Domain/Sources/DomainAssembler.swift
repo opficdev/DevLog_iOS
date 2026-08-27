@@ -16,6 +16,8 @@ public final class DomainAssembler: Assembler {
         registerAuthUseCases(container)
         registerConnectivityUseCases(container)
         registerAuthProviderUseCases(container)
+        registerDevelopmentGoalUseCases(container)
+        registerDevelopmentRecordUseCases(container)
         registerTodoUseCases(container)
         registerTodoCategoryUseCases(container)
         registerUserDataUseCases(container)
@@ -26,6 +28,66 @@ public final class DomainAssembler: Assembler {
 }
 
 private extension DomainAssembler {
+    func registerDevelopmentGoalUseCases(_ container: any DIContainer) {
+        container.register(CreateDevelopmentGoalUseCase.self) {
+            CreateDevelopmentGoalUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(FetchDevelopmentGoalUseCase.self) {
+            FetchDevelopmentGoalUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(FetchDevelopmentGoalsUseCase.self) {
+            FetchDevelopmentGoalsUseCaseImpl(container.resolve(DevelopmentGoalRepository.self))
+        }
+
+        container.register(UpdateDevelopmentGoalStatusUseCase.self) {
+            UpdateDevelopmentGoalStatusUseCaseImpl(
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+    }
+
+    func registerDevelopmentRecordUseCases(_ container: any DIContainer) {
+        container.register(CreateDevelopmentRecordUseCase.self) {
+            CreateDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(FetchDevelopmentRecordsUseCase.self) {
+            FetchDevelopmentRecordsUseCaseImpl(container.resolve(DevelopmentRecordRepository.self))
+        }
+
+        container.register(FetchDevelopmentRecordHistoryUseCase.self) {
+            FetchDevelopmentRecordHistoryUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self)
+            )
+        }
+
+        container.register(SaveDevelopmentRecordDraftUseCase.self) {
+            SaveDevelopmentRecordDraftUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(ConfirmDevelopmentRecordUseCase.self) {
+            ConfirmDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+
+        container.register(RestoreDevelopmentRecordUseCase.self) {
+            RestoreDevelopmentRecordUseCaseImpl(
+                container.resolve(DevelopmentRecordRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
+        }
+    }
+
     func registerAppUpdateUseCases(_ container: any DIContainer) {
         container.register(CheckAppUpdateUseCase.self) {
             CheckAppUpdateUseCaseImpl(container.resolve(AppVersionRepository.self))
@@ -101,6 +163,13 @@ private extension DomainAssembler {
 
         container.register(UndoDeleteTodoUseCase.self) {
             UndoDeleteTodoUseCaseImpl(container.resolve(TodoRepository.self))
+        }
+
+        container.register(UpdateTodoGoalUseCase.self) {
+            UpdateTodoGoalUseCaseImpl(
+                container.resolve(TodoRepository.self),
+                container.resolve(DevelopmentGoalRepository.self)
+            )
         }
     }
 

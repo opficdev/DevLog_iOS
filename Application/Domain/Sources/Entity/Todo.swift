@@ -9,19 +9,20 @@ import Foundation
 
 public struct Todo: Hashable {
     public let id: String
-    public var isPinned: Bool      //  해당 할 일이 상단에 고정되어 있는지 여부
-    public var isCompleted: Bool   //  해당 할 일의 완료 여부
-    public var isChecked: Bool     //  해당 할 일의 체크 여부
-    public var number: Int         //  사용자에게 노출되는 Todo 번호
-    public var title: String       //  할 일의 제목
-    public var content: String //  할 일의 설명
-    public var createdAt: Date     //  할 일 생성 날짜
-    public var updatedAt: Date     //  할 일 수정 날짜
-    public var completedAt: Date?  //  할 일 완료 날짜
-    public var deletedAt: Date?    //  할 일 삭제 날짜
-    public var dueDate: Date?      //  할 일의 마감 날짜 (선택 사항)
-    public var tags: [String]      //  할 일에 연결된 태그들
-    public var category: TodoCategory  //  할 일의 종류
+    public var goalId: String?      //  연결된 개발 목표 ID
+    public var isPinned: Bool       //  상단에 고정되어 있는지 여부
+    public var isCompleted: Bool    //  완료 여부
+    public var isChecked: Bool      //  체크 여부
+    public var number: Int          //  사용자에게 노출되는 Todo 번호
+    public var title: String        //  제목
+    public var content: String      //  설명
+    public var createdAt: Date      //  생성 날짜
+    public var updatedAt: Date      //  최근 수정 날짜
+    public var completedAt: Date?   //  완료 날짜
+    public var deletedAt: Date?     //  삭제 날짜
+    public var dueDate: Date?       //  마감 날짜 (선택 사항)
+    public var tags: [String]       //  연결된 태그들
+    public var category: TodoCategory  // 종류
 
     public init(
         id: String,
@@ -37,9 +38,11 @@ public struct Todo: Hashable {
         deletedAt: Date?,
         dueDate: Date?,
         tags: [String],
-        category: TodoCategory
+        category: TodoCategory,
+        goalId: String? = nil
     ) {
         self.id = id
+        self.goalId = goalId
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked

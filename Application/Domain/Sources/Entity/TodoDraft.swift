@@ -9,6 +9,7 @@ import Foundation
 
 public struct TodoDraft: Equatable {
     public var id: String
+    public var goalId: String?
     public var isPinned: Bool
     public var isCompleted: Bool
     public var isChecked: Bool
@@ -33,9 +34,11 @@ public struct TodoDraft: Equatable {
         completedAt: Date?,
         dueDate: Date?,
         tags: [String],
-        category: TodoCategory
+        category: TodoCategory,
+        goalId: String? = nil
     ) {
         self.id = id
+        self.goalId = goalId
         self.isPinned = isPinned
         self.isCompleted = isCompleted
         self.isChecked = isChecked
@@ -51,6 +54,7 @@ public struct TodoDraft: Equatable {
 
     public init(todo: Todo) {
         self.id = todo.id
+        self.goalId = todo.goalId
         self.isPinned = todo.isPinned
         self.isCompleted = todo.isCompleted
         self.isChecked = todo.isChecked
@@ -66,6 +70,7 @@ public struct TodoDraft: Equatable {
 
     public static func == (lhs: TodoDraft, rhs: TodoDraft) -> Bool {
         lhs.id == rhs.id &&
+        lhs.goalId == rhs.goalId &&
         lhs.isPinned == rhs.isPinned &&
         lhs.isCompleted == rhs.isCompleted &&
         lhs.isChecked == rhs.isChecked &&
