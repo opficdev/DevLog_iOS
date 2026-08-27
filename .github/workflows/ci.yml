@@ -256,7 +256,7 @@ jobs:
           - name: Persistence
             schemes: "Persistence"
           - name: Libraries
-            schemes: "MarkdownRenderer CollectionUITests"
+            schemes: "MarkdownRenderer"
           - name: Presentation
             schemes: "Entry PresentationShared HomeTab"
           - name: Widget
@@ -429,8 +429,6 @@ jobs:
             LOG_PATH="$RESULT_DIR/${TEST_SCHEME}.log"
             if [ "$TEST_SCHEME" = "WidgetCore" ]; then
               TEST_SOURCE_DIR="Widget/WidgetCore/Tests"
-            elif [ "$TEST_SCHEME" = "CollectionUITests" ]; then
-              TEST_SOURCE_DIR="Libraries/CollectionUI/Tests"
             elif [ -d "Libraries/${TEST_SCHEME}/Tests" ]; then
               TEST_SOURCE_DIR="Libraries/${TEST_SCHEME}/Tests"
             elif [ -d "Application/Presentation/${TEST_SCHEME}/Tests" ]; then
