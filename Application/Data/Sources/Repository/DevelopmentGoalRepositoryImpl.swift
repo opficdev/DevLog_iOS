@@ -62,6 +62,9 @@ final class DevelopmentGoalRepositoryImpl: DevelopmentGoalRepository {
         completionSnapshot: DevelopmentGoal.CompletionSnapshot?
     ) async throws {
         do {
+            guard status != .completed else {
+                throw DomainLayerError.invalidDevelopmentGoalTransition
+            }
             try await service.transitionGoalStatus(
                 goalId: goalId,
                 request: .init(status: status.storageValue)

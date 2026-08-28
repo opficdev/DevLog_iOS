@@ -129,19 +129,28 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
         guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         do {
-            var data: [String: Any] = [
-                DevelopmentGoalFieldKey.status.rawValue: request.status,
-                DevelopmentGoalFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
-            ]
-            if request.status == "completed" {
-                data[DevelopmentGoalFieldKey.completedAt.rawValue] = FieldValue.serverTimestamp()
-            } else {
-                data[DevelopmentGoalFieldKey.completedAt.rawValue] = FieldValue.delete()
-            }
-            try await store.document(
+            let reference = store.document(
                 FirestorePath.developmentGoal(uid, goalId: goalId)
             )
-            .updateData(data)
+            _ = try await store.runTransaction { transaction, errorPointer in
+                do {
+                    let snapshot = try transaction.getDocument(reference)
+                    guard
+                        let recordData = snapshot.data(),
+                        let data = Self.makeTransitionData(
+                            recordData: recordData,
+                            request: request
+                        ) else {
+                        errorPointer?.pointee = Self.transactionError("developmentGoalTransition")
+                        return nil
+                    }
+                    transaction.updateData(data, forDocument: reference)
+                    return nil
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+            }
         } catch {
             logger.error("Failed to transition development goal status", error: error)
             record(error, code: .transitionGoalStatus)
@@ -151,6 +160,22 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
 }
 
 extension DevelopmentGoalServiceImpl {
+    static func makeTransitionData(
+        recordData: [String: Any],
+        request: DevelopmentGoalStatusRequest
+    ) -> [String: Any]? {
+        guard
+            let currentStatus = recordData[DevelopmentGoalFieldKey.status.rawValue] as? String,
+            (currentStatus == "inProgress" && request.status == "archived") ||
+            (currentStatus == "archived" && request.status == "inProgress") else {
+            return nil
+        }
+        return [
+            DevelopmentGoalFieldKey.status.rawValue: request.status,
+            DevelopmentGoalFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
+        ]
+    }
+
     static func makeResponse(
         documentId: String,
         data: [String: Any]
@@ -176,6 +201,14 @@ extension DevelopmentGoalServiceImpl {
 }
 
 private extension DevelopmentGoalServiceImpl {
+    private static func transactionError(_ context: String) -> NSError {
+        NSError(
+            domain: "DevelopmentGoalServiceImpl",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: context]
+        )
+    }
+
     private static func record(_ error: Error, code: CrashlyticsError.Code) {
         FirebaseCrashlyticsHelper.record(
             error,

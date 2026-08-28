@@ -55,6 +55,22 @@ struct DevelopmentGoalRepositoryImplTests {
         #expect(request.goalId == "goal-1")
         #expect(request.status == "archived")
     }
+
+    @Test("목표 완료 전환은 서비스에 전달하지 않는다")
+    func 목표_완료_전환은_서비스에_전달하지_않는다() async {
+        let service = DevelopmentGoalServiceSpy()
+        let repository = DevelopmentGoalRepositoryImpl(service: service)
+
+        await #expect(throws: DomainLayerError.invalidDevelopmentGoalTransition) {
+            try await repository.transitionGoalStatus(
+                "goal-1",
+                to: .completed,
+                completionSnapshot: nil
+            )
+        }
+
+        #expect(await service.transitionRequest() == nil)
+    }
 }
 
 private actor DevelopmentGoalServiceSpy: DevelopmentGoalService {
