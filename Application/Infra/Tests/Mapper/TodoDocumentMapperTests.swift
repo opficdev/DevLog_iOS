@@ -47,8 +47,8 @@ struct TodoDocumentMapperTests {
             isChecked: false,
             title: "Todo",
             content: "내용",
-            createdAt: .distantPast,
-            updatedAt: .distantPast,
+            createdAt: Date(timeIntervalSince1970: 0),
+            updatedAt: Date(timeIntervalSince1970: 0),
             completedAt: nil,
             deletedAt: nil,
             dueDate: nil,
@@ -62,8 +62,8 @@ struct TodoDocumentMapperTests {
         var data: [String: Any] = [
             "number": 1,
             "title": "Todo",
-            "createdAt": Timestamp(date: .distantPast),
-            "updatedAt": Timestamp(date: .distantPast),
+            "createdAt": Timestamp(date: Date(timeIntervalSince1970: 0)),
+            "updatedAt": Timestamp(date: Date(timeIntervalSince1970: 0)),
             "category": "feature"
         ]
         if let goalId {

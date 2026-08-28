@@ -143,7 +143,7 @@ struct DevelopmentRecordServiceImplTests {
         includesDraft: Bool = true
     ) -> [String: Any] {
         var data: [String: Any] = [
-            DevelopmentRecordFieldKey.createdAt.rawValue: Timestamp(date: .distantPast)
+            DevelopmentRecordFieldKey.createdAt.rawValue: Timestamp(date: Date(timeIntervalSince1970: 0))
         ]
         if let currentVersionId, let currentVersionNumber {
             data[DevelopmentRecordFieldKey.currentVersionId.rawValue] = currentVersionId
@@ -153,7 +153,7 @@ struct DevelopmentRecordServiceImplTests {
             var draft: [String: Any] = [
                 DevelopmentRecordDraftFieldKey.title.rawValue: "기록",
                 DevelopmentRecordDraftFieldKey.markdownContent.rawValue: "본문",
-                DevelopmentRecordDraftFieldKey.updatedAt.rawValue: Timestamp(date: .distantPast)
+                DevelopmentRecordDraftFieldKey.updatedAt.rawValue: Timestamp(date: Date(timeIntervalSince1970: 0))
             ]
             if let draftBaseVersionId {
                 draft[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] = draftBaseVersionId
@@ -169,7 +169,7 @@ struct DevelopmentRecordServiceImplTests {
             DevelopmentRecordVersionFieldKey.title.rawValue: "기록",
             DevelopmentRecordVersionFieldKey.markdownContent.rawValue: "본문",
             DevelopmentRecordVersionFieldKey.changeKind.rawValue: "initial",
-            DevelopmentRecordVersionFieldKey.confirmedAt.rawValue: Timestamp(date: .distantPast)
+            DevelopmentRecordVersionFieldKey.confirmedAt.rawValue: Timestamp(date: Date(timeIntervalSince1970: 0))
         ]
     }
 }

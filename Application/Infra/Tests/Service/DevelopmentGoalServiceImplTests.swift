@@ -55,11 +55,12 @@ struct DevelopmentGoalServiceImplTests {
                 goalId: "goal-1",
                 documentId: "record-1",
                 data: [
-                    DevelopmentRecordFieldKey.createdAt.rawValue: Timestamp(date: .distantPast),
+                    DevelopmentRecordFieldKey.createdAt.rawValue: Timestamp(date: Date(timeIntervalSince1970: 0)),
                     DevelopmentRecordFieldKey.draft.rawValue: [
                         DevelopmentRecordDraftFieldKey.title.rawValue: "기록",
                         DevelopmentRecordDraftFieldKey.markdownContent.rawValue: "본문",
-                        DevelopmentRecordDraftFieldKey.updatedAt.rawValue: Timestamp(date: .distantPast)
+                        DevelopmentRecordDraftFieldKey.updatedAt.rawValue:
+                            Timestamp(date: Date(timeIntervalSince1970: 0))
                     ]
                 ]
             )
@@ -75,8 +76,8 @@ struct DevelopmentGoalServiceImplTests {
             "title": "목표",
             "markdownDescription": "설명",
             "status": status,
-            "createdAt": Timestamp(date: .distantPast),
-            "updatedAt": Timestamp(date: .distantPast)
+            "createdAt": Timestamp(date: Date(timeIntervalSince1970: 0)),
+            "updatedAt": Timestamp(date: Date(timeIntervalSince1970: 0))
         ]
     }
 }
