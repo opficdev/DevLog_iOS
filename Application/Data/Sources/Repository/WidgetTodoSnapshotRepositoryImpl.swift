@@ -10,10 +10,10 @@ import Core
 import Domain
 
 final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
-    private let todoService: TodoService
+    private let queryService: TodoQueryService
 
-    init(todoService: TodoService) {
-        self.todoService = todoService
+    init(queryService: TodoQueryService) {
+        self.queryService = queryService
     }
 
     func fetchTodayTodos(
@@ -32,7 +32,7 @@ final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
         )
 
         do {
-            let todoPage = try await todoService.fetchTodos(query, cursor: nil)
+            let todoPage = try await queryService.fetchTodos(query, cursor: nil)
             return todoPage.items.map(WidgetTodoSnapshot.fromResponse)
         } catch {
             throw error.toDomain()
@@ -55,7 +55,7 @@ final class WidgetTodoSnapshotRepositoryImpl: WidgetTodoSnapshotRepository {
         )
 
         do {
-            let todoPage = try await todoService.fetchTodos(query, cursor: nil)
+            let todoPage = try await queryService.fetchTodos(query, cursor: nil)
             return todoPage.items.map(WidgetTodoSnapshot.fromResponse)
         } catch {
             throw error.toDomain()

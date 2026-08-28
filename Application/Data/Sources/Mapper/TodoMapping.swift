@@ -23,7 +23,8 @@ public extension TodoRequest {
             deletedAt: todo.deletedAt,
             dueDate: todo.dueDate,
             tags: todo.tags,
-            category: todo.category.storageValue
+            category: todo.category.storageValue,
+            goalId: todo.goalId
         )
     }
 
@@ -41,7 +42,8 @@ public extension TodoRequest {
             deletedAt: nil,
             dueDate: todoDraft.dueDate,
             tags: todoDraft.tags,
-            category: todoDraft.category.storageValue
+            category: todoDraft.category.storageValue,
+            goalId: todoDraft.goalId
         )
     }
 }
@@ -71,7 +73,8 @@ public extension TodoResponse {
             deletedAt: self.deletedAt,
             dueDate: self.dueDate,
             tags: self.tags,
-            category: todoCategory
+            category: todoCategory,
+            goalId: goalId
         )
     }
 }

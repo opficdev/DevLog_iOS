@@ -36,9 +36,22 @@ public final class DataAssembler: Assembler {
             TodoMutationEventBusImpl()
         }
 
+        container.register(DevelopmentGoalRepository.self) {
+            DevelopmentGoalRepositoryImpl(
+                service: container.resolve(DevelopmentGoalService.self)
+            )
+        }
+
+        container.register(DevelopmentRecordRepository.self) {
+            DevelopmentRecordRepositoryImpl(
+                service: container.resolve(DevelopmentRecordService.self)
+            )
+        }
+
         container.register(TodoRepository.self) {
             TodoRepositoryImpl(
-                todoService: container.resolve(TodoService.self),
+                queryService: container.resolve(TodoQueryService.self),
+                commandService: container.resolve(TodoCommandService.self),
                 todoCategoryService: container.resolve(TodoCategoryService.self),
                 store: container.resolve(MemoryCacheStore.self),
                 updater: container.resolve(WidgetSnapshotUpdater.self),
@@ -47,7 +60,7 @@ public final class DataAssembler: Assembler {
         }
 
         container.register(WidgetTodoSnapshotRepository.self) {
-            WidgetTodoSnapshotRepositoryImpl(todoService: container.resolve(TodoService.self))
+            WidgetTodoSnapshotRepositoryImpl(queryService: container.resolve(TodoQueryService.self))
         }
 
         container.register(TodoCategoryRepository.self) {

@@ -14,20 +14,23 @@ final class TodoRepositoryImpl: TodoRepository {
         static let preferences = "TodoCategory.preferences"
     }
 
-    private let todoService: TodoService
+    private let queryService: TodoQueryService
+    private let commandService: TodoCommandService
     private let todoCategoryService: TodoCategoryService
     private let store: MemoryCacheStore
     private let updater: WidgetSnapshotUpdater
     private let eventBus: TodoMutationEventBus
 
     init(
-        todoService: TodoService,
+        queryService: TodoQueryService,
+        commandService: TodoCommandService,
         todoCategoryService: TodoCategoryService,
         store: MemoryCacheStore,
         updater: WidgetSnapshotUpdater,
         eventBus: TodoMutationEventBus
     ) {
-        self.todoService = todoService
+        self.queryService = queryService
+        self.commandService = commandService
         self.todoCategoryService = todoCategoryService
         self.store = store
         self.updater = updater
@@ -38,7 +41,7 @@ final class TodoRepositoryImpl: TodoRepository {
         let responseCursor = cursor.map { TodoCursorDTO.fromDomain($0) }
 
         do {
-            async let todos = todoService.fetchTodos(query, cursor: responseCursor)
+            async let todos = queryService.fetchTodos(query, cursor: responseCursor)
             async let preferences = todoCategoryPreferenceResponses()
 
             let (todoResponse, todoPreferenceResponses) = try await (
@@ -70,7 +73,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
     func fetchTodo(_ todoId: String) async throws -> Todo {
         do {
-            async let response = todoService.fetchTodo(todoId: todoId)
+            async let response = queryService.fetchTodo(todoId: todoId)
             async let preferences = todoCategoryPreferenceResponses()
 
             let (todoResponse, todoPreferenceResponses) = try await (
@@ -95,7 +98,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReference] {
         do {
-            async let responseTask = todoService.fetchReferences(numbers)
+            async let responseTask = queryService.fetchReferences(numbers)
             async let preferencesTask = todoCategoryPreferenceResponses()
 
             let (responses, preferenceResponses) = try await (
@@ -148,7 +151,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
     private func upsertTodo(_ todoRequest: TodoRequest) async throws {
         do {
-            try await todoService.upsertTodo(request: todoRequest)
+            try await commandService.upsertTodo(request: todoRequest)
         } catch {
             throw error.toDomain()
         }
@@ -156,7 +159,7 @@ final class TodoRepositoryImpl: TodoRepository {
     
     func deleteTodo(_ todoId: String) async throws {
         do {
-            try await todoService.deleteTodo(todoId: todoId)
+            try await commandService.deleteTodo(todoId: todoId)
             let now = Date()
             updater.deleteTodoSnapshot(todoId: todoId, deletedAt: now, now: now)
             eventBus.publish(.deleted(todoId))
@@ -167,7 +170,7 @@ final class TodoRepositoryImpl: TodoRepository {
 
     func undoDeleteTodo(_ todoId: String) async throws {
         do {
-            try await todoService.undoDeleteTodo(todoId: todoId)
+            try await commandService.undoDeleteTodo(todoId: todoId)
             let now = Date()
             updater.restoreTodoSnapshot(todoId: todoId, now: now)
             eventBus.publish(.restored(todoId))
@@ -225,7 +228,8 @@ private extension TodoRepositoryImpl {
             deletedAt: response.deletedAt,
             dueDate: response.dueDate,
             tags: response.tags,
-            category: .decoded(category)
+            category: .decoded(category),
+            goalId: response.goalId
         )
     }
 
