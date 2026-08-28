@@ -79,6 +79,63 @@ struct DevelopmentRecordServiceImplTests {
         #expect(mutation?.number == nil)
     }
 
+    @Test("Draft 저장은 현재 버전과 기준 버전이 같을 때만 저장 데이터를 만든다")
+    func Draft_저장은_현재_버전과_기준_버전이_같을_때만_저장_데이터를_만든다() {
+        let data = DevelopmentRecordServiceImpl.makeDraftData(
+            recordData: makeRecordData(
+                currentVersionId: "version-1",
+                currentVersionNumber: 1,
+                draftBaseVersionId: "version-1"
+            ),
+            request: .init(
+                title: "새 기록",
+                markdownContent: "새 본문",
+                baseVersionId: "version-1"
+            )
+        )
+
+        #expect(data?[DevelopmentRecordDraftFieldKey.title.rawValue] as? String == "새 기록")
+        #expect(data?[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] as? String == "version-1")
+
+        let initialData = DevelopmentRecordServiceImpl.makeDraftData(
+            recordData: makeRecordData(draftBaseVersionId: nil),
+            request: .init(
+                title: "첫 기록",
+                markdownContent: "첫 본문",
+                baseVersionId: nil
+            )
+        )
+
+        #expect(initialData?[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] == nil)
+    }
+
+    @Test("기준 버전이 바뀐 Draft 저장은 데이터를 만들지 않는다")
+    func 기준_버전이_바뀐_Draft_저장은_데이터를_만들지_않는다() {
+        let staleDraft = DevelopmentRecordServiceImpl.makeDraftData(
+            recordData: makeRecordData(
+                currentVersionId: "version-2",
+                currentVersionNumber: 2,
+                draftBaseVersionId: nil
+            ),
+            request: .init(
+                title: "기록",
+                markdownContent: "본문",
+                baseVersionId: "version-1"
+            )
+        )
+        let missingCurrentVersion = DevelopmentRecordServiceImpl.makeDraftData(
+            recordData: makeRecordData(draftBaseVersionId: nil),
+            request: .init(
+                title: "기록",
+                markdownContent: "본문",
+                baseVersionId: "version-1"
+            )
+        )
+
+        #expect(staleDraft == nil)
+        #expect(missingCurrentVersion == nil)
+    }
+
     private func makeRecordData(
         currentVersionId: String? = nil,
         currentVersionNumber: Int? = nil,

@@ -135,12 +135,38 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
         guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         do {
-            try await store.document(
+            let reference = store.document(
                 FirestorePath.developmentRecord(uid, goalId: goalId, recordId: recordId)
             )
-            .updateData([
-                DevelopmentRecordFieldKey.draft.rawValue: Self.makeDraftData(request)
-            ])
+            do {
+                _ = try await store.runTransaction { transaction, errorPointer in
+                    do {
+                        let snapshot = try transaction.getDocument(reference)
+                        guard
+                            let recordData = snapshot.data(),
+                            let data = Self.makeDraftData(
+                                recordData: recordData,
+                                request: request
+                            ) else {
+                            errorPointer?.pointee = DevelopmentRecordTransactionError.make(
+                                "developmentRecordDraft",
+                                code: DevelopmentRecordTransactionError.draftConflictCode
+                            )
+                            return nil
+                        }
+                        transaction.updateData(
+                            [DevelopmentRecordFieldKey.draft.rawValue: data],
+                            forDocument: reference
+                        )
+                        return nil
+                    } catch let error as NSError {
+                        errorPointer?.pointee = error
+                        return nil
+                    }
+                }
+            } catch let error as NSError where DevelopmentRecordTransactionError.isDraftConflict(error) {
+                throw DataLayerError.developmentRecordDraftConflict
+            }
             return try await fetchRecord(uid: uid, goalId: goalId, recordId: recordId)
         } catch {
             logger.error("Failed to save development record draft", error: error)
@@ -179,7 +205,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
                             recordData: recordData,
                             request: request
                         ) else {
-                        errorPointer?.pointee = Self.transactionError("developmentRecordConfirmation")
+                        errorPointer?.pointee = DevelopmentRecordTransactionError.make("developmentRecordConfirmation")
                         return nil
                     }
 
@@ -195,7 +221,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
                             )
                         )
                         guard sourceSnapshot.exists else {
-                            errorPointer?.pointee = Self.transactionError("sourceVersion")
+                            errorPointer?.pointee = DevelopmentRecordTransactionError.make("sourceVersion")
                             return nil
                         }
                     }
@@ -270,7 +296,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
                             sourceVersionId: request.sourceVersionId,
                             sourceData: sourceData
                         ) else {
-                        errorPointer?.pointee = Self.transactionError("developmentRecordRestore")
+                        errorPointer?.pointee = DevelopmentRecordTransactionError.make("developmentRecordRestore")
                         return nil
                     }
 
@@ -308,14 +334,6 @@ private extension DevelopmentRecordServiceImpl {
             error,
             domain: "\(CrashlyticsError.domain).\(code)",
             code: code.rawValue
-        )
-    }
-
-    private static func transactionError(_ context: String) -> NSError {
-        NSError(
-            domain: "DevelopmentRecordServiceImpl",
-            code: 1,
-            userInfo: [NSLocalizedDescriptionKey: context]
         )
     }
 

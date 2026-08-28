@@ -84,6 +84,18 @@ extension DevelopmentRecordServiceImpl {
         }
         return data
     }
+
+    static func makeDraftData(
+        recordData: [String: Any],
+        request: DevelopmentRecordDraftRequest
+    ) -> [String: Any]? {
+        guard
+            (recordData[DevelopmentRecordFieldKey.currentVersionId.rawValue] as? String) ==
+                request.baseVersionId else {
+            return nil
+        }
+        return makeDraftData(request)
+    }
 }
 
 struct DevelopmentRecordVersionMutation {

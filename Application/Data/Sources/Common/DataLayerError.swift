@@ -18,6 +18,7 @@ public enum DataLayerError: Error {
     case notAuthenticated
     case failedToUnlinkLastProvider
     case linkCredentialAlreadyInUse
+    case developmentRecordDraftConflict
     case invalidData(context: String)
 
     private static let logger = Logger(category: "DataLayerError")
