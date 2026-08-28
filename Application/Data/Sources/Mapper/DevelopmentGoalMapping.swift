@@ -9,7 +9,7 @@ import Domain
 
 public extension DevelopmentGoalQuery {
     static func fromDomain(_ query: DevelopmentGoal.Query) -> Self {
-        Self(status: query.status?.storageValue)
+        Self(status: query.status.map(DevelopmentGoalStatus.fromDomain))
     }
 }
 
@@ -19,7 +19,7 @@ public extension DevelopmentGoalResponse {
             id: id,
             title: title,
             description: markdownDescription,
-            status: try .fromStorageValue(status),
+            status: status.toDomain(),
             createdAt: createdAt,
             updatedAt: updatedAt,
             completedAt: completedAt
@@ -36,28 +36,27 @@ public extension DevelopmentGoalCompletionResponse {
     }
 }
 
-public extension DevelopmentGoal.Status {
-    var storageValue: String {
-        switch self {
+public extension DevelopmentGoalStatus {
+    static func fromDomain(_ status: DevelopmentGoal.Status) -> Self {
+        switch status {
         case .inProgress:
-            "inProgress"
+            .inProgress
         case .completed:
-            "completed"
+            .completed
         case .archived:
-            "archived"
+            .archived
         }
     }
 
-    static func fromStorageValue(_ value: String) throws -> Self {
-        switch value {
-        case "inProgress":
+    func toDomain() -> DevelopmentGoal.Status {
+        switch self {
+        case .inProgress:
             .inProgress
-        case "completed":
+        case .completed:
             .completed
-        case "archived":
+        case .archived:
             .archived
-        default:
-            throw DataLayerError.invalidData("DevelopmentGoalResponse.status: \(value)")
         }
     }
+
 }

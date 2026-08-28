@@ -67,7 +67,7 @@ final class DevelopmentGoalRepositoryImpl: DevelopmentGoalRepository {
             }
             try await service.transitionGoalStatus(
                 goalId: goalId,
-                request: .init(status: status.storageValue)
+                request: .init(status: .fromDomain(status))
             )
         } catch {
             throw error.toDomain()

@@ -21,18 +21,16 @@ struct DevelopmentGoalMappingTests {
         #expect(goal.status == .inProgress)
     }
 
-    @Test("상태 조건은 저장 문자열로 변환한다")
-    func 상태_조건은_저장_문자열로_변환한다() {
+    @Test("상태 조건은 Data 상태 값으로 변환한다")
+    func 상태_조건은_Data_상태_값으로_변환한다() {
         let query = DevelopmentGoalQuery.fromDomain(.init(status: .completed))
 
-        #expect(query.status == "completed")
+        #expect(query.status == .completed)
     }
 
-    @Test("알 수 없는 저장 상태는 유효하지 않은 데이터 오류를 만든다")
-    func 알_수_없는_저장_상태는_유효하지_않은_데이터_오류를_만든다() {
-        #expect(throws: DataLayerError.self) {
-            _ = try DevelopmentGoal.Status.fromStorageValue("unknown")
-        }
+    @Test("Data 상태는 Domain 상태로 변환한다")
+    func Data_상태는_Domain_상태로_변환한다() {
+        #expect(DevelopmentGoalStatus.archived.toDomain() == .archived)
     }
 }
 
@@ -41,7 +39,7 @@ private func makeGoalResponse() -> DevelopmentGoalResponse {
         id: "goal-1",
         title: "목표",
         markdownDescription: "설명",
-        status: "inProgress",
+        status: .inProgress,
         createdAt: .distantPast,
         updatedAt: .distantPast,
         completedAt: nil

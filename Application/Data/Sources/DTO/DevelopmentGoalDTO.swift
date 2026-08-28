@@ -17,18 +17,10 @@ public struct DevelopmentGoalCreateRequest: Encodable {
     }
 }
 
-public struct DevelopmentGoalQuery {
-    public let status: String?
-
-    public init(status: String?) {
-        self.status = status
-    }
-}
-
 public struct DevelopmentGoalStatusRequest {
-    public let status: String
+    public let status: DevelopmentGoalStatus
 
-    public init(status: String) {
+    public init(status: DevelopmentGoalStatus) {
         self.status = status
     }
 }
@@ -37,7 +29,7 @@ public struct DevelopmentGoalResponse {
     public let id: String
     public let title: String
     public let markdownDescription: String
-    public let status: String
+    public let status: DevelopmentGoalStatus
     public let createdAt: Date
     public let updatedAt: Date
     public let completedAt: Date?
@@ -46,7 +38,7 @@ public struct DevelopmentGoalResponse {
         id: String,
         title: String,
         markdownDescription: String,
-        status: String,
+        status: DevelopmentGoalStatus,
         createdAt: Date,
         updatedAt: Date,
         completedAt: Date?

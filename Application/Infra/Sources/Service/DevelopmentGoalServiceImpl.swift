@@ -37,7 +37,7 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
         do {
             let reference = store.document(FirestorePath.developmentGoal(uid, goalId: goalId))
             var data = try encoder.encode(request)
-            data[DevelopmentGoalFieldKey.status.rawValue] = "inProgress"
+            data[DevelopmentGoalFieldKey.status.rawValue] = DevelopmentGoalFirestoreStatus(.inProgress).rawValue
             data[DevelopmentGoalFieldKey.createdAt.rawValue] = FieldValue.serverTimestamp()
             data[DevelopmentGoalFieldKey.updatedAt.rawValue] = FieldValue.serverTimestamp()
             try await reference.setData(data)
@@ -69,7 +69,7 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
             if let status = query.status {
                 reference = reference.whereField(
                     DevelopmentGoalFieldKey.status.rawValue,
-                    isEqualTo: status
+                    isEqualTo: DevelopmentGoalFirestoreStatus(status).rawValue
                 )
             }
             let snapshot = try await reference
@@ -77,7 +77,7 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
                 .order(by: FieldPath.documentID())
                 .getDocuments()
             return try snapshot.documents.map { document in
-                guard let response = Self.makeResponse(
+                guard let response = try Self.makeResponse(
                     documentId: document.documentID,
                     data: document.data()
                 ) else {
@@ -137,7 +137,7 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
                     let snapshot = try transaction.getDocument(reference)
                     guard
                         let recordData = snapshot.data(),
-                        let data = Self.makeTransitionData(
+                        let data = try Self.makeTransitionData(
                             recordData: recordData,
                             request: request
                         ) else {
@@ -163,19 +163,26 @@ extension DevelopmentGoalServiceImpl {
     static func makeTransitionData(
         recordData: [String: Any],
         request: DevelopmentGoalStatusRequest
-    ) -> [String: Any]? {
+    ) throws -> [String: Any]? {
+        guard let storageValue = recordData[DevelopmentGoalFieldKey.status.rawValue] as? String else {
+            return nil
+        }
+        let currentStatus = try DevelopmentGoalFirestoreStatus(
+            storageValue: storageValue
+        ).dataStatus
         guard
-            let currentStatus = recordData[DevelopmentGoalFieldKey.status.rawValue] as? String,
-            (currentStatus == "inProgress" && request.status == "archived") ||
-            (currentStatus == "archived" && request.status == "inProgress") ||
-            (currentStatus == "completed" && request.status == "inProgress") else {
+            (currentStatus == .inProgress && request.status == .archived) ||
+            (currentStatus == .archived && request.status == .inProgress) ||
+            (currentStatus == .completed && request.status == .inProgress) else {
             return nil
         }
         var data: [String: Any] = [
-            DevelopmentGoalFieldKey.status.rawValue: request.status,
+            DevelopmentGoalFieldKey.status.rawValue: DevelopmentGoalFirestoreStatus(
+                request.status
+            ).rawValue,
             DevelopmentGoalFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
         ]
-        if currentStatus == "completed" {
+        if currentStatus == .completed {
             data[DevelopmentGoalFieldKey.completedAt.rawValue] = FieldValue.delete()
         }
         return data
@@ -184,7 +191,7 @@ extension DevelopmentGoalServiceImpl {
     static func makeResponse(
         documentId: String,
         data: [String: Any]
-    ) -> DevelopmentGoalResponse? {
+    ) throws -> DevelopmentGoalResponse? {
         guard
             let title = data[DevelopmentGoalFieldKey.title.rawValue] as? String,
             let markdownDescription = data[DevelopmentGoalFieldKey.markdownDescription.rawValue] as? String,
@@ -197,7 +204,7 @@ extension DevelopmentGoalServiceImpl {
             id: documentId,
             title: title,
             markdownDescription: markdownDescription,
-            status: status,
+            status: try DevelopmentGoalFirestoreStatus(storageValue: status).dataStatus,
             createdAt: createdAt.dateValue(),
             updatedAt: updatedAt.dateValue(),
             completedAt: (data[DevelopmentGoalFieldKey.completedAt.rawValue] as? Timestamp)?.dateValue()
@@ -231,7 +238,7 @@ private extension DevelopmentGoalServiceImpl {
             FirestorePath.developmentGoal(uid, goalId: goalId)
         )
         .getDocument()
-        guard let data = snapshot.data(), let response = Self.makeResponse(
+        guard let data = snapshot.data(), let response = try Self.makeResponse(
             documentId: snapshot.documentID,
             data: data
         ) else {
@@ -248,4 +255,39 @@ private enum DevelopmentGoalFieldKey: String {
     case createdAt
     case updatedAt
     case completedAt
+}
+
+private enum DevelopmentGoalFirestoreStatus: String {
+    case inProgress
+    case completed
+    case archived
+
+    init(_ status: DevelopmentGoalStatus) {
+        switch status {
+        case .inProgress:
+            self = .inProgress
+        case .completed:
+            self = .completed
+        case .archived:
+            self = .archived
+        }
+    }
+
+    init(storageValue: String) throws {
+        guard let status = Self(rawValue: storageValue) else {
+            throw DataLayerError.invalidData("DevelopmentGoal.status: \(storageValue)")
+        }
+        self = status
+    }
+
+    var dataStatus: DevelopmentGoalStatus {
+        switch self {
+        case .inProgress:
+            .inProgress
+        case .completed:
+            .completed
+        case .archived:
+            .archived
+        }
+    }
 }

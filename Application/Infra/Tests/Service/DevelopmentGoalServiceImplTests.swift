@@ -8,25 +8,26 @@
 import Foundation
 import Testing
 import FirebaseFirestore
+import Data
 @testable import Infra
 
 struct DevelopmentGoalServiceImplTests {
     @Test("개발 목표 문서는 Data 응답으로 변환한다")
     func 개발_목표_문서는_Data_응답으로_변환한다() throws {
         let response = try #require(
-            DevelopmentGoalServiceImpl.makeResponse(documentId: "goal-1", data: makeData())
+            try DevelopmentGoalServiceImpl.makeResponse(documentId: "goal-1", data: makeData())
         )
 
         #expect(response.id == "goal-1")
         #expect(response.markdownDescription == "설명")
-        #expect(response.status == "inProgress")
+        #expect(response.status == .inProgress)
     }
 
     @Test("목표 상태 전환은 진행 중과 보관 사이에서만 저장 데이터를 만든다")
-    func 목표_상태_전환은_진행_중과_보관_사이에서만_저장_데이터를_만든다() {
-        let data = DevelopmentGoalServiceImpl.makeTransitionData(
+    func 목표_상태_전환은_진행_중과_보관_사이에서만_저장_데이터를_만든다() throws {
+        let data = try DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(),
-            request: .init(status: "archived")
+            request: .init(status: .archived)
         )
 
         #expect(data?["status"] as? String == "archived")
@@ -34,14 +35,14 @@ struct DevelopmentGoalServiceImplTests {
     }
 
     @Test("완료 요청과 완료 목표의 보관 전환은 저장 데이터를 만들지 않는다")
-    func 완료_요청과_완료_목표의_보관_전환은_저장_데이터를_만들지_않는다() {
-        let requestedCompletion = DevelopmentGoalServiceImpl.makeTransitionData(
+    func 완료_요청과_완료_목표의_보관_전환은_저장_데이터를_만들지_않는다() throws {
+        let requestedCompletion = try DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(),
-            request: .init(status: "completed")
+            request: .init(status: .completed)
         )
-        let archivedCompletion = DevelopmentGoalServiceImpl.makeTransitionData(
+        let archivedCompletion = try DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(status: "completed"),
-            request: .init(status: "archived")
+            request: .init(status: .archived)
         )
 
         #expect(requestedCompletion == nil)
@@ -49,14 +50,24 @@ struct DevelopmentGoalServiceImplTests {
     }
 
     @Test("완료 목표는 진행 중으로 되돌리고 완료 시각을 삭제한다")
-    func 완료_목표는_진행_중으로_되돌리고_완료_시각을_삭제한다() {
-        let data = DevelopmentGoalServiceImpl.makeTransitionData(
+    func 완료_목표는_진행_중으로_되돌리고_완료_시각을_삭제한다() throws {
+        let data = try DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(status: "completed"),
-            request: .init(status: "inProgress")
+            request: .init(status: .inProgress)
         )
 
         #expect(data?["status"] as? String == "inProgress")
         #expect(data?["completedAt"] is FieldValue)
+    }
+
+    @Test("유효하지 않은 저장 상태는 전환 데이터를 만들지 않고 오류를 던진다")
+    func 유효하지_않은_저장_상태는_전환_데이터를_만들지_않고_오류를_던진다() {
+        #expect(throws: DataLayerError.self) {
+            _ = try DevelopmentGoalServiceImpl.makeTransitionData(
+                recordData: makeData(status: "inProgres"),
+                request: .init(status: .archived)
+            )
+        }
     }
 
     @Test("개발 기록 문서는 경로 식별값을 응답에 복원한다")

@@ -40,8 +40,8 @@ struct DevelopmentGoalRepositoryImplTests {
         #expect(await service.completionSnapshotGoalIds() == ["goal-1"])
     }
 
-    @Test("목표 상태 전환은 저장 상태 문자열을 서비스에 전달한다")
-    func 목표_상태_전환은_저장_상태_문자열을_서비스에_전달한다() async throws {
+    @Test("목표 상태 전환은 Data 상태를 서비스에 전달한다")
+    func 목표_상태_전환은_Data_상태를_서비스에_전달한다() async throws {
         let service = DevelopmentGoalServiceSpy()
         let repository = DevelopmentGoalRepositoryImpl(service: service)
 
@@ -53,7 +53,7 @@ struct DevelopmentGoalRepositoryImplTests {
 
         let request = try #require(await service.transitionRequest())
         #expect(request.goalId == "goal-1")
-        #expect(request.status == "archived")
+        #expect(request.status == .archived)
     }
 
     @Test("목표 완료 전환은 서비스에 전달하지 않는다")
@@ -81,14 +81,14 @@ private actor DevelopmentGoalServiceSpy: DevelopmentGoalService {
 
     struct TransitionRequest {
         let goalId: String
-        let status: String
+        let status: DevelopmentGoalStatus
     }
 
     private let goal = DevelopmentGoalResponse(
         id: "goal-1",
         title: "목표",
         markdownDescription: "설명",
-        status: "inProgress",
+        status: .inProgress,
         createdAt: .distantPast,
         updatedAt: .distantPast,
         completedAt: nil
