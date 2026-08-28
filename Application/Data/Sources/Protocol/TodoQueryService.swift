@@ -1,18 +1,14 @@
 //
-//  TodoService.swift
+//  TodoQueryService.swift
 //  Data
 //
-//  Created by opfic on 5/14/26.
+//  Created by opfic on 8/28/26.
 //
 
-import Foundation
 import Core
 
-public protocol TodoService {
+public protocol TodoQueryService {
     func fetchTodos(_ query: TodoQuery, cursor: TodoCursorDTO?) async throws -> TodoPageResponse
-    func upsertTodo(request: TodoRequest) async throws
-    func deleteTodo(todoId: String) async throws
-    func undoDeleteTodo(todoId: String) async throws
     func fetchTodo(todoId: String) async throws -> TodoResponse
     func fetchReferences(_ numbers: [Int]) async throws -> [Int: TodoReferenceResponse]
 }

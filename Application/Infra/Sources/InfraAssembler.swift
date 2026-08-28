@@ -53,8 +53,12 @@ public final class InfraAssembler: Assembler {
             AuthServiceImpl()
         }
 
-        container.register(TodoService.self) {
-            TodoServiceImpl()
+        container.register(TodoQueryService.self) {
+            TodoQueryServiceImpl()
+        }
+
+        container.register(TodoCommandService.self) {
+            TodoCommandServiceImpl()
         }
 
         container.register(DevelopmentGoalService.self) {
