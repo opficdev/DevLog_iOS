@@ -167,13 +167,18 @@ extension DevelopmentGoalServiceImpl {
         guard
             let currentStatus = recordData[DevelopmentGoalFieldKey.status.rawValue] as? String,
             (currentStatus == "inProgress" && request.status == "archived") ||
-            (currentStatus == "archived" && request.status == "inProgress") else {
+            (currentStatus == "archived" && request.status == "inProgress") ||
+            (currentStatus == "completed" && request.status == "inProgress") else {
             return nil
         }
-        return [
+        var data: [String: Any] = [
             DevelopmentGoalFieldKey.status.rawValue: request.status,
             DevelopmentGoalFieldKey.updatedAt.rawValue: FieldValue.serverTimestamp()
         ]
+        if currentStatus == "completed" {
+            data[DevelopmentGoalFieldKey.completedAt.rawValue] = FieldValue.delete()
+        }
+        return data
     }
 
     static func makeResponse(

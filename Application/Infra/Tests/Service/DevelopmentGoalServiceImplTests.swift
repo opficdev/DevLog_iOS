@@ -33,19 +33,30 @@ struct DevelopmentGoalServiceImplTests {
         #expect(data?["completedAt"] == nil)
     }
 
-    @Test("완료 상태를 포함한 목표 상태 전환은 저장 데이터를 만들지 않는다")
-    func 완료_상태를_포함한_목표_상태_전환은_저장_데이터를_만들지_않는다() {
+    @Test("완료 요청과 완료 목표의 보관 전환은 저장 데이터를 만들지 않는다")
+    func 완료_요청과_완료_목표의_보관_전환은_저장_데이터를_만들지_않는다() {
         let requestedCompletion = DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(),
             request: .init(status: "completed")
         )
-        let existingCompletion = DevelopmentGoalServiceImpl.makeTransitionData(
+        let archivedCompletion = DevelopmentGoalServiceImpl.makeTransitionData(
             recordData: makeData(status: "completed"),
             request: .init(status: "archived")
         )
 
         #expect(requestedCompletion == nil)
-        #expect(existingCompletion == nil)
+        #expect(archivedCompletion == nil)
+    }
+
+    @Test("완료 목표는 진행 중으로 되돌리고 완료 시각을 삭제한다")
+    func 완료_목표는_진행_중으로_되돌리고_완료_시각을_삭제한다() {
+        let data = DevelopmentGoalServiceImpl.makeTransitionData(
+            recordData: makeData(status: "completed"),
+            request: .init(status: "inProgress")
+        )
+
+        #expect(data?["status"] as? String == "inProgress")
+        #expect(data?["completedAt"] is FieldValue)
     }
 
     @Test("개발 기록 문서는 경로 식별값을 응답에 복원한다")
