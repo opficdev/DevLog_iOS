@@ -12,6 +12,22 @@ import Data
 @testable import Infra
 
 struct DevelopmentGoalServiceImplTests {
+    @Test("공백뿐인 목표 제목은 저장 전에 거부한다")
+    func 공백뿐인_목표_제목은_저장_전에_거부한다() {
+        do {
+            try DevelopmentGoalServiceImpl.validateTitle(" \n ")
+            Issue.record("DataLayerError.invalidDevelopmentGoalTitle이 필요")
+        } catch DataLayerError.invalidDevelopmentGoalTitle {
+        } catch {
+            Issue.record("예상하지 않은 오류: \(error)")
+        }
+    }
+
+    @Test("의미 있는 목표 제목은 저장 전에 허용한다")
+    func 의미_있는_목표_제목은_저장_전에_허용한다() throws {
+        try DevelopmentGoalServiceImpl.validateTitle(" 목표 ")
+    }
+
     @Test("개발 목표 문서는 Data 응답으로 변환한다")
     func 개발_목표_문서는_Data_응답으로_변환한다() throws {
         let response = try #require(

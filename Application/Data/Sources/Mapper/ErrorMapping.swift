@@ -16,6 +16,8 @@ extension Error {
             return AuthError.failedToUnlinkLastProvider
         case .linkCredentialAlreadyInUse:
             return AuthError.linkCredentialAlreadyInUse
+        case .invalidDevelopmentGoalTitle:
+            return DomainLayerError.invalidDevelopmentGoalTitle
         case .developmentRecordDraftConflict:
             return DomainLayerError.developmentRecordDraftConflict
         case .invalidData(let context):

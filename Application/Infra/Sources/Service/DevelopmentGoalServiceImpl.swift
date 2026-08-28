@@ -35,6 +35,7 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
         guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         do {
+            try Self.validateTitle(request.title)
             let reference = store.document(FirestorePath.developmentGoal(uid, goalId: goalId))
             var data = try encoder.encode(request)
             data[DevelopmentGoalFieldKey.status.rawValue] = DevelopmentGoalFirestoreStatus(.inProgress).rawValue
@@ -160,6 +161,12 @@ final class DevelopmentGoalServiceImpl: DevelopmentGoalService {
 }
 
 extension DevelopmentGoalServiceImpl {
+    static func validateTitle(_ title: String) throws {
+        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw DataLayerError.invalidDevelopmentGoalTitle
+        }
+    }
+
     static func makeTransitionData(
         recordData: [String: Any],
         request: DevelopmentGoalStatusRequest

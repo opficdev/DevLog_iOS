@@ -16,4 +16,11 @@ struct ErrorMappingTests {
 
         #expect(error as? DomainLayerError == .developmentRecordDraftConflict)
     }
+
+    @Test("유효하지 않은 목표 제목은 Domain 제목 오류로 변환한다")
+    func 유효하지_않은_목표_제목은_Domain_제목_오류로_변환한다() {
+        let error = DataLayerError.invalidDevelopmentGoalTitle.toDomain()
+
+        #expect(error as? DomainLayerError == .invalidDevelopmentGoalTitle)
+    }
 }
