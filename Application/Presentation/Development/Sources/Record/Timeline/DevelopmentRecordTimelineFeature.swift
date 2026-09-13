@@ -85,7 +85,7 @@ struct DevelopmentRecordTimelineFeature {
     }
 }
 
-private extension DevelopmentRecordTimelineFeature {
+extension DevelopmentRecordTimelineFeature {
     func fetchEffect(goalId: String) -> Effect<Action> {
         .run { [fetchGoalUseCase, fetchRecordsUseCase, fetchRecordHistoryUseCase] send in
             do {
