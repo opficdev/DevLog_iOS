@@ -9,18 +9,28 @@ import Domain
 import PresentationShared
 
 public enum DevelopmentDependencyPreparation {
-    public static func prepare(
+    public static func prepareGoal(
         _ dependencies: inout DependencyValues,
-        fetchGoalUseCase: FetchDevelopmentGoalUseCase,
+        fetchGoalUseCase: FetchDevelopmentGoalUseCase
+    ) {
+        dependencies.developmentFetchGoalUseCase = fetchGoalUseCase
+    }
+
+    public static func prepareQuery(
+        _ dependencies: inout DependencyValues,
         fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
-        fetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase,
+        fetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase
+    ) {
+        dependencies.developmentFetchRecordsUseCase = fetchRecordsUseCase
+        dependencies.developmentFetchRecordHistoryUseCase = fetchRecordHistoryUseCase
+    }
+
+    public static func prepareMutation(
+        _ dependencies: inout DependencyValues,
         createRecordUseCase: CreateDevelopmentRecordUseCase,
         saveRecordDraftUseCase: SaveDevelopmentRecordDraftUseCase,
         confirmRecordUseCase: ConfirmDevelopmentRecordUseCase
     ) {
-        dependencies.developmentFetchGoalUseCase = fetchGoalUseCase
-        dependencies.developmentFetchRecordsUseCase = fetchRecordsUseCase
-        dependencies.developmentFetchRecordHistoryUseCase = fetchRecordHistoryUseCase
         dependencies.developmentCreateRecordUseCase = createRecordUseCase
         dependencies.developmentSaveRecordDraftUseCase = saveRecordDraftUseCase
         dependencies.developmentConfirmRecordUseCase = confirmRecordUseCase

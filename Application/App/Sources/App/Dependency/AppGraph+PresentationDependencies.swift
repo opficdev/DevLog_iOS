@@ -23,17 +23,23 @@ extension AppGraph {
 
 private extension AppGraph {
     func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
-        DevelopmentDependencyPreparation.prepare(
+        DevelopmentDependencyPreparation.prepareGoal(
             &dependencies,
             fetchGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
-                .fetchDevelopmentGoalUseCase,
+                .fetchDevelopmentGoalUseCase
+        )
+        DevelopmentDependencyPreparation.prepareQuery(
+            &dependencies,
             fetchRecordsUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
                 .fetchDevelopmentRecordsUseCase,
             fetchRecordHistoryUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordHistoryUseCase,
+                .fetchDevelopmentRecordHistoryUseCase
+        )
+        DevelopmentDependencyPreparation.prepareMutation(
+            &dependencies,
             createRecordUseCase: developmentGraphSet
                 .developmentRecordMutationUseCaseGraph
                 .createDevelopmentRecordUseCase,
