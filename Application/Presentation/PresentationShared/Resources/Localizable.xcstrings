@@ -511,7 +511,7 @@
     "development_record_editor_title" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Write Development Record" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Development Record" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 작성" } }
       }
     },
@@ -588,8 +588,8 @@
     "development_record_title" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record Title" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 제목" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Title" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "제목" } }
       }
     },
     "development_record_title_placeholder" : {
