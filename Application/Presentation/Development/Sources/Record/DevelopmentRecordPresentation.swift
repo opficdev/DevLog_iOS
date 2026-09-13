@@ -14,6 +14,6 @@ enum DevelopmentRecordPresentation {
     }
 
     static func versionLabel(_ number: Int) -> String {
-        "v1.\(max(0, number - 1))"
+        "#\(number)"
     }
 }
