@@ -417,6 +417,13 @@
         }
       }
     },
+    "development_goal_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Development Goal" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 목표" } }
+      }
+    },
     "development_record_add" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -569,13 +576,6 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장" } }
-      }
-    },
-    "development_record_section_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Development Records" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록" } }
       }
     },
     "development_record_timeline_error_message" : {

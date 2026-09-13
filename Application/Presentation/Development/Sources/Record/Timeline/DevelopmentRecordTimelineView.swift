@@ -24,6 +24,7 @@ public struct DevelopmentRecordTimelineView: View {
 
     public var body: some View {
         VStack(spacing: 20) {
+            titleBar
             timelineCard
             if let draft = store.items.first(where: \.isDraft) {
                 continueButton(draft.record)
@@ -47,11 +48,27 @@ public struct DevelopmentRecordTimelineView: View {
         }
     }
 
+    private var titleBar: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(DevelopmentRecordPresentation.text("development_goal_title"))
+                .font(.largeTitle.bold())
+
+            if !store.goalTitle.isEmpty {
+                ScrollView(.horizontal) {
+                    Text(store.goalTitle)
+                        .font(.headline)
+                        .foregroundStyle(Color.textSecondary)
+                        .lineLimit(1)
+                }
+                .scrollIndicators(.hidden)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var timelineCard: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
-                Text(DevelopmentRecordPresentation.text("development_record_section_title"))
-                    .font(.title3)
                 Spacer()
                 Button {
                     editorDestination = EditorDestination(record: nil)
