@@ -91,7 +91,7 @@ public struct DevelopmentRecordTimelineView: View {
             )
         } else {
             LazyVStack(spacing: 0) {
-                ForEach(store.items.enumerated(), id: \.element.id) { index, item in
+                ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
                     TimelineRow(
                         item: item,
                         isLast: index == store.items.count - 1,
@@ -180,7 +180,7 @@ private struct TimelineRow: View {
             if !isLast {
                 Rectangle()
                     .fill(Color.accent.opacity(0.45))
-                    .frame(width: 2, minHeight: 72)
+                    .frame(width: 2, height: 72)
             }
         }
         .padding(.top, 5)

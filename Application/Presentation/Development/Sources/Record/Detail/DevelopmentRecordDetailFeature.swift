@@ -66,7 +66,7 @@ struct DevelopmentRecordDetailFeature {
 
             return .none
         }
-        .ifLet(\.\$alert, action: \.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
