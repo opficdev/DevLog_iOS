@@ -98,4 +98,35 @@ struct DevelopmentRecordConfirmUseCaseTests {
         }
         #expect(await repository.confirmRequests().isEmpty)
     }
+
+    @Test("확정 응답 조회가 실패해도 저장된 버전을 복구한다")
+    func 확정_응답_조회가_실패해도_저장된_버전을_복구한다() async throws {
+        let goal = try makeDevelopmentRecordGoal()
+        let draft = try makeDevelopmentRecordInitialDraft()
+        let confirmedRecord = try makeDevelopmentRecordConfirmed()
+        let version = try makeDevelopmentRecordInitialVersion()
+        let repository = DevelopmentRecordRepositorySpy(
+            record: draft,
+            subsequentRecords: [confirmedRecord],
+            versions: [version],
+            confirmError: DevelopmentRecordRepositorySpyError.unconfigured
+        )
+        let useCase = ConfirmDevelopmentRecordUseCaseImpl(
+            repository,
+            DevelopmentRecordGoalRepositorySpy(goal: goal),
+            idProvider: { version.id }
+        )
+
+        let result = try await useCase.execute(
+            goalId: "goal-1",
+            recordId: "record-1",
+            baseVersionId: nil
+        )
+
+        #expect(result == version)
+        #expect(await repository.confirmRequests().count == 1)
+        #expect(await repository.versionQueries() == [
+            .init(goalId: "goal-1", recordId: "record-1")
+        ])
+    }
 }

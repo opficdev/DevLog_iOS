@@ -44,6 +44,9 @@ struct DevelopmentRecordEditorFeatureTests {
         await store.send(.view(.confirm)) {
             $0.isLoading = true
         }
+        await store.receive(.store(.preparedForConfirmation(record))) {
+            $0.record = record
+        }
         await store.receive(.store(.confirmed(version))) {
             $0.isLoading = false
             $0.result = .confirmed(version)
@@ -93,6 +96,64 @@ struct DevelopmentRecordEditorFeatureTests {
         #expect(!store.state.canConfirmInitialVersion)
         await store.send(.view(.save))
         await store.send(.view(.confirm))
+    }
+
+    @Test("확정 실패 뒤 재시도는 생성된 기록을 다시 사용한다")
+    func 확정_실패_뒤_재시도는_생성된_기록을_다시_사용한다() async throws {
+        let record = try makeDevelopmentRecord()
+        let version = try makeDevelopmentRecordVersion()
+        let createSpy = CreateDevelopmentRecordUseCaseSpy(result: .success(record))
+        let confirmSpy = ConfirmDevelopmentRecordUseCaseSpy(results: [
+            .failure(DevelopmentRecordTestError.failed),
+            .success(version)
+        ])
+        let store = TestStore(
+            initialState: DevelopmentRecordEditorFeature.State(
+                goalId: "goal",
+                goalTitle: "개발 목표"
+            )
+        ) {
+            DevelopmentRecordEditorFeature()
+        } withDependencies: {
+            $0.developmentCreateRecordUseCase = createSpy
+            $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(
+                result: .success(record)
+            )
+            $0.developmentConfirmRecordUseCase = confirmSpy
+        }
+        await store.send(.binding(.set(\.title, "기록 제목"))) {
+            $0.title = "기록 제목"
+        }
+
+        await store.send(.view(.confirm)) {
+            $0.isLoading = true
+        }
+        await store.receive(.store(.preparedForConfirmation(record))) {
+            $0.record = record
+        }
+        await store.receive(.store(.failed)) {
+            $0.isLoading = false
+            $0.alert = DevelopmentRecordEditorFeature.errorAlert
+        }
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await store.send(.view(.confirm)) {
+            $0.isLoading = true
+            $0.result = nil
+        }
+        await store.receive(.store(.preparedForConfirmation(record)))
+        await store.receive(.store(.confirmed(version))) {
+            $0.isLoading = false
+            $0.result = .confirmed(version)
+        }
+        await store.receive(.delegate(.confirmed(version)))
+
+        #expect(await createSpy.requests().count == 1)
+        #expect(await confirmSpy.requests() == [
+            .init(goalId: "goal", recordId: record.id, baseVersionId: nil),
+            .init(goalId: "goal", recordId: record.id, baseVersionId: nil)
+        ])
     }
 
     private func makeStore(

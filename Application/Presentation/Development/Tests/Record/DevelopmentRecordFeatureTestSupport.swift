@@ -77,6 +77,71 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     }
 }
 
+actor CreateDevelopmentRecordUseCaseSpy: CreateDevelopmentRecordUseCase {
+    struct Request: Equatable {
+        let goalId: String
+        let title: String
+        let markdownContent: String
+    }
+
+    private let result: Result<DevelopmentRecord, Error>
+    private var recordedRequests = [Request]()
+
+    init(result: Result<DevelopmentRecord, Error>) {
+        self.result = result
+    }
+
+    func execute(
+        goalId: String,
+        title: String,
+        markdownContent: String
+    ) async throws -> DevelopmentRecord {
+        recordedRequests.append(.init(
+            goalId: goalId,
+            title: title,
+            markdownContent: markdownContent
+        ))
+        return try result.get()
+    }
+
+    func requests() -> [Request] {
+        recordedRequests
+    }
+}
+
+actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
+    struct Request: Equatable {
+        let goalId: String
+        let recordId: String
+        let baseVersionId: String?
+    }
+
+    private var results: [Result<DevelopmentRecord.Version, Error>]
+    private var recordedRequests = [Request]()
+
+    init(results: [Result<DevelopmentRecord.Version, Error>]) {
+        self.results = results
+    }
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        baseVersionId: String?
+    ) async throws -> DevelopmentRecord.Version {
+        recordedRequests.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            baseVersionId: baseVersionId
+        ))
+        guard !results.isEmpty else { throw DevelopmentRecordTestError.failed }
+        return try results.removeFirst().get()
+    }
+
+    func requests() -> [Request] {
+        recordedRequests
+    }
+}
+
 func makeDevelopmentGoal(title: String = "개발 목표") throws -> DevelopmentGoal {
     let date = Date(timeIntervalSince1970: 1_700_000_000)
     return try DevelopmentGoal(

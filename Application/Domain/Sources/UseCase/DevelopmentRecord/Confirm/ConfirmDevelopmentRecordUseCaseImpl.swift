@@ -44,22 +44,45 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
             throw DomainLayerError.developmentRecordDraftConflict
         }
 
-        if let baseVersionId {
+        let versionId = idProvider()
+        let kind = baseVersionId == nil
+            ? DevelopmentRecord.Version.Kind.initial
+            : .correction
+        do {
             return try await repository.confirmDraft(
                 goalId: goalId,
                 recordId: recordId,
-                versionId: idProvider(),
-                kind: .correction,
+                versionId: versionId,
+                kind: kind,
                 sourceVersionId: baseVersionId
             )
+        } catch {
+            guard let version = try? await confirmedVersion(
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId
+            ) else {
+                throw error
+            }
+            return version
         }
+    }
+}
 
-        return try await repository.confirmDraft(
-            goalId: goalId,
-            recordId: recordId,
-            versionId: idProvider(),
-            kind: .initial,
-            sourceVersionId: nil
-        )
+private extension ConfirmDevelopmentRecordUseCaseImpl {
+    func confirmedVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
+        guard record.currentVersion?.id == versionId else {
+            throw DomainLayerError.developmentRecordVersionNotFound
+        }
+        let versions = try await repository.fetchVersions(goalId: goalId, recordId: recordId)
+        guard let version = versions.first(where: { $0.id == versionId }) else {
+            throw DomainLayerError.developmentRecordVersionNotFound
+        }
+        return version
     }
 }

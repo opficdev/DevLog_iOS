@@ -78,10 +78,11 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
 
     private let createResult: DevelopmentRecord?
     private let records: [DevelopmentRecord]
-    private let record: DevelopmentRecord?
+    private var recordsToReturn: [DevelopmentRecord]
     private let versions: [DevelopmentRecord.Version]
     private let savedRecord: DevelopmentRecord?
     private let confirmedVersion: DevelopmentRecord.Version?
+    private let confirmError: Error?
     private let restoredVersion: DevelopmentRecord.Version?
     private var recordedCreateRequests = [CreateRequest]()
     private var recordedRecordQueries = [String]()
@@ -94,17 +95,20 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         createResult: DevelopmentRecord? = nil,
         records: [DevelopmentRecord] = [],
         record: DevelopmentRecord? = nil,
+        subsequentRecords: [DevelopmentRecord] = [],
         versions: [DevelopmentRecord.Version] = [],
         savedRecord: DevelopmentRecord? = nil,
         confirmedVersion: DevelopmentRecord.Version? = nil,
+        confirmError: Error? = nil,
         restoredVersion: DevelopmentRecord.Version? = nil
     ) {
         self.createResult = createResult
         self.records = records
-        self.record = record
+        self.recordsToReturn = record.map { [$0] + subsequentRecords } ?? subsequentRecords
         self.versions = versions
         self.savedRecord = savedRecord
         self.confirmedVersion = confirmedVersion
+        self.confirmError = confirmError
         self.restoredVersion = restoredVersion
     }
 
@@ -123,7 +127,13 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     }
 
     func fetchRecord(goalId: String, recordId: String) async throws -> DevelopmentRecord {
-        try requiredDevelopmentRecordRepositoryResult(record)
+        guard let record = recordsToReturn.first else {
+            throw DevelopmentRecordRepositorySpyError.unconfigured
+        }
+        if 1 < recordsToReturn.count {
+            recordsToReturn.removeFirst()
+        }
+        return record
     }
 
     func fetchVersions(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version] {
@@ -156,6 +166,9 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
                 sourceVersionId: sourceVersionId
             )
         )
+        if let confirmError {
+            throw confirmError
+        }
         return try requiredDevelopmentRecordRepositoryResult(confirmedVersion)
     }
 

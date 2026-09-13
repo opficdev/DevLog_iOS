@@ -70,6 +70,7 @@ struct DevelopmentRecordEditorFeature {
 
         enum StoreAction: Equatable {
             case saved(DevelopmentRecord)
+            case preparedForConfirmation(DevelopmentRecord)
             case confirmed(DevelopmentRecord.Version)
             case failed
         }
@@ -99,12 +100,18 @@ struct DevelopmentRecordEditorFeature {
                 guard state.canConfirmInitialVersion else { break }
                 state.isLoading = true
                 state.result = nil
-                return confirmEffect(state: state)
+                return prepareConfirmationEffect(state: state)
             case .store(.saved(let record)):
                 state.record = record
                 state.isLoading = false
                 state.result = .saved(record)
                 return .send(.delegate(.saved(record)))
+            case .store(.preparedForConfirmation(let record)):
+                state.record = record
+                return confirmPreparedRecordEffect(
+                    goalId: state.goalId,
+                    recordId: record.id
+                )
             case .store(.confirmed(let version)):
                 state.isLoading = false
                 state.result = .confirmed(version)
@@ -148,8 +155,8 @@ private extension DevelopmentRecordEditorFeature {
         }
     }
 
-    func confirmEffect(state: State) -> Effect<Action> {
-        .run { [createRecordUseCase, saveRecordDraftUseCase, confirmRecordUseCase] send in
+    func prepareConfirmationEffect(state: State) -> Effect<Action> {
+        .run { [createRecordUseCase, saveRecordDraftUseCase] send in
             do {
                 let record: DevelopmentRecord
                 if let recordId = state.record?.id {
@@ -167,9 +174,22 @@ private extension DevelopmentRecordEditorFeature {
                         markdownContent: state.markdownContent
                     )
                 }
+                await send(.store(.preparedForConfirmation(record)))
+            } catch {
+                await send(.store(.failed))
+            }
+        }
+    }
+
+    func confirmPreparedRecordEffect(
+        goalId: String,
+        recordId: String
+    ) -> Effect<Action> {
+        .run { [confirmRecordUseCase] send in
+            do {
                 let version = try await confirmRecordUseCase.execute(
-                    goalId: state.goalId,
-                    recordId: record.id,
+                    goalId: goalId,
+                    recordId: recordId,
                     baseVersionId: nil
                 )
                 await send(.store(.confirmed(version)))
