@@ -69,6 +69,7 @@ public struct DevelopmentRecordEditorView: View {
                 .font(.headline)
             Spacer()
             Button(DevelopmentRecordPresentation.text("development_record_save")) {
+                focusedField = nil
                 store.send(.view(.save))
             }
             .fontWeight(.semibold)
@@ -110,6 +111,7 @@ public struct DevelopmentRecordEditorView: View {
             .padding()
             .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
         }
+        .disabled(store.isLoading)
     }
 
     private var contentCard: some View {
@@ -137,6 +139,7 @@ public struct DevelopmentRecordEditorView: View {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)
         }
+        .disabled(store.isLoading)
     }
 
     @ViewBuilder
@@ -172,6 +175,7 @@ public struct DevelopmentRecordEditorView: View {
     private var confirmBar: some View {
         VStack(spacing: 8) {
             Button {
+                focusedField = nil
                 store.send(.view(.confirm))
             } label: {
                 Group {
