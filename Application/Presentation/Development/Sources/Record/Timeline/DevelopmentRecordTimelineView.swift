@@ -152,8 +152,9 @@ private struct TimelineRow: View {
     let onSelect: () -> Void
 
     var body: some View {
-        Button(action: onSelect) {
-            HStack(alignment: .top, spacing: 14) {
+        Button {
+            onSelect()
+        } label: {
                 timelineIndicator
                 VStack(alignment: .leading, spacing: 5) {
                     Text(item.title)
