@@ -119,9 +119,6 @@ public struct DevelopmentRecordDetailView: View {
 
     private func contentCard(markdownContent: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(DevelopmentRecordPresentation.text("development_record_result_title"))
-                .font(.title2)
-
             if markdownContent.isEmpty {
                 ContentUnavailableView(
                     DevelopmentRecordPresentation.text("development_record_content_empty_title"),
