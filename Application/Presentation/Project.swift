@@ -385,6 +385,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "Entry"),
+                .target(name: "Development"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings
