@@ -22,7 +22,11 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
         self.idProvider = idProvider
     }
 
-    public func execute(goalId: String, recordId: String) async throws -> DevelopmentRecord.Version {
+    public func execute(
+        goalId: String,
+        recordId: String,
+        baseVersionId: String?
+    ) async throws -> DevelopmentRecord.Version {
         let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
@@ -32,17 +36,21 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
         guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
-        guard record.draft != nil else {
+        guard let draft = record.draft else {
             throw DomainLayerError.developmentRecordDraftNotFound
         }
+        guard record.currentVersion?.id == baseVersionId,
+              draft.baseVersionId == baseVersionId else {
+            throw DomainLayerError.developmentRecordDraftConflict
+        }
 
-        if let currentVersion = record.currentVersion {
+        if let baseVersionId {
             return try await repository.confirmDraft(
                 goalId: goalId,
                 recordId: recordId,
                 versionId: idProvider(),
                 kind: .correction,
-                sourceVersionId: currentVersion.id
+                sourceVersionId: baseVersionId
             )
         }
 

@@ -57,6 +57,7 @@ struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase 
     func execute(
         goalId: String,
         recordId: String,
+        baseVersionId: String?,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
@@ -67,7 +68,11 @@ struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase 
 struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     let result: Result<DevelopmentRecord.Version, Error>
 
-    func execute(goalId: String, recordId: String) async throws -> DevelopmentRecord.Version {
+    func execute(
+        goalId: String,
+        recordId: String,
+        baseVersionId: String?
+    ) async throws -> DevelopmentRecord.Version {
         try result.get()
     }
 }

@@ -130,6 +130,7 @@ private extension DevelopmentRecordEditorFeature {
                     record = try await saveRecordDraftUseCase.execute(
                         goalId: state.goalId,
                         recordId: recordId,
+                        baseVersionId: nil,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )
@@ -155,6 +156,7 @@ private extension DevelopmentRecordEditorFeature {
                     record = try await saveRecordDraftUseCase.execute(
                         goalId: state.goalId,
                         recordId: recordId,
+                        baseVersionId: nil,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )
@@ -167,7 +169,8 @@ private extension DevelopmentRecordEditorFeature {
                 }
                 let version = try await confirmRecordUseCase.execute(
                     goalId: state.goalId,
-                    recordId: record.id
+                    recordId: record.id,
+                    baseVersionId: nil
                 )
                 await send(.store(.confirmed(version)))
             } catch {

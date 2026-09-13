@@ -6,5 +6,9 @@
 //
 
 public protocol ConfirmDevelopmentRecordUseCase {
-    func execute(goalId: String, recordId: String) async throws -> DevelopmentRecord.Version
+    func execute(
+        goalId: String,
+        recordId: String,
+        baseVersionId: String?
+    ) async throws -> DevelopmentRecord.Version
 }

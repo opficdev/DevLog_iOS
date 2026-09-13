@@ -25,6 +25,7 @@ public final class SaveDevelopmentRecordDraftUseCaseImpl: SaveDevelopmentRecordD
     public func execute(
         goalId: String,
         recordId: String,
+        baseVersionId: String?,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
@@ -37,10 +38,13 @@ public final class SaveDevelopmentRecordDraftUseCaseImpl: SaveDevelopmentRecordD
         guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
+        guard record.currentVersion?.id == baseVersionId else {
+            throw DomainLayerError.developmentRecordDraftConflict
+        }
         let updatedDraft = try DevelopmentRecord.Draft(
             title: title,
             markdownContent: markdownContent,
-            baseVersionId: record.currentVersion?.id,
+            baseVersionId: baseVersionId,
             updatedAt: now()
         )
         return try await repository.saveDraft(
