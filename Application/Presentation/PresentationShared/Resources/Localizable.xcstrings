@@ -417,6 +417,195 @@
         }
       }
     },
+    "development_record_add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 추가" } }
+      }
+    },
+    "development_record_confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정하기" } }
+      }
+    },
+    "development_record_confirm_hint_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "It will be saved as %@ when confirmed." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정하면 %@으로 기록돼요." } }
+      }
+    },
+    "development_record_confirmed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirmed" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정" } }
+      }
+    },
+    "development_record_confirmed_version_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirmed · %@" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정 · %@" } }
+      }
+    },
+    "development_record_content_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Content" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작성한 내용 없음" } }
+      }
+    },
+    "development_record_continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue Writing" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 이어서 작성" } }
+      }
+    },
+    "development_record_detail_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The development record could not be loaded. Please try again." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록을 불러오지 못했어요. 다시 시도해주세요." } }
+      }
+    },
+    "development_record_draft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draft" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "초안" } }
+      }
+    },
+    "development_record_draft_status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draft in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "초안 작성 중" } }
+      }
+    },
+    "development_record_editor_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The development record could not be saved. Your input is still available." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록을 저장하지 못했어요. 작성한 내용은 그대로 유지돼요." } }
+      }
+    },
+    "development_record_editor_mode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Editor Mode" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작성 방식" } }
+      }
+    },
+    "development_record_editor_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Write Development Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 작성" } }
+      }
+    },
+    "development_record_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add the first record for this goal." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이 목표의 첫 번째 기록을 추가해보세요." } }
+      }
+    },
+    "development_record_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Development Records" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아직 개발 기록이 없어요" } }
+      }
+    },
+    "development_record_markdown_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Markdown supported · The date is recorded automatically." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Markdown 지원 · 날짜는 자동으로 기록돼요." } }
+      }
+    },
+    "development_record_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "미리보기" } }
+      }
+    },
+    "development_record_preview_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Write Markdown content to preview it." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Markdown 내용을 작성하면 미리 볼 수 있어요." } }
+      }
+    },
+    "development_record_preview_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing to Preview" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "미리 볼 내용이 없어요" } }
+      }
+    },
+    "development_record_result_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "구현 결과" } }
+      }
+    },
+    "development_record_save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장" } }
+      }
+    },
+    "development_record_section_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Development Records" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록" } }
+      }
+    },
+    "development_record_timeline_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The development record timeline could not be loaded. Please try again." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 타임라인을 불러오지 못했어요. 다시 시도해주세요." } }
+      }
+    },
+    "development_record_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record Title" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 제목" } }
+      }
+    },
+    "development_record_title_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a record title" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 제목을 입력하세요" } }
+      }
+    },
+    "development_record_version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "버전" } }
+      }
+    },
+    "development_record_write" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Write" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작성" } }
+      }
+    },
     "home_select_detail" : {
       "extractionState" : "manual",
       "localizations" : {
