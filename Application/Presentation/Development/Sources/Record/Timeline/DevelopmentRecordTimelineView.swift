@@ -183,7 +183,6 @@ private struct TimelineRow: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
     }
 
     private var timelineIndicator: some View {
