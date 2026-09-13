@@ -129,7 +129,7 @@ public struct DevelopmentRecordDetailView: View {
                     .frame(minHeight: 420)
             }
         }
-        .padding(24)
+        .padding(.vertical, 16)
         .background {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)

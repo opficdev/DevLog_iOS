@@ -165,6 +165,7 @@ public struct DevelopmentRecordEditorView: View {
                     )
                 } else {
                     MarkdownContentView(content: store.markdownContent)
+                        .padding(.vertical, 16)
                 }
             }
             .frame(minHeight: 340)
