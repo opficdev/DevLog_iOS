@@ -133,7 +133,7 @@ struct DevelopmentRecordEditorFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
-            $0.alert = DevelopmentRecordEditorFeature.errorAlert
+            $0.alert = makeDevelopmentRecordErrorAlert("development_record_editor_error_message")
         }
         await store.send(.alert(.dismiss)) {
             $0.alert = nil

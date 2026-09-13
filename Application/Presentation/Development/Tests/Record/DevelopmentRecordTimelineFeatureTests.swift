@@ -72,7 +72,7 @@ struct DevelopmentRecordTimelineFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
-            $0.alert = DevelopmentRecordTimelineFeature.errorAlert
+            $0.alert = makeDevelopmentRecordErrorAlert("development_record_timeline_error_message")
         }
         await store.send(.view(.refresh)) {
             $0.isLoading = true

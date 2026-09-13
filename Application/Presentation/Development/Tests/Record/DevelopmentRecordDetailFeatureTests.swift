@@ -74,7 +74,7 @@ struct DevelopmentRecordDetailFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.contentState = .failed
-            $0.alert = DevelopmentRecordDetailFeature.errorAlert
+            $0.alert = makeDevelopmentRecordErrorAlert("development_record_detail_error_message")
         }
         await store.send(.alert(.dismiss)) {
             $0.alert = nil
@@ -84,7 +84,7 @@ struct DevelopmentRecordDetailFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.contentState = .failed
-            $0.alert = DevelopmentRecordDetailFeature.errorAlert
+            $0.alert = makeDevelopmentRecordErrorAlert("development_record_detail_error_message")
         }
     }
 }

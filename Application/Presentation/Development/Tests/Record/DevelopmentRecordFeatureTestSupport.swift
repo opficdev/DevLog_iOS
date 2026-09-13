@@ -7,9 +7,22 @@
 
 import Domain
 import Foundation
+import PresentationShared
 
 enum DevelopmentRecordTestError: Error {
     case failed
+}
+
+func makeDevelopmentRecordErrorAlert(_ messageKey: String.LocalizationValue) -> AlertState<Never> {
+    AlertState {
+        TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
+    } actions: {
+        ButtonState(role: .cancel) {
+            TextState(String(localized: "common_close", bundle: PresentationResources.bundle))
+        }
+    } message: {
+        TextState(String(localized: messageKey, bundle: PresentationResources.bundle))
+    }
 }
 
 struct FetchDevelopmentGoalUseCaseStub: FetchDevelopmentGoalUseCase {
