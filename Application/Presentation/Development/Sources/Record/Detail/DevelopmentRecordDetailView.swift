@@ -27,8 +27,7 @@ public struct DevelopmentRecordDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 goalBadge
-                titleSection
-                contentCard
+                detailContent
             }
             .padding()
         }
@@ -53,21 +52,56 @@ public struct DevelopmentRecordDetailView: View {
             .lineLimit(1)
     }
 
-    private var titleSection: some View {
+    @ViewBuilder
+    private var detailContent: some View {
+        switch store.contentState {
+        case .draft(let draft):
+            recordContent(
+                title: draft.title,
+                markdownContent: draft.markdownContent,
+                version: nil
+            )
+        case .confirmed(let version):
+            recordContent(
+                title: version.title,
+                markdownContent: version.markdownContent,
+                version: version
+            )
+        case .failed:
+            failureContent
+        case .idle, .loading:
+            Color.clear.frame(height: 1)
+        }
+    }
+
+    @ViewBuilder
+    private func recordContent(
+        title: String,
+        markdownContent: String,
+        version: DevelopmentRecord.Version?
+    ) -> some View {
+        titleSection(title: title, version: version)
+        contentCard(markdownContent: markdownContent)
+    }
+
+    private func titleSection(
+        title: String,
+        version: DevelopmentRecord.Version?
+    ) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(title)
                 .font(.largeTitle.bold())
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 10) {
-                Text(statusText)
+                Text(statusText(isDraft: version == nil))
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(statusColor(isDraft: version == nil))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
-                    .background(statusBackground, in: .capsule)
+                    .background(statusBackground(isDraft: version == nil), in: .capsule)
 
-                if let version = store.currentVersion {
+                if let version {
                     Text(DevelopmentRecordPresentation.versionLabel(version.number))
                         .font(.callout.weight(.semibold))
                         .foregroundStyle(Color.accent)
@@ -83,18 +117,18 @@ public struct DevelopmentRecordDetailView: View {
         }
     }
 
-    private var contentCard: some View {
+    private func contentCard(markdownContent: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(DevelopmentRecordPresentation.text("development_record_result_title"))
                 .font(.title2)
 
-            if content.isEmpty {
+            if markdownContent.isEmpty {
                 ContentUnavailableView(
                     DevelopmentRecordPresentation.text("development_record_content_empty_title"),
                     systemImage: "doc.text"
                 )
             } else {
-                MarkdownContentView(content: content)
+                MarkdownContentView(content: markdownContent)
                     .frame(minHeight: 420)
             }
         }
@@ -105,25 +139,37 @@ public struct DevelopmentRecordDetailView: View {
         }
     }
 
-    private var title: String {
-        store.currentVersion?.title ?? store.record.draft?.title ?? ""
+    private var failureContent: some View {
+        VStack(spacing: 20) {
+            ContentUnavailableView(
+                DevelopmentRecordPresentation.text("common_error_title"),
+                systemImage: "exclamationmark.triangle",
+                description: Text(
+                    DevelopmentRecordPresentation.text("development_record_detail_error_message")
+                )
+            )
+
+            Button(DevelopmentRecordPresentation.text("development_record_detail_retry")) {
+                store.send(.view(.fetch))
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(Color.surface, in: .rect(cornerRadius: 24))
     }
 
-    private var content: String {
-        store.currentVersion?.markdownContent ?? store.record.draft?.markdownContent ?? ""
-    }
-
-    private var statusText: String {
-        store.currentVersion == nil
+    private func statusText(isDraft: Bool) -> String {
+        isDraft
             ? DevelopmentRecordPresentation.text("development_record_draft")
             : DevelopmentRecordPresentation.text("development_record_confirmed")
     }
 
-    private var statusColor: Color {
-        store.currentVersion == nil ? .warning : .white
+    private func statusColor(isDraft: Bool) -> Color {
+        isDraft ? .warning : .white
     }
 
-    private var statusBackground: Color {
-        store.currentVersion == nil ? .warning.opacity(0.12) : .accent
+    private func statusBackground(isDraft: Bool) -> Color {
+        isDraft ? .warning.opacity(0.12) : .accent
     }
 }

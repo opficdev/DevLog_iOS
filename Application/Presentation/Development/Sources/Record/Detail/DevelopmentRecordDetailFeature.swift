@@ -15,14 +15,29 @@ struct DevelopmentRecordDetailFeature {
         @Presents var alert: AlertState<Never>?
         let goalTitle: String
         let record: DevelopmentRecord
-        var currentVersion: DevelopmentRecord.Version?
-        var isLoading = false
-        var hasLoaded = false
+        var contentState: ContentState
+
+        var isLoading: Bool {
+            contentState == .idle || contentState == .loading
+        }
 
         init(goalTitle: String, record: DevelopmentRecord) {
             self.goalTitle = goalTitle
             self.record = record
+            if record.currentVersion == nil, let draft = record.draft {
+                self.contentState = .draft(draft)
+            } else {
+                self.contentState = .idle
+            }
         }
+    }
+
+    enum ContentState: Equatable {
+        case idle
+        case loading
+        case draft(DevelopmentRecord.Draft)
+        case confirmed(DevelopmentRecord.Version)
+        case failed
     }
 
     enum Action: Equatable {
@@ -35,7 +50,7 @@ struct DevelopmentRecordDetailFeature {
         }
 
         enum StoreAction: Equatable {
-            case loaded(DevelopmentRecord.Version?)
+            case loaded(DevelopmentRecord.Version)
             case failed
         }
     }
@@ -48,19 +63,14 @@ struct DevelopmentRecordDetailFeature {
             case .alert:
                 break
             case .view(.fetch):
-                guard !state.hasLoaded, !state.isLoading else { break }
-                guard state.record.currentVersion != nil else {
-                    state.hasLoaded = true
-                    break
-                }
-                state.isLoading = true
+                guard state.contentState == .idle || state.contentState == .failed else { break }
+                state.alert = nil
+                state.contentState = .loading
                 return fetchEffect(record: state.record)
             case .store(.loaded(let version)):
-                state.currentVersion = version
-                state.isLoading = false
-                state.hasLoaded = true
+                state.contentState = .confirmed(version)
             case .store(.failed):
-                state.isLoading = false
+                state.contentState = .failed
                 state.alert = Self.errorAlert
             }
 

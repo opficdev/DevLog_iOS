@@ -473,6 +473,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록을 불러오지 못했어요. 다시 시도해주세요." } }
       }
     },
+    "development_record_detail_retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다시 시도" } }
+      }
+    },
     "development_record_draft" : {
       "extractionState" : "manual",
       "localizations" : {

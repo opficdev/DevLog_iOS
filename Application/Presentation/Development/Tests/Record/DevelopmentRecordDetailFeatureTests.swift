@@ -29,12 +29,10 @@ struct DevelopmentRecordDetailFeatureTests {
         }
 
         await store.send(.view(.fetch)) {
-            $0.isLoading = true
+            $0.contentState = .loading
         }
         await store.receive(.store(.loaded(version))) {
-            $0.currentVersion = version
-            $0.isLoading = false
-            $0.hasLoaded = true
+            $0.contentState = .confirmed(version)
         }
     }
 
@@ -50,8 +48,43 @@ struct DevelopmentRecordDetailFeatureTests {
             DevelopmentRecordDetailFeature()
         }
 
+        let draft = try #require(record.draft)
+        #expect(store.state.contentState == .draft(draft))
+        await store.send(.view(.fetch))
+    }
+
+    @Test("확정 기록 조회 실패는 초안 대신 재시도 상태를 표시한다")
+    func 확정_기록_조회_실패는_초안_대신_재시도_상태를_표시한다() async throws {
+        let record = try makeConfirmedDevelopmentRecord()
+        let store = TestStore(
+            initialState: DevelopmentRecordDetailFeature.State(
+                goalTitle: "개발 목표",
+                record: record
+            )
+        ) {
+            DevelopmentRecordDetailFeature()
+        } withDependencies: {
+            $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
+                resultByRecordId: [record.id: .failure(DevelopmentRecordTestError.failed)]
+            )
+        }
+
         await store.send(.view(.fetch)) {
-            $0.hasLoaded = true
+            $0.contentState = .loading
+        }
+        await store.receive(.store(.failed)) {
+            $0.contentState = .failed
+            $0.alert = DevelopmentRecordDetailFeature.errorAlert
+        }
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await store.send(.view(.fetch)) {
+            $0.contentState = .loading
+        }
+        await store.receive(.store(.failed)) {
+            $0.contentState = .failed
+            $0.alert = DevelopmentRecordDetailFeature.errorAlert
         }
     }
 }
