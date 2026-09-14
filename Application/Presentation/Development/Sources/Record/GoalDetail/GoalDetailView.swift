@@ -50,7 +50,8 @@ public struct GoalDetailView: View {
         .navigationDestination(item: $detailDestination) { destination in
             RecordDetailView(
                 goalTitle: store.goalTitle,
-                record: destination.record
+                record: destination.record,
+                onUpdate: refresh
             )
         }
         .toolbarBackground(Color.appBackground)
@@ -164,6 +165,10 @@ public struct GoalDetailView: View {
 
     private func finishEditing() {
         editorDestination = nil
+        refresh()
+    }
+
+    private func refresh() {
         store.send(.view(.refresh))
     }
 }

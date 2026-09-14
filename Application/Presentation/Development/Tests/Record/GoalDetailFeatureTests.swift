@@ -50,6 +50,55 @@ struct GoalDetailFeatureTests {
         }
     }
 
+    @Test("타임라인 새로고침은 변경된 현재 버전을 반영한다")
+    func 타임라인_새로고침은_변경된_현재_버전을_반영한다() async throws {
+        let goal = try makeDevelopmentGoal()
+        let previousVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            title: "변경된 기록",
+            kind: .correction,
+            sourceVersionId: previousVersion.id
+        )
+        let previousRecord = try makeConfirmedDevelopmentRecord(versionId: previousVersion.id)
+        let currentRecord = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        let previousItem = RecordTimelineItem(
+            record: previousRecord,
+            currentVersion: previousVersion
+        )
+        let currentItem = RecordTimelineItem(
+            record: currentRecord,
+            currentVersion: currentVersion
+        )
+        var state = GoalDetailFeature.State(goalId: goal.id)
+        state.goalTitle = goal.title
+        state.items = [previousItem]
+        state.hasLoaded = true
+        let store = TestStore(initialState: state) {
+            GoalDetailFeature()
+        } withDependencies: {
+            $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(result: .success(goal))
+            $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
+                result: .success([currentRecord])
+            )
+            $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
+                resultByRecordId: [currentRecord.id: .success(currentVersion)]
+            )
+        }
+
+        await store.send(.view(.refresh)) {
+            $0.isLoading = true
+        }
+        await store.receive(.store(.loaded(goalTitle: goal.title, items: [currentItem]))) {
+            $0.items = [currentItem]
+            $0.isLoading = false
+        }
+    }
+
     @Test("타임라인 조회 실패는 입력 가능한 재조회 상태를 유지한다")
     func 타임라인_조회_실패는_입력_가능한_재조회_상태를_유지한다() async throws {
         let goal = try makeDevelopmentGoal()

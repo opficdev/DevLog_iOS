@@ -11,11 +11,17 @@ import PresentationShared
 
 public struct RecordDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    private let onUpdate: () -> Void
     @State private var store: StoreOf<RecordDetailFeature>
     @State private var isEditorPresented = false
     @State private var isHistoryPresented = false
 
-    public init(goalTitle: String, record: DevelopmentRecord) {
+    public init(
+        goalTitle: String,
+        record: DevelopmentRecord,
+        onUpdate: @escaping () -> Void = { }
+    ) {
+        self.onUpdate = onUpdate
         self._store = State(initialValue: Store(
             initialState: RecordDetailFeature.State(
                 goalTitle: goalTitle,
@@ -81,6 +87,10 @@ public struct RecordDetailView: View {
             if store.isLoading || store.isRestoring {
                 LoadingView()
             }
+        }
+        .onChange(of: store.restoredSourceVersionID) { _, sourceVersionID in
+            guard sourceVersionID != nil else { return }
+            onUpdate()
         }
     }
 
@@ -238,5 +248,6 @@ public struct RecordDetailView: View {
     private func finishEditing() {
         isEditorPresented = false
         store.send(.view(.fetch))
+        onUpdate()
     }
 }
