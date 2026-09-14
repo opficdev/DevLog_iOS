@@ -12,12 +12,14 @@ public struct DevelopmentRecord: Hashable {
         public let title: String
         public let markdownContent: String
         public let baseVersionId: String?
+        public let revisionId: String?
         public let updatedAt: Date
 
         public init(
             title: String,
             markdownContent: String,
             baseVersionId: String?,
+            revisionId: String? = nil,
             updatedAt: Date
         ) throws {
             guard title.containsMeaningfulCharacter else {
@@ -26,10 +28,14 @@ public struct DevelopmentRecord: Hashable {
             guard baseVersionId?.containsMeaningfulCharacter != false else {
                 throw DomainLayerError.invalidDevelopmentRecordVersion
             }
+            guard revisionId?.containsMeaningfulCharacter != false else {
+                throw DomainLayerError.invalidDevelopmentRecordVersion
+            }
 
             self.title = title
             self.markdownContent = markdownContent
             self.baseVersionId = baseVersionId
+            self.revisionId = revisionId
             self.updatedAt = updatedAt
         }
     }

@@ -20,6 +20,7 @@ struct DevelopmentRecordUseCaseTests {
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
             idProvider: { "record-1" },
+            revisionIdProvider: { "revision-1" },
             now: { createdAt }
         )
         let result = try await useCase.execute(
@@ -37,6 +38,7 @@ struct DevelopmentRecordUseCaseTests {
                     title: "기록",
                     markdownContent: "본문",
                     baseVersionId: nil,
+                    revisionId: "revision-1",
                     updatedAt: createdAt
                 )
             )
@@ -94,12 +96,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
             baseVersionId: nil,
+            draftRevisionId: "revision-1",
             title: "수정 기록",
             markdownContent: "수정 본문"
         )
@@ -109,10 +113,12 @@ struct DevelopmentRecordUseCaseTests {
             .init(
                 goalId: "goal-1",
                 recordId: "record-1",
+                expectedRevisionId: "revision-1",
                 draft: try DevelopmentRecord.Draft(
                     title: "수정 기록",
                     markdownContent: "수정 본문",
                     baseVersionId: nil,
+                    revisionId: "revision-2",
                     updatedAt: updatedAt
                 )
             )
@@ -129,6 +135,7 @@ struct DevelopmentRecordUseCaseTests {
                 title: "정정 초안",
                 markdownContent: "본문",
                 baseVersionId: currentVersion.id,
+                revisionId: "revision-1",
                 updatedAt: .distantPast
             )
         )
@@ -146,12 +153,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         _ = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
             baseVersionId: currentVersion.id,
+            draftRevisionId: "revision-1",
             title: "수정 정정 초안",
             markdownContent: "수정 본문"
         )
@@ -180,12 +189,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
             baseVersionId: currentVersion.id,
+            draftRevisionId: nil,
             title: "정정 초안",
             markdownContent: "본문"
         )
@@ -195,10 +206,12 @@ struct DevelopmentRecordUseCaseTests {
             .init(
                 goalId: "goal-1",
                 recordId: "record-1",
+                expectedRevisionId: nil,
                 draft: try DevelopmentRecord.Draft(
                     title: "정정 초안",
                     markdownContent: "본문",
                     baseVersionId: currentVersion.id,
+                    revisionId: "revision-2",
                     updatedAt: updatedAt
                 )
             )

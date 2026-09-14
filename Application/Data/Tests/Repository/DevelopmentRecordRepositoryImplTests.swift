@@ -45,7 +45,8 @@ struct DevelopmentRecordRepositoryImplTests {
             recordId: "record-1",
             versionId: "version-2",
             kind: .correction,
-            sourceVersionId: "version-1"
+            sourceVersionId: "version-1",
+            draftRevisionId: "revision-1"
         )
 
         let request = try #require(await service.confirmationRequest())
@@ -53,6 +54,7 @@ struct DevelopmentRecordRepositoryImplTests {
         #expect(request.versionId == "version-2")
         #expect(request.kind == "correction")
         #expect(request.sourceVersionId == "version-1")
+        #expect(request.draftRevisionId == "revision-1")
     }
 }
 

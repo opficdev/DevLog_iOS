@@ -24,7 +24,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
-            baseVersionId: nil
+            baseVersionId: nil,
+            draftRevisionId: "revision-1"
         )
 
         #expect(result == version)
@@ -34,7 +35,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
                 recordId: "record-1",
                 versionId: "version-1",
                 kind: .initial,
-                sourceVersionId: nil
+                sourceVersionId: nil,
+                draftRevisionId: "revision-1"
             )
         ])
     }
@@ -49,6 +51,7 @@ struct DevelopmentRecordConfirmUseCaseTests {
                 title: "정정 초안",
                 markdownContent: "본문",
                 baseVersionId: currentVersion.id,
+                revisionId: "revision-1",
                 updatedAt: .distantPast
             )
         )
@@ -66,7 +69,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
         _ = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
-            baseVersionId: currentVersion.id
+            baseVersionId: currentVersion.id,
+            draftRevisionId: "revision-1"
         )
 
         #expect(await repository.confirmRequests() == [
@@ -75,7 +79,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
                 recordId: "record-1",
                 versionId: "version-2",
                 kind: .correction,
-                sourceVersionId: currentVersion.id
+                sourceVersionId: currentVersion.id,
+                draftRevisionId: "revision-1"
             )
         ])
     }
@@ -93,7 +98,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
             try await useCase.execute(
                 goalId: "goal-1",
                 recordId: "record-1",
-                baseVersionId: nil
+                baseVersionId: nil,
+                draftRevisionId: nil
             )
         }
         #expect(await repository.confirmRequests().isEmpty)
@@ -120,7 +126,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
-            baseVersionId: nil
+            baseVersionId: nil,
+            draftRevisionId: "revision-1"
         )
 
         #expect(result == version)

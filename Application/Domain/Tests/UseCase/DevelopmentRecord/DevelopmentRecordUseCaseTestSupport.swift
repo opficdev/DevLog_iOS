@@ -58,6 +58,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     struct DraftRequest: Equatable {
         let goalId: String
         let recordId: String
+        let expectedRevisionId: String?
         let draft: DevelopmentRecord.Draft
     }
 
@@ -67,6 +68,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         let versionId: String
         let kind: DevelopmentRecord.Version.Kind
         let sourceVersionId: String?
+        let draftRevisionId: String?
     }
 
     struct RestoreRequest: Equatable {
@@ -144,9 +146,15 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     func saveDraft(
         goalId: String,
         recordId: String,
+        expectedRevisionId: String?,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord {
-        recordedDraftRequests.append(.init(goalId: goalId, recordId: recordId, draft: draft))
+        recordedDraftRequests.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            expectedRevisionId: expectedRevisionId,
+            draft: draft
+        ))
         return try requiredDevelopmentRecordRepositoryResult(savedRecord)
     }
 
@@ -155,7 +163,8 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         recordId: String,
         versionId: String,
         kind: DevelopmentRecord.Version.Kind,
-        sourceVersionId: String?
+        sourceVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         recordedConfirmRequests.append(
             .init(
@@ -163,7 +172,8 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
                 recordId: recordId,
                 versionId: versionId,
                 kind: kind,
-                sourceVersionId: sourceVersionId
+                sourceVersionId: sourceVersionId,
+                draftRevisionId: draftRevisionId
             )
         )
         if let confirmError {
@@ -236,6 +246,7 @@ func makeDevelopmentRecordGoal(
 }
 
 func makeDevelopmentRecordInitialDraft(
+    revisionId: String = "revision-1",
     updatedAt: Date = .distantPast
 ) throws -> DevelopmentRecord {
     try makeDevelopmentRecord(
@@ -244,6 +255,7 @@ func makeDevelopmentRecordInitialDraft(
             title: "기록",
             markdownContent: "본문",
             baseVersionId: nil,
+            revisionId: revisionId,
             updatedAt: updatedAt
         )
     )

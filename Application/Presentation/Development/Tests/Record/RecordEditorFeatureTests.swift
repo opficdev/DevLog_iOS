@@ -151,8 +151,18 @@ struct RecordEditorFeatureTests {
 
         #expect(await createSpy.requests().count == 1)
         #expect(await confirmSpy.requests() == [
-            .init(goalId: "goal", recordId: record.id, baseVersionId: nil),
-            .init(goalId: "goal", recordId: record.id, baseVersionId: nil)
+            .init(
+                goalId: "goal",
+                recordId: record.id,
+                baseVersionId: nil,
+                draftRevisionId: record.draft?.revisionId
+            ),
+            .init(
+                goalId: "goal",
+                recordId: record.id,
+                baseVersionId: nil,
+                draftRevisionId: record.draft?.revisionId
+            )
         ])
     }
 

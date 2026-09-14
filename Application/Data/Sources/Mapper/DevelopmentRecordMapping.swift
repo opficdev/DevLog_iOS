@@ -8,11 +8,16 @@
 import Domain
 
 public extension DevelopmentRecordDraftRequest {
-    static func fromDomain(_ draft: DevelopmentRecord.Draft) -> Self {
+    static func fromDomain(
+        _ draft: DevelopmentRecord.Draft,
+        expectedRevisionId: String? = nil
+    ) -> Self {
         Self(
             title: draft.title,
             markdownContent: draft.markdownContent,
-            baseVersionId: draft.baseVersionId
+            baseVersionId: draft.baseVersionId,
+            revisionId: draft.revisionId,
+            expectedRevisionId: expectedRevisionId
         )
     }
 }
@@ -23,6 +28,7 @@ public extension DevelopmentRecordDraftResponse {
             title: title,
             markdownContent: markdownContent,
             baseVersionId: baseVersionId,
+            revisionId: revisionId,
             updatedAt: updatedAt
         )
     }

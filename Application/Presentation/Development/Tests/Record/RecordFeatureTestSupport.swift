@@ -71,6 +71,7 @@ struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase 
         goalId: String,
         recordId: String,
         baseVersionId: String?,
+        draftRevisionId: String?,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
@@ -84,7 +85,8 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
-        baseVersionId: String?
+        baseVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         try result.get()
     }
@@ -127,6 +129,7 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
         let goalId: String
         let recordId: String
         let baseVersionId: String?
+        let draftRevisionId: String?
     }
 
     private var results: [Result<DevelopmentRecord.Version, Error>]
@@ -139,12 +142,14 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
-        baseVersionId: String?
+        baseVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         recordedRequests.append(.init(
             goalId: goalId,
             recordId: recordId,
-            baseVersionId: baseVersionId
+            baseVersionId: baseVersionId,
+            draftRevisionId: draftRevisionId
         ))
         guard !results.isEmpty else { throw RecordTestError.failed }
         return try results.removeFirst().get()
@@ -198,12 +203,14 @@ func makeConfirmedDevelopmentRecord(
 
 func makeDevelopmentRecordDraft(
     title: String = "기록 제목",
-    markdownContent: String = "# 내용"
+    markdownContent: String = "# 내용",
+    revisionId: String = "revision"
 ) throws -> DevelopmentRecord.Draft {
     try DevelopmentRecord.Draft(
         title: title,
         markdownContent: markdownContent,
         baseVersionId: nil,
+        revisionId: revisionId,
         updatedAt: Date(timeIntervalSince1970: 1_700_000_100)
     )
 }

@@ -110,7 +110,8 @@ struct RecordEditorFeature {
                 state.record = record
                 return confirmPreparedRecordEffect(
                     goalId: state.goalId,
-                    recordId: record.id
+                    recordId: record.id,
+                    draftRevisionId: record.draft?.revisionId
                 )
             case .store(.confirmed(let version)):
                 state.isLoading = false
@@ -138,6 +139,7 @@ private extension RecordEditorFeature {
                         goalId: state.goalId,
                         recordId: recordId,
                         baseVersionId: nil,
+                        draftRevisionId: state.record?.draft?.revisionId,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )
@@ -164,6 +166,7 @@ private extension RecordEditorFeature {
                         goalId: state.goalId,
                         recordId: recordId,
                         baseVersionId: nil,
+                        draftRevisionId: state.record?.draft?.revisionId,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )
@@ -183,14 +186,16 @@ private extension RecordEditorFeature {
 
     func confirmPreparedRecordEffect(
         goalId: String,
-        recordId: String
+        recordId: String,
+        draftRevisionId: String?
     ) -> Effect<Action> {
         .run { [confirmRecordUseCase] send in
             do {
                 let version = try await confirmRecordUseCase.execute(
                     goalId: goalId,
                     recordId: recordId,
-                    baseVersionId: nil
+                    baseVersionId: nil,
+                    draftRevisionId: draftRevisionId
                 )
                 await send(.store(.confirmed(version)))
             } catch {

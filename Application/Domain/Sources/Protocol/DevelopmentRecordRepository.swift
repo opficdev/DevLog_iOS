@@ -17,6 +17,7 @@ public protocol DevelopmentRecordRepository {
     func saveDraft(
         goalId: String,
         recordId: String,
+        expectedRevisionId: String?,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord
     func confirmDraft(
@@ -24,7 +25,8 @@ public protocol DevelopmentRecordRepository {
         recordId: String,
         versionId: String,
         kind: DevelopmentRecord.Version.Kind,
-        sourceVersionId: String?
+        sourceVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version
     func restoreVersion(
         goalId: String,

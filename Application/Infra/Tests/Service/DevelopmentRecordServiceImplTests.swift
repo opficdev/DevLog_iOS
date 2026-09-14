@@ -136,10 +136,43 @@ struct DevelopmentRecordServiceImplTests {
         #expect(missingCurrentVersion == nil)
     }
 
+    @Test("기대한 Draft 개정이 바뀌면 저장과 확정을 거부한다")
+    func 기대한_Draft_개정이_바뀌면_저장과_확정을_거부한다() {
+        let recordData = makeRecordData(
+            currentVersionId: nil,
+            currentVersionNumber: nil,
+            draftBaseVersionId: nil,
+            draftRevisionId: "revision-2"
+        )
+        let draftData = DevelopmentRecordServiceImpl.makeDraftData(
+            recordData: recordData,
+            request: .init(
+                title: "기록",
+                markdownContent: "본문",
+                baseVersionId: nil,
+                revisionId: "revision-3",
+                expectedRevisionId: "revision-1"
+            )
+        )
+        let confirmation = DevelopmentRecordServiceImpl.makeConfirmationMutation(
+            recordData: recordData,
+            request: .init(
+                versionId: "version-1",
+                kind: "initial",
+                sourceVersionId: nil,
+                draftRevisionId: "revision-1"
+            )
+        )
+
+        #expect(draftData == nil)
+        #expect(confirmation == nil)
+    }
+
     private func makeRecordData(
         currentVersionId: String? = nil,
         currentVersionNumber: Int? = nil,
         draftBaseVersionId: String?,
+        draftRevisionId: String? = nil,
         includesDraft: Bool = true
     ) -> [String: Any] {
         var data: [String: Any] = [
@@ -157,6 +190,9 @@ struct DevelopmentRecordServiceImplTests {
             ]
             if let draftBaseVersionId {
                 draft[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] = draftBaseVersionId
+            }
+            if let draftRevisionId {
+                draft[DevelopmentRecordDraftFieldKey.revisionId.rawValue] = draftRevisionId
             }
             data[DevelopmentRecordFieldKey.draft.rawValue] = draft
         }

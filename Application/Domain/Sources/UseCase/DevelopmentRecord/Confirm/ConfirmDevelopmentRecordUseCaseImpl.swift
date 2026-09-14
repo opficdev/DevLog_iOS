@@ -25,7 +25,8 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
     public func execute(
         goalId: String,
         recordId: String,
-        baseVersionId: String?
+        baseVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
@@ -40,7 +41,8 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
             throw DomainLayerError.developmentRecordDraftNotFound
         }
         guard record.currentVersion?.id == baseVersionId,
-              draft.baseVersionId == baseVersionId else {
+              draft.baseVersionId == baseVersionId,
+              draft.revisionId == draftRevisionId else {
             throw DomainLayerError.developmentRecordDraftConflict
         }
 
@@ -54,7 +56,8 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
                 recordId: recordId,
                 versionId: versionId,
                 kind: kind,
-                sourceVersionId: baseVersionId
+                sourceVersionId: baseVersionId,
+                draftRevisionId: draftRevisionId
             )
         } catch {
             guard let version = try? await confirmedVersion(

@@ -23,11 +23,48 @@ struct DevelopmentRecordConcurrencyUseCaseTests {
                 goalId: "goal-1",
                 recordId: "record-1",
                 baseVersionId: nil,
+                draftRevisionId: nil,
                 title: "오래된 초안",
                 markdownContent: "본문"
             )
         }
         #expect(await repository.draftRequests().isEmpty)
+    }
+
+    @Test("기대한 Draft 개정이 바뀌면 저장과 확정을 거부한다")
+    func 기대한_Draft_개정이_바뀌면_저장과_확정을_거부한다() async throws {
+        let goal = try makeDevelopmentRecordGoal()
+        let record = try makeDevelopmentRecordInitialDraft(revisionId: "revision-2")
+        let repository = DevelopmentRecordRepositorySpy(record: record)
+        let saveUseCase = SaveDevelopmentRecordDraftUseCaseImpl(
+            repository,
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
+        )
+        let confirmUseCase = ConfirmDevelopmentRecordUseCaseImpl(
+            repository,
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
+        )
+
+        await expectDevelopmentRecordDomainError(.developmentRecordDraftConflict) {
+            try await saveUseCase.execute(
+                goalId: "goal-1",
+                recordId: "record-1",
+                baseVersionId: nil,
+                draftRevisionId: "revision-1",
+                title: "오래된 초안",
+                markdownContent: "본문"
+            )
+        }
+        await expectDevelopmentRecordDomainError(.developmentRecordDraftConflict) {
+            try await confirmUseCase.execute(
+                goalId: "goal-1",
+                recordId: "record-1",
+                baseVersionId: nil,
+                draftRevisionId: "revision-1"
+            )
+        }
+        #expect(await repository.draftRequests().isEmpty)
+        #expect(await repository.confirmRequests().isEmpty)
     }
 
     @Test("최초 확정 중 현재 버전이 바뀌면 정정 확정으로 전환하지 않는다")
@@ -40,6 +77,7 @@ struct DevelopmentRecordConcurrencyUseCaseTests {
                 title: "정정 초안",
                 markdownContent: "본문",
                 baseVersionId: currentVersion.id,
+                revisionId: "revision-1",
                 updatedAt: .distantPast
             )
         )
@@ -53,7 +91,8 @@ struct DevelopmentRecordConcurrencyUseCaseTests {
             try await useCase.execute(
                 goalId: "goal-1",
                 recordId: "record-1",
-                baseVersionId: nil
+                baseVersionId: nil,
+                draftRevisionId: "revision-1"
             )
         }
         #expect(await repository.confirmRequests().isEmpty)

@@ -17,6 +17,7 @@ struct DevelopmentRecordMappingTests {
             title: "기록",
             markdownContent: "본문",
             baseVersionId: "version-1",
+            revisionId: "revision-1",
             updatedAt: .distantPast
         )
 
@@ -25,6 +26,7 @@ struct DevelopmentRecordMappingTests {
         #expect(request.title == "기록")
         #expect(request.markdownContent == "본문")
         #expect(request.baseVersionId == "version-1")
+        #expect(request.revisionId == "revision-1")
     }
 
     @Test("저장 버전 종류는 Domain 종류로 변환한다")

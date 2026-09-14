@@ -42,6 +42,7 @@ struct DevelopmentRecordDocumentMapper {
                 title: title,
                 markdownContent: markdownContent,
                 baseVersionId: data[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] as? String,
+                revisionId: data[DevelopmentRecordDraftFieldKey.revisionId.rawValue] as? String,
                 updatedAt: updatedAt.dateValue()
             )
         } else {
@@ -94,6 +95,7 @@ enum DevelopmentRecordDraftFieldKey: String {
     case title
     case markdownContent
     case baseVersionId
+    case revisionId
     case updatedAt
 }
 

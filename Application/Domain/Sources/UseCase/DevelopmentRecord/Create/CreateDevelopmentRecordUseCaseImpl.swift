@@ -11,17 +11,20 @@ public final class CreateDevelopmentRecordUseCaseImpl: CreateDevelopmentRecordUs
     private let repository: DevelopmentRecordRepository
     private let goalRepository: DevelopmentGoalRepository
     private let idProvider: () -> String
+    private let revisionIdProvider: () -> String
     private let now: () -> Date
 
     init(
         _ repository: DevelopmentRecordRepository,
         _ goalRepository: DevelopmentGoalRepository,
         idProvider: @escaping () -> String = { UUID().uuidString },
+        revisionIdProvider: @escaping () -> String = { UUID().uuidString },
         now: @escaping () -> Date = Date.init
     ) {
         self.repository = repository
         self.goalRepository = goalRepository
         self.idProvider = idProvider
+        self.revisionIdProvider = revisionIdProvider
         self.now = now
     }
 
@@ -39,6 +42,7 @@ public final class CreateDevelopmentRecordUseCaseImpl: CreateDevelopmentRecordUs
             title: title,
             markdownContent: markdownContent,
             baseVersionId: nil,
+            revisionId: revisionIdProvider(),
             updatedAt: now()
         )
         return try await repository.createRecord(
