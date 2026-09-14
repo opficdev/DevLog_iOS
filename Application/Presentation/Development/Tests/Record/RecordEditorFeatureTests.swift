@@ -46,10 +46,16 @@ struct RecordEditorFeatureTests {
         }
         await store.receive(.store(.preparedForConfirmation(record))) {
             $0.record = record
+            $0.confirmationPreparation = .init(
+                record: record,
+                title: "기록 제목",
+                markdownContent: ""
+            )
         }
         await store.receive(.store(.confirmed(version))) {
             $0.isLoading = false
             $0.result = .confirmed(version)
+            $0.confirmationPreparation = nil
         }
         await store.receive(.delegate(.confirmed(version)))
     }
@@ -143,8 +149,8 @@ struct RecordEditorFeatureTests {
         #expect(await createSpy.requests().map(\.recordId) == [record.id, record.id])
     }
 
-    @Test("확정 실패 뒤 재시도는 생성된 기록을 다시 사용한다")
-    func 확정_실패_뒤_재시도는_생성된_기록을_다시_사용한다() async throws {
+    @Test("확정 실패 뒤 재시도는 준비된 기록과 versionId를 다시 사용한다")
+    func 확정_실패_뒤_재시도는_준비된_기록과_versionId를_다시_사용한다() async throws {
         let record = try makeDevelopmentRecord()
         let version = try makeDevelopmentRecordVersion()
         let createSpy = CreateDevelopmentRecordUseCaseSpy(result: .success(record))
@@ -176,6 +182,11 @@ struct RecordEditorFeatureTests {
         }
         await store.receive(.store(.preparedForConfirmation(record))) {
             $0.record = record
+            $0.confirmationPreparation = .init(
+                record: record,
+                title: "기록 제목",
+                markdownContent: ""
+            )
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
@@ -188,10 +199,10 @@ struct RecordEditorFeatureTests {
             $0.isLoading = true
             $0.result = nil
         }
-        await store.receive(.store(.preparedForConfirmation(record)))
         await store.receive(.store(.confirmed(version))) {
             $0.isLoading = false
             $0.result = .confirmed(version)
+            $0.confirmationPreparation = nil
         }
         await store.receive(.delegate(.confirmed(version)))
 

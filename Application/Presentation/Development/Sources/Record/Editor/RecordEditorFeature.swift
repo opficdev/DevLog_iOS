@@ -24,6 +24,7 @@ struct RecordEditorFeature {
         var selectedTab = EditorTab.write
         var isLoading = false
         var result: Result?
+        var confirmationPreparation: ConfirmationPreparation?
 
         var versionNumber: Int {
             (record?.currentVersion?.number ?? 0) + 1
@@ -66,6 +67,12 @@ struct RecordEditorFeature {
         case confirmed(DevelopmentRecord.Version)
     }
 
+    struct ConfirmationPreparation: Equatable {
+        let record: DevelopmentRecord
+        let title: String
+        let markdownContent: String
+    }
+
     enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Never>)
         case binding(BindingAction<State>)
@@ -105,19 +112,37 @@ struct RecordEditorFeature {
                 guard state.isReadyToSave else { break }
                 state.isLoading = true
                 state.result = nil
+                state.confirmationPreparation = nil
                 return saveEffect(state: state)
             case .view(.confirm):
                 guard state.canConfirmInitialVersion else { break }
                 state.isLoading = true
                 state.result = nil
+                if let preparation = state.confirmationPreparation,
+                   preparation.title == state.title,
+                   preparation.markdownContent == state.markdownContent {
+                    return confirmPreparedRecordEffect(
+                        goalId: state.goalId,
+                        recordId: preparation.record.id,
+                        versionId: state.versionId,
+                        draftRevisionId: preparation.record.draft?.revisionId
+                    )
+                }
+                state.confirmationPreparation = nil
                 return prepareConfirmationEffect(state: state)
             case .store(.saved(let record)):
                 state.record = record
                 state.isLoading = false
                 state.result = .saved(record)
+                state.confirmationPreparation = nil
                 return .send(.delegate(.saved(record)))
             case .store(.preparedForConfirmation(let record)):
                 state.record = record
+                state.confirmationPreparation = ConfirmationPreparation(
+                    record: record,
+                    title: state.title,
+                    markdownContent: state.markdownContent
+                )
                 return confirmPreparedRecordEffect(
                     goalId: state.goalId,
                     recordId: record.id,
@@ -127,6 +152,7 @@ struct RecordEditorFeature {
             case .store(.confirmed(let version)):
                 state.isLoading = false
                 state.result = .confirmed(version)
+                state.confirmationPreparation = nil
                 return .send(.delegate(.confirmed(version)))
             case .store(.failed):
                 state.isLoading = false
