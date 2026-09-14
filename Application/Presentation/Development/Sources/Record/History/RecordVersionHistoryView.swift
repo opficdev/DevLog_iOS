@@ -100,7 +100,7 @@ struct RecordVersionHistoryView: View {
     }
 
     private var historyCard: some View {
-        LazyVStack(spacing: 0) {
+        LazyVStack(spacing: 12) {
             ForEach(Array(sortedVersions.enumerated()), id: \.element.id) { index, version in
                 Button {
                     if version.id == store.currentVersionID {
