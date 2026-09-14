@@ -59,6 +59,7 @@ public struct RecordEditorView: View {
                 dismiss()
             }
         }
+        .interactiveDismissDisabled(store.isLoading)
     }
 
     private var topBar: some View {
@@ -75,6 +76,7 @@ public struct RecordEditorView: View {
             }
             .font(.title)
             .topBarButtonStyle()
+            .disabled(store.isLoading)
             Spacer()
             Text(RecordPresentation.text("development_record_editor_title"))
                 .font(.headline)
