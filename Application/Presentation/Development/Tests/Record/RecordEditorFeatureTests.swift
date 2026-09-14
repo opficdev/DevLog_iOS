@@ -155,7 +155,8 @@ struct RecordEditorFeatureTests {
         let store = TestStore(
             initialState: RecordEditorFeature.State(
                 goalId: "goal",
-                goalTitle: "개발 목표"
+                goalTitle: "개발 목표",
+                versionId: version.id
             )
         ) {
             RecordEditorFeature()
@@ -199,12 +200,14 @@ struct RecordEditorFeatureTests {
             .init(
                 goalId: "goal",
                 recordId: record.id,
+                versionId: version.id,
                 baseVersionId: nil,
                 draftRevisionId: record.draft?.revisionId
             ),
             .init(
                 goalId: "goal",
                 recordId: record.id,
+                versionId: version.id,
                 baseVersionId: nil,
                 draftRevisionId: record.draft?.revisionId
             )

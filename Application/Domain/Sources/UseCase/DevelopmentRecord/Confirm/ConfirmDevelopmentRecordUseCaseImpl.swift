@@ -5,35 +5,40 @@
 //  Created by opfic on 8/27/26.
 //
 
-import Foundation
-
 public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecordUseCase {
     private let repository: DevelopmentRecordRepository
     private let goalRepository: DevelopmentGoalRepository
-    private let idProvider: () -> String
 
     init(
         _ repository: DevelopmentRecordRepository,
-        _ goalRepository: DevelopmentGoalRepository,
-        idProvider: @escaping () -> String = { UUID().uuidString }
+        _ goalRepository: DevelopmentGoalRepository
     ) {
         self.repository = repository
         self.goalRepository = goalRepository
-        self.idProvider = idProvider
     }
 
     public func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
+        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
+        if record.currentVersion?.id == versionId {
+            return try await confirmedVersion(
+                record: record,
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId
+            )
+        }
+
         let goal = try await goalRepository.fetchGoal(goalId)
         guard goal.status == .inProgress else {
             throw DomainLayerError.developmentGoalIsNotInProgress
         }
 
-        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
         guard record.id == recordId, record.goalId == goalId else {
             throw DomainLayerError.invalidData(context: "developmentRecord")
         }
@@ -46,7 +51,6 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
             throw DomainLayerError.developmentRecordDraftConflict
         }
 
-        let versionId = idProvider()
         let kind = baseVersionId == nil
             ? DevelopmentRecord.Version.Kind.initial
             : .correction
@@ -60,7 +64,11 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
                 draftRevisionId: draftRevisionId
             )
         } catch {
-            guard let version = try? await confirmedVersion(
+            guard let record = try? await repository.fetchRecord(
+                goalId: goalId,
+                recordId: recordId
+            ), let version = try? await confirmedVersion(
+                record: record,
                 goalId: goalId,
                 recordId: recordId,
                 versionId: versionId
@@ -74,11 +82,11 @@ public final class ConfirmDevelopmentRecordUseCaseImpl: ConfirmDevelopmentRecord
 
 private extension ConfirmDevelopmentRecordUseCaseImpl {
     func confirmedVersion(
+        record: DevelopmentRecord,
         goalId: String,
         recordId: String,
         versionId: String
     ) async throws -> DevelopmentRecord.Version {
-        let record = try await repository.fetchRecord(goalId: goalId, recordId: recordId)
         guard record.currentVersion?.id == versionId else {
             throw DomainLayerError.developmentRecordVersionNotFound
         }

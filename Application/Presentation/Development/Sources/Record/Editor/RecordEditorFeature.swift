@@ -17,6 +17,7 @@ struct RecordEditorFeature {
         let goalId: String
         let goalTitle: String
         let recordId: String
+        let versionId: String
         var record: DevelopmentRecord?
         var title: String
         var markdownContent: String
@@ -42,11 +43,13 @@ struct RecordEditorFeature {
             goalId: String,
             goalTitle: String,
             record: DevelopmentRecord? = nil,
-            recordId: String = UUID().uuidString
+            recordId: String = UUID().uuidString,
+            versionId: String = UUID().uuidString
         ) {
             self.goalId = goalId
             self.goalTitle = goalTitle
             self.recordId = record?.id ?? recordId
+            self.versionId = versionId
             self.record = record
             self.title = record?.draft?.title ?? ""
             self.markdownContent = record?.draft?.markdownContent ?? ""
@@ -118,6 +121,7 @@ struct RecordEditorFeature {
                 return confirmPreparedRecordEffect(
                     goalId: state.goalId,
                     recordId: record.id,
+                    versionId: state.versionId,
                     draftRevisionId: record.draft?.revisionId
                 )
             case .store(.confirmed(let version)):
@@ -196,6 +200,7 @@ private extension RecordEditorFeature {
     func confirmPreparedRecordEffect(
         goalId: String,
         recordId: String,
+        versionId: String,
         draftRevisionId: String?
     ) -> Effect<Action> {
         .run { [confirmRecordUseCase] send in
@@ -203,6 +208,7 @@ private extension RecordEditorFeature {
                 let version = try await confirmRecordUseCase.execute(
                     goalId: goalId,
                     recordId: recordId,
+                    versionId: versionId,
                     baseVersionId: nil,
                     draftRevisionId: draftRevisionId
                 )

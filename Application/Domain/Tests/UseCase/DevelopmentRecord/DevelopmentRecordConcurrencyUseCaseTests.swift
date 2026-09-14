@@ -59,6 +59,7 @@ struct DevelopmentRecordConcurrencyUseCaseTests {
             try await confirmUseCase.execute(
                 goalId: "goal-1",
                 recordId: "record-1",
+                versionId: "version-1",
                 baseVersionId: nil,
                 draftRevisionId: "revision-1"
             )
@@ -91,6 +92,7 @@ struct DevelopmentRecordConcurrencyUseCaseTests {
             try await useCase.execute(
                 goalId: "goal-1",
                 recordId: "record-1",
+                versionId: "version-2",
                 baseVersionId: nil,
                 draftRevisionId: "revision-1"
             )

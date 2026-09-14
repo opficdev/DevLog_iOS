@@ -71,6 +71,7 @@ struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase 
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?,
         title: String,
@@ -137,6 +138,7 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
     struct Request: Equatable {
         let goalId: String
         let recordId: String
+        let versionId: String
         let baseVersionId: String?
         let draftRevisionId: String?
     }
@@ -151,12 +153,14 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         recordedRequests.append(.init(
             goalId: goalId,
             recordId: recordId,
+            versionId: versionId,
             baseVersionId: baseVersionId,
             draftRevisionId: draftRevisionId
         ))

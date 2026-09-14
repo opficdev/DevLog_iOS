@@ -17,13 +17,13 @@ struct DevelopmentRecordConfirmUseCaseTests {
         let repository = DevelopmentRecordRepositorySpy(record: record, confirmedVersion: version)
         let useCase = ConfirmDevelopmentRecordUseCaseImpl(
             repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "version-1" }
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
         )
 
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            versionId: "version-1",
             baseVersionId: nil,
             draftRevisionId: "revision-1"
         )
@@ -62,13 +62,13 @@ struct DevelopmentRecordConfirmUseCaseTests {
         let repository = DevelopmentRecordRepositorySpy(record: record, confirmedVersion: version)
         let useCase = ConfirmDevelopmentRecordUseCaseImpl(
             repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "version-2" }
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
         )
 
         _ = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            versionId: "version-2",
             baseVersionId: currentVersion.id,
             draftRevisionId: "revision-1"
         )
@@ -98,6 +98,7 @@ struct DevelopmentRecordConfirmUseCaseTests {
             try await useCase.execute(
                 goalId: "goal-1",
                 recordId: "record-1",
+                versionId: "version-2",
                 baseVersionId: nil,
                 draftRevisionId: nil
             )
@@ -119,13 +120,13 @@ struct DevelopmentRecordConfirmUseCaseTests {
         )
         let useCase = ConfirmDevelopmentRecordUseCaseImpl(
             repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { version.id }
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
         )
 
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            versionId: version.id,
             baseVersionId: nil,
             draftRevisionId: "revision-1"
         )
@@ -135,5 +136,43 @@ struct DevelopmentRecordConfirmUseCaseTests {
         #expect(await repository.versionQueries() == [
             .init(goalId: "goal-1", recordId: "record-1")
         ])
+    }
+
+    @Test("확정 결과 조회가 연속 실패해도 같은 versionId로 복구한다")
+    func 확정_결과_조회가_연속_실패해도_같은_versionId로_복구한다() async throws {
+        let goal = try makeDevelopmentRecordGoal()
+        let draft = try makeDevelopmentRecordInitialDraft()
+        let confirmedRecord = try makeDevelopmentRecordConfirmed()
+        let version = try makeDevelopmentRecordInitialVersion()
+        let repository = DevelopmentRecordRepositorySpy(
+            record: draft,
+            subsequentRecords: [draft, confirmedRecord],
+            versions: [version],
+            confirmError: DevelopmentRecordRepositorySpyError.unconfigured
+        )
+        let useCase = ConfirmDevelopmentRecordUseCaseImpl(
+            repository,
+            DevelopmentRecordGoalRepositorySpy(goal: goal)
+        )
+
+        await #expect(throws: DevelopmentRecordRepositorySpyError.self) {
+            try await useCase.execute(
+                goalId: "goal-1",
+                recordId: "record-1",
+                versionId: version.id,
+                baseVersionId: nil,
+                draftRevisionId: "revision-1"
+            )
+        }
+        let result = try await useCase.execute(
+            goalId: "goal-1",
+            recordId: "record-1",
+            versionId: version.id,
+            baseVersionId: nil,
+            draftRevisionId: "revision-1"
+        )
+
+        #expect(result == version)
+        #expect(await repository.confirmRequests().count == 1)
     }
 }
