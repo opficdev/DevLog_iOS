@@ -13,7 +13,9 @@ enum RecordTestError: Error {
     case failed
 }
 
-func makeRecordErrorAlert(_ messageKey: String.LocalizationValue) -> AlertState<Never> {
+func makeRecordErrorAlert<Action>(
+    _ messageKey: String.LocalizationValue
+) -> AlertState<Action> {
     AlertState {
         TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
     } actions: {
@@ -80,10 +82,10 @@ struct CreateDevelopmentRecordUseCaseStub: CreateDevelopmentRecordUseCase {
 struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase {
     let result: Result<DevelopmentRecord, Error>
 
+    // swiftlint:disable:next function_parameter_count
     func execute(
         goalId: String,
         recordId: String,
-        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?,
         title: String,
@@ -99,8 +101,22 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?
+    ) async throws -> DevelopmentRecord.Version {
+        try result.get()
+    }
+}
+
+struct RestoreDevelopmentRecordUseCaseStub: RestoreDevelopmentRecordUseCase {
+    let result: Result<DevelopmentRecord.Version, Error>
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String,
+        sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version {
         try result.get()
     }
@@ -185,6 +201,46 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
     }
 }
 
+actor RestoreDevelopmentRecordUseCaseSpy: RestoreDevelopmentRecordUseCase {
+    struct Request: Equatable {
+        let goalId: String
+        let recordId: String
+        let versionId: String
+        let sourceVersionId: String
+    }
+
+    private var results: [Result<DevelopmentRecord.Version, Error>]
+    private var recordedRequests = [Request]()
+
+    init(result: Result<DevelopmentRecord.Version, Error>) {
+        self.results = [result]
+    }
+
+    init(results: [Result<DevelopmentRecord.Version, Error>]) {
+        self.results = results
+    }
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String,
+        sourceVersionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        recordedRequests.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            versionId: versionId,
+            sourceVersionId: sourceVersionId
+        ))
+        guard !results.isEmpty else { throw RecordTestError.failed }
+        return try results.removeFirst().get()
+    }
+
+    func requests() -> [Request] {
+        recordedRequests
+    }
+}
+
 func makeDevelopmentGoal(title: String = "개발 목표") throws -> DevelopmentGoal {
     let date = Date(timeIntervalSince1970: 1_700_000_000)
     return try DevelopmentGoal(
@@ -215,13 +271,15 @@ func makeDevelopmentRecord(
 
 func makeConfirmedDevelopmentRecord(
     id: String = "record",
-    versionId: String = "version"
+    versionId: String = "version",
+    versionNumber: Int = 1,
+    draft: DevelopmentRecord.Draft? = nil
 ) throws -> DevelopmentRecord {
     try DevelopmentRecord(
         id: id,
         goalId: "goal",
-        currentVersion: DevelopmentRecord.CurrentVersion(id: versionId, number: 1),
-        draft: nil,
+        currentVersion: DevelopmentRecord.CurrentVersion(id: versionId, number: versionNumber),
+        draft: draft,
         createdAt: Date(timeIntervalSince1970: 1_700_000_000)
     )
 }
@@ -229,12 +287,13 @@ func makeConfirmedDevelopmentRecord(
 func makeDevelopmentRecordDraft(
     title: String = "기록 제목",
     markdownContent: String = "# 내용",
+    baseVersionId: String? = nil,
     revisionId: String = "revision"
 ) throws -> DevelopmentRecord.Draft {
     try DevelopmentRecord.Draft(
         title: title,
         markdownContent: markdownContent,
-        baseVersionId: nil,
+        baseVersionId: baseVersionId,
         revisionId: revisionId,
         updatedAt: Date(timeIntervalSince1970: 1_700_000_100)
     )
@@ -243,16 +302,20 @@ func makeDevelopmentRecordDraft(
 func makeDevelopmentRecordVersion(
     id: String = "version",
     recordId: String = "record",
-    title: String = "확정 기록"
+    number: Int = 1,
+    title: String = "확정 기록",
+    markdownContent: String = "# 확정 내용",
+    kind: DevelopmentRecord.Version.Kind = .initial,
+    sourceVersionId: String? = nil
 ) throws -> DevelopmentRecord.Version {
     try DevelopmentRecord.Version(
         id: id,
         recordId: recordId,
-        number: 1,
+        number: number,
         title: title,
-        markdownContent: "# 확정 내용",
-        kind: .initial,
-        sourceVersionId: nil,
-        confirmedAt: Date(timeIntervalSince1970: 1_700_000_200)
+        markdownContent: markdownContent,
+        kind: kind,
+        sourceVersionId: sourceVersionId,
+        confirmedAt: Date(timeIntervalSince1970: 1_700_000_200 + Double(number))
     )
 }

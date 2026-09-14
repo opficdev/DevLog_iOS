@@ -31,11 +31,13 @@ public enum DevelopmentDependencyPreparation {
         _ dependencies: inout DependencyValues,
         createRecordUseCase: CreateDevelopmentRecordUseCase,
         saveRecordDraftUseCase: SaveDevelopmentRecordDraftUseCase,
-        confirmRecordUseCase: ConfirmDevelopmentRecordUseCase
+        confirmRecordUseCase: ConfirmDevelopmentRecordUseCase,
+        restoreRecordUseCase: RestoreDevelopmentRecordUseCase
     ) {
         dependencies.developmentCreateRecordUseCase = createRecordUseCase
         dependencies.developmentSaveRecordDraftUseCase = saveRecordDraftUseCase
         dependencies.developmentConfirmRecordUseCase = confirmRecordUseCase
+        dependencies.developmentRestoreRecordUseCase = restoreRecordUseCase
     }
 }
 
@@ -73,6 +75,11 @@ extension DependencyValues {
     var developmentConfirmRecordUseCase: ConfirmDevelopmentRecordUseCase {
         get { self[DevelopmentConfirmRecordUseCaseKey.self] }
         set { self[DevelopmentConfirmRecordUseCaseKey.self] = newValue }
+    }
+
+    var developmentRestoreRecordUseCase: RestoreDevelopmentRecordUseCase {
+        get { self[DevelopmentRestoreRecordUseCaseKey.self] }
+        set { self[DevelopmentRestoreRecordUseCaseKey.self] = newValue }
     }
 }
 
@@ -115,5 +122,11 @@ private enum DevelopmentSaveRecordDraftUseCaseKey: DependencyKey {
 private enum DevelopmentConfirmRecordUseCaseKey: DependencyKey {
     static var liveValue: ConfirmDevelopmentRecordUseCase {
         preconditionFailure("ConfirmDevelopmentRecordUseCase must be provided.")
+    }
+}
+
+private enum DevelopmentRestoreRecordUseCaseKey: DependencyKey {
+    static var liveValue: RestoreDevelopmentRecordUseCase {
+        preconditionFailure("RestoreDevelopmentRecordUseCase must be provided.")
     }
 }

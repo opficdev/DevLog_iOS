@@ -92,6 +92,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     private let confirmedVersion: DevelopmentRecord.Version?
     private let confirmError: Error?
     private let restoredVersion: DevelopmentRecord.Version?
+    private let restoreError: Error?
     private var recordedCreateRequests = [CreateRequest]()
     private var recordedRecordQueries = [String]()
     private var recordedVersionQueries = [RecordQuery]()
@@ -109,7 +110,8 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         savedRecord: DevelopmentRecord? = nil,
         confirmedVersion: DevelopmentRecord.Version? = nil,
         confirmError: Error? = nil,
-        restoredVersion: DevelopmentRecord.Version? = nil
+        restoredVersion: DevelopmentRecord.Version? = nil,
+        restoreError: Error? = nil
     ) {
         self.createResult = createResult
         self.records = records
@@ -119,6 +121,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         self.confirmedVersion = confirmedVersion
         self.confirmError = confirmError
         self.restoredVersion = restoredVersion
+        self.restoreError = restoreError
     }
 
     func createRecord(
@@ -215,6 +218,9 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
             .init(
                 goalId: goalId, recordId: recordId, versionId: versionId, sourceVersionId: sourceVersionId)
         )
+        if let restoreError {
+            throw restoreError
+        }
         return try requiredDevelopmentRecordRepositoryResult(restoredVersion)
     }
 

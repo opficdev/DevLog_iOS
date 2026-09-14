@@ -9,6 +9,7 @@ public protocol RestoreDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version
 }

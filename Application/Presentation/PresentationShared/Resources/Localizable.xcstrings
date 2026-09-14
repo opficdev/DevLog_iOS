@@ -438,6 +438,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정하기" } }
       }
     },
+    "development_record_confirm_correction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm as New Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 버전으로 확정" } }
+      }
+    },
     "development_record_confirm_hint_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -471,6 +478,27 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue Writing" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 이어서 작성" } }
+      }
+    },
+    "development_record_correct" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 정정" } }
+      }
+    },
+    "development_record_current_version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "현재 버전" } }
+      }
+    },
+    "development_record_current_version_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirmed versions cannot be edited or deleted." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정된 버전은 변경하거나 삭제하지 않아요." } }
       }
     },
     "development_record_detail_error_message" : {
@@ -508,6 +536,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록을 저장하지 못했어요. 작성한 내용은 그대로 유지돼요." } }
       }
     },
+    "development_record_editor_correction_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 정정" } }
+      }
+    },
     "development_record_editor_mode" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -534,6 +569,20 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "No Development Records" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "아직 개발 기록이 없어요" } }
+      }
+    },
+    "development_record_history_footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select an earlier version to review it and restore its content as a new version." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전 버전을 선택하면 내용을 확인하고 새 버전으로 되돌릴 수 있어요." } }
+      }
+    },
+    "development_record_history_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version History" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "버전 이력" } }
       }
     },
     "development_record_markdown_hint" : {
@@ -564,6 +613,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "미리 볼 내용이 없어요" } }
       }
     },
+    "development_record_previous_version_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전 버전" } }
+      }
+    },
     "development_record_result_title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -576,6 +632,55 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장" } }
+      }
+    },
+    "development_record_restore_alert_confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm as New Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 버전으로 확정" } }
+      }
+    },
+    "development_record_restore_alert_message_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The content of %@ will be confirmed as a new version. Existing versions will be preserved." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%@의 내용으로 새 버전을 확정합니다. 기존 버전은 그대로 보존돼요." } }
+      }
+    },
+    "development_record_restore_alert_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore this previous version?" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전 버전으로 되돌릴까요?" } }
+      }
+    },
+    "development_record_restore_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore This Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이 버전으로 되돌리기" } }
+      }
+    },
+    "development_record_restore_current_version_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The current version is %@. Restoring this content creates a new version." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "현재 버전은 %@이에요. 이 내용으로 되돌리면 새 버전이 생성돼요." } }
+      }
+    },
+    "development_record_restore_draft_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm the saved correction draft before restoring an earlier version." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장된 정정 초안을 먼저 새 버전으로 확정해야 되돌릴 수 있어요." } }
+      }
+    },
+    "development_record_restore_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The selected version could not be restored. Please try again." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "선택한 버전으로 되돌리지 못했어요. 다시 시도해주세요." } }
       }
     },
     "development_record_timeline_error_message" : {
@@ -611,6 +716,34 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "버전" } }
+      }
+    },
+    "development_record_version_correction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correction" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "정정" } }
+      }
+    },
+    "development_record_version_current" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "현재" } }
+      }
+    },
+    "development_record_version_initial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Initial" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최초 확정" } }
+      }
+    },
+    "development_record_version_rollback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restored" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "되돌리기" } }
       }
     },
     "development_record_write" : {
