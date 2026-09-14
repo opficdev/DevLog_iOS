@@ -14,6 +14,7 @@ struct RecordDetailFeature {
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
         let goalTitle: String
+        let allowsMutation: Bool
         var record: DevelopmentRecord
         var versions = [DevelopmentRecord.Version]()
         var contentState: ContentState
@@ -30,8 +31,13 @@ struct RecordDetailFeature {
             versions.first { $0.id == currentVersionID }
         }
 
-        init(goalTitle: String, record: DevelopmentRecord) {
+        init(
+            goalTitle: String,
+            record: DevelopmentRecord,
+            allowsMutation: Bool = true
+        ) {
             self.goalTitle = goalTitle
+            self.allowsMutation = allowsMutation
             self.record = record
             self.currentVersionID = record.currentVersion?.id
             if record.currentVersion == nil, let draft = record.draft {
@@ -88,6 +94,7 @@ struct RecordDetailFeature {
             case .alert(.presented(.confirmRestore(let version))):
                 state.alert = nil
                 guard !state.isRestoring,
+                      state.allowsMutation,
                       state.record.draft == nil,
                       version.id != state.currentVersionID else { break }
                 let request = state.restoreRequest?.sourceVersionID == version.id
@@ -117,6 +124,7 @@ struct RecordDetailFeature {
                 return fetchEffect(goalID: state.record.goalId, recordID: state.record.id)
             case .view(.restore(let version)):
                 guard !state.isRestoring,
+                      state.allowsMutation,
                       state.record.draft == nil,
                       version.id != state.currentVersionID else { break }
                 state.alert = Self.restoreConfirmationAlert(version)

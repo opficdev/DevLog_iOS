@@ -124,7 +124,11 @@ struct RecordVersionHistoryView: View {
 
     private var footer: some View {
         Label(
-            RecordPresentation.text("development_record_history_footer"),
+            RecordPresentation.text(
+                store.allowsMutation
+                    ? "development_record_history_footer"
+                    : "development_record_history_read_only_footer"
+            ),
             systemImage: "lock"
         )
         .font(.caption)

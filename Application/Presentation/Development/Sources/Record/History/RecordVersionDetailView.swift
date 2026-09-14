@@ -26,7 +26,11 @@ struct RecordVersionDetailView: View {
             .padding(.bottom, 20)
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
-        .safeAreaInset(edge: .bottom, spacing: 0) { restoreBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if store.allowsMutation {
+                restoreBar
+            }
+        }
         .background(Color.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
         .prominentAlert(
@@ -94,7 +98,9 @@ struct RecordVersionDetailView: View {
 
     private var currentVersionCard: some View {
         Label {
-            if store.record.draft != nil {
+            if !store.allowsMutation {
+                Text(RecordPresentation.text("development_record_read_only_message"))
+            } else if store.record.draft != nil {
                 Text(RecordPresentation.text("development_record_restore_draft_message"))
             } else {
                 Text(String.localizedStringWithFormat(
@@ -104,15 +110,25 @@ struct RecordVersionDetailView: View {
             }
         } icon: {
             Image(
-                systemName: store.record.draft == nil ? "clock.arrow.circlepath" : "pencil"
+                systemName: statusSystemImage
             )
-            .foregroundStyle(store.record.draft == nil ? Color.accent : Color.warning)
+            .foregroundStyle(statusColor)
         }
         .font(.subheadline)
         .foregroundStyle(Color.textSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
         .background(Color.surfaceSecondary, in: .rect(cornerRadius: 18))
+    }
+
+    private var statusSystemImage: String {
+        if !store.allowsMutation { return "lock" }
+        return store.record.draft == nil ? "clock.arrow.circlepath" : "pencil"
+    }
+
+    private var statusColor: Color {
+        if !store.allowsMutation { return .textSecondary }
+        return store.record.draft == nil ? .accent : .warning
     }
 
     private var restoreBar: some View {

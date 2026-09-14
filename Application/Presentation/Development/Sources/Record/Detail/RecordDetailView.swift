@@ -19,13 +19,15 @@ public struct RecordDetailView: View {
     public init(
         goalTitle: String,
         record: DevelopmentRecord,
+        allowsMutation: Bool = true,
         onUpdate: @escaping () -> Void = { }
     ) {
         self.onUpdate = onUpdate
         self._store = State(initialValue: Store(
             initialState: RecordDetailFeature.State(
                 goalTitle: goalTitle,
-                record: record
+                record: record,
+                allowsMutation: allowsMutation
             )
         ) {
             RecordDetailFeature()
@@ -49,7 +51,11 @@ public struct RecordDetailView: View {
                             markdownContent: version.markdownContent,
                             version: version
                         )
-                        actionSection
+                        if store.allowsMutation {
+                            actionSection
+                        } else {
+                            historyButton
+                        }
                     }
                 case .failed:
                     failureContent
