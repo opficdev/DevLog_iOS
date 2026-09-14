@@ -16,6 +16,7 @@ struct RecordEditorFeature {
         @Presents var alert: AlertState<Never>?
         let goalId: String
         let goalTitle: String
+        let recordId: String
         var record: DevelopmentRecord?
         var title: String
         var markdownContent: String
@@ -37,9 +38,15 @@ struct RecordEditorFeature {
             isReadyToSave
         }
 
-        init(goalId: String, goalTitle: String, record: DevelopmentRecord? = nil) {
+        init(
+            goalId: String,
+            goalTitle: String,
+            record: DevelopmentRecord? = nil,
+            recordId: String = UUID().uuidString
+        ) {
             self.goalId = goalId
             self.goalTitle = goalTitle
+            self.recordId = record?.id ?? recordId
             self.record = record
             self.title = record?.draft?.title ?? ""
             self.markdownContent = record?.draft?.markdownContent ?? ""
@@ -146,6 +153,7 @@ private extension RecordEditorFeature {
                 } else {
                     record = try await createRecordUseCase.execute(
                         goalId: state.goalId,
+                        recordId: state.recordId,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )
@@ -173,6 +181,7 @@ private extension RecordEditorFeature {
                 } else {
                     record = try await createRecordUseCase.execute(
                         goalId: state.goalId,
+                        recordId: state.recordId,
                         title: state.title,
                         markdownContent: state.markdownContent
                     )

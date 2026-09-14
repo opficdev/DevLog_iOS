@@ -19,12 +19,12 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = CreateDevelopmentRecordUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "record-1" },
             revisionIdProvider: { "revision-1" },
             now: { createdAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
+            recordId: "record-1",
             title: "기록",
             markdownContent: "본문"
         )
@@ -56,6 +56,7 @@ struct DevelopmentRecordUseCaseTests {
             await expectDevelopmentRecordDomainError(.developmentGoalIsNotInProgress) {
                 try await useCase.execute(
                     goalId: "goal-1",
+                    recordId: "record-1",
                     title: "기록",
                     markdownContent: "본문"
                 )

@@ -57,6 +57,7 @@ struct CreateDevelopmentRecordUseCaseStub: CreateDevelopmentRecordUseCase {
 
     func execute(
         goalId: String,
+        recordId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
@@ -95,28 +96,36 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
 actor CreateDevelopmentRecordUseCaseSpy: CreateDevelopmentRecordUseCase {
     struct Request: Equatable {
         let goalId: String
+        let recordId: String
         let title: String
         let markdownContent: String
     }
 
-    private let result: Result<DevelopmentRecord, Error>
+    private var results: [Result<DevelopmentRecord, Error>]
     private var recordedRequests = [Request]()
 
     init(result: Result<DevelopmentRecord, Error>) {
-        self.result = result
+        self.results = [result]
+    }
+
+    init(results: [Result<DevelopmentRecord, Error>]) {
+        self.results = results
     }
 
     func execute(
         goalId: String,
+        recordId: String,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord {
         recordedRequests.append(.init(
             goalId: goalId,
+            recordId: recordId,
             title: title,
             markdownContent: markdownContent
         ))
-        return try result.get()
+        guard !results.isEmpty else { throw RecordTestError.failed }
+        return try results.removeFirst().get()
     }
 
     func requests() -> [Request] {

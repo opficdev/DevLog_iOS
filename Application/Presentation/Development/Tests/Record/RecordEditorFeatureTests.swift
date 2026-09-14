@@ -98,6 +98,51 @@ struct RecordEditorFeatureTests {
         await store.send(.view(.confirm))
     }
 
+    @Test("새 기록 생성 재시도는 같은 recordId를 사용한다")
+    func 새_기록_생성_재시도는_같은_recordId를_사용한다() async throws {
+        let record = try makeDevelopmentRecord(id: "record-1")
+        let createSpy = CreateDevelopmentRecordUseCaseSpy(results: [
+            .failure(RecordTestError.failed),
+            .success(record)
+        ])
+        let store = TestStore(
+            initialState: RecordEditorFeature.State(
+                goalId: "goal",
+                goalTitle: "개발 목표",
+                recordId: record.id
+            )
+        ) {
+            RecordEditorFeature()
+        } withDependencies: {
+            $0.developmentCreateRecordUseCase = createSpy
+        }
+        await store.send(.binding(.set(\.title, "기록 제목"))) {
+            $0.title = "기록 제목"
+        }
+
+        await store.send(.view(.save)) {
+            $0.isLoading = true
+        }
+        await store.receive(.store(.failed)) {
+            $0.isLoading = false
+            $0.alert = makeRecordErrorAlert("development_record_editor_error_message")
+        }
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await store.send(.view(.save)) {
+            $0.isLoading = true
+        }
+        await store.receive(.store(.saved(record))) {
+            $0.record = record
+            $0.isLoading = false
+            $0.result = .saved(record)
+        }
+        await store.receive(.delegate(.saved(record)))
+
+        #expect(await createSpy.requests().map(\.recordId) == [record.id, record.id])
+    }
+
     @Test("확정 실패 뒤 재시도는 생성된 기록을 다시 사용한다")
     func 확정_실패_뒤_재시도는_생성된_기록을_다시_사용한다() async throws {
         let record = try makeDevelopmentRecord()
