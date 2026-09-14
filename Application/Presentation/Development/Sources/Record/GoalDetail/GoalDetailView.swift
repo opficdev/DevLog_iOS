@@ -10,6 +10,7 @@ import Domain
 import PresentationShared
 
 public struct GoalDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<GoalDetailFeature>
     @State private var editorDestination: EditorDestination?
     @State private var detailDestination: DetailDestination?
@@ -37,7 +38,9 @@ public struct GoalDetailView: View {
                 .padding(.horizontal)
             }
         }
-        .background(Color.appBackground)
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .background(Color.appBackground.ignoresSafeArea())
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $editorDestination) { destination in
@@ -56,12 +59,38 @@ public struct GoalDetailView: View {
                 onUpdate: refresh
             )
         }
-        .toolbarBackground(Color.appBackground)
         .overlay {
             if store.isTransitioning {
                 LoadingView()
             }
         }
+    }
+
+    private var topBar: some View {
+        HStack {
+            RecordBackButton(action: dismiss.callAsFunction)
+                .disabled(store.isTransitioning)
+            Spacer()
+            if let status = store.goalStatus {
+                Image(systemName: "ellipsis")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .prominentMenu(
+                        items: statusMenuItems(status),
+                        isEnabled: !store.isLoading && !store.isTransitioning
+                    ) { status in
+                        store.send(.view(.selectStatus(status)))
+                    }
+                    .adaptiveButtonStyle(
+                        shape: .circle,
+                        color: .surface,
+                        glassEffect: .enabled
+                    )
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
     private var titleBar: some View {
@@ -82,27 +111,7 @@ public struct GoalDetailView: View {
             }
 
             if let status = store.goalStatus {
-                HStack(spacing: 12) {
-                    GoalStatusBadge(status: status)
-                    Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.title3.weight(.semibold))
-                        .frame(width: 28, height: 28)
-                        .prominentMenu(
-                            items: statusMenuItems(status),
-                            isEnabled: !store.isLoading && !store.isTransitioning
-                        ) { status in
-                            store.send(.view(.selectStatus(status)))
-                        }
-                        .adaptiveButtonStyle(
-                            shape: .circle,
-                            color: .surface,
-                            glassEffect: .enabled
-                        )
-                        .accessibilityLabel(
-                            RecordPresentation.text("development_goal_status_menu")
-                        )
-                }
+                GoalStatusBadge(status: status)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -317,10 +326,7 @@ private struct GoalStatusBadge: View {
     let status: DevelopmentGoal.Status
 
     var body: some View {
-        Label(
-            title,
-            systemImage: systemImage
-        )
+        Label(title, systemImage: systemImage)
         .font(.caption.weight(.semibold))
         .foregroundStyle(foreground)
         .padding(.horizontal, 11)
