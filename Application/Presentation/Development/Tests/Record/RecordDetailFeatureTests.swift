@@ -23,6 +23,9 @@ struct RecordDetailFeatureTests {
         ) {
             RecordDetailFeature()
         } withDependencies: {
+            $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
+                result: .success([record])
+            )
             $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
                 resultByRecordId: [record.id: .success([version])]
             )
@@ -31,8 +34,9 @@ struct RecordDetailFeatureTests {
         await store.send(.view(.fetch)) {
             $0.contentState = .loading
         }
-        await store.receive(.store(.loaded(version))) {
-            $0.contentState = .confirmed(version)
+        await store.receive(.store(.loaded(record, [version]))) {
+            $0.versions = [version]
+            $0.contentState = .loaded
         }
     }
 
@@ -64,6 +68,9 @@ struct RecordDetailFeatureTests {
         ) {
             RecordDetailFeature()
         } withDependencies: {
+            $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
+                result: .success([record])
+            )
             $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
                 resultByRecordId: [record.id: .failure(RecordTestError.failed)]
             )
@@ -72,7 +79,7 @@ struct RecordDetailFeatureTests {
         await store.send(.view(.fetch)) {
             $0.contentState = .loading
         }
-        await store.receive(.store(.failed)) {
+        await store.receive(.store(.loadFailed)) {
             $0.contentState = .failed
             $0.alert = makeRecordErrorAlert("development_record_detail_error_message")
         }
@@ -82,9 +89,94 @@ struct RecordDetailFeatureTests {
         await store.send(.view(.fetch)) {
             $0.contentState = .loading
         }
-        await store.receive(.store(.failed)) {
+        await store.receive(.store(.loadFailed)) {
             $0.contentState = .failed
             $0.alert = makeRecordErrorAlert("development_record_detail_error_message")
+        }
+    }
+
+    @Test("이전 버전 되돌리기는 새 버전을 현재 버전으로 반영한다")
+    func 이전_버전_되돌리기는_새_버전을_현재_버전으로_반영한다() async throws {
+        let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: initialVersion.id
+        )
+        let restoredVersion = try makeDevelopmentRecordVersion(
+            id: "version-3",
+            number: 3,
+            kind: .rollback,
+            sourceVersionId: initialVersion.id
+        )
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        let spy = RestoreDevelopmentRecordUseCaseSpy(result: .success(restoredVersion))
+        var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
+        state.versions = [initialVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        } withDependencies: {
+            $0.developmentRestoreRecordUseCase = spy
+        }
+
+        await store.send(.view(.restore(initialVersion))) {
+            $0.isRestoring = true
+            $0.restoringVersionID = initialVersion.id
+        }
+        await store.receive(.store(.restored(restoredVersion))) {
+            $0.versions = [initialVersion, currentVersion, restoredVersion]
+            $0.currentVersionID = restoredVersion.id
+            $0.isRestoring = false
+            $0.restoringVersionID = nil
+            $0.restoredSourceVersionID = initialVersion.id
+        }
+
+        #expect(await spy.requests() == [
+            .init(
+                goalId: record.goalId,
+                recordId: record.id,
+                sourceVersionId: initialVersion.id
+            )
+        ])
+    }
+
+    @Test("되돌리기 실패는 현재 버전을 유지하고 오류를 표시한다")
+    func 되돌리기_실패는_현재_버전을_유지하고_오류를_표시한다() async throws {
+        let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: initialVersion.id
+        )
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
+        state.versions = [initialVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        } withDependencies: {
+            $0.developmentRestoreRecordUseCase = RestoreDevelopmentRecordUseCaseStub(
+                result: .failure(RecordTestError.failed)
+            )
+        }
+
+        await store.send(.view(.restore(initialVersion))) {
+            $0.isRestoring = true
+            $0.restoringVersionID = initialVersion.id
+        }
+        await store.receive(.store(.restoreFailed)) {
+            $0.isRestoring = false
+            $0.restoringVersionID = nil
+            $0.alert = makeRecordErrorAlert("development_record_restore_error_message")
         }
     }
 }

@@ -51,7 +51,10 @@ private extension AppGraph {
                 .saveDevelopmentRecordDraftUseCase,
             confirmRecordUseCase: developmentGraphSet
                 .developmentRecordMutationUseCaseGraph
-                .confirmDevelopmentRecordUseCase
+                .confirmDevelopmentRecordUseCase,
+            restoreRecordUseCase: developmentGraphSet
+                .developmentRecordMutationUseCaseGraph
+                .restoreDevelopmentRecordUseCase
         )
     }
 

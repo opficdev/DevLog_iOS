@@ -107,6 +107,18 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     }
 }
 
+struct RestoreDevelopmentRecordUseCaseStub: RestoreDevelopmentRecordUseCase {
+    let result: Result<DevelopmentRecord.Version, Error>
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        sourceVersionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        try result.get()
+    }
+}
+
 actor CreateDevelopmentRecordUseCaseSpy: CreateDevelopmentRecordUseCase {
     struct Request: Equatable {
         let goalId: String
@@ -179,6 +191,38 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
         ))
         guard !results.isEmpty else { throw RecordTestError.failed }
         return try results.removeFirst().get()
+    }
+
+    func requests() -> [Request] {
+        recordedRequests
+    }
+}
+
+actor RestoreDevelopmentRecordUseCaseSpy: RestoreDevelopmentRecordUseCase {
+    struct Request: Equatable {
+        let goalId: String
+        let recordId: String
+        let sourceVersionId: String
+    }
+
+    private let result: Result<DevelopmentRecord.Version, Error>
+    private var recordedRequests = [Request]()
+
+    init(result: Result<DevelopmentRecord.Version, Error>) {
+        self.result = result
+    }
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        sourceVersionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        recordedRequests.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            sourceVersionId: sourceVersionId
+        ))
+        return try result.get()
     }
 
     func requests() -> [Request] {
