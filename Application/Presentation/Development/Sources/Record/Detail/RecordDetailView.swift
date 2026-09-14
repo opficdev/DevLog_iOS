@@ -74,14 +74,7 @@ public struct RecordDetailView: View {
             )
         }
         .navigationDestination(isPresented: $isHistoryPresented) {
-            RecordVersionHistoryView(
-                versions: store.versions,
-                currentVersionID: store.currentVersionID,
-                hasDraft: store.record.draft != nil,
-                isRestoring: store.isRestoring,
-                restoredSourceVersionID: store.restoredSourceVersionID,
-                onRestore: { store.send(.view(.restore($0))) }
-            )
+            RecordVersionHistoryView(store: store)
         }
         .overlay {
             if store.isLoading || store.isRestoring {

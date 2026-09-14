@@ -12,7 +12,7 @@ import PresentationShared
 struct RecordDetailFeature {
     @ObservableState
     struct State: Equatable {
-        @Presents var alert: AlertState<Never>?
+        @Presents var alert: AlertState<Action.Alert>?
         let goalTitle: String
         var record: DevelopmentRecord
         var versions = [DevelopmentRecord.Version]()
@@ -56,9 +56,13 @@ struct RecordDetailFeature {
     }
 
     enum Action: Equatable {
-        case alert(PresentationAction<Never>)
+        case alert(PresentationAction<Alert>)
         case view(ViewAction)
         case store(StoreAction)
+
+        enum Alert: Equatable {
+            case confirmRestore(DevelopmentRecord.Version)
+        }
 
         enum ViewAction: Equatable {
             case fetch
@@ -81,6 +85,26 @@ struct RecordDetailFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .alert(.presented(.confirmRestore(let version))):
+                state.alert = nil
+                guard !state.isRestoring,
+                      state.record.draft == nil,
+                      version.id != state.currentVersionID else { break }
+                let request = state.restoreRequest?.sourceVersionID == version.id
+                    ? state.restoreRequest
+                    : RestoreRequest(
+                        versionID: uuid().uuidString,
+                        sourceVersionID: version.id
+                    )
+                guard let request else { break }
+                state.isRestoring = true
+                state.restoreRequest = request
+                state.restoredSourceVersionID = nil
+                return restoreEffect(
+                    goalID: state.record.goalId,
+                    recordID: state.record.id,
+                    request: request
+                )
             case .alert:
                 break
             case .view(.fetch):
@@ -95,22 +119,7 @@ struct RecordDetailFeature {
                 guard !state.isRestoring,
                       state.record.draft == nil,
                       version.id != state.currentVersionID else { break }
-                let request = state.restoreRequest?.sourceVersionID == version.id
-                    ? state.restoreRequest
-                    : RestoreRequest(
-                        versionID: uuid().uuidString,
-                        sourceVersionID: version.id
-                    )
-                guard let request else { break }
-                state.alert = nil
-                state.isRestoring = true
-                state.restoreRequest = request
-                state.restoredSourceVersionID = nil
-                return restoreEffect(
-                    goalID: state.record.goalId,
-                    recordID: state.record.id,
-                    request: request
-                )
+                state.alert = Self.restoreConfirmationAlert(version)
             case .store(.loaded(let record, let versions)):
                 state.record = record
                 state.versions = versions.sorted { $0.number < $1.number }
@@ -183,7 +192,7 @@ private extension RecordDetailFeature {
         }
     }
 
-    static var errorAlert: AlertState<Never> {
+    static var errorAlert: AlertState<Action.Alert> {
         AlertState {
             TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
         } actions: {
@@ -198,7 +207,7 @@ private extension RecordDetailFeature {
         }
     }
 
-    static var restoreErrorAlert: AlertState<Never> {
+    static var restoreErrorAlert: AlertState<Action.Alert> {
         AlertState {
             TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
         } actions: {
@@ -209,6 +218,37 @@ private extension RecordDetailFeature {
             TextState(String(
                 localized: "development_record_restore_error_message",
                 bundle: PresentationResources.bundle
+            ))
+        }
+    }
+}
+
+extension RecordDetailFeature {
+    static func restoreConfirmationAlert(
+        _ version: DevelopmentRecord.Version
+    ) -> AlertState<Action.Alert> {
+        AlertState {
+            TextState(String(
+                localized: "development_record_restore_alert_title",
+                bundle: PresentationResources.bundle
+            ))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "common_cancel", bundle: PresentationResources.bundle))
+            }
+            ButtonState(action: .confirmRestore(version)) {
+                TextState(String(
+                    localized: "development_record_restore_alert_confirm",
+                    bundle: PresentationResources.bundle
+                ))
+            }
+        } message: {
+            TextState(String.localizedStringWithFormat(
+                String(
+                    localized: "development_record_restore_alert_message_format",
+                    bundle: PresentationResources.bundle
+                ),
+                RecordPresentation.versionLabel(version.number)
             ))
         }
     }

@@ -129,6 +129,10 @@ struct RecordDetailFeatureTests {
         }
 
         await store.send(.view(.restore(initialVersion))) {
+            $0.alert = RecordDetailFeature.restoreConfirmationAlert(initialVersion)
+        }
+        await store.send(.alert(.presented(.confirmRestore(initialVersion)))) {
+            $0.alert = nil
             $0.isRestoring = true
             $0.restoreRequest = .init(
                 versionID: restoreVersionID,
@@ -191,6 +195,10 @@ struct RecordDetailFeatureTests {
         }
 
         await store.send(.view(.restore(initialVersion))) {
+            $0.alert = RecordDetailFeature.restoreConfirmationAlert(initialVersion)
+        }
+        await store.send(.alert(.presented(.confirmRestore(initialVersion)))) {
+            $0.alert = nil
             $0.isRestoring = true
             $0.restoreRequest = .init(
                 versionID: restoreVersionID,
@@ -205,6 +213,10 @@ struct RecordDetailFeatureTests {
             $0.alert = nil
         }
         await store.send(.view(.restore(initialVersion))) {
+            $0.alert = RecordDetailFeature.restoreConfirmationAlert(initialVersion)
+        }
+        await store.send(.alert(.presented(.confirmRestore(initialVersion)))) {
+            $0.alert = nil
             $0.isRestoring = true
         }
         await store.receive(.store(.restored(restoredVersion))) {
@@ -253,5 +265,38 @@ struct RecordDetailFeatureTests {
         }
 
         await store.send(.view(.restore(initialVersion)))
+    }
+
+    @Test("되돌리기 확인 취소는 복원을 시작하지 않는다")
+    func 되돌리기_확인_취소는_복원을_시작하지_않는다() async throws {
+        let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: initialVersion.id
+        )
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        let spy = RestoreDevelopmentRecordUseCaseSpy(result: .failure(RecordTestError.failed))
+        var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
+        state.versions = [initialVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        } withDependencies: {
+            $0.developmentRestoreRecordUseCase = spy
+        }
+
+        await store.send(.view(.restore(initialVersion))) {
+            $0.alert = RecordDetailFeature.restoreConfirmationAlert(initialVersion)
+        }
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+
+        #expect(await spy.requests().isEmpty)
     }
 }

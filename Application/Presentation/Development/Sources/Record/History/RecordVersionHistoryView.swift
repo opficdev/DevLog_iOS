@@ -13,19 +13,14 @@ struct RecordVersionHistoryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var destination: VersionDestination?
 
-    let versions: [DevelopmentRecord.Version]
-    let currentVersionID: String?
-    let hasDraft: Bool
-    let isRestoring: Bool
-    let restoredSourceVersionID: String?
-    let onRestore: (DevelopmentRecord.Version) -> Void
+    let store: StoreOf<RecordDetailFeature>
 
     private var sortedVersions: [DevelopmentRecord.Version] {
-        versions.sorted { $1.number < $0.number }
+        store.versions.sorted { $1.number < $0.number }
     }
 
     private var currentVersion: DevelopmentRecord.Version? {
-        versions.first { $0.id == currentVersionID }
+        store.currentVersion
     }
 
     var body: some View {
@@ -44,12 +39,8 @@ struct RecordVersionHistoryView: View {
         .toolbarVisibility(.hidden, for: .navigationBar)
         .navigationDestination(item: $destination) { destination in
             RecordVersionDetailView(
-                version: destination.version,
-                currentVersionNumber: currentVersion?.number ?? destination.version.number,
-                hasDraft: hasDraft,
-                isRestoring: isRestoring,
-                restoredSourceVersionID: restoredSourceVersionID,
-                onRestore: onRestore
+                store: store,
+                version: destination.version
             )
         }
     }
@@ -112,7 +103,7 @@ struct RecordVersionHistoryView: View {
         LazyVStack(spacing: 0) {
             ForEach(Array(sortedVersions.enumerated()), id: \.element.id) { index, version in
                 Button {
-                    if version.id == currentVersionID {
+                    if version.id == store.currentVersionID {
                         dismiss()
                     } else {
                         destination = VersionDestination(version: version)
@@ -120,7 +111,7 @@ struct RecordVersionHistoryView: View {
                 } label: {
                     VersionHistoryRow(
                         version: version,
-                        isCurrent: version.id == currentVersionID,
+                        isCurrent: version.id == store.currentVersionID,
                         isLast: index == sortedVersions.count - 1
                     )
                 }

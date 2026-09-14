@@ -11,14 +11,9 @@ import PresentationShared
 
 struct RecordVersionDetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var isConfirmationPresented = false
 
+    let store: StoreOf<RecordDetailFeature>
     let version: DevelopmentRecord.Version
-    let currentVersionNumber: Int
-    let hasDraft: Bool
-    let isRestoring: Bool
-    let restoredSourceVersionID: String?
-    let onRestore: (DevelopmentRecord.Version) -> Void
 
     var body: some View {
         ScrollView {
@@ -34,26 +29,17 @@ struct RecordVersionDetailView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { restoreBar }
         .background(Color.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
-        .confirmationAlert(
-            isPresented: $isConfirmationPresented,
-            configuration: ConfirmationAlertConfiguration(
-                title: RecordPresentation.text("development_record_restore_alert_title"),
-                message: String.localizedStringWithFormat(
-                    RecordPresentation.text("development_record_restore_alert_message_format"),
-                    RecordPresentation.versionLabel(version.number)
-                ),
-                cancelTitle: RecordPresentation.text("common_cancel"),
-                confirmTitle: RecordPresentation.text("development_record_restore_alert_confirm")
-            ),
-            isConfirming: isRestoring,
-            onConfirm: { onRestore(version) }
+        .prominentAlert(
+            store,
+            state: \.alert,
+            action: \.alert
         )
         .overlay {
-            if isRestoring {
+            if store.isRestoring {
                 LoadingView()
             }
         }
-        .onChange(of: restoredSourceVersionID) { _, sourceVersionID in
+        .onChange(of: store.restoredSourceVersionID) { _, sourceVersionID in
             guard sourceVersionID == version.id else { return }
             dismiss()
         }
@@ -62,7 +48,7 @@ struct RecordVersionDetailView: View {
     private var topBar: some View {
         HStack {
             RecordBackButton(action: dismiss.callAsFunction)
-                .disabled(isRestoring)
+                .disabled(store.isRestoring)
             Spacer()
         }
         .padding(.horizontal)
@@ -108,17 +94,19 @@ struct RecordVersionDetailView: View {
 
     private var currentVersionCard: some View {
         Label {
-            if hasDraft {
+            if store.record.draft != nil {
                 Text(RecordPresentation.text("development_record_restore_draft_message"))
             } else {
                 Text(String.localizedStringWithFormat(
                     RecordPresentation.text("development_record_restore_current_version_format"),
-                    RecordPresentation.versionLabel(currentVersionNumber)
+                    RecordPresentation.versionLabel(store.currentVersion?.number ?? version.number)
                 ))
             }
         } icon: {
-            Image(systemName: hasDraft ? "pencil" : "clock.arrow.circlepath")
-                .foregroundStyle(hasDraft ? Color.warning : Color.accent)
+            Image(
+                systemName: store.record.draft == nil ? "clock.arrow.circlepath" : "pencil"
+            )
+            .foregroundStyle(store.record.draft == nil ? Color.accent : Color.warning)
         }
         .font(.subheadline)
         .foregroundStyle(Color.textSecondary)
@@ -129,7 +117,7 @@ struct RecordVersionDetailView: View {
 
     private var restoreBar: some View {
         Button {
-            isConfirmationPresented = true
+            store.send(.view(.restore(version)))
         } label: {
             Text(RecordPresentation.text("development_record_restore_button"))
                 .font(.headline)
@@ -138,7 +126,7 @@ struct RecordVersionDetailView: View {
                 .padding(.vertical, 10)
         }
         .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
-        .disabled(isRestoring || hasDraft)
+        .disabled(store.isRestoring || store.record.draft != nil)
         .padding(.horizontal)
         .padding(.vertical, 12)
         .background(Color.surface, ignoresSafeAreaEdges: .bottom)

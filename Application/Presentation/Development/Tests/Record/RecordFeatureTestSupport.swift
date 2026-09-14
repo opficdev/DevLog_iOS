@@ -13,7 +13,9 @@ enum RecordTestError: Error {
     case failed
 }
 
-func makeRecordErrorAlert(_ messageKey: String.LocalizationValue) -> AlertState<Never> {
+func makeRecordErrorAlert<Action>(
+    _ messageKey: String.LocalizationValue
+) -> AlertState<Action> {
     AlertState {
         TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
     } actions: {
