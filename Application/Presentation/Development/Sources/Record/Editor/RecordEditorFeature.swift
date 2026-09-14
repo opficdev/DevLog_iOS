@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordEditorFeature.swift
+//  RecordEditorFeature.swift
 //  Development
 //
 //  Created by opfic on 9/13/26.
@@ -10,7 +10,7 @@ import Foundation
 import PresentationShared
 
 @Reducer
-struct DevelopmentRecordEditorFeature {
+struct RecordEditorFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
@@ -128,7 +128,7 @@ struct DevelopmentRecordEditorFeature {
     }
 }
 
-private extension DevelopmentRecordEditorFeature {
+private extension RecordEditorFeature {
     func saveEffect(state: State) -> Effect<Action> {
         .run { [createRecordUseCase, saveRecordDraftUseCase] send in
             do {

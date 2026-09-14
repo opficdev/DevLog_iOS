@@ -11,7 +11,7 @@ import PresentationShared
 
 public struct RecordEditorView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var store: StoreOf<DevelopmentRecordEditorFeature>
+    @State private var store: StoreOf<RecordEditorFeature>
     @FocusState private var focusedField: Field?
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title2,
@@ -26,13 +26,13 @@ public struct RecordEditorView: View {
         onCompletion: @escaping () -> Void = { }
     ) {
         self._store = State(initialValue: Store(
-            initialState: DevelopmentRecordEditorFeature.State(
+            initialState: RecordEditorFeature.State(
                 goalId: goalId,
                 goalTitle: goalTitle,
                 record: record
             )
         ) {
-            DevelopmentRecordEditorFeature()
+            RecordEditorFeature()
         })
         self.onCompletion = onCompletion
     }
@@ -244,7 +244,7 @@ private struct FieldCard<Content: View>: View {
 }
 
 private struct ModePicker: View {
-    @Bindable var store: StoreOf<DevelopmentRecordEditorFeature>
+    @Bindable var store: StoreOf<RecordEditorFeature>
     @FocusState var focusedField: Field?
 
     var body: some View {
@@ -264,7 +264,7 @@ private struct ModePicker: View {
 
     private func modeButton(
         _ title: String,
-        tab: DevelopmentRecordEditorFeature.EditorTab
+        tab: RecordEditorFeature.EditorTab
     ) -> some View {
         let isSelected = store.selectedTab == tab
 

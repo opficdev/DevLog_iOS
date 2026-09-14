@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordFeatureTestSupport.swift
+//  RecordFeatureTestSupport.swift
 //  DevelopmentTests
 //
 //  Created by opfic on 9/13/26.
@@ -9,11 +9,11 @@ import Domain
 import Foundation
 import PresentationShared
 
-enum DevelopmentRecordTestError: Error {
+enum RecordTestError: Error {
     case failed
 }
 
-func makeDevelopmentRecordErrorAlert(_ messageKey: String.LocalizationValue) -> AlertState<Never> {
+func makeRecordErrorAlert(_ messageKey: String.LocalizationValue) -> AlertState<Never> {
     AlertState {
         TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
     } actions: {
@@ -48,7 +48,7 @@ struct FetchDevelopmentRecordHistoryUseCaseStub: FetchDevelopmentRecordHistoryUs
         goalId: String,
         recordId: String
     ) async throws -> [DevelopmentRecord.Version] {
-        try resultByRecordId[recordId, default: .failure(DevelopmentRecordTestError.failed)].get()
+        try resultByRecordId[recordId, default: .failure(RecordTestError.failed)].get()
     }
 }
 
@@ -146,7 +146,7 @@ actor ConfirmDevelopmentRecordUseCaseSpy: ConfirmDevelopmentRecordUseCase {
             recordId: recordId,
             baseVersionId: baseVersionId
         ))
-        guard !results.isEmpty else { throw DevelopmentRecordTestError.failed }
+        guard !results.isEmpty else { throw RecordTestError.failed }
         return try results.removeFirst().get()
     }
 

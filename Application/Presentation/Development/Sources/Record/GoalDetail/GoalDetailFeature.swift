@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordTimelineFeature.swift
+//  GoalDetailFeature.swift
 //  Development
 //
 //  Created by opfic on 9/13/26.
@@ -9,7 +9,7 @@ import Domain
 import Foundation
 import PresentationShared
 
-struct DevelopmentRecordTimelineItem: Equatable, Identifiable {
+struct RecordTimelineItem: Equatable, Identifiable {
     let record: DevelopmentRecord
     let currentVersion: DevelopmentRecord.Version?
 
@@ -21,13 +21,13 @@ struct DevelopmentRecordTimelineItem: Equatable, Identifiable {
 }
 
 @Reducer
-struct DevelopmentRecordTimelineFeature {
+struct GoalDetailFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
         let goalId: String
         var goalTitle = ""
-        var items = [DevelopmentRecordTimelineItem]()
+        var items = [RecordTimelineItem]()
         var isLoading = false
         var hasLoaded = false
 
@@ -47,7 +47,7 @@ struct DevelopmentRecordTimelineFeature {
         }
 
         enum StoreAction: Equatable {
-            case loaded(goalTitle: String, items: [DevelopmentRecordTimelineItem])
+            case loaded(goalTitle: String, items: [RecordTimelineItem])
             case failed
         }
     }
@@ -85,13 +85,13 @@ struct DevelopmentRecordTimelineFeature {
     }
 }
 
-extension DevelopmentRecordTimelineFeature {
+extension GoalDetailFeature {
     func fetchEffect(goalId: String) -> Effect<Action> {
         .run { [fetchGoalUseCase, fetchRecordsUseCase, fetchRecordHistoryUseCase] send in
             do {
                 let goal = try await fetchGoalUseCase.execute(goalId)
                 let records = try await fetchRecordsUseCase.execute(goalId: goalId)
-                var items = [DevelopmentRecordTimelineItem]()
+                var items = [RecordTimelineItem]()
 
                 for record in records.sorted(by: Self.precedes) {
                     let currentVersion: DevelopmentRecord.Version?
@@ -107,7 +107,7 @@ extension DevelopmentRecordTimelineFeature {
                     } else {
                         currentVersion = nil
                     }
-                    items.append(DevelopmentRecordTimelineItem(
+                    items.append(RecordTimelineItem(
                         record: record,
                         currentVersion: currentVersion
                     ))

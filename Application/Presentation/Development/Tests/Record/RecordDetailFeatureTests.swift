@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordDetailFeatureTests.swift
+//  RecordDetailFeatureTests.swift
 //  DevelopmentTests
 //
 //  Created by opfic on 9/13/26.
@@ -10,18 +10,18 @@ import PresentationShared
 @testable import Development
 
 @MainActor
-struct DevelopmentRecordDetailFeatureTests {
+struct RecordDetailFeatureTests {
     @Test("상세는 currentVersion과 일치하는 확정 버전을 표시한다")
     func 상세는_currentVersion과_일치하는_확정_버전을_표시한다() async throws {
         let record = try makeConfirmedDevelopmentRecord()
         let version = try makeDevelopmentRecordVersion()
         let store = TestStore(
-            initialState: DevelopmentRecordDetailFeature.State(
+            initialState: RecordDetailFeature.State(
                 goalTitle: "개발 목표",
                 record: record
             )
         ) {
-            DevelopmentRecordDetailFeature()
+            RecordDetailFeature()
         } withDependencies: {
             $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
                 resultByRecordId: [record.id: .success([version])]
@@ -40,12 +40,12 @@ struct DevelopmentRecordDetailFeatureTests {
     func 확정_전_상세는_이력_조회_없이_초안을_유지한다() async throws {
         let record = try makeDevelopmentRecord()
         let store = TestStore(
-            initialState: DevelopmentRecordDetailFeature.State(
+            initialState: RecordDetailFeature.State(
                 goalTitle: "개발 목표",
                 record: record
             )
         ) {
-            DevelopmentRecordDetailFeature()
+            RecordDetailFeature()
         }
 
         let draft = try #require(record.draft)
@@ -57,15 +57,15 @@ struct DevelopmentRecordDetailFeatureTests {
     func 확정_기록_조회_실패는_초안_대신_재시도_상태를_표시한다() async throws {
         let record = try makeConfirmedDevelopmentRecord()
         let store = TestStore(
-            initialState: DevelopmentRecordDetailFeature.State(
+            initialState: RecordDetailFeature.State(
                 goalTitle: "개발 목표",
                 record: record
             )
         ) {
-            DevelopmentRecordDetailFeature()
+            RecordDetailFeature()
         } withDependencies: {
             $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
-                resultByRecordId: [record.id: .failure(DevelopmentRecordTestError.failed)]
+                resultByRecordId: [record.id: .failure(RecordTestError.failed)]
             )
         }
 
@@ -74,7 +74,7 @@ struct DevelopmentRecordDetailFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.contentState = .failed
-            $0.alert = makeDevelopmentRecordErrorAlert("development_record_detail_error_message")
+            $0.alert = makeRecordErrorAlert("development_record_detail_error_message")
         }
         await store.send(.alert(.dismiss)) {
             $0.alert = nil
@@ -84,7 +84,7 @@ struct DevelopmentRecordDetailFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.contentState = .failed
-            $0.alert = makeDevelopmentRecordErrorAlert("development_record_detail_error_message")
+            $0.alert = makeRecordErrorAlert("development_record_detail_error_message")
         }
     }
 }

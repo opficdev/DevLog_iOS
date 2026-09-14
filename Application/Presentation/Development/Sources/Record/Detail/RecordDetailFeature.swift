@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordDetailFeature.swift
+//  RecordDetailFeature.swift
 //  Development
 //
 //  Created by opfic on 9/13/26.
@@ -9,7 +9,7 @@ import Domain
 import PresentationShared
 
 @Reducer
-struct DevelopmentRecordDetailFeature {
+struct RecordDetailFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Never>?
@@ -80,7 +80,7 @@ struct DevelopmentRecordDetailFeature {
     }
 }
 
-private extension DevelopmentRecordDetailFeature {
+private extension RecordDetailFeature {
     func fetchEffect(record: DevelopmentRecord) -> Effect<Action> {
         .run { [fetchRecordHistoryUseCase] send in
             do {

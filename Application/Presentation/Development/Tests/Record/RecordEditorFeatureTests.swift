@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordEditorFeatureTests.swift
+//  RecordEditorFeatureTests.swift
 //  DevelopmentTests
 //
 //  Created by opfic on 9/13/26.
@@ -11,7 +11,7 @@ import PresentationShared
 @testable import Development
 
 @MainActor
-struct DevelopmentRecordEditorFeatureTests {
+struct RecordEditorFeatureTests {
     @Test("새 기록 저장은 초안을 생성한다")
     func 새_기록_저장은_초안을_생성한다() async throws {
         let record = try makeDevelopmentRecord()
@@ -63,7 +63,7 @@ struct DevelopmentRecordEditorFeatureTests {
         let version = try makeDevelopmentRecordVersion()
         let store = makeStore(
             record: record,
-            createResult: .failure(DevelopmentRecordTestError.failed),
+            createResult: .failure(RecordTestError.failed),
             saveResult: .success(updatedRecord),
             confirmResult: .success(version)
         )
@@ -88,7 +88,7 @@ struct DevelopmentRecordEditorFeatureTests {
         let version = try makeDevelopmentRecordVersion()
         let store = makeStore(
             record: record,
-            createResult: .failure(DevelopmentRecordTestError.failed),
+            createResult: .failure(RecordTestError.failed),
             confirmResult: .success(version)
         )
 
@@ -104,16 +104,16 @@ struct DevelopmentRecordEditorFeatureTests {
         let version = try makeDevelopmentRecordVersion()
         let createSpy = CreateDevelopmentRecordUseCaseSpy(result: .success(record))
         let confirmSpy = ConfirmDevelopmentRecordUseCaseSpy(results: [
-            .failure(DevelopmentRecordTestError.failed),
+            .failure(RecordTestError.failed),
             .success(version)
         ])
         let store = TestStore(
-            initialState: DevelopmentRecordEditorFeature.State(
+            initialState: RecordEditorFeature.State(
                 goalId: "goal",
                 goalTitle: "개발 목표"
             )
         ) {
-            DevelopmentRecordEditorFeature()
+            RecordEditorFeature()
         } withDependencies: {
             $0.developmentCreateRecordUseCase = createSpy
             $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(
@@ -133,7 +133,7 @@ struct DevelopmentRecordEditorFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
-            $0.alert = makeDevelopmentRecordErrorAlert("development_record_editor_error_message")
+            $0.alert = makeRecordErrorAlert("development_record_editor_error_message")
         }
         await store.send(.alert(.dismiss)) {
             $0.alert = nil
@@ -161,15 +161,15 @@ struct DevelopmentRecordEditorFeatureTests {
         createResult: Result<DevelopmentRecord, Error>,
         saveResult: Result<DevelopmentRecord, Error>? = nil,
         confirmResult: Result<DevelopmentRecord.Version, Error>
-    ) -> TestStoreOf<DevelopmentRecordEditorFeature> {
+    ) -> TestStoreOf<RecordEditorFeature> {
         TestStore(
-            initialState: DevelopmentRecordEditorFeature.State(
+            initialState: RecordEditorFeature.State(
                 goalId: "goal",
                 goalTitle: "개발 목표",
                 record: record
             )
         ) {
-            DevelopmentRecordEditorFeature()
+            RecordEditorFeature()
         } withDependencies: {
             $0.developmentCreateRecordUseCase = CreateDevelopmentRecordUseCaseStub(result: createResult)
             $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(

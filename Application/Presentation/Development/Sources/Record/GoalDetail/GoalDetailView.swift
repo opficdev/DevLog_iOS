@@ -10,15 +10,15 @@ import Domain
 import PresentationShared
 
 public struct GoalDetailView: View {
-    @State private var store: StoreOf<DevelopmentRecordTimelineFeature>
+    @State private var store: StoreOf<GoalDetailFeature>
     @State private var editorDestination: EditorDestination?
     @State private var detailDestination: DetailDestination?
 
     public init(goalId: String) {
         self._store = State(initialValue: Store(
-            initialState: DevelopmentRecordTimelineFeature.State(goalId: goalId)
+            initialState: GoalDetailFeature.State(goalId: goalId)
         ) {
-            DevelopmentRecordTimelineFeature()
+            GoalDetailFeature()
         })
     }
 
@@ -136,7 +136,7 @@ public struct GoalDetailView: View {
         .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
     }
 
-    private func select(_ item: DevelopmentRecordTimelineItem) {
+    private func select(_ item: RecordTimelineItem) {
         if item.isDraft {
             editorDestination = EditorDestination(record: item.record)
         } else {
@@ -151,7 +151,7 @@ public struct GoalDetailView: View {
 }
 
 private struct TimelineRow: View {
-    let item: DevelopmentRecordTimelineItem
+    let item: RecordTimelineItem
     let isLast: Bool
     let onSelect: () -> Void
 

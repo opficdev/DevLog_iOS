@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordTimelineFeatureTests.swift
+//  GoalDetailFeatureTests.swift
 //  DevelopmentTests
 //
 //  Created by opfic on 9/13/26.
@@ -11,7 +11,7 @@ import PresentationShared
 @testable import Development
 
 @MainActor
-struct DevelopmentRecordTimelineFeatureTests {
+struct GoalDetailFeatureTests {
     @Test("타임라인은 생성 순서로 기록을 정렬하고 최신 확정 버전을 구성한다")
     func 타임라인은_생성_순서로_기록을_정렬하고_최신_확정_버전을_구성한다() async throws {
         let goal = try makeDevelopmentGoal(title: "개발 목표와 기록 이력 구성")
@@ -22,13 +22,13 @@ struct DevelopmentRecordTimelineFeatureTests {
         )
         let version = try makeDevelopmentRecordVersion(recordId: confirmedRecord.id)
         let items = [
-            DevelopmentRecordTimelineItem(record: confirmedRecord, currentVersion: version),
-            DevelopmentRecordTimelineItem(record: draftRecord, currentVersion: nil)
+            RecordTimelineItem(record: confirmedRecord, currentVersion: version),
+            RecordTimelineItem(record: draftRecord, currentVersion: nil)
         ]
         let store = TestStore(
-            initialState: DevelopmentRecordTimelineFeature.State(goalId: goal.id)
+            initialState: GoalDetailFeature.State(goalId: goal.id)
         ) {
-            DevelopmentRecordTimelineFeature()
+            GoalDetailFeature()
         } withDependencies: {
             $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(result: .success(goal))
             $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
@@ -54,13 +54,13 @@ struct DevelopmentRecordTimelineFeatureTests {
     func 타임라인_조회_실패는_입력_가능한_재조회_상태를_유지한다() async throws {
         let goal = try makeDevelopmentGoal()
         let store = TestStore(
-            initialState: DevelopmentRecordTimelineFeature.State(goalId: goal.id)
+            initialState: GoalDetailFeature.State(goalId: goal.id)
         ) {
-            DevelopmentRecordTimelineFeature()
+            GoalDetailFeature()
         } withDependencies: {
             $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(result: .success(goal))
             $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
-                result: .failure(DevelopmentRecordTestError.failed)
+                result: .failure(RecordTestError.failed)
             )
             $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
                 resultByRecordId: [:]
@@ -72,7 +72,7 @@ struct DevelopmentRecordTimelineFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
-            $0.alert = makeDevelopmentRecordErrorAlert("development_record_timeline_error_message")
+            $0.alert = makeRecordErrorAlert("development_record_timeline_error_message")
         }
         await store.send(.view(.refresh)) {
             $0.isLoading = true

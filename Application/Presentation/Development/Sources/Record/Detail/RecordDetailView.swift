@@ -10,16 +10,16 @@ import Domain
 import PresentationShared
 
 public struct RecordDetailView: View {
-    @State private var store: StoreOf<DevelopmentRecordDetailFeature>
+    @State private var store: StoreOf<RecordDetailFeature>
 
     public init(goalTitle: String, record: DevelopmentRecord) {
         self._store = State(initialValue: Store(
-            initialState: DevelopmentRecordDetailFeature.State(
+            initialState: RecordDetailFeature.State(
                 goalTitle: goalTitle,
                 record: record
             )
         ) {
-            DevelopmentRecordDetailFeature()
+            RecordDetailFeature()
         })
     }
 
