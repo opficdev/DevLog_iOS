@@ -91,10 +91,7 @@ struct RecordVersionDetailView: View {
     }
 
     private var contentCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(RecordPresentation.text("development_record_result_title"))
-                .font(.title3.bold())
-
+        Group {
             if version.markdownContent.isEmpty {
                 ContentUnavailableView(
                     RecordPresentation.text("development_record_content_empty_title"),
@@ -105,7 +102,7 @@ struct RecordVersionDetailView: View {
                     .frame(minHeight: 420)
             }
         }
-        .padding(20)
+        .padding(.vertical, 16)
         .background(Color.surface, in: .rect(cornerRadius: 24))
     }
 
