@@ -34,8 +34,8 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
                 result: .success([draftRecord, confirmedRecord])
             )
-            $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
-                resultByRecordId: [confirmedRecord.id: .success([version])]
+            $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
+                resultByRecordId: [confirmedRecord.id: .success(version)]
             )
         }
 
@@ -62,7 +62,7 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordsUseCase = FetchDevelopmentRecordsUseCaseStub(
                 result: .failure(RecordTestError.failed)
             )
-            $0.developmentFetchRecordHistoryUseCase = FetchDevelopmentRecordHistoryUseCaseStub(
+            $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [:]
             )
         }

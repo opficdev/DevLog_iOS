@@ -102,6 +102,14 @@ private actor DevelopmentRecordServiceSpy: DevelopmentRecordService {
         [version]
     }
 
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecordVersionResponse {
+        version
+    }
+
     func saveDraft(
         goalId: String,
         recordId: String,

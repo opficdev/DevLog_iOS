@@ -52,6 +52,18 @@ struct FetchDevelopmentRecordHistoryUseCaseStub: FetchDevelopmentRecordHistoryUs
     }
 }
 
+struct FetchDevelopmentRecordVersionUseCaseStub: FetchDevelopmentRecordVersionUseCase {
+    let resultByRecordId: [String: Result<DevelopmentRecord.Version, Error>]
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        try resultByRecordId[recordId, default: .failure(RecordTestError.failed)].get()
+    }
+}
+
 struct CreateDevelopmentRecordUseCaseStub: CreateDevelopmentRecordUseCase {
     let result: Result<DevelopmentRecord, Error>
 

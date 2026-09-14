@@ -90,10 +90,10 @@ private extension ConfirmDevelopmentRecordUseCaseImpl {
         guard record.currentVersion?.id == versionId else {
             throw DomainLayerError.developmentRecordVersionNotFound
         }
-        let versions = try await repository.fetchVersions(goalId: goalId, recordId: recordId)
-        guard let version = versions.first(where: { $0.id == versionId }) else {
-            throw DomainLayerError.developmentRecordVersionNotFound
-        }
-        return version
+        return try await repository.fetchVersion(
+            goalId: goalId,
+            recordId: recordId,
+            versionId: versionId
+        )
     }
 }

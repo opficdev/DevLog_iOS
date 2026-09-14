@@ -55,6 +55,12 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         let recordId: String
     }
 
+    struct VersionQuery: Equatable {
+        let goalId: String
+        let recordId: String
+        let versionId: String
+    }
+
     struct DraftRequest: Equatable {
         let goalId: String
         let recordId: String
@@ -89,6 +95,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     private var recordedCreateRequests = [CreateRequest]()
     private var recordedRecordQueries = [String]()
     private var recordedVersionQueries = [RecordQuery]()
+    private var recordedExactVersionQueries = [VersionQuery]()
     private var recordedDraftRequests = [DraftRequest]()
     private var recordedConfirmRequests = [ConfirmRequest]()
     private var recordedRestoreRequests = [RestoreRequest]()
@@ -141,6 +148,22 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     func fetchVersions(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version] {
         recordedVersionQueries.append(.init(goalId: goalId, recordId: recordId))
         return versions
+    }
+
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        recordedExactVersionQueries.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            versionId: versionId
+        ))
+        guard let version = versions.first(where: { $0.id == versionId }) else {
+            throw DevelopmentRecordRepositorySpyError.unconfigured
+        }
+        return version
     }
 
     func saveDraft(
@@ -205,6 +228,10 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
 
     func versionQueries() -> [RecordQuery] {
         recordedVersionQueries
+    }
+
+    func exactVersionQueries() -> [VersionQuery] {
+        recordedExactVersionQueries
     }
 
     func draftRequests() -> [DraftRequest] {

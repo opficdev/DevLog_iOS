@@ -54,7 +54,7 @@ struct GoalDetailFeature {
 
     @Dependency(\.developmentFetchGoalUseCase) private var fetchGoalUseCase
     @Dependency(\.developmentFetchRecordsUseCase) private var fetchRecordsUseCase
-    @Dependency(\.developmentFetchRecordHistoryUseCase) private var fetchRecordHistoryUseCase
+    @Dependency(\.developmentFetchRecordVersionUseCase) private var fetchRecordVersionUseCase
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -87,30 +87,41 @@ struct GoalDetailFeature {
 
 extension GoalDetailFeature {
     func fetchEffect(goalId: String) -> Effect<Action> {
-        .run { [fetchGoalUseCase, fetchRecordsUseCase, fetchRecordHistoryUseCase] send in
+        .run { [fetchGoalUseCase, fetchRecordsUseCase, fetchRecordVersionUseCase] send in
             do {
                 let goal = try await fetchGoalUseCase.execute(goalId)
                 let records = try await fetchRecordsUseCase.execute(goalId: goalId)
-                var items = [RecordTimelineItem]()
+                let sortedRecords = records.sorted(by: Self.precedes)
+                var currentVersions = [DevelopmentRecord.Version?](
+                    repeating: nil,
+                    count: sortedRecords.count
+                )
 
-                for record in records.sorted(by: Self.precedes) {
-                    let currentVersion: DevelopmentRecord.Version?
-                    if let reference = record.currentVersion {
-                        let versions = try await fetchRecordHistoryUseCase.execute(
-                            goalId: goalId,
-                            recordId: record.id
-                        )
-                        guard let version = versions.first(where: { $0.id == reference.id }) else {
-                            throw DomainLayerError.developmentRecordVersionNotFound
+                try await withThrowingTaskGroup(
+                    of: (Int, DevelopmentRecord.Version).self
+                ) { group in
+                    for (index, record) in sortedRecords.enumerated() {
+                        guard let reference = record.currentVersion else { continue }
+                        group.addTask {
+                            let version = try await fetchRecordVersionUseCase.execute(
+                                goalId: goalId,
+                                recordId: record.id,
+                                versionId: reference.id
+                            )
+                            return (index, version)
                         }
-                        currentVersion = version
-                    } else {
-                        currentVersion = nil
                     }
-                    items.append(RecordTimelineItem(
+
+                    for try await (index, version) in group {
+                        currentVersions[index] = version
+                    }
+                }
+
+                let items = zip(sortedRecords, currentVersions).map { record, version in
+                    RecordTimelineItem(
                         record: record,
-                        currentVersion: currentVersion
-                    ))
+                        currentVersion: version
+                    )
                 }
 
                 await send(.store(.loaded(goalTitle: goal.title, items: items)))

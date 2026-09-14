@@ -22,6 +22,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
             case saveDraft
             case confirmDraft
             case restoreVersion
+            case fetchVersion
         }
     }
 
@@ -136,6 +137,27 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
         } catch {
             logger.error("Failed to fetch development record versions", error: error)
             record(error, code: .fetchVersions)
+            throw error
+        }
+    }
+
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecordVersionResponse {
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
+
+        do {
+            return try await fetchVersion(
+                uid: uid,
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId
+            )
+        } catch {
+            logger.error("Failed to fetch development record version", error: error)
+            record(error, code: .fetchVersion)
             throw error
         }
     }

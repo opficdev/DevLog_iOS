@@ -36,7 +36,10 @@ private extension AppGraph {
                 .fetchDevelopmentRecordsUseCase,
             fetchRecordHistoryUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordHistoryUseCase
+                .fetchDevelopmentRecordHistoryUseCase,
+            fetchRecordVersionUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordVersionUseCase
         )
         DevelopmentDependencyPreparation.prepareMutation(
             &dependencies,

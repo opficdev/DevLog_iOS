@@ -26,4 +26,9 @@ public final class DevelopmentRecordQueryUseCaseGraph {
     private func makeFetchDevelopmentRecordHistoryUseCase() -> FetchDevelopmentRecordHistoryUseCase {
         FetchDevelopmentRecordHistoryUseCaseImpl(input.repository)
     }
+
+    @Provide
+    private func makeFetchDevelopmentRecordVersionUseCase() -> FetchDevelopmentRecordVersionUseCase {
+        FetchDevelopmentRecordVersionUseCaseImpl(input.repository)
+    }
 }

@@ -19,10 +19,12 @@ public enum DevelopmentDependencyPreparation {
     public static func prepareQuery(
         _ dependencies: inout DependencyValues,
         fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
-        fetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase
+        fetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase,
+        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase
     ) {
         dependencies.developmentFetchRecordsUseCase = fetchRecordsUseCase
         dependencies.developmentFetchRecordHistoryUseCase = fetchRecordHistoryUseCase
+        dependencies.developmentFetchRecordVersionUseCase = fetchRecordVersionUseCase
     }
 
     public static func prepareMutation(
@@ -51,6 +53,11 @@ extension DependencyValues {
     var developmentFetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase {
         get { self[DevelopmentFetchRecordHistoryUseCaseKey.self] }
         set { self[DevelopmentFetchRecordHistoryUseCaseKey.self] = newValue }
+    }
+
+    var developmentFetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase {
+        get { self[DevelopmentFetchRecordVersionUseCaseKey.self] }
+        set { self[DevelopmentFetchRecordVersionUseCaseKey.self] = newValue }
     }
 
     var developmentCreateRecordUseCase: CreateDevelopmentRecordUseCase {
@@ -84,6 +91,12 @@ private enum DevelopmentFetchRecordsUseCaseKey: DependencyKey {
 private enum DevelopmentFetchRecordHistoryUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordHistoryUseCase {
         preconditionFailure("FetchDevelopmentRecordHistoryUseCase must be provided.")
+    }
+}
+
+private enum DevelopmentFetchRecordVersionUseCaseKey: DependencyKey {
+    static var liveValue: FetchDevelopmentRecordVersionUseCase {
+        preconditionFailure("FetchDevelopmentRecordVersionUseCase must be provided.")
     }
 }
 

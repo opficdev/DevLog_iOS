@@ -133,8 +133,8 @@ struct DevelopmentRecordConfirmUseCaseTests {
 
         #expect(result == version)
         #expect(await repository.confirmRequests().count == 1)
-        #expect(await repository.versionQueries() == [
-            .init(goalId: "goal-1", recordId: "record-1")
+        #expect(await repository.exactVersionQueries() == [
+            .init(goalId: "goal-1", recordId: "record-1", versionId: version.id)
         ])
     }
 

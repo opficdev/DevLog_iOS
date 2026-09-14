@@ -47,6 +47,22 @@ final class DevelopmentRecordRepositoryImpl: DevelopmentRecordRepository {
         }
     }
 
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        do {
+            return try await service.fetchVersion(
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId
+            ).toDomain()
+        } catch {
+            throw error.toDomain()
+        }
+    }
+
     func fetchVersions(
         goalId: String,
         recordId: String
