@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordEditorView.swift
+//  RecordEditorView.swift
 //  Development
 //
 //  Created by opfic on 9/13/26.
@@ -9,10 +9,14 @@ import SwiftUI
 import Domain
 import PresentationShared
 
-public struct DevelopmentRecordEditorView: View {
+public struct RecordEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<DevelopmentRecordEditorFeature>
     @FocusState private var focusedField: Field?
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title2,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
     private let onCompletion: () -> Void
 
     public init(
@@ -36,8 +40,7 @@ public struct DevelopmentRecordEditorView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    goalBadge
+                LazyVStack(alignment: .leading, spacing: 20) {
                     versionCard
                     titleCard
                     contentCard
@@ -60,35 +63,42 @@ public struct DevelopmentRecordEditorView: View {
 
     private var topBar: some View {
         HStack {
-            Button(DevelopmentRecordPresentation.text("common_close")) {
+            Button {
                 dismiss()
+            } label: {
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "xmark")
+                        .frame(width: iconSize, height: iconSize)
+                } else {
+                    Text(DevelopmentRecordPresentation.text("common_close"))
+                }
             }
-            .foregroundStyle(Color.textSecondary)
+            .font(.title)
+            .topBarButtonStyle()
             Spacer()
             Text(DevelopmentRecordPresentation.text("development_record_editor_title"))
                 .font(.headline)
             Spacer()
-            Button(DevelopmentRecordPresentation.text("development_record_save")) {
+            Button {
                 focusedField = nil
                 store.send(.view(.save))
+            } label: {
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "checkmark")
+                        .frame(width: iconSize, height: iconSize)
+                        .foregroundStyle(Color.primary)
+                } else {
+                    Text(DevelopmentRecordPresentation.text("development_record_save"))
+                        .foregroundStyle(Color.accent)
+                }
             }
-            .fontWeight(.semibold)
-            .foregroundStyle(Color.accent)
+            .font(.title)
+            .topBarButtonStyle(color: Color.surface)
             .disabled(!store.isReadyToSave)
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
-    }
-
-    private var goalBadge: some View {
-        Text(store.goalTitle)
-            .font(.callout)
-            .foregroundStyle(Color.accent)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(Color.primaryContainer, in: .capsule)
-            .lineLimit(1)
     }
 
     private var versionCard: some View {
@@ -116,16 +126,7 @@ public struct DevelopmentRecordEditorView: View {
 
     private var contentCard: some View {
         VStack(spacing: 16) {
-            Picker(
-                DevelopmentRecordPresentation.text("development_record_editor_mode"),
-                selection: $store.selectedTab
-            ) {
-                Text(DevelopmentRecordPresentation.text("development_record_write"))
-                    .tag(DevelopmentRecordEditorFeature.EditorTab.write)
-                Text(DevelopmentRecordPresentation.text("development_record_preview"))
-                    .tag(DevelopmentRecordEditorFeature.EditorTab.preview)
-            }
-            .pickerStyle(.segmented)
+            ModePicker(store: store, focusedField: _focusedField)
 
             editorContent
 
@@ -208,6 +209,17 @@ public struct DevelopmentRecordEditorView: View {
     }
 }
 
+private extension View {
+    @ViewBuilder
+    func topBarButtonStyle(color: Color = .clear) -> some View {
+        if #available(iOS 26.0, *) {
+            adaptiveButtonStyle(shape: .circle, color: color, glassEffect: .enabled)
+        } else {
+            adaptiveButtonStyle(color: color, glassEffect: .enabled)
+        }
+    }
+}
+
 private struct FieldCard<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
@@ -228,6 +240,59 @@ private struct FieldCard<Content: View>: View {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)
         }
+    }
+}
+
+private struct ModePicker: View {
+    @Bindable var store: StoreOf<DevelopmentRecordEditorFeature>
+    @FocusState var focusedField: Field?
+
+    var body: some View {
+        HStack(spacing: 0) {
+            modeButton(
+                DevelopmentRecordPresentation.text("development_record_write"),
+                tab: .write
+            )
+            modeButton(
+                DevelopmentRecordPresentation.text("development_record_preview"),
+                tab: .preview
+            )
+        }
+        .padding(2)
+        .background(Color.border, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func modeButton(
+        _ title: String,
+        tab: DevelopmentRecordEditorFeature.EditorTab
+    ) -> some View {
+        let isSelected = store.selectedTab == tab
+
+        return Button {
+            if tab == .write {
+                store.send(.binding(.set(\.selectedTab, .write)))
+                focusedField = .content
+            } else {
+                focusedField = nil
+                DispatchQueue.main.async {
+                    store.send(.binding(.set(\.selectedTab, .preview)))
+                }
+            }
+        } label: {
+            Text(title)
+                .font(.body)
+                .foregroundStyle(isSelected ? Color.accent : Color.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: 36)
+                .background {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.surface)
+                            .shadow(color: Color.textSecondary.opacity(0.08), radius: 2, y: 2)
+                    }
+                }
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 }
 
