@@ -80,10 +80,10 @@ struct CreateDevelopmentRecordUseCaseStub: CreateDevelopmentRecordUseCase {
 struct SaveDevelopmentRecordDraftUseCaseStub: SaveDevelopmentRecordDraftUseCase {
     let result: Result<DevelopmentRecord, Error>
 
+    // swiftlint:disable:next function_parameter_count
     func execute(
         goalId: String,
         recordId: String,
-        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?,
         title: String,
@@ -99,6 +99,7 @@ struct ConfirmDevelopmentRecordUseCaseStub: ConfirmDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         baseVersionId: String?,
         draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
@@ -215,13 +216,15 @@ func makeDevelopmentRecord(
 
 func makeConfirmedDevelopmentRecord(
     id: String = "record",
-    versionId: String = "version"
+    versionId: String = "version",
+    versionNumber: Int = 1,
+    draft: DevelopmentRecord.Draft? = nil
 ) throws -> DevelopmentRecord {
     try DevelopmentRecord(
         id: id,
         goalId: "goal",
-        currentVersion: DevelopmentRecord.CurrentVersion(id: versionId, number: 1),
-        draft: nil,
+        currentVersion: DevelopmentRecord.CurrentVersion(id: versionId, number: versionNumber),
+        draft: draft,
         createdAt: Date(timeIntervalSince1970: 1_700_000_000)
     )
 }
@@ -229,12 +232,13 @@ func makeConfirmedDevelopmentRecord(
 func makeDevelopmentRecordDraft(
     title: String = "기록 제목",
     markdownContent: String = "# 내용",
+    baseVersionId: String? = nil,
     revisionId: String = "revision"
 ) throws -> DevelopmentRecord.Draft {
     try DevelopmentRecord.Draft(
         title: title,
         markdownContent: markdownContent,
-        baseVersionId: nil,
+        baseVersionId: baseVersionId,
         revisionId: revisionId,
         updatedAt: Date(timeIntervalSince1970: 1_700_000_100)
     )
@@ -243,16 +247,20 @@ func makeDevelopmentRecordDraft(
 func makeDevelopmentRecordVersion(
     id: String = "version",
     recordId: String = "record",
-    title: String = "확정 기록"
+    number: Int = 1,
+    title: String = "확정 기록",
+    markdownContent: String = "# 확정 내용",
+    kind: DevelopmentRecord.Version.Kind = .initial,
+    sourceVersionId: String? = nil
 ) throws -> DevelopmentRecord.Version {
     try DevelopmentRecord.Version(
         id: id,
         recordId: recordId,
-        number: 1,
+        number: number,
         title: title,
-        markdownContent: "# 확정 내용",
-        kind: .initial,
-        sourceVersionId: nil,
-        confirmedAt: Date(timeIntervalSince1970: 1_700_000_200)
+        markdownContent: markdownContent,
+        kind: kind,
+        sourceVersionId: sourceVersionId,
+        confirmedAt: Date(timeIntervalSince1970: 1_700_000_200 + Double(number))
     )
 }

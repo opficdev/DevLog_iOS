@@ -18,6 +18,7 @@ struct RecordEditorFeature {
         let goalTitle: String
         let recordId: String
         let versionId: String
+        let baseVersion: DevelopmentRecord.Version?
         var record: DevelopmentRecord?
         var title: String
         var markdownContent: String
@@ -27,16 +28,23 @@ struct RecordEditorFeature {
         var confirmationPreparation: ConfirmationPreparation?
 
         var versionNumber: Int {
-            (record?.currentVersion?.number ?? 0) + 1
+            (baseVersion?.number ?? record?.currentVersion?.number ?? 0) + 1
+        }
+
+        var baseVersionID: String? {
+            record?.draft?.baseVersionId ?? baseVersion?.id ?? record?.currentVersion?.id
+        }
+
+        var isCorrection: Bool {
+            baseVersionID != nil
         }
 
         var isReadyToSave: Bool {
             !isLoading
-                && record?.currentVersion == nil
                 && !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
 
-        var canConfirmInitialVersion: Bool {
+        var canConfirmVersion: Bool {
             isReadyToSave
         }
 
@@ -44,6 +52,7 @@ struct RecordEditorFeature {
             goalId: String,
             goalTitle: String,
             record: DevelopmentRecord? = nil,
+            baseVersion: DevelopmentRecord.Version? = nil,
             recordId: String = UUID().uuidString,
             versionId: String = UUID().uuidString
         ) {
@@ -51,9 +60,10 @@ struct RecordEditorFeature {
             self.goalTitle = goalTitle
             self.recordId = record?.id ?? recordId
             self.versionId = versionId
+            self.baseVersion = baseVersion
             self.record = record
-            self.title = record?.draft?.title ?? ""
-            self.markdownContent = record?.draft?.markdownContent ?? ""
+            self.title = record?.draft?.title ?? baseVersion?.title ?? ""
+            self.markdownContent = record?.draft?.markdownContent ?? baseVersion?.markdownContent ?? ""
         }
     }
 
@@ -115,7 +125,7 @@ struct RecordEditorFeature {
                 state.confirmationPreparation = nil
                 return saveEffect(state: state)
             case .view(.confirm):
-                guard state.canConfirmInitialVersion else { break }
+                guard state.canConfirmVersion else { break }
                 state.isLoading = true
                 state.result = nil
                 if let preparation = state.confirmationPreparation,
@@ -125,6 +135,7 @@ struct RecordEditorFeature {
                         goalId: state.goalId,
                         recordId: preparation.record.id,
                         versionId: state.versionId,
+                        baseVersionId: state.baseVersionID,
                         draftRevisionId: preparation.record.draft?.revisionId
                     )
                 }
@@ -147,6 +158,7 @@ struct RecordEditorFeature {
                     goalId: state.goalId,
                     recordId: record.id,
                     versionId: state.versionId,
+                    baseVersionId: state.baseVersionID,
                     draftRevisionId: record.draft?.revisionId
                 )
             case .store(.confirmed(let version)):
@@ -175,7 +187,7 @@ private extension RecordEditorFeature {
                     record = try await saveRecordDraftUseCase.execute(
                         goalId: state.goalId,
                         recordId: recordId,
-                        baseVersionId: nil,
+                        baseVersionId: state.baseVersionID,
                         draftRevisionId: state.record?.draft?.revisionId,
                         title: state.title,
                         markdownContent: state.markdownContent
@@ -203,7 +215,7 @@ private extension RecordEditorFeature {
                     record = try await saveRecordDraftUseCase.execute(
                         goalId: state.goalId,
                         recordId: recordId,
-                        baseVersionId: nil,
+                        baseVersionId: state.baseVersionID,
                         draftRevisionId: state.record?.draft?.revisionId,
                         title: state.title,
                         markdownContent: state.markdownContent
@@ -227,6 +239,7 @@ private extension RecordEditorFeature {
         goalId: String,
         recordId: String,
         versionId: String,
+        baseVersionId: String?,
         draftRevisionId: String?
     ) -> Effect<Action> {
         .run { [confirmRecordUseCase] send in
@@ -235,7 +248,7 @@ private extension RecordEditorFeature {
                     goalId: goalId,
                     recordId: recordId,
                     versionId: versionId,
-                    baseVersionId: nil,
+                    baseVersionId: baseVersionId,
                     draftRevisionId: draftRevisionId
                 )
                 await send(.store(.confirmed(version)))

@@ -438,6 +438,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "확정하기" } }
       }
     },
+    "development_record_confirm_correction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm as New Version" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 버전으로 확정" } }
+      }
+    },
     "development_record_confirm_hint_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -506,6 +513,13 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "The development record could not be saved. Your input is still available." } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록을 저장하지 못했어요. 작성한 내용은 그대로 유지돼요." } }
+      }
+    },
+    "development_record_editor_correction_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 정정" } }
       }
     },
     "development_record_editor_mode" : {

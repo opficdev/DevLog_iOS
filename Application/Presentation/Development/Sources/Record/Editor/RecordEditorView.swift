@@ -23,13 +23,15 @@ public struct RecordEditorView: View {
         goalId: String,
         goalTitle: String,
         record: DevelopmentRecord? = nil,
+        baseVersion: DevelopmentRecord.Version? = nil,
         onCompletion: @escaping () -> Void = { }
     ) {
         self._store = State(initialValue: Store(
             initialState: RecordEditorFeature.State(
                 goalId: goalId,
                 goalTitle: goalTitle,
-                record: record
+                record: record,
+                baseVersion: baseVersion
             )
         ) {
             RecordEditorFeature()
@@ -78,7 +80,11 @@ public struct RecordEditorView: View {
             .topBarButtonStyle()
             .disabled(store.isLoading)
             Spacer()
-            Text(RecordPresentation.text("development_record_editor_title"))
+            Text(RecordPresentation.text(
+                store.isCorrection
+                    ? "development_record_editor_correction_title"
+                    : "development_record_editor_title"
+            ))
                 .font(.headline)
             Spacer()
             Button {
@@ -187,7 +193,11 @@ public struct RecordEditorView: View {
                         ProgressView()
                             .tint(Color.white)
                     } else {
-                        Text(RecordPresentation.text("development_record_confirm"))
+                        Text(RecordPresentation.text(
+                            store.isCorrection
+                                ? "development_record_confirm_correction"
+                                : "development_record_confirm"
+                        ))
                     }
                 }
                 .font(.headline)
@@ -196,7 +206,7 @@ public struct RecordEditorView: View {
                 .padding(.vertical, 10)
             }
             .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
-            .disabled(!store.canConfirmInitialVersion)
+            .disabled(!store.canConfirmVersion)
 
             Text(String.localizedStringWithFormat(
                 RecordPresentation.text("development_record_confirm_hint_format"),
@@ -209,6 +219,7 @@ public struct RecordEditorView: View {
         .padding(.vertical, 12)
         .background(Color.surface, ignoresSafeAreaEdges: .bottom)
     }
+
 }
 
 private extension View {

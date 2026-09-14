@@ -88,20 +88,70 @@ struct RecordEditorFeatureTests {
         await store.receive(.delegate(.saved(updatedRecord)))
     }
 
-    @Test("확정된 기록은 #871 전까지 저장과 확정을 허용하지 않는다")
-    func 확정된_기록은_871_전까지_저장과_확정을_허용하지_않는다() async throws {
-        let record = try makeConfirmedDevelopmentRecord()
-        let version = try makeDevelopmentRecordVersion()
-        let store = makeStore(
-            record: record,
-            createResult: .failure(RecordTestError.failed),
-            confirmResult: .success(version)
+    @Test("확정된 기록은 현재 내용을 바탕으로 correction 버전을 만든다")
+    func 확정된_기록은_현재_내용을_바탕으로_correction_버전을_만든다() async throws {
+        let baseVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let record = try makeConfirmedDevelopmentRecord(versionId: baseVersion.id)
+        let preparedRecord = try makeConfirmedDevelopmentRecord(
+            versionId: baseVersion.id,
+            draft: makeDevelopmentRecordDraft(baseVersionId: baseVersion.id)
         )
+        let version = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: baseVersion.id
+        )
+        let spy = ConfirmDevelopmentRecordUseCaseSpy(results: [.success(version)])
+        let store = TestStore(
+            initialState: RecordEditorFeature.State(
+                goalId: "goal",
+                goalTitle: "개발 목표",
+                record: record,
+                baseVersion: baseVersion,
+                versionId: version.id
+            )
+        ) {
+            RecordEditorFeature()
+        } withDependencies: {
+            $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(
+                result: .success(preparedRecord)
+            )
+            $0.developmentConfirmRecordUseCase = spy
+        }
 
-        #expect(!store.state.isReadyToSave)
-        #expect(!store.state.canConfirmInitialVersion)
-        await store.send(.view(.save))
-        await store.send(.view(.confirm))
+        #expect(store.state.title == baseVersion.title)
+        #expect(store.state.markdownContent == baseVersion.markdownContent)
+        #expect(store.state.versionNumber == 2)
+        #expect(store.state.isCorrection)
+
+        await store.send(.view(.confirm)) {
+            $0.isLoading = true
+        }
+        await store.receive(.store(.preparedForConfirmation(preparedRecord))) {
+            $0.record = preparedRecord
+            $0.confirmationPreparation = .init(
+                record: preparedRecord,
+                title: baseVersion.title,
+                markdownContent: baseVersion.markdownContent
+            )
+        }
+        await store.receive(.store(.confirmed(version))) {
+            $0.isLoading = false
+            $0.result = .confirmed(version)
+            $0.confirmationPreparation = nil
+        }
+        await store.receive(.delegate(.confirmed(version)))
+
+        #expect(await spy.requests() == [
+            .init(
+                goalId: record.goalId,
+                recordId: record.id,
+                versionId: version.id,
+                baseVersionId: baseVersion.id,
+                draftRevisionId: preparedRecord.draft?.revisionId
+            )
+        ])
     }
 
     @Test("새 기록 생성 재시도는 같은 recordId를 사용한다")
