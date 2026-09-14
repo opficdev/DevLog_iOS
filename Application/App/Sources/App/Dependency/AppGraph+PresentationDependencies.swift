@@ -27,7 +27,10 @@ private extension AppGraph {
             &dependencies,
             fetchGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
-                .fetchDevelopmentGoalUseCase
+                .fetchDevelopmentGoalUseCase,
+            updateGoalStatusUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .updateDevelopmentGoalStatusUseCase
         )
         DevelopmentDependencyPreparation.prepareQuery(
             &dependencies,
