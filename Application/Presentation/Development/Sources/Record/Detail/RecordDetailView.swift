@@ -10,7 +10,10 @@ import Domain
 import PresentationShared
 
 public struct RecordDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<RecordDetailFeature>
+    @State private var isEditorPresented = false
+    @State private var isHistoryPresented = false
 
     public init(goalTitle: String, record: DevelopmentRecord) {
         self._store = State(initialValue: Store(
@@ -33,12 +36,15 @@ public struct RecordDetailView: View {
                         markdownContent: draft.markdownContent,
                         version: nil
                     )
-                case .confirmed(let version):
-                    recordContent(
-                        title: version.title,
-                        markdownContent: version.markdownContent,
-                        version: version
-                    )
+                case .loaded:
+                    if let version = store.currentVersion {
+                        recordContent(
+                            title: version.title,
+                            markdownContent: version.markdownContent,
+                            version: version
+                        )
+                        actionSection
+                    }
                 case .failed:
                     failureContent
                 case .idle, .loading:
@@ -47,15 +53,44 @@ public struct RecordDetailView: View {
             }
             .padding()
         }
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
+        .sheet(isPresented: $isEditorPresented) {
+            RecordEditorView(
+                goalId: store.record.goalId,
+                goalTitle: store.goalTitle,
+                record: store.record,
+                baseVersion: store.currentVersion,
+                onCompletion: finishEditing
+            )
+        }
+        .navigationDestination(isPresented: $isHistoryPresented) {
+            RecordVersionHistoryView(
+                versions: store.versions,
+                currentVersionID: store.currentVersionID,
+                isRestoring: store.isRestoring,
+                restoredSourceVersionID: store.restoredSourceVersionID,
+                onRestore: { store.send(.view(.restore($0))) }
+            )
+        }
         .overlay {
-            if store.isLoading {
+            if store.isLoading || store.isRestoring {
                 LoadingView()
             }
         }
+    }
+
+    private var topBar: some View {
+        HStack {
+            RecordBackButton(action: dismiss.callAsFunction)
+                .disabled(store.isRestoring)
+            Spacer()
+        }
+        .padding(.horizontal)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
     @ViewBuilder
@@ -81,12 +116,19 @@ public struct RecordDetailView: View {
             .scrollIndicators(.hidden)
 
             HStack(spacing: 10) {
-                Text(statusText(isDraft: version == nil))
+                Text(
+                    version == nil
+                        ? RecordPresentation.text("development_record_draft")
+                        : RecordPresentation.text("development_record_confirmed")
+                )
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(statusColor(isDraft: version == nil))
+                    .foregroundStyle(version == nil ? Color.warning : Color.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
-                    .background(statusBackground(isDraft: version == nil), in: .capsule)
+                    .background(
+                        version == nil ? Color.warning.opacity(0.12) : Color.accent,
+                        in: .capsule
+                    )
 
                 if let version {
                     Text(RecordPresentation.versionLabel(version.number))
@@ -143,17 +185,57 @@ public struct RecordDetailView: View {
         .background(Color.surface, in: .rect(cornerRadius: 24))
     }
 
-    private func statusText(isDraft: Bool) -> String {
-        isDraft
-            ? RecordPresentation.text("development_record_draft")
-            : RecordPresentation.text("development_record_confirmed")
+    private var actionSection: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                correctionButton
+                historyButton
+            }
+
+            VStack(spacing: 12) {
+                correctionButton
+                historyButton
+            }
+        }
     }
 
-    private func statusColor(isDraft: Bool) -> Color {
-        isDraft ? .warning : .white
+    private var correctionButton: some View {
+        Button {
+            isEditorPresented = true
+        } label: {
+            Label(
+                RecordPresentation.text("development_record_correct"),
+                systemImage: "pencil"
+            )
+            .font(.headline)
+            .foregroundStyle(Color.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+        }
+        .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
     }
 
-    private func statusBackground(isDraft: Bool) -> Color {
-        isDraft ? .warning.opacity(0.12) : .accent
+    private var historyButton: some View {
+        Button {
+            isHistoryPresented = true
+        } label: {
+            Label(
+                RecordPresentation.text("development_record_history_title"),
+                systemImage: "clock.arrow.circlepath"
+            )
+            .font(.headline)
+            .foregroundStyle(Color.onPrimaryContainer)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+        }
+        .adaptiveButtonStyle(
+            shape: RoundedRectangle(cornerRadius: 16),
+            color: .primaryContainer
+        )
+    }
+
+    private func finishEditing() {
+        isEditorPresented = false
+        store.send(.view(.fetch))
     }
 }
