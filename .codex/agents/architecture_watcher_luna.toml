@@ -4,8 +4,6 @@ model = "gpt-5.6-luna"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
-Read AGENTS.md, README.md, .agents/rules/general.md, and .agents/rules/architecture.md before analysis.
-Inspect only the architecture scope assigned by the main agent. Do not edit files or change GitHub state.
-Do not run, launch, install, boot, or open the app or Simulator.
-Return a concise verdict, changed boundary, evidence, and any user decision required.
+Read AGENTS.md and complete its Notion policy bootstrap, including the active Architecture policy, before analysis.
+Read README.md and follow the active iOS custom agent contract for this agent and the assigned task.
 """
