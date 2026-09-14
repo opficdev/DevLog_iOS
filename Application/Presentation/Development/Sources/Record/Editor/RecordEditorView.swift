@@ -70,13 +70,13 @@ public struct RecordEditorView: View {
                     Image(systemName: "xmark")
                         .frame(width: iconSize, height: iconSize)
                 } else {
-                    Text(DevelopmentRecordPresentation.text("common_close"))
+                    Text(RecordPresentation.text("common_close"))
                 }
             }
             .font(.title)
             .topBarButtonStyle()
             Spacer()
-            Text(DevelopmentRecordPresentation.text("development_record_editor_title"))
+            Text(RecordPresentation.text("development_record_editor_title"))
                 .font(.headline)
             Spacer()
             Button {
@@ -88,7 +88,7 @@ public struct RecordEditorView: View {
                         .frame(width: iconSize, height: iconSize)
                         .foregroundStyle(Color.primary)
                 } else {
-                    Text(DevelopmentRecordPresentation.text("development_record_save"))
+                    Text(RecordPresentation.text("development_record_save"))
                         .foregroundStyle(Color.accent)
                 }
             }
@@ -102,8 +102,8 @@ public struct RecordEditorView: View {
     }
 
     private var versionCard: some View {
-        FieldCard(title: DevelopmentRecordPresentation.text("development_record_version")) {
-            Text(DevelopmentRecordPresentation.versionLabel(store.versionNumber))
+        FieldCard(title: RecordPresentation.text("development_record_version")) {
+            Text(RecordPresentation.versionLabel(store.versionNumber))
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -112,9 +112,9 @@ public struct RecordEditorView: View {
     }
 
     private var titleCard: some View {
-        FieldCard(title: DevelopmentRecordPresentation.text("development_record_title")) {
+        FieldCard(title: RecordPresentation.text("development_record_title")) {
             TextField(
-                DevelopmentRecordPresentation.text("development_record_title_placeholder"),
+                RecordPresentation.text("development_record_title_placeholder"),
                 text: $store.title
             )
             .focused($focusedField, equals: .title)
@@ -130,7 +130,7 @@ public struct RecordEditorView: View {
 
             editorContent
 
-            Text(DevelopmentRecordPresentation.text("development_record_markdown_hint"))
+            Text(RecordPresentation.text("development_record_markdown_hint"))
                 .font(.caption)
                 .foregroundStyle(Color.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,10 +158,10 @@ public struct RecordEditorView: View {
             Group {
                 if store.markdownContent.isEmpty {
                     ContentUnavailableView(
-                        DevelopmentRecordPresentation.text("development_record_preview_empty_title"),
+                        RecordPresentation.text("development_record_preview_empty_title"),
                         systemImage: "doc.text.magnifyingglass",
                         description: Text(
-                            DevelopmentRecordPresentation.text("development_record_preview_empty_message")
+                            RecordPresentation.text("development_record_preview_empty_message")
                         )
                     )
                 } else {
@@ -185,7 +185,7 @@ public struct RecordEditorView: View {
                         ProgressView()
                             .tint(Color.white)
                     } else {
-                        Text(DevelopmentRecordPresentation.text("development_record_confirm"))
+                        Text(RecordPresentation.text("development_record_confirm"))
                     }
                 }
                 .font(.headline)
@@ -197,8 +197,8 @@ public struct RecordEditorView: View {
             .disabled(!store.canConfirmInitialVersion)
 
             Text(String.localizedStringWithFormat(
-                DevelopmentRecordPresentation.text("development_record_confirm_hint_format"),
-                DevelopmentRecordPresentation.versionLabel(store.versionNumber)
+                RecordPresentation.text("development_record_confirm_hint_format"),
+                RecordPresentation.versionLabel(store.versionNumber)
             ))
             .font(.caption)
             .foregroundStyle(Color.textTertiary)
@@ -250,11 +250,11 @@ private struct ModePicker: View {
     var body: some View {
         HStack(spacing: 0) {
             modeButton(
-                DevelopmentRecordPresentation.text("development_record_write"),
+                RecordPresentation.text("development_record_write"),
                 tab: .write
             )
             modeButton(
-                DevelopmentRecordPresentation.text("development_record_preview"),
+                RecordPresentation.text("development_record_preview"),
                 tab: .preview
             )
         }

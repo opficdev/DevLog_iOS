@@ -89,7 +89,7 @@ public struct RecordDetailView: View {
                     .background(statusBackground(isDraft: version == nil), in: .capsule)
 
                 if let version {
-                    Text(DevelopmentRecordPresentation.versionLabel(version.number))
+                    Text(RecordPresentation.versionLabel(version.number))
                         .font(.callout.weight(.semibold))
                         .foregroundStyle(Color.accent)
                         .padding(.horizontal, 12)
@@ -108,7 +108,7 @@ public struct RecordDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             if markdownContent.isEmpty {
                 ContentUnavailableView(
-                    DevelopmentRecordPresentation.text("development_record_content_empty_title"),
+                    RecordPresentation.text("development_record_content_empty_title"),
                     systemImage: "doc.text"
                 )
             } else {
@@ -126,14 +126,14 @@ public struct RecordDetailView: View {
     private var failureContent: some View {
         VStack(spacing: 20) {
             ContentUnavailableView(
-                DevelopmentRecordPresentation.text("common_error_title"),
+                RecordPresentation.text("common_error_title"),
                 systemImage: "exclamationmark.triangle",
                 description: Text(
-                    DevelopmentRecordPresentation.text("development_record_detail_error_message")
+                    RecordPresentation.text("development_record_detail_error_message")
                 )
             )
 
-            Button(DevelopmentRecordPresentation.text("development_record_detail_retry")) {
+            Button(RecordPresentation.text("development_record_detail_retry")) {
                 store.send(.view(.fetch))
             }
             .buttonStyle(.borderedProminent)
@@ -145,8 +145,8 @@ public struct RecordDetailView: View {
 
     private func statusText(isDraft: Bool) -> String {
         isDraft
-            ? DevelopmentRecordPresentation.text("development_record_draft")
-            : DevelopmentRecordPresentation.text("development_record_confirmed")
+            ? RecordPresentation.text("development_record_draft")
+            : RecordPresentation.text("development_record_confirmed")
     }
 
     private func statusColor(isDraft: Bool) -> Color {

@@ -58,7 +58,7 @@ public struct GoalDetailView: View {
 
     private var titleBar: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(DevelopmentRecordPresentation.text("development_goal_title"))
+            Text(RecordPresentation.text("development_goal_title"))
                 .font(.largeTitle.bold())
 
             if !store.goalTitle.isEmpty {
@@ -87,9 +87,9 @@ public struct GoalDetailView: View {
                     .padding(.vertical, 32)
             } else if store.items.isEmpty {
                 ContentUnavailableView(
-                    DevelopmentRecordPresentation.text("development_record_empty_title"),
+                    RecordPresentation.text("development_record_empty_title"),
                     systemImage: "doc.badge.plus",
-                    description: Text(DevelopmentRecordPresentation.text("development_record_empty_message"))
+                    description: Text(RecordPresentation.text("development_record_empty_message"))
                 )
             } else {
                 LazyVStack(spacing: 0) {
@@ -107,7 +107,7 @@ public struct GoalDetailView: View {
                 editorDestination = EditorDestination(record: nil)
             } label: {
                 Label(
-                    DevelopmentRecordPresentation.text("development_record_add"),
+                    RecordPresentation.text("development_record_add"),
                     systemImage: "plus"
                 )
                 .font(.callout)
@@ -127,7 +127,7 @@ public struct GoalDetailView: View {
         Button {
             editorDestination = EditorDestination(record: record)
         } label: {
-            Text(DevelopmentRecordPresentation.text("development_record_continue"))
+            Text(RecordPresentation.text("development_record_continue"))
                 .font(.headline)
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity)
@@ -222,11 +222,11 @@ private struct TimelineRow: View {
 
     private var statusText: String {
         guard let versionNumber = item.versionNumber else {
-            return DevelopmentRecordPresentation.text("development_record_draft_status")
+            return RecordPresentation.text("development_record_draft_status")
         }
         return String.localizedStringWithFormat(
-            DevelopmentRecordPresentation.text("development_record_confirmed_version_format"),
-            DevelopmentRecordPresentation.versionLabel(versionNumber)
+            RecordPresentation.text("development_record_confirmed_version_format"),
+            RecordPresentation.versionLabel(versionNumber)
         )
     }
 }
