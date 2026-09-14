@@ -119,6 +119,5 @@ private struct ConfirmationAlertModifier: ViewModifier {
         .background(Color.surface, in: .rect(cornerRadius: 28))
         .clipShape(.rect(cornerRadius: 28))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
-        .accessibilityElement(children: .contain)
     }
 }
