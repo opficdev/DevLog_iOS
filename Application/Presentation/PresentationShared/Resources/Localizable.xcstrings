@@ -585,6 +585,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 기록 타임라인을 불러오지 못했어요. 다시 시도해주세요." } }
       }
     },
+    "development_record_timeline_retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다시 시도" } }
+      }
+    },
     "development_record_title" : {
       "extractionState" : "manual",
       "localizations" : {

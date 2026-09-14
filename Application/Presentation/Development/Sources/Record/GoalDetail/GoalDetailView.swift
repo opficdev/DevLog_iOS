@@ -80,7 +80,23 @@ public struct GoalDetailView: View {
     @ViewBuilder
     private var timelineCard: some View {
         VStack(spacing: 18) {
-            if store.isLoading, store.items.isEmpty {
+            if !store.hasLoaded, store.hasLoadFailure {
+                ContentUnavailableView {
+                    Label(
+                        RecordPresentation.text("common_error_title"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                } description: {
+                    Text(RecordPresentation.text("development_record_timeline_error_message"))
+                } actions: {
+                    Button {
+                        store.send(.view(.refresh))
+                    } label: {
+                        Text(RecordPresentation.text("development_record_timeline_retry"))
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            } else if !store.hasLoaded || store.isLoading, store.items.isEmpty {
                 ProgressView()
                     .tint(Color.accent)
                     .frame(maxWidth: .infinity)
@@ -103,18 +119,20 @@ public struct GoalDetailView: View {
                 }
             }
 
-            Button {
-                editorDestination = EditorDestination(record: nil)
-            } label: {
-                Label(
-                    RecordPresentation.text("development_record_add"),
-                    systemImage: "plus"
-                )
-                .font(.callout)
-                .foregroundStyle(Color.accent)
+            if store.hasLoaded {
+                Button {
+                    editorDestination = EditorDestination(record: nil)
+                } label: {
+                    Label(
+                        RecordPresentation.text("development_record_add"),
+                        systemImage: "plus"
+                    )
+                    .font(.callout)
+                    .foregroundStyle(Color.accent)
+                }
+                .adaptiveButtonStyle(color: .primaryContainer)
+                .disabled(store.isLoading)
             }
-            .adaptiveButtonStyle(color: .primaryContainer)
-            .disabled(store.isLoading)
         }
         .padding()
         .background {

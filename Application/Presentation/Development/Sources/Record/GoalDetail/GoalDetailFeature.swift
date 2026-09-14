@@ -30,6 +30,7 @@ struct GoalDetailFeature {
         var items = [RecordTimelineItem]()
         var isLoading = false
         var hasLoaded = false
+        var hasLoadFailure = false
 
         init(goalId: String) {
             self.goalId = goalId
@@ -64,18 +65,22 @@ struct GoalDetailFeature {
             case .view(.fetch):
                 guard !state.hasLoaded, !state.isLoading else { break }
                 state.isLoading = true
+                state.hasLoadFailure = false
                 return fetchEffect(goalId: state.goalId)
             case .view(.refresh):
                 guard !state.isLoading else { break }
                 state.isLoading = true
+                state.hasLoadFailure = false
                 return fetchEffect(goalId: state.goalId)
             case .store(.loaded(let goalTitle, let items)):
                 state.goalTitle = goalTitle
                 state.items = items
                 state.isLoading = false
                 state.hasLoaded = true
+                state.hasLoadFailure = false
             case .store(.failed):
                 state.isLoading = false
+                state.hasLoadFailure = true
                 state.alert = Self.errorAlert
             }
 

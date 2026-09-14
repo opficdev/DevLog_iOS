@@ -72,13 +72,16 @@ struct GoalDetailFeatureTests {
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
+            $0.hasLoadFailure = true
             $0.alert = makeRecordErrorAlert("development_record_timeline_error_message")
         }
         await store.send(.view(.refresh)) {
             $0.isLoading = true
+            $0.hasLoadFailure = false
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
+            $0.hasLoadFailure = true
         }
     }
 }
