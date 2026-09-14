@@ -5,6 +5,7 @@
 //  Created by opfic on 9/13/26.
 //
 
+import Foundation
 import Testing
 import PresentationShared
 @testable import Development
@@ -97,6 +98,8 @@ struct RecordDetailFeatureTests {
 
     @Test("이전 버전 되돌리기는 새 버전을 현재 버전으로 반영한다")
     func 이전_버전_되돌리기는_새_버전을_현재_버전으로_반영한다() async throws {
+        let restoreVersionID = "00000000-0000-0000-0000-000000000003"
+        let restoreUUID = try #require(UUID(uuidString: restoreVersionID))
         let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
         let currentVersion = try makeDevelopmentRecordVersion(
             id: "version-2",
@@ -105,7 +108,7 @@ struct RecordDetailFeatureTests {
             sourceVersionId: initialVersion.id
         )
         let restoredVersion = try makeDevelopmentRecordVersion(
-            id: "version-3",
+            id: restoreVersionID,
             number: 3,
             kind: .rollback,
             sourceVersionId: initialVersion.id
@@ -122,17 +125,21 @@ struct RecordDetailFeatureTests {
             RecordDetailFeature()
         } withDependencies: {
             $0.developmentRestoreRecordUseCase = spy
+            $0.uuid = .constant(restoreUUID)
         }
 
         await store.send(.view(.restore(initialVersion))) {
             $0.isRestoring = true
-            $0.restoringVersionID = initialVersion.id
+            $0.restoreRequest = .init(
+                versionID: restoreVersionID,
+                sourceVersionID: initialVersion.id
+            )
         }
         await store.receive(.store(.restored(restoredVersion))) {
             $0.versions = [initialVersion, currentVersion, restoredVersion]
             $0.currentVersionID = restoredVersion.id
             $0.isRestoring = false
-            $0.restoringVersionID = nil
+            $0.restoreRequest = nil
             $0.restoredSourceVersionID = initialVersion.id
         }
 
@@ -140,13 +147,16 @@ struct RecordDetailFeatureTests {
             .init(
                 goalId: record.goalId,
                 recordId: record.id,
+                versionId: restoreVersionID,
                 sourceVersionId: initialVersion.id
             )
         ])
     }
 
-    @Test("되돌리기 실패는 현재 버전을 유지하고 오류를 표시한다")
-    func 되돌리기_실패는_현재_버전을_유지하고_오류를_표시한다() async throws {
+    @Test("되돌리기 실패 재시도는 같은 버전 ID를 사용한다")
+    func 되돌리기_실패_재시도는_같은_버전_ID를_사용한다() async throws {
+        let restoreVersionID = "00000000-0000-0000-0000-000000000003"
+        let restoreUUID = try #require(UUID(uuidString: restoreVersionID))
         let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
         let currentVersion = try makeDevelopmentRecordVersion(
             id: "version-2",
@@ -158,25 +168,66 @@ struct RecordDetailFeatureTests {
             versionId: currentVersion.id,
             versionNumber: currentVersion.number
         )
+        let restoredVersion = try makeDevelopmentRecordVersion(
+            id: restoreVersionID,
+            number: 3,
+            kind: .rollback,
+            sourceVersionId: initialVersion.id
+        )
+        let spy = RestoreDevelopmentRecordUseCaseSpy(
+            results: [
+                .failure(RecordTestError.failed),
+                .success(restoredVersion)
+            ]
+        )
         var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
         state.versions = [initialVersion, currentVersion]
         state.contentState = .loaded
         let store = TestStore(initialState: state) {
             RecordDetailFeature()
         } withDependencies: {
-            $0.developmentRestoreRecordUseCase = RestoreDevelopmentRecordUseCaseStub(
-                result: .failure(RecordTestError.failed)
-            )
+            $0.developmentRestoreRecordUseCase = spy
+            $0.uuid = .constant(restoreUUID)
         }
 
         await store.send(.view(.restore(initialVersion))) {
             $0.isRestoring = true
-            $0.restoringVersionID = initialVersion.id
+            $0.restoreRequest = .init(
+                versionID: restoreVersionID,
+                sourceVersionID: initialVersion.id
+            )
         }
         await store.receive(.store(.restoreFailed)) {
             $0.isRestoring = false
-            $0.restoringVersionID = nil
             $0.alert = makeRecordErrorAlert("development_record_restore_error_message")
         }
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await store.send(.view(.restore(initialVersion))) {
+            $0.isRestoring = true
+        }
+        await store.receive(.store(.restored(restoredVersion))) {
+            $0.versions = [initialVersion, currentVersion, restoredVersion]
+            $0.currentVersionID = restoredVersion.id
+            $0.isRestoring = false
+            $0.restoreRequest = nil
+            $0.restoredSourceVersionID = initialVersion.id
+        }
+
+        #expect(await spy.requests() == [
+            .init(
+                goalId: record.goalId,
+                recordId: record.id,
+                versionId: restoreVersionID,
+                sourceVersionId: initialVersion.id
+            ),
+            .init(
+                goalId: record.goalId,
+                recordId: record.id,
+                versionId: restoreVersionID,
+                sourceVersionId: initialVersion.id
+            )
+        ])
     }
 }

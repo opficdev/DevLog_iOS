@@ -19,7 +19,7 @@ struct RecordDetailFeature {
         var contentState: ContentState
         var currentVersionID: String?
         var isRestoring = false
-        var restoringVersionID: String?
+        var restoreRequest: RestoreRequest?
         var restoredSourceVersionID: String?
 
         var isLoading: Bool {
@@ -50,6 +50,11 @@ struct RecordDetailFeature {
         case failed
     }
 
+    struct RestoreRequest: Equatable {
+        let versionID: String
+        let sourceVersionID: String
+    }
+
     enum Action: Equatable {
         case alert(PresentationAction<Never>)
         case view(ViewAction)
@@ -71,6 +76,7 @@ struct RecordDetailFeature {
     @Dependency(\.developmentFetchRecordsUseCase) private var fetchRecordsUseCase
     @Dependency(\.developmentFetchRecordHistoryUseCase) private var fetchRecordHistoryUseCase
     @Dependency(\.developmentRestoreRecordUseCase) private var restoreRecordUseCase
+    @Dependency(\.uuid) private var uuid
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -88,19 +94,27 @@ struct RecordDetailFeature {
             case .view(.restore(let version)):
                 guard !state.isRestoring,
                       version.id != state.currentVersionID else { break }
+                let request = state.restoreRequest?.sourceVersionID == version.id
+                    ? state.restoreRequest
+                    : RestoreRequest(
+                        versionID: uuid().uuidString,
+                        sourceVersionID: version.id
+                    )
+                guard let request else { break }
                 state.alert = nil
                 state.isRestoring = true
-                state.restoringVersionID = version.id
+                state.restoreRequest = request
                 state.restoredSourceVersionID = nil
                 return restoreEffect(
                     goalID: state.record.goalId,
                     recordID: state.record.id,
-                    sourceVersionID: version.id
+                    request: request
                 )
             case .store(.loaded(let record, let versions)):
                 state.record = record
                 state.versions = versions.sorted { $0.number < $1.number }
                 state.currentVersionID = record.currentVersion?.id
+                state.restoreRequest = nil
                 state.contentState = .loaded
             case .store(.restored(let version)):
                 if !state.versions.contains(where: { $0.id == version.id }) {
@@ -108,8 +122,8 @@ struct RecordDetailFeature {
                     state.versions.sort { $0.number < $1.number }
                 }
                 state.currentVersionID = version.id
-                state.restoredSourceVersionID = state.restoringVersionID
-                state.restoringVersionID = nil
+                state.restoredSourceVersionID = state.restoreRequest?.sourceVersionID
+                state.restoreRequest = nil
                 state.isRestoring = false
                 state.contentState = .loaded
             case .store(.loadFailed):
@@ -117,7 +131,6 @@ struct RecordDetailFeature {
                 state.alert = Self.errorAlert
             case .store(.restoreFailed):
                 state.isRestoring = false
-                state.restoringVersionID = nil
                 state.alert = Self.restoreErrorAlert
             }
 
@@ -152,14 +165,15 @@ private extension RecordDetailFeature {
     func restoreEffect(
         goalID: String,
         recordID: String,
-        sourceVersionID: String
+        request: RestoreRequest
     ) -> Effect<Action> {
         .run { [restoreRecordUseCase] send in
             do {
                 let version = try await restoreRecordUseCase.execute(
                     goalId: goalID,
                     recordId: recordID,
-                    sourceVersionId: sourceVersionID
+                    versionId: request.versionID,
+                    sourceVersionId: request.sourceVersionID
                 )
                 await send(.store(.restored(version)))
             } catch {

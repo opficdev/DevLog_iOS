@@ -113,6 +113,7 @@ struct RestoreDevelopmentRecordUseCaseStub: RestoreDevelopmentRecordUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version {
         try result.get()
@@ -202,27 +203,35 @@ actor RestoreDevelopmentRecordUseCaseSpy: RestoreDevelopmentRecordUseCase {
     struct Request: Equatable {
         let goalId: String
         let recordId: String
+        let versionId: String
         let sourceVersionId: String
     }
 
-    private let result: Result<DevelopmentRecord.Version, Error>
+    private var results: [Result<DevelopmentRecord.Version, Error>]
     private var recordedRequests = [Request]()
 
     init(result: Result<DevelopmentRecord.Version, Error>) {
-        self.result = result
+        self.results = [result]
+    }
+
+    init(results: [Result<DevelopmentRecord.Version, Error>]) {
+        self.results = results
     }
 
     func execute(
         goalId: String,
         recordId: String,
+        versionId: String,
         sourceVersionId: String
     ) async throws -> DevelopmentRecord.Version {
         recordedRequests.append(.init(
             goalId: goalId,
             recordId: recordId,
+            versionId: versionId,
             sourceVersionId: sourceVersionId
         ))
-        return try result.get()
+        guard !results.isEmpty else { throw RecordTestError.failed }
+        return try results.removeFirst().get()
     }
 
     func requests() -> [Request] {
