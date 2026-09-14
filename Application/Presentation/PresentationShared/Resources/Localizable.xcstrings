@@ -539,8 +539,8 @@
     "development_record_markdown_hint" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Markdown supported · The date is recorded automatically." } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Markdown 지원 · 날짜는 자동으로 기록돼요." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Markdown supported. The date is recorded automatically." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Markdown 문법을 사용할 수 있어요. 날짜는 자동으로 기록돼요." } }
       }
     },
     "development_record_preview" : {
