@@ -189,25 +189,26 @@ private struct VersionHistoryRow: View {
                 .foregroundStyle(Color.border)
         }
         .contentShape(.rect)
-    }
-
-    private var timelineIndicator: some View {
-        VStack(spacing: 0) {
-            Circle()
-                .fill(isCurrent ? Color.accent : Color.textTertiary)
-                .frame(width: 13, height: 13)
-                .overlay {
-                    Circle()
-                        .strokeBorder(isCurrent ? Color.accent : Color.border, lineWidth: 2)
-                }
-
+        .background(alignment: .topLeading) {
             if !isLast {
                 Rectangle()
                     .fill(Color.accent.opacity(0.45))
-                    .frame(width: 2, height: 72)
+                    .frame(width: 2)
+                    .frame(maxHeight: .infinity)
+                    .offset(x: 5.5, y: 16)
             }
         }
-        .padding(.top, 3)
+    }
+
+    private var timelineIndicator: some View {
+        Circle()
+            .fill(isCurrent ? Color.accent : Color.textTertiary)
+            .frame(width: 13, height: 13)
+            .overlay {
+                Circle()
+                    .strokeBorder(isCurrent ? Color.accent : Color.border, lineWidth: 2)
+            }
+            .padding(.top, 3)
     }
 
     @ViewBuilder
