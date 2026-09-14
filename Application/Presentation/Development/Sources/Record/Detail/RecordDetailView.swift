@@ -1,5 +1,5 @@
 //
-//  DevelopmentRecordDetailView.swift
+//  RecordDetailView.swift
 //  Development
 //
 //  Created by opfic on 9/13/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import Domain
 import PresentationShared
 
-public struct DevelopmentRecordDetailView: View {
+public struct RecordDetailView: View {
     @State private var store: StoreOf<DevelopmentRecordDetailFeature>
 
     public init(goalTitle: String, record: DevelopmentRecord) {
@@ -25,9 +25,25 @@ public struct DevelopmentRecordDetailView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                goalBadge
-                detailContent
+            LazyVStack(alignment: .leading, spacing: 20) {
+                switch store.contentState {
+                case .draft(let draft):
+                    recordContent(
+                        title: draft.title,
+                        markdownContent: draft.markdownContent,
+                        version: nil
+                    )
+                case .confirmed(let version):
+                    recordContent(
+                        title: version.title,
+                        markdownContent: version.markdownContent,
+                        version: version
+                    )
+                case .failed:
+                    failureContent
+                case .idle, .loading:
+                    Color.clear.frame(height: 1)
+                }
             }
             .padding()
         }
@@ -39,38 +55,6 @@ public struct DevelopmentRecordDetailView: View {
             if store.isLoading {
                 LoadingView()
             }
-        }
-    }
-
-    private var goalBadge: some View {
-        Text(store.goalTitle)
-            .font(.callout)
-            .foregroundStyle(Color.accent)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(Color.primaryContainer, in: .capsule)
-            .lineLimit(1)
-    }
-
-    @ViewBuilder
-    private var detailContent: some View {
-        switch store.contentState {
-        case .draft(let draft):
-            recordContent(
-                title: draft.title,
-                markdownContent: draft.markdownContent,
-                version: nil
-            )
-        case .confirmed(let version):
-            recordContent(
-                title: version.title,
-                markdownContent: version.markdownContent,
-                version: version
-            )
-        case .failed:
-            failureContent
-        case .idle, .loading:
-            Color.clear.frame(height: 1)
         }
     }
 
@@ -89,9 +73,12 @@ public struct DevelopmentRecordDetailView: View {
         version: DevelopmentRecord.Version?
     ) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(title)
-                .font(.largeTitle.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
+            ScrollView(.horizontal) {
+                Text(title)
+                    .font(.title.bold())
+                    .lineLimit(1)
+            }
+            .scrollIndicators(.hidden)
 
             HStack(spacing: 10) {
                 Text(statusText(isDraft: version == nil))

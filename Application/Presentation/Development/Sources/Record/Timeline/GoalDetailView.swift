@@ -48,7 +48,7 @@ public struct GoalDetailView: View {
             )
         }
         .navigationDestination(item: $detailDestination) { destination in
-            DevelopmentRecordDetailView(
+            RecordDetailView(
                 goalTitle: store.goalTitle,
                 record: destination.record
             )
