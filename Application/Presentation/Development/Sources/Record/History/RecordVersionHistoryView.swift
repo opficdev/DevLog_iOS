@@ -15,6 +15,7 @@ struct RecordVersionHistoryView: View {
 
     let versions: [DevelopmentRecord.Version]
     let currentVersionID: String?
+    let hasDraft: Bool
     let isRestoring: Bool
     let restoredSourceVersionID: String?
     let onRestore: (DevelopmentRecord.Version) -> Void
@@ -45,6 +46,7 @@ struct RecordVersionHistoryView: View {
             RecordVersionDetailView(
                 version: destination.version,
                 currentVersionNumber: currentVersion?.number ?? destination.version.number,
+                hasDraft: hasDraft,
                 isRestoring: isRestoring,
                 restoredSourceVersionID: restoredSourceVersionID,
                 onRestore: onRestore

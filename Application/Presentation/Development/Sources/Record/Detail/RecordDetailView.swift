@@ -71,6 +71,7 @@ public struct RecordDetailView: View {
             RecordVersionHistoryView(
                 versions: store.versions,
                 currentVersionID: store.currentVersionID,
+                hasDraft: store.record.draft != nil,
                 isRestoring: store.isRestoring,
                 restoredSourceVersionID: store.restoredSourceVersionID,
                 onRestore: { store.send(.view(.restore($0))) }

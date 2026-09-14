@@ -15,6 +15,7 @@ struct RecordVersionDetailView: View {
 
     let version: DevelopmentRecord.Version
     let currentVersionNumber: Int
+    let hasDraft: Bool
     let isRestoring: Bool
     let restoredSourceVersionID: String?
     let onRestore: (DevelopmentRecord.Version) -> Void
@@ -110,13 +111,17 @@ struct RecordVersionDetailView: View {
 
     private var currentVersionCard: some View {
         Label {
-            Text(String.localizedStringWithFormat(
-                RecordPresentation.text("development_record_restore_current_version_format"),
-                RecordPresentation.versionLabel(currentVersionNumber)
-            ))
+            if hasDraft {
+                Text(RecordPresentation.text("development_record_restore_draft_message"))
+            } else {
+                Text(String.localizedStringWithFormat(
+                    RecordPresentation.text("development_record_restore_current_version_format"),
+                    RecordPresentation.versionLabel(currentVersionNumber)
+                ))
+            }
         } icon: {
-            Image(systemName: "clock.arrow.circlepath")
-                .foregroundStyle(Color.accent)
+            Image(systemName: hasDraft ? "pencil" : "clock.arrow.circlepath")
+                .foregroundStyle(hasDraft ? Color.warning : Color.accent)
         }
         .font(.subheadline)
         .foregroundStyle(Color.textSecondary)
@@ -136,7 +141,7 @@ struct RecordVersionDetailView: View {
                 .padding(.vertical, 10)
         }
         .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
-        .disabled(isRestoring)
+        .disabled(isRestoring || hasDraft)
         .padding(.horizontal)
         .padding(.vertical, 12)
         .background(Color.surface, ignoresSafeAreaEdges: .bottom)

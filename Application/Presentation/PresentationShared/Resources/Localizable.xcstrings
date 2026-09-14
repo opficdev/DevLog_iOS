@@ -669,6 +669,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "현재 버전은 %@이에요. 이 내용으로 되돌리면 새 버전이 생성돼요." } }
       }
     },
+    "development_record_restore_draft_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm the saved correction draft before restoring an earlier version." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장된 정정 초안을 먼저 새 버전으로 확정해야 되돌릴 수 있어요." } }
+      }
+    },
     "development_record_restore_error_message" : {
       "extractionState" : "manual",
       "localizations" : {

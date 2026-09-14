@@ -93,6 +93,7 @@ struct RecordDetailFeature {
                 return fetchEffect(goalID: state.record.goalId, recordID: state.record.id)
             case .view(.restore(let version)):
                 guard !state.isRestoring,
+                      state.record.draft == nil,
                       version.id != state.currentVersionID else { break }
                 let request = state.restoreRequest?.sourceVersionID == version.id
                     ? state.restoreRequest

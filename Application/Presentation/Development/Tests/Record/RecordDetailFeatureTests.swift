@@ -230,4 +230,28 @@ struct RecordDetailFeatureTests {
             )
         ])
     }
+
+    @Test("정정 초안이 있으면 이전 버전 되돌리기를 시작하지 않는다")
+    func 정정_초안이_있으면_이전_버전_되돌리기를_시작하지_않는다() async throws {
+        let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: initialVersion.id
+        )
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number,
+            draft: makeDevelopmentRecordDraft(baseVersionId: currentVersion.id)
+        )
+        var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
+        state.versions = [initialVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        }
+
+        await store.send(.view(.restore(initialVersion)))
+    }
 }
