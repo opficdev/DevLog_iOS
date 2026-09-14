@@ -9,6 +9,8 @@ public protocol SaveDevelopmentRecordDraftUseCase {
     func execute(
         goalId: String,
         recordId: String,
+        baseVersionId: String?,
+        draftRevisionId: String?,
         title: String,
         markdownContent: String
     ) async throws -> DevelopmentRecord

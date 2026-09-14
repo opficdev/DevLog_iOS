@@ -13,6 +13,11 @@ public protocol DevelopmentRecordService {
     ) async throws -> DevelopmentRecordResponse
     func fetchRecords(goalId: String) async throws -> [DevelopmentRecordResponse]
     func fetchRecord(goalId: String, recordId: String) async throws -> DevelopmentRecordResponse
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecordVersionResponse
     func fetchVersions(
         goalId: String,
         recordId: String

@@ -1,0 +1,159 @@
+//
+//  RecordDetailView.swift
+//  Development
+//
+//  Created by opfic on 9/13/26.
+//
+
+import SwiftUI
+import Domain
+import PresentationShared
+
+public struct RecordDetailView: View {
+    @State private var store: StoreOf<RecordDetailFeature>
+
+    public init(goalTitle: String, record: DevelopmentRecord) {
+        self._store = State(initialValue: Store(
+            initialState: RecordDetailFeature.State(
+                goalTitle: goalTitle,
+                record: record
+            )
+        ) {
+            RecordDetailFeature()
+        })
+    }
+
+    public var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20) {
+                switch store.contentState {
+                case .draft(let draft):
+                    recordContent(
+                        title: draft.title,
+                        markdownContent: draft.markdownContent,
+                        version: nil
+                    )
+                case .confirmed(let version):
+                    recordContent(
+                        title: version.title,
+                        markdownContent: version.markdownContent,
+                        version: version
+                    )
+                case .failed:
+                    failureContent
+                case .idle, .loading:
+                    Color.clear.frame(height: 1)
+                }
+            }
+            .padding()
+        }
+        .background(Color.appBackground.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { store.send(.view(.fetch)) }
+        .prominentAlert(store, state: \.alert, action: \.alert)
+        .overlay {
+            if store.isLoading {
+                LoadingView()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func recordContent(
+        title: String,
+        markdownContent: String,
+        version: DevelopmentRecord.Version?
+    ) -> some View {
+        titleSection(title: title, version: version)
+        contentCard(markdownContent: markdownContent)
+    }
+
+    private func titleSection(
+        title: String,
+        version: DevelopmentRecord.Version?
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            ScrollView(.horizontal) {
+                Text(title)
+                    .font(.title.bold())
+                    .lineLimit(1)
+            }
+            .scrollIndicators(.hidden)
+
+            HStack(spacing: 10) {
+                Text(statusText(isDraft: version == nil))
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(statusColor(isDraft: version == nil))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(statusBackground(isDraft: version == nil), in: .capsule)
+
+                if let version {
+                    Text(RecordPresentation.versionLabel(version.number))
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(Color.accent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Color.primaryContainer, in: .capsule)
+
+                    Text(version.confirmedAt, format: .dateTime.month().day().hour().minute())
+                        .font(.callout)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
+        }
+    }
+
+    private func contentCard(markdownContent: String) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if markdownContent.isEmpty {
+                ContentUnavailableView(
+                    RecordPresentation.text("development_record_content_empty_title"),
+                    systemImage: "doc.text"
+                )
+            } else {
+                MarkdownContentView(content: markdownContent)
+                    .frame(minHeight: 420)
+            }
+        }
+        .padding(.vertical, 16)
+        .background {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.surface)
+        }
+    }
+
+    private var failureContent: some View {
+        VStack(spacing: 20) {
+            ContentUnavailableView(
+                RecordPresentation.text("common_error_title"),
+                systemImage: "exclamationmark.triangle",
+                description: Text(
+                    RecordPresentation.text("development_record_detail_error_message")
+                )
+            )
+
+            Button(RecordPresentation.text("development_record_detail_retry")) {
+                store.send(.view(.fetch))
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(Color.surface, in: .rect(cornerRadius: 24))
+    }
+
+    private func statusText(isDraft: Bool) -> String {
+        isDraft
+            ? RecordPresentation.text("development_record_draft")
+            : RecordPresentation.text("development_record_confirmed")
+    }
+
+    private func statusColor(isDraft: Bool) -> Color {
+        isDraft ? .warning : .white
+    }
+
+    private func statusBackground(isDraft: Bool) -> Color {
+        isDraft ? .warning.opacity(0.12) : .accent
+    }
+}

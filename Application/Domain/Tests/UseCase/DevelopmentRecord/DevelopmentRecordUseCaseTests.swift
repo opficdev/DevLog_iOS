@@ -19,11 +19,12 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = CreateDevelopmentRecordUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "record-1" },
+            revisionIdProvider: { "revision-1" },
             now: { createdAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
+            recordId: "record-1",
             title: "기록",
             markdownContent: "본문"
         )
@@ -37,6 +38,7 @@ struct DevelopmentRecordUseCaseTests {
                     title: "기록",
                     markdownContent: "본문",
                     baseVersionId: nil,
+                    revisionId: "revision-1",
                     updatedAt: createdAt
                 )
             )
@@ -54,6 +56,7 @@ struct DevelopmentRecordUseCaseTests {
             await expectDevelopmentRecordDomainError(.developmentGoalIsNotInProgress) {
                 try await useCase.execute(
                     goalId: "goal-1",
+                    recordId: "record-1",
                     title: "기록",
                     markdownContent: "본문"
                 )
@@ -84,6 +87,24 @@ struct DevelopmentRecordUseCaseTests {
         ])
     }
 
+    @Test("기록 버전 조회는 지정한 버전만 반환한다")
+    func 기록_버전_조회는_지정한_버전만_반환한다() async throws {
+        let version = try makeDevelopmentRecordInitialVersion()
+        let repository = DevelopmentRecordRepositorySpy(versions: [version])
+        let useCase = FetchDevelopmentRecordVersionUseCaseImpl(repository)
+
+        let result = try await useCase.execute(
+            goalId: "goal-1",
+            recordId: "record-1",
+            versionId: version.id
+        )
+
+        #expect(result == version)
+        #expect(await repository.exactVersionQueries() == [
+            .init(goalId: "goal-1", recordId: "record-1", versionId: version.id)
+        ])
+    }
+
     @Test("최초 Draft 저장은 기준 버전 없이 갱신한다")
     func 최초_Draft_저장은_기준_버전_없이_갱신한다() async throws {
         let goal = try makeDevelopmentRecordGoal()
@@ -94,11 +115,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            baseVersionId: nil,
+            draftRevisionId: "revision-1",
             title: "수정 기록",
             markdownContent: "수정 본문"
         )
@@ -108,10 +132,12 @@ struct DevelopmentRecordUseCaseTests {
             .init(
                 goalId: "goal-1",
                 recordId: "record-1",
+                expectedRevisionId: "revision-1",
                 draft: try DevelopmentRecord.Draft(
                     title: "수정 기록",
                     markdownContent: "수정 본문",
                     baseVersionId: nil,
+                    revisionId: "revision-2",
                     updatedAt: updatedAt
                 )
             )
@@ -128,6 +154,7 @@ struct DevelopmentRecordUseCaseTests {
                 title: "정정 초안",
                 markdownContent: "본문",
                 baseVersionId: currentVersion.id,
+                revisionId: "revision-1",
                 updatedAt: .distantPast
             )
         )
@@ -145,11 +172,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         _ = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            baseVersionId: currentVersion.id,
+            draftRevisionId: "revision-1",
             title: "수정 정정 초안",
             markdownContent: "수정 본문"
         )
@@ -178,11 +208,14 @@ struct DevelopmentRecordUseCaseTests {
         let useCase = SaveDevelopmentRecordDraftUseCaseImpl(
             repository,
             DevelopmentRecordGoalRepositorySpy(goal: goal),
+            revisionIdProvider: { "revision-2" },
             now: { updatedAt }
         )
         let result = try await useCase.execute(
             goalId: "goal-1",
             recordId: "record-1",
+            baseVersionId: currentVersion.id,
+            draftRevisionId: nil,
             title: "정정 초안",
             markdownContent: "본문"
         )
@@ -192,89 +225,16 @@ struct DevelopmentRecordUseCaseTests {
             .init(
                 goalId: "goal-1",
                 recordId: "record-1",
+                expectedRevisionId: nil,
                 draft: try DevelopmentRecord.Draft(
                     title: "정정 초안",
                     markdownContent: "본문",
                     baseVersionId: currentVersion.id,
+                    revisionId: "revision-2",
                     updatedAt: updatedAt
                 )
             )
         ])
-    }
-
-    @Test("최초 Draft 확정은 initial 버전으로 요청한다")
-    func 최초_Draft_확정은_initial_버전으로_요청한다() async throws {
-        let goal = try makeDevelopmentRecordGoal()
-        let record = try makeDevelopmentRecordInitialDraft()
-        let version = try makeDevelopmentRecordInitialVersion()
-        let repository = DevelopmentRecordRepositorySpy(record: record, confirmedVersion: version)
-        let useCase = ConfirmDevelopmentRecordUseCaseImpl(
-            repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "version-1" }
-        )
-
-        let result = try await useCase.execute(goalId: "goal-1", recordId: "record-1")
-
-        #expect(result == version)
-        #expect(await repository.confirmRequests() == [
-            .init(
-                goalId: "goal-1",
-                recordId: "record-1",
-                versionId: "version-1",
-                kind: .initial,
-                sourceVersionId: nil
-            )
-        ])
-    }
-
-    @Test("확정 버전 기반 Draft 확정은 correction 버전으로 요청한다")
-    func 확정_버전_기반_Draft_확정은_correction_버전으로_요청한다() async throws {
-        let goal = try makeDevelopmentRecordGoal()
-        let currentVersion = try DevelopmentRecord.CurrentVersion(id: "version-1", number: 1)
-        let record = try makeDevelopmentRecord(
-            currentVersion: currentVersion,
-            draft: DevelopmentRecord.Draft(
-                title: "정정 초안",
-                markdownContent: "본문",
-                baseVersionId: currentVersion.id,
-                updatedAt: .distantPast
-            )
-        )
-        let version = try makeDevelopmentRecordCorrectionVersion(id: "version-2", sourceVersionId: currentVersion.id)
-        let repository = DevelopmentRecordRepositorySpy(record: record, confirmedVersion: version)
-        let useCase = ConfirmDevelopmentRecordUseCaseImpl(
-            repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal),
-            idProvider: { "version-2" }
-        )
-
-        _ = try await useCase.execute(goalId: "goal-1", recordId: "record-1")
-
-        #expect(await repository.confirmRequests() == [
-            .init(
-                goalId: "goal-1",
-                recordId: "record-1",
-                versionId: "version-2",
-                kind: .correction,
-                sourceVersionId: currentVersion.id
-            )
-        ])
-    }
-
-    @Test("Draft가 없는 기록의 확정을 거부한다")
-    func Draft가_없는_기록의_확정을_거부한다() async throws {
-        let goal = try makeDevelopmentRecordGoal()
-        let repository = DevelopmentRecordRepositorySpy(record: try makeDevelopmentRecordConfirmed())
-        let useCase = ConfirmDevelopmentRecordUseCaseImpl(
-            repository,
-            DevelopmentRecordGoalRepositorySpy(goal: goal)
-        )
-
-        await expectDevelopmentRecordDomainError(.developmentRecordDraftNotFound) {
-            try await useCase.execute(goalId: "goal-1", recordId: "record-1")
-        }
-        #expect(await repository.confirmRequests().isEmpty)
     }
 
     @Test("같은 기록의 과거 버전은 rollback 버전으로 되돌린다")

@@ -19,3 +19,23 @@ public final class FetchDevelopmentRecordHistoryUseCaseImpl: FetchDevelopmentRec
         try await repository.fetchVersions(goalId: goalId, recordId: recordId)
     }
 }
+
+public final class FetchDevelopmentRecordVersionUseCaseImpl: FetchDevelopmentRecordVersionUseCase {
+    private let repository: DevelopmentRecordRepository
+
+    init(_ repository: DevelopmentRecordRepository) {
+        self.repository = repository
+    }
+
+    public func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        try await repository.fetchVersion(
+            goalId: goalId,
+            recordId: recordId,
+            versionId: versionId
+        )
+    }
+}

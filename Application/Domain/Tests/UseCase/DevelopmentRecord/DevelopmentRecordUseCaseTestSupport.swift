@@ -55,9 +55,16 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         let recordId: String
     }
 
+    struct VersionQuery: Equatable {
+        let goalId: String
+        let recordId: String
+        let versionId: String
+    }
+
     struct DraftRequest: Equatable {
         let goalId: String
         let recordId: String
+        let expectedRevisionId: String?
         let draft: DevelopmentRecord.Draft
     }
 
@@ -67,6 +74,7 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         let versionId: String
         let kind: DevelopmentRecord.Version.Kind
         let sourceVersionId: String?
+        let draftRevisionId: String?
     }
 
     struct RestoreRequest: Equatable {
@@ -78,14 +86,16 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
 
     private let createResult: DevelopmentRecord?
     private let records: [DevelopmentRecord]
-    private let record: DevelopmentRecord?
+    private var recordsToReturn: [DevelopmentRecord]
     private let versions: [DevelopmentRecord.Version]
     private let savedRecord: DevelopmentRecord?
     private let confirmedVersion: DevelopmentRecord.Version?
+    private let confirmError: Error?
     private let restoredVersion: DevelopmentRecord.Version?
     private var recordedCreateRequests = [CreateRequest]()
     private var recordedRecordQueries = [String]()
     private var recordedVersionQueries = [RecordQuery]()
+    private var recordedExactVersionQueries = [VersionQuery]()
     private var recordedDraftRequests = [DraftRequest]()
     private var recordedConfirmRequests = [ConfirmRequest]()
     private var recordedRestoreRequests = [RestoreRequest]()
@@ -94,17 +104,20 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         createResult: DevelopmentRecord? = nil,
         records: [DevelopmentRecord] = [],
         record: DevelopmentRecord? = nil,
+        subsequentRecords: [DevelopmentRecord] = [],
         versions: [DevelopmentRecord.Version] = [],
         savedRecord: DevelopmentRecord? = nil,
         confirmedVersion: DevelopmentRecord.Version? = nil,
+        confirmError: Error? = nil,
         restoredVersion: DevelopmentRecord.Version? = nil
     ) {
         self.createResult = createResult
         self.records = records
-        self.record = record
+        self.recordsToReturn = record.map { [$0] + subsequentRecords } ?? subsequentRecords
         self.versions = versions
         self.savedRecord = savedRecord
         self.confirmedVersion = confirmedVersion
+        self.confirmError = confirmError
         self.restoredVersion = restoredVersion
     }
 
@@ -123,7 +136,13 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
     }
 
     func fetchRecord(goalId: String, recordId: String) async throws -> DevelopmentRecord {
-        try requiredDevelopmentRecordRepositoryResult(record)
+        guard let record = recordsToReturn.first else {
+            throw DevelopmentRecordRepositorySpyError.unconfigured
+        }
+        if 1 < recordsToReturn.count {
+            recordsToReturn.removeFirst()
+        }
+        return record
     }
 
     func fetchVersions(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version] {
@@ -131,12 +150,34 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         return versions
     }
 
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        recordedExactVersionQueries.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            versionId: versionId
+        ))
+        guard let version = versions.first(where: { $0.id == versionId }) else {
+            throw DevelopmentRecordRepositorySpyError.unconfigured
+        }
+        return version
+    }
+
     func saveDraft(
         goalId: String,
         recordId: String,
+        expectedRevisionId: String?,
         draft: DevelopmentRecord.Draft
     ) async throws -> DevelopmentRecord {
-        recordedDraftRequests.append(.init(goalId: goalId, recordId: recordId, draft: draft))
+        recordedDraftRequests.append(.init(
+            goalId: goalId,
+            recordId: recordId,
+            expectedRevisionId: expectedRevisionId,
+            draft: draft
+        ))
         return try requiredDevelopmentRecordRepositoryResult(savedRecord)
     }
 
@@ -145,7 +186,8 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
         recordId: String,
         versionId: String,
         kind: DevelopmentRecord.Version.Kind,
-        sourceVersionId: String?
+        sourceVersionId: String?,
+        draftRevisionId: String?
     ) async throws -> DevelopmentRecord.Version {
         recordedConfirmRequests.append(
             .init(
@@ -153,9 +195,13 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
                 recordId: recordId,
                 versionId: versionId,
                 kind: kind,
-                sourceVersionId: sourceVersionId
+                sourceVersionId: sourceVersionId,
+                draftRevisionId: draftRevisionId
             )
         )
+        if let confirmError {
+            throw confirmError
+        }
         return try requiredDevelopmentRecordRepositoryResult(confirmedVersion)
     }
 
@@ -182,6 +228,10 @@ actor DevelopmentRecordRepositorySpy: DevelopmentRecordRepository {
 
     func versionQueries() -> [RecordQuery] {
         recordedVersionQueries
+    }
+
+    func exactVersionQueries() -> [VersionQuery] {
+        recordedExactVersionQueries
     }
 
     func draftRequests() -> [DraftRequest] {
@@ -223,6 +273,7 @@ func makeDevelopmentRecordGoal(
 }
 
 func makeDevelopmentRecordInitialDraft(
+    revisionId: String = "revision-1",
     updatedAt: Date = .distantPast
 ) throws -> DevelopmentRecord {
     try makeDevelopmentRecord(
@@ -231,6 +282,7 @@ func makeDevelopmentRecordInitialDraft(
             title: "기록",
             markdownContent: "본문",
             baseVersionId: nil,
+            revisionId: revisionId,
             updatedAt: updatedAt
         )
     )

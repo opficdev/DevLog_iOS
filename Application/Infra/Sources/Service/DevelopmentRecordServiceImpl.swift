@@ -22,6 +22,7 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
             case saveDraft
             case confirmDraft
             case restoreVersion
+            case fetchVersion
         }
     }
 
@@ -37,13 +38,26 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
         guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
 
         do {
-            try await store.document(
+            let reference = store.document(
                 FirestorePath.developmentRecord(uid, goalId: goalId, recordId: recordId)
             )
-            .setData([
-                DevelopmentRecordFieldKey.draft.rawValue: Self.makeDraftData(request.draft),
-                DevelopmentRecordFieldKey.createdAt.rawValue: FieldValue.serverTimestamp()
-            ])
+            _ = try await store.runTransaction { transaction, errorPointer in
+                do {
+                    let snapshot = try transaction.getDocument(reference)
+                    guard !snapshot.exists else { return nil }
+                    transaction.setData(
+                        [
+                            DevelopmentRecordFieldKey.draft.rawValue: Self.makeDraftData(request.draft),
+                            DevelopmentRecordFieldKey.createdAt.rawValue: FieldValue.serverTimestamp()
+                        ],
+                        forDocument: reference
+                    )
+                    return nil
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+            }
             return try await fetchRecord(uid: uid, goalId: goalId, recordId: recordId)
         } catch {
             logger.error("Failed to create development record", error: error)
@@ -123,6 +137,27 @@ final class DevelopmentRecordServiceImpl: DevelopmentRecordService {
         } catch {
             logger.error("Failed to fetch development record versions", error: error)
             record(error, code: .fetchVersions)
+            throw error
+        }
+    }
+
+    func fetchVersion(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecordVersionResponse {
+        guard let uid = Auth.auth().currentUser?.uid else { throw DataLayerError.notAuthenticated }
+
+        do {
+            return try await fetchVersion(
+                uid: uid,
+                goalId: goalId,
+                recordId: recordId,
+                versionId: versionId
+            )
+        } catch {
+            logger.error("Failed to fetch development record version", error: error)
+            record(error, code: .fetchVersion)
             throw error
         }
     }

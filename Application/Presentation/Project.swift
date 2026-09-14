@@ -89,6 +89,53 @@ let project = Project(
             )
         ),
         .target(
+            name: "Development",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.Development",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["Development/Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Development/Sources",
+                    configPath: "Development/Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
+        ),
+        .target(
+            name: "DevelopmentTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.DevelopmentTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["Development/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "Development/Tests",
+                    configPath: "Development/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "Development"),
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "Development"
+                ]
+            )
+        ),
+        .target(
             name: "HomeTab",
             destinations: .iOS,
             product: .staticFramework,
@@ -338,6 +385,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "Entry"),
+                .target(name: "Development"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings

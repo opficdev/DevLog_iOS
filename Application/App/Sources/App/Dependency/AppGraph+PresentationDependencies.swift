@@ -11,6 +11,7 @@ extension AppGraph {
     func preparePresentationDependencies() {
         prepareDependencies { dependencies in
             prepareEntryDependencies(&dependencies)
+            prepareDevelopmentDependencies(&dependencies)
             prepareTodoDependencies(&dependencies)
             prepareHomeDependencies(&dependencies)
             prepareTodayDependencies(&dependencies)
@@ -21,6 +22,39 @@ extension AppGraph {
 }
 
 private extension AppGraph {
+    func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
+        DevelopmentDependencyPreparation.prepareGoal(
+            &dependencies,
+            fetchGoalUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .fetchDevelopmentGoalUseCase
+        )
+        DevelopmentDependencyPreparation.prepareQuery(
+            &dependencies,
+            fetchRecordsUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordsUseCase,
+            fetchRecordHistoryUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordHistoryUseCase,
+            fetchRecordVersionUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordVersionUseCase
+        )
+        DevelopmentDependencyPreparation.prepareMutation(
+            &dependencies,
+            createRecordUseCase: developmentGraphSet
+                .developmentRecordMutationUseCaseGraph
+                .createDevelopmentRecordUseCase,
+            saveRecordDraftUseCase: developmentGraphSet
+                .developmentRecordMutationUseCaseGraph
+                .saveDevelopmentRecordDraftUseCase,
+            confirmRecordUseCase: developmentGraphSet
+                .developmentRecordMutationUseCaseGraph
+                .confirmDevelopmentRecordUseCase
+        )
+    }
+
     func prepareEntryDependencies(_ dependencies: inout DependencyValues) {
         PresentationDependencyPreparation.prepareRoot(
             &dependencies,

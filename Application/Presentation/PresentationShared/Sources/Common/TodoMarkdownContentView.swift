@@ -9,6 +9,19 @@ import SwiftUI
 import Domain
 import MarkdownRenderer
 
+public struct MarkdownContentView: View {
+    private let content: String
+
+    public init(content: String) {
+        self.content = content
+    }
+
+    public var body: some View {
+        MarkdownRendererView(markdown: content)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
 struct TodoMarkdownContentView: View {
     let content: String
     let referenceItems: [Int: TodoReferenceItem]

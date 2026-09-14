@@ -11,15 +11,21 @@ public struct DevelopmentRecordDraftRequest: Encodable {
     public let title: String
     public let markdownContent: String
     public let baseVersionId: String?
+    public let revisionId: String?
+    public let expectedRevisionId: String?
 
     public init(
         title: String,
         markdownContent: String,
-        baseVersionId: String?
+        baseVersionId: String?,
+        revisionId: String? = nil,
+        expectedRevisionId: String? = nil
     ) {
         self.title = title
         self.markdownContent = markdownContent
         self.baseVersionId = baseVersionId
+        self.revisionId = revisionId
+        self.expectedRevisionId = expectedRevisionId
     }
 }
 
@@ -35,15 +41,18 @@ public struct DevelopmentRecordConfirmationRequest {
     public let versionId: String
     public let kind: String
     public let sourceVersionId: String?
+    public let draftRevisionId: String?
 
     public init(
         versionId: String,
         kind: String,
-        sourceVersionId: String?
+        sourceVersionId: String?,
+        draftRevisionId: String? = nil
     ) {
         self.versionId = versionId
         self.kind = kind
         self.sourceVersionId = sourceVersionId
+        self.draftRevisionId = draftRevisionId
     }
 }
 
@@ -61,17 +70,20 @@ public struct DevelopmentRecordDraftResponse {
     public let title: String
     public let markdownContent: String
     public let baseVersionId: String?
+    public let revisionId: String?
     public let updatedAt: Date
 
     public init(
         title: String,
         markdownContent: String,
         baseVersionId: String?,
+        revisionId: String? = nil,
         updatedAt: Date
     ) {
         self.title = title
         self.markdownContent = markdownContent
         self.baseVersionId = baseVersionId
+        self.revisionId = revisionId
         self.updatedAt = updatedAt
     }
 }

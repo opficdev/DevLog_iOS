@@ -8,3 +8,11 @@
 public protocol FetchDevelopmentRecordHistoryUseCase {
     func execute(goalId: String, recordId: String) async throws -> [DevelopmentRecord.Version]
 }
+
+public protocol FetchDevelopmentRecordVersionUseCase {
+    func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version
+}

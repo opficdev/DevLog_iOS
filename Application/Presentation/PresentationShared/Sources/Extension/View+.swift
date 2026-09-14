@@ -13,6 +13,17 @@ public enum AdaptiveButtonGlassEffect {
 }
 
 public extension View {
+    func toolbarBackground(_ color: Color) -> some View {
+        overlay(alignment: .top) {
+            GeometryReader { proxy in
+                color
+                    .frame(height: proxy.safeAreaInsets.top)
+                    .offset(y: -proxy.safeAreaInsets.top)
+            }
+            .allowsHitTesting(false)
+        }
+    }
+
     @ViewBuilder
     func onScrollOffsetChange(action: @escaping (CGFloat) -> Void) -> some View {
         if #available(iOS 18, *) {

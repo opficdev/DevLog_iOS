@@ -15,7 +15,8 @@ extension DevelopmentRecordServiceImpl {
     ) -> DevelopmentRecordVersionMutation? {
         let mapper = DevelopmentRecordDocumentMapper()
         guard let record = mapper.map(goalId: "goal", documentId: "record", data: recordData),
-              let draft = record.draft else {
+              let draft = record.draft,
+              draft.revisionId == request.draftRevisionId else {
             return nil
         }
 
@@ -82,6 +83,9 @@ extension DevelopmentRecordServiceImpl {
         if let baseVersionId = request.baseVersionId {
             data[DevelopmentRecordDraftFieldKey.baseVersionId.rawValue] = baseVersionId
         }
+        if let revisionId = request.revisionId {
+            data[DevelopmentRecordDraftFieldKey.revisionId.rawValue] = revisionId
+        }
         return data
     }
 
@@ -91,7 +95,10 @@ extension DevelopmentRecordServiceImpl {
     ) -> [String: Any]? {
         guard
             (recordData[DevelopmentRecordFieldKey.currentVersionId.rawValue] as? String) ==
-                request.baseVersionId else {
+                request.baseVersionId,
+            let draftData = recordData[DevelopmentRecordFieldKey.draft.rawValue] as? [String: Any],
+            (draftData[DevelopmentRecordDraftFieldKey.revisionId.rawValue] as? String) ==
+                request.expectedRevisionId else {
             return nil
         }
         return makeDraftData(request)
