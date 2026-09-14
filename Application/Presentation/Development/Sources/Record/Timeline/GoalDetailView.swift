@@ -40,7 +40,7 @@ public struct GoalDetailView: View {
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $editorDestination) { destination in
-            DevelopmentRecordEditorView(
+            RecordEditorView(
                 goalId: store.goalId,
                 goalTitle: store.goalTitle,
                 record: destination.record,
@@ -102,24 +102,25 @@ public struct GoalDetailView: View {
                     }
                 }
             }
+
+            Button {
+                editorDestination = EditorDestination(record: nil)
+            } label: {
+                Label(
+                    DevelopmentRecordPresentation.text("development_record_add"),
+                    systemImage: "plus"
+                )
+                .font(.callout)
+                .foregroundStyle(Color.accent)
+            }
+            .adaptiveButtonStyle(color: .primaryContainer)
+            .disabled(store.isLoading)
         }
         .padding()
         .background {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)
         }
-        Button {
-            editorDestination = EditorDestination(record: nil)
-        } label: {
-            Label(
-                DevelopmentRecordPresentation.text("development_record_add"),
-                systemImage: "plus"
-            )
-            .font(.callout)
-            .foregroundStyle(Color.accent)
-        }
-        .adaptiveButtonStyle(color: .primaryContainer)
-        .disabled(store.isLoading)
     }
 
     private func continueButton(_ record: DevelopmentRecord) -> some View {
