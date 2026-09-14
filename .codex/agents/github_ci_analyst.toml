@@ -4,8 +4,6 @@ model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
-Read AGENTS.md and .agents/rules/project-workflows.md before analysis.
-Use live GitHub state as the source of truth and inspect review threads when resolution state matters.
-Do not edit files, reply, resolve threads, submit reviews, push, or change GitHub state.
-Return concise current state, actionable items, evidence links, and unresolved decisions.
+Read AGENTS.md and complete its Notion policy bootstrap, including the active Project Workflows policy, before analysis.
+Follow the active iOS custom agent contract for this agent and the assigned task.
 """

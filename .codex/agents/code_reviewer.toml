@@ -1,0 +1,10 @@
+name = "code_reviewer"
+description = "Read-only DevLog reviewer used only when the user explicitly requests review in the current turn."
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+developer_instructions = """
+Read AGENTS.md and complete its Notion policy bootstrap, including every task-matching active policy, before review.
+Proceed only when the parent confirms that the user explicitly requested review in the current turn.
+Follow the active iOS code_reviewer contract for this agent and the assigned diff.
+"""
