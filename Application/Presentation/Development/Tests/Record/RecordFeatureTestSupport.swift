@@ -35,6 +35,29 @@ struct FetchDevelopmentGoalUseCaseStub: FetchDevelopmentGoalUseCase {
     }
 }
 
+actor UpdateDevelopmentGoalStatusUseCaseSpy: UpdateDevelopmentGoalStatusUseCase {
+    struct Request: Equatable {
+        let goalId: String
+        let status: DevelopmentGoal.Status
+    }
+
+    private let result: Result<Void, Error>
+    private var recordedRequests = [Request]()
+
+    init(result: Result<Void, Error> = .success(())) {
+        self.result = result
+    }
+
+    func execute(_ goalId: String, to status: DevelopmentGoal.Status) async throws {
+        recordedRequests.append(.init(goalId: goalId, status: status))
+        try result.get()
+    }
+
+    func requests() -> [Request] {
+        recordedRequests
+    }
+}
+
 struct FetchDevelopmentRecordsUseCaseStub: FetchDevelopmentRecordsUseCase {
     let result: Result<[DevelopmentRecord], Error>
 
@@ -241,16 +264,19 @@ actor RestoreDevelopmentRecordUseCaseSpy: RestoreDevelopmentRecordUseCase {
     }
 }
 
-func makeDevelopmentGoal(title: String = "개발 목표") throws -> DevelopmentGoal {
+func makeDevelopmentGoal(
+    title: String = "개발 목표",
+    status: DevelopmentGoal.Status = .inProgress
+) throws -> DevelopmentGoal {
     let date = Date(timeIntervalSince1970: 1_700_000_000)
     return try DevelopmentGoal(
         id: "goal",
         title: title,
         description: "설명",
-        status: .inProgress,
+        status: status,
         createdAt: date,
         updatedAt: date,
-        completedAt: nil
+        completedAt: status == .completed ? date : nil
     )
 }
 

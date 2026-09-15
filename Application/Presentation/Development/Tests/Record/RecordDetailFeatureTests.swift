@@ -299,4 +299,36 @@ struct RecordDetailFeatureTests {
 
         #expect(await spy.requests().isEmpty)
     }
+
+    @Test("읽기 전용 목표는 이전 버전 되돌리기를 시작하지 않는다")
+    func 읽기_전용_목표는_이전_버전_되돌리기를_시작하지_않는다() async throws {
+        let initialVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: initialVersion.id
+        )
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        let spy = RestoreDevelopmentRecordUseCaseSpy(result: .failure(RecordTestError.failed))
+        var state = RecordDetailFeature.State(
+            goalTitle: "개발 목표",
+            record: record,
+            allowsMutation: false
+        )
+        state.versions = [initialVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        } withDependencies: {
+            $0.developmentRestoreRecordUseCase = spy
+        }
+
+        await store.send(.view(.restore(initialVersion)))
+
+        #expect(await spy.requests().isEmpty)
+    }
 }

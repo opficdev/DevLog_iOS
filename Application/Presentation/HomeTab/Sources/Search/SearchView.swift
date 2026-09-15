@@ -17,17 +17,23 @@ struct SearchView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
+                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                     Section {
                         if !store.searchQuery.isEmpty {
                             SearchResults(
                                 store: store,
                                 onSelectTodo: { router.push(.todo($0)) }
                             )
+                            .padding(.bottom, 8)
                         }
                         RecentSearchQuries(store: store)
+                            .padding(.bottom, 8)
                         instruction
-                    } header: { tipCard }
+                    } header: {
+                        tipCard
+                            .padding(.bottom, 8)
+                            .background(Color.appBackground)
+                    }
                 }
                 .padding(.horizontal)
             }

@@ -33,18 +33,20 @@ public struct TodayView: View {
     public var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8, pinnedViews: [.sectionHeaders]) {
+                let sections = store.sections
+                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
                     Section {
-                        if store.sections.isEmpty, !store.isLoading {
+                        if sections.isEmpty, !store.isLoading {
                             emptyContent
                         } else {
-                            ForEach(store.sections) { section in
+                            ForEach(sections) { section in
                                 TodoSection(
                                     section: section,
                                     isNavigationEnabled: !store.isTodoInspectorPresented,
                                     onSelect: { path.append(.todo(TodoIdItem(id: $0.id))) },
                                     onInspect: { store.send(.showTodoInspector($0)) }
                                 )
+                                .padding(.bottom, section.id == sections.last?.id ? 0 : 8)
                             }
                             .padding(.bottom, 12)
                         }
@@ -54,6 +56,7 @@ public struct TodayView: View {
                             achievementCard
                             filterBar
                         }
+                        .padding(.bottom, 8)
                         .background(Color.appBackground)
                     }
                 }
@@ -67,6 +70,7 @@ public struct TodayView: View {
                 CategoryFilterSheet(store: store)
             }
         }
+        .toolbarBackground(Color.appBackground)
         .inspector(isPresented: $store.isTodoInspectorPresented) {
             todoInspector
         }

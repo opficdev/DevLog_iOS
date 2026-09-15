@@ -10,6 +10,7 @@ import Domain
 import PresentationShared
 
 public struct GoalDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<GoalDetailFeature>
     @State private var editorDestination: EditorDestination?
     @State private var detailDestination: DetailDestination?
@@ -24,10 +25,12 @@ public struct GoalDetailView: View {
 
     public var body: some View {
         ScrollView {
-            LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+            LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
+                    let draft = store.items.first(where: \.hasDraft)
                     timelineCard
-                    if let draft = store.items.first(where: \.isDraft) {
+                        .padding(.bottom, store.allowsRecordMutation && draft != nil ? 8 : 0)
+                    if store.allowsRecordMutation, let draft {
                         continueButton(draft.record)
                     }
                 } header: {
@@ -36,7 +39,9 @@ public struct GoalDetailView: View {
                 .padding(.horizontal)
             }
         }
-        .background(Color.appBackground)
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .background(Color.appBackground.ignoresSafeArea())
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $editorDestination) { destination in
@@ -51,10 +56,42 @@ public struct GoalDetailView: View {
             RecordDetailView(
                 goalTitle: store.goalTitle,
                 record: destination.record,
+                allowsMutation: store.allowsRecordMutation,
                 onUpdate: refresh
             )
         }
-        .toolbarBackground(Color.appBackground)
+        .overlay {
+            if store.isTransitioning {
+                LoadingView()
+            }
+        }
+    }
+
+    private var topBar: some View {
+        HStack {
+            RecordBackButton(action: dismiss.callAsFunction)
+                .disabled(store.isTransitioning)
+            Spacer()
+            if let status = store.goalStatus {
+                Image(systemName: "ellipsis")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .prominentMenu(
+                        items: statusMenuItems(status),
+                        isEnabled: !store.isLoading && !store.isTransitioning
+                    ) { status in
+                        store.send(.view(.selectStatus(status)))
+                    }
+                    .adaptiveButtonStyle(
+                        shape: .circle,
+                        color: .surface,
+                        glassEffect: .enabled
+                    )
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
     private var titleBar: some View {
@@ -73,7 +110,12 @@ public struct GoalDetailView: View {
                 .contentMargins(.horizontal, 16, for: .scrollContent)
                 .padding(.horizontal, -16)
             }
+
+            if let status = store.goalStatus {
+                GoalStatusBadge(status: status)
+            }
         }
+        .padding(.bottom, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.appBackground)
     }
@@ -113,6 +155,7 @@ public struct GoalDetailView: View {
                     ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
                         TimelineRow(
                             item: item,
+                            isFirst: index == 0,
                             isLast: index == store.items.count - 1,
                             onSelect: { select(item) }
                         )
@@ -120,7 +163,7 @@ public struct GoalDetailView: View {
                 }
             }
 
-            if store.hasLoaded {
+            if store.hasLoaded, store.allowsRecordMutation {
                 Button {
                     editorDestination = EditorDestination(record: nil)
                 } label: {
@@ -156,10 +199,38 @@ public struct GoalDetailView: View {
     }
 
     private func select(_ item: RecordTimelineItem) {
-        if item.isDraft {
+        if item.hasDraft, store.allowsRecordMutation {
             editorDestination = EditorDestination(record: item.record)
         } else {
             detailDestination = DetailDestination(record: item.record)
+        }
+    }
+
+    private func statusMenuItems(
+        _ status: DevelopmentGoal.Status
+    ) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
+        switch status {
+        case .inProgress:
+            [
+                ProminentMenuItem(
+                    action: .completed,
+                    title: RecordPresentation.text("development_goal_complete"),
+                    systemImage: "checkmark.circle"
+                ),
+                ProminentMenuItem(
+                    action: .archived,
+                    title: RecordPresentation.text("development_goal_archive"),
+                    systemImage: "archivebox"
+                )
+            ]
+        case .completed, .archived:
+            [
+                ProminentMenuItem(
+                    action: .inProgress,
+                    title: RecordPresentation.text("development_goal_resume"),
+                    systemImage: "arrow.counterclockwise"
+                )
+            ]
         }
     }
 
@@ -175,6 +246,7 @@ public struct GoalDetailView: View {
 
 private struct TimelineRow: View {
     let item: RecordTimelineItem
+    let isFirst: Bool
     let isLast: Bool
     let onSelect: () -> Void
 
@@ -190,7 +262,7 @@ private struct TimelineRow: View {
                         .foregroundStyle(Color.primary)
                         .lineLimit(2)
                     status
-                    if item.isDraft {
+                    if item.hasDraft {
                         RelativeTimeText(
                             date: item.date,
                             bodyFont: .caption,
@@ -209,36 +281,29 @@ private struct TimelineRow: View {
                     .padding(.top, 4)
             }
             .contentShape(.rect)
+            .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
+            .background(alignment: .topLeading) {
+                RecordTimelineConnector(isFirst: isFirst, isLast: isLast)
+            }
         }
         .buttonStyle(.plain)
     }
 
     private var timelineIndicator: some View {
-        VStack(spacing: 0) {
-            Circle()
-                .fill(item.isDraft ? Color.surface : .accent)
-                .frame(width: 13, height: 13)
-                .overlay {
-                    Circle()
-                        .strokeBorder(item.isDraft ? Color.warning : .accent, lineWidth: 2)
-                }
-            if !isLast {
-                Rectangle()
-                    .fill(Color.accent.opacity(0.45))
-                    .frame(width: 2, height: 72)
-            }
-        }
-        .padding(.top, 3)
+        Circle()
+            .fill(item.hasDraft ? Color.warning : .accent)
+            .frame(width: RecordTimelineLayout.markerSize, height: RecordTimelineLayout.markerSize)
+            .padding(.top, RecordTimelineLayout.markerTopPadding)
     }
 
     private var status: some View {
         Text(statusText)
             .font(.caption)
-            .foregroundStyle(item.isDraft ? Color.warning : .accent)
+            .foregroundStyle(item.hasDraft ? Color.warning : .accent)
             .padding(.horizontal, 9)
             .padding(.vertical, 4)
             .background(
-                item.isDraft ? Color.warning.opacity(0.12) : Color.primaryContainer,
+                item.hasDraft ? Color.warning.opacity(0.12) : Color.primaryContainer,
                 in: .rect(cornerRadius: 8)
             )
     }
@@ -251,6 +316,63 @@ private struct TimelineRow: View {
             RecordPresentation.text("development_record_confirmed_version_format"),
             RecordPresentation.versionLabel(versionNumber)
         )
+    }
+}
+
+private struct GoalStatusBadge: View {
+    let status: DevelopmentGoal.Status
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(foreground)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
+        .background(background, in: .capsule)
+    }
+
+    private var title: String {
+        switch status {
+        case .inProgress:
+            RecordPresentation.text("development_goal_status_in_progress")
+        case .completed:
+            RecordPresentation.text("development_goal_status_completed")
+        case .archived:
+            RecordPresentation.text("development_goal_status_archived")
+        }
+    }
+
+    private var systemImage: String {
+        switch status {
+        case .inProgress:
+            "clock"
+        case .completed:
+            "checkmark.circle.fill"
+        case .archived:
+            "archivebox.fill"
+        }
+    }
+
+    private var foreground: Color {
+        switch status {
+        case .inProgress:
+            .accent
+        case .completed:
+            .white
+        case .archived:
+            .textSecondary
+        }
+    }
+
+    private var background: Color {
+        switch status {
+        case .inProgress:
+            .primaryContainer
+        case .completed:
+            .accent
+        case .archived:
+            .surfaceSecondary
+        }
     }
 }
 

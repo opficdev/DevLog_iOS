@@ -124,7 +124,11 @@ struct RecordVersionHistoryView: View {
 
     private var footer: some View {
         Label(
-            RecordPresentation.text("development_record_history_footer"),
+            RecordPresentation.text(
+                store.allowsMutation
+                    ? "development_record_history_footer"
+                    : "development_record_history_read_only_footer"
+            ),
             systemImage: "lock"
         )
         .font(.caption)
@@ -180,13 +184,17 @@ private struct VersionHistoryRow: View {
                 .foregroundStyle(Color.border)
         }
         .contentShape(.rect)
+        .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
         .background(alignment: .topLeading) {
             if !isLast {
                 Rectangle()
                     .fill(Color.accent.opacity(0.45))
-                    .frame(width: 2)
+                    .frame(width: RecordTimelineLayout.lineWidth)
                     .frame(maxHeight: .infinity)
-                    .offset(x: 5.5, y: 16)
+                    .offset(
+                        x: RecordTimelineLayout.lineXOffset,
+                        y: RecordTimelineLayout.lineYOffset
+                    )
             }
         }
     }
@@ -194,12 +202,11 @@ private struct VersionHistoryRow: View {
     private var timelineIndicator: some View {
         Circle()
             .fill(isCurrent ? Color.accent : Color.textTertiary)
-            .frame(width: 13, height: 13)
-            .overlay {
-                Circle()
-                    .strokeBorder(isCurrent ? Color.accent : Color.border, lineWidth: 2)
-            }
-            .padding(.top, 3)
+            .frame(
+                width: RecordTimelineLayout.markerSize,
+                height: RecordTimelineLayout.markerSize
+            )
+            .padding(.top, RecordTimelineLayout.markerTopPadding)
     }
 
     @ViewBuilder
