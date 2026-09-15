@@ -153,6 +153,7 @@ public struct GoalDetailView: View {
                     ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
                         TimelineRow(
                             item: item,
+                            isFirst: index == 0,
                             isLast: index == store.items.count - 1,
                             onSelect: { select(item) }
                         )
@@ -243,6 +244,7 @@ public struct GoalDetailView: View {
 
 private struct TimelineRow: View {
     let item: RecordTimelineItem
+    let isFirst: Bool
     let isLast: Bool
     let onSelect: () -> Void
 
@@ -277,26 +279,19 @@ private struct TimelineRow: View {
                     .padding(.top, 4)
             }
             .contentShape(.rect)
+            .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
+            .background(alignment: .topLeading) {
+                RecordTimelineConnector(isFirst: isFirst, isLast: isLast)
+            }
         }
         .buttonStyle(.plain)
     }
 
     private var timelineIndicator: some View {
-        VStack(spacing: 0) {
-            Circle()
-                .fill(item.hasDraft ? Color.surface : .accent)
-                .frame(width: 13, height: 13)
-                .overlay {
-                    Circle()
-                        .strokeBorder(item.hasDraft ? Color.warning : .accent, lineWidth: 2)
-                }
-            if !isLast {
-                Rectangle()
-                    .fill(Color.accent.opacity(0.45))
-                    .frame(width: 2, height: 72)
-            }
-        }
-        .padding(.top, 3)
+        Circle()
+            .fill(item.hasDraft ? Color.warning : .accent)
+            .frame(width: RecordTimelineLayout.markerSize, height: RecordTimelineLayout.markerSize)
+            .padding(.top, RecordTimelineLayout.markerTopPadding)
     }
 
     private var status: some View {
