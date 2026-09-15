@@ -70,6 +70,7 @@ public struct TodayView: View {
                 CategoryFilterSheet(store: store)
             }
         }
+        .toolbarBackground(Color.appBackground)
         .inspector(isPresented: $store.isTodoInspectorPresented) {
             todoInspector
         }
