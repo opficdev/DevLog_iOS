@@ -27,12 +27,7 @@ public struct GoalDetailView: View {
         ScrollView {
             LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
-                    let draft = store.items.first(where: \.hasDraft)
                     timelineCard
-                        .padding(.bottom, store.allowsRecordMutation && draft != nil ? 8 : 0)
-                    if store.allowsRecordMutation, let draft {
-                        continueButton(draft.record)
-                    }
                 } header: {
                     titleBar
                 }
@@ -40,6 +35,20 @@ public struct GoalDetailView: View {
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if store.hasLoaded, store.allowsRecordMutation {
+                GoalDetailRecordActionBar(
+                    hasDraft: draftRecord != nil,
+                    isDisabled: store.isLoading || store.isTransitioning,
+                    onAddRecord: {
+                        editorDestination = EditorDestination(record: nil)
+                    },
+                    onContinueRecord: {
+                        editorDestination = EditorDestination(record: draftRecord)
+                    }
+                )
+            }
+        }
         .background(Color.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
@@ -162,21 +171,6 @@ public struct GoalDetailView: View {
                     }
                 }
             }
-
-            if store.hasLoaded, store.allowsRecordMutation {
-                Button {
-                    editorDestination = EditorDestination(record: nil)
-                } label: {
-                    Label(
-                        RecordPresentation.text("development_record_add"),
-                        systemImage: "plus"
-                    )
-                    .font(.callout)
-                    .foregroundStyle(Color.accent)
-                }
-                .adaptiveButtonStyle(color: .primaryContainer)
-                .disabled(store.isLoading)
-            }
         }
         .padding()
         .background {
@@ -185,17 +179,8 @@ public struct GoalDetailView: View {
         }
     }
 
-    private func continueButton(_ record: DevelopmentRecord) -> some View {
-        Button {
-            editorDestination = EditorDestination(record: record)
-        } label: {
-            Text(RecordPresentation.text("development_record_continue"))
-                .font(.headline)
-                .foregroundStyle(Color.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-        }
-        .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
+    private var draftRecord: DevelopmentRecord? {
+        store.items.first(where: \.hasDraft)?.record
     }
 
     private func select(_ item: RecordTimelineItem) {
