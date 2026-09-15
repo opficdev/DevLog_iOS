@@ -13,6 +13,15 @@ public enum AdaptiveButtonGlassEffect {
 }
 
 public extension View {
+    @ViewBuilder
+    func topBarButtonStyle(color: Color = .clear) -> some View {
+        if #available(iOS 26.0, *) {
+            adaptiveButtonStyle(shape: .circle, color: color, glassEffect: .enabled)
+        } else {
+            adaptiveButtonStyle(color: color, glassEffect: .enabled)
+        }
+    }
+
     func toolbarBackground(_ color: Color) -> some View {
         overlay(alignment: .top) {
             GeometryReader { proxy in
