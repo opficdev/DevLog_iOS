@@ -198,7 +198,7 @@ extension GoalDetailFeature {
 
     static func precedes(_ lhs: DevelopmentRecord, _ rhs: DevelopmentRecord) -> Bool {
         if lhs.createdAt == rhs.createdAt { return lhs.id < rhs.id }
-        return lhs.createdAt < rhs.createdAt
+        return rhs.createdAt < lhs.createdAt
     }
 
     static func canTransition(
@@ -225,7 +225,7 @@ extension GoalDetailFeature {
                 messageKey: "development_goal_completion_record_required_message"
             )
         }
-        guard items.last?.isUnconfirmed == false else {
+        guard items.first?.isUnconfirmed == false else {
             return informationAlert(
                 titleKey: "development_goal_completion_version_required_title",
                 messageKey: "development_goal_completion_version_required_message"
