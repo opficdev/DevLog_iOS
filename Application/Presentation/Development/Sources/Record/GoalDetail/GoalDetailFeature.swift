@@ -28,6 +28,7 @@ struct GoalDetailFeature {
         @Presents var alert: AlertState<Action.Alert>?
         let goalId: String
         var goal: DevelopmentGoal?
+        var updatedGoalStatus: DevelopmentGoal.Status?
         var items = [RecordTimelineItem]()
         var isLoading = false
         var isTransitioning = false
@@ -39,7 +40,7 @@ struct GoalDetailFeature {
         }
 
         var goalStatus: DevelopmentGoal.Status? {
-            goal?.status
+            updatedGoalStatus ?? goal?.status
         }
 
         var allowsRecordMutation: Bool {
@@ -68,7 +69,7 @@ struct GoalDetailFeature {
 
         enum StoreAction: Equatable {
             case loaded(goal: DevelopmentGoal, items: [RecordTimelineItem])
-            case transitioned(DevelopmentGoal)
+            case transitioned(DevelopmentGoal.Status)
             case failed
             case transitionFailed
         }
@@ -100,10 +101,10 @@ struct GoalDetailFeature {
                 state.hasLoadFailure = false
                 return fetchEffect(goalId: state.goalId)
             case .view(.selectStatus(let status)):
-                guard let goal = state.goal,
+                guard let goalStatus = state.goalStatus,
                       !state.isLoading,
                       !state.isTransitioning,
-                      Self.canTransition(from: goal.status, to: status) else { break }
+                      Self.canTransition(from: goalStatus, to: status) else { break }
                 if status == .completed,
                    let alert = Self.completionBlockingAlert(items: state.items) {
                     state.alert = alert
@@ -112,12 +113,13 @@ struct GoalDetailFeature {
                 }
             case .store(.loaded(let goal, let items)):
                 state.goal = goal
+                state.updatedGoalStatus = nil
                 state.items = items
                 state.isLoading = false
                 state.hasLoaded = true
                 state.hasLoadFailure = false
-            case .store(.transitioned(let goal)):
-                state.goal = goal
+            case .store(.transitioned(let status)):
+                state.updatedGoalStatus = status
                 state.isTransitioning = false
             case .store(.failed):
                 state.isLoading = false
@@ -184,11 +186,10 @@ extension GoalDetailFeature {
         goalId: String,
         status: DevelopmentGoal.Status
     ) -> Effect<Action> {
-        .run { [fetchGoalUseCase, updateGoalStatusUseCase] send in
+        .run { [updateGoalStatusUseCase] send in
             do {
                 try await updateGoalStatusUseCase.execute(goalId, to: status)
-                let goal = try await fetchGoalUseCase.execute(goalId)
-                await send(.store(.transitioned(goal)))
+                await send(.store(.transitioned(status)))
             } catch {
                 await send(.store(.transitionFailed))
             }

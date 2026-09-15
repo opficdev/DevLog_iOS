@@ -135,10 +135,9 @@ struct GoalDetailFeatureTests {
         }
     }
 
-    @Test("진행 중 목표는 확인 후 보관 상태로 전환한다")
-    func 진행_중_목표는_확인_후_보관_상태로_전환한다() async throws {
+    @Test("상태 전환 성공은 후속 재조회 없이 요청 상태를 반영한다")
+    func 상태_전환_성공은_후속_재조회_없이_요청_상태를_반영한다() async throws {
         let goal = try makeDevelopmentGoal()
-        let archivedGoal = try makeDevelopmentGoal(status: .archived)
         let spy = UpdateDevelopmentGoalStatusUseCaseSpy()
         var state = GoalDetailFeature.State(goalId: goal.id)
         state.goal = goal
@@ -148,7 +147,7 @@ struct GoalDetailFeatureTests {
         } withDependencies: {
             $0.developmentUpdateGoalStatusUseCase = spy
             $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(
-                result: .success(archivedGoal)
+                result: .failure(RecordTestError.failed)
             )
         }
 
@@ -159,8 +158,8 @@ struct GoalDetailFeatureTests {
             $0.alert = nil
             $0.isTransitioning = true
         }
-        await store.receive(.store(.transitioned(archivedGoal))) {
-            $0.goal = archivedGoal
+        await store.receive(.store(.transitioned(.archived))) {
+            $0.updatedGoalStatus = .archived
             $0.isTransitioning = false
         }
 
@@ -169,11 +168,26 @@ struct GoalDetailFeatureTests {
         ])
     }
 
+    @Test("반영한 상태는 다음 상태 전환의 기준으로 사용한다")
+    func 반영한_상태는_다음_상태_전환의_기준으로_사용한다() async throws {
+        let goal = try makeDevelopmentGoal()
+        var state = GoalDetailFeature.State(goalId: goal.id)
+        state.goal = goal
+        state.updatedGoalStatus = .archived
+        state.hasLoaded = true
+        let store = TestStore(initialState: state) {
+            GoalDetailFeature()
+        }
+
+        await store.send(.view(.selectStatus(.inProgress))) {
+            $0.alert = GoalDetailFeature.transitionConfirmationAlert(.inProgress)
+        }
+    }
+
     @Test("완료되거나 보관된 목표는 진행 중으로 되돌릴 수 있다")
     func 완료되거나_보관된_목표는_진행_중으로_되돌릴_수_있다() async throws {
         for status in [DevelopmentGoal.Status.completed, .archived] {
             let goal = try makeDevelopmentGoal(status: status)
-            let resumedGoal = try makeDevelopmentGoal()
             let spy = UpdateDevelopmentGoalStatusUseCaseSpy()
             var state = GoalDetailFeature.State(goalId: goal.id)
             state.goal = goal
@@ -182,9 +196,6 @@ struct GoalDetailFeatureTests {
                 GoalDetailFeature()
             } withDependencies: {
                 $0.developmentUpdateGoalStatusUseCase = spy
-                $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(
-                    result: .success(resumedGoal)
-                )
             }
 
             await store.send(.view(.selectStatus(.inProgress))) {
@@ -194,8 +205,8 @@ struct GoalDetailFeatureTests {
                 $0.alert = nil
                 $0.isTransitioning = true
             }
-            await store.receive(.store(.transitioned(resumedGoal))) {
-                $0.goal = resumedGoal
+            await store.receive(.store(.transitioned(.inProgress))) {
+                $0.updatedGoalStatus = .inProgress
                 $0.isTransitioning = false
             }
 
@@ -277,7 +288,6 @@ struct GoalDetailFeatureTests {
     @Test("모든 기록이 확정되면 확인 후 목표를 완료한다")
     func 모든_기록이_확정되면_확인_후_목표를_완료한다() async throws {
         let goal = try makeDevelopmentGoal()
-        let completedGoal = try makeDevelopmentGoal(status: .completed)
         let record = try makeConfirmedDevelopmentRecord()
         let version = try makeDevelopmentRecordVersion()
         let item = RecordTimelineItem(record: record, currentVersion: version)
@@ -290,9 +300,6 @@ struct GoalDetailFeatureTests {
             GoalDetailFeature()
         } withDependencies: {
             $0.developmentUpdateGoalStatusUseCase = spy
-            $0.developmentFetchGoalUseCase = FetchDevelopmentGoalUseCaseStub(
-                result: .success(completedGoal)
-            )
         }
 
         await store.send(.view(.selectStatus(.completed))) {
@@ -302,8 +309,8 @@ struct GoalDetailFeatureTests {
             $0.alert = nil
             $0.isTransitioning = true
         }
-        await store.receive(.store(.transitioned(completedGoal))) {
-            $0.goal = completedGoal
+        await store.receive(.store(.transitioned(.completed))) {
+            $0.updatedGoalStatus = .completed
             $0.isTransitioning = false
         }
 
