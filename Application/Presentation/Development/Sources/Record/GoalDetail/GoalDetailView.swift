@@ -25,11 +25,12 @@ public struct GoalDetailView: View {
 
     public var body: some View {
         ScrollView {
-            LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+            LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
+                    let draft = store.items.first(where: \.hasDraft)
                     timelineCard
-                    if store.allowsRecordMutation,
-                       let draft = store.items.first(where: \.hasDraft) {
+                        .padding(.bottom, store.allowsRecordMutation && draft != nil ? 8 : 0)
+                    if store.allowsRecordMutation, let draft {
                         continueButton(draft.record)
                     }
                 } header: {
@@ -114,6 +115,7 @@ public struct GoalDetailView: View {
                 GoalStatusBadge(status: status)
             }
         }
+        .padding(.bottom, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.appBackground)
     }
