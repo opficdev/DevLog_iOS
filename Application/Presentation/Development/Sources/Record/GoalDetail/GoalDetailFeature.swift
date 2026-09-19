@@ -333,16 +333,19 @@ extension GoalDetailFeature {
 
 }
 
+@ObservableState
 struct RecordEditorDestination: Equatable, Identifiable {
     let id: UUID
     let record: DevelopmentRecord?
 }
 
+@ObservableState
 struct RecordDetailDestination: Equatable, Identifiable {
     var id: String { record.id }
     let record: DevelopmentRecord
 }
 
+@ObservableState
 struct TodoDetailDestination: Equatable, Identifiable {
     var id: String { todoId }
     let todoId: String

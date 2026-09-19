@@ -22,6 +22,15 @@ public struct GoalDetailView: View {
     }
 
     public var body: some View {
+        presentedContent
+            .overlay {
+                if store.isTransitioning {
+                    LoadingView()
+                }
+            }
+    }
+
+    private var mainContent: some View {
         ScrollView {
             LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
@@ -42,62 +51,48 @@ public struct GoalDetailView: View {
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if store.hasLoaded, store.allowsRecordMutation {
-                GoalDetailRecordActionBar(
-                    hasDraft: draftRecord != nil,
-                    isDisabled: store.isLoading || store.isTransitioning,
-                    onAddRecord: {
-                        store.send(.view(.addRecord))
-                    },
-                    onContinueRecord: {
-                        store.send(.view(.continueRecord))
-                    }
-                )
-            }
-        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { recordActionBar }
         .background(Color.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
-        .sheet(item: $store.scope(state: \.recordEditor, action: \.recordEditor)) { destination in
-            RecordEditorView(
-                goalId: store.goalId,
-                goalTitle: store.goalTitle,
-                record: destination.state.record,
-                onCompletion: {
-                    store.send(.view(.refresh))
-                }
-            )
-        }
-        .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
-            GoalTodoLinkSheet(store: $0)
-        }
-        .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
-            RecordDetailView(
-                goalTitle: store.goalTitle,
-                record: destination.state.record,
-                allowsMutation: store.allowsRecordMutation,
-                onUpdate: { store.send(.view(.refresh)) }
-            )
-        }
-        .navigationDestination(item: $store.scope(state: \.todoDetail, action: \.todoDetail)) {
-            TodoDetailView(
-                store: Store(
-                    initialState: TodoDetailFeature.State(
-                        todoId: $0.state.todoId,
-                        showEditButton: false
-                    )
-                ) {
-                    TodoDetailFeature()
-                }
-            )
-        }
-        .overlay {
-            if store.isTransitioning {
-                LoadingView()
+    }
+
+    private var presentedContent: some View {
+        mainContent
+            .sheet(item: $store.scope(state: \.recordEditor, action: \.recordEditor)) { destination in
+                RecordEditorView(
+                    goalId: store.goalId,
+                    goalTitle: store.goalTitle,
+                    record: destination.record,
+                    onCompletion: {
+                        store.send(.view(.refresh))
+                    }
+                )
             }
-        }
+            .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
+                GoalTodoLinkSheet(store: $0)
+            }
+            .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
+                RecordDetailView(
+                    goalTitle: store.goalTitle,
+                    record: destination.record,
+                    allowsMutation: store.allowsRecordMutation,
+                    onUpdate: { store.send(.view(.refresh)) }
+                )
+            }
+            .navigationDestination(item: $store.scope(state: \.todoDetail, action: \.todoDetail)) {
+                TodoDetailView(
+                    store: Store(
+                        initialState: TodoDetailFeature.State(
+                            todoId: $0.todoId,
+                            showEditButton: false
+                        )
+                    ) {
+                        TodoDetailFeature()
+                    }
+                )
+            }
     }
 
     private var topBar: some View {
@@ -205,6 +200,22 @@ public struct GoalDetailView: View {
 
     private var draftRecord: DevelopmentRecord? {
         store.items.first(where: \.hasDraft)?.record
+    }
+
+    @ViewBuilder
+    private var recordActionBar: some View {
+        if store.hasLoaded, store.allowsRecordMutation {
+            GoalDetailRecordActionBar(
+                hasDraft: draftRecord != nil,
+                isDisabled: store.isLoading || store.isTransitioning,
+                onAddRecord: {
+                    store.send(.view(.addRecord))
+                },
+                onContinueRecord: {
+                    store.send(.view(.continueRecord))
+                }
+            )
+        }
     }
 
     private func statusMenuItems(_ status: DevelopmentGoal.Status) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
