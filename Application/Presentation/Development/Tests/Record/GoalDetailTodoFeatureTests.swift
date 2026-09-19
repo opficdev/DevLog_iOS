@@ -80,6 +80,20 @@ struct GoalDetailTodoFeatureTests {
         }
     }
 
+    @Test("연결된 Todo 선택은 상세 목적지를 표시한다")
+    func 연결된_Todo_선택은_상세_목적지를_표시한다() async {
+        let todo = makeTodo(id: "linked", number: 1, title: "기존", goalId: "goal")
+        var state = GoalDetailFeature.State(goalId: "goal")
+        state.linkedTodos = [todo]
+        let store = TestStore(initialState: state) {
+            GoalDetailFeature()
+        }
+
+        await store.send(.view(.selectTodo(todo.id))) {
+            $0.todoDetail = TodoDetailDestination(todoId: todo.id)
+        }
+    }
+
     @Test("Todo 조회 실패는 상세 화면과 분리된 재시도 상태를 만든다")
     func Todo_조회_실패는_상세_화면과_분리된_재시도_상태를_만든다() async {
         var state = GoalDetailFeature.State(goalId: "goal")

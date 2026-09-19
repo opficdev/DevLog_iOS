@@ -140,17 +140,3 @@ struct GoalStatusBadge: View {
         }
     }
 }
-
-struct EditorDestination: Identifiable {
-    let id = UUID()
-    let record: DevelopmentRecord?
-}
-
-struct DetailDestination: Identifiable {
-    let record: DevelopmentRecord
-    var id: String { record.id }
-}
-
-struct TodoDestination: Identifiable {
-    let id: String
-}

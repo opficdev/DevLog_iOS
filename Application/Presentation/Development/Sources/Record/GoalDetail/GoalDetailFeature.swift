@@ -27,6 +27,9 @@ struct GoalDetailFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
+        @Presents var recordEditor: RecordEditorDestination?
+        @Presents var recordDetail: RecordDetailDestination?
+        @Presents var todoDetail: TodoDetailDestination?
         @Presents var todoLinkSheet: GoalTodoLinkFeature.State?
         let goalId: String
         var goal: DevelopmentGoal?
@@ -65,6 +68,9 @@ struct GoalDetailFeature {
 
     enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Alert>)
+        case recordEditor(PresentationAction<Never>)
+        case recordDetail(PresentationAction<Never>)
+        case todoDetail(PresentationAction<Never>)
         case todoLinkSheet(PresentationAction<GoalTodoLinkFeature.Action>)
         case binding(BindingAction<State>)
         case view(ViewAction)
@@ -75,10 +81,14 @@ struct GoalDetailFeature {
         }
 
         enum ViewAction: Equatable {
+            case addRecord
+            case continueRecord
             case fetch
             case manageTodos
             case refresh
             case retryTodos
+            case selectRecord(RecordTimelineItem)
+            case selectTodo(String)
             case selectStatus(DevelopmentGoal.Status)
         }
 
@@ -97,6 +107,7 @@ struct GoalDetailFeature {
     @Dependency(\.developmentFetchRecordVersionUseCase) private var fetchRecordVersionUseCase
     @Dependency(\.developmentFetchTodosUseCase) private var fetchTodosUseCase
     @Dependency(\.developmentUpdateGoalStatusUseCase) private var updateGoalStatusUseCase
+    @Dependency(\.uuid) private var uuid
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -109,6 +120,18 @@ struct GoalDetailFeature {
                 return transitionEffect(goalId: state.goalId, status: status)
             case .alert:
                 break
+            case .recordEditor(.dismiss):
+                state.recordEditor = nil
+            case .recordEditor:
+                break
+            case .recordDetail(.dismiss):
+                state.recordDetail = nil
+            case .recordDetail:
+                break
+            case .todoDetail(.dismiss):
+                state.todoDetail = nil
+            case .todoDetail:
+                break
             case .todoLinkSheet(.dismiss),
                  .todoLinkSheet(.presented(.delegate(.close))):
                 state.todoLinkSheet = nil
@@ -120,6 +143,21 @@ struct GoalDetailFeature {
                 break
             case .binding:
                 break
+            case .view(.addRecord):
+                guard state.hasLoaded,
+                      state.allowsRecordMutation,
+                      !state.isLoading,
+                      !state.isTransitioning,
+                      state.recordEditor == nil else { break }
+                state.recordEditor = RecordEditorDestination(id: uuid(), record: nil)
+            case .view(.continueRecord):
+                guard state.hasLoaded,
+                      state.allowsRecordMutation,
+                      !state.isLoading,
+                      !state.isTransitioning,
+                      state.recordEditor == nil,
+                      let record = state.items.first(where: \.hasDraft)?.record else { break }
+                state.recordEditor = RecordEditorDestination(id: uuid(), record: record)
             case .view(.fetch):
                 guard !state.hasLoaded, !state.isLoading else { break }
                 state.isLoading = true
@@ -154,6 +192,18 @@ struct GoalDetailFeature {
                 state.isTodoLoading = true
                 state.hasTodoLoadFailure = false
                 return fetchTodosEffect()
+            case .view(.selectRecord(let item)):
+                guard state.recordEditor == nil,
+                      state.recordDetail == nil else { break }
+                if item.hasDraft, state.allowsRecordMutation {
+                    state.recordEditor = RecordEditorDestination(id: uuid(), record: item.record)
+                } else {
+                    state.recordDetail = RecordDetailDestination(record: item.record)
+                }
+            case .view(.selectTodo(let todoId)):
+                guard state.linkedTodos.contains(where: { $0.id == todoId }),
+                      state.todoDetail == nil else { break }
+                state.todoDetail = TodoDetailDestination(todoId: todoId)
             case .view(.selectStatus(let status)):
                 guard let goalStatus = state.goalStatus,
                       !state.isLoading,
@@ -281,4 +331,19 @@ extension GoalDetailFeature {
         }
     }
 
+}
+
+struct RecordEditorDestination: Equatable, Identifiable {
+    let id: UUID
+    let record: DevelopmentRecord?
+}
+
+struct RecordDetailDestination: Equatable, Identifiable {
+    var id: String { record.id }
+    let record: DevelopmentRecord
+}
+
+struct TodoDetailDestination: Equatable, Identifiable {
+    var id: String { todoId }
+    let todoId: String
 }

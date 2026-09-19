@@ -12,9 +12,6 @@ import PresentationShared
 public struct GoalDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<GoalDetailFeature>
-    @State private var editorDestination: EditorDestination?
-    @State private var detailDestination: DetailDestination?
-    @State private var todoDestination: TodoDestination?
 
     public init(goalId: String) {
         self._store = State(initialValue: Store(
@@ -36,7 +33,7 @@ public struct GoalDetailView: View {
                         allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
                         onManage: { store.send(.view(.manageTodos)) },
                         onRetry: { store.send(.view(.retryTodos)) },
-                        onSelect: { todoDestination = TodoDestination(id: $0) }
+                        onSelect: { store.send(.view(.selectTodo($0))) }
                     )
                 } header: {
                     titleBar
@@ -51,10 +48,10 @@ public struct GoalDetailView: View {
                     hasDraft: draftRecord != nil,
                     isDisabled: store.isLoading || store.isTransitioning,
                     onAddRecord: {
-                        editorDestination = EditorDestination(record: nil)
+                        store.send(.view(.addRecord))
                     },
                     onContinueRecord: {
-                        editorDestination = EditorDestination(record: draftRecord)
+                        store.send(.view(.continueRecord))
                     }
                 )
             }
@@ -63,13 +60,12 @@ public struct GoalDetailView: View {
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
-        .sheet(item: $editorDestination) { destination in
+        .sheet(item: $store.scope(state: \.recordEditor, action: \.recordEditor)) { destination in
             RecordEditorView(
                 goalId: store.goalId,
                 goalTitle: store.goalTitle,
-                record: destination.record,
+                record: destination.state.record,
                 onCompletion: {
-                    editorDestination = nil
                     store.send(.view(.refresh))
                 }
             )
@@ -77,23 +73,25 @@ public struct GoalDetailView: View {
         .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
             GoalTodoLinkSheet(store: $0)
         }
-        .navigationDestination(item: $detailDestination) { destination in
+        .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
             RecordDetailView(
                 goalTitle: store.goalTitle,
-                record: destination.record,
+                record: destination.state.record,
                 allowsMutation: store.allowsRecordMutation,
                 onUpdate: { store.send(.view(.refresh)) }
             )
         }
-        .navigationDestination(item: $todoDestination) { destination in
-            TodoDetailView(store: Store(
-                initialState: TodoDetailFeature.State(
-                    todoId: destination.id,
-                    showEditButton: false
-                )
-            ) {
-                TodoDetailFeature()
-            })
+        .navigationDestination(item: $store.scope(state: \.todoDetail, action: \.todoDetail)) {
+            TodoDetailView(
+                store: Store(
+                    initialState: TodoDetailFeature.State(
+                        todoId: $0.state.todoId,
+                        showEditButton: false
+                    )
+                ) {
+                    TodoDetailFeature()
+                }
+            )
         }
         .overlay {
             if store.isTransitioning {
@@ -192,7 +190,7 @@ public struct GoalDetailView: View {
                             item: item,
                             isFirst: index == 0,
                             isLast: index == store.items.count - 1,
-                            onSelect: { select(item) }
+                            onSelect: { store.send(.view(.selectRecord(item))) }
                         )
                     }
                 }
@@ -207,14 +205,6 @@ public struct GoalDetailView: View {
 
     private var draftRecord: DevelopmentRecord? {
         store.items.first(where: \.hasDraft)?.record
-    }
-
-    private func select(_ item: RecordTimelineItem) {
-        if item.hasDraft, store.allowsRecordMutation {
-            editorDestination = EditorDestination(record: item.record)
-        } else {
-            detailDestination = DetailDestination(record: item.record)
-        }
     }
 
     private func statusMenuItems(_ status: DevelopmentGoal.Status) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
