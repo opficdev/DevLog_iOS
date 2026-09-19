@@ -14,6 +14,7 @@ public struct GoalDetailView: View {
     @State private var store: StoreOf<GoalDetailFeature>
     @State private var editorDestination: EditorDestination?
     @State private var detailDestination: DetailDestination?
+    @State private var todoDestination: TodoDestination?
 
     public init(goalId: String) {
         self._store = State(initialValue: Store(
@@ -28,6 +29,15 @@ public struct GoalDetailView: View {
             LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
                     timelineCard
+                    GoalLinkedTodoCard(
+                        todos: store.linkedTodos,
+                        isLoading: store.isTodoLoading,
+                        hasLoadFailure: store.hasTodoLoadFailure,
+                        allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
+                        onManage: { store.send(.view(.manageTodos)) },
+                        onRetry: { store.send(.view(.retryTodos)) },
+                        onSelect: { todoDestination = TodoDestination(id: $0) }
+                    )
                 } header: {
                     titleBar
                 }
@@ -58,16 +68,32 @@ public struct GoalDetailView: View {
                 goalId: store.goalId,
                 goalTitle: store.goalTitle,
                 record: destination.record,
-                onCompletion: finishEditing
+                onCompletion: {
+                    editorDestination = nil
+                    store.send(.view(.refresh))
+                }
             )
+        }
+        .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
+            GoalTodoLinkSheet(store: $0)
         }
         .navigationDestination(item: $detailDestination) { destination in
             RecordDetailView(
                 goalTitle: store.goalTitle,
                 record: destination.record,
                 allowsMutation: store.allowsRecordMutation,
-                onUpdate: refresh
+                onUpdate: { store.send(.view(.refresh)) }
             )
+        }
+        .navigationDestination(item: $todoDestination) { destination in
+            TodoDetailView(store: Store(
+                initialState: TodoDetailFeature.State(
+                    todoId: destination.id,
+                    showEditButton: false
+                )
+            ) {
+                TodoDetailFeature()
+            })
         }
         .overlay {
             if store.isTransitioning {
@@ -172,7 +198,7 @@ public struct GoalDetailView: View {
                 }
             }
         }
-        .padding()
+        .padding([.horizontal, .top])   // TimelineView 자체의 하단 패딩과 겹치기 때문에 .bottom은 제외
         .background {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)
@@ -191,9 +217,7 @@ public struct GoalDetailView: View {
         }
     }
 
-    private func statusMenuItems(
-        _ status: DevelopmentGoal.Status
-    ) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
+    private func statusMenuItems(_ status: DevelopmentGoal.Status) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
         switch status {
         case .inProgress:
             [
@@ -218,155 +242,4 @@ public struct GoalDetailView: View {
             ]
         }
     }
-
-    private func finishEditing() {
-        editorDestination = nil
-        refresh()
-    }
-
-    private func refresh() {
-        store.send(.view(.refresh))
-    }
-}
-
-private struct TimelineRow: View {
-    let item: RecordTimelineItem
-    let isFirst: Bool
-    let isLast: Bool
-    let onSelect: () -> Void
-
-    var body: some View {
-        Button {
-            onSelect()
-        } label: {
-            HStack(alignment: .top, spacing: 16) {
-                timelineIndicator
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(item.title)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Color.primary)
-                        .lineLimit(2)
-                    status
-                    if item.hasDraft {
-                        RelativeTimeText(
-                            date: item.date,
-                            bodyFont: .caption,
-                            bodyColor: .textTertiary
-                        )
-                    } else {
-                        Text(item.date, format: .dateTime.month().day())
-                            .font(.caption)
-                            .foregroundStyle(Color.textTertiary)
-                    }
-                }
-                Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Color.border)
-                    .padding(.top, 4)
-            }
-            .contentShape(.rect)
-            .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
-            .background(alignment: .topLeading) {
-                RecordTimelineConnector(isFirst: isFirst, isLast: isLast)
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var timelineIndicator: some View {
-        Circle()
-            .fill(item.hasDraft ? Color.warning : .accent)
-            .frame(width: RecordTimelineLayout.markerSize, height: RecordTimelineLayout.markerSize)
-            .padding(.top, RecordTimelineLayout.markerTopPadding)
-    }
-
-    private var status: some View {
-        Text(statusText)
-            .font(.caption)
-            .foregroundStyle(item.hasDraft ? Color.warning : .accent)
-            .padding(.horizontal, 9)
-            .padding(.vertical, 4)
-            .background(
-                item.hasDraft ? Color.warning.opacity(0.12) : Color.primaryContainer,
-                in: .rect(cornerRadius: 8)
-            )
-    }
-
-    private var statusText: String {
-        guard let versionNumber = item.versionNumber else {
-            return RecordPresentation.text("development_record_draft_status")
-        }
-        return String.localizedStringWithFormat(
-            RecordPresentation.text("development_record_confirmed_version_format"),
-            RecordPresentation.versionLabel(versionNumber)
-        )
-    }
-}
-
-private struct GoalStatusBadge: View {
-    let status: DevelopmentGoal.Status
-
-    var body: some View {
-        Label(title, systemImage: systemImage)
-        .font(.caption.weight(.semibold))
-        .foregroundStyle(foreground)
-        .padding(.horizontal, 11)
-        .padding(.vertical, 6)
-        .background(background, in: .capsule)
-    }
-
-    private var title: String {
-        switch status {
-        case .inProgress:
-            RecordPresentation.text("development_goal_status_in_progress")
-        case .completed:
-            RecordPresentation.text("development_goal_status_completed")
-        case .archived:
-            RecordPresentation.text("development_goal_status_archived")
-        }
-    }
-
-    private var systemImage: String {
-        switch status {
-        case .inProgress:
-            "clock"
-        case .completed:
-            "checkmark.circle.fill"
-        case .archived:
-            "archivebox.fill"
-        }
-    }
-
-    private var foreground: Color {
-        switch status {
-        case .inProgress:
-            .accent
-        case .completed:
-            .white
-        case .archived:
-            .textSecondary
-        }
-    }
-
-    private var background: Color {
-        switch status {
-        case .inProgress:
-            .primaryContainer
-        case .completed:
-            .accent
-        case .archived:
-            .surfaceSecondary
-        }
-    }
-}
-
-private struct EditorDestination: Identifiable {
-    let id = UUID()
-    let record: DevelopmentRecord?
-}
-
-private struct DetailDestination: Identifiable {
-    let record: DevelopmentRecord
-    var id: String { record.id }
 }

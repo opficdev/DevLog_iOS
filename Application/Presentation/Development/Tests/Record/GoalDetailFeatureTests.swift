@@ -38,16 +38,22 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [confirmedRecord.id: .success(version)]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.fetch)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.loaded(goal: goal, items: items))) {
             $0.goal = goal
             $0.items = items
             $0.isLoading = false
             $0.hasLoaded = true
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
         }
     }
 
@@ -89,14 +95,20 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [currentRecord.id: .success(currentVersion)]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.refresh)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.loaded(goal: goal, items: [currentItem]))) {
             $0.items = [currentItem]
             $0.isLoading = false
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
         }
     }
 
@@ -115,23 +127,33 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [:]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.fetch)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
             $0.hasLoadFailure = true
             $0.alert = makeRecordErrorAlert("development_record_timeline_error_message")
         }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
+        }
         await store.send(.view(.refresh)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
             $0.hasLoadFailure = false
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
             $0.hasLoadFailure = true
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
         }
     }
 

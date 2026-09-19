@@ -5,6 +5,7 @@
 //  Created by opfic on 9/13/26.
 //
 
+import Core
 import Domain
 import Foundation
 import PresentationShared
@@ -26,14 +27,20 @@ struct GoalDetailFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
+        @Presents var todoLinkSheet: GoalTodoLinkFeature.State?
         let goalId: String
         var goal: DevelopmentGoal?
         var updatedGoalStatus: DevelopmentGoal.Status?
         var items = [RecordTimelineItem]()
+        var todos = [Todo]()
+        var linkedTodos = [Todo]()
         var isLoading = false
+        var isTodoLoading = false
         var isTransitioning = false
         var hasLoaded = false
+        var hasLoadedTodos = false
         var hasLoadFailure = false
+        var hasTodoLoadFailure = false
 
         var goalTitle: String {
             goal?.title ?? ""
@@ -47,13 +54,19 @@ struct GoalDetailFeature {
             goalStatus == .inProgress
         }
 
+        var allowsTodoLinkMutation: Bool {
+            goalStatus == .inProgress
+        }
+
         init(goalId: String) {
             self.goalId = goalId
         }
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Alert>)
+        case todoLinkSheet(PresentationAction<GoalTodoLinkFeature.Action>)
+        case binding(BindingAction<State>)
         case view(ViewAction)
         case store(StoreAction)
 
@@ -63,14 +76,18 @@ struct GoalDetailFeature {
 
         enum ViewAction: Equatable {
             case fetch
+            case manageTodos
             case refresh
+            case retryTodos
             case selectStatus(DevelopmentGoal.Status)
         }
 
         enum StoreAction: Equatable {
             case loaded(goal: DevelopmentGoal, items: [RecordTimelineItem])
+            case loadedTodos([Todo])
             case transitioned(DevelopmentGoal.Status)
             case failed
+            case todosFailed
             case transitionFailed
         }
     }
@@ -78,9 +95,11 @@ struct GoalDetailFeature {
     @Dependency(\.developmentFetchGoalUseCase) private var fetchGoalUseCase
     @Dependency(\.developmentFetchRecordsUseCase) private var fetchRecordsUseCase
     @Dependency(\.developmentFetchRecordVersionUseCase) private var fetchRecordVersionUseCase
+    @Dependency(\.developmentFetchTodosUseCase) private var fetchTodosUseCase
     @Dependency(\.developmentUpdateGoalStatusUseCase) private var updateGoalStatusUseCase
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .alert(.presented(.confirmTransition(let status))):
@@ -90,16 +109,51 @@ struct GoalDetailFeature {
                 return transitionEffect(goalId: state.goalId, status: status)
             case .alert:
                 break
+            case .todoLinkSheet(.dismiss),
+                 .todoLinkSheet(.presented(.delegate(.close))):
+                state.todoLinkSheet = nil
+            case .todoLinkSheet(.presented(.delegate(.saved(let todos)))):
+                state.todos = todos
+                state.linkedTodos = todos.filter { $0.goalId == state.goalId }
+                state.todoLinkSheet = nil
+            case .todoLinkSheet:
+                break
+            case .binding:
+                break
             case .view(.fetch):
                 guard !state.hasLoaded, !state.isLoading else { break }
                 state.isLoading = true
                 state.hasLoadFailure = false
-                return fetchEffect(goalId: state.goalId)
+                state.isTodoLoading = true
+                state.hasTodoLoadFailure = false
+                return .concatenate(
+                    fetchEffect(goalId: state.goalId),
+                    fetchTodosEffect()
+                )
+            case .view(.manageTodos):
+                guard state.hasLoadedTodos,
+                      state.allowsTodoLinkMutation,
+                      !state.isTodoLoading,
+                      state.todoLinkSheet == nil else { break }
+                state.todoLinkSheet = GoalTodoLinkFeature.State(
+                    goalId: state.goalId,
+                    todos: state.todos
+                )
             case .view(.refresh):
                 guard !state.isLoading else { break }
                 state.isLoading = true
                 state.hasLoadFailure = false
-                return fetchEffect(goalId: state.goalId)
+                state.isTodoLoading = true
+                state.hasTodoLoadFailure = false
+                return .concatenate(
+                    fetchEffect(goalId: state.goalId),
+                    fetchTodosEffect()
+                )
+            case .view(.retryTodos):
+                guard !state.isTodoLoading else { break }
+                state.isTodoLoading = true
+                state.hasTodoLoadFailure = false
+                return fetchTodosEffect()
             case .view(.selectStatus(let status)):
                 guard let goalStatus = state.goalStatus,
                       !state.isLoading,
@@ -118,6 +172,12 @@ struct GoalDetailFeature {
                 state.isLoading = false
                 state.hasLoaded = true
                 state.hasLoadFailure = false
+            case .store(.loadedTodos(let todos)):
+                state.todos = todos
+                state.linkedTodos = todos.filter { $0.goalId == state.goalId }
+                state.isTodoLoading = false
+                state.hasLoadedTodos = true
+                state.hasTodoLoadFailure = false
             case .store(.transitioned(let status)):
                 state.updatedGoalStatus = status
                 state.isTransitioning = false
@@ -125,6 +185,9 @@ struct GoalDetailFeature {
                 state.isLoading = false
                 state.hasLoadFailure = true
                 state.alert = Self.errorAlert
+            case .store(.todosFailed):
+                state.isTodoLoading = false
+                state.hasTodoLoadFailure = true
             case .store(.transitionFailed):
                 state.isTransitioning = false
                 state.alert = Self.transitionErrorAlert
@@ -133,6 +196,9 @@ struct GoalDetailFeature {
             return .none
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$todoLinkSheet, action: \.todoLinkSheet) {
+            GoalTodoLinkFeature()
+        }
     }
 }
 
@@ -196,136 +262,23 @@ extension GoalDetailFeature {
         }
     }
 
-    static func precedes(_ lhs: DevelopmentRecord, _ rhs: DevelopmentRecord) -> Bool {
-        if lhs.createdAt == rhs.createdAt { return lhs.id < rhs.id }
-        return rhs.createdAt < lhs.createdAt
-    }
-
-    static func canTransition(
-        from currentStatus: DevelopmentGoal.Status,
-        to status: DevelopmentGoal.Status
-    ) -> Bool {
-        switch (currentStatus, status) {
-        case (.inProgress, .completed),
-             (.inProgress, .archived),
-             (.completed, .inProgress),
-             (.archived, .inProgress):
-            true
-        default:
-            false
-        }
-    }
-
-    static func completionBlockingAlert(
-        items: [RecordTimelineItem]
-    ) -> AlertState<Action.Alert>? {
-        guard !items.isEmpty else {
-            return informationAlert(
-                titleKey: "development_goal_completion_record_required_title",
-                messageKey: "development_goal_completion_record_required_message"
-            )
-        }
-        guard items.first?.isUnconfirmed == false else {
-            return informationAlert(
-                titleKey: "development_goal_completion_version_required_title",
-                messageKey: "development_goal_completion_version_required_message"
-            )
-        }
-        guard !items.contains(where: \.hasDraft) else {
-            return informationAlert(
-                titleKey: "development_goal_completion_draft_title",
-                messageKey: "development_goal_completion_draft_message"
-            )
-        }
-        return nil
-    }
-
-    static func transitionConfirmationAlert(
-        _ status: DevelopmentGoal.Status
-    ) -> AlertState<Action.Alert> {
-        let keys: (title: String.LocalizationValue, message: String.LocalizationValue)
-        switch status {
-        case .inProgress:
-            keys = (
-                "development_goal_resume_alert_title",
-                "development_goal_resume_alert_message"
-            )
-        case .completed:
-            keys = (
-                "development_goal_complete_alert_title",
-                "development_goal_complete_alert_message"
-            )
-        case .archived:
-            keys = (
-                "development_goal_archive_alert_title",
-                "development_goal_archive_alert_message"
-            )
-        }
-
-        return AlertState {
-            TextState(String(localized: keys.title, bundle: PresentationResources.bundle))
-        } actions: {
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "common_cancel", bundle: PresentationResources.bundle))
+    func fetchTodosEffect() -> Effect<Action> {
+        .run { [fetchTodosUseCase] send in
+            do {
+                let page = try await fetchTodosUseCase.execute(
+                    TodoQuery(
+                        sortTarget: .updatedAt,
+                        sortOrder: .latest,
+                        pageSize: 100,
+                        fetchAllPages: true
+                    ),
+                    cursor: nil
+                )
+                await send(.store(.loadedTodos(page.items)))
+            } catch {
+                await send(.store(.todosFailed))
             }
-            ButtonState(action: .confirmTransition(status)) {
-                TextState(String(
-                    localized: transitionActionKey(status),
-                    bundle: PresentationResources.bundle
-                ))
-            }
-        } message: {
-            TextState(String(localized: keys.message, bundle: PresentationResources.bundle))
         }
     }
 
-    static var errorAlert: AlertState<Action.Alert> {
-        AlertState {
-            TextState(String(localized: "common_error_title", bundle: PresentationResources.bundle))
-        } actions: {
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "common_close", bundle: PresentationResources.bundle))
-            }
-        } message: {
-            TextState(String(
-                localized: "development_record_timeline_error_message",
-                bundle: PresentationResources.bundle
-            ))
-        }
-    }
-
-    static var transitionErrorAlert: AlertState<Action.Alert> {
-        informationAlert(
-            titleKey: "common_error_title",
-            messageKey: "development_goal_transition_error_message"
-        )
-    }
-
-    static func transitionActionKey(
-        _ status: DevelopmentGoal.Status
-    ) -> String.LocalizationValue {
-        switch status {
-        case .inProgress:
-            "development_goal_resume"
-        case .completed:
-            "development_goal_complete"
-        case .archived:
-            "development_goal_archive"
-        }
-    }
-
-    static func informationAlert(
-        titleKey: String.LocalizationValue,
-        messageKey: String.LocalizationValue
-    ) -> AlertState<Action.Alert> {
-        AlertState {
-            TextState(String(localized: titleKey, bundle: PresentationResources.bundle))
-        } actions: {
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "common_close", bundle: PresentationResources.bundle))
-            }
-        } message: {
-            TextState(String(localized: messageKey, bundle: PresentationResources.bundle))
-        }
-    }
 }

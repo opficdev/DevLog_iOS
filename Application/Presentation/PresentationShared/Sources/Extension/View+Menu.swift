@@ -81,7 +81,7 @@ private struct ProminentMenu<Label: View, Action: Hashable>: View {
             ) {
                 customMenu
                     .presentationCompactAdaptation(.popover)
-                    .presentationBackground(.clear)
+                    .presentationBackground(Color.surface)
             }
         }
     }
