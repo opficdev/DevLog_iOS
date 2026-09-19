@@ -12,8 +12,6 @@ import PresentationShared
 public struct GoalDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<GoalDetailFeature>
-    @State private var editorDestination: EditorDestination?
-    @State private var detailDestination: DetailDestination?
 
     public init(goalId: String) {
         self._store = State(initialValue: Store(
@@ -24,15 +22,28 @@ public struct GoalDetailView: View {
     }
 
     public var body: some View {
+        presentedContent
+            .overlay {
+                if store.isTransitioning {
+                    LoadingView()
+                }
+            }
+    }
+
+    private var mainContent: some View {
         ScrollView {
             LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
-                    let draft = store.items.first(where: \.hasDraft)
                     timelineCard
-                        .padding(.bottom, store.allowsRecordMutation && draft != nil ? 8 : 0)
-                    if store.allowsRecordMutation, let draft {
-                        continueButton(draft.record)
-                    }
+                    GoalLinkedTodoCard(
+                        todos: store.linkedTodos,
+                        isLoading: store.isTodoLoading,
+                        hasLoadFailure: store.hasTodoLoadFailure,
+                        allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
+                        onManage: { store.send(.view(.manageTodos)) },
+                        onRetry: { store.send(.view(.retryTodos)) },
+                        onSelect: { store.send(.view(.selectTodo($0))) }
+                    )
                 } header: {
                     titleBar
                 }
@@ -40,31 +51,48 @@ public struct GoalDetailView: View {
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) { recordActionBar }
         .background(Color.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
-        .sheet(item: $editorDestination) { destination in
-            RecordEditorView(
-                goalId: store.goalId,
-                goalTitle: store.goalTitle,
-                record: destination.record,
-                onCompletion: finishEditing
-            )
-        }
-        .navigationDestination(item: $detailDestination) { destination in
-            RecordDetailView(
-                goalTitle: store.goalTitle,
-                record: destination.record,
-                allowsMutation: store.allowsRecordMutation,
-                onUpdate: refresh
-            )
-        }
-        .overlay {
-            if store.isTransitioning {
-                LoadingView()
+    }
+
+    private var presentedContent: some View {
+        mainContent
+            .sheet(item: $store.scope(state: \.recordEditor, action: \.recordEditor)) { destination in
+                RecordEditorView(
+                    goalId: store.goalId,
+                    goalTitle: store.goalTitle,
+                    record: destination.record,
+                    onCompletion: {
+                        store.send(.view(.refresh))
+                    }
+                )
             }
-        }
+            .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
+                GoalTodoLinkSheet(store: $0)
+            }
+            .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
+                RecordDetailView(
+                    goalTitle: store.goalTitle,
+                    record: destination.record,
+                    allowsMutation: store.allowsRecordMutation,
+                    onUpdate: { store.send(.view(.refresh)) }
+                )
+            }
+            .navigationDestination(item: $store.scope(state: \.todoDetail, action: \.todoDetail)) {
+                TodoDetailView(
+                    store: Store(
+                        initialState: TodoDetailFeature.State(
+                            todoId: $0.todoId,
+                            showEditButton: false
+                        )
+                    ) {
+                        TodoDetailFeature()
+                    }
+                )
+            }
     }
 
     private var topBar: some View {
@@ -157,58 +185,40 @@ public struct GoalDetailView: View {
                             item: item,
                             isFirst: index == 0,
                             isLast: index == store.items.count - 1,
-                            onSelect: { select(item) }
+                            onSelect: { store.send(.view(.selectRecord(item))) }
                         )
                     }
                 }
             }
-
-            if store.hasLoaded, store.allowsRecordMutation {
-                Button {
-                    editorDestination = EditorDestination(record: nil)
-                } label: {
-                    Label(
-                        RecordPresentation.text("development_record_add"),
-                        systemImage: "plus"
-                    )
-                    .font(.callout)
-                    .foregroundStyle(Color.accent)
-                }
-                .adaptiveButtonStyle(color: .primaryContainer)
-                .disabled(store.isLoading)
-            }
         }
-        .padding()
+        .padding([.horizontal, .top])   // TimelineView 자체의 하단 패딩과 겹치기 때문에 .bottom은 제외
         .background {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.surface)
         }
     }
 
-    private func continueButton(_ record: DevelopmentRecord) -> some View {
-        Button {
-            editorDestination = EditorDestination(record: record)
-        } label: {
-            Text(RecordPresentation.text("development_record_continue"))
-                .font(.headline)
-                .foregroundStyle(Color.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-        }
-        .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
+    private var draftRecord: DevelopmentRecord? {
+        store.items.first(where: \.hasDraft)?.record
     }
 
-    private func select(_ item: RecordTimelineItem) {
-        if item.hasDraft, store.allowsRecordMutation {
-            editorDestination = EditorDestination(record: item.record)
-        } else {
-            detailDestination = DetailDestination(record: item.record)
+    @ViewBuilder
+    private var recordActionBar: some View {
+        if store.hasLoaded, store.allowsRecordMutation {
+            GoalDetailRecordActionBar(
+                hasDraft: draftRecord != nil,
+                isDisabled: store.isLoading || store.isTransitioning,
+                onAddRecord: {
+                    store.send(.view(.addRecord))
+                },
+                onContinueRecord: {
+                    store.send(.view(.continueRecord))
+                }
+            )
         }
     }
 
-    private func statusMenuItems(
-        _ status: DevelopmentGoal.Status
-    ) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
+    private func statusMenuItems(_ status: DevelopmentGoal.Status) -> [ProminentMenuItem<DevelopmentGoal.Status>] {
         switch status {
         case .inProgress:
             [
@@ -233,155 +243,4 @@ public struct GoalDetailView: View {
             ]
         }
     }
-
-    private func finishEditing() {
-        editorDestination = nil
-        refresh()
-    }
-
-    private func refresh() {
-        store.send(.view(.refresh))
-    }
-}
-
-private struct TimelineRow: View {
-    let item: RecordTimelineItem
-    let isFirst: Bool
-    let isLast: Bool
-    let onSelect: () -> Void
-
-    var body: some View {
-        Button {
-            onSelect()
-        } label: {
-            HStack(alignment: .top, spacing: 16) {
-                timelineIndicator
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(item.title)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Color.primary)
-                        .lineLimit(2)
-                    status
-                    if item.hasDraft {
-                        RelativeTimeText(
-                            date: item.date,
-                            bodyFont: .caption,
-                            bodyColor: .textTertiary
-                        )
-                    } else {
-                        Text(item.date, format: .dateTime.month().day())
-                            .font(.caption)
-                            .foregroundStyle(Color.textTertiary)
-                    }
-                }
-                Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Color.border)
-                    .padding(.top, 4)
-            }
-            .contentShape(.rect)
-            .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
-            .background(alignment: .topLeading) {
-                RecordTimelineConnector(isFirst: isFirst, isLast: isLast)
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var timelineIndicator: some View {
-        Circle()
-            .fill(item.hasDraft ? Color.warning : .accent)
-            .frame(width: RecordTimelineLayout.markerSize, height: RecordTimelineLayout.markerSize)
-            .padding(.top, RecordTimelineLayout.markerTopPadding)
-    }
-
-    private var status: some View {
-        Text(statusText)
-            .font(.caption)
-            .foregroundStyle(item.hasDraft ? Color.warning : .accent)
-            .padding(.horizontal, 9)
-            .padding(.vertical, 4)
-            .background(
-                item.hasDraft ? Color.warning.opacity(0.12) : Color.primaryContainer,
-                in: .rect(cornerRadius: 8)
-            )
-    }
-
-    private var statusText: String {
-        guard let versionNumber = item.versionNumber else {
-            return RecordPresentation.text("development_record_draft_status")
-        }
-        return String.localizedStringWithFormat(
-            RecordPresentation.text("development_record_confirmed_version_format"),
-            RecordPresentation.versionLabel(versionNumber)
-        )
-    }
-}
-
-private struct GoalStatusBadge: View {
-    let status: DevelopmentGoal.Status
-
-    var body: some View {
-        Label(title, systemImage: systemImage)
-        .font(.caption.weight(.semibold))
-        .foregroundStyle(foreground)
-        .padding(.horizontal, 11)
-        .padding(.vertical, 6)
-        .background(background, in: .capsule)
-    }
-
-    private var title: String {
-        switch status {
-        case .inProgress:
-            RecordPresentation.text("development_goal_status_in_progress")
-        case .completed:
-            RecordPresentation.text("development_goal_status_completed")
-        case .archived:
-            RecordPresentation.text("development_goal_status_archived")
-        }
-    }
-
-    private var systemImage: String {
-        switch status {
-        case .inProgress:
-            "clock"
-        case .completed:
-            "checkmark.circle.fill"
-        case .archived:
-            "archivebox.fill"
-        }
-    }
-
-    private var foreground: Color {
-        switch status {
-        case .inProgress:
-            .accent
-        case .completed:
-            .white
-        case .archived:
-            .textSecondary
-        }
-    }
-
-    private var background: Color {
-        switch status {
-        case .inProgress:
-            .primaryContainer
-        case .completed:
-            .accent
-        case .archived:
-            .surfaceSecondary
-        }
-    }
-}
-
-private struct EditorDestination: Identifiable {
-    let id = UUID()
-    let record: DevelopmentRecord?
-}
-
-private struct DetailDestination: Identifiable {
-    let record: DevelopmentRecord
-    var id: String { record.id }
 }

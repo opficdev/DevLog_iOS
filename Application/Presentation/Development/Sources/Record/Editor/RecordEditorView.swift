@@ -222,17 +222,6 @@ public struct RecordEditorView: View {
 
 }
 
-private extension View {
-    @ViewBuilder
-    func topBarButtonStyle(color: Color = .clear) -> some View {
-        if #available(iOS 26.0, *) {
-            adaptiveButtonStyle(shape: .circle, color: color, glassEffect: .enabled)
-        } else {
-            adaptiveButtonStyle(color: color, glassEffect: .enabled)
-        }
-    }
-}
-
 private struct FieldCard<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content

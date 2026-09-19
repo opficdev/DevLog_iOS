@@ -59,6 +59,11 @@ private extension AppGraph {
                 .developmentRecordMutationUseCaseGraph
                 .restoreDevelopmentRecordUseCase
         )
+        DevelopmentDependencyPreparation.prepareTodo(
+            &dependencies,
+            fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase,
+            updateTodoGoalUseCase: todoGraphSet.todoGoalUseCaseGraph.updateTodoGoalUseCase
+        )
     }
 
     func prepareEntryDependencies(_ dependencies: inout DependencyValues) {

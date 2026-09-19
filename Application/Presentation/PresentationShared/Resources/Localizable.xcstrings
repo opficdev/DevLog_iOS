@@ -424,6 +424,139 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 목표" } }
       }
     },
+    "development_goal_linked_todos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Linked Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결된 Todo" } }
+      }
+    },
+    "development_goal_todo_available_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a Todo first, then return here to link it." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo를 만든 뒤 이곳에서 목표와 연결할 수 있어요." } }
+      }
+    },
+    "development_goal_todo_available_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "There are no Todos to link" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결할 Todo가 없어요" } }
+      }
+    },
+    "development_goal_todo_clear_selection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear Selection" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "선택 해제" } }
+      }
+    },
+    "development_goal_todo_completed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completed" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "완료됨" } }
+      }
+    },
+    "development_goal_todo_count_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld개" } }
+      }
+    },
+    "development_goal_todo_done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "완료" } }
+      }
+    },
+    "development_goal_todo_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Manage to link supporting work when needed." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "필요할 때 관리에서 관련 Todo를 연결할 수 있어요." } }
+      }
+    },
+    "development_goal_todo_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No linked Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결된 Todo가 없어요" } }
+      }
+    },
+    "development_goal_todo_incomplete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Incomplete" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중" } }
+      }
+    },
+    "development_goal_todo_link_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Link Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo 연결" } }
+      }
+    },
+    "development_goal_todo_load_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Todos could not be loaded. Please try again." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo를 불러오지 못했어요. 다시 시도해주세요." } }
+      }
+    },
+    "development_goal_todo_manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "관리" } }
+      }
+    },
+    "development_goal_todo_optional_footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You can write goals and records without linking Todos." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo를 연결하지 않아도 목표와 기록을 작성할 수 있어요." } }
+      }
+    },
+    "development_goal_todo_pinned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "중요 Todo" } }
+      }
+    },
+    "development_goal_todo_retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다시 시도" } }
+      }
+    },
+    "development_goal_todo_search" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo 검색" } }
+      }
+    },
+    "development_goal_todo_selected_count_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld selected" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld개 선택됨" } }
+      }
+    },
+    "development_goal_todo_update_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Some Todo links could not be updated. The current links were loaded again." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "일부 Todo 연결을 변경하지 못해 현재 연결 상태를 다시 불러왔어요." } }
+      }
+    },
     "development_goal_archive" : {
       "extractionState" : "manual",
       "localizations" : {

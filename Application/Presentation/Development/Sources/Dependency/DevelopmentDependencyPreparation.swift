@@ -41,6 +41,15 @@ public enum DevelopmentDependencyPreparation {
         dependencies.developmentConfirmRecordUseCase = confirmRecordUseCase
         dependencies.developmentRestoreRecordUseCase = restoreRecordUseCase
     }
+
+    public static func prepareTodo(
+        _ dependencies: inout DependencyValues,
+        fetchTodosUseCase: FetchTodosUseCase,
+        updateTodoGoalUseCase: UpdateTodoGoalUseCase
+    ) {
+        dependencies.developmentFetchTodosUseCase = fetchTodosUseCase
+        dependencies.developmentUpdateTodoGoalUseCase = updateTodoGoalUseCase
+    }
 }
 
 extension DependencyValues {
@@ -87,6 +96,16 @@ extension DependencyValues {
     var developmentRestoreRecordUseCase: RestoreDevelopmentRecordUseCase {
         get { self[DevelopmentRestoreRecordUseCaseKey.self] }
         set { self[DevelopmentRestoreRecordUseCaseKey.self] = newValue }
+    }
+
+    var developmentFetchTodosUseCase: FetchTodosUseCase {
+        get { self[DevelopmentFetchTodosUseCaseKey.self] }
+        set { self[DevelopmentFetchTodosUseCaseKey.self] = newValue }
+    }
+
+    var developmentUpdateTodoGoalUseCase: UpdateTodoGoalUseCase {
+        get { self[DevelopmentUpdateTodoGoalUseCaseKey.self] }
+        set { self[DevelopmentUpdateTodoGoalUseCaseKey.self] = newValue }
     }
 }
 
@@ -141,5 +160,17 @@ private enum DevelopmentConfirmRecordUseCaseKey: DependencyKey {
 private enum DevelopmentRestoreRecordUseCaseKey: DependencyKey {
     static var liveValue: RestoreDevelopmentRecordUseCase {
         preconditionFailure("RestoreDevelopmentRecordUseCase must be provided.")
+    }
+}
+
+private enum DevelopmentFetchTodosUseCaseKey: DependencyKey {
+    static var liveValue: FetchTodosUseCase {
+        preconditionFailure("FetchTodosUseCase must be provided.")
+    }
+}
+
+private enum DevelopmentUpdateTodoGoalUseCaseKey: DependencyKey {
+    static var liveValue: UpdateTodoGoalUseCase {
+        preconditionFailure("UpdateTodoGoalUseCase must be provided.")
     }
 }

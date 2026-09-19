@@ -13,8 +13,8 @@ import PresentationShared
 
 @MainActor
 struct GoalDetailFeatureTests {
-    @Test("타임라인은 생성 순서로 기록을 정렬하고 최신 확정 버전을 구성한다")
-    func 타임라인은_생성_순서로_기록을_정렬하고_최신_확정_버전을_구성한다() async throws {
+    @Test("타임라인은 최신 기록부터 정렬하고 최신 확정 버전을 구성한다")
+    func 타임라인은_최신_기록부터_정렬하고_최신_확정_버전을_구성한다() async throws {
         let goal = try makeDevelopmentGoal(title: "개발 목표와 기록 이력 구성")
         let confirmedRecord = try makeConfirmedDevelopmentRecord(id: "confirmed")
         let draftRecord = try makeDevelopmentRecord(
@@ -23,8 +23,8 @@ struct GoalDetailFeatureTests {
         )
         let version = try makeDevelopmentRecordVersion(recordId: confirmedRecord.id)
         let items = [
-            RecordTimelineItem(record: confirmedRecord, currentVersion: version),
-            RecordTimelineItem(record: draftRecord, currentVersion: nil)
+            RecordTimelineItem(record: draftRecord, currentVersion: nil),
+            RecordTimelineItem(record: confirmedRecord, currentVersion: version)
         ]
         let store = TestStore(
             initialState: GoalDetailFeature.State(goalId: goal.id)
@@ -38,16 +38,22 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [confirmedRecord.id: .success(version)]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.fetch)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.loaded(goal: goal, items: items))) {
             $0.goal = goal
             $0.items = items
             $0.isLoading = false
             $0.hasLoaded = true
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
         }
     }
 
@@ -89,14 +95,20 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [currentRecord.id: .success(currentVersion)]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.refresh)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.loaded(goal: goal, items: [currentItem]))) {
             $0.items = [currentItem]
             $0.isLoading = false
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
         }
     }
 
@@ -115,23 +127,33 @@ struct GoalDetailFeatureTests {
             $0.developmentFetchRecordVersionUseCase = FetchDevelopmentRecordVersionUseCaseStub(
                 resultByRecordId: [:]
             )
+            $0.developmentFetchTodosUseCase = FetchTodosUseCaseStub()
         }
 
         await store.send(.view(.fetch)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
             $0.hasLoadFailure = true
             $0.alert = makeRecordErrorAlert("development_record_timeline_error_message")
         }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
+            $0.hasLoadedTodos = true
+        }
         await store.send(.view(.refresh)) {
             $0.isLoading = true
+            $0.isTodoLoading = true
             $0.hasLoadFailure = false
         }
         await store.receive(.store(.failed)) {
             $0.isLoading = false
             $0.hasLoadFailure = true
+        }
+        await store.receive(.store(.loadedTodos([]))) {
+            $0.isTodoLoading = false
         }
     }
 
@@ -236,15 +258,23 @@ struct GoalDetailFeatureTests {
         #expect(await spy.requests().isEmpty)
     }
 
-    @Test("마지막 기록이 초안이면 목표 완료 전에 기록 확정을 안내한다")
-    func 마지막_기록이_초안이면_목표_완료_전에_기록_확정을_안내한다() async throws {
+    @Test("최신 기록이 초안이면 목표 완료 전에 기록 확정을 안내한다")
+    func 최신_기록이_초안이면_목표_완료_전에_기록_확정을_안내한다() async throws {
         let goal = try makeDevelopmentGoal()
-        let draft = try makeDevelopmentRecord()
-        let item = RecordTimelineItem(record: draft, currentVersion: nil)
+        let draft = try makeDevelopmentRecord(
+            id: "draft",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_300)
+        )
+        let confirmed = try makeConfirmedDevelopmentRecord(id: "confirmed")
+        let version = try makeDevelopmentRecordVersion(recordId: confirmed.id)
+        let items = [
+            RecordTimelineItem(record: draft, currentVersion: nil),
+            RecordTimelineItem(record: confirmed, currentVersion: version)
+        ]
         let spy = UpdateDevelopmentGoalStatusUseCaseSpy()
         var state = GoalDetailFeature.State(goalId: goal.id)
         state.goal = goal
-        state.items = [item]
+        state.items = items
         state.hasLoaded = true
         let store = TestStore(initialState: state) {
             GoalDetailFeature()
@@ -253,7 +283,7 @@ struct GoalDetailFeatureTests {
         }
 
         await store.send(.view(.selectStatus(.completed))) {
-            $0.alert = GoalDetailFeature.completionBlockingAlert(items: [item])
+            $0.alert = GoalDetailFeature.completionBlockingAlert(items: items)
         }
 
         #expect(await spy.requests().isEmpty)

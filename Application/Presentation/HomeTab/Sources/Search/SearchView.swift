@@ -162,7 +162,6 @@ private struct SearchField: View {
         .background {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.surface)
-                .strokeBorder(Color.border, lineWidth: 2)
         }
         .onAppear {
             isFocused = true
