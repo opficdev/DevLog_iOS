@@ -19,31 +19,32 @@ struct TimelineRow: View {
         Button {
             onSelect()
         } label: {
-            HStack(alignment: .top, spacing: 16) {
-                timelineIndicator
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(item.title)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Color.primary)
-                        .lineLimit(2)
-                    status
-                    if item.hasDraft {
-                        RelativeTimeText(
-                            date: item.date,
-                            bodyFont: .caption,
-                            bodyColor: .textTertiary
-                        )
-                    } else {
-                        Text(item.date, format: .dateTime.month().day())
-                            .font(.caption)
-                            .foregroundStyle(Color.textTertiary)
+            HStack(spacing: 8) {
+                HStack(alignment: .top, spacing: 16) {
+                    timelineIndicator
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(item.title)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Color.primary)
+                            .lineLimit(2)
+                        status
+                        if item.hasDraft {
+                            RelativeTimeText(
+                                date: item.date,
+                                bodyFont: .caption,
+                                bodyColor: .textTertiary
+                            )
+                        } else {
+                            Text(item.date, format: .dateTime.month().day())
+                                .font(.caption)
+                                .foregroundStyle(Color.textTertiary)
+                        }
                     }
                 }
                 Spacer(minLength: 8)
                 Image(systemName: "chevron.right")
                     .font(.callout.weight(.semibold))
                     .foregroundStyle(Color.border)
-                    .padding(.top, 4)
             }
             .contentShape(.rect)
             .frame(minHeight: RecordTimelineLayout.rowHeight, alignment: .top)
