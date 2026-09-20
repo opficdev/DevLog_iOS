@@ -1,5 +1,5 @@
 //
-//  TodoDetailPreviewModifier.swift
+//  PreviewModifier.swift
 //  PresentationShared
 //
 //  Created by opfic on 8/11/26.
@@ -11,16 +11,16 @@ import Domain
 
 public extension View {
     func todoDetailPreview(todoId: String) -> some View {
-        modifier(TodoDetailPreviewModifier(todoId: todoId))
+        modifier(PreviewModifier(todoId: todoId))
     }
 }
 
-private struct TodoDetailPreviewModifier: ViewModifier {
+private struct PreviewModifier: ViewModifier {
     let todoId: String
 
     func body(content: Content) -> some View {
         content.overlay {
-            TodoDetailPreviewInteractionView(
+            PreviewInteractionView(
                 todoId: todoId,
                 makePreview: makePreviewViewController
             )
@@ -36,16 +36,16 @@ private struct TodoDetailPreviewModifier: ViewModifier {
         ) {
             TodoDetailFeature()
         }
-        return UIHostingController(rootView: TodoDetailPreviewView(store: store))
+        return UIHostingController(rootView: PreviewView(store: store))
     }
 }
 
-private struct TodoDetailPreviewInteractionView: UIViewRepresentable {
+private struct PreviewInteractionView: UIViewRepresentable {
     let todoId: String
     let makePreview: () -> UIViewController
 
-    func makeCoordinator() -> TodoDetailPreviewInteractionCoordinator {
-        TodoDetailPreviewInteractionCoordinator()
+    func makeCoordinator() -> PreviewInteractionCoordinator {
+        PreviewInteractionCoordinator()
     }
 
     func makeUIView(context: Context) -> UIView {
@@ -62,7 +62,7 @@ private struct TodoDetailPreviewInteractionView: UIViewRepresentable {
     }
 }
 
-private final class TodoDetailPreviewInteractionCoordinator: NSObject {
+private final class PreviewInteractionCoordinator: NSObject {
     private weak var view: UIView?
     private var contextMenuInteraction: UIContextMenuInteraction?
     private var todoId = ""
@@ -90,7 +90,7 @@ private final class TodoDetailPreviewInteractionCoordinator: NSObject {
     }
 }
 
-extension TodoDetailPreviewInteractionCoordinator: UIContextMenuInteractionDelegate {
+extension PreviewInteractionCoordinator: UIContextMenuInteractionDelegate {
     func contextMenuInteraction(
         _ interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation location: CGPoint

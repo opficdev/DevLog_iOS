@@ -170,12 +170,12 @@ public struct TodoListFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
-            TodoListFullScreenCoverFeature()
+            FullScreenCoverFeature()
         }
     }
 }
 
-private struct TodoListFullScreenCoverFeature: Reducer {
+private struct FullScreenCoverFeature: Reducer {
     typealias State = TodoListFeature.FullScreenCoverState
     typealias Action = TodoListFeature.Action.FullScreenCover
 
@@ -189,22 +189,22 @@ private struct TodoListFullScreenCoverFeature: Reducer {
 
 public extension DependencyValues {
     var todoListFetchTodosUseCase: FetchTodosUseCase {
-        get { self[TodoListFetchTodosUseCaseKey.self] }
-        set { self[TodoListFetchTodosUseCaseKey.self] = newValue }
+        get { self[FetchTodosUseCaseKey.self] }
+        set { self[FetchTodosUseCaseKey.self] = newValue }
     }
 
     var todoListDeleteTodoUseCase: DeleteTodoUseCase {
-        get { self[TodoListDeleteTodoUseCaseKey.self] }
-        set { self[TodoListDeleteTodoUseCaseKey.self] = newValue }
+        get { self[DeleteTodoUseCaseKey.self] }
+        set { self[DeleteTodoUseCaseKey.self] = newValue }
     }
 
     var todoListUndoDeleteTodoUseCase: UndoDeleteTodoUseCase {
-        get { self[TodoListUndoDeleteTodoUseCaseKey.self] }
-        set { self[TodoListUndoDeleteTodoUseCaseKey.self] = newValue }
+        get { self[UndoDeleteTodoUseCaseKey.self] }
+        set { self[UndoDeleteTodoUseCaseKey.self] = newValue }
     }
 }
 
-private enum TodoListFetchTodosUseCaseKey: DependencyKey {
+private enum FetchTodosUseCaseKey: DependencyKey {
     static var liveValue: FetchTodosUseCase {
         preconditionFailure("FetchTodosUseCase must be provided.")
     }
@@ -214,7 +214,7 @@ private enum TodoListFetchTodosUseCaseKey: DependencyKey {
     }
 }
 
-private enum TodoListDeleteTodoUseCaseKey: DependencyKey {
+private enum DeleteTodoUseCaseKey: DependencyKey {
     static var liveValue: DeleteTodoUseCase {
         preconditionFailure("DeleteTodoUseCase must be provided.")
     }
@@ -224,7 +224,7 @@ private enum TodoListDeleteTodoUseCaseKey: DependencyKey {
     }
 }
 
-private enum TodoListUndoDeleteTodoUseCaseKey: DependencyKey {
+private enum UndoDeleteTodoUseCaseKey: DependencyKey {
     static var liveValue: UndoDeleteTodoUseCase {
         preconditionFailure("UndoDeleteTodoUseCase must be provided.")
     }
