@@ -9,6 +9,17 @@ import Domain
 import PresentationShared
 
 public enum HomeDependencyPreparation {
+    public static func prepareDevelopmentGoal(
+        _ dependencies: inout DependencyValues,
+        fetchGoalsUseCase: FetchDevelopmentGoalsUseCase,
+        fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
+        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase
+    ) {
+        dependencies.homeFetchDevelopmentGoalsUseCase = fetchGoalsUseCase
+        dependencies.homeFetchDevelopmentRecordsUseCase = fetchRecordsUseCase
+        dependencies.homeFetchDevelopmentRecordVersionUseCase = fetchRecordVersionUseCase
+    }
+
     public static func prepareTodoCategory(
         _ dependencies: inout DependencyValues,
         updateTodoCategoryPreferencesUseCase: UpdateTodoCategoryPreferencesUseCase

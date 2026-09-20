@@ -16,6 +16,9 @@ struct HomeFeature {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         @Presents var fullScreenCover: FullScreenCoverState?
+        var developmentGoalItems = [HomeDevelopmentGoalItem]()
+        var hasDevelopmentGoalsLoaded = false
+        var hasDevelopmentGoalsLoadFailure = false
         var preferences = [TodoCategoryItem]()
         var isTodoCategoryExpanded = false
         var isNetworkConnected = true
@@ -35,6 +38,10 @@ struct HomeFeature {
 
         var isPreferencesLoading: Bool {
             loading.visibleTargets.contains(LoadingTarget.preferences.target)
+        }
+
+        var isDevelopmentGoalsLoading: Bool {
+            loading.visibleTargets.contains(LoadingTarget.developmentGoals.target)
         }
 
     }
@@ -62,6 +69,8 @@ struct HomeFeature {
             case setSheet(SheetState?)
             case setPresentation(Presentation, Bool)
             case setAlert(isPresented: Bool)
+            case developmentGoalsLoaded([HomeDevelopmentGoalItem])
+            case developmentGoalsLoadFailed
             case setTodoCategory([TodoCategoryItem])
         }
     }
@@ -123,16 +132,22 @@ struct HomeFeature {
 
     enum LoadingTarget: Hashable {
         case preferences
+        case developmentGoals
 
         var target: LoadingFeature.Target {
             switch self {
             case .preferences:
                 return LoadingFeature.Target("home.preferences")
+            case .developmentGoals:
+                return LoadingFeature.Target("home.developmentGoals")
             }
         }
     }
 
     @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
+    @Dependency(\.homeFetchDevelopmentGoalsUseCase) var fetchDevelopmentGoalsUseCase
+    @Dependency(\.homeFetchDevelopmentRecordsUseCase) var fetchDevelopmentRecordsUseCase
+    @Dependency(\.homeFetchDevelopmentRecordVersionUseCase) var fetchDevelopmentRecordVersionUseCase
     @Dependency(\.homeUpdateTodoCategoryPreferencesUseCase) var updatePreferencesUseCase
     @Dependency(\.homeNetworkConnectivityUseCase) var networkConnectivityUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
@@ -203,7 +218,10 @@ private extension HomeFeature {
         case .startObserving:
             return observeNetworkConnectivityEffect()
         case .fetchData:
-            return fetchTodoCategoryPreferencesEffect()
+            return .merge(
+                fetchTodoCategoryPreferencesEffect(),
+                fetchDevelopmentGoalsEffect()
+            )
         case .todoEditorCreated:
             state.fullScreenCover = nil
             state.selectedTodoCategory = nil
@@ -246,6 +264,12 @@ private extension HomeFeature {
             Self.setPresentation(&state, presentation: presentation, isPresented: isPresented)
         case .setAlert(let isPresented):
             Self.setAlert(&state, isPresented: isPresented)
+        case .developmentGoalsLoaded(let items):
+            state.developmentGoalItems = items
+            state.hasDevelopmentGoalsLoaded = true
+            state.hasDevelopmentGoalsLoadFailure = false
+        case .developmentGoalsLoadFailed:
+            state.hasDevelopmentGoalsLoadFailure = true
         case .setTodoCategory(let preferences):
             state.preferences = preferences
         }

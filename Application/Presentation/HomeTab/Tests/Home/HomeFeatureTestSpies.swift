@@ -48,3 +48,38 @@ final class ObserveNetworkConnectivityUseCaseSpy: ObserveNetworkConnectivityUseC
         currentValueSubject.eraseToAnyPublisher()
     }
 }
+
+final class FetchDevelopmentGoalsUseCaseSpy: FetchDevelopmentGoalsUseCase {
+    private(set) var queries = [DevelopmentGoal.Query]()
+    var result: Result<[DevelopmentGoal], Error> = .success([])
+
+    func execute(_ query: DevelopmentGoal.Query) async throws -> [DevelopmentGoal] {
+        queries.append(query)
+        return try result.get()
+    }
+}
+
+final class FetchDevelopmentRecordsUseCaseSpy: FetchDevelopmentRecordsUseCase {
+    var resultByGoalID = [String: Result<[DevelopmentRecord], Error>]()
+
+    func execute(goalId: String) async throws -> [DevelopmentRecord] {
+        try resultByGoalID[goalId, default: .success([])].get()
+    }
+}
+
+final class FetchDevelopmentRecordVersionUseCaseSpy: FetchDevelopmentRecordVersionUseCase {
+    var resultByRecordID = [String: Result<DevelopmentRecord.Version, Error>]()
+
+    func execute(
+        goalId: String,
+        recordId: String,
+        versionId: String
+    ) async throws -> DevelopmentRecord.Version {
+        try resultByRecordID[recordId, default: .failure(HomeDevelopmentGoalTestError.notFound)].get()
+    }
+}
+
+enum HomeDevelopmentGoalTestError: Error {
+    case failed
+    case notFound
+}
