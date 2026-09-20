@@ -68,16 +68,16 @@ extension ProfileFeature.State {
     }
 
     var canMoveToPreviousQuarter: Bool {
-        ProfileHeatmapBuilder.canMoveToQuarter(offsetMonths: -3, state: self)
+        HeatmapBuilder.canMoveToQuarter(offsetMonths: -3, state: self)
     }
 
     var canMoveToNextQuarter: Bool {
-        ProfileHeatmapBuilder.canMoveToQuarter(offsetMonths: 3, state: self)
+        HeatmapBuilder.canMoveToQuarter(offsetMonths: 3, state: self)
     }
 
     var isViewingCurrentQuarter: Bool {
         guard let selectedQuarterStart,
-              let currentQuarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()) else {
+              let currentQuarterStart = HeatmapBuilder.quarterStart(for: Date()) else {
             return false
         }
         return selectedQuarterStart == currentQuarterStart
@@ -85,7 +85,7 @@ extension ProfileFeature.State {
 
     var availableQuarterYears: [Int] {
         guard let earliestQuarterStart,
-              let currentQuarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()) else {
+              let currentQuarterStart = HeatmapBuilder.quarterStart(for: Date()) else {
             return [selectedQuarterPickerYear]
         }
         let earliestYear = Calendar.current.component(.year, from: earliestQuarterStart)
@@ -94,12 +94,12 @@ extension ProfileFeature.State {
     }
 
     func quarterStartForPicker(quarter: Int) -> Date? {
-        ProfileHeatmapBuilder.quarterStart(year: selectedQuarterPickerYear, quarter: quarter)
+        HeatmapBuilder.quarterStart(year: selectedQuarterPickerYear, quarter: quarter)
     }
 
     func isQuarterSelectableForPicker(_ quarter: Int) -> Bool {
         guard let quarterStart = quarterStartForPicker(quarter: quarter) else { return false }
-        return ProfileHeatmapBuilder.canSelectQuarter(quarterStart, state: self)
+        return HeatmapBuilder.canSelectQuarter(quarterStart, state: self)
     }
 
     func isQuarterSelectedForPicker(_ quarter: Int) -> Bool {

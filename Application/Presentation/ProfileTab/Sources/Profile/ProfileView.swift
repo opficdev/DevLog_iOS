@@ -39,7 +39,7 @@ public struct ProfileView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                     Section {
-                        ProfileCard(store: store, isSelected: isSelected)
+                        Card(store: store, isSelected: isSelected)
                         RecentActivityCard(store: store) { todoId in
                             path.append(.recentTodo(todoId))
                         }
@@ -350,7 +350,7 @@ public struct ProfileView: View {
     }
 }
 
-private struct ProfileCard: View {
+private struct Card: View {
     @Bindable var store: StoreOf<ProfileFeature>
     @FocusState private var focused: Bool
     let isSelected: Bool

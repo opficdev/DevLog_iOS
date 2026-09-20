@@ -41,7 +41,7 @@ struct ProfileFeatureTests {
         preferencesSpy.preferences = [
             TodoCategoryPreference(category: updatedCategory, isVisible: true)
         ]
-        let adapter = ProfileStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchTodosUseCase: fetchSpy,
             fetchPreferencesUseCase: preferencesSpy
         )
@@ -65,7 +65,7 @@ struct ProfileFeatureTests {
         )
         let preferencesSpy = FetchTodoCategoryPreferencesUseCaseSpy()
         preferencesSpy.error = TestError()
-        let adapter = ProfileStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchTodosUseCase: fetchSpy,
             fetchPreferencesUseCase: preferencesSpy
         )
@@ -80,7 +80,7 @@ struct ProfileFeatureTests {
     func ProfileFeature는_Todo_변경_시_최근_목록만_다시_조회한다() async {
         let fetchSpy = FetchTodosUseCaseSpy()
         let eventBus = TodoMutationEventBusSpy()
-        let adapter = ProfileStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchTodosUseCase: fetchSpy,
             todoMutationEventBus: eventBus
         )
@@ -94,7 +94,7 @@ struct ProfileFeatureTests {
 
     @Test("ProfileFeature는 최근 Todo 로딩을 전체 화면 로딩에서 제외한다")
     func ProfileFeature는_최근_Todo_로딩을_전체_화면_로딩에서_제외한다() async {
-        let adapter = ProfileStoreTestAdapter()
+        let adapter = StoreTestAdapter()
 
         await adapter.beginRecentTodosLoading()
 
@@ -106,7 +106,7 @@ struct ProfileFeatureTests {
     func ProfileFeature는_같은_아바타_URL을_다시_받아도_프로필_이미지_데이터를_다시_요청한다() async {
         let imageData = Data([1, 2, 3])
         let spy = FetchProfileImageDataUseCaseSpy(data: imageData)
-        let adapter = ProfileStoreTestAdapter(fetchProfileImageDataUseCase: spy)
+        let adapter = StoreTestAdapter(fetchProfileImageDataUseCase: spy)
         let avatarURL = URL(string: "https://example.com/avatar.png")!
         let profile = UserProfile(
             name: "opfic",
@@ -126,7 +126,7 @@ struct ProfileFeatureTests {
     @Test("ProfileFeature는 연결 상태일 때 상태 메시지 저장을 요청한다")
     func ProfileFeature는_연결_상태일_때_상태_메시지_저장을_요청한다() async {
         let spy = UpsertStatusMessageUseCaseSpy()
-        let adapter = ProfileStoreTestAdapter(upsertStatusMessageUseCase: spy)
+        let adapter = StoreTestAdapter(upsertStatusMessageUseCase: spy)
 
         await adapter.updateStatusMessage("working")
         await adapter.willUpdateStatusMessage()
@@ -139,7 +139,7 @@ struct ProfileFeatureTests {
         let spy = UpdateHeatmapActivityTypesUseCaseSpy()
         let fetchSpy = FetchHeatmapActivityTypesUseCaseSpy()
         fetchSpy.activityTypes = ["created"]
-        let adapter = ProfileStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchHeatmapActivityTypesUseCase: fetchSpy,
             updateHeatmapActivityTypesUseCase: spy
         )
@@ -237,11 +237,11 @@ private final class UpdateHeatmapActivityTypesUseCaseSpy: UpdateHeatmapActivityT
 }
 
 @MainActor
-private struct ProfileStoreTestAdapter {
+private struct StoreTestAdapter {
     private let store: TestStoreOf<ProfileFeature>
     private let todoMutationEventBus: TodoMutationEventBus
 
-    var avatarImageData: ProfileAvatarImageData? { store.state.avatarImageData }
+    var avatarImageData: AvatarImageData? { store.state.avatarImageData }
     var isAlertPresented: Bool { store.state.alert != nil }
     var isLoading: Bool { store.state.isLoading }
     var isRecentTodosLoading: Bool { store.state.isRecentTodosLoading }

@@ -36,7 +36,7 @@ struct ProfileFeature {
         var isNetworkConnected = true
         var statusMessage = ""
         var avatarURL: URL?
-        var avatarImageData: ProfileAvatarImageData?
+        var avatarImageData: AvatarImageData?
         var recentTodos = [RecentTodoItem]()
         var earliestQuarterStart: Date?
         var selectedQuarterStart: Date?
@@ -119,11 +119,11 @@ struct ProfileFeature {
                 )
             case .fetchData, .refresh:
                 if state.selectedQuarterStart == nil,
-                   let quarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()) {
+                   let quarterStart = HeatmapBuilder.quarterStart(for: Date()) {
                     state.selectedQuarterStart = quarterStart
                 }
                 let rawValues = fetchHeatmapActivityTypesUseCase.execute()
-                let settings = ProfileHeatmapBuilder.normalizeActivityKinds(rawValues)
+                let settings = HeatmapBuilder.normalizeActivityKinds(rawValues)
                 if !settings.isEmpty {
                     state.selectedActivityKinds = settings
                 }
@@ -158,11 +158,11 @@ struct ProfileFeature {
                 }
                 state.showQuarterPicker = true
             case .selectQuarter(let quarterStart):
-                guard ProfileHeatmapBuilder.canSelectQuarter(quarterStart, state: state) else { break }
+                guard HeatmapBuilder.canSelectQuarter(quarterStart, state: state) else { break }
                 state.showQuarterPicker = false
                 return updateSelectedQuarter(to: quarterStart, state: &state)
             case .moveToCurrentQuarter:
-                guard let currentQuarterStart = ProfileHeatmapBuilder.quarterStart(for: Date()),
+                guard let currentQuarterStart = HeatmapBuilder.quarterStart(for: Date()),
                       state.selectedQuarterStart != currentQuarterStart else { break }
                 return updateSelectedQuarter(to: currentQuarterStart, state: &state)
             case .moveQuarter(let delta):
@@ -173,7 +173,7 @@ struct ProfileFeature {
                     value: monthDelta,
                     to: selectedQuarterStart
                 ) else { break }
-                guard ProfileHeatmapBuilder.canSelectQuarter(nextQuarterStart, state: state) else { break }
+                guard HeatmapBuilder.canSelectQuarter(nextQuarterStart, state: state) else { break }
                 return updateSelectedQuarter(to: nextQuarterStart, state: &state)
             case .selectDay(let day):
                 if let day, state.selectedDay?.date == day.date {
@@ -193,7 +193,7 @@ struct ProfileFeature {
                     state.avatarImageData = nil
                 }
                 if state.earliestQuarterStart == nil {
-                    state.earliestQuarterStart = ProfileHeatmapBuilder.quarterStart(for: profile.createdAt)
+                    state.earliestQuarterStart = HeatmapBuilder.quarterStart(for: profile.createdAt)
                         ?? Calendar.current.startOfDay(for: profile.createdAt)
                 }
                 if let avatarURL = profile.avatarURL {
@@ -202,7 +202,7 @@ struct ProfileFeature {
             case .store(.setAvatarImageData(let url, let data)):
                 guard state.avatarURL == url else { break }
                 let id = (state.avatarImageData?.id ?? 0) + 1
-                state.avatarImageData = ProfileAvatarImageData(id: id, data: data)
+                state.avatarImageData = AvatarImageData(id: id, data: data)
             case .store(.setActivityQuarter(let quarterStart, let quarter, let dayActivitiesByDate)):
                 guard state.selectedQuarterStart == quarterStart else { break }
                 state.activityQuarter = quarter
@@ -257,7 +257,7 @@ private extension ProfileFeature {
                 await send(.loading(.begin(target: .default, mode: .delayed)))
             }
             do {
-                let data = try await ProfileHeatmapBuilder.fetchQuarterActivityData(
+                let data = try await HeatmapBuilder.fetchQuarterActivityData(
                     from: quarterStart,
                     fetchTodosUseCase: fetchTodosUseCase
                 )
