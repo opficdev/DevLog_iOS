@@ -141,12 +141,12 @@ struct RootFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            RootSheetFeature()
+            SheetFeature()
         }
     }
 }
 
-private struct RootSheetFeature: Reducer {
+private struct SheetFeature: Reducer {
     typealias State = RootFeature.SheetState
     typealias Action = RootFeature.Action.Sheet
 
@@ -172,13 +172,13 @@ extension DependencyValues {
     }
 
     var rootNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
-        get { self[RootNetworkConnectivityUseCaseKey.self] }
-        set { self[RootNetworkConnectivityUseCaseKey.self] = newValue }
+        get { self[NetworkConnectivityUseCaseKey.self] }
+        set { self[NetworkConnectivityUseCaseKey.self] = newValue }
     }
 
     var rootSystemThemeUseCase: ObserveSystemThemeUseCase {
-        get { self[RootSystemThemeUseCaseKey.self] }
-        set { self[RootSystemThemeUseCaseKey.self] = newValue }
+        get { self[SystemThemeUseCaseKey.self] }
+        set { self[SystemThemeUseCaseKey.self] = newValue }
     }
 }
 
@@ -217,7 +217,7 @@ private enum ObserveAuthSessionUseCaseKey: DependencyKey {
     }
 }
 
-private enum RootNetworkConnectivityUseCaseKey: DependencyKey {
+private enum NetworkConnectivityUseCaseKey: DependencyKey {
     static var liveValue: ObserveNetworkConnectivityUseCase {
         preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
     }
@@ -227,7 +227,7 @@ private enum RootNetworkConnectivityUseCaseKey: DependencyKey {
     }
 }
 
-private enum RootSystemThemeUseCaseKey: DependencyKey {
+private enum SystemThemeUseCaseKey: DependencyKey {
     static var liveValue: ObserveSystemThemeUseCase {
         preconditionFailure("ObserveSystemThemeUseCase must be provided.")
     }

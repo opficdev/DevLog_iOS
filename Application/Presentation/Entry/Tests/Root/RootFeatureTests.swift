@@ -123,7 +123,7 @@ struct RootFeatureTests {
     @Test("업데이트 확인에 실패하면 업데이트 알림을 표시하지 않는다")
     func 업데이트_확인에_실패하면_업데이트_알림을_표시하지_않는다() async {
         let checkSpy = RootCheckAppUpdateUseCaseSpy(
-            result: .failure(RootCheckAppUpdateUseCaseTestError.fetchFailed)
+            result: .failure(CheckAppUpdateUseCaseTestError.fetchFailed)
         )
         let adapter = RootStoreTestAdapter(checkAppUpdateUseCase: checkSpy)
 
@@ -188,6 +188,6 @@ struct RootFeatureTests {
     }
 }
 
-private enum RootCheckAppUpdateUseCaseTestError: Error {
+private enum CheckAppUpdateUseCaseTestError: Error {
     case fetchFailed
 }
