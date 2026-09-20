@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Core
 import Domain
 import PresentationShared
 @testable import HomeTab
