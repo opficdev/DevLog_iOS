@@ -71,6 +71,77 @@ struct HomeFetchDataContext {
     let fetchPreferencesUseCaseSpy: FetchTodoCategoryPreferencesUseCaseSpy
 }
 
+func makeDevelopmentGoal(
+    id: String,
+    createdAt: TimeInterval
+) throws -> DevelopmentGoal {
+    try DevelopmentGoal(
+        id: id,
+        title: "Goal \(id)",
+        description: "Description",
+        status: .inProgress,
+        createdAt: Date(timeIntervalSinceReferenceDate: createdAt),
+        updatedAt: Date(timeIntervalSinceReferenceDate: createdAt),
+        completedAt: nil
+    )
+}
+
+func makeDevelopmentRecord(
+    id: String,
+    goalId: String,
+    versionID: String
+) throws -> DevelopmentRecord {
+    try DevelopmentRecord(
+        id: id,
+        goalId: goalId,
+        currentVersion: .init(id: versionID, number: 1),
+        draft: nil,
+        createdAt: .now
+    )
+}
+
+func makeDevelopmentRecordVersion(
+    id: String,
+    recordID: String,
+    title: String,
+    confirmedAt: TimeInterval
+) throws -> DevelopmentRecord.Version {
+    try DevelopmentRecord.Version(
+        id: id,
+        recordId: recordID,
+        number: 1,
+        title: title,
+        markdownContent: "",
+        kind: .initial,
+        sourceVersionId: nil,
+        confirmedAt: Date(timeIntervalSinceReferenceDate: confirmedAt)
+    )
+}
+
+func makeHomeTodo(
+    id: String,
+    goalID: String?,
+    isCompleted: Bool
+) -> Todo {
+    Todo(
+        id: id,
+        isPinned: false,
+        isCompleted: isCompleted,
+        isChecked: false,
+        number: 1,
+        title: "Todo \(id)",
+        content: "",
+        createdAt: .now,
+        updatedAt: .now,
+        completedAt: isCompleted ? .now : nil,
+        deletedAt: nil,
+        dueDate: nil,
+        tags: [],
+        category: .system(.feature),
+        goalId: goalID
+    )
+}
+
 func makeHomeFetchDataContext() -> HomeFetchDataContext {
     let fetchPreferencesUseCaseSpy = FetchTodoCategoryPreferencesUseCaseSpy()
     fetchPreferencesUseCaseSpy.todoCategoryPreferences = [

@@ -141,35 +141,34 @@ private struct GoalCreateDescriptionEditor: View {
             VStack(spacing: 16) {
                 GoalCreateModePicker(store: store, focusedField: _focusedField)
 
-                switch store.selectedTab {
-                case .write:
-                    TextEditor(text: $store.markdownContent)
-                        .focused($focusedField, equals: .content)
-                        .font(.body)
-                        .scrollContentBackground(.hidden)
-                        .padding(12)
-                        .frame(minHeight: 340, alignment: .topLeading)
-                        .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
-                case .preview:
-                    Group {
-                        if store.markdownContent.isEmpty {
-                            ContentUnavailableView(
-                                RecordPresentation.text("development_goal_create_preview_empty_title"),
-                                systemImage: "doc.text.magnifyingglass",
-                                description: Text(
-                                    RecordPresentation.text(
-                                        "development_goal_create_preview_empty_message"
-                                    )
-                                )
-                            )
-                        } else {
-                            MarkdownContentView(content: store.markdownContent)
-                                .padding(.vertical, 16)
+                Group {
+                    switch store.selectedTab {
+                    case .write:
+                        TextEditor(text: $store.markdownContent)
+                            .focused($focusedField, equals: .content)
+                            .font(.body)
+                            .scrollContentBackground(.hidden)
+                            .padding(12)
+                    case .preview:
+                        Group {
+                            if store.markdownContent.isEmpty {
+                                ContentUnavailableView {
+                                    Text(RecordPresentation.text("development_goal_create_preview_empty_title"))
+                                        .bold()
+                                } description: {
+                                    Text(RecordPresentation.text("development_goal_create_preview_empty_message"))
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 120)
+                            } else {
+                                MarkdownContentView(content: store.markdownContent)
+                                    .padding(.vertical, 16)
+                            }
                         }
                     }
-                    .frame(minHeight: 340)
-                    .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
                 }
+                .frame(minHeight: 120)
+                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
 
                 Text(RecordPresentation.text("development_goal_create_markdown_hint"))
                     .font(.caption)

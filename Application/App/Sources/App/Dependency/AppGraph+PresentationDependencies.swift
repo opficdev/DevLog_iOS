@@ -128,6 +128,19 @@ private extension AppGraph {
     }
 
     func prepareHomeDependencies(_ dependencies: inout DependencyValues) {
+        HomePresentationDependencyPreparation.prepareDevelopmentGoal(
+            &dependencies,
+            fetchGoalsUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .fetchDevelopmentGoalsUseCase,
+            fetchRecordsUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordsUseCase,
+            fetchRecordVersionUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchDevelopmentRecordVersionUseCase,
+            fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase
+        )
         HomePresentationDependencyPreparation.prepareTodoCategory(
             &dependencies,
             updateTodoCategoryPreferencesUseCase: todoGraphSet

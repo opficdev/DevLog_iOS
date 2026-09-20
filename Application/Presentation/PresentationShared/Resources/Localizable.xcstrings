@@ -424,6 +424,97 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발 목표" } }
       }
     },
+    "home_development_summary_eyebrow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ongoing Development" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이어가는 개발" } }
+      }
+    },
+    "home_development_summary_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a development goal to start recording your progress." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 목표를 만들고 개발 과정을 기록해보세요." } }
+      }
+    },
+    "home_development_summary_recent_record" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Latest Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최근 기록" } }
+      }
+    },
+    "home_development_summary_title_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld goals are in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 %lld개 있어요" } }
+      }
+    },
+    "home_development_goal_count_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중 %lld개" } }
+      }
+    },
+    "home_development_goal_create" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Goal" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 목표" } }
+      }
+    },
+    "home_development_goal_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a development goal to start recording your progress." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 목표를 만들고 개발 과정을 기록해보세요." } }
+      }
+    },
+    "home_development_goal_empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No goals in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 없어요" } }
+      }
+    },
+    "home_development_goal_recent_record" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Latest Record" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최근 기록" } }
+      }
+    },
+    "home_development_goal_section_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goals in Progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 개발" } }
+      }
+    },
+    "home_development_goal_todo_empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No linked Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결된 Todo 없음" } }
+      }
+    },
+    "home_development_goal_todo_progress_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld of %lld Todos complete" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo %lld/%lld 완료" } }
+      }
+    },
+    "home_development_goal_todo_progress_percent_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } }
+      }
+    },
     "development_goal_create_description_label" : {
       "extractionState" : "manual",
       "localizations" : {

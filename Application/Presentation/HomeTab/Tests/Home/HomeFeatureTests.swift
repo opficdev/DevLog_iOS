@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Core
 import Domain
 import PresentationShared
 @testable import HomeTab
@@ -20,6 +21,106 @@ struct HomeFeatureTests {
         )
 
         try await verifyHomeFetchData(adapter: adapter)
+    }
+
+    @Test("HomeFeature fetchData는 진행 중 목표의 최신 확정 기록을 갱신한다")
+    func HomeFeature_fetchData는_진행_중_목표의_최신_확정_기록을_갱신한다() async throws {
+        let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
+        let olderRecord = try makeDevelopmentRecord(
+            id: "older-record",
+            goalId: goal.id,
+            versionID: "older-version"
+        )
+        let recentRecord = try makeDevelopmentRecord(
+            id: "recent-record",
+            goalId: goal.id,
+            versionID: "recent-version"
+        )
+        let olderVersion = try makeDevelopmentRecordVersion(
+            id: "older-version",
+            recordID: olderRecord.id,
+            title: "Earlier Record",
+            confirmedAt: 1
+        )
+        let recentVersion = try makeDevelopmentRecordVersion(
+            id: "recent-version",
+            recordID: recentRecord.id,
+            title: "Recent Record",
+            confirmedAt: 2
+        )
+        let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
+        goalsSpy.result = .success([goal])
+        let recordsSpy = FetchDevelopmentRecordsUseCaseSpy()
+        recordsSpy.resultByGoalID[goal.id] = .success([olderRecord, recentRecord])
+        let versionsSpy = FetchDevelopmentRecordVersionUseCaseSpy()
+        versionsSpy.resultByRecordID[olderRecord.id] = .success(olderVersion)
+        versionsSpy.resultByRecordID[recentRecord.id] = .success(recentVersion)
+        let adapter = HomeStoreTestAdapter(
+            fetchDevelopmentGoalsUseCase: goalsSpy,
+            fetchDevelopmentRecordsUseCase: recordsSpy,
+            fetchDevelopmentRecordVersionUseCase: versionsSpy
+        )
+
+        await adapter.fetchData()
+
+        await waitUntil { adapter.hasDevelopmentGoalsLoaded }
+
+        #expect(goalsSpy.queries == [.init(status: .inProgress)])
+        #expect(adapter.developmentGoalItems.map(\.id) == [goal.id])
+        #expect(adapter.developmentGoalItems.first?.recentRecord == recentVersion)
+    }
+
+    @Test("HomeFeature fetchData는 연결 Todo 완료 수로 목표 진행률을 계산한다")
+    func HomeFeature_fetchData는_연결_Todo_완료_수로_목표_진행률을_계산한다() async throws {
+        let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
+        let todosSpy = HomeFetchTodosUseCaseSpy()
+        todosSpy.page = TodoPage(
+            items: [
+                makeHomeTodo(id: "completed", goalID: goal.id, isCompleted: true),
+                makeHomeTodo(id: "incomplete", goalID: goal.id, isCompleted: false),
+                makeHomeTodo(id: "other", goalID: "other-goal", isCompleted: true)
+            ],
+            nextCursor: nil
+        )
+        let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
+        goalsSpy.result = .success([goal])
+        let adapter = HomeStoreTestAdapter(
+            fetchDevelopmentGoalsUseCase: goalsSpy,
+            fetchTodosUseCase: todosSpy
+        )
+
+        await adapter.fetchData()
+
+        await waitUntil { adapter.hasDevelopmentGoalsLoaded }
+
+        #expect(adapter.developmentGoalItems.first?.todoProgress == .init(completedCount: 1, totalCount: 2))
+        #expect(todosSpy.queries == [
+            TodoQuery(
+                sortTarget: .updatedAt,
+                sortOrder: .latest,
+                pageSize: 100,
+                fetchAllPages: true
+            )
+        ])
+    }
+
+    @Test("HomeFeature fetchData 실패 뒤 재시도는 진행 중 목표를 갱신한다")
+    func HomeFeature_fetchData_실패_뒤_재시도는_진행_중_목표를_갱신한다() async throws {
+        let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
+        goalsSpy.result = .failure(HomeDevelopmentGoalTestError.failed)
+        let adapter = HomeStoreTestAdapter(fetchDevelopmentGoalsUseCase: goalsSpy)
+
+        await adapter.fetchData()
+
+        await waitUntil { adapter.hasDevelopmentGoalsLoadFailure }
+        #expect(!adapter.hasDevelopmentGoalsLoaded)
+
+        goalsSpy.result = .success([])
+        await adapter.fetchData()
+
+        await waitUntil { adapter.hasDevelopmentGoalsLoaded }
+        #expect(adapter.developmentGoalItems.isEmpty)
+        #expect(!adapter.hasDevelopmentGoalsLoadFailure)
     }
 
     @Test("HomeFeature tapTodoCategory는 editor를 지연 표시한다")

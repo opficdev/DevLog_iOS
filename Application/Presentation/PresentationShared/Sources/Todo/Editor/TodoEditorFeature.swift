@@ -48,6 +48,7 @@ public struct TodoEditorFeature {
         let number: Int?
         let createdAt: Date?
         let deletedAt: Date?
+        let goalId: String?
         let originalDraft: TodoDraft?
 
         var isValidToSave: Bool {
@@ -86,6 +87,7 @@ public struct TodoEditorFeature {
             self.number = nil
             self.createdAt = nil
             self.deletedAt = nil
+            self.goalId = nil
             self.originalDraft = nil
             self.category = TodoCategoryItem(from: category)
             self.categories = [TodoCategoryItem(from: category)]
@@ -97,6 +99,7 @@ public struct TodoEditorFeature {
             self.number = todo.number
             self.createdAt = todo.createdAt
             self.deletedAt = todo.deletedAt
+            self.goalId = todo.goalId
             self.originalDraft = TodoDraft(todo: todo)
             self.isCompleted = todo.isCompleted
             self.completedAt = todo.completedAt
@@ -368,7 +371,8 @@ private extension TodoEditorFeature.State {
             completedAt: completedAt,
             dueDate: dueDate,
             tags: Array(tags),
-            category: category.category
+            category: category.category,
+            goalId: goalId
         )
     }
 
@@ -388,7 +392,8 @@ private extension TodoEditorFeature.State {
             deletedAt: deletedAt,
             dueDate: dueDate,
             tags: Array(tags),
-            category: category.category
+            category: category.category,
+            goalId: goalId
         )
     }
 }

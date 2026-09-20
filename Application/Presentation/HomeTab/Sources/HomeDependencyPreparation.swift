@@ -9,6 +9,19 @@ import Domain
 import PresentationShared
 
 public enum HomeDependencyPreparation {
+    public static func prepareDevelopmentGoal(
+        _ dependencies: inout DependencyValues,
+        fetchGoalsUseCase: FetchDevelopmentGoalsUseCase,
+        fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
+        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase,
+        fetchTodosUseCase: FetchTodosUseCase
+    ) {
+        dependencies.homeFetchDevelopmentGoalsUseCase = fetchGoalsUseCase
+        dependencies.homeFetchDevelopmentRecordsUseCase = fetchRecordsUseCase
+        dependencies.homeFetchDevelopmentRecordVersionUseCase = fetchRecordVersionUseCase
+        dependencies.homeFetchTodosUseCase = fetchTodosUseCase
+    }
+
     public static func prepareTodoCategory(
         _ dependencies: inout DependencyValues,
         updateTodoCategoryPreferencesUseCase: UpdateTodoCategoryPreferencesUseCase
@@ -36,9 +49,20 @@ public enum HomeDependencyPreparation {
 }
 
 extension DependencyValues {
+    var homeFetchTodosUseCase: FetchTodosUseCase {
+        get { self[HomeFetchTodosUseCaseKey.self] }
+        set { self[HomeFetchTodosUseCaseKey.self] = newValue }
+    }
+
     var homeFetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase {
         get { self[HomeFetchRecentSearchQueriesUseCaseKey.self] }
         set { self[HomeFetchRecentSearchQueriesUseCaseKey.self] = newValue }
+    }
+}
+
+private enum HomeFetchTodosUseCaseKey: DependencyKey {
+    static var liveValue: FetchTodosUseCase {
+        preconditionFailure("FetchTodosUseCase must be provided.")
     }
 }
 

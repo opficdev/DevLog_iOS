@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Development
 import Domain
 import PresentationShared
 
@@ -18,6 +19,7 @@ public struct HomeView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(64)
     @State private var path = [HomeRoute]()
+    @State private var goalPresentation: HomeGoalPresentation?
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
     private let isSelected: Bool
@@ -47,10 +49,25 @@ public struct HomeView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                     Section {
+                        HomeDevelopmentSummaryCard(
+                            items: store.developmentGoalItems,
+                            isLoading: store.isDevelopmentGoalsLoading,
+                            hasLoaded: store.hasDevelopmentGoalsLoaded,
+                            hasLoadFailure: store.hasDevelopmentGoalsLoadFailure
+                        )
                         todoSection
                     } header: {
                         topBar
                     }
+                    HomeDevelopmentGoalSection(
+                        items: store.developmentGoalItems,
+                        isLoading: store.isDevelopmentGoalsLoading,
+                        hasLoaded: store.hasDevelopmentGoalsLoaded,
+                        hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
+                        onCreate: { goalPresentation = .create },
+                        onSelect: { goalPresentation = .detail($0.id) },
+                        onRetry: { store.send(.view(.fetchData)) }
+                    )
                 }
                 .padding(.horizontal, 16)
             }
@@ -76,6 +93,14 @@ public struct HomeView: View {
                 .activePresentation(when: isSelected),
             content: sheetContent
         )
+        .sheet(item: $goalPresentation, onDismiss: refreshDevelopmentGoals) { presentation in
+            switch presentation {
+            case .create:
+                GoalCreateView()
+            case .detail(let goalID):
+                GoalDetailView(goalId: goalID)
+            }
+        }
         .fullScreenCover(
             item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
                 .activePresentation(when: isSelected),
@@ -350,7 +375,6 @@ public struct HomeView: View {
             store.send(.view(.tapTodoCategory(todoCategory)))
         }
     }
-
     private func categoryIconBackground(_ item: TodoCategoryItem) -> Color {
         if colorScheme == .dark {
             return item.color
@@ -358,13 +382,15 @@ public struct HomeView: View {
 
         return item.color.opacity(0.12)
     }
-
     private func categoryIconForeground(_ item: TodoCategoryItem) -> Color {
         if colorScheme == .dark {
             return .white
         }
 
         return item.color
+    }
+    private func refreshDevelopmentGoals() {
+        store.send(.view(.fetchData))
     }
 }
 

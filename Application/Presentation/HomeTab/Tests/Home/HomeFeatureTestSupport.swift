@@ -20,6 +20,9 @@ struct HomeStoreTestAdapter {
 
     var preferences: [TodoCategoryItem] { store.state.preferences }
     var isTodoCategoryExpanded: Bool { store.state.isTodoCategoryExpanded }
+    var developmentGoalItems: [HomeDevelopmentGoalItem] { store.state.developmentGoalItems }
+    var hasDevelopmentGoalsLoaded: Bool { store.state.hasDevelopmentGoalsLoaded }
+    var hasDevelopmentGoalsLoadFailure: Bool { store.state.hasDevelopmentGoalsLoadFailure }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var showContentPicker: Bool { store.state.showContentPicker }
     var showCategoryManage: Bool {
@@ -31,6 +34,11 @@ struct HomeStoreTestAdapter {
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = FetchTodoCategoryPreferencesUseCaseSpy(),
         updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase = UpdateTodoCategoryPreferencesUseCaseSpy(),
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
+        fetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase = FetchDevelopmentGoalsUseCaseSpy(),
+        fetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase = FetchDevelopmentRecordsUseCaseSpy(),
+        fetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase =
+            FetchDevelopmentRecordVersionUseCaseSpy(),
+        fetchTodosUseCase: FetchTodosUseCase = HomeFetchTodosUseCaseSpy(),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = HomeTrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
@@ -42,6 +50,10 @@ struct HomeStoreTestAdapter {
             $0.fetchTodoCategoryPreferencesUseCase = fetchPreferencesUseCase
             $0.homeUpdateTodoCategoryPreferencesUseCase = updatePreferencesUseCase
             $0.homeNetworkConnectivityUseCase = networkConnectivityUseCase
+            $0.homeFetchDevelopmentGoalsUseCase = fetchDevelopmentGoalsUseCase
+            $0.homeFetchDevelopmentRecordsUseCase = fetchDevelopmentRecordsUseCase
+            $0.homeFetchDevelopmentRecordVersionUseCase = fetchDevelopmentRecordVersionUseCase
+            $0.homeFetchTodosUseCase = fetchTodosUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.continuousClock = clock
             configureDependencies?(&$0)
