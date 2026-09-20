@@ -64,30 +64,43 @@ struct HomeDevelopmentSummaryCard: View {
             Text("common_error_message", bundle: PresentationResources.bundle)
                 .font(.subheadline)
                 .foregroundStyle(Color.textSecondary)
-        } else if let recentRecord {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("home_development_summary_recent_record", bundle: PresentationResources.bundle)
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Color.textTertiary)
-                HStack(spacing: 12) {
-                    Text(recentRecord.title)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Color.primary)
-                        .lineLimit(1)
-                    Spacer(minLength: 12)
-                    Text(recentRecord.confirmedAt, format: .dateTime.month().day().hour().minute())
-                        .font(.caption)
-                        .foregroundStyle(Color.textTertiary)
-                }
-            }
-        } else {
+        } else if items.isEmpty {
             Text("home_development_summary_empty_message", bundle: PresentationResources.bundle)
                 .font(.subheadline)
                 .foregroundStyle(Color.textSecondary)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                HomeDevelopmentTodoProgressView(progress: todoProgress)
+
+                if let recentRecord {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("home_development_summary_recent_record", bundle: PresentationResources.bundle)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Color.textTertiary)
+                        HStack(spacing: 12) {
+                            Text(recentRecord.title)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(Color.primary)
+                                .lineLimit(1)
+                            Spacer(minLength: 12)
+                            Text(recentRecord.confirmedAt, format: .dateTime.month().day().hour().minute())
+                                .font(.caption)
+                                .foregroundStyle(Color.textTertiary)
+                        }
+                    }
+                }
+            }
         }
     }
 
     private var recentRecord: DevelopmentRecord.Version? {
         items.compactMap(\.recentRecord).max { $0.confirmedAt < $1.confirmedAt }
+    }
+
+    private var todoProgress: HomeDevelopmentGoalTodoProgress {
+        HomeDevelopmentGoalTodoProgress(
+            completedCount: items.reduce(0) { $0 + $1.todoProgress.completedCount },
+            totalCount: items.reduce(0) { $0 + $1.todoProgress.totalCount }
+        )
     }
 }

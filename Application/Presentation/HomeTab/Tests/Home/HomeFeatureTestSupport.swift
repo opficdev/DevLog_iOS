@@ -38,6 +38,7 @@ struct HomeStoreTestAdapter {
         fetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase = FetchDevelopmentRecordsUseCaseSpy(),
         fetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase =
             FetchDevelopmentRecordVersionUseCaseSpy(),
+        fetchTodosUseCase: FetchTodosUseCase = HomeFetchTodosUseCaseSpy(),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = HomeTrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
@@ -52,6 +53,7 @@ struct HomeStoreTestAdapter {
             $0.homeFetchDevelopmentGoalsUseCase = fetchDevelopmentGoalsUseCase
             $0.homeFetchDevelopmentRecordsUseCase = fetchDevelopmentRecordsUseCase
             $0.homeFetchDevelopmentRecordVersionUseCase = fetchDevelopmentRecordVersionUseCase
+            $0.homeFetchTodosUseCase = fetchTodosUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.continuousClock = clock
             configureDependencies?(&$0)

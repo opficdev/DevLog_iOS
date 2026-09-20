@@ -138,7 +138,8 @@ private extension AppGraph {
                 .fetchDevelopmentRecordsUseCase,
             fetchRecordVersionUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordVersionUseCase
+                .fetchDevelopmentRecordVersionUseCase,
+            fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase
         )
         HomePresentationDependencyPreparation.prepareTodoCategory(
             &dependencies,

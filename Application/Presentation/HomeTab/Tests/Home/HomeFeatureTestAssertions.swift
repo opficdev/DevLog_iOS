@@ -118,6 +118,30 @@ func makeDevelopmentRecordVersion(
     )
 }
 
+func makeHomeTodo(
+    id: String,
+    goalID: String?,
+    isCompleted: Bool
+) -> Todo {
+    Todo(
+        id: id,
+        isPinned: false,
+        isCompleted: isCompleted,
+        isChecked: false,
+        number: 1,
+        title: "Todo \(id)",
+        content: "",
+        createdAt: .now,
+        updatedAt: .now,
+        completedAt: isCompleted ? .now : nil,
+        deletedAt: nil,
+        dueDate: nil,
+        tags: [],
+        category: .system(.feature),
+        goalId: goalID
+    )
+}
+
 func makeHomeFetchDataContext() -> HomeFetchDataContext {
     let fetchPreferencesUseCaseSpy = FetchTodoCategoryPreferencesUseCaseSpy()
     fetchPreferencesUseCaseSpy.todoCategoryPreferences = [

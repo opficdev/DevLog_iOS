@@ -494,6 +494,27 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 개발" } }
       }
     },
+    "home_development_goal_todo_empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No linked Todos" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결된 Todo 없음" } }
+      }
+    },
+    "home_development_goal_todo_progress_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld of %lld Todos complete" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Todo %lld/%lld 완료" } }
+      }
+    },
+    "home_development_goal_todo_progress_percent_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } }
+      }
+    },
     "development_goal_create_description_label" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -137,6 +137,8 @@ private struct HomeDevelopmentGoalCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
+            HomeDevelopmentTodoProgressView(progress: item.todoProgress)
+
             Divider()
 
             if let recentRecord = item.recentRecord {
@@ -159,6 +161,59 @@ private struct HomeDevelopmentGoalCard: View {
         .background(Color.surface, in: .rect(cornerRadius: 24))
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
+    }
+}
+
+struct HomeDevelopmentTodoProgressView: View {
+    let progress: HomeDevelopmentGoalTodoProgress
+
+    var body: some View {
+        if progress.isEmpty {
+            Text("home_development_goal_todo_empty", bundle: PresentationResources.bundle)
+                .font(.caption)
+                .foregroundStyle(Color.textTertiary)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Text(
+                        String.localizedStringWithFormat(
+                            String(
+                                localized: "home_development_goal_todo_progress_format",
+                                bundle: PresentationResources.bundle
+                            ),
+                            progress.completedCount,
+                            progress.totalCount
+                        )
+                    )
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.textSecondary)
+                    Spacer(minLength: 8)
+                    Text(
+                        String.localizedStringWithFormat(
+                            String(
+                                localized: "home_development_goal_todo_progress_percent_format",
+                                bundle: PresentationResources.bundle
+                            ),
+                            progress.percentage
+                        )
+                    )
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.accent)
+                }
+
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(Color.border.opacity(0.6))
+                        .overlay(alignment: .leading) {
+                            Capsule()
+                                .fill(Color.accent)
+                                .frame(width: proxy.size.width * progress.fraction)
+                        }
+                }
+                .frame(height: 8)
+            }
+            .accessibilityElement(children: .combine)
+        }
     }
 }
 

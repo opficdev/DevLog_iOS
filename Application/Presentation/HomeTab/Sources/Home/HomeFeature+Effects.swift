@@ -42,17 +42,39 @@ extension HomeFeature {
         let goalsUseCase = fetchDevelopmentGoalsUseCase
         let recordsUseCase = fetchDevelopmentRecordsUseCase
         let versionUseCase = fetchDevelopmentRecordVersionUseCase
+        let todosUseCase = fetchTodosUseCase
 
-        return .run { [goalsUseCase, recordsUseCase, versionUseCase] send in
+        return .run { [goalsUseCase, recordsUseCase, versionUseCase, todosUseCase] send in
             await send(.loading(.begin(target: LoadingTarget.developmentGoals.target, mode: .immediate)))
             do {
                 let goals = try await goalsUseCase.execute(.init(status: .inProgress))
-                let items = try await Self.makeDevelopmentGoalItems(
-                    goals,
-                    fetchRecordsUseCase: recordsUseCase,
-                    fetchRecordVersionUseCase: versionUseCase
-                )
-                await send(.store(.developmentGoalsLoaded(items)))
+                if goals.isEmpty {
+                    await send(.store(.developmentGoalsLoaded([])))
+                } else {
+                    async let todos = todosUseCase.execute(
+                        TodoQuery(
+                            sortTarget: .updatedAt,
+                            sortOrder: .latest,
+                            pageSize: 100,
+                            fetchAllPages: true
+                        ),
+                        cursor: nil
+                    )
+                    let goalItems = try await Self.makeDevelopmentGoalItems(
+                        goals,
+                        fetchRecordsUseCase: recordsUseCase,
+                        fetchRecordVersionUseCase: versionUseCase
+                    )
+                    let todoProgressByGoalID = Self.makeTodoProgressByGoalID((try await todos).items)
+                    let items = goalItems.map { item in
+                        HomeDevelopmentGoalItem(
+                            goal: item.goal,
+                            recentRecord: item.recentRecord,
+                            todoProgress: todoProgressByGoalID[item.goal.id] ?? .empty
+                        )
+                    }
+                    await send(.store(.developmentGoalsLoaded(items)))
+                }
             } catch {
                 await send(.store(.developmentGoalsLoadFailed))
             }
@@ -185,6 +207,23 @@ extension HomeFeature {
         }
 
         return versions.max { $0.confirmedAt < $1.confirmedAt }
+    }
+
+    static func makeTodoProgressByGoalID(
+        _ todos: [Todo]
+    ) -> [String: HomeDevelopmentGoalTodoProgress] {
+        var progressByGoalID = [String: HomeDevelopmentGoalTodoProgress]()
+
+        for todo in todos {
+            guard let goalID = todo.goalId else { continue }
+            let currentProgress = progressByGoalID[goalID] ?? .empty
+            progressByGoalID[goalID] = HomeDevelopmentGoalTodoProgress(
+                completedCount: currentProgress.completedCount + (todo.isCompleted ? 1 : 0),
+                totalCount: currentProgress.totalCount + 1
+            )
+        }
+
+        return progressByGoalID
     }
 
 }

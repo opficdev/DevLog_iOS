@@ -79,6 +79,16 @@ final class FetchDevelopmentRecordVersionUseCaseSpy: FetchDevelopmentRecordVersi
     }
 }
 
+final class HomeFetchTodosUseCaseSpy: FetchTodosUseCase {
+    private(set) var queries = [TodoQuery]()
+    var page = TodoPage(items: [], nextCursor: nil)
+
+    func execute(_ query: TodoQuery, cursor: TodoCursor?) async throws -> TodoPage {
+        queries.append(query)
+        return page
+    }
+}
+
 enum HomeDevelopmentGoalTestError: Error {
     case failed
     case notFound

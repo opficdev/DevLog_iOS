@@ -69,6 +69,40 @@ struct HomeFeatureTests {
         #expect(adapter.developmentGoalItems.first?.recentRecord == recentVersion)
     }
 
+    @Test("HomeFeature fetchData는 연결 Todo 완료 수로 목표 진행률을 계산한다")
+    func HomeFeature_fetchData는_연결_Todo_완료_수로_목표_진행률을_계산한다() async throws {
+        let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
+        let todosSpy = HomeFetchTodosUseCaseSpy()
+        todosSpy.page = TodoPage(
+            items: [
+                makeHomeTodo(id: "completed", goalID: goal.id, isCompleted: true),
+                makeHomeTodo(id: "incomplete", goalID: goal.id, isCompleted: false),
+                makeHomeTodo(id: "other", goalID: "other-goal", isCompleted: true)
+            ],
+            nextCursor: nil
+        )
+        let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
+        goalsSpy.result = .success([goal])
+        let adapter = HomeStoreTestAdapter(
+            fetchDevelopmentGoalsUseCase: goalsSpy,
+            fetchTodosUseCase: todosSpy
+        )
+
+        await adapter.fetchData()
+
+        await waitUntil { adapter.hasDevelopmentGoalsLoaded }
+
+        #expect(adapter.developmentGoalItems.first?.todoProgress == .init(completedCount: 1, totalCount: 2))
+        #expect(todosSpy.queries == [
+            TodoQuery(
+                sortTarget: .updatedAt,
+                sortOrder: .latest,
+                pageSize: 100,
+                fetchAllPages: true
+            )
+        ])
+    }
+
     @Test("HomeFeature fetchData 실패 뒤 재시도는 진행 중 목표를 갱신한다")
     func HomeFeature_fetchData_실패_뒤_재시도는_진행_중_목표를_갱신한다() async throws {
         let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()

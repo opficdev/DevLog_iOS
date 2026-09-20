@@ -148,6 +148,7 @@ struct HomeFeature {
     @Dependency(\.homeFetchDevelopmentGoalsUseCase) var fetchDevelopmentGoalsUseCase
     @Dependency(\.homeFetchDevelopmentRecordsUseCase) var fetchDevelopmentRecordsUseCase
     @Dependency(\.homeFetchDevelopmentRecordVersionUseCase) var fetchDevelopmentRecordVersionUseCase
+    @Dependency(\.homeFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.homeUpdateTodoCategoryPreferencesUseCase) var updatePreferencesUseCase
     @Dependency(\.homeNetworkConnectivityUseCase) var networkConnectivityUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
