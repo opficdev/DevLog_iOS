@@ -16,7 +16,7 @@ public struct HomeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
-    @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(48)
+    @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(64)
     @State private var path = [HomeRoute]()
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
@@ -124,24 +124,7 @@ public struct HomeView: View {
                 LoadingView()
                     .frame(maxWidth: .infinity)
             } else {
-                LazyVGrid(
-                    columns: Array(
-                        repeating: GridItem(.flexible(), spacing: 12),
-                        count: dynamicTypeSize.isAccessibilitySize ? 2 : 4
-                    ),
-                    spacing: 20
-                ) {
-                    let preferences = store.preferences.filter(\.isVisible)
-                    let visiblePreferences = store.isTodoCategoryExpanded
-                        ? preferences
-                        : Array(preferences.prefix(8))
-                    ForEach(visiblePreferences) { item in
-                        todoCategoryRow(item)
-                    }
-                    if store.isTodoCategoryExpanded {
-                        addTodoCategoryButton
-                    }
-                }
+                todoCategoryGrid
             }
 
             HStack {
@@ -160,9 +143,29 @@ public struct HomeView: View {
                 Spacer()
             }
         }
-        .padding(.top, 20)
         .padding(.bottom, 12)
         .background(Color.surface, in: RoundedRectangle(cornerRadius: 28))
+    }
+
+    @ViewBuilder
+    private var todoCategoryGrid: some View {
+        let preferences = store.preferences.filter(\.isVisible)
+        let visiblePreferences = store.isTodoCategoryExpanded
+            ? preferences
+            : Array(preferences.prefix(8))
+
+        TodoCategoryGridLayout(
+            columnCount: dynamicTypeSize.isAccessibilitySize ? 2 : 4,
+            itemWidth: categoryIconSize
+        ) {
+            ForEach(visiblePreferences) { item in
+                todoCategoryRow(item)
+            }
+            if store.isTodoCategoryExpanded {
+                addTodoCategoryButton
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var addTodoCategoryButton: some View {
@@ -178,7 +181,7 @@ public struct HomeView: View {
                     .frame(width: categoryIconSize, height: categoryIconSize)
                     .overlay {
                         Image(systemName: "plus")
-                            .font(.title3.bold())
+                            .font(.title2.bold())
                             .foregroundStyle(Color.textTertiary)
                     }
                 Text("todo_add", bundle: PresentationResources.bundle)
@@ -285,7 +288,7 @@ public struct HomeView: View {
                     .frame(width: categoryIconSize, height: categoryIconSize)
                     .overlay {
                         Image(systemName: item.symbolName)
-                            .font(.title3.bold())
+                            .font(.title2.bold())
                             .foregroundStyle(categoryIconForeground(item))
                     }
                 Text(item.localizedName)
