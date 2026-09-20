@@ -29,6 +29,15 @@ struct HomeFeatureTests {
         try await verifyHomeTapTodoCategory(adapter: adapter)
     }
 
+    @Test("HomeFeature 카테고리 펼침 버튼은 펼침 상태를 전환한다")
+    func HomeFeature_카테고리_펼침_버튼은_펼침_상태를_전환한다() async {
+        let adapter = HomeStoreTestAdapter()
+
+        await adapter.tapTodoCategoryExpansionButton()
+
+        #expect(adapter.isTodoCategoryExpanded)
+    }
+
     @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
         let context = makeHomeFetchDataContext()

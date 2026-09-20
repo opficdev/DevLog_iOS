@@ -3200,6 +3200,23 @@
         }
       }
     },
+    "todo_category_manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Categories"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카테고리 관리"
+          }
+        }
+      }
+    },
     "todo_category_doc" : {
       "comment" : "Todo category: Documentation",
       "extractionState" : "manual",
