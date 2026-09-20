@@ -47,6 +47,12 @@ public struct HomeView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                     Section {
+                        HomeDevelopmentSummaryCard(
+                            items: store.developmentGoalItems,
+                            isLoading: store.isDevelopmentGoalsLoading,
+                            hasLoaded: store.hasDevelopmentGoalsLoaded,
+                            hasLoadFailure: store.hasDevelopmentGoalsLoadFailure
+                        )
                         todoSection
                     } header: {
                         topBar

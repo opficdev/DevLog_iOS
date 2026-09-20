@@ -1,0 +1,93 @@
+//
+//  HomeDevelopmentSummaryCard.swift
+//  HomeTab
+//
+//  Created by opfic on 9/20/26.
+//
+
+import Domain
+import SwiftUI
+import PresentationShared
+
+struct HomeDevelopmentSummaryCard: View {
+    let items: [HomeDevelopmentGoalItem]
+    let isLoading: Bool
+    let hasLoaded: Bool
+    let hasLoadFailure: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("home_development_summary_eyebrow", bundle: PresentationResources.bundle)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.textTertiary)
+                    summaryTitle
+                }
+                Spacer(minLength: 16)
+                Image(systemName: "flag.checkered")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(Color.accent)
+                    .frame(width: 64, height: 64)
+                    .background(Color.accent.opacity(0.1), in: .rect(cornerRadius: 20))
+            }
+
+            summaryContent
+        }
+        .padding(20)
+        .background(Color.surface, in: .rect(cornerRadius: 28))
+        .accessibilityElement(children: .combine)
+    }
+
+    private var summaryTitle: some View {
+        Text(
+            String.localizedStringWithFormat(
+                String(
+                    localized: "home_development_summary_title_format",
+                    bundle: PresentationResources.bundle
+                ),
+                items.count
+            )
+        )
+        .font(.title2.weight(.semibold))
+        .foregroundStyle(Color.primary)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    @ViewBuilder
+    private var summaryContent: some View {
+        if !hasLoaded && isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+        } else if !hasLoaded && hasLoadFailure {
+            Text("common_error_message", bundle: PresentationResources.bundle)
+                .font(.subheadline)
+                .foregroundStyle(Color.textSecondary)
+        } else if let recentRecord {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("home_development_summary_recent_record", bundle: PresentationResources.bundle)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.textTertiary)
+                HStack(spacing: 12) {
+                    Text(recentRecord.title)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Color.primary)
+                        .lineLimit(1)
+                    Spacer(minLength: 12)
+                    Text(recentRecord.confirmedAt, format: .dateTime.month().day().hour().minute())
+                        .font(.caption)
+                        .foregroundStyle(Color.textTertiary)
+                }
+            }
+        } else {
+            Text("home_development_summary_empty_message", bundle: PresentationResources.bundle)
+                .font(.subheadline)
+                .foregroundStyle(Color.textSecondary)
+        }
+    }
+
+    private var recentRecord: DevelopmentRecord.Version? {
+        items.compactMap(\.recentRecord).max { $0.confirmedAt < $1.confirmedAt }
+    }
+}
