@@ -198,12 +198,12 @@ struct TodayFeature {
 
 extension DependencyValues {
     var todayFetchTodosUseCase: FetchTodosUseCase {
-        get { self[TodayFetchTodosUseCaseKey.self] }
-        set { self[TodayFetchTodosUseCaseKey.self] = newValue }
+        get { self[FetchTodosUseCaseKey.self] }
+        set { self[FetchTodosUseCaseKey.self] = newValue }
     }
 }
 
-private enum TodayFetchTodosUseCaseKey: DependencyKey {
+private enum FetchTodosUseCaseKey: DependencyKey {
     static var liveValue: FetchTodosUseCase {
         preconditionFailure("FetchTodosUseCase must be provided.")
     }

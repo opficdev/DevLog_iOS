@@ -14,7 +14,7 @@ final class TodayFetchTodosUseCaseSpy: FetchTodosUseCase {
     var pagesByFilter: [TodoQuery.DueDateFilter: TodoPage]
     var completedTodayPage: TodoPage
     var error: Error?
-    private let recorder = TodayFetchTodosUseCaseCallRecorder()
+    private let recorder = FetchTodosUseCaseCallRecorder()
 
     init(
         pagesByFilter: [TodoQuery.DueDateFilter: TodoPage] = [
@@ -50,7 +50,7 @@ final class TodayFetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 }
 
-private actor TodayFetchTodosUseCaseCallRecorder {
+private actor FetchTodosUseCaseCallRecorder {
     var recordedQueries = [TodoQuery]()
     var recordedCursors = [TodoCursor?]()
 
