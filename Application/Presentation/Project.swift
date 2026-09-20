@@ -151,6 +151,7 @@ let project = Project(
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
+                .target(name: "Development"),
                 .target(name: "PresentationShared")
             ],
             settings: frameworkBuildSettings
@@ -170,6 +171,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "HomeTab"),
+                .target(name: "Development"),
                 .target(name: "PresentationShared"),
                 thirdPartyDependency,
             ],
