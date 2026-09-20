@@ -17,7 +17,6 @@ public struct HomeView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(48)
-    @State private var isTodoCategoryExpanded = false
     @State private var path = [HomeRoute]()
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
@@ -133,13 +132,13 @@ public struct HomeView: View {
                     spacing: 20
                 ) {
                     let preferences = store.preferences.filter(\.isVisible)
-                    let visiblePreferences = isTodoCategoryExpanded
+                    let visiblePreferences = store.isTodoCategoryExpanded
                         ? preferences
                         : Array(preferences.prefix(8))
                     ForEach(visiblePreferences) { item in
                         todoCategoryRow(item)
                     }
-                    if isTodoCategoryExpanded {
+                    if store.isTodoCategoryExpanded {
                         addTodoCategoryButton
                     }
                 }
@@ -148,11 +147,12 @@ public struct HomeView: View {
             HStack {
                 Spacer()
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isTodoCategoryExpanded.toggle()
-                    }
+                    store.send(
+                        .view(.tapTodoCategoryExpansionButton),
+                        animation: .easeInOut(duration: 0.2)
+                    )
                 } label: {
-                    Image(systemName: isTodoCategoryExpanded ? "chevron.up" : "chevron.down")
+                    Image(systemName: store.isTodoCategoryExpanded ? "chevron.up" : "chevron.down")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(Color.textTertiary)
                         .frame(width: 32, height: 32)

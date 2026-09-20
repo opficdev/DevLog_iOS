@@ -19,6 +19,7 @@ struct HomeStoreTestAdapter {
     private let clock: TestClock<Duration>
 
     var preferences: [TodoCategoryItem] { store.state.preferences }
+    var isTodoCategoryExpanded: Bool { store.state.isTodoCategoryExpanded }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
     var showContentPicker: Bool { store.state.showContentPicker }
     var showCategoryManage: Bool {
@@ -76,6 +77,10 @@ struct HomeStoreTestAdapter {
     func tapManageTodoCategory() async {
         await store.send(.view(.tapManageTodoCategory))
         await drainReceivedActions()
+    }
+
+    func tapTodoCategoryExpansionButton() async {
+        await store.send(.view(.tapTodoCategoryExpansionButton))
     }
 
     func orderTodoCategory(_ items: [TodoCategoryItem]) async {

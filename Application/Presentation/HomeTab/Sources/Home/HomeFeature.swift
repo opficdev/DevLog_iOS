@@ -17,6 +17,7 @@ struct HomeFeature {
         @Presents var sheet: SheetState?
         @Presents var fullScreenCover: FullScreenCoverState?
         var preferences = [TodoCategoryItem]()
+        var isTodoCategoryExpanded = false
         var isNetworkConnected = true
         var selectedTodoCategory: TodoCategory?
         var loading = LoadingFeature.State()
@@ -52,6 +53,7 @@ struct HomeFeature {
             case fetchData
             case todoEditorCreated
             case tapManageTodoCategory
+            case tapTodoCategoryExpansionButton
             case tapTodoCategory(TodoCategory)
         }
 
@@ -211,6 +213,8 @@ private extension HomeFeature {
             )
         case .tapManageTodoCategory:
             state.sheet = .reorderTodo(CategoryManageFeature.State(preferences: state.preferences))
+        case .tapTodoCategoryExpansionButton:
+            state.isTodoCategoryExpanded.toggle()
         case .tapTodoCategory(let category):
             state.selectedTodoCategory = category
             state.sheet = nil
