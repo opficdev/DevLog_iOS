@@ -331,7 +331,3 @@ private enum GoalCreateField: Hashable {
     case title
     case content
 }
-
-#Preview("새 개발 목표") {
-    GoalCreateView()
-}
