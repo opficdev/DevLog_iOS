@@ -11,9 +11,12 @@ import Domain
 import PresentationShared
 
 public struct HomeView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(48)
     @State private var path = [HomeRoute]()
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
@@ -41,14 +44,21 @@ public struct HomeView: View {
 
     public var body: some View {
         NavigationStack(path: $path) {
-            List {
-                todoSection
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
+                    Section {
+                        todoSection
+                    } header: {
+                        topBar
+                    }
+                }
+                .padding(.horizontal, 16)
             }
-            .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "nav_home", bundle: PresentationResources.bundle))
+            .background(Color.appBackground)
+            .toolbarVisibility(.hidden, for: .navigationBar)
             .navigationDestination(for: HomeRoute.self, destination: destinationView)
-            .toolbar { toolbar }
         }
+        .toolbarBackground(Color.appBackground)
         .onAppear { store.send(.view(.startObserving)) }
         .onChange(of: isSelected, initial: true) { _, isSelected in
             if isSelected {
@@ -73,56 +83,91 @@ public struct HomeView: View {
         )
     }
 
-    private var todoSection: some View {
-        Section(content: {
-            if store.isPreferencesLoading {
-                LoadingView()
-            } else {
-                let preferences = store.preferences
-                ForEach(preferences.filter { $0.isVisible }, id: \.id) { item in
-                    todoCategoryRow(item)
-                        .listRowInsets((EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)))
-                }
-            }
-        }, header: {
-            HStack {
-                Text("TODO", bundle: PresentationResources.bundle)
-                    .foregroundStyle(Color.primary)
-                    .font(.title2)
-                    .bold()
-                Spacer()
-                Button(action: {
-                    store.send(.view(.tapManageTodoCategory))
-                }) {
-                    Image(systemName: "ellipsis")
-                        .font(.title2)
-                        .foregroundStyle(Color.gray)
-                }
-            }
-            .listRowInsets(EdgeInsets())    //  헤더의 padding 제거
-        })
-    }
-
-    @ToolbarContentBuilder
-    private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                store.send(.store(.setPresentation(.contentPicker, true)))
-            } label: {
-                Image(systemName: "plus")
-            }
-            .disabled(!store.isNetworkConnected)
-        }
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-        }
-        ToolbarItemGroup(placement: .topBarTrailing) {
+    private var topBar: some View {
+        HStack(spacing: 12) {
+            Text("DevLog")
+                .font(.largeTitle.weight(.bold))
+            Spacer()
             Button {
                 store.send(.store(.setPresentation(.searchView, true)))
             } label: {
                 Image(systemName: "magnifyingglass")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+            }
+            .adaptiveButtonStyle(
+                shape: .circle,
+                color: .surface,
+                glassEffect: .enabled
+            )
+            Button {
+                store.send(.store(.setPresentation(.contentPicker, true)))
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+            }
+            .adaptiveButtonStyle(
+                shape: .circle,
+                color: .surface,
+                glassEffect: .enabled
+            )
+            .disabled(!store.isNetworkConnected)
+        }
+        .padding(.bottom, 8)
+        .background(Color.appBackground)
+    }
+
+    private var todoSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            HStack(spacing: 8) {
+                Text("TODO", bundle: PresentationResources.bundle)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text("\(store.preferences.filter(\.isVisible).count)")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.accent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(categoryCountBackground, in: Capsule())
+                Spacer()
+                Button {
+                    store.send(.view(.tapManageTodoCategory))
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.textTertiary)
+                        .frame(width: 32, height: 32)
+                }
+            }
+
+            if store.isPreferencesLoading {
+                LoadingView()
+                    .frame(maxWidth: .infinity)
+            } else {
+                LazyVGrid(
+                    columns: Array(
+                        repeating: GridItem(.flexible(), spacing: 12),
+                        count: dynamicTypeSize.isAccessibilitySize ? 2 : 4
+                    ),
+                    spacing: 20
+                ) {
+                    ForEach(store.preferences.filter(\.isVisible)) { item in
+                        todoCategoryRow(item)
+                    }
+                }
             }
         }
+        .padding(16)
+        .background(Color.surface, in: RoundedRectangle(cornerRadius: 28))
+    }
+
+    private var categoryCountBackground: Color {
+        if colorScheme == .dark {
+            return .surfaceSecondary
+        }
+
+        return Color.accent.opacity(0.12)
     }
 
     @ViewBuilder
@@ -211,15 +256,28 @@ public struct HomeView: View {
         }
     }
 
-    @ViewBuilder
     private func todoCategoryRow(_ item: TodoCategoryItem) -> some View {
         NavigationLink(value: HomeRoute.category(item)) {
-            labelImage(
-                text: item.localizedName,
-                systemName: item.symbolName,
-                imageColor: item.color
-            )
+            VStack(spacing: 10) {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(categoryIconBackground(item))
+                    .frame(width: categoryIconSize, height: categoryIconSize)
+                    .overlay {
+                        Image(systemName: item.symbolName)
+                            .font(.title3.bold())
+                            .foregroundStyle(categoryIconForeground(item))
+                    }
+                Text(item.localizedName)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.textSecondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
     }
 
     private func labelImage(
@@ -255,6 +313,21 @@ public struct HomeView: View {
         }
     }
 
+    private func categoryIconBackground(_ item: TodoCategoryItem) -> Color {
+        if colorScheme == .dark {
+            return item.color
+        }
+
+        return item.color.opacity(0.12)
+    }
+
+    private func categoryIconForeground(_ item: TodoCategoryItem) -> Color {
+        if colorScheme == .dark {
+            return .white
+        }
+
+        return item.color
+    }
 }
 
 public enum HomeRoute: Hashable {
