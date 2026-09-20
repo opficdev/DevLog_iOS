@@ -288,6 +288,28 @@ struct TodoEditorFeatureTests {
         #expect(adapter.saveResult == .updated(updated))
     }
 
+    @Test("연결된 Todo를 완료 처리해도 개발 목표 연결을 유지한다")
+    func 연결된_Todo를_완료_처리해도_개발_목표_연결을_유지한다() async throws {
+        let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()
+        upsertSpy.shouldSuspend = true
+        let todo = makeTodoEditorTodo(goalId: "goal-1")
+        let adapter = TodoEditorStoreTestAdapter(todo: todo, upsertTodoUseCase: upsertSpy)
+
+        await adapter.setCompleted(true)
+        await adapter.upsertTodo()
+
+        let updated = try #require(upsertSpy.todos.first)
+
+        #expect(updated.goalId == "goal-1")
+        #expect(updated.isCompleted)
+        #expect(updated.completedAt == todoEditorNow)
+
+        upsertSpy.resume()
+        await adapter.receiveUpdateSucceeded(updated)
+        await adapter.receiveUpdatedDelegate(updated)
+        await adapter.drainReceivedActions()
+    }
+
     @Test("저장 실패는 공통 에러 알림을 표시하고 로딩을 해제한다")
     func 저장_실패는_공통_에러_알림을_표시하고_로딩을_해제한다() async {
         let upsertSpy = TodoEditorUpsertTodoUseCaseSpy()

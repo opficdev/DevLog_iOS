@@ -330,7 +330,8 @@ func makeTodoEditorTodo(
     deletedAt: Date? = nil,
     dueDate: Date? = nil,
     tags: [String] = [],
-    category: TodoCategory = .system(.doc)
+    category: TodoCategory = .system(.doc),
+    goalId: String? = nil
 ) -> Todo {
     Todo(
         id: id,
@@ -346,7 +347,8 @@ func makeTodoEditorTodo(
         deletedAt: deletedAt,
         dueDate: dueDate,
         tags: tags,
-        category: category
+        category: category,
+        goalId: goalId
     )
 }
 
