@@ -536,6 +536,20 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld개 선택됨" } }
       }
     },
+    "development_goal_description_empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No goal description has been written." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작성된 목표 설명이 없어요." } }
+      }
+    },
+    "development_goal_description_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goal Description" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목표 설명" } }
+      }
+    },
     "development_goal_save" : {
       "extractionState" : "manual",
       "localizations" : {
