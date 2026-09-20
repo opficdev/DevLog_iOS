@@ -427,8 +427,8 @@
     "development_goal_create_description_label" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goal Description" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목표 설명" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Description" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "설명" } }
       }
     },
     "development_goal_create_error_message" : {
@@ -459,13 +459,6 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "작성한 설명이 없어요" } }
       }
     },
-    "development_goal_create_save_hint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not saved yet" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장되지 않음" } }
-      }
-    },
     "development_goal_create_status" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -483,8 +476,8 @@
     "development_goal_create_title_label" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goal Title" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목표 제목" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Title" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "제목" } }
       }
     },
     "development_goal_create_title_placeholder" : {

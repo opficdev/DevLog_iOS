@@ -72,11 +72,11 @@ public struct RecordEditorView: View {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "xmark")
                         .frame(width: iconSize, height: iconSize)
+                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .font(.title)
             .topBarButtonStyle()
             .disabled(store.isLoading)
             Spacer()
@@ -95,12 +95,12 @@ public struct RecordEditorView: View {
                     Image(systemName: "checkmark")
                         .frame(width: iconSize, height: iconSize)
                         .foregroundStyle(Color.primary)
+                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("development_record_save"))
                         .foregroundStyle(Color.accent)
                 }
             }
-            .font(.title)
             .topBarButtonStyle(color: Color.surface)
             .disabled(!store.isReadyToSave)
         }

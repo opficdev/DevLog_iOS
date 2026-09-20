@@ -44,9 +44,7 @@ public struct GoalCreateView: View {
                 GoalCreateTopBar(
                     iconSize: iconSize,
                     isSaving: store.isSaving,
-                    isSaveEnabled: store.isReadyToSave,
-                    onClose: dismiss.callAsFunction,
-                    onSave: save
+                    onClose: dismiss.callAsFunction
                 )
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -80,44 +78,28 @@ public struct GoalCreateView: View {
 private struct GoalCreateTopBar: View {
     let iconSize: CGFloat
     let isSaving: Bool
-    let isSaveEnabled: Bool
     let onClose: () -> Void
-    let onSave: () -> Void
 
     var body: some View {
-        HStack {
-            Button(action: onClose) {
-                if #available(iOS 26.0, *) {
-                    Image(systemName: "xmark")
-                        .frame(width: iconSize, height: iconSize)
-                } else {
-                    Text(RecordPresentation.text("common_close"))
-                }
-            }
-            .font(.title)
-            .topBarButtonStyle()
-            .disabled(isSaving)
-
-            Spacer()
-
+        ZStack {
             Text(RecordPresentation.text("development_goal_create_title"))
                 .font(.headline)
 
-            Spacer()
-
-            Button(action: onSave) {
-                if #available(iOS 26.0, *) {
-                    Image(systemName: "checkmark")
-                        .frame(width: iconSize, height: iconSize)
-                        .foregroundStyle(Color.primary)
-                } else {
-                    Text(RecordPresentation.text("development_goal_save"))
-                        .foregroundStyle(Color.accent)
+            HStack {
+                Button(action: onClose) {
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "xmark")
+                            .frame(width: iconSize, height: iconSize)
+                            .font(.title)
+                    } else {
+                        Text(RecordPresentation.text("common_close"))
+                    }
                 }
+                .topBarButtonStyle()
+                .disabled(isSaving)
+
+                Spacer()
             }
-            .font(.title)
-            .topBarButtonStyle(color: Color.surface)
-            .disabled(!isSaveEnabled)
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -194,7 +176,7 @@ private struct GoalCreateDescriptionEditor: View {
                     .foregroundStyle(Color.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(20)
+            .padding(16)
             .background(Color.surface, in: .rect(cornerRadius: 24))
         }
         .disabled(store.isSaving)
@@ -320,7 +302,7 @@ private struct GoalCreateSaveBar: View {
     let onSave: () -> Void
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack {
             Button(action: onSave) {
                 Group {
                     if isSaving {
@@ -338,9 +320,6 @@ private struct GoalCreateSaveBar: View {
             .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
             .disabled(!isSaveEnabled)
 
-            Text(RecordPresentation.text("development_goal_create_save_hint"))
-                .font(.caption)
-                .foregroundStyle(Color.textTertiary)
         }
         .padding(.horizontal)
         .padding(.vertical, 12)

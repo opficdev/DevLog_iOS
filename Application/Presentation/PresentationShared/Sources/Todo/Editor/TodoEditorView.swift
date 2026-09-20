@@ -180,11 +180,11 @@ private struct ToolBar: View {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "xmark")
                         .frame(width: iconSize, height: iconSize)
+                        .font(.title)
                 } else {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
             }
-            .font(.title)
             .adaptiveButtonStyle(shape: .circle, glassEffect: .enabled)
             Spacer()
             Text(store.navigationTitle)
@@ -230,12 +230,12 @@ struct EditorToolbarActions: View {
                         Image(systemName: "checkmark")
                             .frame(width: iconSize, height: iconSize)
                             .foregroundStyle(Color.primary)
+                            .font(.title)
                     } else {
                         Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
                     }
                 }
-                .font(.title)
                 .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
                 .disabled(!store.isReadyToSubmit)
             }
