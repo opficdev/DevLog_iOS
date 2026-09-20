@@ -83,6 +83,7 @@ public struct HomeView: View {
         )
     }
 
+    @ViewBuilder
     private var topBar: some View {
         HStack(spacing: 12) {
             Text("DevLog")
@@ -118,7 +119,14 @@ public struct HomeView: View {
         .background(Color.appBackground)
     }
 
+    @ViewBuilder
     private var todoSection: some View {
+        let visibleCategoryCount = store.preferences.filter(\.isVisible).count
+        let collapsedCategoryCount = min(visibleCategoryCount, 8)
+        let columnCount = dynamicTypeSize.isAccessibilitySize ? 2 : 4
+        let showsExpansionButton = 8 < visibleCategoryCount
+            || 0 < collapsedCategoryCount && collapsedCategoryCount.isMultiple(of: columnCount)
+
         VStack(alignment: .leading, spacing: 0) {
             if store.isPreferencesLoading {
                 LoadingView()
@@ -127,20 +135,22 @@ public struct HomeView: View {
                 todoCategoryGrid
             }
 
-            HStack {
-                Spacer()
-                Button {
-                    store.send(
-                        .view(.tapTodoCategoryExpansionButton),
-                        animation: .easeInOut(duration: 0.2)
-                    )
-                } label: {
-                    Image(systemName: store.isTodoCategoryExpanded ? "chevron.up" : "chevron.down")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(Color.textTertiary)
-                        .frame(width: 32, height: 32)
+            if !store.isPreferencesLoading, showsExpansionButton {
+                HStack {
+                    Spacer()
+                    Button {
+                        store.send(
+                            .view(.tapTodoCategoryExpansionButton),
+                            animation: .easeInOut(duration: 0.2)
+                        )
+                    } label: {
+                        Image(systemName: store.isTodoCategoryExpanded ? "chevron.up" : "chevron.down")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(Color.textTertiary)
+                            .frame(width: 32, height: 32)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
         }
         .padding(.bottom, 12)
@@ -153,22 +163,26 @@ public struct HomeView: View {
         let visiblePreferences = store.isTodoCategoryExpanded
             ? preferences
             : Array(preferences.prefix(8))
+        let columnCount = dynamicTypeSize.isAccessibilitySize ? 2 : 4
+        let hasAvailableSlot = visiblePreferences.isEmpty
+            || !visiblePreferences.count.isMultiple(of: columnCount)
 
         TodoCategoryGridLayout(
-            columnCount: dynamicTypeSize.isAccessibilitySize ? 2 : 4,
+            columnCount: columnCount,
             itemWidth: categoryIconSize
         ) {
             ForEach(visiblePreferences) { item in
                 todoCategoryRow(item)
             }
-            if store.isTodoCategoryExpanded {
-                addTodoCategoryButton
+            if store.isTodoCategoryExpanded || hasAvailableSlot {
+                editTodoCategoryButton
             }
         }
         .frame(maxWidth: .infinity)
     }
 
-    private var addTodoCategoryButton: some View {
+    @ViewBuilder
+    private var editTodoCategoryButton: some View {
         Button {
             store.send(.view(.tapManageTodoCategory))
         } label: {
@@ -180,11 +194,11 @@ public struct HomeView: View {
                     )
                     .frame(width: categoryIconSize, height: categoryIconSize)
                     .overlay {
-                        Image(systemName: "plus")
+                        Image(systemName: "square.grid.2x2")
                             .font(.title2.bold())
                             .foregroundStyle(Color.textTertiary)
                     }
-                Text("todo_add", bundle: PresentationResources.bundle)
+                Text("todo_edit", bundle: PresentationResources.bundle)
                     .font(.subheadline)
                     .foregroundStyle(Color.textTertiary)
             }
