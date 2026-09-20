@@ -297,10 +297,3 @@ private enum Field: Hashable {
     case title
     case content
 }
-
-#Preview("새 개발 기록") {
-    RecordEditorView(
-        goalId: "preview-goal",
-        goalTitle: "개발 기록의 버전 이력 완성"
-    )
-}
