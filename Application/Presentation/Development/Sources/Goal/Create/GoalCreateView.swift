@@ -1,0 +1,358 @@
+//
+//  GoalCreateView.swift
+//  Development
+//
+//  Created by opfic on 9/20/26.
+//
+
+import SwiftUI
+import Domain
+import PresentationShared
+
+public struct GoalCreateView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var store: StoreOf<GoalCreateFeature>
+    @FocusState private var focusedField: GoalCreateField?
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title2,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
+    private let onCompletion: (DevelopmentGoal) -> Void
+
+    public init(onCompletion: @escaping (DevelopmentGoal) -> Void = { _ in }) {
+        self._store = State(initialValue: Store(
+            initialState: GoalCreateFeature.State()
+        ) {
+            GoalCreateFeature()
+        })
+        self.onCompletion = onCompletion
+    }
+
+    public var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 24) {
+                    GoalCreateTitleField(store: store, focusedField: _focusedField)
+                    GoalCreateDescriptionEditor(store: store, focusedField: _focusedField)
+                    GoalCreateStatusField()
+                    GoalCreateTodoField(store: store)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                GoalCreateTopBar(
+                    iconSize: iconSize,
+                    isSaving: store.isSaving,
+                    isSaveEnabled: store.isReadyToSave,
+                    onClose: dismiss.callAsFunction,
+                    onSave: save
+                )
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                GoalCreateSaveBar(
+                    isSaving: store.isSaving,
+                    isSaveEnabled: store.isReadyToSave,
+                    onSave: save
+                )
+            }
+            .background(Color.appBackground.ignoresSafeArea())
+            .toolbarVisibility(.hidden, for: .navigationBar)
+            .prominentAlert(store, state: \.alert, action: \.alert)
+            .sheet(item: $store.scope(state: \.todoSelection, action: \.todoSelection)) {
+                GoalCreateTodoSelectionSheet(store: $0)
+            }
+            .onChange(of: store.result) { _, result in
+                guard let result else { return }
+                onCompletion(result)
+                dismiss()
+            }
+        }
+        .interactiveDismissDisabled(store.isSaving)
+    }
+
+    private func save() {
+        focusedField = nil
+        store.send(.view(.save))
+    }
+}
+
+private struct GoalCreateTopBar: View {
+    let iconSize: CGFloat
+    let isSaving: Bool
+    let isSaveEnabled: Bool
+    let onClose: () -> Void
+    let onSave: () -> Void
+
+    var body: some View {
+        HStack {
+            Button(action: onClose) {
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "xmark")
+                        .frame(width: iconSize, height: iconSize)
+                } else {
+                    Text(RecordPresentation.text("common_close"))
+                }
+            }
+            .font(.title)
+            .topBarButtonStyle()
+            .disabled(isSaving)
+
+            Spacer()
+
+            Text(RecordPresentation.text("development_goal_create_title"))
+                .font(.headline)
+
+            Spacer()
+
+            Button(action: onSave) {
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "checkmark")
+                        .frame(width: iconSize, height: iconSize)
+                        .foregroundStyle(Color.primary)
+                } else {
+                    Text(RecordPresentation.text("development_goal_save"))
+                        .foregroundStyle(Color.accent)
+                }
+            }
+            .font(.title)
+            .topBarButtonStyle(color: Color.surface)
+            .disabled(!isSaveEnabled)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+}
+
+private struct GoalCreateTitleField: View {
+    @Bindable var store: StoreOf<GoalCreateFeature>
+    @FocusState var focusedField: GoalCreateField?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(RecordPresentation.text("development_goal_create_title_label"))
+                .font(.headline)
+
+            TextField(
+                RecordPresentation.text("development_goal_create_title_placeholder"),
+                text: $store.title
+            )
+            .focused($focusedField, equals: .title)
+            .font(.body)
+            .padding()
+            .background(Color.surface, in: .rect(cornerRadius: 24))
+        }
+        .disabled(store.isSaving)
+    }
+}
+
+private struct GoalCreateDescriptionEditor: View {
+    @Bindable var store: StoreOf<GoalCreateFeature>
+    @FocusState var focusedField: GoalCreateField?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(RecordPresentation.text("development_goal_create_description_label"))
+                .font(.headline)
+
+            VStack(spacing: 16) {
+                GoalCreateModePicker(store: store, focusedField: _focusedField)
+
+                switch store.selectedTab {
+                case .write:
+                    TextEditor(text: $store.markdownContent)
+                        .focused($focusedField, equals: .content)
+                        .font(.body)
+                        .scrollContentBackground(.hidden)
+                        .padding(12)
+                        .frame(minHeight: 340, alignment: .topLeading)
+                        .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                case .preview:
+                    Group {
+                        if store.markdownContent.isEmpty {
+                            ContentUnavailableView(
+                                RecordPresentation.text("development_goal_create_preview_empty_title"),
+                                systemImage: "doc.text.magnifyingglass",
+                                description: Text(
+                                    RecordPresentation.text(
+                                        "development_goal_create_preview_empty_message"
+                                    )
+                                )
+                            )
+                        } else {
+                            MarkdownContentView(content: store.markdownContent)
+                                .padding(.vertical, 16)
+                        }
+                    }
+                    .frame(minHeight: 340)
+                    .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                }
+
+                Text(RecordPresentation.text("development_goal_create_markdown_hint"))
+                    .font(.caption)
+                    .foregroundStyle(Color.textTertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(20)
+            .background(Color.surface, in: .rect(cornerRadius: 24))
+        }
+        .disabled(store.isSaving)
+    }
+}
+
+private struct GoalCreateModePicker: View {
+    @Bindable var store: StoreOf<GoalCreateFeature>
+    @FocusState var focusedField: GoalCreateField?
+
+    var body: some View {
+        HStack(spacing: 0) {
+            GoalCreateModeButton(
+                title: RecordPresentation.text("development_record_write"),
+                isSelected: store.selectedTab == .write
+            ) {
+                store.send(.binding(.set(\.selectedTab, .write)))
+                focusedField = .content
+            }
+            GoalCreateModeButton(
+                title: RecordPresentation.text("development_record_preview"),
+                isSelected: store.selectedTab == .preview
+            ) {
+                focusedField = nil
+                store.send(.binding(.set(\.selectedTab, .preview)))
+            }
+        }
+        .padding(2)
+        .background(Color.border, in: .rect(cornerRadius: 16))
+    }
+}
+
+private struct GoalCreateModeButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.body)
+                .foregroundStyle(isSelected ? Color.accent : Color.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: 36)
+                .background {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.surface)
+                            .shadow(color: Color.textSecondary.opacity(0.08), radius: 2, y: 2)
+                    }
+                }
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct GoalCreateStatusField: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(RecordPresentation.text("development_goal_create_status"))
+                .font(.headline)
+
+            HStack {
+                GoalStatusBadge(status: .inProgress)
+                Spacer()
+            }
+            .padding(20)
+            .background(Color.surface, in: .rect(cornerRadius: 24))
+        }
+    }
+}
+
+private struct GoalCreateTodoField: View {
+    @Bindable var store: StoreOf<GoalCreateFeature>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(RecordPresentation.text("development_goal_create_todo_label"))
+                .font(.headline)
+
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(RecordPresentation.text("development_goal_create_todo_optional"))
+                        .font(.callout)
+                        .foregroundStyle(Color.textSecondary)
+                    Text(RecordPresentation.text("development_goal_create_todo_hint"))
+                        .font(.footnote)
+                        .foregroundStyle(Color.textTertiary)
+                }
+                Spacer(minLength: 12)
+                Button {
+                    store.send(.view(.selectTodos))
+                } label: {
+                    Text(todoButtonTitle)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(Color.accent)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(Color.primaryContainer, in: .capsule)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(20)
+            .background(Color.surface, in: .rect(cornerRadius: 24))
+        }
+        .disabled(store.isSaving)
+    }
+
+    private var todoButtonTitle: String {
+        guard !store.selectedTodoIDs.isEmpty else {
+            return RecordPresentation.text("development_goal_create_todo_select")
+        }
+        return String.localizedStringWithFormat(
+            RecordPresentation.text("development_goal_create_todo_selected_format"),
+            store.selectedTodoIDs.count
+        )
+    }
+}
+
+private struct GoalCreateSaveBar: View {
+    let isSaving: Bool
+    let isSaveEnabled: Bool
+    let onSave: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Button(action: onSave) {
+                Group {
+                    if isSaving {
+                        ProgressView()
+                            .tint(Color.white)
+                    } else {
+                        Text(RecordPresentation.text("development_goal_save"))
+                    }
+                }
+                .font(.headline)
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+            }
+            .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
+            .disabled(!isSaveEnabled)
+
+            Text(RecordPresentation.text("development_goal_create_save_hint"))
+                .font(.caption)
+                .foregroundStyle(Color.textTertiary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .background(Color.surface, ignoresSafeAreaEdges: .bottom)
+    }
+}
+
+private enum GoalCreateField: Hashable {
+    case title
+    case content
+}
+
+#Preview("새 개발 목표") {
+    GoalCreateView()
+}

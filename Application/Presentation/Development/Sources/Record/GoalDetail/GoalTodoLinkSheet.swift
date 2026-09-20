@@ -159,7 +159,7 @@ struct GoalTodoLinkSheet: View {
             ContentUnavailableView.search(text: store.searchText)
         } else {
             ForEach(store.sections) { section in
-                GoalTodoLinkSection(
+                GoalTodoSelectionSection(
                     section: section,
                     selectedTodoIDs: store.selectedTodoIDs,
                     onToggle: { store.send(.view(.toggleTodo($0))) }
@@ -171,76 +171,4 @@ struct GoalTodoLinkSheet: View {
 
 private enum GoalTodoLinkMenuAction: Hashable {
     case clearSelection
-}
-
-private struct GoalTodoLinkSection: View {
-    let section: GoalTodoLinkSectionItem
-    let selectedTodoIDs: Set<String>
-    let onToggle: (String) -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Image(systemName: section.category.symbolName)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.white)
-                    .frame(width: 30, height: 30)
-                    .background(section.category.color, in: .circle)
-                Text(section.category.localizedName)
-                    .font(.headline)
-                Spacer()
-            }
-
-            LazyVStack(spacing: 0) {
-                ForEach(section.todos, id: \.id) { todo in
-                    GoalTodoLinkRow(
-                        todo: todo,
-                        isSelected: selectedTodoIDs.contains(todo.id)
-                    ) {
-                        onToggle(todo.id)
-                    }
-                }
-            }
-            .background(Color.surface)
-            .compositingGroup()
-            .clipShape(.rect(cornerRadius: 20))
-        }
-    }
-}
-
-private struct GoalTodoLinkRow: View {
-    let todo: Todo
-    let isSelected: Bool
-    let onToggle: () -> Void
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundStyle(isSelected ? Color.accent : Color.border)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(todo.title)
-                    .font(.body.weight(isSelected ? .semibold : .regular))
-                    .foregroundStyle(Color.primary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                HStack(spacing: 8) {
-                    Text("#\(todo.number)")
-                    Text(todo.dueDate ?? todo.updatedAt, format: .dateTime.month().day())
-                }
-                .font(.caption)
-                .foregroundStyle(Color.textTertiary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            if todo.isPinned {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(Color.warning)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(isSelected ? Color.primaryContainer : .clear)
-        .contentShape(.rect)
-        .onTapGesture(perform: onToggle)
-    }
 }
