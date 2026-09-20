@@ -11,9 +11,11 @@ import PresentationShared
 public enum DevelopmentDependencyPreparation {
     public static func prepareGoal(
         _ dependencies: inout DependencyValues,
+        createGoalUseCase: CreateDevelopmentGoalUseCase,
         fetchGoalUseCase: FetchDevelopmentGoalUseCase,
         updateGoalStatusUseCase: UpdateDevelopmentGoalStatusUseCase
     ) {
+        dependencies.developmentCreateGoalUseCase = createGoalUseCase
         dependencies.developmentFetchGoalUseCase = fetchGoalUseCase
         dependencies.developmentUpdateGoalStatusUseCase = updateGoalStatusUseCase
     }
@@ -53,6 +55,11 @@ public enum DevelopmentDependencyPreparation {
 }
 
 extension DependencyValues {
+    var developmentCreateGoalUseCase: CreateDevelopmentGoalUseCase {
+        get { self[DevelopmentCreateGoalUseCaseKey.self] }
+        set { self[DevelopmentCreateGoalUseCaseKey.self] = newValue }
+    }
+
     var developmentFetchGoalUseCase: FetchDevelopmentGoalUseCase {
         get { self[DevelopmentFetchGoalUseCaseKey.self] }
         set { self[DevelopmentFetchGoalUseCaseKey.self] = newValue }
@@ -106,6 +113,12 @@ extension DependencyValues {
     var developmentUpdateTodoGoalUseCase: UpdateTodoGoalUseCase {
         get { self[DevelopmentUpdateTodoGoalUseCaseKey.self] }
         set { self[DevelopmentUpdateTodoGoalUseCaseKey.self] = newValue }
+    }
+}
+
+private enum DevelopmentCreateGoalUseCaseKey: DependencyKey {
+    static var liveValue: CreateDevelopmentGoalUseCase {
+        preconditionFailure("CreateDevelopmentGoalUseCase must be provided.")
     }
 }
 

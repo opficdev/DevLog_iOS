@@ -15,13 +15,6 @@ struct TodoGoalLinkUpdate: Equatable, Sendable {
     let goalId: String?
 }
 
-struct GoalTodoLinkSectionItem: Equatable, Identifiable {
-    let category: TodoCategoryItem
-    var todos: [Todo]
-
-    var id: String { category.id }
-}
-
 @Reducer
 struct GoalTodoLinkFeature {
     @ObservableState
@@ -51,19 +44,8 @@ struct GoalTodoLinkFeature {
             }
         }
 
-        var sections: [GoalTodoLinkSectionItem] {
-            var sectionIndexByID = [String: Int]()
-            var sections = [GoalTodoLinkSectionItem]()
-            for todo in filteredTodos {
-                let category = TodoCategoryItem(from: todo.category)
-                if let index = sectionIndexByID[category.id] {
-                    sections[index].todos.append(todo)
-                } else {
-                    sectionIndexByID[category.id] = sections.count
-                    sections.append(GoalTodoLinkSectionItem(category: category, todos: [todo]))
-                }
-            }
-            return sections
+        var sections: [GoalTodoSelectionSectionItem] {
+            goalTodoSelectionSections(from: filteredTodos)
         }
 
         var canClearSelection: Bool {
