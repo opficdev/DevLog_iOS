@@ -17,6 +17,7 @@ public struct HomeView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(48)
+    @State private var isTodoCategoryExpanded = false
     @State private var path = [HomeRoute]()
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
@@ -119,28 +120,7 @@ public struct HomeView: View {
     }
 
     private var todoSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            HStack(spacing: 8) {
-                Text("TODO", bundle: PresentationResources.bundle)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-                Text("\(store.preferences.filter(\.isVisible).count)")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Color.accent)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(categoryCountBackground, in: Capsule())
-                Spacer()
-                Button {
-                    store.send(.view(.tapManageTodoCategory))
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(Color.textTertiary)
-                        .frame(width: 32, height: 32)
-                }
-            }
-
+        VStack(alignment: .leading, spacing: 0) {
             if store.isPreferencesLoading {
                 LoadingView()
                     .frame(maxWidth: .infinity)
@@ -152,22 +132,63 @@ public struct HomeView: View {
                     ),
                     spacing: 20
                 ) {
-                    ForEach(store.preferences.filter(\.isVisible)) { item in
+                    let preferences = store.preferences.filter(\.isVisible)
+                    let visiblePreferences = isTodoCategoryExpanded
+                        ? preferences
+                        : Array(preferences.prefix(8))
+                    ForEach(visiblePreferences) { item in
                         todoCategoryRow(item)
+                    }
+                    if isTodoCategoryExpanded {
+                        addTodoCategoryButton
                     }
                 }
             }
+
+            HStack {
+                Spacer()
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isTodoCategoryExpanded.toggle()
+                    }
+                } label: {
+                    Image(systemName: isTodoCategoryExpanded ? "chevron.up" : "chevron.down")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.textTertiary)
+                        .frame(width: 32, height: 32)
+                }
+                Spacer()
+            }
         }
-        .padding(16)
+        .padding(.top, 20)
+        .padding(.bottom, 12)
         .background(Color.surface, in: RoundedRectangle(cornerRadius: 28))
     }
 
-    private var categoryCountBackground: Color {
-        if colorScheme == .dark {
-            return .surfaceSecondary
+    private var addTodoCategoryButton: some View {
+        Button {
+            store.send(.view(.tapManageTodoCategory))
+        } label: {
+            VStack(spacing: 10) {
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(
+                        Color.textTertiary,
+                        style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])
+                    )
+                    .frame(width: categoryIconSize, height: categoryIconSize)
+                    .overlay {
+                        Image(systemName: "plus")
+                            .font(.title3.bold())
+                            .foregroundStyle(Color.textTertiary)
+                    }
+                Text("todo_add", bundle: PresentationResources.bundle)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.textTertiary)
+            }
+            .frame(maxWidth: .infinity)
+            .contentShape(.rect)
         }
-
-        return Color.accent.opacity(0.12)
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
