@@ -72,11 +72,11 @@ public struct RecordEditorView: View {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "xmark")
                         .frame(width: iconSize, height: iconSize)
+                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .font(.title)
             .topBarButtonStyle()
             .disabled(store.isLoading)
             Spacer()
@@ -95,12 +95,12 @@ public struct RecordEditorView: View {
                     Image(systemName: "checkmark")
                         .frame(width: iconSize, height: iconSize)
                         .foregroundStyle(Color.primary)
+                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("development_record_save"))
                         .foregroundStyle(Color.accent)
                 }
             }
-            .font(.title)
             .topBarButtonStyle(color: Color.surface)
             .disabled(!store.isReadyToSave)
         }
@@ -136,7 +136,33 @@ public struct RecordEditorView: View {
         VStack(spacing: 16) {
             ModePicker(store: store, focusedField: _focusedField)
 
-            editorContent
+            switch store.selectedTab {
+            case .write:
+                TextEditor(text: $store.markdownContent)
+                    .focused($focusedField, equals: .content)
+                    .font(.body)
+                    .scrollContentBackground(.hidden)
+                    .padding(12)
+                    .frame(minHeight: 340, alignment: .topLeading)
+                    .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+            case .preview:
+                Group {
+                    if store.markdownContent.isEmpty {
+                        ContentUnavailableView(
+                            RecordPresentation.text("development_record_preview_empty_title"),
+                            systemImage: "doc.text.magnifyingglass",
+                            description: Text(
+                                RecordPresentation.text("development_record_preview_empty_message")
+                            )
+                        )
+                    } else {
+                        MarkdownContentView(content: store.markdownContent)
+                            .padding(.vertical, 16)
+                    }
+                }
+                .frame(minHeight: 340)
+                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+            }
 
             Text(RecordPresentation.text("development_record_markdown_hint"))
                 .font(.caption)
@@ -149,37 +175,6 @@ public struct RecordEditorView: View {
                 .fill(Color.surface)
         }
         .disabled(store.isLoading)
-    }
-
-    @ViewBuilder
-    private var editorContent: some View {
-        switch store.selectedTab {
-        case .write:
-            TextEditor(text: $store.markdownContent)
-                .focused($focusedField, equals: .content)
-                .font(.body)
-                .scrollContentBackground(.hidden)
-                .padding(12)
-                .frame(minHeight: 340, alignment: .topLeading)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
-        case .preview:
-            Group {
-                if store.markdownContent.isEmpty {
-                    ContentUnavailableView(
-                        RecordPresentation.text("development_record_preview_empty_title"),
-                        systemImage: "doc.text.magnifyingglass",
-                        description: Text(
-                            RecordPresentation.text("development_record_preview_empty_message")
-                        )
-                    )
-                } else {
-                    MarkdownContentView(content: store.markdownContent)
-                        .padding(.vertical, 16)
-                }
-            }
-            .frame(minHeight: 340)
-            .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
-        }
     }
 
     private var confirmBar: some View {
@@ -236,11 +231,11 @@ private struct FieldCard<Content: View>: View {
             Text(title)
                 .font(.headline)
             content
-        }
-        .padding(20)
-        .background {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.surface)
+                .padding(20)
+                .background {
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color.surface)
+                }
         }
     }
 }
@@ -301,4 +296,11 @@ private struct ModePicker: View {
 private enum Field: Hashable {
     case title
     case content
+}
+
+#Preview("새 개발 기록") {
+    RecordEditorView(
+        goalId: "preview-goal",
+        goalTitle: "개발 기록의 버전 이력 완성"
+    )
 }

@@ -34,6 +34,10 @@ public struct GoalDetailView: View {
         ScrollView {
             LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
                 Section {
+                    GoalDescriptionCard(
+                        description: store.goal?.description ?? "",
+                        isLoading: !store.hasLoaded && store.isLoading
+                    )
                     timelineCard
                     GoalLinkedTodoCard(
                         todos: store.linkedTodos,

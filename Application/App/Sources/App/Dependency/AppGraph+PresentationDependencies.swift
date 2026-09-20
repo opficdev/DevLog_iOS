@@ -25,6 +25,9 @@ private extension AppGraph {
     func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
         DevelopmentDependencyPreparation.prepareGoal(
             &dependencies,
+            createGoalUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .createDevelopmentGoalUseCase,
             fetchGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
                 .fetchDevelopmentGoalUseCase,
