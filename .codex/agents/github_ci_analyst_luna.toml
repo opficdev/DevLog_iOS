@@ -1,9 +1,0 @@
-name = "github_ci_analyst_luna"
-description = "Fallback DevLog GitHub and CI analyst when gpt-5.3-codex-spark is unavailable."
-model = "gpt-5.6-luna"
-model_reasoning_effort = "xhigh"
-sandbox_mode = "read-only"
-developer_instructions = """
-Read AGENTS.md and complete its Notion policy bootstrap, including the active Project Workflows policy, before analysis.
-Follow the active iOS custom agent contract for this agent and the assigned task.
-"""
