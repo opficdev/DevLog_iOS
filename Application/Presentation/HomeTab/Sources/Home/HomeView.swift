@@ -19,7 +19,7 @@ public struct HomeView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(64)
     @State private var path = [HomeRoute]()
-    @State private var goalPresentation: HomeGoalPresentation?
+    @State private var goalPresentation: GoalPresentation?
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
     private let isSelected: Bool
@@ -49,7 +49,7 @@ public struct HomeView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                     Section {
-                        HomeDevelopmentSummaryCard(
+                        DevelopmentSummaryCard(
                             items: store.developmentGoalItems,
                             isLoading: store.isDevelopmentGoalsLoading,
                             hasLoaded: store.hasDevelopmentGoalsLoaded,
@@ -59,7 +59,7 @@ public struct HomeView: View {
                     } header: {
                         topBar
                     }
-                    HomeDevelopmentGoalSection(
+                    DevelopmentGoalSection(
                         items: store.developmentGoalItems,
                         isLoading: store.isDevelopmentGoalsLoading,
                         hasLoaded: store.hasDevelopmentGoalsLoaded,

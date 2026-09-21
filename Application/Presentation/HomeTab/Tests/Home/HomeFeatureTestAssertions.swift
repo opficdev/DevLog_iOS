@@ -13,7 +13,7 @@ import PresentationShared
 
 @MainActor
 func verifyHomeFetchData(
-    adapter: HomeStoreTestAdapter
+    adapter: StoreTestAdapter
 ) async throws {
     await adapter.fetchData()
 
@@ -26,7 +26,7 @@ func verifyHomeFetchData(
 
 @MainActor
 func verifyHomeTapTodoCategory(
-    adapter: HomeStoreTestAdapter
+    adapter: StoreTestAdapter
 ) async throws {
     await adapter.setPresentation(.contentPicker, true)
     await adapter.tapTodoCategory(.system(.feature))
@@ -37,7 +37,7 @@ func verifyHomeTapTodoCategory(
 
 @MainActor
 func verifyHomeOrderTodoCategory(
-    adapter: HomeStoreTestAdapter,
+    adapter: StoreTestAdapter,
     updatePreferencesUseCaseSpy: UpdateTodoCategoryPreferencesUseCaseSpy
 ) async throws {
     await adapter.fetchData()
@@ -67,7 +67,7 @@ func verifyHomeOrderTodoCategory(
     #expect(!adapter.showCategoryManage)
 }
 
-struct HomeFetchDataContext {
+struct FetchDataContext {
     let fetchPreferencesUseCaseSpy: FetchTodoCategoryPreferencesUseCaseSpy
 }
 
@@ -142,7 +142,7 @@ func makeHomeTodo(
     )
 }
 
-func makeHomeFetchDataContext() -> HomeFetchDataContext {
+func makeHomeFetchDataContext() -> FetchDataContext {
     let fetchPreferencesUseCaseSpy = FetchTodoCategoryPreferencesUseCaseSpy()
     fetchPreferencesUseCaseSpy.todoCategoryPreferences = [
         TodoCategoryPreference(category: .system(.feature), isVisible: true),
@@ -158,19 +158,19 @@ func makeHomeFetchDataContext() -> HomeFetchDataContext {
         )
     ]
 
-    return HomeFetchDataContext(
+    return FetchDataContext(
         fetchPreferencesUseCaseSpy: fetchPreferencesUseCaseSpy
     )
 }
 
-struct HomeOrderContext {
+struct OrderContext {
     let fetchPreferencesUseCaseSpy: FetchTodoCategoryPreferencesUseCaseSpy
     let updatePreferencesUseCaseSpy: UpdateTodoCategoryPreferencesUseCaseSpy
 }
 
-func makeHomeOrderContext() -> HomeOrderContext {
+func makeHomeOrderContext() -> OrderContext {
     let fetchContext = makeHomeFetchDataContext()
-    return HomeOrderContext(
+    return OrderContext(
         fetchPreferencesUseCaseSpy: fetchContext.fetchPreferencesUseCaseSpy,
         updatePreferencesUseCaseSpy: UpdateTodoCategoryPreferencesUseCaseSpy()
     )

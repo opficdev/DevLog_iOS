@@ -50,23 +50,23 @@ public enum HomeDependencyPreparation {
 
 extension DependencyValues {
     var homeFetchTodosUseCase: FetchTodosUseCase {
-        get { self[HomeFetchTodosUseCaseKey.self] }
-        set { self[HomeFetchTodosUseCaseKey.self] = newValue }
+        get { self[FetchTodosUseCaseKey.self] }
+        set { self[FetchTodosUseCaseKey.self] = newValue }
     }
 
     var homeFetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase {
-        get { self[HomeFetchRecentSearchQueriesUseCaseKey.self] }
-        set { self[HomeFetchRecentSearchQueriesUseCaseKey.self] = newValue }
+        get { self[FetchRecentSearchQueriesUseCaseKey.self] }
+        set { self[FetchRecentSearchQueriesUseCaseKey.self] = newValue }
     }
 }
 
-private enum HomeFetchTodosUseCaseKey: DependencyKey {
+private enum FetchTodosUseCaseKey: DependencyKey {
     static var liveValue: FetchTodosUseCase {
         preconditionFailure("FetchTodosUseCase must be provided.")
     }
 }
 
-private enum HomeFetchRecentSearchQueriesUseCaseKey: DependencyKey {
+private enum FetchRecentSearchQueriesUseCaseKey: DependencyKey {
     static var liveValue: FetchRecentSearchQueriesUseCase {
         preconditionFailure("FetchRecentSearchQueriesUseCase must be provided.")
     }

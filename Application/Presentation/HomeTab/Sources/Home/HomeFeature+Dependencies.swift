@@ -10,32 +10,32 @@ import Domain
 
 extension DependencyValues {
     var homeFetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase {
-        get { self[HomeFetchDevelopmentGoalsUseCaseKey.self] }
-        set { self[HomeFetchDevelopmentGoalsUseCaseKey.self] = newValue }
+        get { self[FetchDevelopmentGoalsUseCaseKey.self] }
+        set { self[FetchDevelopmentGoalsUseCaseKey.self] = newValue }
     }
 
     var homeFetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase {
-        get { self[HomeFetchDevelopmentRecordsUseCaseKey.self] }
-        set { self[HomeFetchDevelopmentRecordsUseCaseKey.self] = newValue }
+        get { self[FetchDevelopmentRecordsUseCaseKey.self] }
+        set { self[FetchDevelopmentRecordsUseCaseKey.self] = newValue }
     }
 
     var homeFetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase {
-        get { self[HomeFetchDevelopmentRecordVersionKey.self] }
-        set { self[HomeFetchDevelopmentRecordVersionKey.self] = newValue }
+        get { self[FetchDevelopmentRecordVersionKey.self] }
+        set { self[FetchDevelopmentRecordVersionKey.self] = newValue }
     }
 
     var homeUpdateTodoCategoryPreferencesUseCase: UpdateTodoCategoryPreferencesUseCase {
-        get { self[HomeUpdatePreferencesUseCaseKey.self] }
-        set { self[HomeUpdatePreferencesUseCaseKey.self] = newValue }
+        get { self[UpdatePreferencesUseCaseKey.self] }
+        set { self[UpdatePreferencesUseCaseKey.self] = newValue }
     }
 
     var homeNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
-        get { self[HomeNetworkConnectivityUseCaseKey.self] }
-        set { self[HomeNetworkConnectivityUseCaseKey.self] = newValue }
+        get { self[NetworkConnectivityUseCaseKey.self] }
+        set { self[NetworkConnectivityUseCaseKey.self] = newValue }
     }
 }
 
-private enum HomeFetchDevelopmentGoalsUseCaseKey: DependencyKey {
+private enum FetchDevelopmentGoalsUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentGoalsUseCase {
         preconditionFailure("FetchDevelopmentGoalsUseCase must be provided.")
     }
@@ -45,7 +45,7 @@ private enum HomeFetchDevelopmentGoalsUseCaseKey: DependencyKey {
     }
 }
 
-private enum HomeFetchDevelopmentRecordsUseCaseKey: DependencyKey {
+private enum FetchDevelopmentRecordsUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordsUseCase {
         preconditionFailure("FetchDevelopmentRecordsUseCase must be provided.")
     }
@@ -55,7 +55,7 @@ private enum HomeFetchDevelopmentRecordsUseCaseKey: DependencyKey {
     }
 }
 
-private enum HomeFetchDevelopmentRecordVersionKey: DependencyKey {
+private enum FetchDevelopmentRecordVersionKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordVersionUseCase {
         preconditionFailure("FetchDevelopmentRecordVersionUseCase must be provided.")
     }
@@ -65,7 +65,7 @@ private enum HomeFetchDevelopmentRecordVersionKey: DependencyKey {
     }
 }
 
-private enum HomeUpdatePreferencesUseCaseKey: DependencyKey {
+private enum UpdatePreferencesUseCaseKey: DependencyKey {
     static var liveValue: UpdateTodoCategoryPreferencesUseCase {
         preconditionFailure("UpdateTodoCategoryPreferencesUseCase must be provided.")
     }
@@ -75,7 +75,7 @@ private enum HomeUpdatePreferencesUseCaseKey: DependencyKey {
     }
 }
 
-private enum HomeNetworkConnectivityUseCaseKey: DependencyKey {
+private enum NetworkConnectivityUseCaseKey: DependencyKey {
     static var liveValue: ObserveNetworkConnectivityUseCase {
         preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
     }

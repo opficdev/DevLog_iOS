@@ -16,7 +16,7 @@ struct HomeFeature {
         @Presents var alert: AlertState<Never>?
         @Presents var sheet: SheetState?
         @Presents var fullScreenCover: FullScreenCoverState?
-        var developmentGoalItems = [HomeDevelopmentGoalItem]()
+        var developmentGoalItems = [DevelopmentGoalItem]()
         var hasDevelopmentGoalsLoaded = false
         var hasDevelopmentGoalsLoadFailure = false
         var preferences = [TodoCategoryItem]()
@@ -69,7 +69,7 @@ struct HomeFeature {
             case setSheet(SheetState?)
             case setPresentation(Presentation, Bool)
             case setAlert(isPresented: Bool)
-            case developmentGoalsLoaded([HomeDevelopmentGoalItem])
+            case developmentGoalsLoaded([DevelopmentGoalItem])
             case developmentGoalsLoadFailed
             case setTodoCategory([TodoCategoryItem])
         }
@@ -190,15 +190,15 @@ struct HomeFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            HomeSheetFeature()
+            SheetFeature()
         }
         .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
-            HomeFullScreenCoverFeature()
+            FullScreenCoverFeature()
         }
     }
 }
 
-private struct HomeFullScreenCoverFeature: Reducer {
+private struct FullScreenCoverFeature: Reducer {
     typealias State = HomeFeature.FullScreenCoverState
     typealias Action = HomeFeature.FullScreenCover
 
@@ -279,7 +279,7 @@ private extension HomeFeature {
     }
 }
 
-private struct HomeSheetFeature: Reducer {
+private struct SheetFeature: Reducer {
     typealias State = HomeFeature.SheetState
     typealias Action = HomeFeature.Sheet
 
