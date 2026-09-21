@@ -1,5 +1,5 @@
 //
-//  RootFeature.swift
+//  Feature.swift
 //  Entry
 //
 //  Created by opfic on 6/17/26.
@@ -12,7 +12,7 @@ import Domain
 import Foundation
 
 @Reducer
-struct RootFeature {
+struct Feature {
     private enum CancelID: Hashable {
         case networkConnectivity
         case session
@@ -147,8 +147,8 @@ struct RootFeature {
 }
 
 private struct SheetFeature: Reducer {
-    typealias State = RootFeature.SheetState
-    typealias Action = RootFeature.Action.Sheet
+    typealias State = Feature.SheetState
+    typealias Action = Feature.Action.Sheet
 
     var body: some ReducerOf<Self> {
         EmptyReducer()
@@ -237,7 +237,7 @@ private enum SystemThemeUseCaseKey: DependencyKey {
     }
 }
 
-private extension RootFeature {
+private extension Feature {
     func checkAppUpdateEffect() -> Effect<Action> {
         .run { [checkAppUpdateUseCase] send in
             let isRequired = (try? await checkAppUpdateUseCase.execute()) ?? false

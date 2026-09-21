@@ -1,5 +1,5 @@
 //
-//  RootFeatureTests.swift
+//  FeatureTests.swift
 //  EntryTests
 //
 //  Created by opfic on 6/17/26.
@@ -11,29 +11,29 @@ import PresentationShared
 import Testing
 
 @MainActor
-struct RootFeatureTests {
-    @Test("RootFeature networkStatusChanged는 기존 Root 상태관리처럼 alert 문구와 표시 상태를 갱신한다")
+struct FeatureTests {
+    @Test("Feature networkStatusChanged는 기존 Root 상태관리처럼 alert 문구와 표시 상태를 갱신한다")
     func RootFeature_networkStatusChanged는_기존_Root_상태관리처럼_alert_문구와_표시_상태를_갱신한다() async {
         let adapter = RootStoreTestAdapter()
 
         await verifyNetworkDisconnectedAlert(adapter: adapter)
     }
 
-    @Test("RootFeature setAlert(false)는 기존 Root 상태관리처럼 alert 문구를 유지한 채 표시 상태를 해제한다")
+    @Test("Feature setAlert(false)는 기존 Root 상태관리처럼 alert 문구를 유지한 채 표시 상태를 해제한다")
     func RootFeature_setAlert_false는_기존_Root_상태관리처럼_alert_문구를_유지한_채_표시_상태를_해제한다() async {
         let adapter = RootStoreTestAdapter()
 
         await verifySetAlert(adapter: adapter)
     }
 
-    @Test("RootFeature setTheme은 기존 Root 상태관리처럼 테마 상태를 갱신한다")
+    @Test("Feature setTheme은 기존 Root 상태관리처럼 테마 상태를 갱신한다")
     func RootFeature_setTheme은_기존_Root_상태관리처럼_테마_상태를_갱신한다() async {
         let adapter = RootStoreTestAdapter()
 
         await verifyThemeUpdate(adapter: adapter)
     }
 
-    @Test("RootFeature didLogined(false)는 기존 Root 상태관리처럼 signIn 상태를 갱신하고 login 화면 추적을 요청한다")
+    @Test("Feature didLogined(false)는 기존 Root 상태관리처럼 signIn 상태를 갱신하고 login 화면 추적을 요청한다")
     func RootFeature_didLogined_false는_기존_Root_상태관리처럼_signIn_상태를_갱신하고_login_화면_추적을_요청한다() async {
         let trackSpy = RootTrackAnalyticsEventUseCaseSpy()
         let adapter = RootStoreTestAdapter(trackAnalyticsEventUseCase: trackSpy)
@@ -41,7 +41,7 @@ struct RootFeatureTests {
         await verifyDidLoginedFalse(adapter: adapter, trackAnalyticsEventUseCaseSpy: trackSpy)
     }
 
-    @Test("RootFeature didLogined(false)는 앱 badge 초기화를 요청한다")
+    @Test("Feature didLogined(false)는 앱 badge 초기화를 요청한다")
     func RootFeature_didLogined_false는_앱_badge_초기화를_요청한다() async {
         let badgeSpy = RootApplicationBadgeCountSpy()
         let adapter = RootStoreTestAdapter(badgeCountSpy: badgeSpy)
@@ -54,7 +54,7 @@ struct RootFeatureTests {
         #expect(badgeSpy.counts == [0])
     }
 
-    @Test("RootFeature didLogined(true)는 기존 Root 상태관리처럼 signIn 상태를 true로 갱신하고 selectedMainTab을 home으로 되돌린다")
+    @Test("Feature didLogined(true)는 기존 Root 상태관리처럼 signIn 상태를 true로 갱신하고 selectedMainTab을 home으로 되돌린다")
     func RootFeature_didLogined_true는_기존_Root_상태관리처럼_signIn_상태를_true로_갱신하고_selectedMainTab을_home으로_되돌린다() async {
         let trackSpy = RootTrackAnalyticsEventUseCaseSpy()
         let adapter = RootStoreTestAdapter(trackAnalyticsEventUseCase: trackSpy)
@@ -62,7 +62,7 @@ struct RootFeatureTests {
         await verifyDidLoginedTrue(adapter: adapter, trackAnalyticsEventUseCaseSpy: trackSpy)
     }
 
-    @Test("RootFeature onAppear는 기존 Root 상태관리처럼 session, network, theme 관찰을 한 번만 시작한다")
+    @Test("Feature onAppear는 기존 Root 상태관리처럼 session, network, theme 관찰을 한 번만 시작한다")
     func RootFeature_onAppear는_기존_Root_상태관리처럼_session_network_theme_관찰을_한_번만_시작한다() async {
         let sessionSpy = ObserveAuthSessionUseCaseSpy(currentValue: true)
         let networkSpy = RootObserveNetworkConnectivityUseCaseSpy(currentValue: true)
@@ -81,7 +81,7 @@ struct RootFeatureTests {
         #expect(themeSpy.observeCallCount == 1)
     }
 
-    @Test("RootFeature onAppear는 기존 Root 상태관리처럼 초기 publisher 값으로 signIn, network, theme 상태를 반영한다")
+    @Test("Feature onAppear는 기존 Root 상태관리처럼 초기 publisher 값으로 signIn, network, theme 상태를 반영한다")
     func RootFeature_onAppear는_기존_Root_상태관리처럼_초기_publisher_값으로_signIn_network_theme_상태를_반영한다() async {
         let adapter = RootStoreTestAdapter(
             sessionUseCase: ObserveAuthSessionUseCaseSpy(currentValue: false),
@@ -92,7 +92,7 @@ struct RootFeatureTests {
         await verifyObservedInitialValues(adapter: adapter)
     }
 
-    @Test("RootFeature onAppear는 앱 badge 초기화를 요청한다")
+    @Test("Feature onAppear는 앱 badge 초기화를 요청한다")
     func RootFeature_onAppear는_앱_badge_초기화를_요청한다() async {
         let badgeSpy = RootApplicationBadgeCountSpy()
         let adapter = RootStoreTestAdapter(badgeCountSpy: badgeSpy)
@@ -106,7 +106,7 @@ struct RootFeatureTests {
         #expect(badgeSpy.counts == [0, 0])
     }
 
-    @Test("RootFeature onAppear는 로그인 상태와 무관하게 업데이트를 한 번만 확인한다")
+    @Test("Feature onAppear는 로그인 상태와 무관하게 업데이트를 한 번만 확인한다")
     func RootFeature_onAppear는_로그인_상태와_무관하게_업데이트를_한_번만_확인한다() async {
         let checkSpy = RootCheckAppUpdateUseCaseSpy()
         let adapter = RootStoreTestAdapter(

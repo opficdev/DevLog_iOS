@@ -1,5 +1,5 @@
 //
-//  RootFeatureTestSupport.swift
+//  FeatureTestSupport.swift
 //  EntryTests
 //
 //  Created by opfic on 6/17/26.
@@ -41,7 +41,7 @@ struct RootStateSnapshot: Equatable {
 
 @MainActor
 struct RootStoreTestAdapter: RootStateDriving {
-    private let store: TestStoreOf<RootFeature>
+    private let store: TestStoreOf<Feature>
 
     var snapshot: RootStateSnapshot {
         RootStateSnapshot(
@@ -69,8 +69,8 @@ struct RootStoreTestAdapter: RootStateDriving {
         openURLSpy: RootOpenURLSpy = RootOpenURLSpy(),
         badgeCountSpy: RootApplicationBadgeCountSpy = RootApplicationBadgeCountSpy()
     ) {
-        store = TestStore(initialState: RootFeature.State()) {
-            RootFeature()
+        store = TestStore(initialState: Feature.State()) {
+            Feature()
         } withDependencies: {
             $0.observeAuthSessionUseCase = sessionUseCase
             $0.rootNetworkConnectivityUseCase = networkConnectivityUseCase
