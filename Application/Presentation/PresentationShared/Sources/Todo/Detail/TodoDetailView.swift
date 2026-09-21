@@ -122,7 +122,7 @@ public struct TodoDetailView: View {
         switch sheetStore.state {
         case .info:
             if let todo = store.todo {
-                TodoDetailInfoSheetView(todo: todo) {
+                InfoSheetView(todo: todo) {
                     sheetStore.send(.tapCloseButton)
                 }
             }
@@ -143,7 +143,7 @@ public struct TodoDetailView: View {
     }
 }
 
-private struct TodoDetailInfoSheetView: View {
+private struct InfoSheetView: View {
     let todo: Todo
     let onClose: () -> Void
     private let calendar = Calendar.current

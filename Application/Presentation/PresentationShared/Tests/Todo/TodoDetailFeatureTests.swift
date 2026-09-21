@@ -17,7 +17,7 @@ struct TodoDetailFeatureTests {
         let todo = makeTodo(id: "todo-1", content: "content")
         let fetchSpy = FetchTodoByIdUseCaseSpy(todo: todo)
         let referenceSpy = FetchReferenceItemsUseCaseSpy()
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: referenceSpy,
             todoId: "todo-1"
@@ -51,7 +51,7 @@ struct TodoDetailFeatureTests {
             3: reference3,
             5: reference5
         ])
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: referenceSpy,
             todoId: todo.id
@@ -73,7 +73,7 @@ struct TodoDetailFeatureTests {
         let reference7 = makeTodoReference(id: "todo-7", title: "Reference 7")
         let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo())
         let referenceSpy = FetchReferenceItemsUseCaseSpy(references: [7: reference7])
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: referenceSpy,
             todoId: "todo-1"
@@ -96,7 +96,7 @@ struct TodoDetailFeatureTests {
         let clock = TestClock()
         let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo())
         fetchSpy.shouldSuspend = true
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: FetchReferenceItemsUseCaseSpy(),
             todoId: "todo-1",
@@ -133,8 +133,8 @@ struct TodoDetailFeatureTests {
     @Test("Todo 조회 실패 시 공통 에러 알림 상태를 설정한다")
     func Todo_조회_실패_시_공통_에러_알림_상태를_설정한다() async {
         let fetchSpy = FetchTodoByIdUseCaseSpy(todo: makeTodo())
-        fetchSpy.error = TodoDetailTestError.failure
-        let adapter = TodoDetailStoreTestAdapter(
+        fetchSpy.error = DetailTestError.failure
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: FetchReferenceItemsUseCaseSpy(),
             todoId: "todo-1"
@@ -157,7 +157,7 @@ struct TodoDetailFeatureTests {
             todo: makeTodo(id: "todo-2", content: "- refs #7")
         )
         let referenceSpy = FetchReferenceItemsUseCaseSpy(references: [7: reference])
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: fetchSpy,
             referenceUseCase: referenceSpy,
             todoId: "todo-1",
@@ -198,7 +198,7 @@ struct TodoDetailFeatureTests {
     func TodoEditor_수정_delegate는_editor를_닫고_Todo_상세_상태를_갱신한다() async {
         let reference = makeTodoReference(id: "todo-7", title: "Reference 7")
         let referenceSpy = FetchReferenceItemsUseCaseSpy(references: [7: reference])
-        let adapter = TodoDetailStoreTestAdapter(
+        let adapter = DetailStoreTestAdapter(
             fetchUseCase: FetchTodoByIdUseCaseSpy(todo: makeTodo()),
             referenceUseCase: referenceSpy,
             todoId: "todo-1"
@@ -226,7 +226,7 @@ struct TodoDetailFeatureTests {
 }
 
 @MainActor
-private protocol TodoDetailTestAdapter {
+private protocol DetailTestAdapter {
     var todoId: String { get }
     var showEditButton: Bool { get }
     var todo: Todo? { get }
@@ -249,7 +249,7 @@ private protocol TodoDetailTestAdapter {
 }
 
 @MainActor
-private struct TodoDetailStoreTestAdapter: TodoDetailTestAdapter {
+private struct DetailStoreTestAdapter: DetailTestAdapter {
     private let store: StoreOf<TodoDetailFeature>
 
     var todoId: String { store.todoId }
@@ -404,7 +404,7 @@ private final class FetchReferenceItemsUseCaseSpy: FetchReferenceItemsUseCase {
     }
 }
 
-private enum TodoDetailTestError: Error {
+private enum DetailTestError: Error {
     case failure
 }
 
