@@ -39,7 +39,7 @@ let project = Project(
         ),
         .package(
             url: "https://github.com/opficdev/UIComposable.git",
-            .exact("0.1.0")
+            .exact("0.2.0")
         ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),

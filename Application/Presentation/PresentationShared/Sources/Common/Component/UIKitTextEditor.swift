@@ -9,16 +9,10 @@ import SwiftUI
 import UIComposable
 
 final class UIKitTextEditor: UITextView, UICoordinatedComposable {
-    static let minimumHeight = UIFont.preferredFont(forTextStyle: .body).lineHeight
     var textBinding: Binding<String>?
     var isEditorFocused = false
     var onFocusChange: ((Bool) -> Void)?
     var placeholder = ""
-    private var contentHeight = minimumHeight
-
-    override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: contentHeight)
-    }
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -53,9 +47,16 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         self.placeholder = placeholder
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        updateContentHeight()
+    static func fittingSize(
+        proposal: ProposedViewSize,
+        textEditor: UIKitTextEditor
+    ) -> CGSize? {
+        guard let width = proposal.width else { return nil }
+
+        let size = textEditor.sizeThatFits(
+            CGSize(width: width, height: .greatestFiniteMagnitude)
+        )
+        return CGSize(width: width, height: size.height)
     }
 
     private func configureAppearance() {
@@ -71,20 +72,6 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         autocorrectionType = .no
         setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         setContentHuggingPriority(.defaultLow, for: .horizontal)
-    }
-
-    func updateContentHeight() {
-        guard 0 < bounds.width else { return }
-
-        let nextHeight = ceil(sizeThatFits(
-            CGSize(width: bounds.width, height: .greatestFiniteMagnitude)
-        ).height)
-        let resolvedHeight = max(nextHeight, Self.minimumHeight)
-
-        guard contentHeight != resolvedHeight else { return }
-
-        contentHeight = resolvedHeight
-        invalidateIntrinsicContentSize()
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
@@ -114,7 +101,6 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
                 } else if textView.isFirstResponder {
                     textView.resignFirstResponder()
                 }
-                textView.updateContentHeight()
             }
         }
 
@@ -137,6 +123,7 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             }
 
             if !textView.isEditorFocused {
+                textView.isEditorFocused = true
                 textView.onFocusChange?(true)
             }
 
@@ -144,7 +131,6 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
 
             DispatchQueue.main.async { [weak self] in
                 self?.restoreOffsetIfNeeded()
-                textView.updateContentHeight()
             }
         }
 
@@ -153,13 +139,13 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
 
             stopTrackingOffset()
             textView.textBinding?.wrappedValue = textView.text
-            textView.updateContentHeight()
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             if textView.isEditorFocused {
+                textView.isEditorFocused = false
                 textView.onFocusChange?(false)
             }
 

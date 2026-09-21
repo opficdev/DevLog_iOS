@@ -329,28 +329,33 @@ private struct ContentView: View {
     let minimumHeight: CGFloat
 
     var body: some View {
+        let isContentFocused = field == .content
         Group {
             if store.tabViewTag == .editor {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
-                    UIKitTextEditor(frame: .zero)
-                        .composable { textEditor in
-                            textEditor.updateInput(
-                                text: $store.content,
-                                isFocused: field == .content,
-                                onFocusChange: { isFocused in
-                                    if isFocused {
-                                        field = .content
-                                    } else if field == .content {
-                                        field = nil
-                                    }
-                                },
-                                placeholder: String(
-                                    localized: "todo_editor_description_optional",
-                                    bundle: PresentationResources.bundle
+                    UIKitTextEditor()
+                        .composable(
+                            update: { textEditor in
+                                textEditor.updateInput(
+                                    text: $store.content,
+                                    isFocused: isContentFocused,
+                                    onFocusChange: { isFocused in
+                                        if isFocused {
+                                            field = .content
+                                        } else if field == .content {
+                                            field = nil
+                                        }
+                                    },
+                                    placeholder: String(
+                                        localized: "todo_editor_description_optional",
+                                        bundle: PresentationResources.bundle
+                                    )
                                 )
-                            )
-                        }
+                            },
+                            sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                        )
+                        // SwiftUI 포커싱 시스템에 등록하기 위해 사용
                         .focused($field, equals: .content)
                 }
                 .padding(.horizontal)
