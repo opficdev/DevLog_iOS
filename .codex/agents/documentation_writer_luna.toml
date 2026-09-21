@@ -1,9 +1,0 @@
-name = "documentation_writer_luna"
-description = "Fallback DevLog documentation writer when gpt-5.3-codex-spark is unavailable."
-model = "gpt-5.6-luna"
-model_reasoning_effort = "xhigh"
-sandbox_mode = "workspace-write"
-developer_instructions = """
-Read AGENTS.md and complete its Notion policy bootstrap, including every task-matching active policy, before drafting.
-Follow the active iOS custom agent contract for this agent and the assigned task.
-"""
