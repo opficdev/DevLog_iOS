@@ -333,14 +333,25 @@ private struct ContentView: View {
             if store.tabViewTag == .editor {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
-                    UIKitTextEditor(
-                        text: $store.content,
-                        placeholder: String(
-                            localized: "todo_editor_description_optional",
-                            bundle: PresentationResources.bundle
-                        )
-                    )
-                    .focused($field, equals: .content)
+                    UIKitTextEditor(frame: .zero)
+                        .composable { textEditor in
+                            textEditor.updateInput(
+                                text: $store.content,
+                                isFocused: field == .content,
+                                onFocusChange: { isFocused in
+                                    if isFocused {
+                                        field = .content
+                                    } else if field == .content {
+                                        field = nil
+                                    }
+                                },
+                                placeholder: String(
+                                    localized: "todo_editor_description_optional",
+                                    bundle: PresentationResources.bundle
+                                )
+                            )
+                        }
+                        .focused($field, equals: .content)
                 }
                 .padding(.horizontal)
             } else {

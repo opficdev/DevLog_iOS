@@ -37,6 +37,10 @@ let project = Project(
             url: "https://github.com/opficdev/Cradle.git",
             .exact("1.2.0")
         ),
+        .package(
+            url: "https://github.com/opficdev/UIComposable.git",
+            .exact("0.1.0")
+        ),
     ],
     settings: .devlogProject(additionalBase: deploymentSettings),
     targets: [
@@ -72,6 +76,7 @@ let project = Project(
                 .package(product: "ComposableArchitecture"),
                 .package(product: "OrderedCollections"),
                 .package(product: "Cradle"),
+                .package(product: "UIComposable"),
             ],
             settings: .devlog(
                 base: deploymentSettings

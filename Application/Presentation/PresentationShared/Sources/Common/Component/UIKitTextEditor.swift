@@ -6,156 +6,121 @@
 //
 
 import SwiftUI
-import UIKit
-import Domain
+import UIComposable
 
-struct UIKitTextEditor: View {
-    @Binding var text: String
-    @Environment(\.uiKitTextEditorFocusBinding) private var focusBinding
-    @State private var minHeight = TextEditorMetrics.font.lineHeight
-    private let placeholder: String
+final class UIKitTextEditor: UITextView, UICoordinatedComposable {
+    static let minimumHeight = UIFont.preferredFont(forTextStyle: .body).lineHeight
+    var textBinding: Binding<String>?
+    var isEditorFocused = false
+    var onFocusChange: ((Bool) -> Void)?
+    var placeholder = ""
+    private var contentHeight = minimumHeight
 
-    init(
-        text: Binding<String>,
-        placeholder: String = ""
-    ) {
-        self._text = text
-        self.placeholder = placeholder
-    }
-
-    var body: some View {
-        UIKitTextEditorRepresentable(
-            text: $text,
-            minHeight: $minHeight,
-            focusBinding: focusBinding,
-            placeholder: placeholder
-        )
-        .frame(maxWidth: .infinity, minHeight: minHeight)
-    }
-
-    // 각 메서드 내에 있는 `.focused()`의 정체
-    // 해당 .focused()는 SwiftUI의 모디파이어
-    // 이 뷰를 SwiftUI 포커스 시스템에 실제 포커스 타겟으로 등록해주는 역할을 함
-
-    func focused(_ condition: FocusState<Bool>.Binding) -> some View {
-        modifier(TextEditorFocusModifier(
-            focusBinding: Binding(condition)
-        ))
-        .focused(condition)
-    }
-
-    func focused<Value>(
-        _ binding: FocusState<Value>.Binding,
-        equals value: Value
-    ) -> some View where Value: Hashable & ExpressibleByNilLiteral {
-        modifier(TextEditorFocusModifier(
-            focusBinding: Binding(
-                binding,
-                equals: value
-            )
-        ))
-        .focused(binding, equals: value)
-    }
-}
-
-private enum TextEditorMetrics {
-    static let font = UIFont.preferredFont(forTextStyle: .body)
-}
-
-private struct TextEditorFocusModifier: ViewModifier {
-    let focusBinding: Binding<Bool>
-
-    func body(content: Content) -> some View {
-        content
-            .environment(\.uiKitTextEditorFocusBinding, focusBinding)
-    }
-}
-
-private struct TextEditorFocusBindingKey: EnvironmentKey {
-    static let defaultValue: Binding<Bool>? = nil
-}
-
-private extension EnvironmentValues {
-    var uiKitTextEditorFocusBinding: Binding<Bool>? {
-        get { self[TextEditorFocusBindingKey.self] }
-        set { self[TextEditorFocusBindingKey.self] = newValue }
-    }
-}
-
-private struct UIKitTextEditorRepresentable: UIViewRepresentable {
-    @Binding var text: String
-    @Binding var minHeight: CGFloat
-    private let focusBinding: Binding<Bool>?
-    private let placeholder: String
-
-    init(
-        text: Binding<String>,
-        minHeight: Binding<CGFloat>,
-        focusBinding: Binding<Bool>?,
-        placeholder: String
-    ) {
-        self._text = text
-        self.focusBinding = focusBinding
-        self._minHeight = minHeight
-        self.placeholder = placeholder
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: contentHeight)
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator()
     }
 
-    func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
-        textView.delegate = context.coordinator
-        textView.font = TextEditorMetrics.font
-        textView.backgroundColor = .clear
-        textView.textColor = .label
-        textView.tintColor = .tintColor
-        textView.textContainer.lineFragmentPadding = 0
-        textView.textContainer.widthTracksTextView = true
-        textView.textContainer.lineBreakMode = .byWordWrapping
-        textView.textContainerInset = .zero
-        textView.isScrollEnabled = false
-        textView.autocorrectionType = .no
-        textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        textView.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        context.coordinator.applyPlaceholderIfNeeded(to: textView)
-        return textView
+    func connect(coordinator: Coordinator) {
+        delegate = coordinator
+        coordinator.textView = self
+        configureAppearance()
     }
 
-    func updateUIView(_ uiView: UITextView, context: Context) {
-        context.coordinator.parent = self
+    func update(coordinator: Coordinator) {
+        coordinator.update()
+    }
 
-        if !context.coordinator.isShowingPlaceholder(in: uiView) && uiView.text != text {
-            uiView.text = text
+    func disconnect(coordinator: Coordinator) {
+        if delegate === coordinator {
+            delegate = nil
         }
+        coordinator.disconnect()
+    }
 
-        context.coordinator.applyPlaceholderIfNeeded(to: uiView)
+    func updateInput(
+        text: Binding<String>,
+        isFocused: Bool,
+        onFocusChange: @escaping (Bool) -> Void,
+        placeholder: String
+    ) {
+        textBinding = text
+        isEditorFocused = isFocused
+        self.onFocusChange = onFocusChange
+        self.placeholder = placeholder
+    }
 
-        DispatchQueue.main.async {
-            if let focusBinding {
-                if focusBinding.wrappedValue {
-                    if !uiView.isFirstResponder {
-                        context.coordinator.startTrackingOffset(for: uiView)
-                        uiView.becomeFirstResponder()
-                    }
-                } else if uiView.isFirstResponder {
-                    uiView.resignFirstResponder()
-                }
-            }
-            context.coordinator.updateHeight(for: uiView)
-        }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateContentHeight()
+    }
+
+    private func configureAppearance() {
+        font = UIFont.preferredFont(forTextStyle: .body)
+        backgroundColor = .clear
+        textColor = .label
+        tintColor = .tintColor
+        textContainer.lineFragmentPadding = 0
+        textContainer.widthTracksTextView = true
+        textContainer.lineBreakMode = .byWordWrapping
+        textContainerInset = .zero
+        isScrollEnabled = false
+        autocorrectionType = .no
+        setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        setContentHuggingPriority(.defaultLow, for: .horizontal)
+    }
+
+    func updateContentHeight() {
+        guard 0 < bounds.width else { return }
+
+        let nextHeight = ceil(sizeThatFits(
+            CGSize(width: bounds.width, height: .greatestFiniteMagnitude)
+        ).height)
+        let resolvedHeight = max(nextHeight, Self.minimumHeight)
+
+        guard contentHeight != resolvedHeight else { return }
+
+        contentHeight = resolvedHeight
+        invalidateIntrinsicContentSize()
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
-        var parent: UIKitTextEditorRepresentable
+        weak var textView: UIKitTextEditor?
         private weak var scrollView: UIScrollView?
         private var offsetObservation: NSKeyValueObservation?
         private var trackedOffset: CGPoint?
         private var isRestoringOffset = false
 
-        init(_ parent: UIKitTextEditorRepresentable) {
-            self.parent = parent
+        func update() {
+            guard let textView, let textBinding = textView.textBinding else { return }
+
+            if !isShowingPlaceholder(in: textView) && textView.text != textBinding.wrappedValue {
+                textView.text = textBinding.wrappedValue
+            }
+
+            applyPlaceholderIfNeeded(to: textView)
+
+            DispatchQueue.main.async { [weak self, weak textView] in
+                guard let self, let textView else { return }
+
+                if textView.isEditorFocused {
+                    if !textView.isFirstResponder {
+                        self.startTrackingOffset(for: textView)
+                        textView.becomeFirstResponder()
+                    }
+                } else if textView.isFirstResponder {
+                    textView.resignFirstResponder()
+                }
+                textView.updateContentHeight()
+            }
+        }
+
+        func disconnect() {
+            stopTrackingOffset()
+            textView = nil
         }
 
         func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
@@ -164,44 +129,52 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
+            guard let textView = textView as? UIKitTextEditor else { return }
+
             if isShowingPlaceholder(in: textView) {
                 textView.text = nil
                 textView.textColor = .label
             }
 
-            if let focusBinding = parent.focusBinding, !focusBinding.wrappedValue {
-                focusBinding.wrappedValue = true
+            if !textView.isEditorFocused {
+                textView.onFocusChange?(true)
             }
 
             restoreOffsetIfNeeded()
 
             DispatchQueue.main.async { [weak self] in
                 self?.restoreOffsetIfNeeded()
-                self?.updateHeight(for: textView)
+                textView.updateContentHeight()
             }
         }
 
         func textViewDidChange(_ textView: UITextView) {
+            guard let textView = textView as? UIKitTextEditor else { return }
+
             stopTrackingOffset()
-            parent.text = textView.text
-            updateHeight(for: textView)
+            textView.textBinding?.wrappedValue = textView.text
+            textView.updateContentHeight()
         }
 
         func textViewDidEndEditing(_ textView: UITextView) {
-            if let focusBinding = parent.focusBinding, focusBinding.wrappedValue {
-                focusBinding.wrappedValue = false
+            guard let textView = textView as? UIKitTextEditor else { return }
+
+            if textView.isEditorFocused {
+                textView.onFocusChange?(false)
             }
 
             stopTrackingOffset()
             applyPlaceholderIfNeeded(to: textView)
         }
 
-        func applyPlaceholderIfNeeded(to textView: UITextView) {
-            if parent.text.isEmpty && !textView.isFirstResponder {
-                textView.text = parent.placeholder
+        func applyPlaceholderIfNeeded(to textView: UIKitTextEditor) {
+            guard let textBinding = textView.textBinding else { return }
+
+            if textBinding.wrappedValue.isEmpty && !textView.isFirstResponder {
+                textView.text = textView.placeholder
                 textView.textColor = .placeholderText
             } else if isShowingPlaceholder(in: textView) {
-                textView.text = parent.text
+                textView.text = textBinding.wrappedValue
                 textView.textColor = .label
             }
         }
@@ -269,50 +242,6 @@ private struct UIKitTextEditorRepresentable: UIViewRepresentable {
             trackedOffset = nil
         }
 
-        func updateHeight(for textView: UITextView) {
-            textView.layoutIfNeeded()
-
-            let width = textView.bounds.width
-            guard 0 < width else { return }
-
-            let nextHeight = ceil(textView.sizeThatFits(
-                CGSize(width: width, height: .greatestFiniteMagnitude)
-            ).height)
-            let resolvedHeight = max(nextHeight, TextEditorMetrics.font.lineHeight)
-
-            if parent.minHeight != resolvedHeight {
-                DispatchQueue.main.async {
-                    self.parent.minHeight = resolvedHeight
-                }
-            }
-        }
-    }
-}
-
-private extension Binding where Value == Bool {
-    init(_ binding: FocusState<Bool>.Binding) {
-        self.init(
-            get: { binding.wrappedValue },
-            set: { binding.wrappedValue = $0 }
-        )
-    }
-
-    init<FocusedValue>(
-        _ binding: FocusState<FocusedValue>.Binding,
-        equals value: FocusedValue
-    ) where FocusedValue: Hashable & ExpressibleByNilLiteral {
-        self.init(
-            get: {
-                binding.wrappedValue == value
-            },
-            set: { isFocused in
-                if isFocused {
-                    binding.wrappedValue = value
-                } else if binding.wrappedValue == value {
-                    binding.wrappedValue = nil
-                }
-            }
-        )
     }
 }
 
