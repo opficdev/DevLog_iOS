@@ -1,5 +1,5 @@
 //
-//  HomeDevelopmentSummaryCard.swift
+//  DevelopmentSummaryCard.swift
 //  HomeTab
 //
 //  Created by opfic on 9/20/26.
@@ -9,8 +9,8 @@ import Domain
 import SwiftUI
 import PresentationShared
 
-struct HomeDevelopmentSummaryCard: View {
-    let items: [HomeDevelopmentGoalItem]
+struct DevelopmentSummaryCard: View {
+    let items: [DevelopmentGoalItem]
     let isLoading: Bool
     let hasLoaded: Bool
     let hasLoadFailure: Bool
@@ -70,7 +70,7 @@ struct HomeDevelopmentSummaryCard: View {
                 .foregroundStyle(Color.textSecondary)
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                HomeDevelopmentTodoProgressView(progress: todoProgress)
+                DevelopmentTodoProgressView(progress: todoProgress)
 
                 if let recentRecord {
                     VStack(alignment: .leading, spacing: 8) {
@@ -97,8 +97,8 @@ struct HomeDevelopmentSummaryCard: View {
         items.compactMap(\.recentRecord).max { $0.confirmedAt < $1.confirmedAt }
     }
 
-    private var todoProgress: HomeDevelopmentGoalTodoProgress {
-        HomeDevelopmentGoalTodoProgress(
+    private var todoProgress: DevelopmentGoalTodoProgress {
+        DevelopmentGoalTodoProgress(
             completedCount: items.reduce(0) { $0 + $1.todoProgress.completedCount },
             totalCount: items.reduce(0) { $0 + $1.todoProgress.totalCount }
         )

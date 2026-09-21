@@ -10,42 +10,42 @@ import Domain
 
 extension DependencyValues {
     var profileFetchUserDataUseCase: FetchUserDataUseCase {
-        get { self[ProfileFetchUserDataKey.self] }
-        set { self[ProfileFetchUserDataKey.self] = newValue }
+        get { self[FetchUserDataKey.self] }
+        set { self[FetchUserDataKey.self] = newValue }
     }
 
     var profileFetchImageDataUseCase: FetchProfileImageDataUseCase {
-        get { self[ProfileFetchImageDataKey.self] }
-        set { self[ProfileFetchImageDataKey.self] = newValue }
+        get { self[FetchImageDataKey.self] }
+        set { self[FetchImageDataKey.self] = newValue }
     }
 
     var profileFetchTodosUseCase: FetchTodosUseCase {
-        get { self[ProfileFetchTodosKey.self] }
-        set { self[ProfileFetchTodosKey.self] = newValue }
+        get { self[FetchTodosKey.self] }
+        set { self[FetchTodosKey.self] = newValue }
     }
 
     var profileTodoMutationEventBus: TodoMutationEventBus {
-        get { self[ProfileTodoMutationEventBusKey.self] }
-        set { self[ProfileTodoMutationEventBusKey.self] = newValue }
+        get { self[TodoMutationEventBusKey.self] }
+        set { self[TodoMutationEventBusKey.self] = newValue }
     }
 
     var profileUpsertStatusMessageUseCase: UpsertStatusMessageUseCase {
-        get { self[ProfileUpsertStatusMessageKey.self] }
-        set { self[ProfileUpsertStatusMessageKey.self] = newValue }
+        get { self[UpsertStatusMessageKey.self] }
+        set { self[UpsertStatusMessageKey.self] = newValue }
     }
 
     var profileFetchHeatmapActivityTypesUseCase: FetchHeatmapActivityTypesUseCase {
-        get { self[ProfileFetchHeatmapTypesKey.self] }
-        set { self[ProfileFetchHeatmapTypesKey.self] = newValue }
+        get { self[FetchHeatmapTypesKey.self] }
+        set { self[FetchHeatmapTypesKey.self] = newValue }
     }
 
     var profileUpdateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase {
-        get { self[ProfileUpdateHeatmapTypesKey.self] }
-        set { self[ProfileUpdateHeatmapTypesKey.self] = newValue }
+        get { self[UpdateHeatmapTypesKey.self] }
+        set { self[UpdateHeatmapTypesKey.self] = newValue }
     }
 }
 
-private enum ProfileFetchUserDataKey: DependencyKey {
+private enum FetchUserDataKey: DependencyKey {
     static var liveValue: FetchUserDataUseCase {
         preconditionFailure("FetchUserDataUseCase must be provided.")
     }
@@ -55,7 +55,7 @@ private enum ProfileFetchUserDataKey: DependencyKey {
     }
 }
 
-private enum ProfileFetchImageDataKey: DependencyKey {
+private enum FetchImageDataKey: DependencyKey {
     static var liveValue: FetchProfileImageDataUseCase {
         preconditionFailure("FetchProfileImageDataUseCase must be provided.")
     }
@@ -65,7 +65,7 @@ private enum ProfileFetchImageDataKey: DependencyKey {
     }
 }
 
-private enum ProfileFetchTodosKey: DependencyKey {
+private enum FetchTodosKey: DependencyKey {
     static var liveValue: FetchTodosUseCase {
         preconditionFailure("FetchTodosUseCase must be provided.")
     }
@@ -75,13 +75,13 @@ private enum ProfileFetchTodosKey: DependencyKey {
     }
 }
 
-private enum ProfileTodoMutationEventBusKey: DependencyKey {
+private enum TodoMutationEventBusKey: DependencyKey {
     static var liveValue: TodoMutationEventBus {
         preconditionFailure("TodoMutationEventBus must be provided.")
     }
 }
 
-private enum ProfileUpsertStatusMessageKey: DependencyKey {
+private enum UpsertStatusMessageKey: DependencyKey {
     static var liveValue: UpsertStatusMessageUseCase {
         preconditionFailure("UpsertStatusMessageUseCase must be provided.")
     }
@@ -91,7 +91,7 @@ private enum ProfileUpsertStatusMessageKey: DependencyKey {
     }
 }
 
-private enum ProfileFetchHeatmapTypesKey: DependencyKey {
+private enum FetchHeatmapTypesKey: DependencyKey {
     static var liveValue: FetchHeatmapActivityTypesUseCase {
         preconditionFailure("FetchHeatmapActivityTypesUseCase must be provided.")
     }
@@ -101,7 +101,7 @@ private enum ProfileFetchHeatmapTypesKey: DependencyKey {
     }
 }
 
-private enum ProfileUpdateHeatmapTypesKey: DependencyKey {
+private enum UpdateHeatmapTypesKey: DependencyKey {
     static var liveValue: UpdateHeatmapActivityTypesUseCase {
         preconditionFailure("UpdateHeatmapActivityTypesUseCase must be provided.")
     }

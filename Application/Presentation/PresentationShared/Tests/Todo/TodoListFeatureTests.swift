@@ -66,7 +66,7 @@ struct TodoListFeatureTests {
     func 새_목록_조회는_이전_요청을_취소하고_마지막_응답만_반영한다() async {
         let firstTodo = makeTodoListTodo(id: "todo-first", number: 1)
         let secondTodo = makeTodoListTodo(id: "todo-second", number: 2)
-        let fetchSpy = TodoListDelayedFirstFetchTodosUseCaseSpy(pages: [
+        let fetchSpy = DelayedFirstFetchTodosUseCaseSpy(pages: [
             TodoPage(items: [firstTodo], nextCursor: nil),
             TodoPage(items: [secondTodo], nextCursor: nil)
         ])
@@ -257,7 +257,7 @@ struct TodoListFeatureTests {
     @Test("Todo 조회 실패 시 공통 에러 알림 상태를 표시한다")
     func Todo_조회_실패_시_공통_에러_알림_상태를_표시한다() async {
         let fetchSpy = TodoListFetchTodosUseCaseSpy()
-        fetchSpy.error = TodoListTestError.failure
+        fetchSpy.error = ListTestError.failure
         let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
 
         await adapter.onAppear()

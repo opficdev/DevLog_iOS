@@ -1,5 +1,5 @@
 //
-//  HomeDevelopmentGoalItem.swift
+//  DevelopmentGoalItem.swift
 //  HomeTab
 //
 //  Created by opfic on 9/20/26.
@@ -7,17 +7,17 @@
 
 import Domain
 
-struct HomeDevelopmentGoalItem: Equatable, Identifiable {
+struct DevelopmentGoalItem: Equatable, Identifiable {
     let goal: DevelopmentGoal
     let recentRecord: DevelopmentRecord.Version?
-    let todoProgress: HomeDevelopmentGoalTodoProgress
+    let todoProgress: DevelopmentGoalTodoProgress
 
     var id: String { goal.id }
 
     init(
         goal: DevelopmentGoal,
         recentRecord: DevelopmentRecord.Version?,
-        todoProgress: HomeDevelopmentGoalTodoProgress = .empty
+        todoProgress: DevelopmentGoalTodoProgress = .empty
     ) {
         self.goal = goal
         self.recentRecord = recentRecord
@@ -25,7 +25,7 @@ struct HomeDevelopmentGoalItem: Equatable, Identifiable {
     }
 }
 
-struct HomeDevelopmentGoalTodoProgress: Equatable {
+struct DevelopmentGoalTodoProgress: Equatable {
     let completedCount: Int
     let totalCount: Int
 

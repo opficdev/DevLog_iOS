@@ -200,7 +200,7 @@ final class TodoListFetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 }
 
-actor TodoListDelayedFirstFetchTodosUseCaseSpy: FetchTodosUseCase {
+actor DelayedFirstFetchTodosUseCaseSpy: FetchTodosUseCase {
     private let pages: [TodoPage]
     private var queries = [TodoQuery]()
     private var cursors = [TodoCursor?]()
@@ -352,7 +352,7 @@ final class TodoListTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
     }
 }
 
-enum TodoListTestError: Error {
+enum ListTestError: Error {
     case failure
 }
 

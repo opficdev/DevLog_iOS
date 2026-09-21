@@ -75,11 +75,11 @@ final class FetchDevelopmentRecordVersionUseCaseSpy: FetchDevelopmentRecordVersi
         recordId: String,
         versionId: String
     ) async throws -> DevelopmentRecord.Version {
-        try resultByRecordID[recordId, default: .failure(HomeDevelopmentGoalTestError.notFound)].get()
+        try resultByRecordID[recordId, default: .failure(DevelopmentGoalTestError.notFound)].get()
     }
 }
 
-final class HomeFetchTodosUseCaseSpy: FetchTodosUseCase {
+final class FetchTodosUseCaseSpy: FetchTodosUseCase {
     private(set) var queries = [TodoQuery]()
     var page = TodoPage(items: [], nextCursor: nil)
 
@@ -89,7 +89,7 @@ final class HomeFetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 }
 
-enum HomeDevelopmentGoalTestError: Error {
+enum DevelopmentGoalTestError: Error {
     case failed
     case notFound
 }

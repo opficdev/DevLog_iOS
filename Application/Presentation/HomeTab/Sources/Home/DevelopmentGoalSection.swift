@@ -1,5 +1,5 @@
 //
-//  HomeDevelopmentGoalSection.swift
+//  DevelopmentGoalSection.swift
 //  HomeTab
 //
 //  Created by opfic on 9/20/26.
@@ -8,13 +8,13 @@
 import SwiftUI
 import PresentationShared
 
-struct HomeDevelopmentGoalSection: View {
-    let items: [HomeDevelopmentGoalItem]
+struct DevelopmentGoalSection: View {
+    let items: [DevelopmentGoalItem]
     let isLoading: Bool
     let hasLoaded: Bool
     let hasLoadFailure: Bool
     let onCreate: () -> Void
-    let onSelect: (HomeDevelopmentGoalItem) -> Void
+    let onSelect: (DevelopmentGoalItem) -> Void
     let onRetry: () -> Void
 
     var body: some View {
@@ -68,7 +68,7 @@ struct HomeDevelopmentGoalSection: View {
                     Button {
                         onSelect(item)
                     } label: {
-                        HomeDevelopmentGoalCard(item: item)
+                        DevelopmentGoalCard(item: item)
                     }
                     .buttonStyle(.plain)
                 }
@@ -108,13 +108,13 @@ struct HomeDevelopmentGoalSection: View {
     }
 }
 
-private struct HomeDevelopmentGoalCard: View {
-    let item: HomeDevelopmentGoalItem
+private struct DevelopmentGoalCard: View {
+    let item: DevelopmentGoalItem
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                HomeDevelopmentGoalStatusBadge()
+                DevelopmentGoalStatusBadge()
                 Spacer(minLength: 12)
                 if let recentRecord = item.recentRecord {
                     Text(recentRecord.confirmedAt, format: .dateTime.month().day().hour().minute())
@@ -137,7 +137,7 @@ private struct HomeDevelopmentGoalCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            HomeDevelopmentTodoProgressView(progress: item.todoProgress)
+            DevelopmentTodoProgressView(progress: item.todoProgress)
 
             Divider()
 
@@ -164,8 +164,8 @@ private struct HomeDevelopmentGoalCard: View {
     }
 }
 
-struct HomeDevelopmentTodoProgressView: View {
-    let progress: HomeDevelopmentGoalTodoProgress
+struct DevelopmentTodoProgressView: View {
+    let progress: DevelopmentGoalTodoProgress
 
     var body: some View {
         if progress.isEmpty {
@@ -217,7 +217,7 @@ struct HomeDevelopmentTodoProgressView: View {
     }
 }
 
-private struct HomeDevelopmentGoalStatusBadge: View {
+private struct DevelopmentGoalStatusBadge: View {
     var body: some View {
         Label {
             Text("development_goal_status_in_progress", bundle: PresentationResources.bundle)
@@ -232,7 +232,7 @@ private struct HomeDevelopmentGoalStatusBadge: View {
     }
 }
 
-enum HomeGoalPresentation: Identifiable {
+enum GoalPresentation: Identifiable {
     case create
     case detail(String)
 

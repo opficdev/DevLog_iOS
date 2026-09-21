@@ -157,15 +157,15 @@ public struct TodoDetailFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            TodoDetailSheetFeature()
+            SheetFeature()
         }
         .ifLet(\.$fullScreenCover, action: \.fullScreenCover) {
-            TodoDetailFullScreenCoverFeature()
+            FullScreenCoverFeature()
         }
     }
 }
 
-private struct TodoDetailFullScreenCoverFeature: Reducer {
+private struct FullScreenCoverFeature: Reducer {
     typealias State = TodoDetailFeature.FullScreenCoverState
     typealias Action = TodoDetailFeature.Action.FullScreenCover
 
@@ -177,7 +177,7 @@ private struct TodoDetailFullScreenCoverFeature: Reducer {
     }
 }
 
-private struct TodoDetailSheetFeature: Reducer {
+private struct SheetFeature: Reducer {
     typealias State = TodoDetailFeature.SheetState
     typealias Action = TodoDetailFeature.Action.Sheet
 

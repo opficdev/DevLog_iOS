@@ -1,5 +1,5 @@
 //
-//  ProfileHeatmapBuilder.swift
+//  HeatmapBuilder.swift
 //  ProfileTab
 //
 //  Created by opfic on 6/15/26.
@@ -9,7 +9,7 @@ import Core
 import Domain
 import Foundation
 
-private struct ProfileHeatmapActivityCounts {
+private struct HeatmapActivityCounts {
     var createdCount = 0
     var completedCount = 0
     var deletedCount = 0
@@ -26,12 +26,12 @@ private struct ProfileHeatmapActivityCounts {
     }
 }
 
-private struct ProfileHeatmapActivityEntry {
+private struct HeatmapActivityEntry {
     var todo: Todo
     var activityKinds: Set<ActivityKind>
 }
 
-enum ProfileHeatmapBuilder {
+enum HeatmapBuilder {
     static func quarterStart(for date: Date) -> Date? {
         let month = Calendar.current.component(.month, from: date)
         let startMonth = ((month - 1) / 3) * 3 + 1
@@ -139,8 +139,8 @@ enum ProfileHeatmapBuilder {
         deletedTodos: [Todo],
         quarterStart: Date
     ) -> (quarter: HeatmapQuarter, dayActivitiesByDate: [Date: [HeatmapActivityItem]]) {
-        var dailyCountsByDate: [Date: ProfileHeatmapActivityCounts] = [:]
-        var activityEntriesByDate: [Date: [String: ProfileHeatmapActivityEntry]] = [:]
+        var dailyCountsByDate: [Date: HeatmapActivityCounts] = [:]
+        var activityEntriesByDate: [Date: [String: HeatmapActivityEntry]] = [:]
 
         for todo in createdTodos {
             appendHeatmapActivity(
@@ -191,7 +191,7 @@ enum ProfileHeatmapBuilder {
     }
 
     private static func makeActivityMonths(
-        dailyCountsByDate: [Date: ProfileHeatmapActivityCounts],
+        dailyCountsByDate: [Date: HeatmapActivityCounts],
         quarterStart: Date
     ) -> [HeatmapMonth] {
         let monthStarts = (0..<3).compactMap {
@@ -208,7 +208,7 @@ enum ProfileHeatmapBuilder {
 
     private static func makeActivityMonth(
         monthStart: Date,
-        dailyCountsByDate: [Date: ProfileHeatmapActivityCounts]
+        dailyCountsByDate: [Date: HeatmapActivityCounts]
     ) -> HeatmapMonth {
         guard let monthInterval = Calendar.current.dateInterval(of: .month, for: monthStart),
               let monthLastDay = Calendar.current.date(byAdding: .day, value: -1, to: monthInterval.end),
@@ -222,7 +222,7 @@ enum ProfileHeatmapBuilder {
         while cursor < lastWeekInterval.end {
             let normalizedDate = Calendar.current.startOfDay(for: cursor)
             let isInMonth = Calendar.current.isDate(normalizedDate, equalTo: monthStart, toGranularity: .month)
-            let dailyCounts = dailyCountsByDate[normalizedDate] ?? ProfileHeatmapActivityCounts()
+            let dailyCounts = dailyCountsByDate[normalizedDate] ?? HeatmapActivityCounts()
             let createdCount = isInMonth ? dailyCounts.createdCount : 0
             let completedCount = isInMonth ? dailyCounts.completedCount : 0
             let deletedCount = isInMonth ? dailyCounts.deletedCount : 0
@@ -254,16 +254,16 @@ enum ProfileHeatmapBuilder {
         todo: Todo,
         kind: ActivityKind,
         occurredAt: Date,
-        dailyCountsByDate: inout [Date: ProfileHeatmapActivityCounts],
-        activityEntriesByDate: inout [Date: [String: ProfileHeatmapActivityEntry]]
+        dailyCountsByDate: inout [Date: HeatmapActivityCounts],
+        activityEntriesByDate: inout [Date: [String: HeatmapActivityEntry]]
     ) {
         let dayStart = Calendar.current.startOfDay(for: occurredAt)
-        var heatmapActivityCounts = dailyCountsByDate[dayStart] ?? ProfileHeatmapActivityCounts()
+        var heatmapActivityCounts = dailyCountsByDate[dayStart] ?? HeatmapActivityCounts()
         heatmapActivityCounts.increment(kind)
         dailyCountsByDate[dayStart] = heatmapActivityCounts
 
         var activityEntries = activityEntriesByDate[dayStart] ?? [:]
-        var heatmapActivityEntry = activityEntries[todo.id] ?? ProfileHeatmapActivityEntry(
+        var heatmapActivityEntry = activityEntries[todo.id] ?? HeatmapActivityEntry(
             todo: todo,
             activityKinds: []
         )

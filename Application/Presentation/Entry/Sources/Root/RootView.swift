@@ -10,7 +10,7 @@ import Combine
 import PresentationShared
 
 public struct RootView: View {
-    @State private var store: StoreOf<RootFeature>
+    @State private var store: StoreOf<Feature>
     private let widgetURLTab: (URL) -> MainTab?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
@@ -22,8 +22,8 @@ public struct RootView: View {
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
     ) {
-        self._store = State(initialValue: Store(initialState: RootFeature.State()) {
-            RootFeature()
+        self._store = State(initialValue: Store(initialState: Feature.State()) {
+            Feature()
         })
         self.widgetURLTab = widgetURLTab
         self.windowEvent = windowEvent

@@ -1,5 +1,5 @@
 //
-//  TodoDetailPreviewView.swift
+//  PreviewView.swift
 //  PresentationShared
 //
 //  Created by opfic on 8/11/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct TodoDetailPreviewView: View {
+struct PreviewView: View {
     @State var store: StoreOf<TodoDetailFeature>
 
     var body: some View {

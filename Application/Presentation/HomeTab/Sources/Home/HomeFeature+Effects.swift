@@ -67,7 +67,7 @@ extension HomeFeature {
                     )
                     let todoProgressByGoalID = Self.makeTodoProgressByGoalID((try await todos).items)
                     let items = goalItems.map { item in
-                        HomeDevelopmentGoalItem(
+                        DevelopmentGoalItem(
                             goal: item.goal,
                             recentRecord: item.recentRecord,
                             todoProgress: todoProgressByGoalID[item.goal.id] ?? .empty
@@ -153,10 +153,10 @@ extension HomeFeature {
         _ goals: [DevelopmentGoal],
         fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
         fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase
-    ) async throws -> [HomeDevelopmentGoalItem] {
-        var items = [HomeDevelopmentGoalItem]()
+    ) async throws -> [DevelopmentGoalItem] {
+        var items = [DevelopmentGoalItem]()
 
-        try await withThrowingTaskGroup(of: HomeDevelopmentGoalItem.self) { group in
+        try await withThrowingTaskGroup(of: DevelopmentGoalItem.self) { group in
             for goal in goals {
                 group.addTask {
                     let records = try await fetchRecordsUseCase.execute(goalId: goal.id)
@@ -165,7 +165,7 @@ extension HomeFeature {
                         records: records,
                         fetchRecordVersionUseCase: fetchRecordVersionUseCase
                     )
-                    return HomeDevelopmentGoalItem(goal: goal, recentRecord: recentRecord)
+                    return DevelopmentGoalItem(goal: goal, recentRecord: recentRecord)
                 }
             }
 
@@ -211,13 +211,13 @@ extension HomeFeature {
 
     static func makeTodoProgressByGoalID(
         _ todos: [Todo]
-    ) -> [String: HomeDevelopmentGoalTodoProgress] {
-        var progressByGoalID = [String: HomeDevelopmentGoalTodoProgress]()
+    ) -> [String: DevelopmentGoalTodoProgress] {
+        var progressByGoalID = [String: DevelopmentGoalTodoProgress]()
 
         for todo in todos {
             guard let goalID = todo.goalId else { continue }
             let currentProgress = progressByGoalID[goalID] ?? .empty
-            progressByGoalID[goalID] = HomeDevelopmentGoalTodoProgress(
+            progressByGoalID[goalID] = DevelopmentGoalTodoProgress(
                 completedCount: currentProgress.completedCount + (todo.isCompleted ? 1 : 0),
                 totalCount: currentProgress.totalCount + 1
             )

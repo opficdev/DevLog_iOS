@@ -16,7 +16,7 @@ struct HomeFeatureTests {
     @Test("HomeFeature fetchData는 홈 상태를 갱신한다")
     func HomeFeature_fetchData는_홈_상태를_갱신한다() async throws {
         let context = makeHomeFetchDataContext()
-        let adapter = HomeStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchPreferencesUseCase: context.fetchPreferencesUseCaseSpy
         )
 
@@ -55,7 +55,7 @@ struct HomeFeatureTests {
         let versionsSpy = FetchDevelopmentRecordVersionUseCaseSpy()
         versionsSpy.resultByRecordID[olderRecord.id] = .success(olderVersion)
         versionsSpy.resultByRecordID[recentRecord.id] = .success(recentVersion)
-        let adapter = HomeStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchDevelopmentGoalsUseCase: goalsSpy,
             fetchDevelopmentRecordsUseCase: recordsSpy,
             fetchDevelopmentRecordVersionUseCase: versionsSpy
@@ -73,7 +73,7 @@ struct HomeFeatureTests {
     @Test("HomeFeature fetchData는 연결 Todo 완료 수로 목표 진행률을 계산한다")
     func HomeFeature_fetchData는_연결_Todo_완료_수로_목표_진행률을_계산한다() async throws {
         let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
-        let todosSpy = HomeFetchTodosUseCaseSpy()
+        let todosSpy = FetchTodosUseCaseSpy()
         todosSpy.page = TodoPage(
             items: [
                 makeHomeTodo(id: "completed", goalID: goal.id, isCompleted: true),
@@ -84,7 +84,7 @@ struct HomeFeatureTests {
         )
         let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
         goalsSpy.result = .success([goal])
-        let adapter = HomeStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchDevelopmentGoalsUseCase: goalsSpy,
             fetchTodosUseCase: todosSpy
         )
@@ -107,8 +107,8 @@ struct HomeFeatureTests {
     @Test("HomeFeature fetchData 실패 뒤 재시도는 진행 중 목표를 갱신한다")
     func HomeFeature_fetchData_실패_뒤_재시도는_진행_중_목표를_갱신한다() async throws {
         let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
-        goalsSpy.result = .failure(HomeDevelopmentGoalTestError.failed)
-        let adapter = HomeStoreTestAdapter(fetchDevelopmentGoalsUseCase: goalsSpy)
+        goalsSpy.result = .failure(DevelopmentGoalTestError.failed)
+        let adapter = StoreTestAdapter(fetchDevelopmentGoalsUseCase: goalsSpy)
 
         await adapter.fetchData()
 
@@ -125,14 +125,14 @@ struct HomeFeatureTests {
 
     @Test("HomeFeature tapTodoCategory는 editor를 지연 표시한다")
     func HomeFeature_tapTodoCategory는_editor를_지연_표시한다() async throws {
-        let adapter = HomeStoreTestAdapter()
+        let adapter = StoreTestAdapter()
 
         try await verifyHomeTapTodoCategory(adapter: adapter)
     }
 
     @Test("HomeFeature 카테고리 펼침 버튼은 펼침 상태를 전환한다")
     func HomeFeature_카테고리_펼침_버튼은_펼침_상태를_전환한다() async {
-        let adapter = HomeStoreTestAdapter()
+        let adapter = StoreTestAdapter()
 
         await adapter.tapTodoCategoryExpansionButton()
 
@@ -142,8 +142,8 @@ struct HomeFeatureTests {
     @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
         let context = makeHomeFetchDataContext()
-        let trackSpy = HomeTrackAnalyticsEventUseCaseSpy()
-        let adapter = HomeStoreTestAdapter(
+        let trackSpy = TrackAnalyticsEventUseCaseSpy()
+        let adapter = StoreTestAdapter(
             fetchPreferencesUseCase: context.fetchPreferencesUseCaseSpy,
             trackAnalyticsEventUseCase: trackSpy
         )
@@ -162,7 +162,7 @@ struct HomeFeatureTests {
     @Test("HomeFeature orderTodoCategory는 카테고리 설정을 저장한다")
     func HomeFeature_orderTodoCategory는_카테고리_설정을_저장한다() async throws {
         let context = makeHomeOrderContext()
-        let adapter = HomeStoreTestAdapter(
+        let adapter = StoreTestAdapter(
             fetchPreferencesUseCase: context.fetchPreferencesUseCaseSpy,
             updatePreferencesUseCase: context.updatePreferencesUseCaseSpy
         )
@@ -176,7 +176,7 @@ struct HomeFeatureTests {
     @Test("HomeFeature startObserving은 네트워크 연결 상태를 반영한다")
     func HomeFeature_startObserving은_네트워크_연결_상태를_반영한다() async {
         let networkUseCaseSpy = ObserveNetworkConnectivityUseCaseSpy()
-        let adapter = HomeStoreTestAdapter(networkConnectivityUseCase: networkUseCaseSpy)
+        let adapter = StoreTestAdapter(networkConnectivityUseCase: networkUseCaseSpy)
 
         await adapter.startObserving()
 

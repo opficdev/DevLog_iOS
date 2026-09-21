@@ -1,5 +1,5 @@
 //
-//  RootFeature.swift
+//  Feature.swift
 //  Entry
 //
 //  Created by opfic on 6/17/26.
@@ -12,7 +12,7 @@ import Domain
 import Foundation
 
 @Reducer
-struct RootFeature {
+struct Feature {
     private enum CancelID: Hashable {
         case networkConnectivity
         case session
@@ -141,14 +141,14 @@ struct RootFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
-            RootSheetFeature()
+            SheetFeature()
         }
     }
 }
 
-private struct RootSheetFeature: Reducer {
-    typealias State = RootFeature.SheetState
-    typealias Action = RootFeature.Action.Sheet
+private struct SheetFeature: Reducer {
+    typealias State = Feature.SheetState
+    typealias Action = Feature.Action.Sheet
 
     var body: some ReducerOf<Self> {
         EmptyReducer()
@@ -172,13 +172,13 @@ extension DependencyValues {
     }
 
     var rootNetworkConnectivityUseCase: ObserveNetworkConnectivityUseCase {
-        get { self[RootNetworkConnectivityUseCaseKey.self] }
-        set { self[RootNetworkConnectivityUseCaseKey.self] = newValue }
+        get { self[NetworkConnectivityUseCaseKey.self] }
+        set { self[NetworkConnectivityUseCaseKey.self] = newValue }
     }
 
     var rootSystemThemeUseCase: ObserveSystemThemeUseCase {
-        get { self[RootSystemThemeUseCaseKey.self] }
-        set { self[RootSystemThemeUseCaseKey.self] = newValue }
+        get { self[SystemThemeUseCaseKey.self] }
+        set { self[SystemThemeUseCaseKey.self] = newValue }
     }
 }
 
@@ -217,7 +217,7 @@ private enum ObserveAuthSessionUseCaseKey: DependencyKey {
     }
 }
 
-private enum RootNetworkConnectivityUseCaseKey: DependencyKey {
+private enum NetworkConnectivityUseCaseKey: DependencyKey {
     static var liveValue: ObserveNetworkConnectivityUseCase {
         preconditionFailure("ObserveNetworkConnectivityUseCase must be provided.")
     }
@@ -227,7 +227,7 @@ private enum RootNetworkConnectivityUseCaseKey: DependencyKey {
     }
 }
 
-private enum RootSystemThemeUseCaseKey: DependencyKey {
+private enum SystemThemeUseCaseKey: DependencyKey {
     static var liveValue: ObserveSystemThemeUseCase {
         preconditionFailure("ObserveSystemThemeUseCase must be provided.")
     }
@@ -237,7 +237,7 @@ private enum RootSystemThemeUseCaseKey: DependencyKey {
     }
 }
 
-private extension RootFeature {
+private extension Feature {
     func checkAppUpdateEffect() -> Effect<Action> {
         .run { [checkAppUpdateUseCase] send in
             let isRequired = (try? await checkAppUpdateUseCase.execute()) ?? false

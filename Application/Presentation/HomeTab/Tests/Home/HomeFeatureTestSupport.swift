@@ -14,13 +14,13 @@ import PresentationShared
 import Foundation
 
 @MainActor
-struct HomeStoreTestAdapter {
+struct StoreTestAdapter {
     private let store: TestStoreOf<HomeFeature>
     private let clock: TestClock<Duration>
 
     var preferences: [TodoCategoryItem] { store.state.preferences }
     var isTodoCategoryExpanded: Bool { store.state.isTodoCategoryExpanded }
-    var developmentGoalItems: [HomeDevelopmentGoalItem] { store.state.developmentGoalItems }
+    var developmentGoalItems: [DevelopmentGoalItem] { store.state.developmentGoalItems }
     var hasDevelopmentGoalsLoaded: Bool { store.state.hasDevelopmentGoalsLoaded }
     var hasDevelopmentGoalsLoadFailure: Bool { store.state.hasDevelopmentGoalsLoadFailure }
     var isNetworkConnected: Bool { store.state.isNetworkConnected }
@@ -38,8 +38,8 @@ struct HomeStoreTestAdapter {
         fetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase = FetchDevelopmentRecordsUseCaseSpy(),
         fetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase =
             FetchDevelopmentRecordVersionUseCaseSpy(),
-        fetchTodosUseCase: FetchTodosUseCase = HomeFetchTodosUseCaseSpy(),
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = HomeTrackAnalyticsEventUseCaseSpy(),
+        fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {
         let clock = TestClock()
@@ -112,7 +112,7 @@ struct HomeStoreTestAdapter {
     }
 }
 
-final class HomeTrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
+final class TrackAnalyticsEventUseCaseSpy: TrackAnalyticsEventUseCase {
     private(set) var events = [AnalyticsEvent]()
     var hasTrackedTodoCreate: Bool {
         events.contains {

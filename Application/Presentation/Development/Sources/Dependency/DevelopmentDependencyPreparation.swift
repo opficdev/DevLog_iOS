@@ -56,133 +56,133 @@ public enum DevelopmentDependencyPreparation {
 
 extension DependencyValues {
     var developmentCreateGoalUseCase: CreateDevelopmentGoalUseCase {
-        get { self[DevelopmentCreateGoalUseCaseKey.self] }
-        set { self[DevelopmentCreateGoalUseCaseKey.self] = newValue }
+        get { self[CreateGoalUseCaseKey.self] }
+        set { self[CreateGoalUseCaseKey.self] = newValue }
     }
 
     var developmentFetchGoalUseCase: FetchDevelopmentGoalUseCase {
-        get { self[DevelopmentFetchGoalUseCaseKey.self] }
-        set { self[DevelopmentFetchGoalUseCaseKey.self] = newValue }
+        get { self[FetchGoalUseCaseKey.self] }
+        set { self[FetchGoalUseCaseKey.self] = newValue }
     }
 
     var developmentFetchRecordsUseCase: FetchDevelopmentRecordsUseCase {
-        get { self[DevelopmentFetchRecordsUseCaseKey.self] }
-        set { self[DevelopmentFetchRecordsUseCaseKey.self] = newValue }
+        get { self[FetchRecordsUseCaseKey.self] }
+        set { self[FetchRecordsUseCaseKey.self] = newValue }
     }
 
     var developmentUpdateGoalStatusUseCase: UpdateDevelopmentGoalStatusUseCase {
-        get { self[DevelopmentUpdateGoalStatusUseCaseKey.self] }
-        set { self[DevelopmentUpdateGoalStatusUseCaseKey.self] = newValue }
+        get { self[UpdateGoalStatusUseCaseKey.self] }
+        set { self[UpdateGoalStatusUseCaseKey.self] = newValue }
     }
 
     var developmentFetchRecordHistoryUseCase: FetchDevelopmentRecordHistoryUseCase {
-        get { self[DevelopmentFetchRecordHistoryUseCaseKey.self] }
-        set { self[DevelopmentFetchRecordHistoryUseCaseKey.self] = newValue }
+        get { self[FetchRecordHistoryUseCaseKey.self] }
+        set { self[FetchRecordHistoryUseCaseKey.self] = newValue }
     }
 
     var developmentFetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase {
-        get { self[DevelopmentFetchRecordVersionUseCaseKey.self] }
-        set { self[DevelopmentFetchRecordVersionUseCaseKey.self] = newValue }
+        get { self[FetchRecordVersionUseCaseKey.self] }
+        set { self[FetchRecordVersionUseCaseKey.self] = newValue }
     }
 
     var developmentCreateRecordUseCase: CreateDevelopmentRecordUseCase {
-        get { self[DevelopmentCreateRecordUseCaseKey.self] }
-        set { self[DevelopmentCreateRecordUseCaseKey.self] = newValue }
+        get { self[CreateRecordUseCaseKey.self] }
+        set { self[CreateRecordUseCaseKey.self] = newValue }
     }
 
     var developmentSaveRecordDraftUseCase: SaveDevelopmentRecordDraftUseCase {
-        get { self[DevelopmentSaveRecordDraftUseCaseKey.self] }
-        set { self[DevelopmentSaveRecordDraftUseCaseKey.self] = newValue }
+        get { self[SaveRecordDraftUseCaseKey.self] }
+        set { self[SaveRecordDraftUseCaseKey.self] = newValue }
     }
 
     var developmentConfirmRecordUseCase: ConfirmDevelopmentRecordUseCase {
-        get { self[DevelopmentConfirmRecordUseCaseKey.self] }
-        set { self[DevelopmentConfirmRecordUseCaseKey.self] = newValue }
+        get { self[ConfirmRecordUseCaseKey.self] }
+        set { self[ConfirmRecordUseCaseKey.self] = newValue }
     }
 
     var developmentRestoreRecordUseCase: RestoreDevelopmentRecordUseCase {
-        get { self[DevelopmentRestoreRecordUseCaseKey.self] }
-        set { self[DevelopmentRestoreRecordUseCaseKey.self] = newValue }
+        get { self[RestoreRecordUseCaseKey.self] }
+        set { self[RestoreRecordUseCaseKey.self] = newValue }
     }
 
     var developmentFetchTodosUseCase: FetchTodosUseCase {
-        get { self[DevelopmentFetchTodosUseCaseKey.self] }
-        set { self[DevelopmentFetchTodosUseCaseKey.self] = newValue }
+        get { self[FetchTodosUseCaseKey.self] }
+        set { self[FetchTodosUseCaseKey.self] = newValue }
     }
 
     var developmentUpdateTodoGoalUseCase: UpdateTodoGoalUseCase {
-        get { self[DevelopmentUpdateTodoGoalUseCaseKey.self] }
-        set { self[DevelopmentUpdateTodoGoalUseCaseKey.self] = newValue }
+        get { self[UpdateTodoGoalUseCaseKey.self] }
+        set { self[UpdateTodoGoalUseCaseKey.self] = newValue }
     }
 }
 
-private enum DevelopmentCreateGoalUseCaseKey: DependencyKey {
+private enum CreateGoalUseCaseKey: DependencyKey {
     static var liveValue: CreateDevelopmentGoalUseCase {
         preconditionFailure("CreateDevelopmentGoalUseCase must be provided.")
     }
 }
 
-private enum DevelopmentFetchGoalUseCaseKey: DependencyKey {
+private enum FetchGoalUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentGoalUseCase {
         preconditionFailure("FetchDevelopmentGoalUseCase must be provided.")
     }
 }
 
-private enum DevelopmentFetchRecordsUseCaseKey: DependencyKey {
+private enum FetchRecordsUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordsUseCase {
         preconditionFailure("FetchDevelopmentRecordsUseCase must be provided.")
     }
 }
 
-private enum DevelopmentUpdateGoalStatusUseCaseKey: DependencyKey {
+private enum UpdateGoalStatusUseCaseKey: DependencyKey {
     static var liveValue: UpdateDevelopmentGoalStatusUseCase {
         preconditionFailure("UpdateDevelopmentGoalStatusUseCase must be provided.")
     }
 }
 
-private enum DevelopmentFetchRecordHistoryUseCaseKey: DependencyKey {
+private enum FetchRecordHistoryUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordHistoryUseCase {
         preconditionFailure("FetchDevelopmentRecordHistoryUseCase must be provided.")
     }
 }
 
-private enum DevelopmentFetchRecordVersionUseCaseKey: DependencyKey {
+private enum FetchRecordVersionUseCaseKey: DependencyKey {
     static var liveValue: FetchDevelopmentRecordVersionUseCase {
         preconditionFailure("FetchDevelopmentRecordVersionUseCase must be provided.")
     }
 }
 
-private enum DevelopmentCreateRecordUseCaseKey: DependencyKey {
+private enum CreateRecordUseCaseKey: DependencyKey {
     static var liveValue: CreateDevelopmentRecordUseCase {
         preconditionFailure("CreateDevelopmentRecordUseCase must be provided.")
     }
 }
 
-private enum DevelopmentSaveRecordDraftUseCaseKey: DependencyKey {
+private enum SaveRecordDraftUseCaseKey: DependencyKey {
     static var liveValue: SaveDevelopmentRecordDraftUseCase {
         preconditionFailure("SaveDevelopmentRecordDraftUseCase must be provided.")
     }
 }
 
-private enum DevelopmentConfirmRecordUseCaseKey: DependencyKey {
+private enum ConfirmRecordUseCaseKey: DependencyKey {
     static var liveValue: ConfirmDevelopmentRecordUseCase {
         preconditionFailure("ConfirmDevelopmentRecordUseCase must be provided.")
     }
 }
 
-private enum DevelopmentRestoreRecordUseCaseKey: DependencyKey {
+private enum RestoreRecordUseCaseKey: DependencyKey {
     static var liveValue: RestoreDevelopmentRecordUseCase {
         preconditionFailure("RestoreDevelopmentRecordUseCase must be provided.")
     }
 }
 
-private enum DevelopmentFetchTodosUseCaseKey: DependencyKey {
+private enum FetchTodosUseCaseKey: DependencyKey {
     static var liveValue: FetchTodosUseCase {
         preconditionFailure("FetchTodosUseCase must be provided.")
     }
 }
 
-private enum DevelopmentUpdateTodoGoalUseCaseKey: DependencyKey {
+private enum UpdateTodoGoalUseCaseKey: DependencyKey {
     static var liveValue: UpdateTodoGoalUseCase {
         preconditionFailure("UpdateTodoGoalUseCase must be provided.")
     }
