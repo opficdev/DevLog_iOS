@@ -179,7 +179,7 @@ private struct TopBarButtonStyleModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         let label = content
-            .font(isIcon ? .title : nil)
+            .font(isIcon ? .title2 : nil)
             .frame(width: isIcon ? iconSize : nil, height: isIcon ? iconSize : nil)
 
         if isIcon {
