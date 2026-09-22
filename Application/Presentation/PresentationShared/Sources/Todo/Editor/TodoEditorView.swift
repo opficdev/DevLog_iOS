@@ -178,14 +178,14 @@ private struct ToolBar: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
-                .topBarButtonStyle()
+                .topBarButtonStyle(tint: Color.accent)
             } else {
                 Button {
                     onClose()
                 } label: {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
-                .adaptiveButtonStyle(shape: .circle, glassEffect: .enabled)
+                .topBarButtonStyle(tint: Color.accent)
             }
             Spacer()
             Text(store.navigationTitle)
@@ -231,7 +231,7 @@ struct EditorToolbarActions: View {
             if store.isLoading {
                 if #available(iOS 26.0, *) {
                     ProgressView()
-                        .topBarButtonStyle(isInteractive: false)
+                        .topBarProgressStyle()
                 } else {
                     ProgressView()
                         .frame(width: iconSize, height: iconSize)

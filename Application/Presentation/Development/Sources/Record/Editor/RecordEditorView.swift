@@ -71,7 +71,7 @@ public struct RecordEditorView: View {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .topBarButtonStyle()
+            .topBarButtonStyle(tint: Color.accent)
             .disabled(store.isLoading)
             Spacer()
             Text(RecordPresentation.text(
@@ -92,7 +92,7 @@ public struct RecordEditorView: View {
                         .foregroundStyle(Color.accent)
                 }
             }
-            .topBarButtonStyle(legacyColor: Color.surface)
+            .topBarButtonStyle()
             .disabled(!store.isReadyToSave)
         }
         .padding(.horizontal)

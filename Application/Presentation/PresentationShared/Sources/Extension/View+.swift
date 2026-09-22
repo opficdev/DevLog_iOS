@@ -14,15 +14,17 @@ public enum AdaptiveButtonGlassEffect {
 
 public extension View {
     @ViewBuilder
-    func topBarButtonStyle(
-        legacyColor: Color = .clear,
-        isInteractive: Bool = true
-    ) -> some View {
+    func topBarButtonStyle(tint: Color? = nil) -> some View {
         if #available(iOS 26.0, *) {
-            modifier(TopBarButtonStyleModifier(isInteractive: isInteractive))
+            modifier(TopBarButtonStyleModifier(tint: tint, isInteractive: true))
         } else {
-            adaptiveButtonStyle(color: legacyColor, glassEffect: .enabled)
+            modifier(LegacyTopBarButtonStyleModifier(tint: tint ?? .primary))
         }
+    }
+
+    @available(iOS 26.0, *)
+    func topBarProgressStyle() -> some View {
+        modifier(TopBarButtonStyleModifier(tint: nil, isInteractive: false))
     }
 
     func toolbarBackground(_ color: Color) -> some View {
@@ -160,20 +162,48 @@ public extension View {
     }
 }
 
+private struct LegacyTopBarButtonStyleModifier: ViewModifier {
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(tint)
+            .padding(8)
+            .background {
+                Capsule()
+                    .fill(Color.surface)
+            }
+    }
+}
+
 @available(iOS 26.0, *)
 private struct TopBarButtonStyleModifier: ViewModifier {
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title2,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
+    let tint: Color?
     let isInteractive: Bool
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
-            .font(.title2.weight(.semibold))
-            .foregroundStyle(Color.primary)
-            .frame(width: iconSize, height: iconSize)
-            .padding(9)
-            .glassEffect(.regular.interactive(isInteractive), in: .circle)
+        if let tint {
+            content
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color.primary)
+                .frame(width: iconSize, height: iconSize)
+                .padding(9)
+                .glassEffect(
+                    .regular.tint(tint).interactive(isInteractive),
+                    in: .circle
+                )
+        } else {
+            content
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color.primary)
+                .frame(width: iconSize, height: iconSize)
+                .padding(9)
+                .glassEffect(.regular.interactive(isInteractive), in: .circle)
+        }
     }
 }

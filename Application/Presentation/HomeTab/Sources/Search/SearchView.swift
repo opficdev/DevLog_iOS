@@ -62,18 +62,15 @@ struct SearchView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
-                .topBarButtonStyle()
+                .topBarButtonStyle(tint: Color.accent)
             } else {
                 Button {
                     store.send(.binding(.set(\.isSearching, false)))
                     dismiss()
                 } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundStyle(Color.textSecondary)
-                        .font(.title)
-                        .padding(6)
+                    Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
-                .adaptiveButtonStyle(shape: .circle, color: .border, glassEffect: .enabled)
+                .topBarButtonStyle(tint: Color.accent)
             }
             SearchField(store: store)
         }

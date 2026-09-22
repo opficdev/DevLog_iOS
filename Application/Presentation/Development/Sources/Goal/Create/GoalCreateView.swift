@@ -87,7 +87,7 @@ private struct GoalCreateTopBar: View {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle()
+                .topBarButtonStyle(tint: Color.accent)
                 .disabled(isSaving)
 
                 Spacer()

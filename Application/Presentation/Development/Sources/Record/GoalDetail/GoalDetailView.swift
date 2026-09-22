@@ -107,11 +107,14 @@ public struct GoalDetailView: View {
                 Button(action: dismiss.callAsFunction) {
                     Image(systemName: "xmark")
                 }
-                .topBarButtonStyle()
+                .topBarButtonStyle(tint: Color.accent)
                 .disabled(store.isTransitioning)
             } else {
-                RecordBackButton(action: dismiss.callAsFunction)
-                    .disabled(store.isTransitioning)
+                Button(action: dismiss.callAsFunction) {
+                    Text(RecordPresentation.text("common_close"))
+                }
+                .topBarButtonStyle(tint: Color.accent)
+                .disabled(store.isTransitioning)
             }
             Spacer()
             if let status = store.goalStatus {

@@ -57,7 +57,7 @@ struct GoalTodoLinkSheet: View {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle(legacyColor: Color.surface)
+                .topBarButtonStyle(tint: Color.accent)
                 .disabled(store.isUpdating)
                 Spacer()
                 HStack(spacing: 8) {
@@ -80,7 +80,7 @@ struct GoalTodoLinkSheet: View {
                             ) { _ in
                                 store.send(.view(.clearSelection))
                             }
-                            .topBarButtonStyle(legacyColor: Color.surface)
+                            .topBarButtonStyle()
                     }
                     Button {
                         store.send(.view(.save))
@@ -92,7 +92,7 @@ struct GoalTodoLinkSheet: View {
                                 .foregroundStyle(Color.accent)
                         }
                     }
-                    .topBarButtonStyle(legacyColor: Color.surface)
+                    .topBarButtonStyle()
                     .disabled(!store.canSave)
                 }
             }
