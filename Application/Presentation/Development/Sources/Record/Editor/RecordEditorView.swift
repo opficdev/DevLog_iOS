@@ -127,13 +127,8 @@ public struct RecordEditorView: View {
             )
             .font(.body)
             .focused($focusedField, equals: .title)
-            .frame(height: 30)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.surface)
-            }
+            .padding()
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isLoading)
     }

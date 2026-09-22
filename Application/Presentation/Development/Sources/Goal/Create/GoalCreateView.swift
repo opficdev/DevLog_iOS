@@ -123,7 +123,7 @@ private struct GoalCreateTitleField: View {
             .focused(focusedField, equals: .title)
             .font(.body)
             .padding()
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isSaving)
     }
@@ -268,7 +268,7 @@ private struct GoalCreateStatusField: View {
                 Spacer()
             }
             .padding(20)
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 }
@@ -304,7 +304,7 @@ private struct GoalCreateTodoField: View {
                 .buttonStyle(.plain)
             }
             .padding(20)
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isSaving)
     }
