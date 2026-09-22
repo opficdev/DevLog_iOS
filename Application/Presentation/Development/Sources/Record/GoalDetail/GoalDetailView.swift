@@ -143,7 +143,7 @@ public struct GoalDetailView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.bottom, 12)
+        .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
