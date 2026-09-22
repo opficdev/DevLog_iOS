@@ -45,7 +45,7 @@ public struct RecordEditorView: View {
                 LazyVStack(alignment: .leading, spacing: 20) {
                     versionCard
                     titleCard
-                    contentCard
+                    contentEditor
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 20)
@@ -132,13 +132,13 @@ public struct RecordEditorView: View {
         .disabled(store.isLoading)
     }
 
-    private var contentCard: some View {
+    private var contentEditor: some View {
         VStack(spacing: 16) {
             ModePicker(store: store, focusedField: _focusedField)
 
             switch store.selectedTab {
             case .write:
-                TextEditorContentLayout(minimumHeight: 340 - 24) {
+                TextEditorContentLayout(minimumHeight: 340) {
                     Text(RecordPresentation.text("development_record_markdown_hint"))
                         .font(.caption)
                         .foregroundStyle(Color.textTertiary)
@@ -162,9 +162,7 @@ public struct RecordEditorView: View {
                         )
                         .focused($focusedField, equals: .content)
                 }
-                .padding(12)
                 .frame(minHeight: 340, alignment: .topLeading)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
                 .contentShape(.rect)
                 .onTapGesture { focusedField = .content }
             case .preview:
@@ -179,18 +177,13 @@ public struct RecordEditorView: View {
                         )
                     } else {
                         MarkdownContentView(content: store.markdownContent)
-                            .padding(.vertical, 16)
+                            // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
+                            .padding(.horizontal, -16)
                     }
                 }
-                .frame(minHeight: 340)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                .frame(minHeight: 340, alignment: .topLeading)
             }
 
-        }
-        .padding(20)
-        .background {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.surface)
         }
         .disabled(store.isLoading)
     }

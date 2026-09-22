@@ -52,7 +52,6 @@ public struct TodoEditorView: View {
                                 VStack(alignment: .trailing, spacing: 16) {
                                     TitleField(store: store, field: _field)
                                     ModePicker(store: store, field: _field)
-                                        .frame(maxWidth: horizontalSizeClass == .regular ? 280 : .infinity)
                                 }
                                 .onGeometryChange(for: CGFloat.self) { proxy in
                                     proxy.size.height
@@ -332,7 +331,7 @@ private struct ContentView: View {
         let isContentFocused = field == .content
         Group {
             if store.tabViewTag == .editor {
-                TextEditorContentLayout(minimumHeight: max(0, minimumHeight - 20)) {
+                TextEditorContentLayout(minimumHeight: minimumHeight) {
                     markdownHint
                     UIKitTextEditor()
                         .composable(
@@ -358,33 +357,28 @@ private struct ContentView: View {
                         // SwiftUI 포커싱 시스템에 등록하기 위해 사용
                         .focused($field, equals: .content)
                 }
-                .padding(.horizontal)
             } else {
                 if store.content.isEmpty {
                     previewPlaceholder
-                        .padding(.horizontal)
                 } else {
                     TodoMarkdownContentView(
                         content: store.content,
                         referenceItems: store.referenceItems,
                         onOpenTodoID: { store.send(.showInspector(.todo(TodoIdItem(id: $0)))) }
                     )
+                    // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
+                    .padding(.horizontal, -16)
                 }
             }
         }
-        .padding(.vertical, 10)
         .frame(minHeight: minimumHeight, alignment: .topLeading)
-        .background {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.surface)
-                .strokeBorder(Color.border, lineWidth: 2)
-        }
+        .contentShape(.rect)
     }
 
     private var markdownHint: some View {
         Text(String(localized: "todo_editor_markdown_hint", bundle: PresentationResources.bundle))
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.textTertiary)
     }
 
     private var previewPlaceholder: some View {
