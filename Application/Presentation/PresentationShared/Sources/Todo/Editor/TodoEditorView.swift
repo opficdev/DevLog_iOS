@@ -166,10 +166,6 @@ private struct ToolBar: View {
     let showsActions: Bool
     let onClose: () -> Void
     let onSubmit: () -> Void
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title1,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
 
     var body: some View {
         HStack {
@@ -178,13 +174,11 @@ private struct ToolBar: View {
             } label: {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "xmark")
-                        .frame(width: iconSize, height: iconSize)
-                        .font(.title)
                 } else {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
             }
-            .adaptiveButtonStyle(shape: .circle, glassEffect: .enabled)
+            .topBarButtonStyle(usesTextBeforeIOS26: true)
             Spacer()
             Text(store.navigationTitle)
                 .font(.title3.bold())
@@ -201,10 +195,6 @@ private struct ToolBar: View {
 struct EditorToolbarActions: View {
     let store: StoreOf<TodoEditorFeature>
     let onSubmit: () -> Void
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title1,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
 
     var body: some View {
         HStack {
@@ -212,30 +202,25 @@ struct EditorToolbarActions: View {
                 store.send(.showInspector(.options))
             } label: {
                 Image(systemName: "info.circle")
-                    .frame(width: iconSize, height: iconSize)
                     .foregroundStyle(Color.primary)
             }
-            .font(.title)
-            .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+            .topBarButtonStyle(color: Color.surface)
             if store.isLoading {
                 ProgressView()
-                    .frame(width: iconSize, height: iconSize)
-                    .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                    .topBarButtonStyle(color: Color.surface)
             } else {
                 Button {
                     onSubmit()
                 } label: {
                     if #available(iOS 26.0, *) {
                         Image(systemName: "checkmark")
-                            .frame(width: iconSize, height: iconSize)
                             .foregroundStyle(Color.primary)
-                            .font(.title)
                     } else {
                         Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
                     }
                 }
-                .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
                 .disabled(!store.isReadyToSubmit)
             }
         }

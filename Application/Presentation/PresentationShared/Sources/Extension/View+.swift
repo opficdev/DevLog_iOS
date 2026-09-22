@@ -13,13 +13,16 @@ public enum AdaptiveButtonGlassEffect {
 }
 
 public extension View {
-    @ViewBuilder
-    func topBarButtonStyle(color: Color = .clear) -> some View {
-        if #available(iOS 26.0, *) {
-            adaptiveButtonStyle(shape: .circle, color: color, glassEffect: .enabled)
-        } else {
-            adaptiveButtonStyle(color: color, glassEffect: .enabled)
-        }
+    func topBarButtonStyle(
+        color: Color = .clear,
+        usesTextBeforeIOS26: Bool = false,
+        glassEffect: AdaptiveButtonGlassEffect = .enabled
+    ) -> some View {
+        modifier(TopBarButtonStyleModifier(
+            color: color,
+            usesTextBeforeIOS26: usesTextBeforeIOS26,
+            glassEffect: glassEffect
+        ))
     }
 
     func toolbarBackground(_ color: Color) -> some View {
@@ -154,5 +157,35 @@ public extension View {
                         .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
                 }
             }
+    }
+}
+
+private struct TopBarButtonStyleModifier: ViewModifier {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title2,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
+    let color: Color
+    let usesTextBeforeIOS26: Bool
+    let glassEffect: AdaptiveButtonGlassEffect
+
+    private var isIcon: Bool {
+        if #available(iOS 26.0, *) {
+            true
+        } else {
+            !usesTextBeforeIOS26
+        }
+    }
+
+    func body(content: Content) -> some View {
+        let label = content
+            .font(isIcon ? .title : nil)
+            .frame(width: isIcon ? iconSize : nil, height: isIcon ? iconSize : nil)
+
+        if isIcon {
+            label.adaptiveButtonStyle(shape: .circle, color: color, glassEffect: glassEffect)
+        } else {
+            label.adaptiveButtonStyle(color: color, glassEffect: glassEffect)
+        }
     }
 }

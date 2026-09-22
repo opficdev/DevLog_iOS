@@ -270,10 +270,8 @@ struct RecordBackButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "chevron.left")
-                .font(.title3.weight(.semibold))
-                .frame(width: 28, height: 28)
         }
-        .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
+        .topBarButtonStyle(color: .surface)
     }
 }
 

@@ -106,19 +106,13 @@ public struct GoalDetailView: View {
             Spacer()
             if let status = store.goalStatus {
                 Image(systemName: "ellipsis")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
                     .prominentMenu(
                         items: statusMenuItems(status),
                         isEnabled: !store.isLoading && !store.isTransitioning
                     ) { status in
                         store.send(.view(.selectStatus(status)))
                     }
-                    .adaptiveButtonStyle(
-                        shape: .circle,
-                        color: .surface,
-                        glassEffect: .enabled
-                    )
+                    .topBarButtonStyle(color: .surface)
             }
         }
         .padding(.horizontal)

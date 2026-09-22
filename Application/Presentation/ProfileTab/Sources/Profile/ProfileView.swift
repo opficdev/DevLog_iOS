@@ -84,7 +84,7 @@ public struct ProfileView: View {
                     Image(systemName: "gearshape")
                         .foregroundStyle(Color.textTertiary)
                 }
-                .adaptiveButtonStyle()
+                .topBarButtonStyle(glassEffect: .disabled)
             }
             Text("꾸준히 쌓아온 개발 기록을 확인하세요")
                 .foregroundStyle(Color.textSecondary)

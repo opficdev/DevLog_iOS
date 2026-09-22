@@ -12,10 +12,6 @@ import Core
 public struct TodoPropertiesView: View {
     @Bindable var store: StoreOf<TodoEditorFeature>
     @FocusState private var isTagFieldFocused: Bool
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title1,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
     var showsEditorActions = false
     var onSubmit: () -> Void = {}
     let onClose: () -> Void
@@ -53,11 +49,9 @@ public struct TodoPropertiesView: View {
                     onClose()
                 } label: {
                     Image(systemName: "checkmark")
-                        .frame(width: iconSize, height: iconSize)
                         .foregroundStyle(Color.primary)
                 }
-                .font(.title)
-                .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                .topBarButtonStyle(color: Color.surface)
             }
         }
         .padding(.horizontal)

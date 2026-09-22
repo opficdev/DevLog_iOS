@@ -13,10 +13,6 @@ public struct RecordEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<RecordEditorFeature>
     @FocusState private var focusedField: Field?
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title2,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
     private let onCompletion: () -> Void
 
     public init(
@@ -71,13 +67,11 @@ public struct RecordEditorView: View {
             } label: {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "xmark")
-                        .frame(width: iconSize, height: iconSize)
-                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .topBarButtonStyle()
+            .topBarButtonStyle(usesTextBeforeIOS26: true)
             .disabled(store.isLoading)
             Spacer()
             Text(RecordPresentation.text(
@@ -93,15 +87,13 @@ public struct RecordEditorView: View {
             } label: {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "checkmark")
-                        .frame(width: iconSize, height: iconSize)
                         .foregroundStyle(Color.primary)
-                        .font(.title)
                 } else {
                     Text(RecordPresentation.text("development_record_save"))
                         .foregroundStyle(Color.accent)
                 }
             }
-            .topBarButtonStyle(color: Color.surface)
+            .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
             .disabled(!store.isReadyToSave)
         }
         .padding(.horizontal)

@@ -13,10 +13,6 @@ public struct GoalCreateView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store: StoreOf<GoalCreateFeature>
     @FocusState private var focusedField: GoalCreateField?
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title2,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
     private let onCompletion: (DevelopmentGoal) -> Void
 
     public init(onCompletion: @escaping (DevelopmentGoal) -> Void = { _ in }) {
@@ -42,7 +38,6 @@ public struct GoalCreateView: View {
             }
             .safeAreaInset(edge: .top, spacing: 0) {
                 GoalCreateTopBar(
-                    iconSize: iconSize,
                     isSaving: store.isSaving,
                     onClose: dismiss.callAsFunction
                 )
@@ -76,7 +71,6 @@ public struct GoalCreateView: View {
 }
 
 private struct GoalCreateTopBar: View {
-    let iconSize: CGFloat
     let isSaving: Bool
     let onClose: () -> Void
 
@@ -89,13 +83,11 @@ private struct GoalCreateTopBar: View {
                 Button(action: onClose) {
                     if #available(iOS 26.0, *) {
                         Image(systemName: "xmark")
-                            .frame(width: iconSize, height: iconSize)
-                            .font(.title)
                     } else {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle()
+                .topBarButtonStyle(usesTextBeforeIOS26: true)
                 .disabled(isSaving)
 
                 Spacer()

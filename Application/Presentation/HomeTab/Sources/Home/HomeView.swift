@@ -118,26 +118,14 @@ public struct HomeView: View {
                 store.send(.store(.setPresentation(.searchView, true)))
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
             }
-            .adaptiveButtonStyle(
-                shape: .circle,
-                color: .surface,
-                glassEffect: .enabled
-            )
+            .topBarButtonStyle(color: .surface)
             Button {
                 store.send(.store(.setPresentation(.contentPicker, true)))
             } label: {
                 Image(systemName: "plus")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
             }
-            .adaptiveButtonStyle(
-                shape: .circle,
-                color: .surface,
-                glassEffect: .enabled
-            )
+            .topBarButtonStyle(color: .surface)
             .disabled(!store.isNetworkConnected)
         }
         .padding(.bottom, 8)

@@ -61,10 +61,8 @@ struct SearchView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .foregroundStyle(Color.textSecondary)
-                    .font(.title)
-                    .padding(6)
             }
-            .adaptiveButtonStyle(shape: .circle, color: .border, glassEffect: .enabled)
+            .topBarButtonStyle(color: .border)
             SearchField(store: store)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
