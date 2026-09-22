@@ -167,6 +167,8 @@ private struct GoalCreateDescriptionEditor: View {
                                     sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
                                 )
                                 .focused(focusedField, equals: .content)
+                                .padding(12)
+                                .background(Color.surface, in: .rect(cornerRadius: 16))
                         }
                         .contentShape(.rect)
                         .onTapGesture { focusedField.wrappedValue = .content }
