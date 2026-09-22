@@ -110,24 +110,31 @@ public struct RecordEditorView: View {
     }
 
     private var versionCard: some View {
-        FieldCard(title: RecordPresentation.text("development_record_version")) {
+        FieldSection(title: RecordPresentation.text("development_record_version")) {
             Text(RecordPresentation.versionLabel(store.versionNumber))
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 
     private var titleCard: some View {
-        FieldCard(title: RecordPresentation.text("development_record_title")) {
+        FieldSection(title: RecordPresentation.text("development_record_title")) {
             TextField(
                 RecordPresentation.text("development_record_title_placeholder"),
                 text: $store.title
             )
+            .font(.title2)
             .focused($focusedField, equals: .title)
-            .padding()
-            .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+            .frame(height: 30)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.surface)
+                    .strokeBorder(Color.border, lineWidth: 2)
+            }
         }
         .disabled(store.isLoading)
     }
@@ -240,7 +247,7 @@ public struct RecordEditorView: View {
 
 }
 
-private struct FieldCard<Content: View>: View {
+private struct FieldSection<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
 
@@ -254,11 +261,6 @@ private struct FieldCard<Content: View>: View {
             Text(title)
                 .font(.headline)
             content
-                .padding(20)
-                .background {
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(Color.surface)
-                }
         }
     }
 }
