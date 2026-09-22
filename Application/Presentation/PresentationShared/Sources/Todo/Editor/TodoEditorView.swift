@@ -62,8 +62,7 @@ public struct TodoEditorView: View {
                                     store: store,
                                     field: _field,
                                     minimumHeight: max(
-                                        0,
-                                        geometry.size.height - store.editorHeaderHeight - 16 - safeAreaInsets.bottom
+                                        0, geometry.size.height - store.editorHeaderHeight - 16 - safeAreaInsets.bottom
                                     )
                                 )
                                 .onTapGesture {
