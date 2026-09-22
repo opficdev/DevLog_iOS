@@ -22,12 +22,14 @@ public struct GoalDetailView: View {
     }
 
     public var body: some View {
-        presentedContent
-            .overlay {
-                if store.isTransitioning {
-                    LoadingView()
+        NavigationStack {
+            presentedContent
+                .overlay {
+                    if store.isTransitioning {
+                        LoadingView()
+                    }
                 }
-            }
+        }
     }
 
     private var mainContent: some View {
