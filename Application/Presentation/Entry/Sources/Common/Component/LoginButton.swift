@@ -44,7 +44,7 @@ struct LoginButton: View {
             .frame(width: 300, height: height + 24)
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.border, lineWidth: 3)
+                    .stroke(Color.border, lineWidth: 1)
                     .fill(Color.surface)
             }
             .overlay(alignment: .leading) {
