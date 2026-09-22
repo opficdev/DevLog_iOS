@@ -8,55 +8,60 @@
 import SwiftUI
 import UIComposable
 
-final class UIKitTextEditor: UITextView, UICoordinatedComposable {
-    var textBinding: Binding<String>?
-    var isEditorFocused = false
-    var onFocusChange: ((Bool) -> Void)?
-    var placeholder = ""
+public final class UIKitTextEditor: UITextView, UICoordinatedComposable {
+    private var textBinding: Binding<String>?
+    private var isEditorFocused = false
+    private var onFocusChange: ((Bool) -> Void)?
+    private var placeholder: String?
 
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         Coordinator()
     }
 
-    func connect(coordinator: Coordinator) {
+    public func connect(coordinator: Coordinator) {
         delegate = coordinator
         coordinator.textView = self
         configureAppearance()
     }
 
-    func update(coordinator: Coordinator) {
+    public func update(coordinator: Coordinator) {
         coordinator.update()
     }
 
-    func disconnect(coordinator: Coordinator) {
+    public func disconnect(coordinator: Coordinator) {
         if delegate === coordinator {
             delegate = nil
         }
         coordinator.disconnect()
     }
 
-    func updateInput(
+    public func updateInput(
         text: Binding<String>,
         isFocused: Bool,
         onFocusChange: @escaping (Bool) -> Void,
-        placeholder: String
+        placeholder: String? = nil,
+        isEnabled: Bool = true
     ) {
         textBinding = text
         isEditorFocused = isFocused
         self.onFocusChange = onFocusChange
         self.placeholder = placeholder
+        isEditable = isEnabled
+        isSelectable = isEnabled
     }
 
-    static func fittingSize(
+    public static func fittingSize(
         proposal: ProposedViewSize,
         textEditor: UIKitTextEditor
     ) -> CGSize? {
-        guard let width = proposal.width else { return nil }
+        guard let width = proposal.width, width.isFinite, 0 < width else { return nil }
 
         let size = textEditor.sizeThatFits(
             CGSize(width: width, height: .greatestFiniteMagnitude)
         )
-        return CGSize(width: width, height: size.height)
+        let proposedHeight = proposal.height ?? 0
+        let height = proposedHeight.isFinite ? max(size.height, proposedHeight) : size.height
+        return CGSize(width: width, height: height)
     }
 
     private func configureAppearance() {
@@ -74,7 +79,7 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
 
-    final class Coordinator: NSObject, UITextViewDelegate {
+    public final class Coordinator: NSObject, UITextViewDelegate {
         weak var textView: UIKitTextEditor?
         private weak var scrollView: UIScrollView?
         private var offsetObservation: NSKeyValueObservation?
@@ -109,12 +114,12 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             textView = nil
         }
 
-        func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
             startTrackingOffset(for: textView)
             return true
         }
 
-        func textViewDidBeginEditing(_ textView: UITextView) {
+        public func textViewDidBeginEditing(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             if isShowingPlaceholder(in: textView) {
@@ -134,14 +139,14 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             }
         }
 
-        func textViewDidChange(_ textView: UITextView) {
+        public func textViewDidChange(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             stopTrackingOffset()
             textView.textBinding?.wrappedValue = textView.text
         }
 
-        func textViewDidEndEditing(_ textView: UITextView) {
+        public func textViewDidEndEditing(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             if textView.isEditorFocused {
@@ -154,10 +159,11 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         }
 
         func applyPlaceholderIfNeeded(to textView: UIKitTextEditor) {
-            guard let textBinding = textView.textBinding else { return }
+            guard let textBinding = textView.textBinding,
+                  let placeholder = textView.placeholder else { return }
 
             if textBinding.wrappedValue.isEmpty && !textView.isFirstResponder {
-                textView.text = textView.placeholder
+                textView.text = placeholder
                 textView.textColor = .placeholderText
             } else if isShowingPlaceholder(in: textView) {
                 textView.text = textBinding.wrappedValue
@@ -228,6 +234,50 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             trackedOffset = nil
         }
 
+    }
+}
+
+/// 안내 문구와 편집기를 순서대로 배치하고 남은 최소 높이를 편집기에 제안합니다.
+public struct TextEditorContentLayout: Layout {
+    private let minimumHeight: CGFloat
+    private let spacing = CGFloat(8)
+
+    public init(minimumHeight: CGFloat) {
+        self.minimumHeight = max(0, minimumHeight)
+    }
+
+    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard subviews.count == 2 else { return .zero }
+
+        let width = proposal.width.flatMap { $0.isFinite ? $0 : nil }
+            ?? subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
+        let hintSize = subviews[0].sizeThatFits(ProposedViewSize(width: width, height: nil))
+        let editorSize = subviews[1].sizeThatFits(ProposedViewSize(
+            width: width,
+            height: max(0, minimumHeight - hintSize.height - spacing)
+        ))
+
+        return CGSize(width: width, height: max(minimumHeight, hintSize.height + spacing + editorSize.height))
+    }
+
+    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard subviews.count == 2 else { return }
+
+        let hintProposal = ProposedViewSize(width: bounds.width, height: nil)
+        let hintSize = subviews[0].sizeThatFits(hintProposal)
+        subviews[0].place(
+            at: CGPoint(x: bounds.minX, y: bounds.minY),
+            anchor: .topLeading,
+            proposal: hintProposal
+        )
+        subviews[1].place(
+            at: CGPoint(x: bounds.minX, y: bounds.minY + hintSize.height + spacing),
+            anchor: .topLeading,
+            proposal: ProposedViewSize(
+                width: bounds.width,
+                height: max(0, bounds.height - hintSize.height - spacing)
+            )
+        )
     }
 }
 

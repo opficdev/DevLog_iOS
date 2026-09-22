@@ -32,8 +32,8 @@ public struct GoalCreateView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
-                    GoalCreateTitleField(store: store, focusedField: _focusedField)
-                    GoalCreateDescriptionEditor(store: store, focusedField: _focusedField)
+                    GoalCreateTitleField(store: store, focusedField: $focusedField)
+                    GoalCreateDescriptionEditor(store: store, focusedField: $focusedField)
                     GoalCreateStatusField()
                     GoalCreateTodoField(store: store)
                 }
@@ -109,7 +109,7 @@ private struct GoalCreateTopBar: View {
 
 private struct GoalCreateTitleField: View {
     @Bindable var store: StoreOf<GoalCreateFeature>
-    @FocusState var focusedField: GoalCreateField?
+    let focusedField: FocusState<GoalCreateField?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -120,7 +120,7 @@ private struct GoalCreateTitleField: View {
                 RecordPresentation.text("development_goal_create_title_placeholder"),
                 text: $store.title
             )
-            .focused($focusedField, equals: .title)
+            .focused(focusedField, equals: .title)
             .font(.body)
             .padding()
             .background(Color.surface, in: .rect(cornerRadius: 24))
@@ -131,7 +131,7 @@ private struct GoalCreateTitleField: View {
 
 private struct GoalCreateDescriptionEditor: View {
     @Bindable var store: StoreOf<GoalCreateFeature>
-    @FocusState var focusedField: GoalCreateField?
+    let focusedField: FocusState<GoalCreateField?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -139,16 +139,38 @@ private struct GoalCreateDescriptionEditor: View {
                 .font(.headline)
 
             VStack(spacing: 16) {
-                GoalCreateModePicker(store: store, focusedField: _focusedField)
+                GoalCreateModePicker(store: store, focusedField: focusedField)
 
                 Group {
                     switch store.selectedTab {
                     case .write:
-                        TextEditor(text: $store.markdownContent)
-                            .focused($focusedField, equals: .content)
-                            .font(.body)
-                            .scrollContentBackground(.hidden)
-                            .padding(12)
+                        TextEditorContentLayout(minimumHeight: 120 - 24) {
+                            Text(RecordPresentation.text("development_goal_create_markdown_hint"))
+                                .font(.caption)
+                                .foregroundStyle(Color.textTertiary)
+                            UIKitTextEditor()
+                                .composable(
+                                    update: { textEditor in
+                                        textEditor.updateInput(
+                                            text: $store.markdownContent,
+                                            isFocused: focusedField.wrappedValue == .content,
+                                            onFocusChange: { isFocused in
+                                                if isFocused {
+                                                    focusedField.wrappedValue = .content
+                                                } else if focusedField.wrappedValue == .content {
+                                                    focusedField.wrappedValue = nil
+                                                }
+                                            },
+                                            isEnabled: !store.isSaving
+                                        )
+                                    },
+                                    sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                                )
+                                .focused(focusedField, equals: .content)
+                        }
+                        .padding(12)
+                        .contentShape(.rect)
+                        .onTapGesture { focusedField.wrappedValue = .content }
                     case .preview:
                         Group {
                             if store.markdownContent.isEmpty {
@@ -167,13 +189,8 @@ private struct GoalCreateDescriptionEditor: View {
                         }
                     }
                 }
-                .frame(minHeight: 120)
+                .frame(minHeight: 120, alignment: .topLeading)
                 .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
-
-                Text(RecordPresentation.text("development_goal_create_markdown_hint"))
-                    .font(.caption)
-                    .foregroundStyle(Color.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(16)
             .background(Color.surface, in: .rect(cornerRadius: 24))
@@ -184,7 +201,7 @@ private struct GoalCreateDescriptionEditor: View {
 
 private struct GoalCreateModePicker: View {
     @Bindable var store: StoreOf<GoalCreateFeature>
-    @FocusState var focusedField: GoalCreateField?
+    let focusedField: FocusState<GoalCreateField?>.Binding
 
     var body: some View {
         HStack(spacing: 0) {
@@ -193,13 +210,13 @@ private struct GoalCreateModePicker: View {
                 isSelected: store.selectedTab == .write
             ) {
                 store.send(.binding(.set(\.selectedTab, .write)))
-                focusedField = .content
+                focusedField.wrappedValue = .content
             }
             GoalCreateModeButton(
                 title: RecordPresentation.text("development_record_preview"),
                 isSelected: store.selectedTab == .preview
             ) {
-                focusedField = nil
+                focusedField.wrappedValue = nil
                 store.send(.binding(.set(\.selectedTab, .preview)))
             }
         }

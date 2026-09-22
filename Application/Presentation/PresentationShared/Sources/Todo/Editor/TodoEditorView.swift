@@ -332,7 +332,7 @@ private struct ContentView: View {
         let isContentFocused = field == .content
         Group {
             if store.tabViewTag == .editor {
-                VStack(alignment: .leading, spacing: 8) {
+                TextEditorContentLayout(minimumHeight: max(0, minimumHeight - 20)) {
                     markdownHint
                     UIKitTextEditor()
                         .composable(
