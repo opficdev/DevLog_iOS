@@ -231,7 +231,7 @@ struct EditorToolbarActions: View {
             if store.isLoading {
                 if #available(iOS 26.0, *) {
                     ProgressView()
-                        .topBarButtonStyle()
+                        .topBarButtonStyle(isInteractive: false)
                 } else {
                     ProgressView()
                         .frame(width: iconSize, height: iconSize)

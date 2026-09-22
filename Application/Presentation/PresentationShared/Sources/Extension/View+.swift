@@ -14,9 +14,12 @@ public enum AdaptiveButtonGlassEffect {
 
 public extension View {
     @ViewBuilder
-    func topBarButtonStyle(legacyColor: Color = .clear) -> some View {
+    func topBarButtonStyle(
+        legacyColor: Color = .clear,
+        isInteractive: Bool = true
+    ) -> some View {
         if #available(iOS 26.0, *) {
-            modifier(TopBarButtonStyleModifier())
+            modifier(TopBarButtonStyleModifier(isInteractive: isInteractive))
         } else {
             adaptiveButtonStyle(color: legacyColor, glassEffect: .enabled)
         }
@@ -163,6 +166,7 @@ private struct TopBarButtonStyleModifier: ViewModifier {
         forTextStyle: .title2,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
+    let isInteractive: Bool
 
     func body(content: Content) -> some View {
         content
@@ -170,6 +174,6 @@ private struct TopBarButtonStyleModifier: ViewModifier {
             .foregroundStyle(Color.primary)
             .frame(width: iconSize, height: iconSize)
             .padding(9)
-            .glassEffect(.regular, in: .circle)
+            .glassEffect(.regular.interactive(isInteractive), in: .circle)
     }
 }
