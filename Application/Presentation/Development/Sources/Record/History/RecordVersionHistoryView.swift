@@ -268,10 +268,19 @@ struct RecordBackButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Image(systemName: "chevron.left")
+        if #available(iOS 26.0, *) {
+            Button(action: action) {
+                Image(systemName: "chevron.left")
+            }
+            .topBarButtonStyle()
+        } else {
+            Button(action: action) {
+                Image(systemName: "chevron.left")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+            }
+            .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
         }
-        .topBarButtonStyle(color: .surface)
     }
 }
 

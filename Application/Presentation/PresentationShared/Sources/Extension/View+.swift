@@ -13,16 +13,13 @@ public enum AdaptiveButtonGlassEffect {
 }
 
 public extension View {
-    func topBarButtonStyle(
-        color: Color = .clear,
-        usesTextBeforeIOS26: Bool = false,
-        glassEffect: AdaptiveButtonGlassEffect = .enabled
-    ) -> some View {
-        modifier(TopBarButtonStyleModifier(
-            color: color,
-            usesTextBeforeIOS26: usesTextBeforeIOS26,
-            glassEffect: glassEffect
-        ))
+    @ViewBuilder
+    func topBarButtonStyle(legacyColor: Color = .clear) -> some View {
+        if #available(iOS 26.0, *) {
+            modifier(TopBarButtonStyleModifier())
+        } else {
+            adaptiveButtonStyle(color: legacyColor, glassEffect: .enabled)
+        }
     }
 
     func toolbarBackground(_ color: Color) -> some View {
@@ -160,32 +157,19 @@ public extension View {
     }
 }
 
+@available(iOS 26.0, *)
 private struct TopBarButtonStyleModifier: ViewModifier {
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title2,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
-    let color: Color
-    let usesTextBeforeIOS26: Bool
-    let glassEffect: AdaptiveButtonGlassEffect
-
-    private var isIcon: Bool {
-        if #available(iOS 26.0, *) {
-            true
-        } else {
-            !usesTextBeforeIOS26
-        }
-    }
 
     func body(content: Content) -> some View {
-        let label = content
-            .font(isIcon ? .title2 : nil)
-            .frame(width: isIcon ? iconSize : nil, height: isIcon ? iconSize : nil)
-
-        if isIcon {
-            label.adaptiveButtonStyle(shape: .circle, color: color, glassEffect: glassEffect)
-        } else {
-            label.adaptiveButtonStyle(color: color, glassEffect: glassEffect)
-        }
+        content
+            .font(.title2.weight(.semibold))
+            .foregroundStyle(Color.primary)
+            .frame(width: iconSize, height: iconSize)
+            .padding(9)
+            .glassEffect(.regular, in: .circle)
     }
 }

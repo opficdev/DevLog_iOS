@@ -10,6 +10,10 @@ import ComposableArchitecture
 import Core
 
 public struct TodoPropertiesView: View {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title1,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
     @Bindable var store: StoreOf<TodoEditorFeature>
     @FocusState private var isTagFieldFocused: Bool
     var showsEditorActions = false
@@ -45,13 +49,24 @@ public struct TodoPropertiesView: View {
             if showsEditorActions {
                 EditorToolbarActions(store: store, onSubmit: onSubmit)
             } else {
-                Button {
-                    onClose()
-                } label: {
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(Color.primary)
+                if #available(iOS 26.0, *) {
+                    Button {
+                        onClose()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .topBarButtonStyle()
+                } else {
+                    Button {
+                        onClose()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .frame(width: iconSize, height: iconSize)
+                            .foregroundStyle(Color.primary)
+                    }
+                    .font(.title)
+                    .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
                 }
-                .topBarButtonStyle(color: Color.surface)
             }
         }
         .padding(.horizontal)

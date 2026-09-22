@@ -162,6 +162,10 @@ public struct TodoEditorView: View {
 }
 
 private struct ToolBar: View {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title1,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
     let store: StoreOf<TodoEditorFeature>
     let showsActions: Bool
     let onClose: () -> Void
@@ -169,16 +173,21 @@ private struct ToolBar: View {
 
     var body: some View {
         HStack {
-            Button {
-                onClose()
-            } label: {
-                if #available(iOS 26.0, *) {
+            if #available(iOS 26.0, *) {
+                Button {
+                    onClose()
+                } label: {
                     Image(systemName: "xmark")
-                } else {
+                }
+                .topBarButtonStyle()
+            } else {
+                Button {
+                    onClose()
+                } label: {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
+                .adaptiveButtonStyle(shape: .circle, glassEffect: .enabled)
             }
-            .topBarButtonStyle(usesTextBeforeIOS26: true)
             Spacer()
             Text(store.navigationTitle)
                 .font(.title3.bold())
@@ -193,35 +202,61 @@ private struct ToolBar: View {
 }
 
 struct EditorToolbarActions: View {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title1,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
     let store: StoreOf<TodoEditorFeature>
     let onSubmit: () -> Void
 
     var body: some View {
         HStack {
-            Button {
-                store.send(.showInspector(.options))
-            } label: {
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.primary)
-            }
-            .topBarButtonStyle(color: Color.surface)
-            if store.isLoading {
-                ProgressView()
-                    .topBarButtonStyle(color: Color.surface)
+            if #available(iOS 26.0, *) {
+                Button {
+                    store.send(.showInspector(.options))
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .topBarButtonStyle()
             } else {
                 Button {
-                    onSubmit()
+                    store.send(.showInspector(.options))
                 } label: {
-                    if #available(iOS 26.0, *) {
+                    Image(systemName: "info.circle")
+                        .frame(width: iconSize, height: iconSize)
+                        .foregroundStyle(Color.primary)
+                }
+                .font(.title)
+                .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+            }
+            if store.isLoading {
+                if #available(iOS 26.0, *) {
+                    ProgressView()
+                        .topBarButtonStyle()
+                } else {
+                    ProgressView()
+                        .frame(width: iconSize, height: iconSize)
+                        .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                }
+            } else {
+                if #available(iOS 26.0, *) {
+                    Button {
+                        onSubmit()
+                    } label: {
                         Image(systemName: "checkmark")
-                            .foregroundStyle(Color.primary)
-                    } else {
+                    }
+                    .topBarButtonStyle()
+                    .disabled(!store.isReadyToSubmit)
+                } else {
+                    Button {
+                        onSubmit()
+                    } label: {
                         Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
                     }
+                    .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                    .disabled(!store.isReadyToSubmit)
                 }
-                .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
-                .disabled(!store.isReadyToSubmit)
             }
         }
     }

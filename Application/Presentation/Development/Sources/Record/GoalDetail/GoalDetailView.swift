@@ -101,18 +101,43 @@ public struct GoalDetailView: View {
 
     private var topBar: some View {
         HStack {
-            RecordBackButton(action: dismiss.callAsFunction)
+            if #available(iOS 26.0, *) {
+                Button(action: dismiss.callAsFunction) {
+                    Image(systemName: "xmark")
+                }
+                .topBarButtonStyle()
                 .disabled(store.isTransitioning)
+            } else {
+                RecordBackButton(action: dismiss.callAsFunction)
+                    .disabled(store.isTransitioning)
+            }
             Spacer()
             if let status = store.goalStatus {
-                Image(systemName: "ellipsis")
-                    .prominentMenu(
-                        items: statusMenuItems(status),
-                        isEnabled: !store.isLoading && !store.isTransitioning
-                    ) { status in
-                        store.send(.view(.selectStatus(status)))
-                    }
-                    .topBarButtonStyle(color: .surface)
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "ellipsis")
+                        .prominentMenu(
+                            items: statusMenuItems(status),
+                            isEnabled: !store.isLoading && !store.isTransitioning
+                        ) { status in
+                            store.send(.view(.selectStatus(status)))
+                        }
+                        .topBarButtonStyle()
+                } else {
+                    Image(systemName: "ellipsis")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 28, height: 28)
+                        .prominentMenu(
+                            items: statusMenuItems(status),
+                            isEnabled: !store.isLoading && !store.isTransitioning
+                        ) { status in
+                            store.send(.view(.selectStatus(status)))
+                        }
+                        .adaptiveButtonStyle(
+                            shape: .circle,
+                            color: .surface,
+                            glassEffect: .enabled
+                        )
+                }
             }
         }
         .padding(.horizontal)

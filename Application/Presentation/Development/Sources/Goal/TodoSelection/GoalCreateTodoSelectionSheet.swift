@@ -94,20 +94,19 @@ struct GoalCreateTodoSelectionSheet: View {
                             Text(RecordPresentation.text("common_close"))
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
+                    .topBarButtonStyle(legacyColor: Color.surface)
                     Spacer()
                     Button {
                         store.send(.view(.save))
                     } label: {
                         if #available(iOS 26.0, *) {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.primary)
                         } else {
                             Text(RecordPresentation.text("development_goal_todo_done"))
                                 .foregroundStyle(Color.accent)
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
+                    .topBarButtonStyle(legacyColor: Color.surface)
                 }
             }
             .padding(.horizontal, 16)

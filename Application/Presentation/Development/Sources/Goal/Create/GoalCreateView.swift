@@ -87,7 +87,7 @@ private struct GoalCreateTopBar: View {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle(usesTextBeforeIOS26: true)
+                .topBarButtonStyle()
                 .disabled(isSaving)
 
                 Spacer()

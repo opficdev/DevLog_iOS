@@ -10,6 +10,10 @@ import Domain
 import PresentationShared
 
 struct GoalTodoLinkSheet: View {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title2,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
     @Bindable var store: StoreOf<GoalTodoLinkFeature>
 
     var body: some View {
@@ -53,30 +57,42 @@ struct GoalTodoLinkSheet: View {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
+                .topBarButtonStyle(legacyColor: Color.surface)
                 .disabled(store.isUpdating)
                 Spacer()
                 HStack(spacing: 8) {
-                    Image(systemName: "ellipsis")
-                        .prominentMenu(
-                            items: clearSelectionMenuItems,
-                            isEnabled: store.canClearSelection
-                        ) { _ in
-                            store.send(.view(.clearSelection))
-                        }
-                        .topBarButtonStyle(color: Color.surface)
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "ellipsis")
+                            .prominentMenu(
+                                items: clearSelectionMenuItems,
+                                isEnabled: store.canClearSelection
+                            ) { _ in
+                                store.send(.view(.clearSelection))
+                            }
+                            .topBarButtonStyle()
+                    } else {
+                        Image(systemName: "ellipsis")
+                            .font(.title3.weight(.semibold))
+                            .frame(width: iconSize, height: iconSize)
+                            .prominentMenu(
+                                items: clearSelectionMenuItems,
+                                isEnabled: store.canClearSelection
+                            ) { _ in
+                                store.send(.view(.clearSelection))
+                            }
+                            .topBarButtonStyle(legacyColor: Color.surface)
+                    }
                     Button {
                         store.send(.view(.save))
                     } label: {
                         if #available(iOS 26.0, *) {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.primary)
                         } else {
                             Text(RecordPresentation.text("development_goal_todo_done"))
                                 .foregroundStyle(Color.accent)
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
+                    .topBarButtonStyle(legacyColor: Color.surface)
                     .disabled(!store.canSave)
                 }
             }

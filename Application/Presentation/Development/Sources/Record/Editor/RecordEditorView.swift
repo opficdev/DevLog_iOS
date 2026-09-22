@@ -71,7 +71,7 @@ public struct RecordEditorView: View {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .topBarButtonStyle(usesTextBeforeIOS26: true)
+            .topBarButtonStyle()
             .disabled(store.isLoading)
             Spacer()
             Text(RecordPresentation.text(
@@ -87,13 +87,12 @@ public struct RecordEditorView: View {
             } label: {
                 if #available(iOS 26.0, *) {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Color.primary)
                 } else {
                     Text(RecordPresentation.text("development_record_save"))
                         .foregroundStyle(Color.accent)
                 }
             }
-            .topBarButtonStyle(color: Color.surface, usesTextBeforeIOS26: true)
+            .topBarButtonStyle(legacyColor: Color.surface)
             .disabled(!store.isReadyToSave)
         }
         .padding(.horizontal)
