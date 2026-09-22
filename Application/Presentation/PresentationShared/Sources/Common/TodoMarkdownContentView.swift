@@ -11,29 +11,33 @@ import MarkdownRenderer
 
 public struct MarkdownContentView: View {
     private let content: String
+    private let isScrollEnabled: Bool
 
-    public init(content: String) {
+    public init(content: String, isScrollEnabled: Bool = true) {
         self.content = content
+        self.isScrollEnabled = isScrollEnabled
     }
 
     public var body: some View {
-        MarkdownRendererView(markdown: content)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        MarkdownRendererView(markdown: content, isScrollEnabled: isScrollEnabled)
+            .frame(maxWidth: .infinity, maxHeight: isScrollEnabled ? .infinity : nil)
     }
 }
 
 struct TodoMarkdownContentView: View {
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
+    var isScrollEnabled = true
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
         MarkdownRendererView(
             markdown: content,
             references: rendererReferences,
+            isScrollEnabled: isScrollEnabled,
             onOpenReferenceID: onOpenTodoID
         )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: isScrollEnabled ? .infinity : nil)
     }
 
     private var rendererReferences: [Int: MarkdownRendererReference] {

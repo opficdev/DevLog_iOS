@@ -20,6 +20,25 @@ function postMessage(name: string, payload: unknown) {
   }
 }
 
+let tracksContentHeight = false;
+let lastContentHeight = 0;
+
+function reportContentHeight() {
+  if (!tracksContentHeight) {
+    return;
+  }
+
+  const height = Math.max(1, Math.ceil(contentElement.getBoundingClientRect().height));
+  if (height === lastContentHeight) {
+    return;
+  }
+
+  lastContentHeight = height;
+  postMessage("contentHeight", { height });
+}
+
+const contentResizeObserver = new ResizeObserver(reportContentHeight);
+
 function referenceStyleRules(references: MarkdownReferences) {
   const rules = [];
 
@@ -140,4 +159,13 @@ window.renderMarkdown = (payload: RenderMarkdownPayload = {}) => {
 
   hydrateReferences(references);
   configureLinks();
+
+  tracksContentHeight = payload.tracksContentHeight === true;
+  contentResizeObserver.disconnect();
+  if (tracksContentHeight) {
+    contentResizeObserver.observe(contentElement);
+    reportContentHeight();
+  } else {
+    lastContentHeight = 0;
+  }
 };

@@ -45,7 +45,7 @@ public struct RecordEditorView: View {
                 LazyVStack(alignment: .leading, spacing: 20) {
                     versionCard
                     titleCard
-                    contentCard
+                    contentEditor
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 20)
@@ -110,35 +110,36 @@ public struct RecordEditorView: View {
     }
 
     private var versionCard: some View {
-        FieldCard(title: RecordPresentation.text("development_record_version")) {
+        FieldSection(title: RecordPresentation.text("development_record_version")) {
             Text(RecordPresentation.versionLabel(store.versionNumber))
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 
     private var titleCard: some View {
-        FieldCard(title: RecordPresentation.text("development_record_title")) {
+        FieldSection(title: RecordPresentation.text("development_record_title")) {
             TextField(
                 RecordPresentation.text("development_record_title_placeholder"),
                 text: $store.title
             )
+            .font(.body)
             .focused($focusedField, equals: .title)
             .padding()
-            .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isLoading)
     }
 
-    private var contentCard: some View {
+    private var contentEditor: some View {
         VStack(spacing: 16) {
             ModePicker(store: store, focusedField: _focusedField)
 
             switch store.selectedTab {
             case .write:
-                TextEditorContentLayout(minimumHeight: 340 - 24) {
+                TextEditorContentLayout(minimumHeight: 340) {
                     Text(RecordPresentation.text("development_record_markdown_hint"))
                         .font(.caption)
                         .foregroundStyle(Color.textTertiary)
@@ -161,36 +162,41 @@ public struct RecordEditorView: View {
                             sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
                         )
                         .focused($focusedField, equals: .content)
+                        .padding(12)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
-                .padding(12)
                 .frame(minHeight: 340, alignment: .topLeading)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
                 .contentShape(.rect)
                 .onTapGesture { focusedField = .content }
             case .preview:
                 Group {
                     if store.markdownContent.isEmpty {
-                        ContentUnavailableView(
-                            RecordPresentation.text("development_record_preview_empty_title"),
-                            systemImage: "doc.text.magnifyingglass",
-                            description: Text(
-                                RecordPresentation.text("development_record_preview_empty_message")
-                            )
-                        )
+                        VStack(spacing: 8) {
+                            Text(RecordPresentation.text("development_record_preview_empty_title"))
+                                .font(.headline)
+                            Text(RecordPresentation.text("development_record_preview_empty_message"))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .multilineTextAlignment(.center)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, minHeight: 340, alignment: .center)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                     } else {
-                        MarkdownContentView(content: store.markdownContent)
-                            .padding(.vertical, 16)
+                        MarkdownContentView(
+                            content: store.markdownContent,
+                            isScrollEnabled: false
+                        )
+                        // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
+                        .padding(.horizontal, -16)
+                        .padding(12)
+                        .frame(minHeight: 340, alignment: .topLeading)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                     }
                 }
-                .frame(minHeight: 340)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                .frame(minHeight: 340, alignment: .topLeading)
             }
 
-        }
-        .padding(20)
-        .background {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.surface)
         }
         .disabled(store.isLoading)
     }
@@ -235,7 +241,7 @@ public struct RecordEditorView: View {
 
 }
 
-private struct FieldCard<Content: View>: View {
+private struct FieldSection<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
 
@@ -249,11 +255,6 @@ private struct FieldCard<Content: View>: View {
             Text(title)
                 .font(.headline)
             content
-                .padding(20)
-                .background {
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(Color.surface)
-                }
         }
     }
 }

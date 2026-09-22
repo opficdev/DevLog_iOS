@@ -123,7 +123,7 @@ private struct GoalCreateTitleField: View {
             .focused(focusedField, equals: .title)
             .font(.body)
             .padding()
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isSaving)
     }
@@ -144,7 +144,7 @@ private struct GoalCreateDescriptionEditor: View {
                 Group {
                     switch store.selectedTab {
                     case .write:
-                        TextEditorContentLayout(minimumHeight: 120 - 24) {
+                        TextEditorContentLayout(minimumHeight: 120) {
                             Text(RecordPresentation.text("development_goal_create_markdown_hint"))
                                 .font(.caption)
                                 .foregroundStyle(Color.textTertiary)
@@ -167,33 +167,41 @@ private struct GoalCreateDescriptionEditor: View {
                                     sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
                                 )
                                 .focused(focusedField, equals: .content)
+                                .padding(12)
+                                .background(Color.surface, in: .rect(cornerRadius: 16))
                         }
-                        .padding(12)
                         .contentShape(.rect)
                         .onTapGesture { focusedField.wrappedValue = .content }
                     case .preview:
                         Group {
                             if store.markdownContent.isEmpty {
-                                ContentUnavailableView {
+                                VStack(spacing: 8) {
                                     Text(RecordPresentation.text("development_goal_create_preview_empty_title"))
-                                        .bold()
-                                } description: {
+                                        .font(.headline)
                                     Text(RecordPresentation.text("development_goal_create_preview_empty_message"))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 120)
+                                .multilineTextAlignment(.center)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
+                                .background(Color.surface, in: .rect(cornerRadius: 16))
                             } else {
-                                MarkdownContentView(content: store.markdownContent)
-                                    .padding(.vertical, 16)
+                                MarkdownContentView(
+                                    content: store.markdownContent,
+                                    isScrollEnabled: false
+                                )
+                                    // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
+                                    .padding(.horizontal, -16)
+                                    .padding(12)
+                                    .frame(minHeight: 120, alignment: .topLeading)
+                                    .background(Color.surface, in: .rect(cornerRadius: 16))
                             }
                         }
                     }
                 }
                 .frame(minHeight: 120, alignment: .topLeading)
-                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
             }
-            .padding(16)
-            .background(Color.surface, in: .rect(cornerRadius: 24))
         }
         .disabled(store.isSaving)
     }
@@ -260,7 +268,7 @@ private struct GoalCreateStatusField: View {
                 Spacer()
             }
             .padding(20)
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 }
@@ -296,7 +304,7 @@ private struct GoalCreateTodoField: View {
                 .buttonStyle(.plain)
             }
             .padding(20)
-            .background(Color.surface, in: .rect(cornerRadius: 24))
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
         .disabled(store.isSaving)
     }
