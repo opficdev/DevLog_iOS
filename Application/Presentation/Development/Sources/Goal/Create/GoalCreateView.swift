@@ -183,6 +183,7 @@ private struct GoalCreateDescriptionEditor: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 120)
+                                .background(Color.surface, in: .rect(cornerRadius: 16))
                             } else {
                                 MarkdownContentView(content: store.markdownContent)
                                     // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
