@@ -12,6 +12,7 @@ export interface RenderMarkdownPayload {
   languageCode?: unknown;
   markdown?: unknown;
   references?: unknown;
+  tracksContentHeight?: unknown;
 }
 
 interface ScriptMessageHandler {

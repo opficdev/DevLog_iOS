@@ -14,6 +14,8 @@ struct MarkdownWebView: UIViewRepresentable {
     let colorScheme: ColorScheme
     let languageCode: String
     let fontSize: CGFloat
+    let isScrollEnabled: Bool
+    var onContentHeightChange: ((CGFloat) -> Void)?
     var onOpenReferenceID: ((String) -> Void)?
     var onOpenURL: ((URL) -> Void)?
 
@@ -44,9 +46,9 @@ struct MarkdownWebView: UIViewRepresentable {
         webView.isOpaque = false
         webView.navigationDelegate = context.coordinator
         webView.scrollView.backgroundColor = .clear
-        webView.scrollView.isScrollEnabled = true
+        webView.scrollView.isScrollEnabled = isScrollEnabled
         webView.scrollView.showsHorizontalScrollIndicator = false
-        webView.scrollView.showsVerticalScrollIndicator = true
+        webView.scrollView.showsVerticalScrollIndicator = isScrollEnabled
 
         context.coordinator.loadRenderer(in: webView)
 
@@ -54,6 +56,8 @@ struct MarkdownWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
+        webView.scrollView.isScrollEnabled = isScrollEnabled
+        webView.scrollView.showsVerticalScrollIndicator = isScrollEnabled
         context.coordinator.update(
             view: self,
             webView: webView
@@ -154,6 +158,10 @@ struct MarkdownWebView: UIViewRepresentable {
             _ message: MarkdownRendererBridge.JavaScriptMessage
         ) {
             switch message {
+            case .contentHeight(let height):
+                guard !view.isScrollEnabled else { return }
+                view.onContentHeightChange?(height)
+
             case .reference(let number):
                 guard let reference = view.references[number] else {
                     return
@@ -179,7 +187,8 @@ private extension MarkdownRendererBridge.RenderPayload {
             references: view.references,
             colorScheme: view.colorScheme == .dark ? "dark" : "light",
             languageCode: view.languageCode,
-            fontSize: view.fontSize
+            fontSize: view.fontSize,
+            tracksContentHeight: !view.isScrollEnabled
         )
     }
 }

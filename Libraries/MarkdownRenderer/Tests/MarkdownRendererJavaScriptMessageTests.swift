@@ -35,12 +35,27 @@ struct MarkdownRendererJavaScriptMessageTests {
         #expect(payload.javaScriptValue["languageCode"] as? String == "en")
     }
 
-    @Test("지원하지 않는 contentHeight 메시지를 무시한다")
-    func 지원하지_않는_contentHeight_메시지를_무시한다() {
+    @Test("유효한 본문 높이만 변환한다")
+    func 유효한_본문_높이만_변환한다() {
         #expect(
             MarkdownRendererBridge.JavaScriptMessage(
                 name: "contentHeight",
                 body: ["height": 240.5]
+            ) == .contentHeight(240.5)
+        )
+
+        for height in [0, -1, Double.infinity, Double.nan] {
+            #expect(
+                MarkdownRendererBridge.JavaScriptMessage(
+                    name: "contentHeight",
+                    body: ["height": height]
+                ) == nil
+            )
+        }
+        #expect(
+            MarkdownRendererBridge.JavaScriptMessage(
+                name: "contentHeight",
+                body: ["height": true]
             ) == nil
         )
     }

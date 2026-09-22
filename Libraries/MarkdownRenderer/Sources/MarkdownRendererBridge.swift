@@ -15,6 +15,7 @@ enum MarkdownRendererBridge {
         let colorScheme: String
         let languageCode: String
         let fontSize: CGFloat
+        var tracksContentHeight = false
 
         var javaScriptValue: [String: Any] {
             let referenceValues = references.reduce(
@@ -28,7 +29,8 @@ enum MarkdownRendererBridge {
                 "references": referenceValues,
                 "colorScheme": colorScheme,
                 "languageCode": languageCode,
-                "fontSize": Double(fontSize)
+                "fontSize": Double(fontSize),
+                "tracksContentHeight": tracksContentHeight
             ]
         }
     }
@@ -37,10 +39,12 @@ enum MarkdownRendererBridge {
         enum Name: String, CaseIterable {
             case reference
             case externalLink
+            case contentHeight
         }
 
         case reference(Int)
         case externalLink(String)
+        case contentHeight(CGFloat)
 
         init?(name: String, body: Any) {
             guard
@@ -51,6 +55,17 @@ enum MarkdownRendererBridge {
             }
 
             switch name {
+            case .contentHeight:
+                guard
+                    let height = Self.number(from: payload["height"]),
+                    height.doubleValue.isFinite,
+                    0 < height.doubleValue
+                else {
+                    return nil
+                }
+
+                self = .contentHeight(CGFloat(height.doubleValue))
+
             case .reference:
                 guard
                     let number = Self.number(from: payload["number"]),
