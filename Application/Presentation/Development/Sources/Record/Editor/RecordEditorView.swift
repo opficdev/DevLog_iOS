@@ -125,7 +125,7 @@ public struct RecordEditorView: View {
                 RecordPresentation.text("development_record_title_placeholder"),
                 text: $store.title
             )
-            .font(.title2)
+            .font(.body)
             .focused($focusedField, equals: .title)
             .frame(height: 30)
             .padding(.vertical, 8)
