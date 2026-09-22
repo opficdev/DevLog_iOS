@@ -266,7 +266,6 @@ private struct TitleField: View {
         .background {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.surface)
-                .strokeBorder(Color.border, lineWidth: 2)
         }
     }
 }
