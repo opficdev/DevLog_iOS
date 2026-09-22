@@ -27,15 +27,17 @@ public struct MarkdownContentView: View {
 struct TodoMarkdownContentView: View {
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
+    var isScrollEnabled = true
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
         MarkdownRendererView(
             markdown: content,
             references: rendererReferences,
+            isScrollEnabled: isScrollEnabled,
             onOpenReferenceID: onOpenTodoID
         )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: isScrollEnabled ? .infinity : nil)
     }
 
     private var rendererReferences: [Int: MarkdownRendererReference] {

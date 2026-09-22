@@ -258,15 +258,10 @@ private struct TitleField: View {
             )
             .foregroundColor(Color.secondary),
         )
-        .font(.title2)
+        .font(.body)
         .focused($field, equals: .title)
-        .frame(height: 30)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.surface)
-        }
+        .padding()
+        .background(Color.surface, in: .rect(cornerRadius: 16))
     }
 }
 
@@ -355,6 +350,8 @@ private struct ContentView: View {
                         )
                         // SwiftUI 포커싱 시스템에 등록하기 위해 사용
                         .focused($field, equals: .content)
+                        .padding(12)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
             } else {
                 if store.content.isEmpty {
@@ -363,10 +360,14 @@ private struct ContentView: View {
                     TodoMarkdownContentView(
                         content: store.content,
                         referenceItems: store.referenceItems,
+                        isScrollEnabled: false,
                         onOpenTodoID: { store.send(.showInspector(.todo(TodoIdItem(id: $0)))) }
                     )
                     // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
                     .padding(.horizontal, -16)
+                    .padding(12)
+                    .frame(minHeight: minimumHeight, alignment: .topLeading)
+                    .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
             }
         }
@@ -381,15 +382,17 @@ private struct ContentView: View {
     }
 
     private var previewPlaceholder: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(spacing: 8) {
             Text(String(localized: "todo_editor_markdown_preview_title", bundle: PresentationResources.bundle))
-                .font(.subheadline.weight(.semibold))
+                .font(.headline)
             Text(String(localized: "todo_editor_markdown_preview_message", bundle: PresentationResources.bundle))
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.vertical, 8)
+        .multilineTextAlignment(.center)
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: minimumHeight, alignment: .center)
+        .background(Color.surface, in: .rect(cornerRadius: 16))
     }
 }
 
