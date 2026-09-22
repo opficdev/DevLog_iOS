@@ -71,7 +71,7 @@ public struct RecordEditorView: View {
                     Text(RecordPresentation.text("common_close"))
                 }
             }
-            .topBarButtonStyle(tint: Color.accent)
+            .topBarButtonStyle()
             .disabled(store.isLoading)
             Spacer()
             Text(RecordPresentation.text(

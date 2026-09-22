@@ -94,7 +94,7 @@ struct GoalCreateTodoSelectionSheet: View {
                             Text(RecordPresentation.text("common_close"))
                         }
                     }
-                    .topBarButtonStyle(tint: Color.accent)
+                    .topBarButtonStyle()
                     Spacer()
                     Button {
                         store.send(.view(.save))

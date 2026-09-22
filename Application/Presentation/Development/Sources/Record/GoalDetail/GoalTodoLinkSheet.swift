@@ -57,7 +57,7 @@ struct GoalTodoLinkSheet: View {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle(tint: Color.accent)
+                .topBarButtonStyle()
                 .disabled(store.isUpdating)
                 Spacer()
                 HStack(spacing: 8) {

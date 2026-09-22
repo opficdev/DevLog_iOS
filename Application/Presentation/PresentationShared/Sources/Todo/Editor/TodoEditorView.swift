@@ -178,14 +178,14 @@ private struct ToolBar: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
-                .topBarButtonStyle(tint: Color.accent)
+                .topBarButtonStyle(tint: showsActions ? nil : Color.accent)
             } else {
                 Button {
                     onClose()
                 } label: {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
-                .topBarButtonStyle(tint: Color.accent)
+                .topBarButtonStyle(tint: showsActions ? nil : Color.accent)
             }
             Spacer()
             Text(store.navigationTitle)
