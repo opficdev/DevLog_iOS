@@ -335,26 +335,23 @@ private struct ContentView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     markdownHint
                     UIKitTextEditor()
-                        .composable(
-                            update: { textEditor in
-                                textEditor.updateInput(
-                                    text: $store.content,
-                                    isFocused: isContentFocused,
-                                    onFocusChange: { isFocused in
-                                        if isFocused {
-                                            field = .content
-                                        } else if field == .content {
-                                            field = nil
-                                        }
-                                    },
-                                    placeholder: String(
-                                        localized: "todo_editor_description_optional",
-                                        bundle: PresentationResources.bundle
-                                    )
+                        .composable { textEditor in
+                            textEditor.updateInput(
+                                text: $store.content,
+                                isFocused: isContentFocused,
+                                onFocusChange: { isFocused in
+                                    if isFocused {
+                                        field = .content
+                                    } else if field == .content {
+                                        field = nil
+                                    }
+                                },
+                                placeholder: String(
+                                    localized: "todo_editor_description_optional",
+                                    bundle: PresentationResources.bundle
                                 )
-                            },
-                            sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
-                        )
+                            )
+                        }
                         // SwiftUI 포커싱 시스템에 등록하기 위해 사용
                         .focused($field, equals: .content)
                 }

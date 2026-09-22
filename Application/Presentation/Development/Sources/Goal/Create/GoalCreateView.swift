@@ -159,8 +159,7 @@ private struct GoalCreateDescriptionEditor: View {
                                         },
                                         isEnabled: !store.isSaving
                                     )
-                                },
-                                sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                                }
                             )
                             .focused(focusedField, equals: .content)
                             .padding(12)

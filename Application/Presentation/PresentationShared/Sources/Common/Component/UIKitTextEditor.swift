@@ -50,18 +50,6 @@ public final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         isSelectable = isEnabled
     }
 
-    public static func fittingSize(
-        proposal: ProposedViewSize,
-        textEditor: UIKitTextEditor
-    ) -> CGSize? {
-        guard let width = proposal.width else { return nil }
-
-        let size = textEditor.sizeThatFits(
-            CGSize(width: width, height: .greatestFiniteMagnitude)
-        )
-        return CGSize(width: width, height: size.height)
-    }
-
     private func configureAppearance() {
         font = UIFont.preferredFont(forTextStyle: .body)
         backgroundColor = .clear
