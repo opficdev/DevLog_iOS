@@ -244,16 +244,19 @@ struct EditorToolbarActions: View {
                     } label: {
                         Image(systemName: "checkmark")
                     }
-                    .topBarButtonStyle()
+                    .topBarButtonStyle(
+                        tint: store.isReadyToSubmit ? Color.accent : nil
+                    )
                     .disabled(!store.isReadyToSubmit)
                 } else {
                     Button {
                         onSubmit()
                     } label: {
                         Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
-                            .foregroundStyle(Color.primary)
                     }
-                    .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                    .topBarButtonStyle(
+                        tint: store.isReadyToSubmit ? Color.accent : nil
+                    )
                     .disabled(!store.isReadyToSubmit)
                 }
             }
