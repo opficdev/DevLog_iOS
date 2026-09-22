@@ -191,6 +191,8 @@ private struct GoalCreateDescriptionEditor: View {
                                 )
                                     // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
                                     .padding(.horizontal, -16)
+                                    .padding(12)
+                                    .background(Color.surface, in: .rect(cornerRadius: 16))
                             }
                         }
                     }
