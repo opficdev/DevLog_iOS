@@ -51,7 +51,7 @@ struct RecordVersionHistoryView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .padding(.bottom, 12)
+        .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
