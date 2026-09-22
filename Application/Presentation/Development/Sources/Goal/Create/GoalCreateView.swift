@@ -175,13 +175,16 @@ private struct GoalCreateDescriptionEditor: View {
                     case .preview:
                         Group {
                             if store.markdownContent.isEmpty {
-                                ContentUnavailableView {
+                                VStack(spacing: 8) {
                                     Text(RecordPresentation.text("development_goal_create_preview_empty_title"))
-                                        .bold()
-                                } description: {
+                                        .font(.headline)
                                     Text(RecordPresentation.text("development_goal_create_preview_empty_message"))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
                                 }
-                                .frame(maxWidth: .infinity, minHeight: 120)
+                                .multilineTextAlignment(.center)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
                                 .background(Color.surface, in: .rect(cornerRadius: 16))
                             } else {
                                 MarkdownContentView(
