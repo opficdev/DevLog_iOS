@@ -181,8 +181,7 @@ private struct GoalCreateDescriptionEditor: View {
                                 } description: {
                                     Text(RecordPresentation.text("development_goal_create_preview_empty_message"))
                                 }
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 120)
+                                .frame(maxWidth: .infinity, minHeight: 120)
                                 .background(Color.surface, in: .rect(cornerRadius: 16))
                             } else {
                                 MarkdownContentView(
@@ -192,6 +191,7 @@ private struct GoalCreateDescriptionEditor: View {
                                     // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
                                     .padding(.horizontal, -16)
                                     .padding(12)
+                                    .frame(minHeight: 120, alignment: .topLeading)
                                     .background(Color.surface, in: .rect(cornerRadius: 16))
                             }
                         }
