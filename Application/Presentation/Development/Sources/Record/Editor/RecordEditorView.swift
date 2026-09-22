@@ -161,6 +161,8 @@ public struct RecordEditorView: View {
                             sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
                         )
                         .focused($focusedField, equals: .content)
+                        .padding(12)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
                 .frame(minHeight: 340, alignment: .topLeading)
                 .contentShape(.rect)
@@ -168,17 +170,27 @@ public struct RecordEditorView: View {
             case .preview:
                 Group {
                     if store.markdownContent.isEmpty {
-                        ContentUnavailableView(
-                            RecordPresentation.text("development_record_preview_empty_title"),
-                            systemImage: "doc.text.magnifyingglass",
-                            description: Text(
-                                RecordPresentation.text("development_record_preview_empty_message")
-                            )
-                        )
+                        VStack(spacing: 8) {
+                            Text(RecordPresentation.text("development_record_preview_empty_title"))
+                                .font(.headline)
+                            Text(RecordPresentation.text("development_record_preview_empty_message"))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .multilineTextAlignment(.center)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, minHeight: 340, alignment: .center)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                     } else {
-                        MarkdownContentView(content: store.markdownContent)
-                            // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
-                            .padding(.horizontal, -16)
+                        MarkdownContentView(
+                            content: store.markdownContent,
+                            isScrollEnabled: false
+                        )
+                        // MarkdownRenderer 내부의 좌우 여백을 상쇄해 입력 본문과 정렬
+                        .padding(.horizontal, -16)
+                        .padding(12)
+                        .frame(minHeight: 340, alignment: .topLeading)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
                     }
                 }
                 .frame(minHeight: 340, alignment: .topLeading)
