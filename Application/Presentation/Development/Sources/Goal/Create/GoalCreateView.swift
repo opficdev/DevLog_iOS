@@ -144,10 +144,25 @@ private struct GoalCreateDescriptionEditor: View {
                 Group {
                     switch store.selectedTab {
                     case .write:
-                        TextEditor(text: $store.markdownContent)
+                        UIKitTextEditor()
+                            .composable(
+                                update: { textEditor in
+                                    textEditor.updateInput(
+                                        text: $store.markdownContent,
+                                        isFocused: focusedField == .content,
+                                        onFocusChange: { isFocused in
+                                            if isFocused {
+                                                focusedField = .content
+                                            } else if focusedField == .content {
+                                                focusedField = nil
+                                            }
+                                        },
+                                        isEnabled: !store.isSaving
+                                    )
+                                },
+                                sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                            )
                             .focused($focusedField, equals: .content)
-                            .font(.body)
-                            .scrollContentBackground(.hidden)
                             .padding(12)
                     case .preview:
                         Group {

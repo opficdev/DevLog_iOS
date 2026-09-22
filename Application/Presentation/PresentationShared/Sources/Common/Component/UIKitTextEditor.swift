@@ -8,46 +8,49 @@
 import SwiftUI
 import UIComposable
 
-final class UIKitTextEditor: UITextView, UICoordinatedComposable {
-    var textBinding: Binding<String>?
-    var isEditorFocused = false
-    var onFocusChange: ((Bool) -> Void)?
-    var placeholder = ""
+public final class UIKitTextEditor: UITextView, UICoordinatedComposable {
+    private var textBinding: Binding<String>?
+    private var isEditorFocused = false
+    private var onFocusChange: ((Bool) -> Void)?
+    private var placeholder: String?
 
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         Coordinator()
     }
 
-    func connect(coordinator: Coordinator) {
+    public func connect(coordinator: Coordinator) {
         delegate = coordinator
         coordinator.textView = self
         configureAppearance()
     }
 
-    func update(coordinator: Coordinator) {
+    public func update(coordinator: Coordinator) {
         coordinator.update()
     }
 
-    func disconnect(coordinator: Coordinator) {
+    public func disconnect(coordinator: Coordinator) {
         if delegate === coordinator {
             delegate = nil
         }
         coordinator.disconnect()
     }
 
-    func updateInput(
+    public func updateInput(
         text: Binding<String>,
         isFocused: Bool,
         onFocusChange: @escaping (Bool) -> Void,
-        placeholder: String
+        placeholder: String? = nil,
+        isEnabled: Bool = true
     ) {
         textBinding = text
         isEditorFocused = isFocused
         self.onFocusChange = onFocusChange
         self.placeholder = placeholder
+        isEditable = isEnabled
+        isSelectable = isEnabled
     }
 
-    static func fittingSize(
+    public static func fittingSize(
         proposal: ProposedViewSize,
         textEditor: UIKitTextEditor
     ) -> CGSize? {
@@ -74,7 +77,7 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
 
-    final class Coordinator: NSObject, UITextViewDelegate {
+    public final class Coordinator: NSObject, UITextViewDelegate {
         weak var textView: UIKitTextEditor?
         private weak var scrollView: UIScrollView?
         private var offsetObservation: NSKeyValueObservation?
@@ -109,12 +112,12 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             textView = nil
         }
 
-        func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
             startTrackingOffset(for: textView)
             return true
         }
 
-        func textViewDidBeginEditing(_ textView: UITextView) {
+        public func textViewDidBeginEditing(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             if isShowingPlaceholder(in: textView) {
@@ -134,14 +137,14 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
             }
         }
 
-        func textViewDidChange(_ textView: UITextView) {
+        public func textViewDidChange(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             stopTrackingOffset()
             textView.textBinding?.wrappedValue = textView.text
         }
 
-        func textViewDidEndEditing(_ textView: UITextView) {
+        public func textViewDidEndEditing(_ textView: UITextView) {
             guard let textView = textView as? UIKitTextEditor else { return }
 
             if textView.isEditorFocused {
@@ -154,10 +157,11 @@ final class UIKitTextEditor: UITextView, UICoordinatedComposable {
         }
 
         func applyPlaceholderIfNeeded(to textView: UIKitTextEditor) {
-            guard let textBinding = textView.textBinding else { return }
+            guard let textBinding = textView.textBinding,
+                  let placeholder = textView.placeholder else { return }
 
             if textBinding.wrappedValue.isEmpty && !textView.isFirstResponder {
-                textView.text = textView.placeholder
+                textView.text = placeholder
                 textView.textColor = .placeholderText
             } else if isShowingPlaceholder(in: textView) {
                 textView.text = textBinding.wrappedValue

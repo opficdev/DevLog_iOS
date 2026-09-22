@@ -138,10 +138,25 @@ public struct RecordEditorView: View {
 
             switch store.selectedTab {
             case .write:
-                TextEditor(text: $store.markdownContent)
+                UIKitTextEditor()
+                    .composable(
+                        update: { textEditor in
+                            textEditor.updateInput(
+                                text: $store.markdownContent,
+                                isFocused: focusedField == .content,
+                                onFocusChange: { isFocused in
+                                    if isFocused {
+                                        focusedField = .content
+                                    } else if focusedField == .content {
+                                        focusedField = nil
+                                    }
+                                },
+                                isEnabled: !store.isLoading
+                            )
+                        },
+                        sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                    )
                     .focused($focusedField, equals: .content)
-                    .font(.body)
-                    .scrollContentBackground(.hidden)
                     .padding(12)
                     .frame(minHeight: 340, alignment: .topLeading)
                     .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
