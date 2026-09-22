@@ -138,27 +138,35 @@ public struct RecordEditorView: View {
 
             switch store.selectedTab {
             case .write:
-                UIKitTextEditor()
-                    .composable(
-                        update: { textEditor in
-                            textEditor.updateInput(
-                                text: $store.markdownContent,
-                                isFocused: focusedField == .content,
-                                onFocusChange: { isFocused in
-                                    if isFocused {
-                                        focusedField = .content
-                                    } else if focusedField == .content {
-                                        focusedField = nil
-                                    }
-                                },
-                                isEnabled: !store.isLoading
-                            )
-                        }
-                    )
-                    .focused($focusedField, equals: .content)
-                    .padding(12)
-                    .frame(minHeight: 340, alignment: .topLeading)
-                    .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                TextEditorContentLayout(minimumHeight: 340 - 24) {
+                    Text(RecordPresentation.text("development_record_markdown_hint"))
+                        .font(.caption)
+                        .foregroundStyle(Color.textTertiary)
+                    UIKitTextEditor()
+                        .composable(
+                            update: { textEditor in
+                                textEditor.updateInput(
+                                    text: $store.markdownContent,
+                                    isFocused: focusedField == .content,
+                                    onFocusChange: { isFocused in
+                                        if isFocused {
+                                            focusedField = .content
+                                        } else if focusedField == .content {
+                                            focusedField = nil
+                                        }
+                                    },
+                                    isEnabled: !store.isLoading
+                                )
+                            },
+                            sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                        )
+                        .focused($focusedField, equals: .content)
+                }
+                .padding(12)
+                .frame(minHeight: 340, alignment: .topLeading)
+                .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
+                .contentShape(.rect)
+                .onTapGesture { focusedField = .content }
             case .preview:
                 Group {
                     if store.markdownContent.isEmpty {
@@ -178,10 +186,6 @@ public struct RecordEditorView: View {
                 .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
             }
 
-            Text(RecordPresentation.text("development_record_markdown_hint"))
-                .font(.caption)
-                .foregroundStyle(Color.textTertiary)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(20)
         .background {

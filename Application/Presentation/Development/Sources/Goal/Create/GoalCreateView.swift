@@ -144,25 +144,33 @@ private struct GoalCreateDescriptionEditor: View {
                 Group {
                     switch store.selectedTab {
                     case .write:
-                        UIKitTextEditor()
-                            .composable(
-                                update: { textEditor in
-                                    textEditor.updateInput(
-                                        text: $store.markdownContent,
-                                        isFocused: focusedField.wrappedValue == .content,
-                                        onFocusChange: { isFocused in
-                                            if isFocused {
-                                                focusedField.wrappedValue = .content
-                                            } else if focusedField.wrappedValue == .content {
-                                                focusedField.wrappedValue = nil
-                                            }
-                                        },
-                                        isEnabled: !store.isSaving
-                                    )
-                                }
-                            )
-                            .focused(focusedField, equals: .content)
-                            .padding(12)
+                        TextEditorContentLayout(minimumHeight: 120 - 24) {
+                            Text(RecordPresentation.text("development_goal_create_markdown_hint"))
+                                .font(.caption)
+                                .foregroundStyle(Color.textTertiary)
+                            UIKitTextEditor()
+                                .composable(
+                                    update: { textEditor in
+                                        textEditor.updateInput(
+                                            text: $store.markdownContent,
+                                            isFocused: focusedField.wrappedValue == .content,
+                                            onFocusChange: { isFocused in
+                                                if isFocused {
+                                                    focusedField.wrappedValue = .content
+                                                } else if focusedField.wrappedValue == .content {
+                                                    focusedField.wrappedValue = nil
+                                                }
+                                            },
+                                            isEnabled: !store.isSaving
+                                        )
+                                    },
+                                    sizeThatFits: { UIKitTextEditor.fittingSize(proposal: $0, textEditor: $1) }
+                                )
+                                .focused(focusedField, equals: .content)
+                        }
+                        .padding(12)
+                        .contentShape(.rect)
+                        .onTapGesture { focusedField.wrappedValue = .content }
                     case .preview:
                         Group {
                             if store.markdownContent.isEmpty {
@@ -181,13 +189,8 @@ private struct GoalCreateDescriptionEditor: View {
                         }
                     }
                 }
-                .frame(minHeight: 120)
+                .frame(minHeight: 120, alignment: .topLeading)
                 .background(Color.surfaceSecondary, in: .rect(cornerRadius: 16))
-
-                Text(RecordPresentation.text("development_goal_create_markdown_hint"))
-                    .font(.caption)
-                    .foregroundStyle(Color.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(16)
             .background(Color.surface, in: .rect(cornerRadius: 24))
