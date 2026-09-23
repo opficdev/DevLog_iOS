@@ -190,7 +190,7 @@ private struct TopBarButtonStyleModifier: ViewModifier {
         if let tint {
             content
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.white)
                 .frame(width: iconSize, height: iconSize)
                 .padding(9)
                 .glassEffect(
