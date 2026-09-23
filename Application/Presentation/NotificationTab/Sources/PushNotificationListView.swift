@@ -141,7 +141,7 @@ public struct PushNotificationListView: View {
                                             .onTapGesture {
                                                 store.send(.view(.selectNotification(item.id)))
                                             }
-                                            .swipeViews {
+                                            .itemActions {
                                                 Button {
                                                     store.send(.view(.toggleRead(item)))
                                                 } label: {

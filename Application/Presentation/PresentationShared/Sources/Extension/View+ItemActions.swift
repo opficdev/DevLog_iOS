@@ -1,5 +1,5 @@
 //
-//  View+SwipeViews.swift
+//  View+ItemActions.swift
 //  PresentationShared
 //
 //  Created by opfic on 9/23/26.
@@ -9,82 +9,90 @@ import SwiftUI
 import ComposableArchitecture
 
 public extension View {
-    func swipeViews<Views: View>(@ViewBuilder content: () -> Views) -> some View {
-        modifier(SwipeViewsModifier(views: content()))
+    func itemActions<Actions: View>(@ViewBuilder content: () -> Actions) -> some View {
+        modifier(ItemActionsModifier(actions: content()))
     }
 }
 
-private struct SwipeViewsModifier<Views: View>: ViewModifier {
-    @State private var store = Store(initialState: SwipeViewsFeature.State()) {
-        SwipeViewsFeature()
+private struct ItemActionsModifier<Actions: View>: ViewModifier {
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
+    @State private var store = Store(initialState: ItemActionsFeature.State()) {
+        ItemActionsFeature()
     }
-    let views: Views
+    let actions: Actions
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        let trayWidth = store.trayWidth
+        if isiOSAppOnMac {
+            content.contextMenu {
+                actions
+            }
+        } else {
+            let trayWidth = store.trayWidth
 
-        ZStack(alignment: .trailing) {
-            Group(subviews: views) { subviews in
-                HStack(spacing: 8) {
-                    ForEach(subviews) { subview in
-                        subview
-                            .background {
-                                GeometryReader { geometry in
-                                    Color.clear.preference(
-                                        key: SwipeViewWidthsPreferenceKey.self,
-                                        value: [geometry.size.width]
-                                    )
+            ZStack(alignment: .trailing) {
+                Group(subviews: actions) { subviews in
+                    HStack(spacing: 8) {
+                        ForEach(subviews) { subview in
+                            subview
+                                .background {
+                                    GeometryReader { geometry in
+                                        Color.clear.preference(
+                                            key: ItemActionWidthsPreferenceKey.self,
+                                            value: [geometry.size.width]
+                                        )
+                                    }
                                 }
-                            }
+                        }
                     }
                 }
-            }
-            .buttonStyle(SwipeViewButtonStyle())
-            .padding(.leading, 12)
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
-                store.send(.view(.setTrayWidth(width)))
-            }
-            .onPreferenceChange(SwipeViewWidthsPreferenceKey.self) { widths in
-                store.send(.view(.setViewWidths(widths)))
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .allowsHitTesting(store.isRevealed && !store.isDragging)
-            .simultaneousGesture(TapGesture().onEnded {
-                withAnimation(.snappy) {
-                    store.send(.view(.close))
+                .buttonStyle(ItemActionButtonStyle())
+                .padding(.leading, 12)
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+                    store.send(.view(.setTrayWidth(width)))
                 }
-            })
+                .onPreferenceChange(ItemActionWidthsPreferenceKey.self) { widths in
+                    store.send(.view(.setViewWidths(widths)))
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .allowsHitTesting(store.isRevealed && !store.isDragging)
+                .simultaneousGesture(TapGesture().onEnded {
+                    withAnimation(.snappy) {
+                        store.send(.view(.close))
+                    }
+                })
 
-            content
-                .offset(x: max(
-                    -trayWidth,
-                    min(0, (store.isRevealed ? -trayWidth : 0) + store.dragTranslation)
-                ))
-                .highPriorityGesture(
-                    TapGesture().onEnded {
-                        withAnimation(.snappy) {
-                            store.send(.view(.close))
-                        }
-                    },
-                    including: store.isRevealed ? .all : .none
-                )
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 12)
-                        .onChanged { value in
-                            store.send(.view(.changed(value.translation)))
-                        }
-                        .onEnded { value in
+                content
+                    .offset(x: max(
+                        -trayWidth,
+                        min(0, (store.isRevealed ? -trayWidth : 0) + store.dragTranslation)
+                    ))
+                    .highPriorityGesture(
+                        TapGesture().onEnded {
                             withAnimation(.snappy) {
-                                store.send(.view(.ended(value.translation.width)))
+                                store.send(.view(.close))
                             }
-                        }
-                )
+                        },
+                        including: store.isRevealed ? .all : .none
+                    )
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 12)
+                            .onChanged { value in
+                                store.send(.view(.changed(value.translation)))
+                            }
+                            .onEnded { value in
+                                withAnimation(.snappy) {
+                                    store.send(.view(.ended(value.translation.width)))
+                                }
+                            }
+                    )
+            }
+            .clipped()
         }
-        .clipped()
     }
 }
 
-private struct SwipeViewButtonStyle: ButtonStyle {
+private struct ItemActionButtonStyle: ButtonStyle {
     @ScaledMetric(relativeTo: .body) private var width = 88
     @ScaledMetric(relativeTo: .body) private var height = 44
 
@@ -100,7 +108,7 @@ private struct SwipeViewButtonStyle: ButtonStyle {
     }
 }
 
-private struct SwipeViewWidthsPreferenceKey: PreferenceKey {
+private struct ItemActionWidthsPreferenceKey: PreferenceKey {
     static var defaultValue = [CGFloat]()
 
     static func reduce(value: inout [CGFloat], nextValue: () -> [CGFloat]) {
@@ -109,7 +117,7 @@ private struct SwipeViewWidthsPreferenceKey: PreferenceKey {
 }
 
 @Reducer
-private struct SwipeViewsFeature {
+private struct ItemActionsFeature {
     @ObservableState
     struct State: Equatable {
         var trayWidth = CGFloat.zero
