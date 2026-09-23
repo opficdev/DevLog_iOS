@@ -58,6 +58,7 @@ public struct HomeView: View {
                         todoSection
                     } header: {
                         topBar
+                            .toolbarBackground(Color.appBackground)
                     }
                     DevelopmentGoalSection(
                         items: store.developmentGoalItems,
@@ -75,7 +76,6 @@ public struct HomeView: View {
             .toolbarVisibility(.hidden, for: .navigationBar)
             .navigationDestination(for: HomeRoute.self, destination: destinationView)
         }
-        .toolbarBackground(Color.appBackground)
         .onAppear { store.send(.view(.startObserving)) }
         .onChange(of: isSelected, initial: true) { _, isSelected in
             if isSelected {
@@ -114,31 +114,50 @@ public struct HomeView: View {
             Text("DevLog")
                 .font(.largeTitle.weight(.bold))
             Spacer()
-            Button {
-                store.send(.store(.setPresentation(.searchView, true)))
-            } label: {
-                Image(systemName: "magnifyingglass")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
+            if #available(iOS 26.0, *) {
+                Button {
+                    store.send(.store(.setPresentation(.searchView, true)))
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                }
+                .topBarButtonStyle()
+            } else {
+                Button {
+                    store.send(.store(.setPresentation(.searchView, true)))
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 28, height: 28)
+                }
+                .adaptiveButtonStyle(
+                    shape: .circle,
+                    color: .surface,
+                    glassEffect: .enabled
+                )
             }
-            .adaptiveButtonStyle(
-                shape: .circle,
-                color: .surface,
-                glassEffect: .enabled
-            )
-            Button {
-                store.send(.store(.setPresentation(.contentPicker, true)))
-            } label: {
-                Image(systemName: "plus")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
+            if #available(iOS 26.0, *) {
+                Button {
+                    store.send(.store(.setPresentation(.contentPicker, true)))
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .topBarButtonStyle()
+                .disabled(!store.isNetworkConnected)
+            } else {
+                Button {
+                    store.send(.store(.setPresentation(.contentPicker, true)))
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 28, height: 28)
+                }
+                .adaptiveButtonStyle(
+                    shape: .circle,
+                    color: .surface,
+                    glassEffect: .enabled
+                )
+                .disabled(!store.isNetworkConnected)
             }
-            .adaptiveButtonStyle(
-                shape: .circle,
-                color: .surface,
-                glassEffect: .enabled
-            )
-            .disabled(!store.isNetworkConnected)
         }
         .padding(.bottom, 8)
         .background(Color.appBackground)

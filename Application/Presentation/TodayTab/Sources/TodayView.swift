@@ -58,6 +58,7 @@ public struct TodayView: View {
                         }
                         .padding(.bottom, 8)
                         .background(Color.appBackground)
+                        .toolbarBackground(Color.appBackground)
                     }
                 }
                 .padding(.horizontal)
@@ -70,7 +71,6 @@ public struct TodayView: View {
                 CategoryFilterSheet(store: store)
             }
         }
-        .toolbarBackground(Color.appBackground)
         .inspector(isPresented: $store.isTodoInspectorPresented) {
             todoInspector
         }

@@ -10,10 +10,6 @@ import PresentationShared
 
 struct GoalCreateTodoSelectionSheet: View {
     @Bindable var store: StoreOf<GoalCreateTodoSelectionFeature>
-    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
-        forTextStyle: .title2,
-        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
-    ).lineHeight
 
     var body: some View {
         ScrollView {
@@ -94,28 +90,23 @@ struct GoalCreateTodoSelectionSheet: View {
                     } label: {
                         if #available(iOS 26.0, *) {
                             Image(systemName: "xmark")
-                                .frame(width: iconSize, height: iconSize)
-                                .font(.title)
                         } else {
                             Text(RecordPresentation.text("common_close"))
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface)
+                    .topBarButtonStyle()
                     Spacer()
                     Button {
                         store.send(.view(.save))
                     } label: {
                         if #available(iOS 26.0, *) {
                             Image(systemName: "checkmark")
-                                .frame(width: iconSize, height: iconSize)
-                                .foregroundStyle(Color.primary)
-                                .font(.title)
                         } else {
                             Text(RecordPresentation.text("development_goal_todo_done"))
                                 .foregroundStyle(Color.accent)
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface)
+                    .topBarButtonStyle()
                 }
             }
             .padding(.horizontal, 16)

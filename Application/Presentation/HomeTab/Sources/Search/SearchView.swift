@@ -55,16 +55,23 @@ struct SearchView: View {
 
     private var topBar: some View {
         VStack(alignment: .leading) {
-            Button {
-                store.send(.binding(.set(\.isSearching, false)))
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .foregroundStyle(Color.textSecondary)
-                    .font(.title)
-                    .padding(6)
+            if #available(iOS 26.0, *) {
+                Button {
+                    store.send(.binding(.set(\.isSearching, false)))
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                }
+                .topBarButtonStyle(tint: Color.accent)
+            } else {
+                Button {
+                    store.send(.binding(.set(\.isSearching, false)))
+                    dismiss()
+                } label: {
+                    Text(String(localized: "common_close", bundle: PresentationResources.bundle))
+                }
+                .topBarButtonStyle(tint: Color.accent)
             }
-            .adaptiveButtonStyle(shape: .circle, color: .border, glassEffect: .enabled)
             SearchField(store: store)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

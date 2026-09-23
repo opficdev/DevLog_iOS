@@ -10,11 +10,11 @@ import Domain
 import PresentationShared
 
 struct GoalTodoLinkSheet: View {
-    @Bindable var store: StoreOf<GoalTodoLinkFeature>
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title2,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
+    @Bindable var store: StoreOf<GoalTodoLinkFeature>
 
     var body: some View {
         ScrollView {
@@ -53,40 +53,46 @@ struct GoalTodoLinkSheet: View {
                 } label: {
                     if #available(iOS 26.0, *) {
                         Image(systemName: "xmark")
-                            .frame(width: iconSize, height: iconSize)
-                            .font(.title)
                     } else {
                         Text(RecordPresentation.text("common_close"))
                     }
                 }
-                .topBarButtonStyle(color: Color.surface)
+                .topBarButtonStyle()
                 .disabled(store.isUpdating)
                 Spacer()
                 HStack(spacing: 8) {
-                    Image(systemName: "ellipsis")
-                        .font(.title3.weight(.semibold))
-                        .frame(width: iconSize, height: iconSize)
-                        .prominentMenu(
-                            items: clearSelectionMenuItems,
-                            isEnabled: store.canClearSelection
-                        ) { _ in
-                            store.send(.view(.clearSelection))
-                        }
-                        .topBarButtonStyle(color: Color.surface)
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "ellipsis")
+                            .prominentMenu(
+                                items: clearSelectionMenuItems,
+                                isEnabled: store.canClearSelection
+                            ) { _ in
+                                store.send(.view(.clearSelection))
+                            }
+                            .topBarButtonStyle()
+                    } else {
+                        Image(systemName: "ellipsis")
+                            .font(.title3.weight(.semibold))
+                            .frame(width: iconSize, height: iconSize)
+                            .prominentMenu(
+                                items: clearSelectionMenuItems,
+                                isEnabled: store.canClearSelection
+                            ) { _ in
+                                store.send(.view(.clearSelection))
+                            }
+                            .topBarButtonStyle()
+                    }
                     Button {
                         store.send(.view(.save))
                     } label: {
                         if #available(iOS 26.0, *) {
                             Image(systemName: "checkmark")
-                                .frame(width: iconSize, height: iconSize)
-                                .foregroundStyle(Color.primary)
-                                .font(.title)
                         } else {
                             Text(RecordPresentation.text("development_goal_todo_done"))
                                 .foregroundStyle(Color.accent)
                         }
                     }
-                    .topBarButtonStyle(color: Color.surface)
+                    .topBarButtonStyle()
                     .disabled(!store.canSave)
                 }
             }

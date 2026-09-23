@@ -22,12 +22,14 @@ public struct GoalDetailView: View {
     }
 
     public var body: some View {
-        presentedContent
-            .overlay {
-                if store.isTransitioning {
-                    LoadingView()
+        NavigationStack {
+            presentedContent
+                .overlay {
+                    if store.isTransitioning {
+                        LoadingView()
+                    }
                 }
-            }
+        }
     }
 
     private var mainContent: some View {
@@ -101,28 +103,50 @@ public struct GoalDetailView: View {
 
     private var topBar: some View {
         HStack {
-            RecordBackButton(action: dismiss.callAsFunction)
+            if #available(iOS 26.0, *) {
+                Button(action: dismiss.callAsFunction) {
+                    Image(systemName: "xmark")
+                }
+                .topBarButtonStyle(tint: Color.accent)
                 .disabled(store.isTransitioning)
+            } else {
+                Button(action: dismiss.callAsFunction) {
+                    Text(RecordPresentation.text("common_close"))
+                }
+                .topBarButtonStyle(tint: Color.accent)
+                .disabled(store.isTransitioning)
+            }
             Spacer()
             if let status = store.goalStatus {
-                Image(systemName: "ellipsis")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
-                    .prominentMenu(
-                        items: statusMenuItems(status),
-                        isEnabled: !store.isLoading && !store.isTransitioning
-                    ) { status in
-                        store.send(.view(.selectStatus(status)))
-                    }
-                    .adaptiveButtonStyle(
-                        shape: .circle,
-                        color: .surface,
-                        glassEffect: .enabled
-                    )
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "ellipsis")
+                        .prominentMenu(
+                            items: statusMenuItems(status),
+                            isEnabled: !store.isLoading && !store.isTransitioning
+                        ) { status in
+                            store.send(.view(.selectStatus(status)))
+                        }
+                        .topBarButtonStyle()
+                } else {
+                    Image(systemName: "ellipsis")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 28, height: 28)
+                        .prominentMenu(
+                            items: statusMenuItems(status),
+                            isEnabled: !store.isLoading && !store.isTransitioning
+                        ) { status in
+                            store.send(.view(.selectStatus(status)))
+                        }
+                        .adaptiveButtonStyle(
+                            shape: .circle,
+                            color: .surface,
+                            glassEffect: .enabled
+                        )
+                }
             }
         }
         .padding(.horizontal)
-        .padding(.bottom, 12)
+        .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 

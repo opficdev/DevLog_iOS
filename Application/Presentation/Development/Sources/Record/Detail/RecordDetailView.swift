@@ -100,6 +100,7 @@ public struct RecordDetailView: View {
             Spacer()
         }
         .padding(.horizontal)
+        .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 

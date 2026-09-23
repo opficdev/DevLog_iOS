@@ -51,7 +51,7 @@ struct RecordVersionHistoryView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .padding(.bottom, 12)
+        .padding(.vertical, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
@@ -268,12 +268,19 @@ struct RecordBackButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Image(systemName: "chevron.left")
-                .font(.title3.weight(.semibold))
-                .frame(width: 28, height: 28)
+        if #available(iOS 26.0, *) {
+            Button(action: action) {
+                Image(systemName: "chevron.left")
+            }
+            .topBarButtonStyle()
+        } else {
+            Button(action: action) {
+                Image(systemName: "chevron.left")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+            }
+            .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
         }
-        .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
     }
 }
 

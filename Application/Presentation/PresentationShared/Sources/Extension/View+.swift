@@ -14,22 +14,28 @@ public enum AdaptiveButtonGlassEffect {
 
 public extension View {
     @ViewBuilder
-    func topBarButtonStyle(color: Color = .clear) -> some View {
+    func topBarButtonStyle(tint: Color? = nil) -> some View {
         if #available(iOS 26.0, *) {
-            adaptiveButtonStyle(shape: .circle, color: color, glassEffect: .enabled)
+            modifier(TopBarButtonStyleModifier(tint: tint, isInteractive: true))
         } else {
-            adaptiveButtonStyle(color: color, glassEffect: .enabled)
+            modifier(LegacyTopBarButtonStyleModifier(tint: tint ?? .primary))
         }
     }
 
+    @available(iOS 26.0, *)
+    func topBarProgressStyle() -> some View {
+        modifier(TopBarButtonStyleModifier(tint: nil, isInteractive: false))
+    }
+
     func toolbarBackground(_ color: Color) -> some View {
-        overlay(alignment: .top) {
+        background(alignment: .top) {
             GeometryReader { proxy in
+                let top = max(proxy.frame(in: .global).minY, 0)
                 color
-                    .frame(height: proxy.safeAreaInsets.top)
-                    .offset(y: -proxy.safeAreaInsets.top)
+                    .frame(height: top)
+                    .offset(y: -top)
+                    .allowsHitTesting(false)
             }
-            .allowsHitTesting(false)
         }
     }
 
@@ -154,5 +160,51 @@ public extension View {
                         .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
                 }
             }
+    }
+}
+
+private struct LegacyTopBarButtonStyleModifier: ViewModifier {
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(tint)
+            .padding(8)
+            .background {
+                Capsule()
+                    .fill(Color.surface)
+            }
+    }
+}
+
+@available(iOS 26.0, *)
+private struct TopBarButtonStyleModifier: ViewModifier {
+    @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
+        forTextStyle: .title2,
+        compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+    ).lineHeight
+    let tint: Color?
+    let isInteractive: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let tint {
+            content
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color.white)
+                .frame(width: iconSize, height: iconSize)
+                .padding(9)
+                .glassEffect(
+                    .regular.tint(tint).interactive(isInteractive),
+                    in: .circle
+                )
+        } else {
+            content
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color.primary)
+                .frame(width: iconSize, height: iconSize)
+                .padding(9)
+                .glassEffect(.regular.interactive(isInteractive), in: .circle)
+        }
     }
 }

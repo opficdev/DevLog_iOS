@@ -62,8 +62,7 @@ public struct TodoEditorView: View {
                                     store: store,
                                     field: _field,
                                     minimumHeight: max(
-                                        0,
-                                        geometry.size.height - store.editorHeaderHeight - 16 - safeAreaInsets.bottom
+                                        0, geometry.size.height - store.editorHeaderHeight - 16 - safeAreaInsets.bottom
                                     )
                                 )
                                 .onTapGesture {
@@ -162,29 +161,32 @@ public struct TodoEditorView: View {
 }
 
 private struct ToolBar: View {
-    let store: StoreOf<TodoEditorFeature>
-    let showsActions: Bool
-    let onClose: () -> Void
-    let onSubmit: () -> Void
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title1,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
+    let store: StoreOf<TodoEditorFeature>
+    let showsActions: Bool
+    let onClose: () -> Void
+    let onSubmit: () -> Void
 
     var body: some View {
         HStack {
-            Button {
-                onClose()
-            } label: {
-                if #available(iOS 26.0, *) {
+            if #available(iOS 26.0, *) {
+                Button {
+                    onClose()
+                } label: {
                     Image(systemName: "xmark")
-                        .frame(width: iconSize, height: iconSize)
-                        .font(.title)
-                } else {
+                }
+                .topBarButtonStyle(tint: showsActions ? nil : Color.accent)
+            } else {
+                Button {
+                    onClose()
+                } label: {
                     Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                 }
+                .topBarButtonStyle(tint: showsActions ? nil : Color.accent)
             }
-            .adaptiveButtonStyle(shape: .circle, glassEffect: .enabled)
             Spacer()
             Text(store.navigationTitle)
                 .font(.title3.bold())
@@ -199,44 +201,66 @@ private struct ToolBar: View {
 }
 
 struct EditorToolbarActions: View {
-    let store: StoreOf<TodoEditorFeature>
-    let onSubmit: () -> Void
     @ScaledMetric(relativeTo: .title) private var iconSize = UIFont.preferredFont(
         forTextStyle: .title1,
         compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
     ).lineHeight
+    let store: StoreOf<TodoEditorFeature>
+    let onSubmit: () -> Void
 
     var body: some View {
         HStack {
-            Button {
-                store.send(.showInspector(.options))
-            } label: {
-                Image(systemName: "info.circle")
-                    .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(Color.primary)
-            }
-            .font(.title)
-            .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
-            if store.isLoading {
-                ProgressView()
-                    .frame(width: iconSize, height: iconSize)
-                    .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+            if #available(iOS 26.0, *) {
+                Button {
+                    store.send(.showInspector(.options))
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .topBarButtonStyle()
             } else {
                 Button {
-                    onSubmit()
+                    store.send(.showInspector(.options))
                 } label: {
-                    if #available(iOS 26.0, *) {
-                        Image(systemName: "checkmark")
-                            .frame(width: iconSize, height: iconSize)
-                            .foregroundStyle(Color.primary)
-                            .font(.title)
-                    } else {
-                        Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
-                            .foregroundStyle(Color.primary)
-                    }
+                    Image(systemName: "info.circle")
+                        .frame(width: iconSize, height: iconSize)
+                        .foregroundStyle(Color.primary)
                 }
+                .font(.title)
                 .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
-                .disabled(!store.isReadyToSubmit)
+            }
+            if store.isLoading {
+                if #available(iOS 26.0, *) {
+                    ProgressView()
+                        .topBarProgressStyle()
+                } else {
+                    ProgressView()
+                        .frame(width: iconSize, height: iconSize)
+                        .adaptiveButtonStyle(shape: .circle, color: Color.surface, glassEffect: .enabled)
+                }
+            } else {
+                if #available(iOS 26.0, *) {
+                    Button {
+                        onSubmit()
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                    .topBarButtonStyle(
+                        tint: store.isReadyToSubmit ? Color.accent : nil
+                    )
+                    .disabled(!store.isReadyToSubmit)
+                    .opacity(store.isReadyToSubmit ? 1 : 0.4)
+                } else {
+                    Button {
+                        onSubmit()
+                    } label: {
+                        Text(String(localized: "todo_manage_save", bundle: PresentationResources.bundle))
+                    }
+                    .topBarButtonStyle(
+                        tint: store.isReadyToSubmit ? Color.accent : nil
+                    )
+                    .disabled(!store.isReadyToSubmit)
+                    .opacity(store.isReadyToSubmit ? 1 : 0.4)
+                }
             }
         }
     }

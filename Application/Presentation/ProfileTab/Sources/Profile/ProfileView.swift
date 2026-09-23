@@ -78,13 +78,22 @@ public struct ProfileView: View {
                 Text("프로필")
                     .font(.largeTitle.bold())
                 Spacer()
-                Button {
-                    path.append(.settings)
-                } label: {
-                    Image(systemName: "gearshape")
-                        .foregroundStyle(Color.textTertiary)
+                if #available(iOS 26.0, *) {
+                    Button {
+                        path.append(.settings)
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .topBarButtonStyle()
+                } else {
+                    Button {
+                        path.append(.settings)
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .foregroundStyle(Color.textTertiary)
+                    }
+                    .adaptiveButtonStyle()
                 }
-                .adaptiveButtonStyle()
             }
             Text("꾸준히 쌓아온 개발 기록을 확인하세요")
                 .foregroundStyle(Color.textSecondary)
