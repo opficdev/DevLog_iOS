@@ -93,55 +93,87 @@ public struct PushNotificationListView: View {
 
                                     LazyVStack(spacing: 12) {
                                         ForEach(items) { item in
-                                            Button {
-                                                store.send(.view(.selectNotification(item.id)))
-                                            } label: {
-                                                let category = TodoCategoryItem(from: item.todoCategory)
+                                            let category = TodoCategoryItem(from: item.todoCategory)
 
-                                                HStack(alignment: .top, spacing: 12) {
-                                                    Image(systemName: category.symbolName)
-                                                        .font(.headline)
-                                                        .foregroundStyle(Color.white)
-                                                        .frame(width: iconSize, height: iconSize)
-                                                        .background(category.color, in: .rect(cornerRadius: 10))
+                                            HStack(alignment: .top, spacing: 12) {
+                                                Image(systemName: category.symbolName)
+                                                    .font(.headline)
+                                                    .foregroundStyle(Color.white)
+                                                    .frame(width: iconSize, height: iconSize)
+                                                    .background(category.color, in: .rect(cornerRadius: 10))
 
-                                                    VStack(alignment: .leading, spacing: 6) {
-                                                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                                            Text(item.title)
-                                                                .font(.headline)
-                                                                .foregroundStyle(
-                                                                    item.isRead ? Color.textSecondary : .primary
-                                                                )
-                                                                .lineLimit(2)
+                                                VStack(alignment: .leading, spacing: 6) {
+                                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                                        Text(item.title)
+                                                            .font(.headline)
+                                                            .foregroundStyle(
+                                                                item.isRead ? Color.textSecondary : .primary
+                                                            )
+                                                            .lineLimit(2)
 
-                                                            Spacer(minLength: 4)
+                                                        Spacer(minLength: 4)
 
-                                                            TimelineView(.periodic(from: .now, by: 1.0)) { context in
-                                                                Text(timeAgoText(from: item.receivedAt, now: context.date))
-                                                                    .font(.caption)
-                                                                    .foregroundStyle(Color.textTertiary)
-                                                                    .lineLimit(1)
-                                                            }
-
-                                                            if !item.isRead {
-                                                                Circle()
-                                                                    .fill(Color.accent)
-                                                                    .frame(width: 7, height: 7)
-                                                            }
+                                                        TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                                                            Text(timeAgoText(from: item.receivedAt, now: context.date))
+                                                                .font(.caption)
+                                                                .foregroundStyle(Color.textTertiary)
+                                                                .lineLimit(1)
                                                         }
 
-                                                        Text(item.body)
-                                                            .font(.subheadline)
-                                                            .foregroundStyle(Color.textSecondary)
-                                                            .multilineTextAlignment(.leading)
-                                                            .lineLimit(3)
+                                                        if !item.isRead {
+                                                            Circle()
+                                                                .fill(Color.accent)
+                                                                .frame(width: 7, height: 7)
+                                                        }
+                                                    }
+
+                                                    Text(item.body)
+                                                        .font(.subheadline)
+                                                        .foregroundStyle(Color.textSecondary)
+                                                        .multilineTextAlignment(.leading)
+                                                        .lineLimit(3)
+                                                }
+                                            }
+                                            .padding(16)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .background(Color.surface, in: .rect(cornerRadius: 16))
+                                            .contentShape(.rect(cornerRadius: 16))
+                                            .onTapGesture {
+                                                store.send(.view(.selectNotification(item.id)))
+                                            }
+                                            .swipeViews {
+                                                Button {
+                                                    store.send(.view(.toggleRead(item)))
+                                                } label: {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: item.isRead
+                                                            ? "circle.badge.xmark" : "checkmark.circle")
+                                                        Text(String(
+                                                            localized: item.isRead
+                                                                ? "push_mark_unread" : "push_mark_read",
+                                                            bundle: PresentationResources.bundle
+                                                        ))
+                                                        .lineLimit(1)
+                                                        .minimumScaleFactor(0.8)
                                                     }
                                                 }
-                                                .padding(16)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .background(Color.surface, in: .rect(cornerRadius: 16))
+
+                                                Button(role: .destructive) {
+                                                    store.send(.view(.deleteNotification(item)))
+                                                    presentDeleteNotificationToast(item.id)
+                                                } label: {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: "trash")
+                                                        Text(String(
+                                                            localized: "common_delete",
+                                                            bundle: PresentationResources.bundle
+                                                        ))
+                                                        .lineLimit(1)
+                                                        .minimumScaleFactor(0.8)
+                                                    }
+                                                }
                                             }
-                                            .buttonStyle(.plain)
+                                            .clipShape(.rect(cornerRadius: 16))
                                             .onAppear {
                                                 if item.id == notifications.last?.id, store.nextCursor != nil {
                                                     store.send(.view(.loadNextPage))

@@ -1903,6 +1903,40 @@
         }
       }
     },
+    "push_mark_read" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽음"
+          }
+        }
+      }
+    },
+    "push_mark_unread" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unread"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "안 읽음"
+          }
+        }
+      }
+    },
     "push_notifications_empty" : {
       "extractionState" : "manual",
       "localizations" : {
