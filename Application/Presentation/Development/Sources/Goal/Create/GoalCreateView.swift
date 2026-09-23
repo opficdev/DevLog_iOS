@@ -323,7 +323,6 @@ private struct GoalCreateSaveBar: View {
                 Group {
                     if isSaving {
                         ProgressView()
-                            .tint(Color.white)
                     } else {
                         Text(RecordPresentation.text("development_goal_save"))
                     }

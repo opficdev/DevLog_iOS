@@ -58,6 +58,7 @@
 - Todo 유형별 정리 및 빠른 탐색
 - Markdown, 태그, 마감일, 중요 표시를 포함한 Todo 작성
 - 오늘 기준 우선 확인 Todo 요약
+- 개발 목표에 Todo와 기록을 연결해 진행 과정 관리
 - 받은 푸시 알림 확인 및 Todo 연계
 - 분기별 활동 히트맵 제공
 - Google, GitHub, Apple 로그인 및 계정 연동
@@ -70,6 +71,7 @@
 - `Presentation` target은 `App`의 기존 import를 유지하는 re-export 역할
 	- `Entry`: root/auth/tab shell/window 흐름 소유
 	- `PresentationShared`: 공통 Todo/Search/Loading 흐름 소유
+	- `Development`: 개발 목표와 개발 기록 흐름 소유
 	- `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab`: 탭 단위 흐름 소유
 - `MarkdownRenderer` target은 SwiftUI 공개 화면과 참조 값, 내부 `WKWebView` 연결, HTML/JavaScript/CSS 자원과 TypeScript Tooling을 소유함
 - `PresentationShared`에서는 `TodoMarkdownContentView`만 `MarkdownRenderer`를 직접 import하며 재노출하지 않음
@@ -108,6 +110,12 @@
 - Markdown, 태그, 마감일, 중요 표시 기반 Todo 작성 및 수정
 - 상세 화면에서 생성일, 완료일, 마감일, 태그 확인
 
+### 개발 목표와 기록
+
+- 개발 목표 생성과 상태 전환
+- 개발 목표에 연결한 Todo의 진행률 확인
+- 개발 기록 작성, 확정, 버전 이력과 되돌리기
+
 ### Today
 
 - 남은 일, 집중 Todo, 지연 Todo, 7일 내 마감 Todo 요약 카드 제공
@@ -143,7 +151,7 @@
 
 | 구분 | 스택 |
 | --- | --- |
-| Deployment Target | iOS / iPadOS 17.0+ |
+| Deployment Target | iOS / iPadOS 18.0+ |
 | Platform Support | iPhone, iPad, Apple Silicon Mac (App Store, Designed for iPad) |
 | Architecture | Tuist Modular based Clean Architecture |
 | UI | SwiftUI, WidgetKit, AppIntents |
@@ -166,8 +174,8 @@
 
 | 항목 | 버전 |
 | --- | --- |
-| Xcode | 26.5 |
-| iOS Deployment Target | 17.0 |
+| Xcode | 27.0 |
+| iOS Deployment Target | 18.0 |
 | Swift | 5.0 |
 | Tuist | 4.194.4 |
 | SwiftLint | 0.63.3 |
@@ -245,6 +253,7 @@ DevLog_iOS/
 │	│	├── Sources/            # Presentation target re-export source
 │	│	├── Entry/              # root/auth/tab shell/window target
 │	│	├── PresentationShared/ # 공통 Todo/Search/Loading UI, 공통 presentation structure
+│	│	├── Development/        # 개발 목표, 개발 기록 화면과 테스트
 │	│	├── HomeTab/           # Home 탭 화면, feature, coordinator, 테스트
 │	│	├── TodayTab/          # Today 탭 화면, feature, coordinator, 테스트
 │	│	├── NotificationTab/   # Notification 탭 화면, feature, coordinator, 테스트

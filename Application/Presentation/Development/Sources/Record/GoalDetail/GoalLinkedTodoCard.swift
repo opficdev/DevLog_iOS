@@ -51,7 +51,6 @@ struct GoalLinkedTodoCard: View {
     private var content: some View {
         if isLoading, todos.isEmpty {
             ProgressView()
-                .tint(Color.accent)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
         } else if hasLoadFailure, todos.isEmpty {

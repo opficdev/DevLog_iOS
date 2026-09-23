@@ -10,10 +10,7 @@ import Core
 import PresentationShared
 
 public struct PushNotificationListView: View {
-    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
-    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = 34
-    @State private var headerOffset: CGFloat = 0
-    @State private var isScrollTrackingEnabled = false
+    @ScaledMetric(relativeTo: .headline) private var iconSize = 36
     @State private var store: StoreOf<PushNotificationListFeature>
     private let isSelected: Bool
 
@@ -32,20 +29,13 @@ public struct PushNotificationListView: View {
     public var body: some View {
         NavigationStack {
             notificationListContent
-                .listStyle(.plain)
-                .background(Color(.systemGroupedBackground))
-                .background(NavigationBarConfigurator(alwaysVisible: true))
+                .background(Color.appBackground)
                 .refreshable(isEnabled: PullToRefreshAvailability.isEnabled) {
                     let task = store.send(.view(.refresh))
                     await task.finish()
                     store.send(.view(.startObserving))
                 }
-                .onScrollOffsetChange { offset in
-                    guard isScrollTrackingEnabled else { return }
-                    headerOffset = max(0, -offset)
-                }
-                .safeAreaInset(edge: .top) { safeAreaHeader }
-                .navigationTitle(String(localized: "nav_push_notifications", bundle: PresentationResources.bundle))
+                .toolbarVisibility(.hidden, for: .navigationBar)
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: sheetStore.activePresentation(when: isSelected)) { store in
@@ -69,125 +59,172 @@ public struct PushNotificationListView: View {
     @ViewBuilder
     private var notificationListContent: some View {
         let notifications = store.notifications.filter { !$0.isHidden }
-        List {
-            Group {
-                if notifications.isEmpty {
-                    HStack {
-                        Spacer()
+        let recent = notifications.filter { Calendar.autoupdatingCurrent.isDateInToday($0.receivedAt) }
+        let previous = notifications.filter { !Calendar.autoupdatingCurrent.isDateInToday($0.receivedAt) }
+        let sections = store.query.sortOrder == .latest ? [recent, previous] : [previous, recent]
+
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20, pinnedViews: [.sectionHeaders]) {
+                Section {
+                    if notifications.isEmpty {
                         Text(String(localized: "push_notifications_empty", bundle: PresentationResources.bundle))
-                            .foregroundStyle(Color.gray)
-                        Spacer()
+                            .font(.callout)
+                            .foregroundStyle(Color.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 32)
+                            .background(Color.surface, in: .rect(cornerRadius: 16))
+                    } else {
+                        ForEach(sections.indices, id: \.self) { index in
+                            let items = sections[index]
+                            let isRecent = (index == 0) == (store.query.sortOrder == .latest)
+                            if !items.isEmpty {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack(spacing: 8) {
+                                        Text(String(
+                                            localized: isRecent ? "push_notifications_new" : "push_notifications_previous",
+                                            bundle: PresentationResources.bundle
+                                        ))
+                                        .font(.title3.bold())
+                                        Text("\(items.count)")
+                                            .font(.callout.bold())
+                                            .foregroundStyle(Color.accent)
+                                        Spacer()
+                                    }
+
+                                    LazyVStack(spacing: 12) {
+                                        ForEach(items) { item in
+                                            let category = TodoCategoryItem(from: item.todoCategory)
+
+                                            HStack(alignment: .top, spacing: 12) {
+                                                Image(systemName: category.symbolName)
+                                                    .font(.headline)
+                                                    .foregroundStyle(Color.white)
+                                                    .frame(width: iconSize, height: iconSize)
+                                                    .background(category.color, in: .rect(cornerRadius: 10))
+
+                                                VStack(alignment: .leading, spacing: 6) {
+                                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                                        Text(item.title)
+                                                            .font(.headline)
+                                                            .foregroundStyle(
+                                                                item.isRead ? Color.textSecondary : .primary
+                                                            )
+                                                            .lineLimit(2)
+
+                                                        Spacer(minLength: 4)
+
+                                                        TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                                                            Text(timeAgoText(from: item.receivedAt, now: context.date))
+                                                                .font(.caption)
+                                                                .foregroundStyle(Color.textTertiary)
+                                                                .lineLimit(1)
+                                                        }
+
+                                                        if !item.isRead {
+                                                            Circle()
+                                                                .fill(Color.accent)
+                                                                .frame(width: 7, height: 7)
+                                                        }
+                                                    }
+
+                                                    Text(item.body)
+                                                        .font(.subheadline)
+                                                        .foregroundStyle(Color.textSecondary)
+                                                        .multilineTextAlignment(.leading)
+                                                        .lineLimit(3)
+                                                }
+                                            }
+                                            .padding(16)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .background(Color.surface, in: .rect(cornerRadius: 16))
+                                            .contentShape(.rect(cornerRadius: 16))
+                                            .onTapGesture {
+                                                store.send(.view(.selectNotification(item.id)))
+                                            }
+                                            .itemActions {
+                                                Button {
+                                                    store.send(.view(.toggleRead(item)))
+                                                } label: {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: item.isRead
+                                                            ? "circle.badge.xmark" : "checkmark.circle")
+                                                        Text(String(
+                                                            localized: item.isRead
+                                                                ? "push_mark_unread" : "push_mark_read",
+                                                            bundle: PresentationResources.bundle
+                                                        ))
+                                                        .lineLimit(1)
+                                                        .minimumScaleFactor(0.8)
+                                                    }
+                                                }
+
+                                                Button(role: .destructive) {
+                                                    store.send(.view(.deleteNotification(item)))
+                                                    presentDeleteNotificationToast(item.id)
+                                                } label: {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: "trash")
+                                                        Text(String(
+                                                            localized: "common_delete",
+                                                            bundle: PresentationResources.bundle
+                                                        ))
+                                                        .lineLimit(1)
+                                                        .minimumScaleFactor(0.8)
+                                                    }
+                                                }
+                                            }
+                                            .clipShape(.rect(cornerRadius: 16))
+                                            .onAppear {
+                                                if item.id == notifications.last?.id, store.nextCursor != nil {
+                                                    store.send(.view(.loadNextPage))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .listRowSeparator(.hidden)
-                } else {
-                    ForEach(
-                        Array(zip(notifications.indices, notifications)),
-                        id: \.1.id
-                    ) { index, notification in
-                        notificationListRow(notification, index: index, notifications: notifications)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                } header: {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(String(localized: "nav_push_notifications", bundle: PresentationResources.bundle))
+                            .font(.largeTitle.bold())
+                            .padding(.bottom, 8)
+                        ScrollView(.horizontal) {
+                            headerContent
+                        }
+                        .scrollIndicators(.hidden)
+                        .padding(.horizontal, -16)
+                        .contentMargins(.horizontal, 16, for: .scrollContent)
                     }
+                    .padding(.bottom, 8)
+                    .background(Color.appBackground)
+                    .toolbarBackground(Color.appBackground)
                 }
             }
-            .listSectionSeparator(.hidden, edges: .top)
-            .listRowBackground(Color.clear)
+            .padding(.horizontal, 16)
         }
         .scrollDisabled(notifications.isEmpty || store.isLoading)
     }
 
-    @ViewBuilder
-    private func notificationListRow(
-        _ notification: PushNotificationItem,
-        index: Int,
-        notifications: [PushNotificationItem]
-    ) -> some View {
-        Button {
-            store.send(.view(.selectNotification(notification.id)))
-        } label: {
-            notificationRowContent(notification, index: index, notifications: notifications)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func notificationRowContent(
-        _ notification: PushNotificationItem,
-        index: Int,
-        notifications: [PushNotificationItem]
-    ) -> some View {
-        notificationRow(
-            notification,
-            isSelected: false
-        )
-        .onAppear {
-            let lastId = notifications.last?.id
-            if notification.id == lastId, store.nextCursor != nil {
-                store.send(.view(.loadNextPage))
-            }
-        }
-        .overlay(alignment: .top) {
-            if #available(iOS 26.0, *) {
-                if index == 0 {
-                    Divider()
-                        .padding(.horizontal, -16)
-                }
-            }
-        }
-    }
-
-    private var safeAreaHeader: some View {
-        VStack(spacing: 4) {
-            ScrollView(.horizontal) {
-                headerContent
-            }
-            .scrollIndicators(.never)
-            .contentMargins(.leading, 16, for: .scrollContent)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: headerHeight)
-            .onAppear {
-                headerOffset = 0
-                isScrollTrackingEnabled = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    isScrollTrackingEnabled = true
-                }
-            }
-            if #unavailable(iOS 26) {
-                Divider()
-                    .padding(.horizontal, -16)
-            }
-        }
-        .background {
-            if #available(iOS 26.0, *) {
-                Color.clear
-            } else {
-                Color(.systemGroupedBackground)
-            }
-        }
-        .offset(y: headerOffset)
-    }
-
     private var headerContent: some View {
-        HStack(spacing: 8) {
-            if 0 < store.appliedFilterCount {
-                Menu {
-                    Text(
-                        String.localizedStringWithFormat(
-                            String(localized: "push_filters_applied_format", bundle: PresentationResources.bundle),
-                            Int64(store.appliedFilterCount)
-                        )
-                    )
-                    Button(role: .destructive) {
-                        store.send(.view(.resetFilters))
-                    } label: {
-                        Text(String(localized: "push_clear_all_filters", bundle: PresentationResources.bundle))
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "line.3.horizontal.decrease")
-                            .foregroundStyle(Color.onControlBackground)
+        LazyHStack(spacing: 8) {
+            Button {
+                if 0 < store.appliedFilterCount {
+                    store.send(.view(.resetFilters))
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(String(localized: "push_timefilter_all", bundle: PresentationResources.bundle))
+                    if 0 < store.appliedFilterCount {
                         filterBadge
                     }
-                    .adaptiveButtonStyle(color: .controlBackground)
                 }
+                .font(.callout)
+                .foregroundStyle(store.appliedFilterCount == 0 ? Color.onPrimaryContainer : .onControlBackground)
+                .adaptiveButtonStyle(
+                    color: store.appliedFilterCount == 0 ? .primaryContainer : .controlBackground
+                )
             }
 
             Button {
@@ -202,10 +239,10 @@ public struct PushNotificationListView: View {
                         store.query.sortOrder.title
                     )
                 )
+                .font(.callout)
                 .foregroundStyle(condition ? Color.onPrimaryContainer : .onControlBackground)
                 .adaptiveButtonStyle(color: condition ? .primaryContainer : .controlBackground)
             }
-            .frame(height: headerHeight)
 
             Menu {
                 Picker(selection: $store.query.timeFilter) {
@@ -221,6 +258,7 @@ public struct PushNotificationListView: View {
                     Text(String(localized: "push_period", bundle: PresentationResources.bundle))
                     Image(systemName: "chevron.down")
                 }
+                .font(.callout)
                 .foregroundStyle(condition ? Color.onControlBackground : .onPrimaryContainer)
                 .adaptiveButtonStyle(color: condition ? .controlBackground : .primaryContainer)
             }
@@ -232,119 +270,21 @@ public struct PushNotificationListView: View {
             } label: {
                 let condition = store.query.unreadOnly
                 Text(String(localized: "push_unread", bundle: PresentationResources.bundle))
+                    .font(.callout)
                     .foregroundStyle(condition ? Color.onPrimaryContainer : .onControlBackground)
                     .adaptiveButtonStyle(color: condition ? .primaryContainer : .controlBackground)
             }
-            .frame(height: headerHeight)
         }
     }
 
     private var filterBadge: some View {
         Text("\(store.appliedFilterCount)")
             .font(.caption2.weight(.bold))
-            .foregroundStyle(Color.onPrimaryContainer)
+            .foregroundStyle(Color.accent)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             .frame(width: 20, height: 20)
-            .background(Circle().fill(Color.primaryContainer))
-    }
-
-    // swiftlint:disable function_body_length
-    private func notificationRow(
-        _ item: PushNotificationItem,
-        isSelected: Bool
-    ) -> some View {
-        HStack {
-            VStack {
-                let todoCategoryItem = TodoCategoryItem(from: item.todoCategory)
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(todoCategoryItem.color)
-                    .frame(width: labelWidth, height: labelWidth)
-                    .overlay {
-                        Image(systemName: todoCategoryItem.symbolName)
-                            .foregroundStyle(Color.white)
-                            .font(.title3)
-                    }
-                Circle()
-                    .fill(Color.blue)
-                    .frame(width: 8, height: 8)
-                    .opacity(item.isRead ? 0 : 1)
-            }
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text(item.title)
-                    .font(.headline)
-                    .foregroundStyle(isSelected ? Color.white : Color(.label))
-                    .lineLimit(1)
-                Text(item.body)
-                    .font(.subheadline)
-                    .foregroundStyle(isSelected ? Color.white : .gray)
-                    .lineLimit(1)
-            }
-            
-            Spacer()
-            
-            TimelineView(.periodic(from: .now, by: 1.0)) { context in
-                Text(timeAgoText(from: item.receivedAt, now: context.date))
-                    .font(.caption2)
-                    .foregroundStyle(isSelected ? Color.white : .gray)
-            }
-        }
-        .padding(8)
-        .contentShape(RoundedRectangle(cornerRadius: 8))
-        .background {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isSelected ? Color.blue : .clear)
-        }
-        .swipeActions(edge: .leading) {
-            Button {
-                store.send(.view(.toggleRead(item)))
-            } label: {
-                Image(systemName: "checkmark.circle\(item.isRead ? ".badge.xmark" : "")")
-                    .tint(.blue)
-            }
-        }
-        .swipeActions(edge: .trailing) {
-            Button(
-                role: .destructive,
-                action: {
-                    store.send(.view(.deleteNotification(item)))
-                    presentDeleteNotificationToast(item.id)
-                }
-            ) {
-                Image(systemName: "trash")
-            }
-        }
-    }
-    // swiftlint:enable function_body_length
-
-    private func timeAgoText(from date: Date, now: Date) -> String {
-        let seconds = Int(now.timeIntervalSince(date))
-
-        if seconds < 60 {
-            return String.localizedStringWithFormat(
-                String(localized: "push_time_seconds_ago_format", bundle: PresentationResources.bundle),
-                Int64(max(0, seconds))
-            )
-        } else if seconds < 3600 {
-            let minutes = seconds / 60
-            return String.localizedStringWithFormat(
-                String(localized: "push_time_minutes_ago_format", bundle: PresentationResources.bundle),
-                Int64(minutes)
-            )
-        } else if seconds < 86400 {
-            let hours = seconds / 3600
-            return String.localizedStringWithFormat(
-                String(localized: "push_time_hours_ago_format", bundle: PresentationResources.bundle),
-                Int64(hours)
-            )
-        } else {
-            let days = seconds / 86400
-            return String.localizedStringWithFormat(
-                String(localized: "push_time_days_ago_format", bundle: PresentationResources.bundle),
-                Int64(days)
-            )
-        }
+            .background(Circle().fill(Color.accent.opacity(0.1)))
     }
 
     @ViewBuilder
@@ -392,5 +332,34 @@ public struct PushNotificationListView: View {
                 store.send(.view(.finishDeleteToast(notificationId)))
             }
         )
+    }
+
+    private func timeAgoText(from date: Date, now: Date) -> String {
+        let seconds = Int(now.timeIntervalSince(date))
+
+        if seconds < 60 {
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_seconds_ago_format", bundle: PresentationResources.bundle),
+                Int64(max(0, seconds))
+            )
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_minutes_ago_format", bundle: PresentationResources.bundle),
+                Int64(minutes)
+            )
+        } else if seconds < 86400 {
+            let hours = seconds / 3600
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_hours_ago_format", bundle: PresentationResources.bundle),
+                Int64(hours)
+            )
+        } else {
+            let days = seconds / 86400
+            return String.localizedStringWithFormat(
+                String(localized: "push_time_days_ago_format", bundle: PresentationResources.bundle),
+                Int64(days)
+            )
+        }
     }
 }
