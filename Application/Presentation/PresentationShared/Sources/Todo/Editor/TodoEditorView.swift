@@ -248,6 +248,7 @@ struct EditorToolbarActions: View {
                         tint: store.isReadyToSubmit ? Color.accent : nil
                     )
                     .disabled(!store.isReadyToSubmit)
+                    .opacity(store.isReadyToSubmit ? 1 : 0.4)
                 } else {
                     Button {
                         onSubmit()
@@ -258,6 +259,7 @@ struct EditorToolbarActions: View {
                         tint: store.isReadyToSubmit ? Color.accent : nil
                     )
                     .disabled(!store.isReadyToSubmit)
+                    .opacity(store.isReadyToSubmit ? 1 : 0.4)
                 }
             }
         }
