@@ -58,6 +58,7 @@ public struct HomeView: View {
                         todoSection
                     } header: {
                         topBar
+                            .toolbarBackground(Color.appBackground)
                     }
                     DevelopmentGoalSection(
                         items: store.developmentGoalItems,
@@ -75,7 +76,6 @@ public struct HomeView: View {
             .toolbarVisibility(.hidden, for: .navigationBar)
             .navigationDestination(for: HomeRoute.self, destination: destinationView)
         }
-        .toolbarBackground(Color.appBackground)
         .onAppear { store.send(.view(.startObserving)) }
         .onChange(of: isSelected, initial: true) { _, isSelected in
             if isSelected {

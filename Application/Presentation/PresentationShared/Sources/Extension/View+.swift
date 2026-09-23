@@ -28,13 +28,14 @@ public extension View {
     }
 
     func toolbarBackground(_ color: Color) -> some View {
-        overlay(alignment: .top) {
+        background(alignment: .top) {
             GeometryReader { proxy in
+                let top = max(proxy.frame(in: .global).minY, 0)
                 color
-                    .frame(height: proxy.safeAreaInsets.top)
-                    .offset(y: -proxy.safeAreaInsets.top)
+                    .frame(height: top)
+                    .offset(y: -top)
+                    .allowsHitTesting(false)
             }
-            .allowsHitTesting(false)
         }
     }
 
