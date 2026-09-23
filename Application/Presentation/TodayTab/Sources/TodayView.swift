@@ -124,7 +124,6 @@ public struct TodayView: View {
             }
 
             ProgressView(value: store.todayAchievement?.progress ?? 0)
-                .tint(Color.accent)
         }
         .padding(20)
         .background {

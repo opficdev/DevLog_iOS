@@ -33,7 +33,6 @@ struct LoginButton: View {
             Group {
                 if showsProgressView {
                     ProgressView()
-                        .tint(Color.accent)
                 } else {
                     Text(text)
                         .foregroundStyle(Color.textSecondary)

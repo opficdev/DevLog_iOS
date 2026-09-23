@@ -197,7 +197,6 @@ public struct GoalDetailView: View {
                 }
             } else if !store.hasLoaded || store.isLoading, store.items.isEmpty {
                 ProgressView()
-                    .tint(Color.accent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
             } else if store.items.isEmpty {

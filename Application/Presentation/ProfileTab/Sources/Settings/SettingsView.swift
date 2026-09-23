@@ -96,7 +96,6 @@ struct SettingsView: View {
                 } label: {
                     if store.activeLoadingRow == .deleteAuth {
                         ProgressView()
-                            .tint(.red)
                     } else {
                         Text(String(localized: "settings_delete_account", bundle: PresentationResources.bundle))
                             .foregroundStyle(.red)

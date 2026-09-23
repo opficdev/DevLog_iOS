@@ -136,7 +136,6 @@ struct GoalTodoLinkSheet: View {
     private var sheetContent: some View {
         if store.isLoading, store.todos.isEmpty {
             ProgressView()
-                .tint(Color.accent)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
         } else if store.hasLoadFailure, store.todos.isEmpty {

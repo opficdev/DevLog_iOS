@@ -19,7 +19,6 @@ struct GoalDescriptionCard: View {
 
             if isLoading {
                 ProgressView()
-                    .tint(Color.accent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             } else if description.isEmpty {

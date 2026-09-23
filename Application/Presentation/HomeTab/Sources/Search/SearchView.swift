@@ -224,7 +224,6 @@ private struct SearchResults: View {
                 .padding(.vertical, 32)
             } else if store.isLoading && todos.isEmpty {
                 ProgressView()
-                    .tint(Color.accent)
             } else if todos.isEmpty {
                 Text(String(
                     localized: "todo_list_search_empty",

@@ -201,7 +201,6 @@ public struct RecordEditorView: View {
                 Group {
                     if store.isLoading {
                         ProgressView()
-                            .tint(Color.white)
                     } else {
                         Text(RecordPresentation.text(
                             store.isCorrection
