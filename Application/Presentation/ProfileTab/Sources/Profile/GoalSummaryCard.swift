@@ -78,28 +78,19 @@ struct GoalSummaryCard: View {
             : AnyLayout(HStackLayout(spacing: 8))
         return layout {
             statusTile(
-                title: String(
-                    localized: "development_goal_status_in_progress",
-                    bundle: PresentationResources.bundle
-                ),
+                title: "development_goal_status_in_progress",
                 symbol: "clock",
                 color: .accent,
                 count: counts.inProgress
             )
             statusTile(
-                title: String(
-                    localized: "development_goal_status_completed",
-                    bundle: PresentationResources.bundle
-                ),
+                title: "development_goal_status_completed",
                 symbol: "checkmark",
                 color: .success,
                 count: counts.completed
             )
             statusTile(
-                title: String(
-                    localized: "development_goal_status_archived",
-                    bundle: PresentationResources.bundle
-                ),
+                title: "development_goal_status_archived",
                 symbol: "archivebox",
                 color: .textSecondary,
                 count: counts.archived
@@ -107,14 +98,14 @@ struct GoalSummaryCard: View {
         }
     }
 
-    private func statusTile(title: String, symbol: String, color: Color, count: Int) -> some View {
+    private func statusTile(title: LocalizedStringKey, symbol: String, color: Color, count: Int) -> some View {
         VStack(spacing: 8) {
             Image(systemName: symbol)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(color)
                 .frame(width: 36, height: 36)
                 .background(Color.surface, in: .circle)
-            Text(title)
+            Text(title, bundle: PresentationResources.bundle)
                 .font(.caption)
                 .foregroundStyle(Color.textSecondary)
             Text(verbatim: String(count))
