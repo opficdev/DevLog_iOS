@@ -48,11 +48,15 @@ struct UserInfoCard: View {
             HStack {
                 HStack {
                     Image(systemName: "face.smiling")
+                        .foregroundStyle(Color.accent)
                     TextField(
                         text: $store.statusMessage
                     ) {
-                        Text(String(localized: "profile_status_placeholder", bundle: PresentationResources.bundle))
+                        Text("profile_status_placeholder", bundle: PresentationResources.bundle)
+                            .foregroundStyle(Color.textTertiary)
                     }
+                    .foregroundStyle(Color.textSecondary)
+                    .tint(Color.accent)
                     .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
                     .focused($focused)
                     .disabled(!store.isNetworkConnected)
@@ -63,23 +67,24 @@ struct UserInfoCard: View {
                             store.send(.tapResetStatusMessageButton)
                         } label: {
                             Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(Color.accent)
                         }
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
                 }
-                .foregroundStyle(Color.onPrimaryContainer)
                 .padding(8)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.primaryContainer)
+                        .fill(Color.accent.opacity(0.08))
                 )
                 if store.showDoneButton {
                     Button {
                         focused = false
                         store.send(.willUpdateStatusMessage)
                     } label: {
-                        Text(String(localized: "profile_done", bundle: PresentationResources.bundle))
+                        Text("profile_done", bundle: PresentationResources.bundle)
                     }
+                    .tint(Color.accent)
                     .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
