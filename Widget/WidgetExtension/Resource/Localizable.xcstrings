@@ -162,6 +162,23 @@
         }
       }
     },
+    "widget_today_reinstall_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please reinstall the app."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 재설치해 주세요."
+          }
+        }
+      }
+    },
     "widget_today_title" : {
       "extractionState" : "manual",
       "localizations" : {

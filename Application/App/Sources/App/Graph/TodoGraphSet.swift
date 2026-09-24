@@ -46,7 +46,9 @@ final class TodoGraphSet {
         )
         self.widgetTodoSnapshotRepositoryGraph = WidgetTodoSnapshotRepositoryGraph(
             input: WidgetTodoSnapshotRepositoryGraphInput(
-                queryService: todoQueryServiceGraph.todoQueryService
+                queryService: todoQueryServiceGraph.todoQueryService,
+                todoCategoryService: todoCategoryServiceGraph.todoCategoryService,
+                store: memoryCacheStoreGraph.memoryCacheStore
             )
         )
         self.todoUseCaseGraph = TodoUseCaseGraph(

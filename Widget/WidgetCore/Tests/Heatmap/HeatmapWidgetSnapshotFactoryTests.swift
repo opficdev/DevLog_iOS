@@ -220,6 +220,8 @@ struct HeatmapWidgetSnapshotFactoryTests {
             id: id,
             number: 1,
             title: id,
+            categoryID: "feature",
+            categoryColorHex: nil,
             isPinned: false,
             createdAt: createdAt,
             completedAt: completedAt,

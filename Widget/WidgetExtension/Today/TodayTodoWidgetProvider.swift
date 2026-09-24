@@ -15,7 +15,7 @@ struct TodayTodoWidgetProvider: AppIntentTimelineProvider {
 
     // 위젯 갤러리나 로딩 전 상태에서 즉시 표시할 기본 엔트리.
     func placeholder(in context: Context) -> TodayTodoWidgetEntry {
-        .init(date: .now, snapshot: nil)
+        .init(date: .now, snapshot: nil, requiresReinstallation: false)
     }
 
     // 현재 시점의 단일 스냅샷을 만들어 미리보기와 일시적인 렌더링에 사용한다.
@@ -23,11 +23,7 @@ struct TodayTodoWidgetProvider: AppIntentTimelineProvider {
         for configuration: TodayTodoWidgetConfigurationIntent,
         in context: Context
     ) async -> TodayTodoWidgetEntry {
-        let snapshot = try? store.loadTodaySnapshot()
-        return .init(
-            date: .now,
-            snapshot: snapshot
-        )
+        makeEntry()
     }
 
     // 실제 위젯이 사용할 타임라인 엔트리를 구성한다.
@@ -36,17 +32,25 @@ struct TodayTodoWidgetProvider: AppIntentTimelineProvider {
         for configuration: TodayTodoWidgetConfigurationIntent,
         in context: Context
     ) async -> Timeline<TodayTodoWidgetEntry> {
-        let snapshot = try? store.loadTodaySnapshot()
         let entries: [TodayTodoWidgetEntry] = [
-            .init(
-                date: .now,
-                snapshot: snapshot
-            )
+            makeEntry()
         ]
 
         return Timeline(
             entries: entries,
             policy: .never
         )
+    }
+
+    private func makeEntry() -> TodayTodoWidgetEntry {
+        do {
+            return .init(
+                date: .now,
+                snapshot: try store.loadTodaySnapshot(),
+                requiresReinstallation: false
+            )
+        } catch {
+            return .init(date: .now, snapshot: nil, requiresReinstallation: true)
+        }
     }
 }

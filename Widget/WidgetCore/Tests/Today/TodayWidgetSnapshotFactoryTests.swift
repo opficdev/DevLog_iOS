@@ -29,6 +29,8 @@ struct TodayWidgetSnapshotFactoryTests {
         #expect(snapshot.dueSoonCount == 2)
         #expect(snapshot.items.count == 3)
         #expect(snapshot.items.map(\.title) == ["고정된 할 일", "지난 일정", "임박 일정"])
+        #expect(snapshot.items.first?.categoryID == "custom")
+        #expect(snapshot.items.first?.categoryColorHex == "#AABBCC")
     }
 
     @Test("Today 위젯 스냅샷은 화면과 같은 display option 필터를 적용한다")
@@ -124,6 +126,8 @@ struct TodayWidgetSnapshotFactoryTests {
                 id: "todo-1",
                 number: 1,
                 title: "고정된 할 일",
+                categoryID: "custom",
+                categoryColorHex: "#AABBCC",
                 isPinned: true,
                 dueDate: dueSoonDate
             ),
@@ -162,6 +166,8 @@ struct TodayWidgetSnapshotFactoryTests {
         id: String,
         number: Int,
         title: String,
+        categoryID: String = "feature",
+        categoryColorHex: String? = nil,
         isPinned: Bool,
         dueDate: Date?
     ) -> WidgetTodoSnapshot {
@@ -169,6 +175,8 @@ struct TodayWidgetSnapshotFactoryTests {
             id: id,
             number: number,
             title: title,
+            categoryID: categoryID,
+            categoryColorHex: categoryColorHex,
             isPinned: isPinned,
             createdAt: .now,
             completedAt: nil,

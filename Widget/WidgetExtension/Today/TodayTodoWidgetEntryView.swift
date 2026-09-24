@@ -14,13 +14,17 @@ struct TodayTodoWidgetEntryView: View {
 
     var body: some View {
         Group {
-            switch widgetFamily {
-            case .systemSmall:
-                smallContent
-            case .systemMedium:
-                mediumContent
-            default:
-                EmptyView()
+            if entry.requiresReinstallation {
+                reinstallContent
+            } else {
+                switch widgetFamily {
+                case .systemSmall:
+                    smallContent
+                case .systemMedium:
+                    mediumContent
+                default:
+                    EmptyView()
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -38,6 +42,18 @@ struct TodayTodoWidgetEntryView: View {
                 .font(.headline)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
+        }
+    }
+
+    private var reinstallContent: some View {
+        VStack(alignment: .leading) {
+            header
+            Spacer()
+            Text("widget_today_reinstall_message")
+                .font(.caption)
+                .foregroundStyle(Color.textSecondary)
+                .lineLimit(3)
+            Spacer()
         }
     }
 

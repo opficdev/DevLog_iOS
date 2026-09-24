@@ -10,9 +10,17 @@ import Domain
 
 public struct WidgetTodoSnapshotRepositoryGraphInput {
     public let queryService: TodoQueryService
+    public let todoCategoryService: TodoCategoryService
+    public let store: MemoryCacheStore
 
-    public init(queryService: TodoQueryService) {
+    public init(
+        queryService: TodoQueryService,
+        todoCategoryService: TodoCategoryService,
+        store: MemoryCacheStore
+    ) {
         self.queryService = queryService
+        self.todoCategoryService = todoCategoryService
+        self.store = store
     }
 }
 
@@ -20,6 +28,10 @@ public struct WidgetTodoSnapshotRepositoryGraphInput {
 public final class WidgetTodoSnapshotRepositoryGraph {
     @Provide
     private func makeWidgetTodoSnapshotRepository() -> WidgetTodoSnapshotRepository {
-        WidgetTodoSnapshotRepositoryImpl(queryService: input.queryService)
+        WidgetTodoSnapshotRepositoryImpl(
+            queryService: input.queryService,
+            todoCategoryService: input.todoCategoryService,
+            store: input.store
+        )
     }
 }
