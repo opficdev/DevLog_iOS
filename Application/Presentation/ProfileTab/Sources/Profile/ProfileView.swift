@@ -36,30 +36,26 @@ public struct ProfileView: View {
     public var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
-                    Section {
-                        UserInfoCard(store: store, isSelected: isSelected)
-                        ActivityCard(store: store) { todoId in
-                            path.append(.activity(todoId))
-                        }
-                        GoalSummaryCard(
-                            goals: store.developmentGoals,
-                            isLoading: store.isDevelopmentGoalsLoading,
-                            hasLoaded: store.hasDevelopmentGoalsLoaded,
-                            hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
-                            onRetry: { store.send(.retryDevelopmentGoals) }
-                        )
-                        RecentActivityCard(store: store) { todoId in
-                            path.append(.recentTodo(todoId))
-                        }
-                    } header: {
-                        titleBar
-                            .toolbarBackground(Color.appBackground)
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    UserInfoCard(store: store, isSelected: isSelected)
+                    ActivityCard(store: store) { todoId in
+                        path.append(.activity(todoId))
+                    }
+                    GoalSummaryCard(
+                        goals: store.developmentGoals,
+                        isLoading: store.isDevelopmentGoalsLoading,
+                        hasLoaded: store.hasDevelopmentGoalsLoaded,
+                        hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
+                        onRetry: { store.send(.retryDevelopmentGoals) }
+                    )
+                    RecentActivityCard(store: store) { todoId in
+                        path.append(.recentTodo(todoId))
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
+            .safeAreaInset(edge: .top, spacing: 0) { titleBar }
             .refreshable { await store.send(.refresh).finish() }
             .toolbarVisibility(.hidden, for: .navigationBar)
             .background(Color.appBackground)
@@ -99,8 +95,10 @@ public struct ProfileView: View {
                 .topBarButtonStyle()
             }
         }
+        .padding(.horizontal, 16)
         .padding(.bottom, 8)
         .background(Color.appBackground)
+        .toolbarBackground(Color.appBackground)
     }
 
     @ViewBuilder

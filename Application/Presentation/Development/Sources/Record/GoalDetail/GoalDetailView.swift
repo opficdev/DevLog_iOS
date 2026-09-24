@@ -34,27 +34,24 @@ public struct GoalDetailView: View {
 
     private var mainContent: some View {
         ScrollView {
-            LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
-                Section {
-                    GoalDescriptionCard(
-                        description: store.goal?.description ?? "",
-                        isLoading: !store.hasLoaded && store.isLoading
-                    )
-                    timelineCard
-                    GoalLinkedTodoCard(
-                        todos: store.linkedTodos,
-                        isLoading: store.isTodoLoading,
-                        hasLoadFailure: store.hasTodoLoadFailure,
-                        allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
-                        onManage: { store.send(.view(.manageTodos)) },
-                        onRetry: { store.send(.view(.retryTodos)) },
-                        onSelect: { store.send(.view(.selectTodo($0))) }
-                    )
-                } header: {
-                    titleBar
-                }
-                .padding(.horizontal)
+            LazyVStack(spacing: 12) {
+                titleBar
+                GoalDescriptionCard(
+                    description: store.goal?.description ?? "",
+                    isLoading: !store.hasLoaded && store.isLoading
+                )
+                timelineCard
+                GoalLinkedTodoCard(
+                    todos: store.linkedTodos,
+                    isLoading: store.isTodoLoading,
+                    hasLoadFailure: store.hasTodoLoadFailure,
+                    allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
+                    onManage: { store.send(.view(.manageTodos)) },
+                    onRetry: { store.send(.view(.retryTodos)) },
+                    onSelect: { store.send(.view(.selectTodo($0))) }
+                )
             }
+            .padding(.horizontal)
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
         .safeAreaInset(edge: .bottom, spacing: 0) { recordActionBar }

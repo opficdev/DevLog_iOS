@@ -21,41 +21,38 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
-                Section {
-                    AppSettingsCard(
-                        themeName: store.theme.localizedName(in: PresentationResources.bundle),
-                        isNetworkConnected: store.isNetworkConnected,
-                        onTheme: { onNavigate(.theme) },
-                        onNotifications: { onNavigate(.pushNotification) }
+            LazyVStack(alignment: .leading, spacing: 24) {
+                AppSettingsCard(
+                    themeName: store.theme.localizedName(in: PresentationResources.bundle),
+                    isNetworkConnected: store.isNetworkConnected,
+                    onTheme: { onNavigate(.theme) },
+                    onNotifications: { onNavigate(.pushNotification) }
+                )
+
+                if store.appVersion != nil || privacyPolicyURL != nil || store.betaTestURL != nil {
+                    AppInformationCard(
+                        appVersion: store.appVersion,
+                        privacyPolicyURL: privacyPolicyURL,
+                        betaTestURL: store.betaTestURL
                     )
-
-                    if store.appVersion != nil || privacyPolicyURL != nil || store.betaTestURL != nil {
-                        AppInformationCard(
-                            appVersion: store.appVersion,
-                            privacyPolicyURL: privacyPolicyURL,
-                            betaTestURL: store.betaTestURL
-                        )
-                    }
-
-                    AccountCard(
-                        isNetworkConnected: store.isNetworkConnected,
-                        isLoading: store.isLoading,
-                        showsSignOutProgress: store.activeLoadingRow == .signOut,
-                        onAccount: { onNavigate(.account) },
-                        onSignOut: { store.send(.setAlert(.signOut)) }
-                    )
-
-                    deleteAccountContent
-                } header: {
-                    topBar
                 }
+
+                AccountCard(
+                    isNetworkConnected: store.isNetworkConnected,
+                    isLoading: store.isLoading,
+                    showsSignOutProgress: store.activeLoadingRow == .signOut,
+                    onAccount: { onNavigate(.account) },
+                    onSignOut: { store.send(.setAlert(.signOut)) }
+                )
+
+                deleteAccountContent
             }
-            .toolbarVisibility(.hidden, for: .navigationBar)
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
         .background(Color.appBackground)
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .prominentAlert(store, state: \.alert, action: \.alert)
     }
 
@@ -69,6 +66,7 @@ struct SettingsView: View {
                 Spacer()
             }
         }
+        .padding(.horizontal, 16)
         .padding(.bottom, 12)
         .background(Color.appBackground)
         .toolbarBackground(Color.appBackground)

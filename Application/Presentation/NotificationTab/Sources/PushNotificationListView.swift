@@ -64,21 +64,20 @@ public struct PushNotificationListView: View {
         let sections = store.query.sortOrder == .latest ? [recent, previous] : [previous, recent]
 
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20, pinnedViews: [.sectionHeaders]) {
-                Section {
-                    if notifications.isEmpty {
-                        Text(String(localized: "push_notifications_empty", bundle: PresentationResources.bundle))
-                            .font(.callout)
-                            .foregroundStyle(Color.textSecondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 32)
-                            .background(Color.surface, in: .rect(cornerRadius: 16))
-                    } else {
-                        ForEach(sections.indices, id: \.self) { index in
-                            let items = sections[index]
-                            let isRecent = (index == 0) == (store.query.sortOrder == .latest)
-                            if !items.isEmpty {
-                                VStack(alignment: .leading, spacing: 12) {
+            LazyVStack(alignment: .leading, spacing: 20) {
+                if notifications.isEmpty {
+                    Text(String(localized: "push_notifications_empty", bundle: PresentationResources.bundle))
+                        .font(.callout)
+                        .foregroundStyle(Color.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 32)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
+                } else {
+                    ForEach(sections.indices, id: \.self) { index in
+                        let items = sections[index]
+                        let isRecent = (index == 0) == (store.query.sortOrder == .latest)
+                        if !items.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
                                     HStack(spacing: 8) {
                                         Text(String(
                                             localized: isRecent ? "push_notifications_new" : "push_notifications_previous",
@@ -181,28 +180,32 @@ public struct PushNotificationListView: View {
                                             }
                                         }
                                     }
-                                }
                             }
                         }
                     }
-                } header: {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(String(localized: "nav_push_notifications", bundle: PresentationResources.bundle))
-                            .font(.largeTitle.bold())
-                            .padding(.bottom, 8)
-                        ScrollView(.horizontal) {
-                            headerContent
-                        }
-                        .scrollIndicators(.hidden)
-                        .padding(.horizontal, -16)
-                        .contentMargins(.horizontal, 16, for: .scrollContent)
-                    }
-                    .padding(.bottom, 8)
-                    .background(Color.appBackground)
-                    .toolbarBackground(Color.appBackground)
                 }
             }
             .padding(.horizontal, 16)
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(String(localized: "nav_push_notifications", bundle: PresentationResources.bundle))
+                    .font(.largeTitle.bold())
+                    .padding(.bottom, 8)
+
+                ScrollView(.horizontal) {
+                    headerContent
+                }
+                .scrollIndicators(.hidden)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, -16)
+                .contentMargins(.horizontal, 16, for: .scrollContent)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
+            .background(Color.appBackground)
+            .toolbarBackground(Color.appBackground)
         }
         .scrollDisabled(notifications.isEmpty || store.isLoading)
     }
