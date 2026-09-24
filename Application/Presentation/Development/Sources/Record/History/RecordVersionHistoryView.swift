@@ -47,7 +47,7 @@ struct RecordVersionHistoryView: View {
 
     private var topBar: some View {
         HStack {
-            RecordBackButton(action: dismiss.callAsFunction)
+            NavigationBackButton(action: dismiss.callAsFunction)
             Spacer()
         }
         .padding(.horizontal)
@@ -261,26 +261,6 @@ struct RecordVersionBadge: View {
                 isCurrent ? Color.accent : Color.primaryContainer,
                 in: .capsule
             )
-    }
-}
-
-struct RecordBackButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        if #available(iOS 26.0, *) {
-            Button(action: action) {
-                Image(systemName: "chevron.left")
-            }
-            .topBarButtonStyle()
-        } else {
-            Button(action: action) {
-                Image(systemName: "chevron.left")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 28, height: 28)
-            }
-            .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
-        }
     }
 }
 
