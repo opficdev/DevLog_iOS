@@ -75,7 +75,7 @@ struct UserInfoCard: View {
                 .padding(8)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.accent.opacity(0.08))
+                        .fill(Color.surfaceSecondary)
                 )
                 if store.showDoneButton {
                     Button {
