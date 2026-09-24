@@ -206,6 +206,12 @@ private extension AppGraph {
     }
 
     func prepareProfileDependencies(_ dependencies: inout DependencyValues) {
+        ProfilePresentationDependencyPreparation.prepareDevelopmentGoals(
+            &dependencies,
+            fetchGoalsUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .fetchDevelopmentGoalsUseCase
+        )
         ProfilePresentationDependencyPreparation.prepareUser(
             &dependencies,
             fetchUserDataUseCase: userProfileGraphSet.userDataUseCaseGraph.fetchUserDataUseCase,

@@ -18,10 +18,13 @@ struct ProfileFeature {
     }
 
     enum LoadingTarget: Hashable {
+        case developmentGoals
         case recentTodos
 
         var target: LoadingFeature.Target {
             switch self {
+            case .developmentGoals:
+                return LoadingFeature.Target("profile.developmentGoals")
             case .recentTodos:
                 return LoadingFeature.Target("profile.recentTodos")
             }
@@ -38,6 +41,9 @@ struct ProfileFeature {
         var avatarURL: URL?
         var avatarImageData: AvatarImageData?
         var recentTodos = [RecentTodoItem]()
+        var developmentGoals = [DevelopmentGoal]()
+        var hasDevelopmentGoalsLoaded = false
+        var hasDevelopmentGoalsLoadFailure = false
         var earliestQuarterStart: Date?
         var selectedQuarterStart: Date?
         var showQuarterPicker = false
@@ -57,6 +63,7 @@ struct ProfileFeature {
         case fetchData
         case refresh
         case refreshRecentTodos
+        case retryDevelopmentGoals
         case networkStatusChanged(Bool)
         case setAlert(Bool)
         case tapResetStatusMessageButton
@@ -80,12 +87,15 @@ struct ProfileFeature {
                 dayActivitiesByDate: [Date: [HeatmapActivityItem]]
             )
             case updateRecentTodos([RecentTodoItem])
+            case developmentGoalsLoaded([DevelopmentGoal])
+            case developmentGoalsLoadFailed
         }
     }
 
     @Dependency(\.profileFetchUserDataUseCase) var fetchUserDataUseCase
     @Dependency(\.profileFetchImageDataUseCase) var fetchProfileImageDataUseCase
     @Dependency(\.profileFetchTodosUseCase) var fetchTodosUseCase
+    @Dependency(\.profileFetchDevelopmentGoalsUseCase) var fetchDevelopmentGoalsUseCase
     @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
     @Dependency(\.profileTodoMutationEventBus) var todoMutationEventBus
     @Dependency(\.profileUpsertStatusMessageUseCase) var upsertStatusMessageUseCase
@@ -118,6 +128,7 @@ struct ProfileFeature {
                     observeTodoMutationEffect()
                 )
             case .fetchData, .refresh:
+                state.hasDevelopmentGoalsLoadFailure = false
                 if state.selectedQuarterStart == nil,
                    let quarterStart = HeatmapBuilder.quarterStart(for: Date()) {
                     state.selectedQuarterStart = quarterStart
@@ -132,15 +143,20 @@ struct ProfileFeature {
                     return .merge(
                         fetchUserDataEffect(),
                         fetchActivityQuarterEffect(selectedQuarterStart, showsIndicator: showsIndicator),
-                        fetchRecentTodosEffect()
+                        fetchRecentTodosEffect(),
+                        fetchDevelopmentGoalsEffect()
                     )
                 }
                 return .merge(
                     fetchUserDataEffect(),
-                    fetchRecentTodosEffect()
+                    fetchRecentTodosEffect(),
+                    fetchDevelopmentGoalsEffect()
                 )
             case .refreshRecentTodos:
                 return fetchRecentTodosEffect()
+            case .retryDevelopmentGoals:
+                state.hasDevelopmentGoalsLoadFailure = false
+                return fetchDevelopmentGoalsEffect()
             case .networkStatusChanged(let isConnected):
                 state.isNetworkConnected = isConnected
             case .setAlert(let isPresented):
@@ -209,6 +225,12 @@ struct ProfileFeature {
                 state.dayActivitiesByDate = dayActivitiesByDate
             case .store(.updateRecentTodos(let todos)):
                 state.recentTodos = todos
+            case .store(.developmentGoalsLoaded(let goals)):
+                state.developmentGoals = goals
+                state.hasDevelopmentGoalsLoaded = true
+                state.hasDevelopmentGoalsLoadFailure = false
+            case .store(.developmentGoalsLoadFailed):
+                state.hasDevelopmentGoalsLoadFailure = true
             case .loading:
                 break
             }
@@ -236,6 +258,19 @@ private extension ProfileFeature {
             } catch {
                 await send(.setAlert(true))
             }
+        }
+    }
+
+    func fetchDevelopmentGoalsEffect() -> Effect<Action> {
+        .run { [fetchDevelopmentGoalsUseCase] send in
+            await send(.loading(.begin(target: LoadingTarget.developmentGoals.target, mode: .immediate)))
+            do {
+                let goals = try await fetchDevelopmentGoalsUseCase.execute(.init())
+                await send(.store(.developmentGoalsLoaded(goals)))
+            } catch {
+                await send(.store(.developmentGoalsLoadFailed))
+            }
+            await send(.loading(.end(target: LoadingTarget.developmentGoals.target, mode: .immediate)))
         }
     }
 

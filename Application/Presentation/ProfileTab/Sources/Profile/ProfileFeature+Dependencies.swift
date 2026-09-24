@@ -9,6 +9,11 @@ import PresentationShared
 import Domain
 
 extension DependencyValues {
+    var profileFetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase {
+        get { self[FetchDevelopmentGoalsKey.self] }
+        set { self[FetchDevelopmentGoalsKey.self] = newValue }
+    }
+
     var profileFetchUserDataUseCase: FetchUserDataUseCase {
         get { self[FetchUserDataKey.self] }
         set { self[FetchUserDataKey.self] = newValue }
@@ -42,6 +47,12 @@ extension DependencyValues {
     var profileUpdateHeatmapActivityTypesUseCase: UpdateHeatmapActivityTypesUseCase {
         get { self[UpdateHeatmapTypesKey.self] }
         set { self[UpdateHeatmapTypesKey.self] = newValue }
+    }
+}
+
+private enum FetchDevelopmentGoalsKey: DependencyKey {
+    static var liveValue: FetchDevelopmentGoalsUseCase {
+        preconditionFailure("FetchDevelopmentGoalsUseCase must be provided.")
     }
 }
 

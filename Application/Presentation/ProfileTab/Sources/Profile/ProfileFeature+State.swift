@@ -18,6 +18,10 @@ extension ProfileFeature.State {
         loading.visibleTargets.contains(ProfileFeature.LoadingTarget.recentTodos.target)
     }
 
+    var isDevelopmentGoalsLoading: Bool {
+        loading.visibleTargets.contains(ProfileFeature.LoadingTarget.developmentGoals.target)
+    }
+
     var quarterTitle: String {
         guard let start = selectedQuarterStart else { return "" }
         let year = Calendar.current.component(.year, from: start)
