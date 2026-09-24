@@ -31,18 +31,10 @@ struct TodayTodoWidgetEntryView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "chevron.left.forwardslash.chevron.right")
-                .font(.caption.bold())
-                .foregroundStyle(Color.accent)
-                .frame(width: 28, height: 28)
-                .background(Color.primaryContainer, in: RoundedRectangle(cornerRadius: 9))
-
-            Text("widget_today_title")
-                .font(.headline)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
+        Text("widget_today_title")
+            .font(.headline)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
     }
 
     private var reinstallContent: some View {
@@ -104,7 +96,6 @@ struct TodayTodoWidgetEntryView: View {
                 .font(.caption2)
                 .foregroundStyle(Color.textSecondary)
                 .lineLimit(1)
-                .padding(.leading, 36)
 
             Spacer(minLength: 6)
 
@@ -151,13 +142,18 @@ struct TodayTodoWidgetEntryView: View {
     }
 
     private func todoRow(_ item: WidgetTodayTodoSnapshot) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: item.isPinned ? "star.fill" : "list.bullet")
+        let style = WidgetTodoCategoryStyle(
+            categoryID: item.categoryID,
+            colorHex: item.categoryColorHex
+        )
+
+        return HStack(spacing: 6) {
+            Image(systemName: style.symbolName)
                 .font(.caption2.bold())
-                .foregroundStyle(item.isPinned ? Color.orange : Color.accent)
+                .foregroundStyle(style.color)
                 .frame(width: 22, height: 22)
                 .background(
-                    item.isPinned ? Color.orange.opacity(0.1) : Color.primaryContainer,
+                    style.color.opacity(0.1),
                     in: RoundedRectangle(cornerRadius: 7)
                 )
 
