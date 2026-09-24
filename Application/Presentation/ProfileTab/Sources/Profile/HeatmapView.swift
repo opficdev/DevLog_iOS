@@ -180,7 +180,7 @@ private struct MonthCompactHeatmapView: View {
         if count == 0 {
             return Color(.systemGray5)
         }
-        return Color.blue.opacity(opacity(for: count, max: maxCount))
+        return Color.accent.opacity(opacity(for: count, max: maxCount))
     }
 
     private func dayCount(for day: HeatmapDay) -> Int {
