@@ -347,7 +347,6 @@ public struct HomeView: View {
                         color: item.color,
                         in: RoundedRectangle(cornerRadius: 20)
                     )
-                    .accessibilityHidden(true)
                 Text(item.localizedName)
                     .font(.subheadline)
                     .foregroundStyle(Color.textSecondary)
