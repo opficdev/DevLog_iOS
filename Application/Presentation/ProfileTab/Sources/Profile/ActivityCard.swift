@@ -59,6 +59,7 @@ struct ActivityCard: View {
                 } label: {
                     Image(systemName: "chevron.left")
                 }
+                .tint(Color.accent)
                 .disabled(!store.canMoveToPreviousQuarter)
                 Spacer()
                 Button {
@@ -79,6 +80,7 @@ struct ActivityCard: View {
                 } label: {
                     Image(systemName: "chevron.right")
                 }
+                .tint(Color.accent)
                 .disabled(!store.canMoveToNextQuarter)
             }
 
