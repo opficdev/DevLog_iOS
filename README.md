@@ -5,26 +5,22 @@
 
 <table>
   <tr>
-    <td align="center" width="20%">
+    <td align="center" width="25%">
       <img src="./docs/home.png">
     </td>
-    <td align="center" width="20%">
+    <td align="center" width="25%">
       <img src="./docs/markdown.png">
     </td>
-    <td align="center" width="20%">
-      <img src="./docs/today.png">
-    </td>
-    <td align="center" width="20%">
+    <td align="center" width="25%">
       <img src="./docs/notification.png">
     </td>
-    <td align="center" width="20%">
+    <td align="center" width="25%">
       <img src="./docs/hitmap.png">
     </td>
   </tr>
   <tr>
     <td align="center">홈</td>
     <td align="center">마크다운 작성</td>
-    <td align="center">오늘 기준 Todo 확인</td>
     <td align="center">푸시 알림</td>
     <td align="center">히트맵</td>
   </tr>
@@ -32,16 +28,12 @@
 
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="center">
       <img src="./docs/iPad_Login.png" alt="iPad 로그인 화면">
-    </td>
-    <td align="center" width="50%">
-      <img src="./docs/iPad_Home.png" alt="iPad 홈 화면">
     </td>
   </tr>
   <tr>
-    <td align="center">로그인</td>
-    <td align="center">홈</td>
+    <td align="center">iPad 로그인</td>
   </tr>
 </table>
 
@@ -83,7 +75,7 @@
     </td>
   </tr>
   <tr>
-    <td align="center">Tuist 모듈 의존성 그래프</td>
+    <td align="center">Tuist 모듈 의존성 그래프 (테스트 대상과 외부 패키지 대상 제외)</td>
   </tr>
 </table>
 
@@ -100,7 +92,8 @@
 
 - 작업 성격별 Todo 유형 진입점 제공
 - Home에서 Todo 유형 노출 여부 및 순서 편집
-- 최근 수정 Todo 별도 섹션 제공
+- 진행 중인 개발 목표의 Todo 진행률과 최근 개발 기록 요약
+- 진행 중인 개발 목표 목록에서 목표 생성 및 상세 화면 진입
 
 ### Todo 관리
 
@@ -118,10 +111,10 @@
 
 ### Today
 
-- 남은 일, 집중 Todo, 지연 Todo, 7일 내 마감 Todo 요약 카드 제공
-- 집중할 일, 지난 마감, 나중 일정, 일정 미정 등 기한 기준 섹션 분류
-- 보기 범위와 중요 표시 조건 기반 빠른 필터링
-- 항목별 스와이프 액션을 통한 중요 표시 및 완료 처리
+- 오늘 마감 Todo의 완료 개수와 전체 개수, 진행률을 보여주는 카드 제공
+- 지난 마감, 오늘, 7일 내 일정, 나중 일정, 일정 미정으로 Todo 분류
+- 남은 일과 중요 표시 Todo 전환 및 Todo 유형별 필터링
+- 완료한 오늘 마감 Todo를 오늘 섹션에 함께 표시
 
 ### 알림
 
@@ -141,6 +134,7 @@
 ### 프로필 및 설정
 
 - 상태 메시지 직접 수정
+- 최근 수정 Todo 목록 제공
 - 분기 이동 및 직접 선택, 생성/완료 활동 필터 기반 히트맵 제공
 - 테마 변경과 푸시 알림 시간 설정 기능 제공
 - 설정 화면에서 앱 버전, 개인정보 처리방침, 베타 테스트 링크 확인
@@ -156,10 +150,10 @@
 | Architecture | Tuist Modular based Clean Architecture |
 | UI | SwiftUI, WidgetKit, AppIntents |
 | State & Async | Observable, Combine, async/await, The Composable Architecture |
-| Backend | Firebase Authentication, Firestore, Cloud Functions, Cloud Messaging |
+| Backend | Firebase Authentication, Firestore, Cloud Messaging, Cloud Functions, Firebase Hosting, Cloud Run (NestJS API, Staging) |
 | Monitoring | Firebase Analytics, Crashlytics |
 | Apple Frameworks | AuthenticationServices, UserNotifications, Network, CryptoKit, os.log |
-| External Packages | ComposableArchitecture, OrderedCollections, GoogleSignIn, Nexa |
+| External Packages | Firebase iOS SDK, GoogleSignIn, ComposableArchitecture, xctest-dynamic-overlay, Swift Collections, Nexa, Cradle, UIComposable |
 | Testing | swift-testing, TCA TestStore |
 | Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
 
@@ -208,10 +202,10 @@ Debug, Staging -> staging Firebase project / Firestore (default)
 Release -> prod Firebase project / Firestore (default)
 ```
 
-- TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용함
-- GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행함
-- TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release` configuration build로 생성함
-- build number는 TestFlight와 App Store upload가 공유하는 App Store Connect build number 공간에서 자동 증가함
+- TestFlight archive는 `Staging`, App Store 실제 서비스 archive는 `Release` configuration을 사용
+- GitHub Actions 배포 workflow는 PR label 기반 자동 실행 없이 수동 실행
+- TestFlight build는 App Store 심사 제출 대상으로 승격하지 않고, 실제 배포는 같은 `MARKETING_VERSION`의 별도 `Release` configuration build로 생성
+- build number는 TestFlight와 App Store upload가 공유하는 App Store Connect build number 공간에서 자동 증가
 
 - TestFlight build: `bundle exec fastlane testflight_build_only`
 - TestFlight upload: `bundle exec fastlane deploy_testflight`

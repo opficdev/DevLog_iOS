@@ -126,6 +126,8 @@ struct WidgetSnapshotUpdaterTests {
                         id: "existing",
                         number: 1,
                         title: "existing",
+                        categoryID: "feature",
+                        categoryColorHex: nil,
                         isPinned: false,
                         dueDate: now
                     )
@@ -211,6 +213,8 @@ struct WidgetSnapshotUpdaterTests {
             id: id,
             number: 1,
             title: id,
+            categoryID: "feature",
+            categoryColorHex: nil,
             isPinned: isPinned,
             createdAt: createdAt,
             completedAt: completedAt,

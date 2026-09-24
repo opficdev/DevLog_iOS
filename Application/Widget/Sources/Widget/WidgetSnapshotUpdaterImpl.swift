@@ -264,6 +264,8 @@ private extension WidgetTodoSnapshot {
             id: id,
             number: number,
             title: title,
+            categoryID: categoryID,
+            categoryColorHex: categoryColorHex,
             isPinned: isPinned,
             createdAt: createdAt,
             completedAt: completedAt,

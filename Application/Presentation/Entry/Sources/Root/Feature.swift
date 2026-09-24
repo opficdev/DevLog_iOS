@@ -29,6 +29,7 @@ struct Feature {
         var signIn: Bool?
         var theme: SystemTheme = .automatic
         var selectedMainTab = MainTab.home
+        var widgetRoute: WidgetRoute?
         var isObservingNetworkConnectivity = false
         var isObservingSession = false
         var isObservingTheme = false
@@ -47,7 +48,7 @@ struct Feature {
         case sheet(PresentationAction<Sheet>)
         case onAppear
         case presentTodoDetail(String)
-        case openWidgetRoute(MainTab)
+        case openWidgetRoute(WidgetRoute)
         case networkStatusChanged(Bool)
         case setTheme(SystemTheme)
         case didLogined(Bool)
@@ -114,9 +115,10 @@ struct Feature {
                 return effect
             case .presentTodoDetail(let todoId):
                 state.sheet = .init(todoId: todoId)
-            case .openWidgetRoute(let mainTab):
+            case .openWidgetRoute(let route):
+                state.widgetRoute = route
                 guard state.signIn == true else { break }
-                state.selectedMainTab = mainTab
+                Self.applyWidgetRoute(route, to: &state)
             case .networkStatusChanged(let isConnected):
                 let wasConnected = state.isNetworkConnected
                 state.isNetworkConnected = isConnected
@@ -126,10 +128,18 @@ struct Feature {
             case .setTheme(let theme):
                 state.theme = theme
             case .didLogined(let result):
+                let wasSignedIn = state.signIn == true
                 state.signIn = result
                 if result {
-                    state.selectedMainTab = .home
+                    if !wasSignedIn, let route = state.widgetRoute {
+                        Self.applyWidgetRoute(route, to: &state)
+                    } else {
+                        state.selectedMainTab = .home
+                    }
                 } else {
+                    if wasSignedIn {
+                        state.widgetRoute = nil
+                    }
                     return .merge(
                         trackLoginScreenEffect(),
                         clearApplicationBadgeCountEffect()
@@ -142,6 +152,15 @@ struct Feature {
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$sheet, action: \.sheet) {
             SheetFeature()
+        }
+    }
+
+    private static func applyWidgetRoute(_ route: WidgetRoute, to state: inout State) {
+        switch route {
+        case .tab(let tab):
+            state.selectedMainTab = tab
+        case .todayTodo(let id):
+            state.sheet = .init(todoId: id)
         }
     }
 }

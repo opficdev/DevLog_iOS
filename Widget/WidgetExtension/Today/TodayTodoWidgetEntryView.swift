@@ -6,144 +6,153 @@
 //
 
 import SwiftUI
-import WidgetKit
+import WidgetCore
 
 struct TodayTodoWidgetEntryView: View {
     let entry: TodayTodoWidgetEntry
-    @Environment(\.widgetFamily) private var widgetFamily
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetContentMargins) private var widgetContentMargins
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("widget_today_title")
-                .font(.headline)
-
-            Spacer()
-
-            if let snapshot = entry.snapshot {
-                content(snapshot)
+        Group {
+            if entry.requiresReinstallation {
+                reinstallContent
             } else {
-                emptyState
+                smallContent
             }
-
-            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    @ViewBuilder
-    private func content(_ snapshot: TodayWidgetSnapshot) -> some View {
-        switch widgetFamily {
-        case .systemSmall:
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(snapshot.totalCount)")
-                    .font(.system(size: 28, weight: .bold))
+    private var header: some View {
+        Text("widget_today_title")
+            .font(.headline)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+    }
 
-                if let item = displayedItems(from: snapshot).first {
-                    todoRow(item)
-                } else {
-                    Text("widget_today_empty_message")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            }
-        case .systemMedium:
-            let items = displayedItems(from: snapshot)
-            VStack(alignment: .leading, spacing: 6) {
-                if items.isEmpty {
-                    Text("widget_today_empty_message")
-                        .multilineTextAlignment(.center)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(items, id: \.id) { item in
-                        todoRow(item, lineLimit: 1)
+    private var reinstallContent: some View {
+        VStack(alignment: .leading) {
+            header
+            Spacer()
+            Text("widget_today_reinstall_message")
+                .font(.caption)
+                .foregroundStyle(Color.textSecondary)
+                .lineLimit(3)
+            Spacer()
+        }
+        .padding(widgetContentMargins)
+    }
+
+    private var smallContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+
+                Spacer(minLength: 8)
+
+                if let snapshot = entry.snapshot {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("\(snapshot.totalCount)")
+                            .font(.largeTitle.bold())
+                        Text("widget_today_count_unit")
+                            .font(.callout.weight(.semibold))
                     }
+                    .foregroundStyle(Color.accent)
+                } else {
+                    placeholder(width: 42, height: 30)
                 }
+
+                Spacer(minLength: 8)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        default:
-            EmptyView()
+            .padding(.top, widgetContentMargins.top)
+            .padding(.leading, widgetContentMargins.leading)
+            .padding(.trailing, widgetContentMargins.trailing)
+
+            Divider()
+
+            if let footerURL {
+                Link(destination: footerURL) {
+                    footerContent
+                        .padding(.top, 8)
+                        .padding(.leading, widgetContentMargins.leading)
+                        .padding(.trailing, widgetContentMargins.trailing)
+                        .padding(.bottom, widgetContentMargins.bottom)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            } else {
+                footerContent
+                    .padding(.top, 8)
+                    .padding(.leading, widgetContentMargins.leading)
+                    .padding(.trailing, widgetContentMargins.trailing)
+                    .padding(.bottom, widgetContentMargins.bottom)
+            }
         }
     }
 
+    private var footerURL: URL? {
+        guard let item = entry.snapshot?.items.first else { return WidgetDeepLink.todayTodoURL }
+        return WidgetDeepLink.todoURL(id: item.id) ?? WidgetDeepLink.todayTodoURL
+    }
+
     @ViewBuilder
-    private var emptyState: some View {
-        switch widgetFamily {
-        case .systemSmall:
-            GeometryReader { proxy in
-                VStack(alignment: .leading, spacing: 4) {
-                    placeholderTodoCount()
-                    placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: 0))
-                }
-            }
-            .frame(height: 56)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        case .systemMedium:
-            GeometryReader { proxy in
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(0..<3, id: \.self) { index in
-                        placeholderTodoRow(width: placeholderTodoRowWidth(in: proxy.size.width, at: index))
-                    }
-                }
-            }
-            .frame(height: 56)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        default:
-            EmptyView()
-        }
-    }
-
-    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodayTodoSnapshot] {
-        Array(snapshot.items.prefix(3))
-    }
-
-    private func todoRow(_ item: WidgetTodayTodoSnapshot, lineLimit: Int? = nil) -> some View {
-        HStack(spacing: 6) {
-            Text("#\(item.number)")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            if item.isPinned {
-                Image(systemName: "star.fill")
+    private var footerContent: some View {
+        if let snapshot = entry.snapshot {
+            if let item = snapshot.items.first {
+                todoRow(item)
+            } else {
+                Text("widget_today_empty_small")
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Color.textSecondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
+        } else {
+            placeholderRow
+        }
+    }
+
+    private func todoRow(_ item: WidgetTodayTodoSnapshot) -> some View {
+        let style = WidgetTodoCategoryStyle(
+            categoryID: item.categoryID,
+            colorHex: item.categoryColorHex
+        )
+
+        return HStack(spacing: 6) {
+            Image(systemName: style.symbolName)
+                .font(.caption2.bold())
+                .foregroundStyle(colorScheme == .dark ? Color.white : style.color)
+                .frame(width: 22, height: 22)
+                .background(
+                    colorScheme == .dark ? style.color : style.color.opacity(0.12),
+                    in: RoundedRectangle(cornerRadius: 7)
+                )
+
+            Text("#\(item.number)")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.accent)
 
             Text(item.title)
                 .font(.caption)
-                .lineLimit(lineLimit)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
+        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
     }
 
-    private func placeholderTodoCount() -> some View {
-        RoundedRectangle(cornerRadius: 4)
-            .fill(Color.secondary.opacity(0.18))
-            .frame(width: 22, height: 28)
-    }
-
-    private func placeholderTodoRow(width: CGFloat) -> some View {
+    private var placeholderRow: some View {
         HStack(spacing: 6) {
-            RoundedRectangle(cornerRadius: 3)
-                .fill(Color.secondary.opacity(0.18))
-                .frame(width: 22, height: 8)
-
-            RoundedRectangle(cornerRadius: 3)
-                .fill(Color.secondary.opacity(0.18))
-                .frame(width: width, height: 8)
+            placeholder(width: 22, height: 22)
+            placeholder(width: 22, height: 8)
+            placeholder(width: 70, height: 8)
         }
+        .frame(height: 24)
     }
 
-    private func placeholderTodoRowWidth(in availableWidth: CGFloat, at index: Int) -> CGFloat {
-        let titleAreaWidth = max(availableWidth - 28, 0)
-
-        switch index {
-        case 0:
-            return titleAreaWidth * 2 / 3
-        case 1:
-            return titleAreaWidth / 2
-        default:
-            return titleAreaWidth * 3 / 5
-        }
+    private func placeholder(width: CGFloat, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color.textSecondary.opacity(0.18))
+            .frame(width: width, height: height)
     }
 }

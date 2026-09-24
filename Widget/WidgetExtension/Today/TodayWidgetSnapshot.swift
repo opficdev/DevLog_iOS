@@ -20,6 +20,8 @@ struct WidgetTodayTodoSnapshot: Decodable, Equatable {
     let id: String
     let number: Int
     let title: String
+    let categoryID: String
+    let categoryColorHex: String?
     let isPinned: Bool
     let dueDate: Date?
 }

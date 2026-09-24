@@ -20,11 +20,12 @@ struct TodayTodoWidget: Widget {
             provider: TodayTodoWidgetProvider()
         ) { entry in
             TodayTodoWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(Color.surface, for: .widget)
                 .widgetURL(WidgetDeepLink.todayTodoURL)
         }
         .description("widget_today_description")
         .configurationDisplayName(LocalizedStringResource("widget_today_title"))
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall])
+        .contentMarginsDisabled()
     }
 }

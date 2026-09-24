@@ -85,6 +85,8 @@ public extension WidgetTodoSnapshot {
             id: todo.id,
             number: todo.number,
             title: todo.title,
+            categoryID: todo.category.storageValue,
+            categoryColorHex: todo.category.widgetColorHex,
             isPinned: todo.isPinned,
             createdAt: todo.createdAt,
             completedAt: todo.completedAt,
@@ -98,12 +100,21 @@ public extension WidgetTodoSnapshot {
             id: draft.id,
             number: nil,
             title: draft.title,
+            categoryID: draft.category.storageValue,
+            categoryColorHex: draft.category.widgetColorHex,
             isPinned: draft.isPinned,
             createdAt: draft.createdAt,
             completedAt: draft.completedAt,
             deletedAt: nil,
             dueDate: draft.dueDate
         )
+    }
+}
+
+private extension TodoCategory {
+    var widgetColorHex: String? {
+        guard case .user(let category) = self else { return nil }
+        return category.colorHex
     }
 }
 

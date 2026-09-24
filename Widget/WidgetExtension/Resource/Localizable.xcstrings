@@ -77,36 +77,70 @@
         }
       }
     },
+    "widget_today_count_unit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "to do"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개"
+          }
+        }
+      }
+    },
     "widget_today_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shows today's Todo list."
+            "value" : "Shows today's tasks."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘 기준 Todo 목록을 표시합니다."
+            "value" : "오늘 할 일을 표시합니다."
           }
         }
       }
     },
-    "widget_today_empty_message" : {
+    "widget_today_empty_small" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No tasks for today.\nTake a short break!"
+            "value" : "Nothing to do"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!"
+            "value" : "할 일이 없어요"
+          }
+        }
+      }
+    },
+    "widget_today_reinstall_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please reinstall the app."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 재설치해 주세요."
           }
         }
       }
@@ -117,13 +151,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Today"
+            "value" : "Today's Tasks"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Today"
+            "value" : "오늘 할 일"
           }
         }
       }

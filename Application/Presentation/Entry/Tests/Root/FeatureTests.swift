@@ -180,11 +180,64 @@ struct FeatureTests {
         await verifyTodoDetailSheetPresentation(adapter: adapter)
     }
 
-    @Test("RootFeature는 로그인된 경우에만 widget route로 selectedMainTab을 변경한다")
-    func RootFeature는_로그인된_경우에만_widget_route로_selectedMainTab을_변경한다() async {
+    @Test("RootFeature는 로그인 확인 전 위젯 경로를 보관하고 확인 뒤 적용한다")
+    func RootFeature는_로그인_확인_전_위젯_경로를_보관하고_확인_뒤_적용한다() async {
         let adapter = RootStoreTestAdapter()
 
         await verifyWidgetRouteOpensWhenSignedIn(adapter: adapter)
+    }
+
+    @Test("RootFeature는 시작 전 들어온 위젯 Todo 경로를 현재 탭의 시트로 연다")
+    func RootFeature는_시작_전_들어온_위젯_Todo_경로를_현재_탭의_시트로_연다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await adapter.didLogined(false)
+        await adapter.openWidgetRoute(.todayTodo("todo-1"))
+        #expect(adapter.widgetRoute == .todayTodo("todo-1"))
+
+        await adapter.didLogined(true)
+        #expect(adapter.snapshot.selectedMainTab == .home)
+        #expect(adapter.widgetRoute == .todayTodo("todo-1"))
+        #expect(adapter.sheetTodoId == "todo-1")
+    }
+
+    @Test("로그아웃하면 적용된 위젯 경로를 지운다")
+    func 로그아웃하면_적용된_위젯_경로를_지운다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await adapter.didLogined(true)
+        await adapter.openWidgetRoute(.tab(.today))
+        await adapter.didLogined(false)
+
+        #expect(adapter.widgetRoute == nil)
+    }
+
+    @Test("위젯 Todo 시트는 현재 선택된 탭을 유지한다")
+    func 위젯_Todo_시트는_현재_선택된_탭을_유지한다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await adapter.didLogined(true)
+        await adapter.selectMainTab(.profile)
+        await adapter.openWidgetRoute(.todayTodo("todo-2"))
+
+        #expect(adapter.snapshot.selectedMainTab == .profile)
+        #expect(adapter.sheetTodoId == "todo-2")
+    }
+
+    @Test("위젯 상단 경로는 Today 탭만 선택한다")
+    func 위젯_상단_경로는_Today_탭만_선택한다() async {
+        let adapter = RootStoreTestAdapter()
+
+        await adapter.didLogined(true)
+        await adapter.selectMainTab(.profile)
+        await adapter.openWidgetRoute(.tab(.today))
+
+        #expect(adapter.snapshot.selectedMainTab == .today)
+        #expect(adapter.sheetTodoId == nil)
+
+        await adapter.openWidgetRoute(.todayTodo("todo-1"))
+        #expect(adapter.snapshot.selectedMainTab == .today)
+        #expect(adapter.sheetTodoId == "todo-1")
     }
 }
 

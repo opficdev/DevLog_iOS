@@ -44,6 +44,8 @@ public struct TodayWidgetSnapshotFactory {
         let id: String
         let number: Int
         let title: String
+        let categoryID: String
+        let categoryColorHex: String?
         let isPinned: Bool
         let dueDate: Date?
 
@@ -52,6 +54,8 @@ public struct TodayWidgetSnapshotFactory {
             self.id = todo.id
             self.number = number
             self.title = todo.title
+            self.categoryID = todo.categoryID
+            self.categoryColorHex = todo.categoryColorHex
             self.isPinned = todo.isPinned
             self.dueDate = todo.dueDate
         }
@@ -166,6 +170,8 @@ public struct TodayWidgetSnapshotFactory {
                     id: $0.id,
                     number: $0.number,
                     title: $0.title,
+                    categoryID: $0.categoryID,
+                    categoryColorHex: $0.categoryColorHex,
                     isPinned: $0.isPinned,
                     dueDate: $0.dueDate
                 )
