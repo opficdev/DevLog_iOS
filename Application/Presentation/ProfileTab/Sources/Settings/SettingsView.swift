@@ -70,7 +70,7 @@ struct SettingsView: View {
                 Spacer()
             }
         }
-        .padding(.vertical, 12)
+        .padding(.bottom, 12)
         .background(Color.appBackground)
         .toolbarBackground(Color.appBackground)
     }
