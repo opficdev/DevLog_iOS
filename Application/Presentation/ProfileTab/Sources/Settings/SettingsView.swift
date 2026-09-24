@@ -11,7 +11,6 @@ import PresentationShared
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @ScaledMetric(relativeTo: .body) private var deleteAccountButtonHeight = CGFloat(22)
     @Bindable var store: StoreOf<SettingsFeature>
     let onNavigate: (ProfileRoute) -> Void
 
@@ -91,10 +90,10 @@ struct SettingsView: View {
                     }
                 }
                 .font(.system(.body))
-                .contentShape(.rect(cornerRadius: 12))
                 .frame(maxWidth: .infinity)
-                .frame(height: deleteAccountButtonHeight + 24)
-                .background(Color.surface, in: .rect(cornerRadius: 12))
+                .padding(.vertical, 24)
+                .contentShape(.rect(cornerRadius: 16))
+                .background(Color.surface, in: .rect(cornerRadius: 16))
             }
             .buttonStyle(.plain)
             .disabled(!store.isNetworkConnected || store.isLoading)
