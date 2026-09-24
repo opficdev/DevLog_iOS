@@ -469,6 +469,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 %lld개 있어요" } }
       }
     },
+    "home_development_summary_title_singular_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld goal is in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 %lld개 있어요" } }
+      }
+    },
     "home_development_goal_count_format" : {
       "extractionState" : "manual",
       "localizations" : {
