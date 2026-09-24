@@ -39,13 +39,22 @@ struct DevelopmentSummaryCard: View {
         .accessibilityElement(children: .combine)
     }
 
+    @ViewBuilder
     private var summaryTitle: some View {
+        let format = if items.count == 1 {
+            String(
+                localized: "home_development_summary_title_singular_format",
+                bundle: PresentationResources.bundle
+            )
+        } else {
+            String(
+                localized: "home_development_summary_title_format",
+                bundle: PresentationResources.bundle
+            )
+        }
         Text(
             String.localizedStringWithFormat(
-                String(
-                    localized: "home_development_summary_title_format",
-                    bundle: PresentationResources.bundle
-                ),
+                format,
                 items.count
             )
         )

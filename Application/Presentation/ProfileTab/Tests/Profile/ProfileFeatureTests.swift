@@ -15,6 +15,79 @@ import Domain
 
 @MainActor
 struct ProfileFeatureTests {
+    @Test("ProfileFeature는 프로필 조회와 함께 개발 목표를 조회한다")
+    func ProfileFeature는_프로필_조회와_함께_개발_목표를_조회한다() async {
+        let spy = FetchDevelopmentGoalsUseCaseSpy()
+        let adapter = StoreTestAdapter(fetchDevelopmentGoalsUseCase: spy)
+
+        await adapter.fetchData()
+
+        #expect(spy.queries == [.init()])
+        #expect(adapter.hasDevelopmentGoalsLoaded)
+    }
+
+    @Test("ProfileFeature는 전체 개발 목표를 상태 제한 없이 조회한다")
+    func ProfileFeature는_전체_개발_목표를_상태_제한_없이_조회한다() async throws {
+        let spy = FetchDevelopmentGoalsUseCaseSpy()
+        let now = Date()
+        let goals = try [
+            DevelopmentGoal(
+                id: "in-progress",
+                title: "진행 중인 목표",
+                description: "",
+                status: .inProgress,
+                createdAt: now,
+                updatedAt: now,
+                completedAt: nil
+            ),
+            DevelopmentGoal(
+                id: "completed",
+                title: "완료한 목표",
+                description: "",
+                status: .completed,
+                createdAt: now,
+                updatedAt: now,
+                completedAt: now
+            ),
+            DevelopmentGoal(
+                id: "archived",
+                title: "보관한 목표",
+                description: "",
+                status: .archived,
+                createdAt: now,
+                updatedAt: now,
+                completedAt: nil
+            )
+        ]
+        spy.result = .success(goals)
+        let adapter = StoreTestAdapter(fetchDevelopmentGoalsUseCase: spy)
+
+        await adapter.retryDevelopmentGoals()
+
+        #expect(spy.queries == [.init()])
+        #expect(adapter.developmentGoals == goals)
+        #expect(adapter.hasDevelopmentGoalsLoaded)
+        #expect(!adapter.hasDevelopmentGoalsLoadFailure)
+    }
+
+    @Test("ProfileFeature는 개발 목표 조회 실패 뒤 재시도할 수 있다")
+    func ProfileFeature는_개발_목표_조회_실패_뒤_재시도할_수_있다() async {
+        let spy = FetchDevelopmentGoalsUseCaseSpy()
+        spy.result = .failure(TestError())
+        let adapter = StoreTestAdapter(fetchDevelopmentGoalsUseCase: spy)
+
+        await adapter.retryDevelopmentGoals()
+        #expect(!adapter.hasDevelopmentGoalsLoaded)
+        #expect(adapter.hasDevelopmentGoalsLoadFailure)
+
+        spy.result = .success([])
+        await adapter.retryDevelopmentGoals()
+        #expect(adapter.hasDevelopmentGoalsLoaded)
+        #expect(!adapter.hasDevelopmentGoalsLoadFailure)
+        #expect(adapter.developmentGoals.isEmpty)
+        #expect(spy.queries.count == 2)
+    }
+
     @Test("ProfileFeature는 최근 수정한 Todo를 최대 5개까지 카테고리 설정과 함께 갱신한다")
     func ProfileFeature는_최근_수정한_Todo를_최대_5개까지_카테고리_설정과_함께_갱신한다() async {
         let category = TodoCategory.user(
@@ -162,6 +235,16 @@ private final class FetchTodosUseCaseSpy: FetchTodosUseCase {
     }
 }
 
+private final class FetchDevelopmentGoalsUseCaseSpy: FetchDevelopmentGoalsUseCase {
+    private(set) var queries = [DevelopmentGoal.Query]()
+    var result: Result<[DevelopmentGoal], Error> = .success([])
+
+    func execute(_ query: DevelopmentGoal.Query) async throws -> [DevelopmentGoal] {
+        queries.append(query)
+        return try result.get()
+    }
+}
+
 private final class FetchTodoCategoryPreferencesUseCaseSpy: FetchTodoCategoryPreferencesUseCase {
     var error: Error?
     var preferences = [TodoCategoryPreference]()
@@ -246,11 +329,15 @@ private struct StoreTestAdapter {
     var isLoading: Bool { store.state.isLoading }
     var isRecentTodosLoading: Bool { store.state.isRecentTodosLoading }
     var recentTodos: [RecentTodoItem] { store.state.recentTodos }
+    var developmentGoals: [DevelopmentGoal] { store.state.developmentGoals }
+    var hasDevelopmentGoalsLoaded: Bool { store.state.hasDevelopmentGoalsLoaded }
+    var hasDevelopmentGoalsLoadFailure: Bool { store.state.hasDevelopmentGoalsLoadFailure }
     var selectedActivityKinds: Set<ActivityKind> { store.state.selectedActivityKinds }
 
     init(
         fetchProfileImageDataUseCase: FetchProfileImageDataUseCase = FetchProfileImageDataUseCaseSpy(data: Data()),
         fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
+        fetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase = FetchDevelopmentGoalsUseCaseSpy(),
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = FetchTodoCategoryPreferencesUseCaseSpy(),
         todoMutationEventBus: TodoMutationEventBus = TodoMutationEventBusSpy(),
         upsertStatusMessageUseCase: UpsertStatusMessageUseCase = UpsertStatusMessageUseCaseSpy(),
@@ -272,6 +359,7 @@ private struct StoreTestAdapter {
             )
             $0.profileFetchImageDataUseCase = fetchProfileImageDataUseCase
             $0.profileFetchTodosUseCase = fetchTodosUseCase
+            $0.profileFetchDevelopmentGoalsUseCase = fetchDevelopmentGoalsUseCase
             $0.fetchTodoCategoryPreferencesUseCase = fetchPreferencesUseCase
             $0.profileTodoMutationEventBus = todoMutationEventBus
             $0.profileUpsertStatusMessageUseCase = upsertStatusMessageUseCase
@@ -285,6 +373,12 @@ private struct StoreTestAdapter {
 
     func fetchData() async {
         await store.send(.fetchData)
+        await drainReceivedActions()
+    }
+
+    func retryDevelopmentGoals() async {
+        let task = await store.send(.retryDevelopmentGoals)
+        await task.finish()
         await drainReceivedActions()
     }
 

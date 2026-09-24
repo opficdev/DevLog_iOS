@@ -469,6 +469,13 @@
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 %lld개 있어요" } }
       }
     },
+    "home_development_summary_title_singular_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld goal is in progress" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중인 목표가 %lld개 있어요" } }
+      }
+    },
     "home_development_goal_count_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1716,19 +1723,26 @@
         }
       }
     },
+    "profile_goal_retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다시 시도" } }
+      }
+    },
     "profile_quarterly_activity" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quarterly Activity"
+            "value" : "Development Activity"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "분기별 활동"
+            "value" : "개발 활동"
           }
         }
       }

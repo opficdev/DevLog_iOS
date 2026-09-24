@@ -9,6 +9,13 @@ import Domain
 import PresentationShared
 
 public enum ProfileDependencyPreparation {
+    public static func prepareDevelopmentGoals(
+        _ dependencies: inout DependencyValues,
+        fetchGoalsUseCase: FetchDevelopmentGoalsUseCase
+    ) {
+        dependencies.profileFetchDevelopmentGoalsUseCase = fetchGoalsUseCase
+    }
+
     public static func prepareUser(
         _ dependencies: inout DependencyValues,
         fetchUserDataUseCase: FetchUserDataUseCase,
