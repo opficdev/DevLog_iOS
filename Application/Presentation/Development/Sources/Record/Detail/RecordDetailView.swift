@@ -95,7 +95,7 @@ public struct RecordDetailView: View {
 
     private var topBar: some View {
         HStack {
-            RecordBackButton(action: dismiss.callAsFunction)
+            NavigationBackButton(action: dismiss.callAsFunction)
                 .disabled(store.isRestoring)
             Spacer()
         }

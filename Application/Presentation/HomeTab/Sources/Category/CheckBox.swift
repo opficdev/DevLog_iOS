@@ -30,7 +30,3 @@ struct CheckBox: View {
         .font(font)
     }
 }
-
-#Preview {
-    CheckBox(isChecked: true)
-}

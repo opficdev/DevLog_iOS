@@ -55,9 +55,11 @@ private struct RecentTodoCard: View {
         HStack(spacing: 12) {
             Image(systemName: category.symbolName)
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(category.color)
                 .frame(width: iconSize, height: iconSize)
-                .background(category.color.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                .iconStyle(
+                    color: category.color,
+                    in: RoundedRectangle(cornerRadius: 12)
+                )
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 8) {

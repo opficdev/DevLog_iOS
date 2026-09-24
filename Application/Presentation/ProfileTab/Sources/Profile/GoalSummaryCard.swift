@@ -102,9 +102,8 @@ struct GoalSummaryCard: View {
         VStack(spacing: 8) {
             Image(systemName: symbol)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(color)
                 .frame(width: 36, height: 36)
-                .background(Color.surface, in: .circle)
+                .iconStyle(color: color, in: Circle())
             Text(title, bundle: PresentationResources.bundle)
                 .font(.caption)
                 .foregroundStyle(Color.textSecondary)
