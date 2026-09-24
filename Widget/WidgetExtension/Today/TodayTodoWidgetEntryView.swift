@@ -10,6 +10,7 @@ import SwiftUI
 struct TodayTodoWidgetEntryView: View {
     let entry: TodayTodoWidgetEntry
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetContentMargins) private var widgetContentMargins
 
     var body: some View {
         Group {
@@ -39,27 +40,34 @@ struct TodayTodoWidgetEntryView: View {
                 .lineLimit(3)
             Spacer()
         }
+        .padding(widgetContentMargins)
     }
 
     private var smallContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            header
+            VStack(alignment: .leading, spacing: 0) {
+                header
 
-            Spacer(minLength: 8)
+                Spacer(minLength: 8)
 
-            if let snapshot = entry.snapshot {
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text("\(snapshot.totalCount)")
-                        .font(.largeTitle.bold())
-                    Text("widget_today_count_unit")
-                        .font(.callout.weight(.semibold))
+                if let snapshot = entry.snapshot {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("\(snapshot.totalCount)")
+                            .font(.largeTitle.bold())
+                        Text("widget_today_count_unit")
+                            .font(.callout.weight(.semibold))
+                    }
+                    .foregroundStyle(Color.accent)
+                } else {
+                    placeholder(width: 42, height: 30)
                 }
-                .foregroundStyle(Color.accent)
-            } else {
-                placeholder(width: 42, height: 30)
-            }
 
-            Spacer(minLength: 8)
+                Spacer(minLength: 8)
+            }
+            .padding(.top, widgetContentMargins.top)
+            .padding(.leading, widgetContentMargins.leading)
+            .padding(.trailing, widgetContentMargins.trailing)
+
             Divider()
 
             Group {
@@ -78,6 +86,9 @@ struct TodayTodoWidgetEntryView: View {
                 }
             }
             .padding(.top, 8)
+            .padding(.leading, widgetContentMargins.leading)
+            .padding(.trailing, widgetContentMargins.trailing)
+            .padding(.bottom, widgetContentMargins.bottom)
         }
     }
 
