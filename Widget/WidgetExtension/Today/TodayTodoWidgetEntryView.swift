@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetCore
 
 struct TodayTodoWidgetEntryView: View {
     let entry: TodayTodoWidgetEntry
@@ -70,25 +71,45 @@ struct TodayTodoWidgetEntryView: View {
 
             Divider()
 
-            Group {
-                if let snapshot = entry.snapshot {
-                    if let item = snapshot.items.first {
-                        todoRow(item)
-                    } else {
-                        Text("widget_today_empty_small")
-                            .font(.caption2)
-                            .foregroundStyle(Color.textSecondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
-                } else {
-                    placeholderRow
+            if let footerURL {
+                Link(destination: footerURL) {
+                    footerContent
+                        .padding(.top, 8)
+                        .padding(.leading, widgetContentMargins.leading)
+                        .padding(.trailing, widgetContentMargins.trailing)
+                        .padding(.bottom, widgetContentMargins.bottom)
+                        .contentShape(.rect)
                 }
+                .buttonStyle(.plain)
+            } else {
+                footerContent
+                    .padding(.top, 8)
+                    .padding(.leading, widgetContentMargins.leading)
+                    .padding(.trailing, widgetContentMargins.trailing)
+                    .padding(.bottom, widgetContentMargins.bottom)
             }
-            .padding(.top, 8)
-            .padding(.leading, widgetContentMargins.leading)
-            .padding(.trailing, widgetContentMargins.trailing)
-            .padding(.bottom, widgetContentMargins.bottom)
+        }
+    }
+
+    private var footerURL: URL? {
+        guard let item = entry.snapshot?.items.first else { return WidgetDeepLink.todayTodoURL }
+        return WidgetDeepLink.todoURL(id: item.id) ?? WidgetDeepLink.todayTodoURL
+    }
+
+    @ViewBuilder
+    private var footerContent: some View {
+        if let snapshot = entry.snapshot {
+            if let item = snapshot.items.first {
+                todoRow(item)
+            } else {
+                Text("widget_today_empty_small")
+                    .font(.caption2)
+                    .foregroundStyle(Color.textSecondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+        } else {
+            placeholderRow
         }
     }
 

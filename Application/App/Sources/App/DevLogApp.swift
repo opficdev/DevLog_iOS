@@ -23,7 +23,7 @@ struct DevLogApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(
-                widgetURLTab: { MainTab(widgetURL: $0) },
+                widgetURLRoute: { WidgetRoute(widgetURL: $0) },
                 windowEvent: windowEvent,
                 pushNotificationTodoIdPublisher: PushNotificationRoute.shared.observe(),
                 clearPushNotificationRoute: { PushNotificationRoute.shared.clear() }

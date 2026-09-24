@@ -17,6 +17,7 @@ import Testing
 protocol RootStateDriving {
     var snapshot: RootStateSnapshot { get }
     var sheetTodoId: String? { get }
+    var widgetRoute: WidgetRoute? { get }
 
     func onAppear() async
     func setAlert(_ isPresented: Bool) async
@@ -26,7 +27,7 @@ protocol RootStateDriving {
     func presentTodoDetail(_ todoId: String) async
     func dismissSheet() async
     func selectMainTab(_ tab: MainTab) async
-    func openWidgetRoute(_ tab: MainTab) async
+    func openWidgetRoute(_ route: WidgetRoute) async
     func tapUpdateButton() async
 }
 
@@ -54,6 +55,7 @@ struct RootStoreTestAdapter: RootStateDriving {
         )
     }
     var sheetTodoId: String? { store.state.sheet?.todoId }
+    var widgetRoute: WidgetRoute? { store.state.widgetRoute }
 
     init(
         sessionUseCase: ObserveAuthSessionUseCase = ObserveAuthSessionUseCaseSpy(currentValue: true),
@@ -126,8 +128,8 @@ struct RootStoreTestAdapter: RootStateDriving {
         await store.send(.binding(.set(\.selectedMainTab, tab)))
     }
 
-    func openWidgetRoute(_ tab: MainTab) async {
-        await store.send(.openWidgetRoute(tab))
+    func openWidgetRoute(_ route: WidgetRoute) async {
+        await store.send(.openWidgetRoute(route))
     }
 
     func tapUpdateButton() async {
@@ -261,12 +263,19 @@ func verifyTodoDetailSheetPresentation(adapter: some RootStateDriving) async {
 
 @MainActor
 func verifyWidgetRouteOpensWhenSignedIn(adapter: some RootStateDriving) async {
-    await adapter.openWidgetRoute(.today)
+    await adapter.openWidgetRoute(.tab(.today))
     #expect(adapter.snapshot.selectedMainTab == .home)
+    #expect(adapter.widgetRoute == .tab(.today))
 
     await adapter.didLogined(true)
-    await adapter.openWidgetRoute(.today)
     #expect(adapter.snapshot.selectedMainTab == .today)
+    #expect(adapter.widgetRoute == .tab(.today))
+    #expect(adapter.sheetTodoId == nil)
+
+    await adapter.presentTodoDetail("push-todo")
+    await adapter.openWidgetRoute(.todayTodo("todo-1"))
+    #expect(adapter.snapshot.selectedMainTab == .today)
+    #expect(adapter.sheetTodoId == "todo-1")
 }
 
 final class ObserveAuthSessionUseCaseSpy: ObserveAuthSessionUseCase {

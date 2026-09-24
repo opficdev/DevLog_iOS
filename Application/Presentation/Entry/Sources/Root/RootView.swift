@@ -11,13 +11,13 @@ import PresentationShared
 
 public struct RootView: View {
     @State private var store: StoreOf<Feature>
-    private let widgetURLTab: (URL) -> MainTab?
+    private let widgetURLRoute: (URL) -> WidgetRoute?
     private let windowEvent: TodoEditorWindowEvent
     private let pushNotificationTodoIdPublisher: AnyPublisher<String, Never>
     private let clearPushNotificationRoute: () -> Void
 
     public init(
-        widgetURLTab: @escaping (URL) -> MainTab?,
+        widgetURLRoute: @escaping (URL) -> WidgetRoute?,
         windowEvent: TodoEditorWindowEvent,
         pushNotificationTodoIdPublisher: AnyPublisher<String, Never>,
         clearPushNotificationRoute: @escaping () -> Void
@@ -25,7 +25,7 @@ public struct RootView: View {
         self._store = State(initialValue: Store(initialState: Feature.State()) {
             Feature()
         })
-        self.widgetURLTab = widgetURLTab
+        self.widgetURLRoute = widgetURLRoute
         self.windowEvent = windowEvent
         self.pushNotificationTodoIdPublisher = pushNotificationTodoIdPublisher
         self.clearPushNotificationRoute = clearPushNotificationRoute
@@ -48,8 +48,8 @@ public struct RootView: View {
         .preferredColorScheme(store.theme.colorScheme)
         .onAppear { store.send(.onAppear) }
         .onOpenURL { url in
-            guard let mainTab = widgetURLTab(url) else { return }
-            store.send(.openWidgetRoute(mainTab))
+            guard let route = widgetURLRoute(url) else { return }
+            store.send(.openWidgetRoute(route))
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
