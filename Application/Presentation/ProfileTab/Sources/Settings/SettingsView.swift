@@ -10,6 +10,8 @@ import Domain
 import PresentationShared
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ScaledMetric(relativeTo: .body) private var deleteAccountButtonHeight = CGFloat(22)
     @Bindable var store: StoreOf<SettingsFeature>
     let onNavigate: (ProfileRoute) -> Void
 
@@ -20,54 +22,79 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 32) {
-                AppSettingsCard(
-                    themeName: store.theme.localizedName(in: PresentationResources.bundle),
-                    isNetworkConnected: store.isNetworkConnected,
-                    onTheme: { onNavigate(.theme) },
-                    onNotifications: { onNavigate(.pushNotification) }
-                )
-
-                if store.appVersion != nil || privacyPolicyURL != nil || store.betaTestURL != nil {
-                    AppInformationCard(
-                        appVersion: store.appVersion,
-                        privacyPolicyURL: privacyPolicyURL,
-                        betaTestURL: store.betaTestURL
+            LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
+                Section {
+                    AppSettingsCard(
+                        themeName: store.theme.localizedName(in: PresentationResources.bundle),
+                        isNetworkConnected: store.isNetworkConnected,
+                        onTheme: { onNavigate(.theme) },
+                        onNotifications: { onNavigate(.pushNotification) }
                     )
+
+                    if store.appVersion != nil || privacyPolicyURL != nil || store.betaTestURL != nil {
+                        AppInformationCard(
+                            appVersion: store.appVersion,
+                            privacyPolicyURL: privacyPolicyURL,
+                            betaTestURL: store.betaTestURL
+                        )
+                    }
+
+                    AccountCard(
+                        isNetworkConnected: store.isNetworkConnected,
+                        isLoading: store.isLoading,
+                        showsSignOutProgress: store.activeLoadingRow == .signOut,
+                        onAccount: { onNavigate(.account) },
+                        onSignOut: { store.send(.setAlert(.signOut)) }
+                    )
+
+                    deleteAccountContent
+                } header: {
+                    topBar
                 }
-
-                AccountCard(
-                    isNetworkConnected: store.isNetworkConnected,
-                    isLoading: store.isLoading,
-                    showsSignOutProgress: store.activeLoadingRow == .signOut,
-                    onAccount: { onNavigate(.account) },
-                    onSignOut: { store.send(.setAlert(.signOut)) }
-                )
-
-                deleteAccountContent
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 24)
+            .toolbarVisibility(.hidden, for: .navigationBar)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
         }
         .background(Color.appBackground)
-        .navigationTitle(String(localized: "nav_settings", bundle: PresentationResources.bundle))
-        .navigationBarTitleDisplayMode(.inline)
         .prominentAlert(store, state: \.alert, action: \.alert)
+    }
+
+    private var topBar: some View {
+        ZStack {
+            Text(String(localized: "nav_settings", bundle: PresentationResources.bundle))
+                .font(.headline)
+
+            HStack {
+                NavigationBackButton(action: dismiss.callAsFunction)
+                Spacer()
+            }
+        }
+        .padding(.vertical, 12)
+        .background(Color.appBackground)
+        .toolbarBackground(Color.appBackground)
     }
 
     private var deleteAccountContent: some View {
         VStack(spacing: 16) {
-            Divider()
-
             Button {
                 store.send(.setAlert(.deleteAuth))
             } label: {
-                if store.activeLoadingRow == .deleteAuth {
-                    ProgressView()
-                } else {
-                    Text(String(localized: "settings_delete_account", bundle: PresentationResources.bundle))
-                        .foregroundStyle(Color.danger)
+                Group {
+                    if store.activeLoadingRow == .deleteAuth {
+                        ProgressView()
+                            .tint(Color.danger)
+                    } else {
+                        Text(String(localized: "settings_delete_account", bundle: PresentationResources.bundle))
+                            .bold()
+                            .foregroundStyle(Color.danger)
+                    }
                 }
+                .font(.system(.body))
+                .contentShape(.rect(cornerRadius: 12))
+                .frame(maxWidth: .infinity)
+                .frame(height: deleteAccountButtonHeight + 24)
+                .background(Color.surface, in: .rect(cornerRadius: 12))
             }
             .buttonStyle(.plain)
             .disabled(!store.isNetworkConnected || store.isLoading)

@@ -9,6 +9,7 @@ import SwiftUI
 import PresentationShared
 
 struct AppSettingsCard: View {
+    @ScaledMetric(relativeTo: .headline) private var iconSize = 36
     let themeName: String
     let isNetworkConnected: Bool
     let onTheme: () -> Void
@@ -17,18 +18,17 @@ struct AppSettingsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("settings_app_section", bundle: PresentationResources.bundle)
-                .font(.title3)
+                .font(.title3.bold())
                 .foregroundStyle(Color.primary)
-                .padding(.leading, 4)
 
             VStack(spacing: 0) {
                 Button(action: onTheme) {
-                    HStack(spacing: 16) {
+                    HStack(spacing: 12) {
                         Image(systemName: "desktopcomputer")
-                            .font(.title3)
+                            .font(.headline)
                             .foregroundStyle(Color.accent)
-                            .frame(width: 48, height: 48)
-                            .background(Color.accent.opacity(0.09), in: RoundedRectangle(cornerRadius: 16))
+                            .frame(width: iconSize, height: iconSize)
+                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_theme", bundle: PresentationResources.bundle))
@@ -45,8 +45,7 @@ struct AppSettingsCard: View {
                             .foregroundStyle(Color.textSecondary)
                             .accessibilityHidden(true)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
+                    .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .accessibilityElement(children: .combine)
@@ -54,17 +53,17 @@ struct AppSettingsCard: View {
                 .buttonStyle(.plain)
 
                 Divider()
-                    .padding(.leading, 84)
-                    .padding(.trailing, 20)
+                    .padding(.leading, 64)
+                    .padding(.trailing, 16)
                     .accessibilityHidden(true)
 
                 Button(action: onNotifications) {
-                    HStack(spacing: 16) {
+                    HStack(spacing: 12) {
                         Image(systemName: "bell")
-                            .font(.title3)
+                            .font(.headline)
                             .foregroundStyle(Color.accent)
-                            .frame(width: 48, height: 48)
-                            .background(Color.accent.opacity(0.09), in: RoundedRectangle(cornerRadius: 16))
+                            .frame(width: iconSize, height: iconSize)
+                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_notifications", bundle: PresentationResources.bundle))
@@ -77,8 +76,7 @@ struct AppSettingsCard: View {
                             .foregroundStyle(Color.textSecondary)
                             .accessibilityHidden(true)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
+                    .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .opacity(isNetworkConnected ? 1 : 0.5)
@@ -87,11 +85,7 @@ struct AppSettingsCard: View {
                 .buttonStyle(.plain)
                 .disabled(!isNetworkConnected)
             }
-            .background(Color.surface, in: RoundedRectangle(cornerRadius: 24))
-            .overlay {
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(Color.border, lineWidth: 1)
-            }
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 }
