@@ -6,26 +6,17 @@
 //
 
 import SwiftUI
-import WidgetKit
 
 struct TodayTodoWidgetEntryView: View {
     let entry: TodayTodoWidgetEntry
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
         Group {
             if entry.requiresReinstallation {
                 reinstallContent
             } else {
-                switch widgetFamily {
-                case .systemSmall:
-                    smallContent
-                case .systemMedium:
-                    mediumContent
-                default:
-                    EmptyView()
-                }
+                smallContent
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -73,7 +64,7 @@ struct TodayTodoWidgetEntryView: View {
 
             Group {
                 if let snapshot = entry.snapshot {
-                    if let item = displayedItems(from: snapshot).first {
+                    if let item = snapshot.items.first {
                         todoRow(item)
                     } else {
                         Text("widget_today_empty_small")
@@ -88,58 +79,6 @@ struct TodayTodoWidgetEntryView: View {
             }
             .padding(.top, 8)
         }
-    }
-
-    private var mediumContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-            Text(entry.date, format: .dateTime.month().day().weekday(.wide))
-                .font(.caption2)
-                .foregroundStyle(Color.textSecondary)
-                .lineLimit(1)
-
-            Spacer(minLength: 6)
-
-            if let snapshot = entry.snapshot {
-                let items = displayedItems(from: snapshot)
-                if items.isEmpty {
-                    Text("widget_today_empty_message")
-                        .font(.caption)
-                        .foregroundStyle(Color.textSecondary)
-                        .lineLimit(2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                            todoRow(item)
-                            if index < items.count - 1 {
-                                Divider()
-                            }
-                        }
-                    }
-                }
-            } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        placeholderRow
-                    }
-                }
-            }
-
-            Spacer(minLength: 4)
-
-            HStack(spacing: 3) {
-                Text("widget_today_open_all")
-                Image(systemName: "chevron.right")
-            }
-            .font(.caption2)
-            .foregroundStyle(Color.textSecondary)
-            .lineLimit(1)
-        }
-    }
-
-    private func displayedItems(from snapshot: TodayWidgetSnapshot) -> [WidgetTodayTodoSnapshot] {
-        Array(snapshot.items.prefix(3))
     }
 
     private func todoRow(_ item: WidgetTodayTodoSnapshot) -> some View {

@@ -100,30 +100,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shows today's Todo list."
+            "value" : "Shows today's tasks."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘 기준 Todo 목록을 표시합니다."
-          }
-        }
-      }
-    },
-    "widget_today_empty_message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No tasks for today.\nTake a short break!"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오늘은 할 일이 없어요.\n잠시 휴식을 취해보세요!"
+            "value" : "오늘 할 일을 표시합니다."
           }
         }
       }
@@ -141,23 +124,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "할 일이 없어요"
-          }
-        }
-      }
-    },
-    "widget_today_open_all" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View all in app"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱에서 전체 보기"
           }
         }
       }

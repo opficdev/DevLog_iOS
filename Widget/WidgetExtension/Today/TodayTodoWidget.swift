@@ -25,6 +25,6 @@ struct TodayTodoWidget: Widget {
         }
         .description("widget_today_description")
         .configurationDisplayName(LocalizedStringResource("widget_today_title"))
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall])
     }
 }
