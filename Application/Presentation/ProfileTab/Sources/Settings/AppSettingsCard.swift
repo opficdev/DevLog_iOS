@@ -26,9 +26,8 @@ struct AppSettingsCard: View {
                     HStack(spacing: 12) {
                         Image(systemName: "desktopcomputer")
                             .font(.headline)
-                            .foregroundStyle(Color.accent)
                             .frame(width: iconSize, height: iconSize)
-                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                            .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_theme", bundle: PresentationResources.bundle))
@@ -61,9 +60,8 @@ struct AppSettingsCard: View {
                     HStack(spacing: 12) {
                         Image(systemName: "bell")
                             .font(.headline)
-                            .foregroundStyle(Color.accent)
                             .frame(width: iconSize, height: iconSize)
-                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                            .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_notifications", bundle: PresentationResources.bundle))

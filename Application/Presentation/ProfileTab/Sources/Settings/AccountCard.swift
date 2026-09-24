@@ -27,9 +27,8 @@ struct AccountCard: View {
                     HStack(spacing: 12) {
                         Image(systemName: "person.crop.circle")
                             .font(.headline)
-                            .foregroundStyle(Color.accent)
                             .frame(width: iconSize, height: iconSize)
-                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                            .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_account", bundle: PresentationResources.bundle))
@@ -60,9 +59,8 @@ struct AccountCard: View {
                     HStack(spacing: 12) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.headline)
-                            .foregroundStyle(Color.danger)
                             .frame(width: iconSize, height: iconSize)
-                            .background(Color.danger.opacity(0.09), in: .rect(cornerRadius: 10))
+                            .iconStyle(color: .danger, in: RoundedRectangle(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_sign_out", bundle: PresentationResources.bundle))

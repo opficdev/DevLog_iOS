@@ -12,7 +12,6 @@ import Domain
 import PresentationShared
 
 public struct HomeView: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
@@ -341,14 +340,14 @@ public struct HomeView: View {
     private func todoCategoryRow(_ item: TodoCategoryItem) -> some View {
         NavigationLink(value: HomeRoute.category(item)) {
             VStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(categoryIconBackground(item))
+                Image(systemName: item.symbolName)
+                    .font(.title2.bold())
                     .frame(width: categoryIconSize, height: categoryIconSize)
-                    .overlay {
-                        Image(systemName: item.symbolName)
-                            .font(.title2.bold())
-                            .foregroundStyle(categoryIconForeground(item))
-                    }
+                    .iconStyle(
+                        color: item.color,
+                        in: RoundedRectangle(cornerRadius: 20)
+                    )
+                    .accessibilityHidden(true)
                 Text(item.localizedName)
                     .font(.subheadline)
                     .foregroundStyle(Color.textSecondary)
@@ -393,20 +392,6 @@ public struct HomeView: View {
         } else {
             store.send(.view(.tapTodoCategory(todoCategory)))
         }
-    }
-    private func categoryIconBackground(_ item: TodoCategoryItem) -> Color {
-        if colorScheme == .dark {
-            return item.color
-        }
-
-        return item.color.opacity(0.12)
-    }
-    private func categoryIconForeground(_ item: TodoCategoryItem) -> Color {
-        if colorScheme == .dark {
-            return .white
-        }
-
-        return item.color
     }
     private func refreshDevelopmentGoals() {
         store.send(.view(.fetchData))

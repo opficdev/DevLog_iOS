@@ -25,9 +25,8 @@ struct AppInformationCard: View {
                     HStack(spacing: 12) {
                         Image(systemName: "info.circle")
                             .font(.headline)
-                            .foregroundStyle(Color.accent)
                             .frame(width: iconSize, height: iconSize)
-                            .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                            .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                             .accessibilityHidden(true)
 
                         Text(String(localized: "settings_version", bundle: PresentationResources.bundle))
@@ -56,9 +55,8 @@ struct AppInformationCard: View {
                         HStack(spacing: 12) {
                             Image(systemName: "doc.text")
                                 .font(.headline)
-                                .foregroundStyle(Color.accent)
                                 .frame(width: iconSize, height: iconSize)
-                                .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                                .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                                 .accessibilityHidden(true)
 
                             Text(String(
@@ -94,9 +92,8 @@ struct AppInformationCard: View {
                         HStack(spacing: 12) {
                             Image(systemName: "flask")
                                 .font(.headline)
-                                .foregroundStyle(Color.accent)
                                 .frame(width: iconSize, height: iconSize)
-                                .background(Color.accent.opacity(0.09), in: .rect(cornerRadius: 10))
+                                .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
                                 .accessibilityHidden(true)
 
                             VStack(alignment: .leading, spacing: 4) {
