@@ -91,22 +91,12 @@ public struct ProfileView: View {
                 Text("nav_profile", bundle: PresentationResources.bundle)
                     .font(.largeTitle.bold())
                 Spacer()
-                if #available(iOS 26.0, *) {
-                    Button {
-                        path.append(.settings)
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .topBarButtonStyle()
-                } else {
-                    Button {
-                        path.append(.settings)
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .foregroundStyle(Color.textTertiary)
-                    }
-                    .adaptiveButtonStyle()
+                Button {
+                    path.append(.settings)
+                } label: {
+                    Image(systemName: "gearshape")
                 }
+                .topBarButtonStyle()
             }
         }
         .padding(.bottom, 8)
