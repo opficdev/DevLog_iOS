@@ -13,101 +13,70 @@ struct SettingsView: View {
     @Bindable var store: StoreOf<SettingsFeature>
     let onNavigate: (ProfileRoute) -> Void
 
+    private var privacyPolicyURL: URL? {
+        guard let policyString = store.policyURL else { return nil }
+        return URL(string: policyString)
+    }
+
     var body: some View {
-        let connected = store.isNetworkConnected
-        Form {
-            Section {
-                Button {
-                    onNavigate(.theme)
-                } label: {
-                    HStack {
-                        Text(String(localized: "settings_theme", bundle: PresentationResources.bundle))
-                            .foregroundStyle(Color.primary)
-                        Spacer()
-                        Text(store.theme.localizedName(in: PresentationResources.bundle))
-                            .foregroundStyle(Color.gray)
-                    }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 32) {
+                AppSettingsCard(
+                    themeName: store.theme.localizedName(in: PresentationResources.bundle),
+                    isNetworkConnected: store.isNetworkConnected,
+                    onTheme: { onNavigate(.theme) },
+                    onNotifications: { onNavigate(.pushNotification) }
+                )
+
+                if store.appVersion != nil || privacyPolicyURL != nil || store.betaTestURL != nil {
+                    AppInformationCard(
+                        appVersion: store.appVersion,
+                        privacyPolicyURL: privacyPolicyURL,
+                        betaTestURL: store.betaTestURL
+                    )
                 }
 
-                Button {
-                    onNavigate(.pushNotification)
-                } label: {
-                    Text(String(localized: "settings_notifications", bundle: PresentationResources.bundle))
-                        .foregroundStyle(connected ? Color.primary : Color.secondary)
-                }
-                .disabled(!connected)
+                AccountCard(
+                    isNetworkConnected: store.isNetworkConnected,
+                    isLoading: store.isLoading,
+                    showsSignOutProgress: store.activeLoadingRow == .signOut,
+                    onAccount: { onNavigate(.account) },
+                    onSignOut: { store.send(.setAlert(.signOut)) }
+                )
 
+                deleteAccountContent
             }
-            
-            Section {
-                if let appVersion = store.appVersion {
-                    HStack {
-                        Text(String(localized: "settings_version", bundle: PresentationResources.bundle))
-                        Spacer()
-                        Text(appVersion)
-                    }
-                }
-                if let policyString = store.policyURL,
-                   let url = URL(string: policyString) {
-                    Link(destination: url) {
-                        Text(String(localized: "settings_privacy_policy", bundle: PresentationResources.bundle))
-                            .foregroundColor(Color.blue)
-                    }
-                }
-                if let betaTestURL = store.betaTestURL {
-                    Link(destination: betaTestURL) {
-                        VStack(alignment: .leading) {
-                            Text(String(localized: "settings_join_beta", bundle: PresentationResources.bundle))
-                                .foregroundStyle(Color.primary)
-                            Text(String(localized: "settings_join_beta_subtitle", bundle: PresentationResources.bundle))
-                                .foregroundStyle(Color.gray)
-                                .font(.caption)
-                        }
-                    }
-                }
-            }
-            
-            Section {
-                Button {
-                    onNavigate(.account)
-                } label: {
-                    Text(String(localized: "settings_account", bundle: PresentationResources.bundle))
-                }
-                .disabled(!connected)
-                Button {
-                    store.send(.setAlert(.signOut))
-                } label: {
-                    HStack {
-                        Text(String(localized: "settings_sign_out", bundle: PresentationResources.bundle))
-                            .foregroundStyle(.red)
-                        Spacer()
-                        if store.activeLoadingRow == .signOut {
-                            ProgressView()
-                        }
-                    }
-                }
-                .disabled(!connected || store.isLoading)
-            }
-            
-            HStack {
-                Spacer()
-                Button {
-                    store.send(.setAlert(.deleteAuth))
-                } label: {
-                    if store.activeLoadingRow == .deleteAuth {
-                        ProgressView()
-                    } else {
-                        Text(String(localized: "settings_delete_account", bundle: PresentationResources.bundle))
-                            .foregroundStyle(.red)
-                            .font(.headline)
-                    }
-                }
-                .disabled(!connected || store.isLoading)
-                Spacer()
-            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
         }
+        .background(Color.appBackground)
         .navigationTitle(String(localized: "nav_settings", bundle: PresentationResources.bundle))
         .navigationBarTitleDisplayMode(.inline)
         .prominentAlert(store, state: \.alert, action: \.alert)
+    }
+
+    private var deleteAccountContent: some View {
+        VStack(spacing: 16) {
+            Divider()
+
+            Button {
+                store.send(.setAlert(.deleteAuth))
+            } label: {
+                if store.activeLoadingRow == .deleteAuth {
+                    ProgressView()
+                } else {
+                    Text(String(localized: "settings_delete_account", bundle: PresentationResources.bundle))
+                        .foregroundStyle(Color.danger)
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(!store.isNetworkConnected || store.isLoading)
+
+            Text("settings_delete_account_subtitle", bundle: PresentationResources.bundle)
+                .font(.footnote)
+                .foregroundStyle(Color.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 24)
     }
 }
