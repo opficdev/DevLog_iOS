@@ -10,6 +10,7 @@ import WidgetKit
 
 struct TodayTodoWidgetEntryView: View {
     let entry: TodayTodoWidgetEntry
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
@@ -150,10 +151,10 @@ struct TodayTodoWidgetEntryView: View {
         return HStack(spacing: 6) {
             Image(systemName: style.symbolName)
                 .font(.caption2.bold())
-                .foregroundStyle(style.color)
+                .foregroundStyle(colorScheme == .dark ? Color.white : style.color)
                 .frame(width: 22, height: 22)
                 .background(
-                    style.color.opacity(0.1),
+                    colorScheme == .dark ? style.color : style.color.opacity(0.12),
                     in: RoundedRectangle(cornerRadius: 7)
                 )
 
