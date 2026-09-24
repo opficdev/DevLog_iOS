@@ -43,16 +43,16 @@ public struct SystemTodoCategoryItem: Identifiable, Hashable {
         }
     }
 
-    public var color: UIColor {
+    public var color: Color {
         switch systemTodoCategory {
-        case .issue: return .systemRed
-        case .feature: return .systemGreen
-        case .improvement: return .systemCyan
-        case .review: return .systemOrange
-        case .test: return .systemPurple
-        case .doc: return .systemYellow
-        case .research: return .systemTeal
-        case .etc: return .systemGray
+        case .issue: return .red
+        case .feature: return .green
+        case .improvement: return .cyan
+        case .review: return .orange
+        case .test: return .purple
+        case .doc: return .yellow
+        case .research: return .teal
+        case .etc: return .gray
         }
     }
 }
