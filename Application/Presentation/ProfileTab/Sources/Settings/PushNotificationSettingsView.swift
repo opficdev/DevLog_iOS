@@ -5,7 +5,6 @@
 //  Created by opfic on 5/14/25.
 //
 
-import Domain
 import SwiftUI
 import PresentationShared
 
@@ -13,7 +12,6 @@ struct PushNotificationSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.isTabContentActive) private var isTabContentActive
     @State var store: StoreOf<PushNotificationSettingsFeature>
-    var fetchesSettingsOnAppear = true
 
     var body: some View {
         ScrollView {
@@ -35,11 +33,7 @@ struct PushNotificationSettingsView: View {
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
         .background(Color.appBackground)
         .toolbarVisibility(.hidden, for: .navigationBar)
-        .onAppear {
-            if fetchesSettingsOnAppear {
-                store.send(.fetchSettings)
-            }
-        }
+        .onAppear { store.send(.fetchSettings) }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(
             item: $store.scope(state: \.timePicker, action: \.timePicker)
@@ -270,93 +264,3 @@ private struct TimePickerView: View {
         .presentationDetents([.height(store.height)])
     }
 }
-
-#if DEBUG
-#Preview("알림, 밝게") {
-    NavigationStack {
-        PushNotificationSettingsView(
-            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0),
-            fetchesSettingsOnAppear: false
-        )
-    }
-    .environment(\.locale, Locale(identifier: "ko"))
-    .preferredColorScheme(.light)
-}
-
-#Preview("알림, 어둡게") {
-    NavigationStack {
-        PushNotificationSettingsView(
-            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0),
-            fetchesSettingsOnAppear: false
-        )
-    }
-    .environment(\.locale, Locale(identifier: "ko"))
-    .preferredColorScheme(.dark)
-}
-
-#Preview("알림, 사용자 설정") {
-    NavigationStack {
-        PushNotificationSettingsView(
-            store: pushNotificationSettingsPreviewStore(hour: 19, minute: 35),
-            fetchesSettingsOnAppear: false
-        )
-    }
-    .environment(\.locale, Locale(identifier: "ko"))
-    .preferredColorScheme(.light)
-}
-
-#Preview("알림, 꺼짐") {
-    NavigationStack {
-        PushNotificationSettingsView(
-            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0, isEnabled: false),
-            fetchesSettingsOnAppear: false
-        )
-    }
-    .environment(\.locale, Locale(identifier: "ko"))
-    .preferredColorScheme(.light)
-}
-
-@MainActor
-private func pushNotificationSettingsPreviewStore(
-    hour: Int,
-    minute: Int,
-    isEnabled: Bool = true
-) -> StoreOf<PushNotificationSettingsFeature> {
-    var state = PushNotificationSettingsFeature.State()
-    state.pushNotificationEnable = isEnabled
-    state.viewPushNotificationTime = Calendar.current.date(
-        bySettingHour: hour,
-        minute: minute,
-        second: 0,
-        of: Date()
-    ) ?? Date()
-
-    return Store(initialState: state) {
-        PushNotificationSettingsFeature()
-    } withDependencies: {
-        $0.fetchPushSettingsUseCase = PushNotificationSettingsPreviewFetchUseCase(
-            hour: hour,
-            minute: minute,
-            isEnabled: isEnabled
-        )
-        $0.updatePushSettingsUseCase = PushNotificationSettingsPreviewUpdateUseCase()
-    }
-}
-
-private struct PushNotificationSettingsPreviewFetchUseCase: FetchPushSettingsUseCase {
-    let hour: Int
-    let minute: Int
-    let isEnabled: Bool
-
-    func execute() async throws -> PushNotificationSettings {
-        PushNotificationSettings(
-            isEnabled: isEnabled,
-            scheduledTime: DateComponents(hour: hour, minute: minute)
-        )
-    }
-}
-
-private struct PushNotificationSettingsPreviewUpdateUseCase: UpdatePushSettingsUseCase {
-    func execute(_ settings: PushNotificationSettings) async throws { }
-}
-#endif
