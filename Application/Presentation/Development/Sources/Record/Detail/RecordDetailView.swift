@@ -13,8 +13,6 @@ public struct RecordDetailView: View {
     @Environment(\.dismiss) private var dismiss
     private let onUpdate: () -> Void
     @State private var store: StoreOf<RecordDetailFeature>
-    @State private var isEditorPresented = false
-    @State private var isHistoryPresented = false
 
     public init(
         goalTitle: String,
@@ -70,7 +68,7 @@ public struct RecordDetailView: View {
         .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.view(.fetch)) }
         .prominentAlert(store, state: \.alert, action: \.alert)
-        .sheet(isPresented: $isEditorPresented) {
+        .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { _ in
             RecordEditorView(
                 goalId: store.record.goalId,
                 goalTitle: store.goalTitle,
@@ -79,7 +77,10 @@ public struct RecordDetailView: View {
                 onCompletion: finishEditing
             )
         }
-        .navigationDestination(isPresented: $isHistoryPresented, interactivePop: true) {
+        .navigationDestination(
+            item: $store.scope(state: \.history, action: \.history),
+            interactivePop: true
+        ) { _ in
             RecordVersionHistoryView(store: store)
         }
         .overlay {
@@ -212,7 +213,7 @@ public struct RecordDetailView: View {
 
     private var correctionButton: some View {
         Button {
-            isEditorPresented = true
+            store.send(.view(.tapCorrection))
         } label: {
             Label(
                 RecordPresentation.text("development_record_correct"),
@@ -228,7 +229,7 @@ public struct RecordDetailView: View {
 
     private var historyButton: some View {
         Button {
-            isHistoryPresented = true
+            store.send(.view(.tapHistory))
         } label: {
             Label(
                 RecordPresentation.text("development_record_history_title"),
@@ -246,8 +247,7 @@ public struct RecordDetailView: View {
     }
 
     private func finishEditing() {
-        isEditorPresented = false
-        store.send(.view(.fetch))
+        store.send(.view(.finishEditing))
         onUpdate()
     }
 }

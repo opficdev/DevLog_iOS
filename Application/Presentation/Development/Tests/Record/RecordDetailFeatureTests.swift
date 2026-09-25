@@ -12,6 +12,39 @@ import PresentationShared
 
 @MainActor
 struct RecordDetailFeatureTests {
+    @Test("편집과 이력 화면 표시는 Feature 상태를 전환한다")
+    func 편집과_이력_화면_표시는_Feature_상태를_전환한다() async throws {
+        let currentVersion = try makeDevelopmentRecordVersion(id: "version-2", number: 2)
+        let previousVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let record = try makeConfirmedDevelopmentRecord(
+            versionId: currentVersion.id,
+            versionNumber: currentVersion.number
+        )
+        var state = RecordDetailFeature.State(goalTitle: "개발 목표", record: record)
+        state.versions = [previousVersion, currentVersion]
+        state.contentState = .loaded
+        let store = TestStore(initialState: state) {
+            RecordDetailFeature()
+        }
+
+        await store.send(.view(.tapCorrection)) {
+            $0.sheet = .editor
+        }
+        await store.send(.sheet(.dismiss)) {
+            $0.sheet = nil
+        }
+        await store.send(.view(.tapHistory)) {
+            $0.history = RecordHistoryDestination(recordID: record.id)
+        }
+        await store.send(.view(.selectVersion(previousVersion))) {
+            $0.versionDetail = RecordVersionDetailDestination(version: previousVersion)
+        }
+        await store.send(.history(.dismiss)) {
+            $0.history = nil
+            $0.versionDetail = nil
+        }
+    }
+
     @Test("상세는 currentVersion과 일치하는 확정 버전을 표시한다")
     func 상세는_currentVersion과_일치하는_확정_버전을_표시한다() async throws {
         let record = try makeConfirmedDevelopmentRecord()
