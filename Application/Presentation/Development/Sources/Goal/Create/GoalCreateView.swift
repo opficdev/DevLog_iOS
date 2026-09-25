@@ -39,7 +39,7 @@ public struct GoalCreateView: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 GoalCreateTopBar(
                     isSaving: store.isSaving,
-                    onClose: dismiss.callAsFunction
+                    onClose: { dismiss() }
                 )
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {

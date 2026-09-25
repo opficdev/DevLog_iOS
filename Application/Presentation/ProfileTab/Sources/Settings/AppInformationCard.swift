@@ -27,8 +27,6 @@ struct AppInformationCard: View {
                             .font(.headline)
                             .frame(width: iconSize, height: iconSize)
                             .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                            .accessibilityHidden(true)
-
                         Text(String(localized: "settings_version", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
 
@@ -40,7 +38,6 @@ struct AppInformationCard: View {
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityElement(children: .combine)
                 }
 
                 if let privacyPolicyURL {
@@ -48,7 +45,6 @@ struct AppInformationCard: View {
                         Divider()
                             .padding(.leading, 64)
                             .padding(.trailing, 16)
-                            .accessibilityHidden(true)
                     }
 
                     Link(destination: privacyPolicyURL) {
@@ -57,7 +53,6 @@ struct AppInformationCard: View {
                                 .font(.headline)
                                 .frame(width: iconSize, height: iconSize)
                                 .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                                .accessibilityHidden(true)
 
                             Text(String(
                                 localized: "settings_privacy_policy",
@@ -70,12 +65,10 @@ struct AppInformationCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Color.textSecondary)
-                                .accessibilityHidden(true)
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
-                        .accessibilityElement(children: .combine)
                     }
                     .buttonStyle(.plain)
                 }
@@ -85,7 +78,6 @@ struct AppInformationCard: View {
                         Divider()
                             .padding(.leading, 64)
                             .padding(.trailing, 16)
-                            .accessibilityHidden(true)
                     }
 
                     Link(destination: betaTestURL) {
@@ -94,7 +86,6 @@ struct AppInformationCard: View {
                                 .font(.headline)
                                 .frame(width: iconSize, height: iconSize)
                                 .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                                .accessibilityHidden(true)
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(String(localized: "settings_join_beta", bundle: PresentationResources.bundle))
@@ -112,12 +103,10 @@ struct AppInformationCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Color.textSecondary)
-                                .accessibilityHidden(true)
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .accessibilityElement(children: .combine)
+                        .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
                 }

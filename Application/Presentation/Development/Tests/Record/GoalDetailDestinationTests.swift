@@ -55,5 +55,11 @@ struct GoalDetailDestinationTests {
         await store.send(.view(.selectRecord(item))) {
             $0.recordDetail = RecordDetailDestination(record: record)
         }
+        await store.send(.recordDetail(.dismiss)) {
+            $0.recordDetail = nil
+        }
+        await store.send(.view(.selectRecord(item))) {
+            $0.recordDetail = RecordDetailDestination(record: record)
+        }
     }
 }

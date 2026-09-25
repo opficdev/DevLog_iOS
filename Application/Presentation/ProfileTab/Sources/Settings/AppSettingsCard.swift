@@ -28,8 +28,6 @@ struct AppSettingsCard: View {
                             .font(.headline)
                             .frame(width: iconSize, height: iconSize)
                             .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                            .accessibilityHidden(true)
-
                         Text(String(localized: "settings_theme", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
 
@@ -42,28 +40,22 @@ struct AppSettingsCard: View {
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(Color.textSecondary)
-                            .accessibilityHidden(true)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
-                    .accessibilityElement(children: .combine)
                 }
                 .buttonStyle(.plain)
 
                 Divider()
                     .padding(.leading, 64)
                     .padding(.trailing, 16)
-                    .accessibilityHidden(true)
-
                 Button(action: onNotifications) {
                     HStack(spacing: 12) {
                         Image(systemName: "bell")
                             .font(.headline)
                             .frame(width: iconSize, height: iconSize)
                             .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                            .accessibilityHidden(true)
-
                         Text(String(localized: "settings_notifications", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
 
@@ -72,13 +64,11 @@ struct AppSettingsCard: View {
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(Color.textSecondary)
-                            .accessibilityHidden(true)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .opacity(isNetworkConnected ? 1 : 0.5)
-                    .accessibilityElement(children: .combine)
                 }
                 .buttonStyle(.plain)
                 .disabled(!isNetworkConnected)

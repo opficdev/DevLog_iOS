@@ -46,19 +46,14 @@ public struct HomeView: View {
     public var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
-                    Section {
-                        DevelopmentSummaryCard(
-                            items: store.developmentGoalItems,
-                            isLoading: store.isDevelopmentGoalsLoading,
-                            hasLoaded: store.hasDevelopmentGoalsLoaded,
-                            hasLoadFailure: store.hasDevelopmentGoalsLoadFailure
-                        )
-                        todoSection
-                    } header: {
-                        topBar
-                            .toolbarBackground(Color.appBackground)
-                    }
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    DevelopmentSummaryCard(
+                        items: store.developmentGoalItems,
+                        isLoading: store.isDevelopmentGoalsLoading,
+                        hasLoaded: store.hasDevelopmentGoalsLoaded,
+                        hasLoadFailure: store.hasDevelopmentGoalsLoadFailure
+                    )
+                    todoSection
                     DevelopmentGoalSection(
                         items: store.developmentGoalItems,
                         isLoading: store.isDevelopmentGoalsLoading,
@@ -71,6 +66,7 @@ public struct HomeView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .safeAreaInset(edge: .top, spacing: 0) { topBar }
             .background(Color.appBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .navigationDestination(for: HomeRoute.self, destination: destinationView)
@@ -158,8 +154,10 @@ public struct HomeView: View {
                 .disabled(!store.isNetworkConnected)
             }
         }
+        .padding(.horizontal, 16)
         .padding(.bottom, 8)
         .background(Color.appBackground)
+        .toolbarBackground(Color.appBackground)
     }
 
     @ViewBuilder
@@ -347,7 +345,6 @@ public struct HomeView: View {
                         color: item.color,
                         in: RoundedRectangle(cornerRadius: 20)
                     )
-                    .accessibilityHidden(true)
                 Text(item.localizedName)
                     .font(.subheadline)
                     .foregroundStyle(Color.textSecondary)

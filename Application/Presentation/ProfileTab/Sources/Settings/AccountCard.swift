@@ -29,7 +29,6 @@ struct AccountCard: View {
                             .font(.headline)
                             .frame(width: iconSize, height: iconSize)
                             .iconStyle(color: .accent, in: RoundedRectangle(cornerRadius: 10))
-                            .accessibilityHidden(true)
 
                         Text(String(localized: "settings_account", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.primary)
@@ -39,13 +38,11 @@ struct AccountCard: View {
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(Color.textSecondary)
-                            .accessibilityHidden(true)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .opacity(isNetworkConnected ? 1 : 0.5)
-                    .accessibilityElement(children: .combine)
                 }
                 .buttonStyle(.plain)
                 .disabled(!isNetworkConnected)
@@ -53,7 +50,6 @@ struct AccountCard: View {
                 Divider()
                     .padding(.leading, 64)
                     .padding(.trailing, 16)
-                    .accessibilityHidden(true)
 
                 Button(action: onSignOut) {
                     HStack(spacing: 12) {
@@ -61,7 +57,6 @@ struct AccountCard: View {
                             .font(.headline)
                             .frame(width: iconSize, height: iconSize)
                             .iconStyle(color: .danger, in: RoundedRectangle(cornerRadius: 10))
-                            .accessibilityHidden(true)
 
                         Text(String(localized: "settings_sign_out", bundle: PresentationResources.bundle))
                             .foregroundStyle(Color.danger)
@@ -75,13 +70,11 @@ struct AccountCard: View {
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(Color.textSecondary)
-                            .accessibilityHidden(true)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .opacity(isNetworkConnected ? 1 : 0.5)
-                    .accessibilityElement(children: .combine)
                 }
                 .buttonStyle(.plain)
                 .disabled(!isNetworkConnected || isLoading)

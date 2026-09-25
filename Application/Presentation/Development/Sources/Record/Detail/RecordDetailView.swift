@@ -79,7 +79,7 @@ public struct RecordDetailView: View {
                 onCompletion: finishEditing
             )
         }
-        .navigationDestination(isPresented: $isHistoryPresented) {
+        .navigationDestination(isPresented: $isHistoryPresented, interactivePop: true) {
             RecordVersionHistoryView(store: store)
         }
         .overlay {
@@ -95,7 +95,7 @@ public struct RecordDetailView: View {
 
     private var topBar: some View {
         HStack {
-            NavigationBackButton(action: dismiss.callAsFunction)
+            NavigationBackButton(action: { dismiss() })
                 .disabled(store.isRestoring)
             Spacer()
         }

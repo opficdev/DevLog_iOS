@@ -100,11 +100,7 @@ struct DevelopmentGoalSection: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.textSecondary)
             }
-            .accessibilityLabel(
-                String(localized: "development_goal_create_title", bundle: PresentationResources.bundle)
-            )
         }
-        .accessibilityElement(children: .combine)
     }
 }
 
@@ -160,7 +156,6 @@ private struct DevelopmentGoalCard: View {
         .padding(18)
         .background(Color.surface, in: .rect(cornerRadius: 24))
         .contentShape(.rect)
-        .accessibilityElement(children: .combine)
     }
 }
 
@@ -212,7 +207,6 @@ struct DevelopmentTodoProgressView: View {
                 }
                 .frame(height: 8)
             }
-            .accessibilityElement(children: .combine)
         }
     }
 }

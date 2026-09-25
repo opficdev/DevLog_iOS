@@ -36,7 +36,6 @@ struct DevelopmentSummaryCard: View {
         }
         .padding(20)
         .background(Color.surface, in: .rect(cornerRadius: 28))
-        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder

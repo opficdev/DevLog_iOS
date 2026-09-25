@@ -34,34 +34,38 @@ public struct TodayView: View {
         NavigationStack(path: $path) {
             ScrollView {
                 let sections = store.sections
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
-                    Section {
-                        if sections.isEmpty, !store.isLoading {
-                            emptyContent
-                        } else {
-                            ForEach(sections) { section in
-                                TodoSection(
-                                    section: section,
-                                    isNavigationEnabled: !store.isTodoInspectorPresented,
-                                    onSelect: { path.append(.todo(TodoIdItem(id: $0.id))) },
-                                    onInspect: { store.send(.showTodoInspector($0)) }
-                                )
-                                .padding(.bottom, section.id == sections.last?.id ? 0 : 8)
-                            }
-                            .padding(.bottom, 12)
-                        }
-                    } header: {
-                        VStack(alignment: .leading) {
-                            topBar
-                            achievementCard
-                            filterBar
-                        }
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    achievementCard
                         .padding(.bottom, 8)
-                        .background(Color.appBackground)
-                        .toolbarBackground(Color.appBackground)
+
+                    if sections.isEmpty, !store.isLoading {
+                        emptyContent
+                    } else {
+                        ForEach(sections) { section in
+                            TodoSection(
+                                section: section,
+                                isNavigationEnabled: !store.isTodoInspectorPresented,
+                                onSelect: { path.append(.todo(TodoIdItem(id: $0.id))) },
+                                onInspect: { store.send(.showTodoInspector($0)) }
+                            )
+                            .padding(.bottom, section.id == sections.last?.id ? 0 : 8)
+                        }
+                        .padding(.bottom, 12)
                     }
                 }
                 .padding(.horizontal)
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                VStack(alignment: .leading) {
+                    topBar
+                    filterBar
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+                .background(Color.appBackground)
+                .toolbarBackground(Color.appBackground)
             }
             .background(Color.appBackground)
             .refreshable { await store.send(.refresh).finish() }

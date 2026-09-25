@@ -34,27 +34,24 @@ public struct GoalDetailView: View {
 
     private var mainContent: some View {
         ScrollView {
-            LazyVStack(spacing: 12, pinnedViews: [.sectionHeaders]) {
-                Section {
-                    GoalDescriptionCard(
-                        description: store.goal?.description ?? "",
-                        isLoading: !store.hasLoaded && store.isLoading
-                    )
-                    timelineCard
-                    GoalLinkedTodoCard(
-                        todos: store.linkedTodos,
-                        isLoading: store.isTodoLoading,
-                        hasLoadFailure: store.hasTodoLoadFailure,
-                        allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
-                        onManage: { store.send(.view(.manageTodos)) },
-                        onRetry: { store.send(.view(.retryTodos)) },
-                        onSelect: { store.send(.view(.selectTodo($0))) }
-                    )
-                } header: {
-                    titleBar
-                }
-                .padding(.horizontal)
+            LazyVStack(spacing: 12) {
+                titleBar
+                GoalDescriptionCard(
+                    description: store.goal?.description ?? "",
+                    isLoading: !store.hasLoaded && store.isLoading
+                )
+                timelineCard
+                GoalLinkedTodoCard(
+                    todos: store.linkedTodos,
+                    isLoading: store.isTodoLoading,
+                    hasLoadFailure: store.hasTodoLoadFailure,
+                    allowsManagement: store.hasLoaded && store.allowsTodoLinkMutation,
+                    onManage: { store.send(.view(.manageTodos)) },
+                    onRetry: { store.send(.view(.retryTodos)) },
+                    onSelect: { store.send(.view(.selectTodo($0))) }
+                )
             }
+            .padding(.horizontal)
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
         .safeAreaInset(edge: .bottom, spacing: 0) { recordActionBar }
@@ -79,7 +76,10 @@ public struct GoalDetailView: View {
             .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
                 GoalTodoLinkSheet(store: $0)
             }
-            .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
+            .navigationDestination(
+                item: $store.scope(state: \.recordDetail, action: \.recordDetail),
+                interactivePop: true
+            ) { destination in
                 RecordDetailView(
                     goalTitle: store.goalTitle,
                     record: destination.record,
@@ -104,13 +104,13 @@ public struct GoalDetailView: View {
     private var topBar: some View {
         HStack {
             if #available(iOS 26.0, *) {
-                Button(action: dismiss.callAsFunction) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "xmark")
                 }
                 .topBarButtonStyle(tint: Color.accent)
                 .disabled(store.isTransitioning)
             } else {
-                Button(action: dismiss.callAsFunction) {
+                Button(action: { dismiss() }) {
                     Text(RecordPresentation.text("common_close"))
                 }
                 .topBarButtonStyle(tint: Color.accent)

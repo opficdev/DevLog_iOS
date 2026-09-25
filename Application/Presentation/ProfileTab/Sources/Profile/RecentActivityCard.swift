@@ -60,7 +60,6 @@ private struct RecentTodoCard: View {
                     color: category.color,
                     in: RoundedRectangle(cornerRadius: 12)
                 )
-                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 8) {
@@ -101,7 +100,6 @@ private struct RecentTodoCard: View {
             Image(systemName: "chevron.right")
                 .font(.callout.bold())
                 .foregroundStyle(Color.textTertiary)
-                .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
