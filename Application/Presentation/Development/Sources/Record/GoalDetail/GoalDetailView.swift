@@ -76,7 +76,10 @@ public struct GoalDetailView: View {
             .sheet(item: $store.scope(state: \.todoLinkSheet, action: \.todoLinkSheet)) {
                 GoalTodoLinkSheet(store: $0)
             }
-            .navigationDestination(item: $store.scope(state: \.recordDetail, action: \.recordDetail)) { destination in
+            .navigationDestination(
+                item: $store.scope(state: \.recordDetail, action: \.recordDetail),
+                interactivePop: true
+            ) { destination in
                 RecordDetailView(
                     goalTitle: store.goalTitle,
                     record: destination.record,

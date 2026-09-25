@@ -37,7 +37,7 @@ struct RecordVersionHistoryView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .background(Color.appBackground)
         .toolbarVisibility(.hidden, for: .navigationBar)
-        .navigationDestination(item: $destination) { destination in
+        .navigationDestination(item: $destination, interactivePop: true) { destination in
             RecordVersionDetailView(
                 store: store,
                 version: destination.version

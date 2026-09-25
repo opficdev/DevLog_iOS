@@ -79,7 +79,7 @@ public struct RecordDetailView: View {
                 onCompletion: finishEditing
             )
         }
-        .navigationDestination(isPresented: $isHistoryPresented) {
+        .navigationDestination(isPresented: $isHistoryPresented, interactivePop: true) {
             RecordVersionHistoryView(store: store)
         }
         .overlay {

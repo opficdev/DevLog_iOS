@@ -59,7 +59,16 @@ public struct ProfileView: View {
             .refreshable { await store.send(.refresh).finish() }
             .toolbarVisibility(.hidden, for: .navigationBar)
             .background(Color.appBackground)
-            .navigationDestination(for: ProfileRoute.self, destination: destinationView)
+            .navigationDestination(
+                for: ProfileRoute.self,
+                interactivePop: {
+                    switch $0 {
+                    case .settings, .theme: true
+                    default: false
+                    }
+                },
+                destination: destinationView
+            )
         }
         .onChange(of: isSelected, initial: true) { _, isSelected in
             if isSelected {
