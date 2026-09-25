@@ -5,72 +5,41 @@
 //  Created by opfic on 5/14/25.
 //
 
+import Domain
 import SwiftUI
 import PresentationShared
 
 struct PushNotificationSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.isTabContentActive) private var isTabContentActive
     @State var store: StoreOf<PushNotificationSettingsFeature>
+    var fetchesSettingsOnAppear = true
 
     var body: some View {
-        List {
-            Section(content: {
-                HStack {
-                    Text(String(localized: "push_settings_enable", bundle: PresentationResources.bundle))
-                    Spacer()
-                    if store.isLoading && store.activeLoadingRow == .enable {
-                        ProgressView()
-                    } else {
-                        Toggle("", isOn: $store.pushNotificationEnable)
-                            .labelsHidden()
-                            .tint(.blue)
-                            .disabled(store.activeLoadingRow != nil)
-                    }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 24) {
+                EnableCard(store: store)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("push_settings_time_section", bundle: PresentationResources.bundle)
+                        .font(.title3.weight(.semibold))
+                    TimeCard(store: store)
                 }
-            }, footer: {
-                Text(String(localized: "push_settings_footer", bundle: PresentationResources.bundle))
-                    .multilineTextAlignment(.leading)
-            })
-            Section {
-                ForEach([9, 15, 18, 21], id: \.self) { hour in
-                    if let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
-                        let loadingRow = PushNotificationSettingsFeature.activeLoadingRow(for: date)
-                        HStack {
-                            Text(formattedTimeString(date))
-                            Spacer()
-                            if let loadingRow,
-                               store.isLoading && store.activeLoadingRow == loadingRow {
-                                ProgressView()
-                            } else if store.activeLoadingRow != loadingRow
-                                        && store.pushNotificationHour == hour
-                                        && store.pushNotificationMinute == 0 {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.blue)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture { store.send(.selectPresetTime(date)) }
-                    }
-                }
-                HStack {
-                    Text(String(localized: "push_settings_custom", bundle: PresentationResources.bundle))
-                    Spacer()
-                    Text(formattedTimeString(store.viewPushNotificationTime))
-                        .foregroundStyle(.secondary)
-                    if store.pushNotificationMinute != 0 {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(Color.blue)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { store.send(.tapCustomTime) }
+
+                CustomTimeTipCard()
             }
-            .disabled(!store.pushNotificationEnable || store.activeLoadingRow != nil)
-            .opacity(store.pushNotificationEnable ? 1.0 : 0.2)
+            .padding(.horizontal, 16)
+            .padding(.top, 20)
+            .padding(.bottom, 24)
         }
-        .listStyle(.insetGrouped)
-        .navigationTitle(String(localized: "nav_push_settings", bundle: PresentationResources.bundle))
-        .onAppear { store.send(.fetchSettings) }
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .background(Color.appBackground)
+        .toolbarVisibility(.hidden, for: .navigationBar)
+        .onAppear {
+            if fetchesSettingsOnAppear {
+                store.send(.fetchSettings)
+            }
+        }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(
             item: $store.scope(state: \.timePicker, action: \.timePicker)
@@ -83,8 +52,174 @@ struct PushNotificationSettingsView: View {
         }
     }
 
+    private var topBar: some View {
+        ZStack {
+            Text(String(localized: "nav_push_settings", bundle: PresentationResources.bundle))
+                .font(.headline)
+
+            HStack {
+                NavigationBackButton(action: { dismiss() })
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
+        .background(Color.appBackground)
+        .toolbarBackground(Color.appBackground)
+    }
+}
+
+private struct EnableCard: View {
+    @Bindable var store: StoreOf<PushNotificationSettingsFeature>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: "bell")
+                    .font(.headline)
+                    .frame(width: 36, height: 36)
+                    .iconStyle(color: .accent, in: Circle())
+
+                Text("push_settings_enable", bundle: PresentationResources.bundle)
+                    .font(.title3)
+
+                Spacer(minLength: 8)
+
+                if store.isLoading && store.activeLoadingRow == .enable {
+                    ProgressView()
+                } else {
+                    Toggle("", isOn: $store.pushNotificationEnable)
+                        .labelsHidden()
+                        .tint(.accent)
+                        .disabled(store.activeLoadingRow != nil)
+                }
+            }
+
+            Divider()
+
+            Text("push_settings_footer", bundle: PresentationResources.bundle)
+                .font(.footnote)
+                .foregroundStyle(Color.textSecondary)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.surface, in: .rect(cornerRadius: 16))
+    }
+}
+
+private struct TimeCard: View {
+    @Environment(\.locale) private var locale
+    let store: StoreOf<PushNotificationSettingsFeature>
+
+    private static let presetHours = [9, 15, 18, 21]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(Self.presetHours, id: \.self) { hour in
+                if let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) {
+                    presetTimeButton(date, hour: hour)
+                    Divider()
+                }
+            }
+            customTimeButton
+        }
+        .background(Color.surface, in: .rect(cornerRadius: 16))
+        .disabled(!store.pushNotificationEnable || store.activeLoadingRow != nil)
+        .opacity(store.pushNotificationEnable ? 1.0 : 0.7)
+    }
+
+    private func presetTimeButton(_ date: Date, hour: Int) -> some View {
+        let loadingRow = PushNotificationSettingsFeature.activeLoadingRow(for: date)
+        let isSelected = store.activeLoadingRow != loadingRow
+            && store.pushNotificationHour == hour
+            && store.pushNotificationMinute == 0
+
+        return Button {
+            store.send(.selectPresetTime(date))
+        } label: {
+            HStack {
+                Text(formattedTimeString(date))
+                    .foregroundStyle(Color.primary)
+                Spacer()
+                if let loadingRow,
+                   store.isLoading && store.activeLoadingRow == loadingRow {
+                    ProgressView()
+                } else {
+                    selectionIndicator(isSelected: isSelected)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var customTimeButton: some View {
+        Button {
+            store.send(.tapCustomTime)
+        } label: {
+            HStack(spacing: 8) {
+                Text("push_settings_custom", bundle: PresentationResources.bundle)
+                    .foregroundStyle(Color.primary)
+                Spacer(minLength: 8)
+                if store.isLoading && store.activeLoadingRow == .customTime {
+                    ProgressView()
+                } else {
+                    selectionIndicator(isSelected: store.pushNotificationMinute != 0)
+                }
+                Text(formattedTimeString(store.viewPushNotificationTime))
+                    .foregroundStyle(Color.textSecondary)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.textSecondary)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func selectionIndicator(isSelected: Bool) -> some View {
+        if isSelected {
+            ZStack {
+                Image(systemName: "circle.fill")
+                    .foregroundStyle(Color.accent)
+                Image(systemName: "checkmark")
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color.white)
+            }
+            .font(.title2)
+        } else {
+            Image(systemName: "circle")
+                .font(.title2)
+                .foregroundStyle(Color.border)
+        }
+    }
+
     private func formattedTimeString(_ date: Date) -> String {
-        date.formatted(.dateTime.hour().minute())
+        date.formatted(.dateTime.hour().minute().locale(locale))
+    }
+}
+
+private struct CustomTimeTipCard: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "info")
+                .font(.caption.weight(.semibold))
+                .frame(width: 28, height: 28)
+                .background(Color.surface, in: Circle())
+            Text("push_settings_custom_hint", bundle: PresentationResources.bundle)
+                .font(.footnote)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .foregroundStyle(Color.accent)
+        .padding(16)
+        .background(Color.accent.opacity(0.08), in: .rect(cornerRadius: 16))
+        .padding(.bottom, 16)
+        .background(Color.appBackground)
     }
 }
 
@@ -135,3 +270,93 @@ private struct TimePickerView: View {
         .presentationDetents([.height(store.height)])
     }
 }
+
+#if DEBUG
+#Preview("알림, 밝게") {
+    NavigationStack {
+        PushNotificationSettingsView(
+            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0),
+            fetchesSettingsOnAppear: false
+        )
+    }
+    .environment(\.locale, Locale(identifier: "ko"))
+    .preferredColorScheme(.light)
+}
+
+#Preview("알림, 어둡게") {
+    NavigationStack {
+        PushNotificationSettingsView(
+            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0),
+            fetchesSettingsOnAppear: false
+        )
+    }
+    .environment(\.locale, Locale(identifier: "ko"))
+    .preferredColorScheme(.dark)
+}
+
+#Preview("알림, 사용자 설정") {
+    NavigationStack {
+        PushNotificationSettingsView(
+            store: pushNotificationSettingsPreviewStore(hour: 19, minute: 35),
+            fetchesSettingsOnAppear: false
+        )
+    }
+    .environment(\.locale, Locale(identifier: "ko"))
+    .preferredColorScheme(.light)
+}
+
+#Preview("알림, 꺼짐") {
+    NavigationStack {
+        PushNotificationSettingsView(
+            store: pushNotificationSettingsPreviewStore(hour: 18, minute: 0, isEnabled: false),
+            fetchesSettingsOnAppear: false
+        )
+    }
+    .environment(\.locale, Locale(identifier: "ko"))
+    .preferredColorScheme(.light)
+}
+
+@MainActor
+private func pushNotificationSettingsPreviewStore(
+    hour: Int,
+    minute: Int,
+    isEnabled: Bool = true
+) -> StoreOf<PushNotificationSettingsFeature> {
+    var state = PushNotificationSettingsFeature.State()
+    state.pushNotificationEnable = isEnabled
+    state.viewPushNotificationTime = Calendar.current.date(
+        bySettingHour: hour,
+        minute: minute,
+        second: 0,
+        of: Date()
+    ) ?? Date()
+
+    return Store(initialState: state) {
+        PushNotificationSettingsFeature()
+    } withDependencies: {
+        $0.fetchPushSettingsUseCase = PushNotificationSettingsPreviewFetchUseCase(
+            hour: hour,
+            minute: minute,
+            isEnabled: isEnabled
+        )
+        $0.updatePushSettingsUseCase = PushNotificationSettingsPreviewUpdateUseCase()
+    }
+}
+
+private struct PushNotificationSettingsPreviewFetchUseCase: FetchPushSettingsUseCase {
+    let hour: Int
+    let minute: Int
+    let isEnabled: Bool
+
+    func execute() async throws -> PushNotificationSettings {
+        PushNotificationSettings(
+            isEnabled: isEnabled,
+            scheduledTime: DateComponents(hour: hour, minute: minute)
+        )
+    }
+}
+
+private struct PushNotificationSettingsPreviewUpdateUseCase: UpdatePushSettingsUseCase {
+    func execute(_ settings: PushNotificationSettings) async throws { }
+}
+#endif
