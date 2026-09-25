@@ -11,9 +11,8 @@ import PresentationShared
 
 struct RecordVersionHistoryView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var destination: VersionDestination?
 
-    let store: StoreOf<RecordDetailFeature>
+    @Bindable var store: StoreOf<RecordDetailFeature>
 
     private var sortedVersions: [DevelopmentRecord.Version] {
         store.versions.sorted { $1.number < $0.number }
@@ -37,7 +36,10 @@ struct RecordVersionHistoryView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .background(Color.appBackground)
         .toolbarVisibility(.hidden, for: .navigationBar)
-        .navigationDestination(item: $destination, interactivePop: true) { destination in
+        .navigationDestination(
+            item: $store.scope(state: \.versionDetail, action: \.versionDetail),
+            interactivePop: true
+        ) { destination in
             RecordVersionDetailView(
                 store: store,
                 version: destination.version
@@ -106,7 +108,7 @@ struct RecordVersionHistoryView: View {
                     if version.id == store.currentVersionID {
                         dismiss()
                     } else {
-                        destination = VersionDestination(version: version)
+                        store.send(.view(.selectVersion(version)))
                     }
                 } label: {
                     VersionHistoryRow(
@@ -262,9 +264,4 @@ struct RecordVersionBadge: View {
                 in: .capsule
             )
     }
-}
-
-private struct VersionDestination: Identifiable {
-    let version: DevelopmentRecord.Version
-    var id: String { version.id }
 }

@@ -13,6 +13,9 @@ struct RecordDetailFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var alert: AlertState<Action.Alert>?
+        @Presents var sheet: SheetState?
+        @Presents var history: RecordHistoryDestination?
+        @Presents var versionDetail: RecordVersionDetailDestination?
         let goalTitle: String
         let allowsMutation: Bool
         var record: DevelopmentRecord
@@ -63,6 +66,9 @@ struct RecordDetailFeature {
 
     enum Action: Equatable {
         case alert(PresentationAction<Alert>)
+        case sheet(PresentationAction<Never>)
+        case history(PresentationAction<Never>)
+        case versionDetail(PresentationAction<Never>)
         case view(ViewAction)
         case store(StoreAction)
 
@@ -72,7 +78,11 @@ struct RecordDetailFeature {
 
         enum ViewAction: Equatable {
             case fetch
+            case finishEditing
             case restore(DevelopmentRecord.Version)
+            case selectVersion(DevelopmentRecord.Version)
+            case tapCorrection
+            case tapHistory
         }
 
         enum StoreAction: Equatable {
@@ -81,6 +91,11 @@ struct RecordDetailFeature {
             case loadFailed
             case restoreFailed
         }
+    }
+
+    @ObservableState
+    enum SheetState: Equatable {
+        case editor
     }
 
     @Dependency(\.developmentFetchRecordsUseCase) private var fetchRecordsUseCase
@@ -114,6 +129,19 @@ struct RecordDetailFeature {
                 )
             case .alert:
                 break
+            case .sheet(.dismiss):
+                state.sheet = nil
+            case .sheet:
+                break
+            case .history(.dismiss):
+                state.history = nil
+                state.versionDetail = nil
+            case .history:
+                break
+            case .versionDetail(.dismiss):
+                state.versionDetail = nil
+            case .versionDetail:
+                break
             case .view(.fetch):
                 guard state.contentState != .loading,
                       !state.isRestoring,
@@ -122,12 +150,28 @@ struct RecordDetailFeature {
                 state.contentState = .loading
                 state.restoredSourceVersionID = nil
                 return fetchEffect(goalID: state.record.goalId, recordID: state.record.id)
+            case .view(.finishEditing):
+                state.sheet = nil
+                return .send(.view(.fetch))
             case .view(.restore(let version)):
                 guard !state.isRestoring,
                       state.allowsMutation,
                       state.record.draft == nil,
                       version.id != state.currentVersionID else { break }
                 state.alert = Self.restoreConfirmationAlert(version)
+            case .view(.selectVersion(let version)):
+                guard version.id != state.currentVersionID,
+                      state.versions.contains(where: { $0.id == version.id }) else { break }
+                state.versionDetail = RecordVersionDetailDestination(version: version)
+            case .view(.tapCorrection):
+                guard state.allowsMutation,
+                      state.contentState == .loaded,
+                      state.currentVersion != nil else { break }
+                state.sheet = .editor
+            case .view(.tapHistory):
+                guard state.contentState == .loaded,
+                      state.currentVersion != nil else { break }
+                state.history = RecordHistoryDestination(recordID: state.record.id)
             case .store(.loaded(let record, let versions)):
                 state.record = record
                 state.versions = versions.sorted { $0.number < $1.number }
@@ -156,6 +200,18 @@ struct RecordDetailFeature {
         }
         .ifLet(\.$alert, action: \.alert)
     }
+}
+
+@ObservableState
+struct RecordHistoryDestination: Equatable, Identifiable {
+    let recordID: String
+    var id: String { recordID }
+}
+
+@ObservableState
+struct RecordVersionDetailDestination: Equatable, Identifiable {
+    let version: DevelopmentRecord.Version
+    var id: String { version.id }
 }
 
 private extension RecordDetailFeature {

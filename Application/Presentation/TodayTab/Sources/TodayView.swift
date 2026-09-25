@@ -12,7 +12,7 @@ import PresentationShared
 
 public struct TodayView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @State private var path = [TodayRoute]()
+    @State private var router = NavigationRouter<TodayRoute>()
     @State private var store: StoreOf<TodayFeature>
     private let isSelected: Bool
     private let windowEvent: TodoEditorWindowEvent
@@ -31,7 +31,7 @@ public struct TodayView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $router.path) {
             ScrollView {
                 let sections = store.sections
                 LazyVStack(alignment: .leading, spacing: 0) {
@@ -45,7 +45,7 @@ public struct TodayView: View {
                             TodoSection(
                                 section: section,
                                 isNavigationEnabled: !store.isTodoInspectorPresented,
-                                onSelect: { path.append(.todo(TodoIdItem(id: $0.id))) },
+                                onSelect: { router.push(.todo(TodoIdItem(id: $0.id))) },
                                 onInspect: { store.send(.showTodoInspector($0)) }
                             )
                             .padding(.bottom, section.id == sections.last?.id ? 0 : 8)

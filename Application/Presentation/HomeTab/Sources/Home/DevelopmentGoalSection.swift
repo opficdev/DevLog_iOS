@@ -225,17 +225,3 @@ private struct DevelopmentGoalStatusBadge: View {
         .background(Color.accent.opacity(0.1), in: .capsule)
     }
 }
-
-enum GoalPresentation: Identifiable {
-    case create
-    case detail(String)
-
-    var id: String {
-        switch self {
-        case .create:
-            "create"
-        case .detail(let goalID):
-            goalID
-        }
-    }
-}

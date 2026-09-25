@@ -29,6 +29,7 @@ struct StoreTestAdapter {
         store.state.sheet?.categoryManageState != nil
     }
     var showTodoEditor: Bool { store.state.showTodoEditor }
+    var sheet: HomeFeature.SheetState? { store.state.sheet }
 
     init(
         fetchPreferencesUseCase: FetchTodoCategoryPreferencesUseCase = FetchTodoCategoryPreferencesUseCaseSpy(),
@@ -88,6 +89,19 @@ struct StoreTestAdapter {
 
     func tapManageTodoCategory() async {
         await store.send(.view(.tapManageTodoCategory))
+        await drainReceivedActions()
+    }
+
+    func tapCreateDevelopmentGoal() async {
+        await store.send(.view(.tapCreateDevelopmentGoal))
+    }
+
+    func tapDevelopmentGoal(_ goalID: String) async {
+        await store.send(.view(.tapDevelopmentGoal(goalID)))
+    }
+
+    func dismissSheet() async {
+        await store.send(.sheet(.dismiss))
         await drainReceivedActions()
     }
 

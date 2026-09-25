@@ -59,6 +59,8 @@ struct HomeFeature {
             case startObserving
             case fetchData
             case todoEditorCreated
+            case tapCreateDevelopmentGoal
+            case tapDevelopmentGoal(String)
             case tapManageTodoCategory
             case tapTodoCategoryExpansionButton
             case tapTodoCategory(TodoCategory)
@@ -80,6 +82,8 @@ struct HomeFeature {
     enum SheetState: Equatable {
         case reorderTodo(CategoryManageFeature.State)
         case contentPicker
+        case goalCreate
+        case goalDetail(String)
 
         var categoryManageState: CategoryManageFeature.State? {
             get {
@@ -89,6 +93,15 @@ struct HomeFeature {
             set {
                 guard let newValue else { return }
                 self = .reorderTodo(newValue)
+            }
+        }
+
+        var isDevelopmentGoalPresentation: Bool {
+            switch self {
+            case .goalCreate, .goalDetail:
+                true
+            case .reorderTodo, .contentPicker:
+                false
             }
         }
     }
@@ -170,7 +183,13 @@ struct HomeFeature {
                 state.selectedTodoCategory = nil
             case .fullScreenCover:
                 break
-            case .sheet(.dismiss), .sheet(.presented(.tapCloseButton)):
+            case .sheet(.dismiss):
+                let refreshesDevelopmentGoals = state.sheet?.isDevelopmentGoalPresentation == true
+                state.sheet = nil
+                if refreshesDevelopmentGoals {
+                    return .send(.view(.fetchData))
+                }
+            case .sheet(.presented(.tapCloseButton)):
                 state.sheet = nil
             case .sheet(.presented(.categoryManage(.delegate(.done(let preferences))))):
                 return orderTodoCategory(preferences, state: &state)
@@ -230,6 +249,10 @@ private extension HomeFeature {
                 trackTodoCreateEffect(),
                 .send(.view(.fetchData))
             )
+        case .tapCreateDevelopmentGoal:
+            state.sheet = .goalCreate
+        case .tapDevelopmentGoal(let goalID):
+            state.sheet = .goalDetail(goalID)
         case .tapManageTodoCategory:
             state.sheet = .reorderTodo(CategoryManageFeature.State(preferences: state.preferences))
         case .tapTodoCategoryExpansionButton:
