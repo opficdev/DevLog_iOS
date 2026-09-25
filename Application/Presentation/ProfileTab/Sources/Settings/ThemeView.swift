@@ -44,7 +44,7 @@ struct ThemeView: View {
             Text(String(localized: "nav_theme", bundle: PresentationResources.bundle))
                 .font(.headline)
             HStack {
-                NavigationBackButton(action: dismiss.callAsFunction)
+                NavigationBackButton(action: { dismiss() })
                 Spacer()
             }
         }

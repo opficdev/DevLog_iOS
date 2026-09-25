@@ -47,7 +47,7 @@ struct RecordVersionHistoryView: View {
 
     private var topBar: some View {
         HStack {
-            NavigationBackButton(action: dismiss.callAsFunction)
+            NavigationBackButton(action: { dismiss() })
             Spacer()
         }
         .padding(.horizontal)

@@ -62,7 +62,7 @@ struct SettingsView: View {
                 .font(.headline)
 
             HStack {
-                NavigationBackButton(action: dismiss.callAsFunction)
+                NavigationBackButton(action: { dismiss() })
                 Spacer()
             }
         }

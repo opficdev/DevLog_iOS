@@ -104,13 +104,13 @@ public struct GoalDetailView: View {
     private var topBar: some View {
         HStack {
             if #available(iOS 26.0, *) {
-                Button(action: dismiss.callAsFunction) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "xmark")
                 }
                 .topBarButtonStyle(tint: Color.accent)
                 .disabled(store.isTransitioning)
             } else {
-                Button(action: dismiss.callAsFunction) {
+                Button(action: { dismiss() }) {
                     Text(RecordPresentation.text("common_close"))
                 }
                 .topBarButtonStyle(tint: Color.accent)
