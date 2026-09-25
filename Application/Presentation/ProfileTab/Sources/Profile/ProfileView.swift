@@ -13,7 +13,7 @@ import PresentationShared
 public struct ProfileView: View {
     @State private var settingsStore: StoreOf<SettingsFeature>
     @State private var store: StoreOf<ProfileFeature>
-    @State private var path = [ProfileRoute]()
+    @State private var router = NavigationRouter<ProfileRoute>()
     private let isSelected: Bool
     private let windowEvent: TodoEditorWindowEvent
 
@@ -34,12 +34,12 @@ public struct ProfileView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $router.path) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     UserInfoCard(store: store, isSelected: isSelected)
                     ActivityCard(store: store) { todoId in
-                        path.append(.activity(todoId))
+                        router.push(.activity(todoId))
                     }
                     GoalSummaryCard(
                         goals: store.developmentGoals,
@@ -49,7 +49,7 @@ public struct ProfileView: View {
                         onRetry: { store.send(.retryDevelopmentGoals) }
                     )
                     RecentActivityCard(store: store) { todoId in
-                        path.append(.recentTodo(todoId))
+                        router.push(.recentTodo(todoId))
                     }
                 }
                 .padding(.horizontal, 16)
@@ -97,7 +97,7 @@ public struct ProfileView: View {
                     .font(.largeTitle.bold())
                 Spacer()
                 Button {
-                    path.append(.settings)
+                    router.push(.settings)
                 } label: {
                     Image(systemName: "gearshape")
                 }
@@ -114,7 +114,7 @@ public struct ProfileView: View {
     private func destinationView(_ route: ProfileRoute) -> some View {
         switch route {
         case .settings:
-            SettingsView(store: settingsStore) { path.append($0) }
+            SettingsView(store: settingsStore) { router.push($0) }
         case .activity(let todoId):
             TodoDetailView(store: Store(
                 initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: false)
