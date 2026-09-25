@@ -17,8 +17,7 @@ public struct HomeView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
     @ScaledMetric(relativeTo: .title2) private var categoryIconSize = CGFloat(64)
-    @State private var path = [HomeRoute]()
-    @State private var goalPresentation: GoalPresentation?
+    @State private var router = NavigationRouter<HomeRoute>()
     @State private var searchStore: StoreOf<SearchFeature>
     @State private var store: StoreOf<HomeFeature>
     private let isSelected: Bool
@@ -44,7 +43,7 @@ public struct HomeView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $router.path) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     DevelopmentSummaryCard(
@@ -59,8 +58,8 @@ public struct HomeView: View {
                         isLoading: store.isDevelopmentGoalsLoading,
                         hasLoaded: store.hasDevelopmentGoalsLoaded,
                         hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
-                        onCreate: { goalPresentation = .create },
-                        onSelect: { goalPresentation = .detail($0.id) },
+                        onCreate: { store.send(.view(.tapCreateDevelopmentGoal)) },
+                        onSelect: { store.send(.view(.tapDevelopmentGoal($0.id))) },
                         onRetry: { store.send(.view(.fetchData)) }
                     )
                 }
@@ -88,14 +87,6 @@ public struct HomeView: View {
                 .activePresentation(when: isSelected),
             content: sheetContent
         )
-        .sheet(item: $goalPresentation, onDismiss: refreshDevelopmentGoals) { presentation in
-            switch presentation {
-            case .create:
-                GoalCreateView()
-            case .detail(let goalID):
-                GoalDetailView(goalId: goalID)
-            }
-        }
         .fullScreenCover(
             item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
                 .activePresentation(when: isSelected),
@@ -251,7 +242,8 @@ public struct HomeView: View {
 
     @ViewBuilder
     private func sheetContent(_ sheetStore: Store<HomeFeature.SheetState, HomeFeature.Sheet>) -> some View {
-        if case .contentPicker = sheetStore.state {
+        switch sheetStore.state {
+        case .contentPicker:
             NavigationStack {
                 List {
                     Section {
@@ -291,8 +283,14 @@ public struct HomeView: View {
                     }
                 }
             }
-        } else if let store = sheetStore.scope(state: \.categoryManageState, action: \.categoryManage) {
-            CategoryManageView(store: store)
+        case .reorderTodo:
+            if let store = sheetStore.scope(state: \.categoryManageState, action: \.categoryManage) {
+                CategoryManageView(store: store)
+            }
+        case .goalCreate:
+            GoalCreateView()
+        case .goalDetail(let goalID):
+            GoalDetailView(goalId: goalID)
         }
     }
 
@@ -319,7 +317,7 @@ public struct HomeView: View {
                     TodoListFeature()
                 },
                 windowEvent: windowEvent,
-                onSelectTodo: { path.append(.todo(TodoIdItem(id: $0))) }
+                onSelectTodo: { router.push(.todo(TodoIdItem(id: $0))) }
             )
             .id(item.id)
         case .todo(let item):
@@ -389,9 +387,6 @@ public struct HomeView: View {
         } else {
             store.send(.view(.tapTodoCategory(todoCategory)))
         }
-    }
-    private func refreshDevelopmentGoals() {
-        store.send(.view(.fetchData))
     }
 }
 

@@ -139,6 +139,23 @@ struct HomeFeatureTests {
         #expect(adapter.isTodoCategoryExpanded)
     }
 
+    @Test("개발 목표 생성과 상세 선택은 Feature sheet 상태를 전환한다")
+    func 개발_목표_생성과_상세_선택은_Feature_sheet_상태를_전환한다() async {
+        let adapter = StoreTestAdapter()
+
+        await adapter.tapCreateDevelopmentGoal()
+
+        #expect(adapter.sheet == .goalCreate)
+
+        await adapter.dismissSheet()
+
+        #expect(adapter.sheet == nil)
+
+        await adapter.tapDevelopmentGoal("goal")
+
+        #expect(adapter.sheet == .goalDetail("goal"))
+    }
+
     @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
         let context = makeHomeFetchDataContext()
