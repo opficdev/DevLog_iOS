@@ -109,6 +109,20 @@ struct AccountView: View {
     }
 }
 
+struct ToastLabel: View {
+    let message: String
+
+    var body: some View {
+        Label {
+            Text(message)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.accent)
+        }
+    }
+}
+
 private struct ProviderRow: View {
     let provider: AuthProvider
     let isConnected: Bool

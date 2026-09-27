@@ -188,6 +188,7 @@ func verifyDeleteUndoAndFinishToast<Adapter: PushNotificationListStateDriving>(
     undoDeleteUseCaseSpy: UndoDeletePushNotificationUseCaseSpy
 ) async throws {
     ToastPresenter.reset()
+    defer { ToastPresenter.reset() }
 
     await adapter.fetchNotifications()
 
@@ -201,15 +202,21 @@ func verifyDeleteUndoAndFinishToast<Adapter: PushNotificationListStateDriving>(
     await adapter.deleteNotification(item)
 
     let deletedNotifications = adapter.notifications
-    let toastMessage = ToastPresenter.item?.message
+    let toast = try #require(ToastPresenter.item)
+    let undo = try #require(toast.action)
     #expect(deletedNotifications.first?.isHidden == true)
-    #expect(toastMessage == String(localized: "common_undo", bundle: PresentationResources.bundle))
+    #expect(toast.duration == 5)
+    #expect(toast.onDismiss != nil)
 
     await waitUntilMainActor {
         deleteUseCaseSpy.calledNotificationIds == ["notification-1"]
     }
 
-    await adapter.undoDelete()
+    undo()
+
+    await waitUntilMainActor {
+        adapter.notifications.first?.isHidden == false
+    }
 
     let restoredNotifications = adapter.notifications
     #expect(restoredNotifications.first?.isHidden == false)
@@ -219,7 +226,12 @@ func verifyDeleteUndoAndFinishToast<Adapter: PushNotificationListStateDriving>(
     }
 
     await adapter.deleteNotification(item)
-    await adapter.finishDeleteToast("notification-1")
+    let finish = try #require(ToastPresenter.item?.onDismiss)
+    finish()
+
+    await waitUntilMainActor {
+        adapter.notifications.isEmpty
+    }
 
     let finalNotifications = adapter.notifications
     #expect(finalNotifications.isEmpty)

@@ -451,6 +451,23 @@
         }
       }
     },
+    "todo_list_delete_toast_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo deleted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo를 삭제했어요."
+          }
+        }
+      }
+    },
     "profile_recent_empty" : {
       "extractionState" : "manual",
       "localizations" : {

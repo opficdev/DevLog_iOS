@@ -245,8 +245,6 @@ public struct TodoListView: View {
 
     private func presentDeleteTodoToast(_ todoId: String) {
         ToastPresenter.present(
-            message: String(localized: "common_undo", bundle: PresentationResources.bundle),
-            systemImage: "arrow.uturn.left",
             duration: 5,
             action: {
                 store.send(.view(.undoDelete))
@@ -254,7 +252,9 @@ public struct TodoListView: View {
             onDismiss: {
                 store.send(.view(.finishDeleteToast(todoId)))
             }
-        )
+        ) {
+            ToastLabel()
+        }
     }
 
     @ViewBuilder
@@ -420,5 +420,18 @@ public struct TodoListView: View {
 
     private func selectTodo(_ todoId: String) {
         onSelectTodo(todoId)
+    }
+}
+
+struct ToastLabel: View {
+    var body: some View {
+        Label {
+            Text(String(localized: "todo_list_delete_toast_message", bundle: PresentationResources.bundle))
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: "arrow.uturn.backward.circle.fill")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color.accent)
+            }
     }
 }
