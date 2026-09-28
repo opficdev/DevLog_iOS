@@ -110,6 +110,8 @@ struct TodoListFeature {
         case searchDebounce
     }
 
+    private static let fetchLoadingTarget = LoadingFeature.Target("todoList.fetch")
+
     @Dependency(\.continuousClock) var clock
     @Dependency(\.todoListFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.fetchTodoByIdUseCase) var fetchTodoByIdUseCase
@@ -150,6 +152,7 @@ struct TodoListFeature {
                 let keyword = state.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
                 state.query.keyword = keyword.isEmpty ? nil : keyword
                 state.nextCursor = nil
+                state.hasMore = false
                 if keyword.isEmpty {
                     return .merge(
                         .cancel(id: CancelID.searchDebounce),
@@ -157,6 +160,8 @@ struct TodoListFeature {
                     )
                 }
                 return .concatenate(
+                    .cancel(id: CancelID.fetch),
+                    .send(.loading(.end(target: Self.fetchLoadingTarget, mode: .delayed))),
                     .cancel(id: CancelID.searchDebounce),
                     debounceSearchEffect()
                 )
@@ -246,8 +251,8 @@ private extension TodoListFeature {
         showsIndicator: Bool = true
     ) -> Effect<Action> {
         .concatenate(
-            .send(.loading(.end(target: .default, mode: .delayed))),
-            showsIndicator ? .send(.loading(.begin(target: .default, mode: .delayed))) : .none,
+            .send(.loading(.end(target: Self.fetchLoadingTarget, mode: .delayed))),
+            showsIndicator ? .send(.loading(.begin(target: Self.fetchLoadingTarget, mode: .delayed))) : .none,
             .run { [fetchTodosUseCase] send in
                 do {
                     let page = try await fetchTodosUseCase.execute(query, cursor: cursor)
@@ -260,14 +265,14 @@ private extension TodoListFeature {
                     )))
                     await send(.store(.setHasMore(page.items.count == query.pageSize && page.nextCursor != nil)))
                     if showsIndicator {
-                        await send(.loading(.end(target: .default, mode: .delayed)))
+                        await send(.loading(.end(target: Self.fetchLoadingTarget, mode: .delayed)))
                     }
                 } catch is CancellationError {
                     return
                 } catch {
                     await send(.store(.setAlert(true)))
                     if showsIndicator {
-                        await send(.loading(.end(target: .default, mode: .delayed)))
+                        await send(.loading(.end(target: Self.fetchLoadingTarget, mode: .delayed)))
                     }
                 }
             }
@@ -334,6 +339,7 @@ private extension TodoListFeature {
             state.searchQuery = ""
             state.query.keyword = nil
             state.nextCursor = nil
+            state.hasMore = false
             return .merge(
                 .cancel(id: CancelID.searchDebounce),
                 fetchEffect(query: state.query, cursor: nil)

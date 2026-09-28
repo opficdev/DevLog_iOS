@@ -20,6 +20,7 @@ final class TodoListStoreTestAdapter {
     var isSearching: Bool { store.state.isSearching }
     var searchQuery: String { store.state.searchQuery }
     var isLoading: Bool { store.state.isLoading }
+    var loading: LoadingFeature.State { store.state.loading }
     var hasMore: Bool { store.state.hasMore }
     var alert: AlertState<Never>? { store.state.alert }
     var fullScreenCover: TodoListFeature.FullScreenCoverState? { store.state.fullScreenCover }
@@ -89,11 +90,22 @@ final class TodoListStoreTestAdapter {
             $0.searchQuery = query
             $0.query.keyword = keyword.isEmpty ? nil : keyword
             $0.nextCursor = nil
+            $0.hasMore = false
         }
     }
 
     func receiveSearchQueryDebounced() async {
-        await store.receive(.view(.searchQueryDebounced))
+        await store.receive(\.view, .searchQueryDebounced)
+        await drainReceivedActions()
+    }
+
+    func receiveDelayedLoading(target: LoadingFeature.Target = .default) async {
+        await store.receive(\.loading, .delayedLoadingDidBecomeVisible(target: target))
+        await drainReceivedActions()
+    }
+
+    func receiveLoadingEnded(target: LoadingFeature.Target) async {
+        await store.receive(\.loading, .end(target: target, mode: .delayed))
         await drainReceivedActions()
     }
 
@@ -279,6 +291,7 @@ final class TodoListFetchTodoByIdUseCaseSpy: FetchTodoByIdUseCase {
 
 final class TodoListUpsertTodoUseCaseSpy: UpsertTodoUseCase {
     var error: Error?
+    var completion: AsyncStream<Void>?
     private(set) var todos = [Todo]()
     private(set) var todoDrafts = [TodoDraft]()
 
@@ -287,6 +300,12 @@ final class TodoListUpsertTodoUseCaseSpy: UpsertTodoUseCase {
 
         if let error {
             throw error
+        }
+
+        if let completion {
+            for await _ in completion {
+                break
+            }
         }
     }
 

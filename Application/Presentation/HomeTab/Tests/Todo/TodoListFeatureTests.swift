@@ -149,6 +149,137 @@ struct TodoListFeatureTests {
         #expect(adapter.todos == [TodoListItem(from: todo)!])
     }
 
+    @Test("검색 대기 중 다음 페이지를 요청해도 기존 목록에 검색 결과를 추가하지 않는다")
+    func 검색_대기_중_다음_페이지를_요청해도_기존_목록에_검색_결과를_추가하지_않는다() async {
+        let todos = (0..<20).map { makeTodoListTodo(id: "todo-\($0)", number: $0) }
+        let todo = makeTodoListTodo(id: "todo-search", title: "Swift")
+        let cursor = makeTodoListCursor(documentID: "cursor-1")
+        let fetchSpy = TodoListFetchTodosUseCaseSpy(pages: [
+            TodoPage(items: todos, nextCursor: cursor),
+            TodoPage(items: [todo], nextCursor: nil)
+        ])
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+
+        await adapter.onAppear()
+        await waitUntil {
+            adapter.hasMore && adapter.todos.count == 20
+        }
+
+        await adapter.setSearchQuery("swift")
+        #expect(!adapter.hasMore)
+
+        await adapter.loadNextPage()
+        #expect(fetchSpy.queries.count == 1)
+        #expect(adapter.todos == todos.compactMap(TodoListItem.init(from:)))
+
+        await clock.advance(by: .milliseconds(400))
+        await adapter.receiveSearchQueryDebounced()
+        await waitUntil {
+            adapter.todos == [TodoListItem(from: todo)!]
+        }
+
+        #expect(fetchSpy.queries.map(\.keyword) == [nil, "swift"])
+        #expect(fetchSpy.cursors.map { $0?.documentID } == [nil, nil])
+        #expect(!adapter.hasMore)
+    }
+
+    @Test("검색어 변경은 디바운스를 기다리지 않고 진행 중인 조회를 취소한다")
+    func 검색어_변경은_디바운스를_기다리지_않고_진행_중인_조회를_취소한다() async throws {
+        let firstTodo = makeTodoListTodo(id: "todo-first", number: 1)
+        let todo = makeTodoListTodo(id: "todo-search", title: "Swift")
+        let fetchSpy = DelayedFirstFetchTodosUseCaseSpy(pages: [
+            TodoPage(items: [firstTodo], nextCursor: nil),
+            TodoPage(items: [todo], nextCursor: nil)
+        ])
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+
+        await adapter.onAppear()
+        await fetchSpy.waitForCallCount(1)
+        let target = try #require(adapter.loading.scheduledDelayedTargets.first)
+        await clock.advance(by: .milliseconds(300))
+        await adapter.receiveDelayedLoading(target: target)
+        #expect(adapter.isLoading)
+
+        await adapter.setSearchQuery("swift")
+
+        let cancelledCalls = await fetchSpy.waitForCancelledCalls([0])
+        #expect(cancelledCalls == [0])
+        await adapter.receiveLoadingEnded(target: target)
+        #expect(!adapter.isLoading)
+        #expect(adapter.todos.isEmpty)
+
+        await clock.advance(by: .milliseconds(400))
+        await adapter.receiveSearchQueryDebounced()
+        await waitUntil {
+            adapter.todos == [TodoListItem(from: todo)!]
+        }
+
+        let queries = await fetchSpy.calledQueries()
+        #expect(queries.map(\.keyword) == [nil, "swift"])
+        #expect(!adapter.showAlert)
+    }
+
+    @Test("검색 조회가 끝나도 Todo 변경 작업의 로딩은 유지된다", arguments: [false, true])
+    func 검색_조회가_끝나도_Todo_변경_작업의_로딩은_유지된다(togglesPinned: Bool) async {
+        let todo = makeTodoListTodo(id: "todo-loading", title: "Swift")
+        let item = TodoListItem(from: todo)!
+        let fetchSpy = TodoListFetchTodosUseCaseSpy(pages: [
+            TodoPage(items: [todo], nextCursor: nil)
+        ])
+        let fetchByIdSpy = TodoListFetchTodoByIdUseCaseSpy(todos: [todo])
+        let upsertSpy = TodoListUpsertTodoUseCaseSpy()
+        let completion = AsyncStream<Void>.makeStream()
+        upsertSpy.completion = completion.stream
+        defer { completion.continuation.finish() }
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            fetchTodoByIdUseCase: fetchByIdSpy,
+            upsertUseCase: upsertSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+
+        await adapter.appendTodos([item])
+        if togglesPinned {
+            await adapter.tapTogglePinned(item)
+        } else {
+            await adapter.tapToggleCompleted(item)
+        }
+        await waitUntil {
+            upsertSpy.todos.count == 1
+        }
+
+        await clock.advance(by: .milliseconds(300))
+        await adapter.receiveDelayedLoading()
+        #expect(adapter.isLoading)
+
+        await adapter.setSearchQuery("swift")
+        await clock.advance(by: .milliseconds(400))
+        await adapter.receiveSearchQueryDebounced()
+        await waitUntil {
+            fetchSpy.queries.count == 1
+        }
+        #expect(adapter.isLoading)
+
+        completion.continuation.finish()
+        await adapter.receiveLoadingEnded(target: .default)
+        #expect(!adapter.isLoading)
+    }
+
     @Test("검색 종료는 검색어를 지우고 현재 카테고리 목록을 다시 조회한다")
     func 검색_종료는_검색어를_지우고_현재_카테고리_목록을_다시_조회한다() async {
         let fetchSpy = TodoListFetchTodosUseCaseSpy()
