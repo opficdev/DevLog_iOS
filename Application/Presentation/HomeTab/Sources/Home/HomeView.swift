@@ -316,6 +316,7 @@ public struct HomeView: View {
                 store: Store(initialState: TodoListFeature.State(category: item.todoCategory)) {
                     TodoListFeature()
                 },
+                searchStore: searchStore,
                 windowEvent: windowEvent,
                 onSelectTodo: { router.push(.todo(TodoIdItem(id: $0))) }
             )

@@ -107,7 +107,7 @@ private extension AppGraph {
             fetchReferenceItemsUseCase: todoGraphSet.todoUseCaseGraph.fetchReferenceItemsUseCase,
             upsertTodoUseCase: todoGraphSet.todoUseCaseGraph.upsertTodoUseCase
         )
-        TodoDependencyPreparation.prepareListQuery(
+        HomePresentationDependencyPreparation.prepareTodoListQuery(
             &dependencies,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase,
             fetchTodoByIdUseCase: todoGraphSet.todoUseCaseGraph.fetchTodoByIdUseCase,
@@ -116,7 +116,7 @@ private extension AppGraph {
                 .todoCategoryUseCaseGraph
                 .fetchTodoCategoryPreferencesUseCase
         )
-        TodoDependencyPreparation.prepareListMutation(
+        HomePresentationDependencyPreparation.prepareTodoListMutation(
             &dependencies,
             upsertTodoUseCase: todoGraphSet.todoUseCaseGraph.upsertTodoUseCase,
             deleteTodoUseCase: todoGraphSet.todoUseCaseGraph.deleteTodoUseCase,

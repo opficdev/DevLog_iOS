@@ -1,6 +1,6 @@
 //
 //  TodoListFeature.swift
-//  PresentationShared
+//  HomeTab
 //
 //  Created by opfic on 6/12/26.
 //
@@ -9,36 +9,32 @@ import ComposableArchitecture
 import Core
 import Domain
 import Foundation
+import PresentationShared
 
 @Reducer
-public struct TodoListFeature {
+struct TodoListFeature {
     @ObservableState
-    public struct State: Equatable {
-        @Presents public var alert: AlertState<Never>?
-        @Presents public var fullScreenCover: FullScreenCoverState?
-        public var category: TodoCategory
-        public var todos: [TodoListItem] = []
-        public var searchText = ""
-        public var searchResults: [TodoListItem] = []
-        public var isSearching = false
-        public var showAllSearchResults = false
-        public var query: TodoQuery
-        public var hasMore = false
-        public var loading = LoadingFeature.State()
+    struct State: Equatable {
+        @Presents var alert: AlertState<Never>?
+        @Presents var fullScreenCover: FullScreenCoverState?
+        var category: TodoCategory
+        var todos: [TodoListItem] = []
+        var query: TodoQuery
+        var hasMore = false
+        var loading = LoadingFeature.State()
         var undoTodoId: String?
         var nextCursor: TodoCursor?
-        let searchResultsLimit = 5
 
-        public init(category: TodoCategory) {
+        init(category: TodoCategory) {
             self.category = category
             self.query = TodoQuery(categoryId: category.storageValue)
         }
 
-        public var isLoading: Bool {
+        var isLoading: Bool {
             loading.isLoading
         }
 
-        public var appliedFilterCount: Int {
+        var appliedFilterCount: Int {
             var count = 0
             if query.sortTarget != .createdAt { count += 1 }
             if query.sortOrder != .latest { count += 1 }
@@ -49,15 +45,15 @@ public struct TodoListFeature {
     }
 
     @ObservableState
-    public struct FullScreenCoverState: Equatable {
-        public var destination: Destination
+    struct FullScreenCoverState: Equatable {
+        var destination: Destination
         var todoEditor: TodoEditorFeature.State?
 
-        public enum Destination: Equatable {
+        enum Destination: Equatable {
             case editor
         }
 
-        public static let editor = Self(destination: .editor)
+        static let editor = Self(destination: .editor)
 
         static func editor(_ category: TodoCategory) -> Self {
             Self(
@@ -67,7 +63,7 @@ public struct TodoListFeature {
         }
     }
 
-    public enum Action: BindableAction {
+    enum Action: BindableAction {
         case alert(PresentationAction<Never>)
         case fullScreenCover(PresentationAction<FullScreenCover>)
         case binding(BindingAction<State>)
@@ -76,11 +72,11 @@ public struct TodoListFeature {
         case loading(LoadingFeature.Action)
 
         @CasePathable
-        public enum FullScreenCover: Equatable {
+        enum FullScreenCover: Equatable {
             case todoEditor(TodoEditorFeature.Action)
         }
 
-        public enum ViewAction: Equatable {
+        enum ViewAction: Equatable {
             case refresh
             case swipeTodo(TodoListItem)
             case resetFilters
@@ -93,11 +89,9 @@ public struct TodoListFeature {
             case loadNextPage
         }
 
-        public enum StoreAction: Equatable {
+        enum StoreAction: Equatable {
             case setFullScreenCover(FullScreenCoverState?)
             case setAlert(Bool)
-            case applySearchQuery(String)
-            case fetchSearchResults([TodoListItem])
             case didToggleCompleted(TodoListItem)
             case didTogglePinned(TodoListItem)
             case setTodoHidden(String, Bool)
@@ -108,12 +102,9 @@ public struct TodoListFeature {
     }
 
     enum CancelID: Hashable {
-        case debounce
         case fetch
-        case request
     }
 
-    @Dependency(\.continuousClock) var clock
     @Dependency(\.todoListFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.fetchTodoByIdUseCase) var fetchTodoByIdUseCase
     @Dependency(\.upsertTodoUseCase) var upsertTodoUseCase
@@ -121,11 +112,9 @@ public struct TodoListFeature {
     @Dependency(\.todoListUndoDeleteTodoUseCase) var undoDeleteTodoUseCase
     @Dependency(\.trackAnalyticsEventUseCase) var trackAnalyticsEventUseCase
 
-    private let searchDebounceDelay = Duration.seconds(0.4)
+    init() { }
 
-    public init() { }
-
-    public var body: some ReducerOf<Self> {
+    var body: some ReducerOf<Self> {
         Scope(state: \.loading, action: \.loading) {
             LoadingFeature()
         }
@@ -144,14 +133,6 @@ public struct TodoListFeature {
                 state.fullScreenCover = nil
             case .fullScreenCover:
                 break
-            case .binding(\.searchText):
-                return setSearchTextEffect(state: &state)
-            case .binding(\.isSearching):
-                guard !state.isSearching else { break }
-                state.searchText = ""
-                state.searchResults = []
-                state.showAllSearchResults = false
-                return cancelSearchEffect()
             case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.query.isPinned),
                     .binding(\.query.completionFilter):
                 state.nextCursor = nil
@@ -187,7 +168,7 @@ private struct FullScreenCoverFeature: Reducer {
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var todoListFetchTodosUseCase: FetchTodosUseCase {
         get { self[FetchTodosUseCaseKey.self] }
         set { self[FetchTodosUseCaseKey.self] = newValue }
@@ -270,50 +251,6 @@ private extension TodoListFeature {
         .cancellable(id: CancelID.fetch, cancelInFlight: true)
     }
 
-    func setSearchTextEffect(state: inout State) -> Effect<Action> {
-        state.showAllSearchResults = false
-        let trimmed = state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if trimmed.isEmpty {
-            state.searchResults = []
-            return cancelSearchEffect()
-        } else {
-            return .concatenate(
-                cancelSearchEffect(),
-                debounceSearchEffect(trimmed)
-            )
-        }
-    }
-
-    func applySearchQueryEffect(_ query: String, state: inout State) -> Effect<Action> {
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            state.searchResults = []
-            return cancelSearchEffect()
-        } else {
-            return searchEffect(trimmed, category: state.category)
-        }
-    }
-
-    func cancelSearchEffect() -> Effect<Action> {
-        .merge(
-            .cancel(id: CancelID.debounce),
-            .cancel(id: CancelID.request),
-            .send(.loading(.end(target: .default, mode: .immediate)))
-        )
-    }
-
-    func debounceSearchEffect(_ keyword: String) -> Effect<Action> {
-        .concatenate(
-            .send(.loading(.begin(target: .default, mode: .immediate))),
-            .run { [clock, searchDebounceDelay] send in
-                try await clock.sleep(for: searchDebounceDelay)
-                await send(.store(.applySearchQuery(keyword)))
-            }
-            .cancellable(id: CancelID.debounce, cancelInFlight: true)
-        )
-    }
-
     func reduce(
         _ action: Action.ViewAction,
         state: inout State
@@ -336,7 +273,6 @@ private extension TodoListFeature {
             return fetchEffect(query: state.query, cursor: nil)
         case .finishDeleteToast(let todoId):
             state.todos.removeAll { $0.id == todoId && $0.isHidden }
-            state.searchResults.removeAll { $0.id == todoId && $0.isHidden }
             if state.undoTodoId == todoId {
                 state.undoTodoId = nil
             }
@@ -366,10 +302,6 @@ private extension TodoListFeature {
             state.fullScreenCover = cover?.destination == .editor ? .editor(state.category) : nil
         case .setAlert(let value):
             Self.setAlert(&state, isPresented: value)
-        case .applySearchQuery(let query):
-            return applySearchQueryEffect(query, state: &state)
-        case .fetchSearchResults(let items):
-            state.searchResults = items
         case .didToggleCompleted(let todo), .didTogglePinned(let todo):
             if let index = state.todos.firstIndex(where: { $0.id == todo.id }) {
                 state.todos[index] = todo

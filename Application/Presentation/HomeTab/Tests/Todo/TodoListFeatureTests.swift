@@ -1,6 +1,6 @@
 //
 //  TodoListFeatureTests.swift
-//  PresentationSharedTests
+//  HomeTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -9,7 +9,8 @@ import Testing
 import Foundation
 import Core
 import Domain
-@testable import PresentationShared
+import PresentationShared
+@testable import HomeTab
 
 @MainActor
 struct TodoListFeatureTests {
@@ -110,47 +111,6 @@ struct TodoListFeatureTests {
         #expect(adapter.appliedFilterCount == 0)
     }
 
-    @Test("setSearchText는 표시 범위를 초기화하고 디바운스 후 검색 결과를 반영한다")
-    func setSearchText는_표시_범위를_초기화하고_디바운스_후_검색_결과를_반영한다() async {
-        let todo = makeTodoListTodo(id: "todo-search", title: "Swift")
-        let fetchSpy = TodoListFetchTodosUseCaseSpy(pages: [
-            TodoPage(items: [todo], nextCursor: nil)
-        ])
-        let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
-
-        await adapter.setShowAllSearchResults(true)
-        await adapter.setSearchText(" swift ")
-
-        #expect(adapter.searchText == " swift ")
-        #expect(!adapter.showAllSearchResults)
-
-        await waitUntil(timeout: .seconds(2)) {
-            adapter.searchResults == [TodoListItem(from: todo)]
-        }
-
-        #expect(fetchSpy.queries.map(\.keyword) == ["swift"])
-        #expect(fetchSpy.cursors.map { $0?.documentID } == [nil])
-        #expect(!adapter.isLoading)
-    }
-
-    @Test("setIsSearching false는 검색 상태와 검색 결과 표시 상태를 초기화한다")
-    func setIsSearching_false는_검색_상태와_검색_결과_표시_상태를_초기화한다() async {
-        let todo = TodoListItem(from: makeTodoListTodo(id: "todo-search"))!
-        let adapter = TodoListStoreTestAdapter()
-
-        await adapter.setSearchResults([todo])
-        await adapter.setShowAllSearchResults(true)
-        await adapter.setSearchText("swift")
-        await adapter.setIsSearching(true)
-        await adapter.setIsSearching(false)
-
-        #expect(!adapter.isSearching)
-        #expect(adapter.searchText.isEmpty)
-        #expect(adapter.searchResults.isEmpty)
-        #expect(!adapter.showAllSearchResults)
-        #expect(!adapter.isLoading)
-    }
-
     @Test("fullScreenCover 상태를 설정하고 dismiss 할 수 있다")
     func fullScreenCover_상태를_설정하고_dismiss_할_수_있다() async {
         let adapter = TodoListStoreTestAdapter()
@@ -195,11 +155,9 @@ struct TodoListFeatureTests {
         )
 
         await adapter.appendTodos([item])
-        await adapter.setSearchResults([item])
         await adapter.swipeTodo(item)
 
         #expect(adapter.todos.first?.isHidden == true)
-        #expect(adapter.searchResults.first?.isHidden == true)
 
         await waitUntil {
             deleteSpy.todoIds == ["todo-delete"]
@@ -208,7 +166,6 @@ struct TodoListFeatureTests {
         await adapter.undoDelete()
 
         #expect(adapter.todos.first?.isHidden == false)
-        #expect(adapter.searchResults.first?.isHidden == false)
 
         await waitUntil {
             undoSpy.todoIds == ["todo-delete"]
@@ -218,7 +175,6 @@ struct TodoListFeatureTests {
         await adapter.finishDeleteToast("todo-delete")
 
         #expect(adapter.todos.isEmpty)
-        #expect(adapter.searchResults.isEmpty)
     }
 
     @Test("tapToggleCompleted와 tapTogglePinned는 조회한 Todo를 갱신해 목록에 반영한다")

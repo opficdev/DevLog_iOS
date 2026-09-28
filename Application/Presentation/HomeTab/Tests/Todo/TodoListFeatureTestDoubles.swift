@@ -1,6 +1,6 @@
 //
 //  TodoListFeatureTestDoubles.swift
-//  PresentationSharedTests
+//  HomeTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -8,17 +8,14 @@
 import Foundation
 import Core
 import Domain
-@testable import PresentationShared
+import PresentationShared
+@testable import HomeTab
 
 @MainActor
 final class TodoListStoreTestAdapter {
     private let store: TestStoreOf<TodoListFeature>
 
     var todos: [TodoListItem] { store.state.todos }
-    var searchText: String { store.state.searchText }
-    var searchResults: [TodoListItem] { store.state.searchResults }
-    var isSearching: Bool { store.state.isSearching }
-    var showAllSearchResults: Bool { store.state.showAllSearchResults }
     var query: TodoQuery { store.state.query }
     var isLoading: Bool { store.state.isLoading }
     var hasMore: Bool { store.state.hasMore }
@@ -49,7 +46,6 @@ final class TodoListStoreTestAdapter {
             $0.todoListDeleteTodoUseCase = deleteUseCase
             $0.todoListUndoDeleteTodoUseCase = undoDeleteUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-            $0.continuousClock = ContinuousClock()
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
@@ -88,30 +84,6 @@ final class TodoListStoreTestAdapter {
     func resetFilters() async {
         await store.send(.view(.resetFilters))
         await drainReceivedActions()
-    }
-
-    func setSearchText(_ text: String) async {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        await store.send(.binding(.set(\.searchText, text)))
-        await drainReceivedActions()
-
-        if !trimmed.isEmpty {
-            try? await Task.sleep(for: .milliseconds(450))
-            await drainReceivedActions()
-        }
-    }
-
-    func setSearchResults(_ results: [TodoListItem]) async {
-        await store.send(.store(.fetchSearchResults(results)))
-    }
-
-    func setIsSearching(_ value: Bool) async {
-        await store.send(.binding(.set(\.isSearching, value)))
-        await drainReceivedActions()
-    }
-
-    func setShowAllSearchResults(_ value: Bool) async {
-        await store.send(.binding(.set(\.showAllSearchResults, value)))
     }
 
     func appendTodos(_ todos: [TodoListItem]) async {

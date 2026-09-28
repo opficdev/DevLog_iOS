@@ -4129,57 +4129,6 @@
         }
       }
     },
-    "todo_list_search_instruction_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search titles or content in %1$@."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@의 제목이나 내용을 검색해 보세요."
-          }
-        }
-      }
-    },
-    "todo_list_search_prompt_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search %1$@ (e.g. #123)"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ 검색 (예: #123)"
-          }
-        }
-      }
-    },
-    "todo_list_show_more" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "더보기"
-          }
-        }
-      }
-    },
     "todo_list_sort_by" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4193,23 +4142,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정렬 기준"
-          }
-        }
-      }
-    },
-    "todo_list_sort_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort: %1$@ / %2$@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "정렬: %1$@ / %2$@"
           }
         }
       }

@@ -28,29 +28,4 @@ public enum TodoDependencyPreparation {
         dependencies.upsertTodoUseCase = upsertTodoUseCase
     }
 
-    public static func prepareListQuery(
-        _ dependencies: inout DependencyValues,
-        fetchTodosUseCase: FetchTodosUseCase,
-        fetchTodoByIdUseCase: FetchTodoByIdUseCase,
-        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
-        fetchTodoCategoryPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
-    ) {
-        dependencies.todoListFetchTodosUseCase = fetchTodosUseCase
-        dependencies.fetchTodoByIdUseCase = fetchTodoByIdUseCase
-        dependencies.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
-        dependencies.fetchTodoCategoryPreferencesUseCase = fetchTodoCategoryPreferencesUseCase
-    }
-
-    public static func prepareListMutation(
-        _ dependencies: inout DependencyValues,
-        upsertTodoUseCase: UpsertTodoUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase,
-        undoDeleteTodoUseCase: UndoDeleteTodoUseCase,
-        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
-    ) {
-        dependencies.upsertTodoUseCase = upsertTodoUseCase
-        dependencies.todoListDeleteTodoUseCase = deleteTodoUseCase
-        dependencies.todoListUndoDeleteTodoUseCase = undoDeleteTodoUseCase
-        dependencies.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
-    }
 }
