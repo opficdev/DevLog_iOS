@@ -110,79 +110,68 @@ struct TodoListView: View {
 
         ZStack {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
-                    Section {
-                        if visibleTodos.isEmpty, !store.state.isLoading {
-                            Text(String(localized: "todo_list_empty", bundle: PresentationResources.bundle))
-                                .font(.callout)
-                                .foregroundStyle(Color.textSecondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 32)
-                                .background(Color.surface, in: .rect(cornerRadius: 16))
-                                .padding(.horizontal, 16)
-                        } else {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.surface)
+                if visibleTodos.isEmpty, !store.state.isLoading {
+                    Text(String(localized: "todo_list_empty", bundle: PresentationResources.bundle))
+                        .font(.callout)
+                        .foregroundStyle(Color.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 32)
+                        .background(Color.surface, in: .rect(cornerRadius: 16))
+                        .padding(.horizontal, 16)
+                } else {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(
+                            Array(zip(visibleTodos.indices, visibleTodos)),
+                            id: \.1.id
+                        ) { index, todo in
+                            let isLast = index == visibleTodos.count - 1
 
-                                VStack(spacing: 0) {
-                                    ForEach(
-                                        Array(zip(visibleTodos.indices, visibleTodos)),
-                                        id: \.1.id
-                                    ) { index, todo in
-                                        let isLast = index == visibleTodos.count - 1
+                            TodoItemRow(todo)
+                                .background(Color.surface)
+                                .contentShape(.rect)
+                                .todoDetailPreview(todoId: todo.id)
+                                .onTapGesture {
+                                    selectTodo(todo.id)
+                                }
+                                .itemActions {
+                                    ItemActionButton(
+                                        color: Color.orange,
+                                        image: Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                                    ) {
+                                        store.send(.view(.tapTogglePinned(todo)))
+                                    }
 
-                                        TodoItemRow(todo)
-                                            .background(Color.surface)
-                                            .contentShape(.rect)
-                                            .todoDetailPreview(todoId: todo.id)
-                                            .onTapGesture {
-                                                selectTodo(todo.id)
-                                            }
-                                            .itemActions {
-                                                ItemActionButton(
-                                                    color: Color.orange,
-                                                    image: Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
-                                                ) {
-                                                    store.send(.view(.tapTogglePinned(todo)))
-                                                }
+                                    ItemActionButton(
+                                        color: Color.accent,
+                                        image: Image(systemName: todo.isCompleted
+                                            ? "arrow.uturn.backward" : "checkmark")
+                                    ) {
+                                        store.send(.view(.tapToggleCompleted(todo)))
+                                    }
 
-                                                ItemActionButton(
-                                                    color: Color.accent,
-                                                    image: Image(systemName: todo.isCompleted
-                                                        ? "arrow.uturn.backward" : "checkmark")
-                                                ) {
-                                                    store.send(.view(.tapToggleCompleted(todo)))
-                                                }
-
-                                                ItemActionButton(
-                                                    color: Color.red,
-                                                    image: Image(systemName: "trash")
-                                                ) {
-                                                    store.send(.view(.swipeTodo(todo)))
-                                                    presentDeleteTodoToast(todo.id)
-                                                }
-                                            }
-                                            .overlay(alignment: .bottom) {
-                                                if !isLast {
-                                                    Divider()
-                                                }
-                                            }
-                                            .onAppear {
-                                                if isLast, store.state.hasMore {
-                                                    store.send(.view(.loadNextPage))
-                                                }
-                                            }
+                                    ItemActionButton(
+                                        color: Color.red,
+                                        image: Image(systemName: "trash")
+                                    ) {
+                                        store.send(.view(.swipeTodo(todo)))
+                                        presentDeleteTodoToast(todo.id)
                                     }
                                 }
-                            }
-                            .compositingGroup()
-                            .clipShape(.rect(cornerRadius: 16))
-                            .padding(.horizontal, 16)
+                                .overlay(alignment: .bottom) {
+                                    if !isLast {
+                                        Divider()
+                                    }
+                                }
+                                .onAppear {
+                                    if isLast, store.state.hasMore {
+                                        store.send(.view(.loadNextPage))
+                                    }
+                                }
                         }
-                    } header: {
-                        filterHeader
                     }
+                    .background(Color.surface)
+                    .clipShape(.rect(cornerRadius: 16))
+                    .padding(.horizontal, 16)
                 }
             }
             .safeAreaInset(edge: .top, spacing: 0) { topBar }
@@ -303,12 +292,15 @@ struct TodoListView: View {
                     }
                 }
             }
+            .padding(.horizontal, 16)
 
             if store.isSearching {
                 searchBar
+                    .padding(.horizontal, 16)
             }
+
+            filterHeader
         }
-        .padding(.horizontal, 16)
         .padding(.bottom, 12)
         .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
@@ -396,8 +388,6 @@ struct TodoListView: View {
         .fixedSize(horizontal: false, vertical: true)
         .contentMargins(.horizontal, 16, for: .scrollContent)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.bottom, 12)
-        .background(Color.appBackground)
     }
 
     private func selectTodo(_ todoId: String) {
