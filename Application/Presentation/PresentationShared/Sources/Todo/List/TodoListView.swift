@@ -12,12 +12,10 @@ import Core
 import Domain
 
 public struct TodoListView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.isTabContentActive) private var isTabContentActive
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
-    @ScaledMetric(relativeTo: .body) private var headerHeight = 41
-    @State private var headerOffset: CGFloat = .zero
-    @State private var isScrollTrackingEnabled = false
     @State var store: StoreOf<TodoListFeature>
     private let windowEvent: TodoEditorWindowEvent?
     private let onSelectTodo: (String) -> Void
@@ -34,31 +32,10 @@ public struct TodoListView: View {
 
     public var body: some View {
         Group {
-            if #available(iOS 18, *) {
-                if store.state.isSearching {
-                    todoSearchContent
-                } else {
-                    todoListContent
-                }
+            if store.state.isSearching {
+                todoSearchContent
             } else {
-                Group {
-                    if store.state.isSearching {
-                        searchResultsContent
-                    } else {
-                        todoListContent
-                    }
-                }
-                .searchable(
-                    text: $store.searchText,
-                    isPresented: $store.isSearching,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: Text(
-                        String.localizedStringWithFormat(
-                            String(localized: "todo_list_search_prompt_format", bundle: PresentationResources.bundle),
-                            TodoCategoryItem(from: store.category).localizedName
-                        )
-                    )
-                )
+                todoListContent
             }
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
@@ -67,36 +44,14 @@ public struct TodoListView: View {
                   value.matchesCreate(category: store.category, source: .list) else { return }
             store.send(.view(.windowTodoCreated))
         }
-        .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
         .fullScreenCover(
             item: $store.scope(state: \.fullScreenCover, action: \.fullScreenCover)
                 .activePresentation(when: isTabContentActive)
         ) { coverStore in
             fullScreenCoverContent(coverStore)
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    openTodoEditor()
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-            if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-            if #available(iOS 18, *) {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        store.send(.binding(.set(\.isSearching, true)))
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                }
-            }
-        }
         .background(NavigationBarConfigurator())
-        .background(Color(.systemGroupedBackground))
+        .background(Color.appBackground.ignoresSafeArea())
         .task { store.send(.view(.onAppear)) }
     }
 
@@ -109,92 +64,79 @@ public struct TodoListView: View {
         let visibleTodos = store.state.todos.filter { !$0.isHidden }
 
         ZStack {
-            List {
-                Group {
-                    if visibleTodos.isEmpty, !store.state.isLoading {
-                        HStack {
-                            Spacer()
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
+                    Section {
+                        if visibleTodos.isEmpty, !store.state.isLoading {
                             Text(String(localized: "todo_list_empty", bundle: PresentationResources.bundle))
-                                .foregroundStyle(Color.gray)
-                            Spacer()
+                                .font(.callout)
+                                .foregroundStyle(Color.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 32)
+                                .background(Color.surface, in: .rect(cornerRadius: 28))
+                                .padding(.horizontal, 16)
+                        } else {
+                            LazyVStack(spacing: 0) {
+                                ForEach(visibleTodos) { todo in
+                                    TodoItemRow(todo)
+                                        .background(Color.surface)
+                                        .contentShape(.rect)
+                                        .todoDetailPreview(todoId: todo.id)
+                                        .onTapGesture {
+                                            selectTodo(todo.id)
+                                        }
+                                        .itemActions {
+                                            ItemActionButton(
+                                                color: Color.orange,
+                                                image: Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                                            ) {
+                                                store.send(.view(.tapTogglePinned(todo)))
+                                            }
+
+                                            ItemActionButton(
+                                                color: Color.accent,
+                                                image: Image(systemName: todo.isCompleted
+                                                    ? "arrow.uturn.backward" : "checkmark")
+                                            ) {
+                                                store.send(.view(.tapToggleCompleted(todo)))
+                                            }
+
+                                            ItemActionButton(
+                                                color: Color.red,
+                                                image: Image(systemName: "trash")
+                                            ) {
+                                                store.send(.view(.swipeTodo(todo)))
+                                                presentDeleteTodoToast(todo.id)
+                                            }
+                                        }
+                                        .overlay(alignment: .bottom) {
+                                            if todo.id != visibleTodos.last?.id {
+                                                Divider()
+                                            }
+                                        }
+                                        .onAppear {
+                                            if todo.id == visibleTodos.last?.id, store.state.hasMore {
+                                                store.send(.view(.loadNextPage))
+                                            }
+                                        }
+                                }
+                            }
+                            .background(Color.surface, in: .rect(cornerRadius: 28))
+                            .compositingGroup()
+                            .clipShape(.rect(cornerRadius: 28))
+                            .padding(.horizontal, 16)
                         }
-                        .listRowSeparator(.hidden)
-                    } else {
-                        ForEach(Array(zip(visibleTodos.indices, visibleTodos)), id: \.1.id) { idx, todo in
-                            Button {
-                                selectTodo(todo.id)
-                            } label: {
-                                TodoItemRow(todo)
-                            }
-                            .todoDetailPreview(todoId: todo.id)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            .alignmentGuide(.listRowSeparatorLeading) { _ in return 0 }
-                            .overlay(alignment: .top) {
-                                if #available(iOS 26.0, *) {
-                                    if idx == 0 {
-                                        Divider()
-                                            .padding(.horizontal, -16)
-                                    }
-                                }
-                            }
-                            .onAppear {
-                                let lastID = visibleTodos.last?.id
-                                if todo.id == lastID, store.state.hasMore {
-                                    store.send(.view(.loadNextPage))
-                                }
-                            }
-                            .swipeActions(edge: .leading) {
-                                Button(action: {
-                                    store.send(.view(.tapTogglePinned(todo)))
-                                }) {
-                                    Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
-                                }
-                                .tint(Color.orange)
-                                Button {
-                                    store.send(.view(.tapToggleCompleted(todo)))
-                                } label: {
-                                    Image(systemName: todo.isCompleted ? "arrow.uturn.backward" : "checkmark")
-                                }
-                                .tint(Color.green)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive, action: {
-                                    store.send(.view(.swipeTodo(todo)))
-                                    presentDeleteTodoToast(todo.id)
-                                }) {
-                                    Image(systemName: "trash")
-                                }
-                            }
-                        }
+                    } header: {
+                        stickyHeader
                     }
                 }
-                .listRowBackground(Color.clear)
-                .listSectionSeparator(.hidden, edges: .top)
             }
-            .listStyle(.plain)
-            .onScrollOffsetChange { offset in
-                guard isScrollTrackingEnabled else { return }
-                headerOffset = max(0, -offset)
-            }
-            .safeAreaInset(edge: .top) {
-                VStack(spacing: 4) {
-                    headerView
-                    if #unavailable(iOS 26) {
-                        Divider()
-                            .padding(.horizontal, -16)
-                    }
-                }
-                .background {
-                    if #available(iOS 26.0, *) {
-                        Color.clear
-                    } else {
-                        Color(.systemGroupedBackground)
-                    }
-                }
-                .offset(y: headerOffset)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                topBar
             }
             .refreshable { await store.send(.view(.refresh)).finish() }
             .scrollDisabled(visibleTodos.isEmpty || store.state.isLoading)
+            .toolbarVisibility(.hidden, for: .navigationBar)
 
             if store.state.isLoading {
                 LoadingView()
@@ -202,9 +144,12 @@ public struct TodoListView: View {
         }
     }
 
-    @available(iOS 18, *)
     private var todoSearchContent: some View {
         searchResultsContent
+            .background(Color.appBackground)
+            .navigationTitle(TodoCategoryItem(from: store.category).localizedName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarVisibility(.visible, for: .navigationBar)
             .searchable(
                 text: $store.searchText,
                 isPresented: $store.isSearching,
@@ -272,44 +217,122 @@ public struct TodoListView: View {
                     TodoCategoryItem(from: store.category).localizedName
                 )
             )
-                .foregroundStyle(Color.gray)
-                .frame(maxWidth: .infinity)
+                .foregroundStyle(Color.textSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if store.state.isLoading {
             LoadingView()
         } else if searchResults.isEmpty {
-            Spacer()
             Text(String(localized: "todo_list_search_empty", bundle: PresentationResources.bundle))
-                .foregroundStyle(Color.gray)
-                .frame(maxWidth: .infinity)
-            Spacer()
+                .foregroundStyle(Color.textSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(displayedTodos) { todo in
-                        Button {
-                            selectTodo(todo.id)
-                        } label: {
-                            VStack(spacing: 0) {
+                LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(displayedTodos) { todo in
+                            Button {
+                                selectTodo(todo.id)
+                            } label: {
                                 TodoItemRow(todo)
-                                Divider()
+                                    .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                            .todoDetailPreview(todoId: todo.id)
+                            .overlay(alignment: .bottom) {
+                                if todo.id != displayedTodos.last?.id {
+                                    Divider()
+                                }
                             }
                         }
-                        .todoDetailPreview(todoId: todo.id)
                     }
-                    .padding(.horizontal, 16)
+                    .background(Color.surface, in: .rect(cornerRadius: 28))
+                    .compositingGroup()
+                    .clipShape(.rect(cornerRadius: 28))
 
                     if !store.state.showAllSearchResults, limit < searchResults.count {
                         Button(String(localized: "todo_list_show_more", bundle: PresentationResources.bundle)) {
                             store.send(.binding(.set(\.showAllSearchResults, true)))
                         }
                         .font(.subheadline)
-                        .foregroundStyle(Color.gray)
+                        .foregroundStyle(Color.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 4)
                     }
                 }
+                .padding(16)
             }
         }
+    }
+
+    private var topBar: some View {
+        ZStack {
+            Text(TodoCategoryItem(from: store.category).localizedName)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            HStack(spacing: 12) {
+                NavigationBackButton {
+                    dismiss()
+                }
+
+                Spacer()
+
+                if #available(iOS 26.0, *) {
+                    Button {
+                        store.send(.binding(.set(\.isSearching, true)))
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .topBarButtonStyle()
+                } else {
+                    Button {
+                        store.send(.binding(.set(\.isSearching, true)))
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .font(.title3.weight(.semibold))
+                            .frame(width: 28, height: 28)
+                    }
+                    .adaptiveButtonStyle(
+                        shape: .circle,
+                        color: .surface,
+                        glassEffect: .enabled
+                    )
+                }
+
+                if #available(iOS 26.0, *) {
+                    Button {
+                        openTodoEditor()
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .topBarButtonStyle()
+                } else {
+                    Button {
+                        openTodoEditor()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title3.weight(.semibold))
+                            .frame(width: 28, height: 28)
+                    }
+                    .adaptiveButtonStyle(
+                        shape: .circle,
+                        color: .surface,
+                        glassEffect: .enabled
+                    )
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+
+    private var stickyHeader: some View {
+        headerView
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 12)
+            .background(Color.appBackground)
     }
 
     private var headerView: some View {
@@ -333,12 +356,35 @@ public struct TodoListView: View {
                         }
                     } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: "line.3.horizontal.decrease")
-                                .foregroundStyle(Color.onControlBackground)
-                            filterBadge
+                            Text("\(store.appliedFilterCount)")
+                            Image(systemName: "xmark")
                         }
-                        .adaptiveButtonStyle(color: .controlBackground)
+                        .foregroundStyle(Color.onPrimaryContainer)
+                        .adaptiveButtonStyle(color: .primaryContainer)
                     }
+                }
+
+                Menu {
+                    Toggle(isOn: $store.query.isPinned) {
+                        Text(String(localized: "todo_pinned", bundle: PresentationResources.bundle))
+                    }
+
+                    Picker(selection: $store.query.completionFilter) {
+                        ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
+                            Text(option.title).tag(option)
+                        }
+                    } label: {
+                        Text(String(localized: "todo_list_completion_status", bundle: PresentationResources.bundle))
+                    }
+                } label: {
+                    let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
+                    HStack(spacing: 6) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        Text(String(localized: "todo_list_filter_options", bundle: PresentationResources.bundle))
+                        Image(systemName: "chevron.down")
+                    }
+                    .foregroundStyle(condition ? Color.onPrimaryContainer : .onControlBackground)
+                    .adaptiveButtonStyle(color: condition ? .primaryContainer : .controlBackground)
                 }
 
                 Menu {
@@ -358,64 +404,19 @@ public struct TodoListView: View {
                     }
                 } label: {
                     let condition = store.state.query.sortTarget == .createdAt && store.state.query.sortOrder == .latest
-                    HStack {
-                        Text(
-                            String.localizedStringWithFormat(
-                                String(localized: "todo_list_sort_format", bundle: PresentationResources.bundle),
-                                store.state.query.sortTarget.title,
-                                store.state.query.sortOrder.title
-                            )
-                        )
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.up.arrow.down")
+                        Text(String(localized: "todo_list_sort_by", bundle: PresentationResources.bundle))
                         Image(systemName: "chevron.down")
                     }
                     .foregroundStyle(condition ? Color.onControlBackground : .onPrimaryContainer)
                     .adaptiveButtonStyle(color: condition ? .controlBackground : .primaryContainer)
                 }
-
-                Menu {
-                    Toggle(isOn: $store.query.isPinned) {
-                        Text(String(localized: "todo_pinned", bundle: PresentationResources.bundle))
-                    }
-
-                    Picker(selection: $store.query.completionFilter) {
-                        ForEach([TodoQuery.CompletionFilter.all, .incomplete, .completed], id: \.self) { option in
-                            Text(option.title).tag(option)
-                        }
-                    } label: {
-                        Text(String(localized: "todo_list_completion_status", bundle: PresentationResources.bundle))
-                    }
-                } label: {
-                    let condition = store.state.query.isPinned || store.state.query.completionFilter != .all
-                    HStack {
-                        Text(String(localized: "todo_list_filter_options", bundle: PresentationResources.bundle))
-                        Image(systemName: "chevron.down")
-                    }
-                    .foregroundStyle(condition ? Color.onPrimaryContainer : .onControlBackground)
-                    .adaptiveButtonStyle(color: condition ? .primaryContainer : .controlBackground)
-                }
             }
         }
-        .scrollIndicators(.never)
-        .scrollDisabled(!isScrollTrackingEnabled)
-        .contentMargins(.leading, 16, for: .scrollContent)
-        .frame(height: headerHeight)
-        .onAppear {
-            headerOffset = 0
-            isScrollTrackingEnabled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isScrollTrackingEnabled = true
-            }
-        }
-    }
-
-    private var filterBadge: some View {
-        Text("\(store.appliedFilterCount)")
-            .font(.caption2.weight(.bold))
-            .foregroundStyle(Color.onPrimaryContainer)
-            .lineLimit(1)
-            .minimumScaleFactor(0.6)
-            .frame(width: 20, height: 20)
-            .background(Circle().fill(Color.primaryContainer))
+        .scrollIndicators(.hidden)
+        .fixedSize(horizontal: false, vertical: true)
+        .contentMargins(.horizontal, 16, for: .scrollContent)
     }
 
     private func selectTodo(_ todoId: String) {

@@ -141,35 +141,20 @@ public struct PushNotificationListView: View {
                                                 store.send(.view(.selectNotification(item.id)))
                                             }
                                             .itemActions {
-                                                Button {
+                                                ItemActionButton(
+                                                    color: Color.accent,
+                                                    image: Image(systemName: item.isRead
+                                                        ? "circle.badge.xmark" : "checkmark.circle")
+                                                ) {
                                                     store.send(.view(.toggleRead(item)))
-                                                } label: {
-                                                    HStack(spacing: 6) {
-                                                        Image(systemName: item.isRead
-                                                            ? "circle.badge.xmark" : "checkmark.circle")
-                                                        Text(String(
-                                                            localized: item.isRead
-                                                                ? "push_mark_unread" : "push_mark_read",
-                                                            bundle: PresentationResources.bundle
-                                                        ))
-                                                        .lineLimit(1)
-                                                        .minimumScaleFactor(0.8)
-                                                    }
                                                 }
 
-                                                Button(role: .destructive) {
+                                                ItemActionButton(
+                                                    color: Color.red,
+                                                    image: Image(systemName: "trash")
+                                                ) {
                                                     store.send(.view(.deleteNotification(item)))
                                                     presentDeleteNotificationToast(item.id)
-                                                } label: {
-                                                    HStack(spacing: 6) {
-                                                        Image(systemName: "trash")
-                                                        Text(String(
-                                                            localized: "common_delete",
-                                                            bundle: PresentationResources.bundle
-                                                        ))
-                                                        .lineLimit(1)
-                                                        .minimumScaleFactor(0.8)
-                                                    }
                                                 }
                                             }
                                             .clipShape(.rect(cornerRadius: 16))

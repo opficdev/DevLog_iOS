@@ -4458,7 +4458,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Newest First"
+            "value" : "Newest"
           }
         },
         "ko" : {
@@ -4475,7 +4475,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oldest First"
+            "value" : "Oldest"
           }
         },
         "ko" : {
