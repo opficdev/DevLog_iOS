@@ -17,6 +17,8 @@ final class TodoListStoreTestAdapter {
 
     var todos: [TodoListItem] { store.state.todos }
     var query: TodoQuery { store.state.query }
+    var isSearching: Bool { store.state.isSearching }
+    var searchQuery: String { store.state.searchQuery }
     var isLoading: Bool { store.state.isLoading }
     var hasMore: Bool { store.state.hasMore }
     var alert: AlertState<Never>? { store.state.alert }
@@ -78,6 +80,25 @@ final class TodoListStoreTestAdapter {
 
     func setCompletionFilter(_ filter: TodoQuery.CompletionFilter) async {
         await store.send(.binding(.set(\.query.completionFilter, filter)))
+        await drainReceivedActions()
+    }
+
+    func setSearchQuery(_ query: String) async {
+        let keyword = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        await store.send(.binding(.set(\.searchQuery, query))) {
+            $0.searchQuery = query
+            $0.query.keyword = keyword.isEmpty ? nil : keyword
+            $0.nextCursor = nil
+        }
+    }
+
+    func receiveSearchQueryDebounced() async {
+        await store.receive(.view(.searchQueryDebounced))
+        await drainReceivedActions()
+    }
+
+    func setSearching(_ value: Bool) async {
+        await store.send(.view(.setSearching(value)))
         await drainReceivedActions()
     }
 

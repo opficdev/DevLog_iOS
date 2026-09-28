@@ -71,7 +71,13 @@ struct TodoListFeatureTests {
             TodoPage(items: [firstTodo], nextCursor: nil),
             TodoPage(items: [secondTodo], nextCursor: nil)
         ])
-        let adapter = TodoListStoreTestAdapter(fetchUseCase: fetchSpy)
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
 
         await adapter.onAppear()
         await fetchSpy.waitForCallCount(1)
@@ -88,6 +94,10 @@ struct TodoListFeatureTests {
         #expect(queries.map(\.sortTarget) == [.createdAt, .updatedAt])
         #expect(cancelledCalls == [0])
         #expect(!adapter.showAlert)
+
+        await clock.advance(by: .milliseconds(300))
+
+        #expect(!adapter.isLoading)
     }
 
     @Test("필터와 정렬 액션은 query와 적용 필터 수를 갱신한다")
@@ -109,6 +119,58 @@ struct TodoListFeatureTests {
 
         #expect(adapter.query == TodoQuery(categoryId: "feature"))
         #expect(adapter.appliedFilterCount == 0)
+    }
+
+    @Test("검색어는 디바운스 후 현재 카테고리 목록을 다시 조회한다")
+    func 검색어는_디바운스_후_현재_카테고리_목록을_다시_조회한다() async {
+        let todo = makeTodoListTodo(id: "todo-search", title: "Swift")
+        let fetchSpy = TodoListFetchTodosUseCaseSpy(pages: [
+            TodoPage(items: [todo], nextCursor: nil)
+        ])
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+
+        await adapter.setSearchQuery(" swift ")
+        await clock.advance(by: .milliseconds(400))
+        await adapter.receiveSearchQueryDebounced()
+
+        await waitUntil {
+            fetchSpy.queries.count == 1
+        }
+
+        #expect(adapter.searchQuery == " swift ")
+        #expect(fetchSpy.queries.map(\.categoryId) == ["feature"])
+        #expect(fetchSpy.queries.map(\.keyword) == ["swift"])
+        #expect(adapter.todos == [TodoListItem(from: todo)!])
+    }
+
+    @Test("검색 종료는 검색어를 지우고 현재 카테고리 목록을 다시 조회한다")
+    func 검색_종료는_검색어를_지우고_현재_카테고리_목록을_다시_조회한다() async {
+        let fetchSpy = TodoListFetchTodosUseCaseSpy()
+        let clock = TestClock()
+        let adapter = TodoListStoreTestAdapter(
+            fetchUseCase: fetchSpy,
+            configureDependencies: {
+                $0.continuousClock = clock
+            }
+        )
+
+        await adapter.setSearching(true)
+        await adapter.setSearchQuery("swift")
+        await adapter.setSearching(false)
+
+        await waitUntil {
+            fetchSpy.queries.count == 1
+        }
+
+        #expect(!adapter.isSearching)
+        #expect(adapter.searchQuery.isEmpty)
+        #expect(fetchSpy.queries.map(\.keyword) == [nil])
     }
 
     @Test("fullScreenCover 상태를 설정하고 dismiss 할 수 있다")

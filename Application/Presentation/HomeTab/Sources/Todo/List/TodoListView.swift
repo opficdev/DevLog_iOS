@@ -16,21 +16,18 @@ struct TodoListView: View {
     @Environment(\.isTabContentActive) private var isTabContentActive
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
+    @FocusState private var isSearchFocused: Bool
     @Namespace private var searchTransition
-    @State private var isSearchPresented = false
-    @State private var store: StoreOf<TodoListFeature>
-    private let searchStore: StoreOf<SearchFeature>
+    @Bindable private var store: StoreOf<TodoListFeature>
     private let windowEvent: TodoEditorWindowEvent?
     private let onSelectTodo: (String) -> Void
 
     init(
         store: StoreOf<TodoListFeature>,
-        searchStore: StoreOf<SearchFeature>,
         windowEvent: TodoEditorWindowEvent? = nil,
         onSelectTodo: @escaping (String) -> Void = { _ in }
     ) {
         self.store = store
-        self.searchStore = searchStore
         self.windowEvent = windowEvent
         self.onSelectTodo = onSelectTodo
     }
@@ -49,16 +46,62 @@ struct TodoListView: View {
             ) { coverStore in
                 fullScreenCoverContent(coverStore)
             }
-            .fullScreenCover(isPresented: $isSearchPresented) {
-                SearchView(store: searchStore)
-                    .navigationTransition(.zoom(sourceID: "todo-search", in: searchTransition))
-            }
             .background(Color.appBackground.ignoresSafeArea())
             .task { store.send(.view(.onAppear)) }
     }
 
     private var windowSubmits: AnyPublisher<TodoEditorWindowSubmit, Never> {
         windowEvent?.submits ?? Empty().eraseToAnyPublisher()
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color.textSecondary)
+                TextField(
+                    "",
+                    text: $store.searchQuery,
+                    prompt: Text(String(
+                        localized: "search_prompt",
+                        bundle: PresentationResources.bundle
+                    ))
+                    .foregroundStyle(Color.textSecondary)
+                )
+                .focused($isSearchFocused)
+                .task {
+                    await Task.yield()
+                    isSearchFocused = true
+                }
+                if !store.searchQuery.isEmpty {
+                    Button {
+                        store.send(.binding(.set(\.searchQuery, "")))
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .adaptiveButtonStyle(
+                shape: Capsule(),
+                color: .surface,
+                glassEffect: .enabled
+            )
+            .matchedGeometryEffect(id: "todo-search", in: searchTransition)
+
+            Button {
+                isSearchFocused = false
+                withAnimation(.smooth(duration: 0.3)) {
+                    store.send(.view(.setSearching(false)))
+                }
+            } label: {
+                Text(String(localized: "common_cancel", bundle: PresentationResources.bundle))
+                    .foregroundStyle(Color.accent)
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     @ViewBuilder
@@ -193,64 +236,76 @@ struct TodoListView: View {
     }
 
     private var topBar: some View {
-        ZStack {
-            Text(TodoCategoryItem(from: store.category).localizedName)
-                .font(.headline)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+        VStack(spacing: 8) {
+            ZStack {
+                Text(TodoCategoryItem(from: store.category).localizedName)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-            HStack(spacing: 12) {
-                NavigationBackButton {
-                    dismiss()
+                HStack(spacing: 12) {
+                    NavigationBackButton {
+                        dismiss()
+                    }
+
+                    Spacer()
+
+                    if !store.isSearching {
+                        if #available(iOS 26.0, *) {
+                            Button {
+                                withAnimation(.smooth(duration: 0.3)) {
+                                    store.send(.view(.setSearching(true)))
+                                }
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                            }
+                            .topBarButtonStyle()
+                            .matchedGeometryEffect(id: "todo-search", in: searchTransition)
+                        } else {
+                            Button {
+                                withAnimation(.smooth(duration: 0.3)) {
+                                    store.send(.view(.setSearching(true)))
+                                }
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.title3.weight(.semibold))
+                                    .frame(width: 28, height: 28)
+                            }
+                            .adaptiveButtonStyle(
+                                shape: .circle,
+                                color: .surface,
+                                glassEffect: .enabled
+                            )
+                            .matchedGeometryEffect(id: "todo-search", in: searchTransition)
+                        }
+                    }
+
+                    if #available(iOS 26.0, *) {
+                        Button {
+                            openTodoEditor()
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .topBarButtonStyle()
+                    } else {
+                        Button {
+                            openTodoEditor()
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title3.weight(.semibold))
+                                .frame(width: 28, height: 28)
+                        }
+                        .adaptiveButtonStyle(
+                            shape: .circle,
+                            color: .surface,
+                            glassEffect: .enabled
+                        )
+                    }
                 }
+            }
 
-                Spacer()
-
-                if #available(iOS 26.0, *) {
-                    Button {
-                        isSearchPresented = true
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .topBarButtonStyle()
-                    .matchedTransitionSource(id: "todo-search", in: searchTransition)
-                } else {
-                    Button {
-                        isSearchPresented = true
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.title3.weight(.semibold))
-                            .frame(width: 28, height: 28)
-                    }
-                    .adaptiveButtonStyle(
-                        shape: .circle,
-                        color: .surface,
-                        glassEffect: .enabled
-                    )
-                    .matchedTransitionSource(id: "todo-search", in: searchTransition)
-                }
-
-                if #available(iOS 26.0, *) {
-                    Button {
-                        openTodoEditor()
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .topBarButtonStyle()
-                } else {
-                    Button {
-                        openTodoEditor()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title3.weight(.semibold))
-                            .frame(width: 28, height: 28)
-                    }
-                    .adaptiveButtonStyle(
-                        shape: .circle,
-                        color: .surface,
-                        glassEffect: .enabled
-                    )
-                }
+            if store.isSearching {
+                searchBar
             }
         }
         .padding(.horizontal, 16)

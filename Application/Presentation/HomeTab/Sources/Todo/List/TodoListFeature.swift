@@ -21,7 +21,9 @@ struct TodoListFeature {
         var todos: [TodoListItem] = []
         var query: TodoQuery
         var hasMore = false
+        var isSearching = false
         var loading = LoadingFeature.State()
+        var searchQuery = ""
         var undoTodoId: String?
         var nextCursor: TodoCursor?
 
@@ -87,6 +89,8 @@ struct TodoListFeature {
             case onAppear
             case windowTodoCreated
             case loadNextPage
+            case searchQueryDebounced
+            case setSearching(Bool)
         }
 
         enum StoreAction: Equatable {
@@ -103,8 +107,10 @@ struct TodoListFeature {
 
     enum CancelID: Hashable {
         case fetch
+        case searchDebounce
     }
 
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.todoListFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.fetchTodoByIdUseCase) var fetchTodoByIdUseCase
     @Dependency(\.upsertTodoUseCase) var upsertTodoUseCase
@@ -136,7 +142,24 @@ struct TodoListFeature {
             case .binding(\.query.sortTarget), .binding(\.query.sortOrder), .binding(\.query.isPinned),
                     .binding(\.query.completionFilter):
                 state.nextCursor = nil
-                return fetchEffect(query: state.query, cursor: nil)
+                return .merge(
+                    .cancel(id: CancelID.searchDebounce),
+                    fetchEffect(query: state.query, cursor: nil)
+                )
+            case .binding(\.searchQuery):
+                let keyword = state.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+                state.query.keyword = keyword.isEmpty ? nil : keyword
+                state.nextCursor = nil
+                if keyword.isEmpty {
+                    return .merge(
+                        .cancel(id: CancelID.searchDebounce),
+                        fetchEffect(query: state.query, cursor: nil)
+                    )
+                }
+                return .concatenate(
+                    .cancel(id: CancelID.searchDebounce),
+                    debounceSearchEffect()
+                )
             case .binding:
                 break
             case .view(let action):
@@ -223,6 +246,7 @@ private extension TodoListFeature {
         showsIndicator: Bool = true
     ) -> Effect<Action> {
         .concatenate(
+            .send(.loading(.end(target: .default, mode: .delayed))),
             showsIndicator ? .send(.loading(.begin(target: .default, mode: .delayed))) : .none,
             .run { [fetchTodosUseCase] send in
                 do {
@@ -251,6 +275,14 @@ private extension TodoListFeature {
         .cancellable(id: CancelID.fetch, cancelInFlight: true)
     }
 
+    func debounceSearchEffect() -> Effect<Action> {
+        .run { [clock] send in
+            try await clock.sleep(for: .milliseconds(400))
+            await send(.view(.searchQueryDebounced))
+        }
+        .cancellable(id: CancelID.searchDebounce, cancelInFlight: true)
+    }
+
     func reduce(
         _ action: Action.ViewAction,
         state: inout State
@@ -268,9 +300,15 @@ private extension TodoListFeature {
         case .swipeTodo(let todo):
             return swipeTodoEffect(todo, state: &state)
         case .resetFilters:
-            state.query = TodoQuery(categoryId: state.category.storageValue)
+            state.query = TodoQuery(
+                categoryId: state.category.storageValue,
+                keyword: state.query.keyword
+            )
             state.nextCursor = nil
-            return fetchEffect(query: state.query, cursor: nil)
+            return .merge(
+                .cancel(id: CancelID.searchDebounce),
+                fetchEffect(query: state.query, cursor: nil)
+            )
         case .finishDeleteToast(let todoId):
             state.todos.removeAll { $0.id == todoId && $0.isHidden }
             if state.undoTodoId == todoId {
@@ -288,6 +326,18 @@ private extension TodoListFeature {
         case .loadNextPage:
             guard state.hasMore, !state.isLoading else { return .none }
             return fetchEffect(query: state.query, cursor: state.nextCursor, resetsPagination: false)
+        case .searchQueryDebounced:
+            return fetchEffect(query: state.query, cursor: nil)
+        case .setSearching(let isSearching):
+            state.isSearching = isSearching
+            guard !isSearching, !state.searchQuery.isEmpty else { return .none }
+            state.searchQuery = ""
+            state.query.keyword = nil
+            state.nextCursor = nil
+            return .merge(
+                .cancel(id: CancelID.searchDebounce),
+                fetchEffect(query: state.query, cursor: nil)
+            )
         }
 
         return .none
