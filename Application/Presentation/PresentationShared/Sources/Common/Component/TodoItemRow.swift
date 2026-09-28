@@ -9,7 +9,7 @@ import SwiftUI
 import Domain
 
 public struct TodoItemRow: View {
-    @ScaledMetric(relativeTo: .largeTitle) private var labelWidth = CGFloat(34)
+    @ScaledMetric(relativeTo: .headline) private var labelWidth = CGFloat(28)
     private let item: TodoListItem
 
     public init(_ item: TodoListItem) {
@@ -17,40 +17,53 @@ public struct TodoItemRow: View {
     }
 
     public var body: some View {
-        HStack {
-            Image(systemName: "checkmark.circle")
+        HStack(spacing: 12) {
+            Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                 .resizable()
                 .frame(width: labelWidth, height: labelWidth)
-                .foregroundStyle(item.isCompleted ? .green : .secondary)
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
+                .foregroundStyle(item.isCompleted ? Color.accent : Color.textTertiary)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(item.title)
                         .font(.headline)
-                        .foregroundStyle(Color(.label))
+                        .foregroundStyle(item.isCompleted ? Color.textSecondary : .primary)
                         .lineLimit(1)
+                        .layoutPriority(1)
+
                     Text("#\(item.number)")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color.textTertiary)
                         .fixedSize(horizontal: true, vertical: false)
                 }
-                HStack(spacing: 4) {
-                    if item.isPinned {
-                        Image(systemName: "star.fill")
-                            .font(.headline)
-                            .foregroundStyle(.orange)
-                    }
+
+                HStack(spacing: 8) {
                     RelativeTimeText(date: item.updatedAt)
-                }
-                .frame(height: UIFont.preferredFont(forTextStyle: .headline).lineHeight)
-                if !item.tags.isEmpty {
-                    TagList(item.tags, lineLimit: 1)
+
+                    if !item.tags.isEmpty {
+                        TagList(
+                            item.tags,
+                            lineLimit: 1,
+                            verticalSpacing: 4,
+                            horizontalSpacing: 4
+                        )
+                    }
                 }
             }
-            Spacer()
+
+            Spacer(minLength: 4)
+
+            if item.isPinned {
+                Image(systemName: "star.fill")
+                    .font(.title3)
+                    .foregroundStyle(.orange)
+            }
+
             Image(systemName: "chevron.right")
                 .font(.caption2.bold())
-                .foregroundStyle(.gray)
+                .foregroundStyle(Color.textTertiary)
         }
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }
 }

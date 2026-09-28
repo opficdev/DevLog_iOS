@@ -1,6 +1,6 @@
 //
 //  TodoListFeatureTestDoubles.swift
-//  PresentationSharedTests
+//  HomeTabTests
 //
 //  Created by opfic on 6/12/26.
 //
@@ -8,19 +8,19 @@
 import Foundation
 import Core
 import Domain
-@testable import PresentationShared
+import PresentationShared
+@testable import HomeTab
 
 @MainActor
 final class TodoListStoreTestAdapter {
     private let store: TestStoreOf<TodoListFeature>
 
     var todos: [TodoListItem] { store.state.todos }
-    var searchText: String { store.state.searchText }
-    var searchResults: [TodoListItem] { store.state.searchResults }
-    var isSearching: Bool { store.state.isSearching }
-    var showAllSearchResults: Bool { store.state.showAllSearchResults }
     var query: TodoQuery { store.state.query }
+    var isSearching: Bool { store.state.isSearching }
+    var searchQuery: String { store.state.searchQuery }
     var isLoading: Bool { store.state.isLoading }
+    var loading: LoadingFeature.State { store.state.loading }
     var hasMore: Bool { store.state.hasMore }
     var alert: AlertState<Never>? { store.state.alert }
     var fullScreenCover: TodoListFeature.FullScreenCoverState? { store.state.fullScreenCover }
@@ -85,33 +85,39 @@ final class TodoListStoreTestAdapter {
         await drainReceivedActions()
     }
 
-    func resetFilters() async {
-        await store.send(.view(.resetFilters))
-        await drainReceivedActions()
-    }
-
-    func setSearchText(_ text: String) async {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        await store.send(.binding(.set(\.searchText, text)))
-        await drainReceivedActions()
-
-        if !trimmed.isEmpty {
-            try? await Task.sleep(for: .milliseconds(450))
-            await drainReceivedActions()
+    func setSearchQuery(_ query: String) async {
+        let keyword = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        await store.send(.binding(.set(\.searchQuery, query))) {
+            $0.searchQuery = query
+            $0.query.keyword = keyword.isEmpty ? nil : keyword
+            $0.nextCursor = nil
+            $0.hasMore = false
         }
     }
 
-    func setSearchResults(_ results: [TodoListItem]) async {
-        await store.send(.store(.fetchSearchResults(results)))
-    }
-
-    func setIsSearching(_ value: Bool) async {
-        await store.send(.binding(.set(\.isSearching, value)))
+    func receiveSearchQueryDebounced() async {
+        await store.receive(\.view, .searchQueryDebounced)
         await drainReceivedActions()
     }
 
-    func setShowAllSearchResults(_ value: Bool) async {
-        await store.send(.binding(.set(\.showAllSearchResults, value)))
+    func receiveDelayedLoading(target: LoadingFeature.Target = .default) async {
+        await store.receive(\.loading, .delayedLoadingDidBecomeVisible(target: target))
+        await drainReceivedActions()
+    }
+
+    func receiveLoadingEnded(target: LoadingFeature.Target) async {
+        await store.receive(\.loading, .end(target: target, mode: .delayed))
+        await drainReceivedActions()
+    }
+
+    func setSearching(_ value: Bool) async {
+        await store.send(.view(.setSearching(value)))
+        await drainReceivedActions()
+    }
+
+    func resetFilters() async {
+        await store.send(.view(.resetFilters))
+        await drainReceivedActions()
     }
 
     func appendTodos(_ todos: [TodoListItem]) async {
@@ -286,6 +292,7 @@ final class TodoListFetchTodoByIdUseCaseSpy: FetchTodoByIdUseCase {
 
 final class TodoListUpsertTodoUseCaseSpy: UpsertTodoUseCase {
     var error: Error?
+    var completion: AsyncStream<Void>?
     private(set) var todos = [Todo]()
     private(set) var todoDrafts = [TodoDraft]()
 
@@ -294,6 +301,12 @@ final class TodoListUpsertTodoUseCaseSpy: UpsertTodoUseCase {
 
         if let error {
             throw error
+        }
+
+        if let completion {
+            for await _ in completion {
+                break
+            }
         }
     }
 

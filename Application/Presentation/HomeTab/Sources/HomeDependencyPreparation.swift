@@ -36,6 +36,32 @@ public enum HomeDependencyPreparation {
         dependencies.homeNetworkConnectivityUseCase = networkConnectivityUseCase
     }
 
+    public static func prepareTodoListQuery(
+        _ dependencies: inout DependencyValues,
+        fetchTodosUseCase: FetchTodosUseCase,
+        fetchTodoByIdUseCase: FetchTodoByIdUseCase,
+        fetchReferenceItemsUseCase: FetchReferenceItemsUseCase,
+        fetchTodoCategoryPreferencesUseCase: FetchTodoCategoryPreferencesUseCase
+    ) {
+        dependencies.todoListFetchTodosUseCase = fetchTodosUseCase
+        dependencies.fetchTodoByIdUseCase = fetchTodoByIdUseCase
+        dependencies.fetchReferenceItemsUseCase = fetchReferenceItemsUseCase
+        dependencies.fetchTodoCategoryPreferencesUseCase = fetchTodoCategoryPreferencesUseCase
+    }
+
+    public static func prepareTodoListMutation(
+        _ dependencies: inout DependencyValues,
+        upsertTodoUseCase: UpsertTodoUseCase,
+        deleteTodoUseCase: DeleteTodoUseCase,
+        undoDeleteTodoUseCase: UndoDeleteTodoUseCase,
+        trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase
+    ) {
+        dependencies.upsertTodoUseCase = upsertTodoUseCase
+        dependencies.todoListDeleteTodoUseCase = deleteTodoUseCase
+        dependencies.todoListUndoDeleteTodoUseCase = undoDeleteTodoUseCase
+        dependencies.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+    }
+
     public static func prepareSearch(
         _ dependencies: inout DependencyValues,
         fetchRecentSearchQueriesUseCase: FetchRecentSearchQueriesUseCase,

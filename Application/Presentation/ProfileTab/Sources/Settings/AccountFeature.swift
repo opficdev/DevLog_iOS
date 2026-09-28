@@ -176,12 +176,14 @@ private extension AccountFeature {
                     return
                 }
 
-                await ToastPresenter.present(
-                    message: String(
-                        localized: "account_toast_link_success",
-                        bundle: PresentationResources.bundle
+                await ToastPresenter.present {
+                    ToastLabel(
+                        message: String(
+                            localized: "account_toast_link_success",
+                            bundle: PresentationResources.bundle
+                        )
                     )
-                )
+                }
                 let providers = try await fetchProvidersUseCase.execute()
                 await send(.setProviders(
                     currentProvider: providers.currentProvider,
@@ -200,12 +202,14 @@ private extension AccountFeature {
             await send(.loading(.begin(target: .default, mode: .delayed)))
             do {
                 try await unlinkProviderUseCase.execute(provider)
-                await ToastPresenter.present(
-                    message: String(
-                        localized: "account_toast_unlink_success",
-                        bundle: PresentationResources.bundle
+                await ToastPresenter.present {
+                    ToastLabel(
+                        message: String(
+                            localized: "account_toast_unlink_success",
+                            bundle: PresentationResources.bundle
+                        )
                     )
-                )
+                }
                 let providers = try await fetchProvidersUseCase.execute()
                 await send(.setProviders(
                     currentProvider: providers.currentProvider,

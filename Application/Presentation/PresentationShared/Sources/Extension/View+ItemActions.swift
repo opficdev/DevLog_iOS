@@ -14,6 +14,37 @@ public extension View {
     }
 }
 
+public struct ItemActionButton: View {
+    @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
+
+    private let color: Color
+    private let image: Image
+    private let action: () -> Void
+
+    public init(
+        color: Color,
+        image: Image,
+        action: @escaping () -> Void
+    ) {
+        self.color = color
+        self.image = image
+        self.action = action
+    }
+
+    public var body: some View {
+        if isiOSAppOnMac {
+            Button(action: action) {
+                image
+            }
+        } else {
+            Button(action: action) {
+                image
+            }
+            .buttonStyle(ItemActionButtonStyle(color: color))
+        }
+    }
+}
+
 private struct ItemActionsModifier<Actions: View>: ViewModifier {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State private var store = Store(initialState: ItemActionsFeature.State()) {
@@ -46,8 +77,8 @@ private struct ItemActionsModifier<Actions: View>: ViewModifier {
                         }
                     }
                 }
-                .buttonStyle(ItemActionButtonStyle())
                 .padding(.leading, 12)
+                .padding(.trailing, ItemActionsFeature.trailingPadding)
                 .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
                     store.send(.view(.setTrayWidth(width)))
                 }
@@ -93,18 +124,16 @@ private struct ItemActionsModifier<Actions: View>: ViewModifier {
 }
 
 private struct ItemActionButtonStyle: ButtonStyle {
-    @ScaledMetric(relativeTo: .body) private var width = 88
-    @ScaledMetric(relativeTo: .body) private var height = 44
+    @ScaledMetric(relativeTo: .body) private var size = 44
+
+    let color: Color
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.callout)
             .foregroundStyle(Color.white)
-            .frame(width: width, height: height)
-            .background(
-                configuration.role == .destructive ? Color.red : Color.accent,
-                in: Capsule()
-            )
+            .frame(width: size, height: size)
+            .background(color, in: .circle)
     }
 }
 
@@ -118,6 +147,8 @@ private struct ItemActionWidthsPreferenceKey: PreferenceKey {
 
 @Reducer
 private struct ItemActionsFeature {
+    static let trailingPadding = CGFloat(16)
+
     @ObservableState
     struct State: Equatable {
         var trayWidth = CGFloat.zero
@@ -166,7 +197,7 @@ private struct ItemActionsFeature {
                 let wasRevealed = state.isRevealed
                 let base = wasRevealed ? -state.trayWidth : 0
                 let releasedOffset = max(-state.trayWidth, min(0, base + translation))
-                let revealedWidth = -releasedOffset
+                let revealedWidth = max(0, -releasedOffset - Self.trailingPadding)
                 if wasRevealed {
                     var fullyHiddenCount = 0
                     var trailingDistance = CGFloat.zero

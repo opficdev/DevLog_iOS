@@ -68,7 +68,16 @@ public struct HomeView: View {
             .safeAreaInset(edge: .top, spacing: 0) { topBar }
             .background(Color.appBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
-            .navigationDestination(for: HomeRoute.self, destination: destinationView)
+            .navigationDestination(
+                for: HomeRoute.self,
+                interactivePop: {
+                    switch $0 {
+                    case .category: true
+                    case .todo: false
+                    }
+                },
+                destination: destinationView
+            )
         }
         .onAppear { store.send(.view(.startObserving)) }
         .onChange(of: isSelected, initial: true) { _, isSelected in

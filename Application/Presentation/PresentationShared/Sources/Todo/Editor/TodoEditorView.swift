@@ -280,7 +280,7 @@ private struct TitleField: View {
                     bundle: PresentationResources.bundle
                 )
             )
-            .foregroundColor(Color.secondary),
+            .foregroundStyle(Color.secondary),
         )
         .font(.body)
         .focused($field, equals: .title)

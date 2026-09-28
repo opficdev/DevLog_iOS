@@ -1,6 +1,6 @@
 //
 //  TodoListFeature+Effects.swift
-//  PresentationShared
+//  HomeTab
 //
 //  Created by opfic on 6/12/26.
 //
@@ -9,29 +9,9 @@ import ComposableArchitecture
 import Core
 import Domain
 import Foundation
+import PresentationShared
 
 extension TodoListFeature {
-    func searchEffect(
-        _ keyword: String,
-        category: TodoCategory
-    ) -> Effect<Action> {
-        .run { [fetchTodosUseCase] send in
-            do {
-                let query = TodoQuery(categoryId: category.storageValue, keyword: keyword)
-                let page = try await fetchTodosUseCase.execute(query, cursor: nil)
-                try Task.checkCancellation()
-                await send(.store(.fetchSearchResults(page.items.compactMap(TodoListItem.init(from:)))))
-                await send(.loading(.end(target: .default, mode: .immediate)))
-            } catch is CancellationError {
-                return
-            } catch {
-                await send(.store(.setAlert(true)))
-                await send(.loading(.end(target: .default, mode: .immediate)))
-            }
-        }
-        .cancellable(id: CancelID.request, cancelInFlight: true)
-    }
-
     func toggleCompletedEffect(_ item: TodoListItem) -> Effect<Action> {
         .concatenate(
             .send(.loading(.begin(target: .default, mode: .delayed))),
@@ -146,10 +126,6 @@ extension TodoListFeature {
     ) {
         if let todoIndex = state.todos.firstIndex(where: { $0.id == todoId }) {
             state.todos[todoIndex].isHidden = isHidden
-        }
-
-        if let searchResultIndex = state.searchResults.firstIndex(where: { $0.id == todoId }) {
-            state.searchResults[searchResultIndex].isHidden = isHidden
         }
     }
 }
