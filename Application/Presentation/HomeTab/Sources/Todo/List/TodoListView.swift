@@ -75,64 +75,67 @@ struct TodoListView: View {
                                 .foregroundStyle(Color.textSecondary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 32)
-                                .background(Color.surface, in: .rect(cornerRadius: 28))
+                                .background(Color.surface, in: .rect(cornerRadius: 16))
                                 .padding(.horizontal, 16)
                         } else {
-                            ForEach(visibleTodos) { todo in
-                                let isFirst = todo.id == visibleTodos.first?.id
-                                let isLast = todo.id == visibleTodos.last?.id
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.surface)
 
-                                TodoItemRow(todo)
-                                    .background(Color.surface)
-                                    .contentShape(.rect)
-                                    .todoDetailPreview(todoId: todo.id)
-                                    .onTapGesture {
-                                        selectTodo(todo.id)
-                                    }
-                                    .itemActions {
-                                        ItemActionButton(
-                                            color: Color.orange,
-                                            image: Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
-                                        ) {
-                                            store.send(.view(.tapTogglePinned(todo)))
-                                        }
+                                VStack(spacing: 0) {
+                                    ForEach(
+                                        Array(zip(visibleTodos.indices, visibleTodos)),
+                                        id: \.1.id
+                                    ) { index, todo in
+                                        let isLast = index == visibleTodos.count - 1
 
-                                        ItemActionButton(
-                                            color: Color.accent,
-                                            image: Image(systemName: todo.isCompleted
-                                                ? "arrow.uturn.backward" : "checkmark")
-                                        ) {
-                                            store.send(.view(.tapToggleCompleted(todo)))
-                                        }
+                                        TodoItemRow(todo)
+                                            .background(Color.surface)
+                                            .contentShape(.rect)
+                                            .todoDetailPreview(todoId: todo.id)
+                                            .onTapGesture {
+                                                selectTodo(todo.id)
+                                            }
+                                            .itemActions {
+                                                ItemActionButton(
+                                                    color: Color.orange,
+                                                    image: Image(systemName: "star\(todo.isPinned ? ".slash" : ".fill")")
+                                                ) {
+                                                    store.send(.view(.tapTogglePinned(todo)))
+                                                }
 
-                                        ItemActionButton(
-                                            color: Color.red,
-                                            image: Image(systemName: "trash")
-                                        ) {
-                                            store.send(.view(.swipeTodo(todo)))
-                                            presentDeleteTodoToast(todo.id)
-                                        }
+                                                ItemActionButton(
+                                                    color: Color.accent,
+                                                    image: Image(systemName: todo.isCompleted
+                                                        ? "arrow.uturn.backward" : "checkmark")
+                                                ) {
+                                                    store.send(.view(.tapToggleCompleted(todo)))
+                                                }
+
+                                                ItemActionButton(
+                                                    color: Color.red,
+                                                    image: Image(systemName: "trash")
+                                                ) {
+                                                    store.send(.view(.swipeTodo(todo)))
+                                                    presentDeleteTodoToast(todo.id)
+                                                }
+                                            }
+                                            .overlay(alignment: .bottom) {
+                                                if !isLast {
+                                                    Divider()
+                                                }
+                                            }
+                                            .onAppear {
+                                                if isLast, store.state.hasMore {
+                                                    store.send(.view(.loadNextPage))
+                                                }
+                                            }
                                     }
-                                    .overlay(alignment: .bottom) {
-                                        if !isLast {
-                                            Divider()
-                                        }
-                                    }
-                                    .onAppear {
-                                        if isLast, store.state.hasMore {
-                                            store.send(.view(.loadNextPage))
-                                        }
-                                    }
-                                    .clipShape(
-                                        UnevenRoundedRectangle(
-                                            topLeadingRadius: isFirst ? 28 : 0,
-                                            bottomLeadingRadius: isLast ? 28 : 0,
-                                            bottomTrailingRadius: isLast ? 28 : 0,
-                                            topTrailingRadius: isFirst ? 28 : 0
-                                        )
-                                    )
-                                    .padding(.horizontal, 16)
+                                }
                             }
+                            .compositingGroup()
+                            .clipShape(.rect(cornerRadius: 16))
+                            .padding(.horizontal, 16)
                         }
                     } header: {
                         filterHeader
