@@ -49,6 +49,7 @@ final class TodoListStoreTestAdapter {
             $0.todoListDeleteTodoUseCase = deleteUseCase
             $0.todoListUndoDeleteTodoUseCase = undoDeleteUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
+            $0.continuousClock = ContinuousClock()
             configureDependencies?(&$0)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
