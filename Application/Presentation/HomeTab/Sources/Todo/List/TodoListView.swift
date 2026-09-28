@@ -18,7 +18,7 @@ struct TodoListView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @FocusState private var isSearchFocused: Bool
     @Namespace private var searchTransition
-    @Bindable private var store: StoreOf<TodoListFeature>
+    @State private var store: StoreOf<TodoListFeature>
     private let windowEvent: TodoEditorWindowEvent?
     private let onSelectTodo: (String) -> Void
 

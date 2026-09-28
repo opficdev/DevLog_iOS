@@ -78,6 +78,7 @@ private struct ItemActionsModifier<Actions: View>: ViewModifier {
                     }
                 }
                 .padding(.leading, 12)
+                .padding(.trailing, ItemActionsFeature.trailingPadding)
                 .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
                     store.send(.view(.setTrayWidth(width)))
                 }
@@ -123,8 +124,7 @@ private struct ItemActionsModifier<Actions: View>: ViewModifier {
 }
 
 private struct ItemActionButtonStyle: ButtonStyle {
-    @ScaledMetric(relativeTo: .body) private var width = 88
-    @ScaledMetric(relativeTo: .body) private var height = 44
+    @ScaledMetric(relativeTo: .body) private var size = 44
 
     let color: Color
 
@@ -132,8 +132,8 @@ private struct ItemActionButtonStyle: ButtonStyle {
         configuration.label
             .font(.callout)
             .foregroundStyle(Color.white)
-            .frame(width: width, height: height)
-            .background(color, in: Capsule())
+            .frame(width: size, height: size)
+            .background(color, in: .circle)
     }
 }
 
@@ -147,6 +147,8 @@ private struct ItemActionWidthsPreferenceKey: PreferenceKey {
 
 @Reducer
 private struct ItemActionsFeature {
+    static let trailingPadding = CGFloat(16)
+
     @ObservableState
     struct State: Equatable {
         var trayWidth = CGFloat.zero
@@ -195,7 +197,7 @@ private struct ItemActionsFeature {
                 let wasRevealed = state.isRevealed
                 let base = wasRevealed ? -state.trayWidth : 0
                 let releasedOffset = max(-state.trayWidth, min(0, base + translation))
-                let revealedWidth = -releasedOffset
+                let revealedWidth = max(0, -releasedOffset - Self.trailingPadding)
                 if wasRevealed {
                     var fullyHiddenCount = 0
                     var trailingDistance = CGFloat.zero
