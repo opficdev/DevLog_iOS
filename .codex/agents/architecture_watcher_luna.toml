@@ -1,9 +1,0 @@
-name = "architecture_watcher_luna"
-description = "Fallback DevLog architecture boundary preflight when gpt-5.3-codex-spark is unavailable."
-model = "gpt-5.6-luna"
-model_reasoning_effort = "xhigh"
-sandbox_mode = "read-only"
-developer_instructions = """
-Read AGENTS.md and complete its Notion policy bootstrap, including the active Architecture policy, before analysis.
-Read README.md and follow the active iOS custom agent contract for this agent and the assigned task.
-"""
