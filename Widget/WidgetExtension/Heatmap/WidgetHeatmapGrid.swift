@@ -108,10 +108,10 @@ private struct WidgetHeatmapMonthGrid: View {
 
         let count = dayCount(for: day)
         if count == 0 {
-            return Color(.systemGray5)
+            return Color.surfaceSecondary
         }
 
-        return Color.blue.opacity(opacity(for: count, max: maxCount))
+        return Color.accent.opacity(opacity(for: count, max: maxCount))
     }
 
     private func dayCount(for day: WidgetHeatmapDaySnapshot) -> Int {
@@ -136,7 +136,8 @@ private struct WidgetHeatmapMonthGrid: View {
     private func opacity(for count: Int, max: Int) -> Double {
         guard 0 < count && 0 < max else { return 0 }
         let ratio = Double(count) / Double(max)
-        return ceil(ratio * 10) / 10
+        let level = min(Int(ceil(ratio * 4)), 4)
+        return 0.2 + 0.2 * Double(level)
     }
 }
 

@@ -39,10 +39,10 @@ struct WidgetHeatmapLayout {
         max(2, cellSize * 0.2)
     }
 
-    private static let baseCellSpacing: CGFloat = 3
-    private static let baseMonthSpacing: CGFloat = 10
+    private static let baseCellSpacing: CGFloat = 4
+    private static let baseMonthSpacing: CGFloat = 12
     private static let maxMonthSpacing: CGFloat = 26
-    private static let baseMonthTitleSpacing: CGFloat = 4
+    private static let baseMonthTitleSpacing: CGFloat = 6
 
     private static func resolvedMonthTitleSpacing(showsMonthTitles: Bool) -> CGFloat {
         // 월 제목을 표시하는 Medium에서만 제목과 셀 사이 간격을 확보한다.

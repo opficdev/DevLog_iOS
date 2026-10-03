@@ -28,7 +28,7 @@ struct HeatmapWidgetEntryView: View {
     private func content(_ snapshot: HeatmapWidgetSnapshot) -> some View {
         switch widgetFamily {
         case .systemSmall:
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 header(title: "widget_heatmap_current_month_title")
                 WidgetHeatmapGrid(
                     months: currentMonths(from: snapshot),
@@ -83,6 +83,7 @@ struct HeatmapWidgetEntryView: View {
             Text(title)
                 .font(.headline)
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
             Spacer(minLength: 0)
         }
     }
