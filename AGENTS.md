@@ -2,10 +2,10 @@
 
 ## Scope
 
-- This file contains the review guidelines for the Codex GitHub code review bot.
-- Working rules for other agents live in `CLAUDE.md` and the Notion page `DevLog Agent Policy`, which are the source of truth. This file is a summary of the rules that matter for review. If the two differ, follow Notion.
+- This file is the only source of rules for the Codex GitHub code review bot in this repository. It is self-contained; do not look for rules in external documents.
+- It applies to code review comments on pull requests. It does not describe how to implement or run the project.
 
-## Review guidelines
+## Code Review Rules
 
 ### Language (highest priority)
 
