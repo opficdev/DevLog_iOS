@@ -331,7 +331,7 @@ private struct ContentView: View {
             if store.tabViewTag == .editor {
                 TextEditorContentLayout(minimumHeight: minimumHeight) {
                     markdownHint
-                    UIKitTextEditor()
+                    UIKitTextEditor
                         .composable(
                             update: { textEditor in
                                 textEditor.updateInput(

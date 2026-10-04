@@ -140,7 +140,7 @@ private struct GoalCreateDescriptionEditor: View {
                             Text(RecordPresentation.text("development_goal_create_markdown_hint"))
                                 .font(.caption)
                                 .foregroundStyle(Color.textTertiary)
-                            UIKitTextEditor()
+                            UIKitTextEditor
                                 .composable(
                                     update: { textEditor in
                                         textEditor.updateInput(

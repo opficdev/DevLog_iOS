@@ -134,7 +134,7 @@ public struct RecordEditorView: View {
                     Text(RecordPresentation.text("development_record_markdown_hint"))
                         .font(.caption)
                         .foregroundStyle(Color.textTertiary)
-                    UIKitTextEditor()
+                    UIKitTextEditor
                         .composable(
                             update: { textEditor in
                                 textEditor.updateInput(
