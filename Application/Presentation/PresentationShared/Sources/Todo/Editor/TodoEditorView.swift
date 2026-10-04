@@ -94,11 +94,14 @@ public struct TodoEditorView: View {
                     }
                 case .todo(let item):
                     NavigationStack {
-                        TodoDetailView(store: Store(
-                            initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
-                        ) {
-                            TodoDetailFeature()
-                        })
+                        TodoDetailView(
+                            store: Store(
+                                initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
+                            ) {
+                                TodoDetailFeature()
+                            },
+                            onBack: { store.send(.showInspector(.options)) }
+                        )
                         .id(item.id)
                     }
                 }

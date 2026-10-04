@@ -18,13 +18,16 @@ public struct TodoDetailView: View {
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
     @State var store: StoreOf<TodoDetailFeature>
     private let windowEvent: TodoEditorWindowEvent?
+    private let onBack: (() -> Void)?
 
     public init(
         store: StoreOf<TodoDetailFeature>,
-        windowEvent: TodoEditorWindowEvent? = nil
+        windowEvent: TodoEditorWindowEvent? = nil,
+        onBack: (() -> Void)? = nil
     ) {
         self.store = store
         self.windowEvent = windowEvent
+        self.onBack = onBack
     }
 
     public var body: some View {
@@ -71,7 +74,13 @@ public struct TodoDetailView: View {
 
     private var topBar: some View {
         HStack(spacing: 12) {
-            NavigationBackButton { dismiss() }
+            NavigationBackButton {
+                if let onBack {
+                    onBack()
+                } else {
+                    dismiss()
+                }
+            }
             Spacer()
             infoButton
             if store.showEditButton {
