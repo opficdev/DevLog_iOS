@@ -46,7 +46,6 @@ public struct Tag: View {
                 .foregroundStyle(Color.accent)
                 .bold()
                 .lineLimit(1)
-                .fixedSize()
                 .padding(.vertical, 4)
                 .padding(.leading, 8)
                 .padding(.trailing, isEditing ? 0 : 8)
@@ -245,7 +244,7 @@ private struct TagLayout: Layout {
             var minX = bounds.minX
 
             for index in row.indices {
-                let size = subviews[index].sizeThatFits(.unspecified)
+                let size = fittedSize(of: subviews[index], maxWidth: width)
                 subviews[index].place(
                     at: CGPoint(x: minX, y: minY),
                     proposal: ProposedViewSize(size)
@@ -292,7 +291,7 @@ private struct TagLayout: Layout {
 
         for index in contentIndices {
             let subview = subviews[index]
-            let size = subview.sizeThatFits(.unspecified)
+            let size = fittedSize(of: subview, maxWidth: availableWidth)
 
             if currentWidth + size.width > availableWidth && !currentRow.indices.isEmpty {
                 rows.append(currentRow)
@@ -330,7 +329,7 @@ private struct TagLayout: Layout {
         }
 
         let overflowIndex = subviews.count - 1
-        let overflowSize = subviews[overflowIndex].sizeThatFits(.unspecified)
+        let overflowSize = fittedSize(of: subviews[overflowIndex], maxWidth: maxWidth)
         guard !limited.isEmpty else {
             return [Row(indices: [overflowIndex], maxHeight: overflowSize.height, width: overflowSize.width)]
         }
@@ -341,7 +340,7 @@ private struct TagLayout: Layout {
 
         while !candidateIndices.isEmpty {
             let rowIndices = candidateIndices + [overflowIndex]
-            let rowWidth = width(for: rowIndices, subviews: subviews)
+            let rowWidth = width(for: rowIndices, subviews: subviews, maxWidth: maxWidth)
             if rowWidth <= maxWidth {
                 lastRow.indices = rowIndices
                 lastRow.maxHeight = max(lastRow.maxHeight, overflowSize.height)
@@ -360,13 +359,23 @@ private struct TagLayout: Layout {
 
     private func width(
         for indices: [Int],
-        subviews: Subviews
+        subviews: Subviews,
+        maxWidth: CGFloat
     ) -> CGFloat {
         guard !indices.isEmpty else { return 0 }
         let widths = indices.reduce(CGFloat.zero) { partialResult, index in
-            partialResult + subviews[index].sizeThatFits(.unspecified).width
+            partialResult + fittedSize(of: subviews[index], maxWidth: maxWidth).width
         }
         return widths + CGFloat(max(0, indices.count - 1)) * horizontalSpacing
+    }
+
+    private func fittedSize(
+        of subview: LayoutSubview,
+        maxWidth: CGFloat
+    ) -> CGSize {
+        subview.sizeThatFits(
+            ProposedViewSize(width: maxWidth.isFinite ? maxWidth : nil, height: nil)
+        )
     }
 
     private var usesOverflowIndicator: Bool {
