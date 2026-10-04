@@ -119,17 +119,14 @@ public struct TodoPropertiesView: View {
                     dueDateControl
                         .padding(.vertical, 12)
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.surface)
-                        .strokeBorder(Color.border, lineWidth: 2)
-                }
+                .background(Color.surface, in: .rect(cornerRadius: 16))
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text(String(localized: "todo_tags", bundle: PresentationResources.bundle))
                         .font(.headline)
+                        .padding(.horizontal, 16)
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 12) {
                             TextField(
@@ -142,11 +139,7 @@ public struct TodoPropertiesView: View {
                             .onSubmit { submitTag() }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 12)
-                            .background {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.surfaceSecondary)
-                                    .strokeBorder(Color.border, lineWidth: 2)
-                            }
+                            .background(Color.surfaceSecondary, in: .rect(cornerRadius: 12))
                             .tint(Color.accent)
 
                             Button {
@@ -181,16 +174,13 @@ public struct TodoPropertiesView: View {
                             bundle: PresentationResources.bundle
                         ))
                     }
-                    .padding(20)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.surface)
-                            .strokeBorder(Color.border, lineWidth: 2)
-                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .contentMargins(.top, 16, for: .scrollContent)
     }
