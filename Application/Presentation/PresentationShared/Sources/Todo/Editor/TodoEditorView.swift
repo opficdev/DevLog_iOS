@@ -107,6 +107,7 @@ public struct TodoEditorView: View {
                 }
                 }
                 .inspectorColumnWidth(min: 320, ideal: 420, max: 520)
+                .presentationDetents([.large])
             }
         }
     }
