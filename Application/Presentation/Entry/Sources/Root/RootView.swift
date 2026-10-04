@@ -53,9 +53,7 @@ public struct RootView: View {
         }
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(item: $store.scope(state: \.sheet, action: \.sheet)) { sheetStore in
-            sheetContent(todoId: sheetStore.todoId) {
-                sheetStore.send(.tapCloseButton)
-            }
+            sheetContent(todoId: sheetStore.todoId)
         }
         .onReceive(pushNotificationTodoIdPublisher) { todoId in
             store.send(.presentTodoDetail(todoId))
@@ -63,23 +61,15 @@ public struct RootView: View {
         }
     }
 
-    private func sheetContent(
-        todoId: String,
-        onClose: @escaping () -> Void
-    ) -> some View {
+    private func sheetContent(todoId: String) -> some View {
         NavigationStack {
             TodoDetailView(store: Store(
                 initialState: TodoDetailFeature.State(todoId: todoId, showEditButton: false)
             ) {
                 TodoDetailFeature()
             })
-            .toolbar {
-                ToolbarLeadingButton {
-                    onClose()
-                }
-            }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.appBackground)
         .presentationDragIndicator(.visible)
     }
 }

@@ -12,6 +12,7 @@ import Core
 import Domain
 
 public struct TodoDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.isTabContentActive) private var isTabContentActive
     @Environment(\.openWindow) private var openWindow
     @Environment(\.isiOSAppOnMac) private var isiOSAppOnMac
@@ -28,7 +29,7 @@ public struct TodoDetailView: View {
 
     public var body: some View {
         ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
             if let todo = store.todo {
                 TodoDetailContentView(
                     title: todo.title,
@@ -41,13 +42,14 @@ public struct TodoDetailView: View {
                 LoadingView()
             }
         }
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .toolbarVisibility(.hidden, for: .navigationBar)
         .onAppear { store.send(.onAppear) }
         .onReceive(windowSubmits) { submit in
             guard case .update(let value, let todo) = submit,
                   value.matchesEdit(todoId: store.todoId) else { return }
             store.send(.setTodo(todo))
         }
-        .navigationBarTitleDisplayMode(.inline)
         .prominentAlert(store, state: \.alert, action: \.alert)
         .sheet(
             item: $store.scope(state: \.sheet, action: \.sheet)
@@ -61,34 +63,60 @@ public struct TodoDetailView: View {
         ) { store in
             fullScreenCoverContent(store)
         }
-        .toolbar { toolbarContent }
     }
 
     private var windowSubmits: AnyPublisher<TodoEditorWindowSubmit, Never> {
         windowEvent?.submits ?? Empty().eraseToAnyPublisher()
     }
 
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+    private var topBar: some View {
+        HStack(spacing: 12) {
+            NavigationBackButton { dismiss() }
+            Spacer()
+            infoButton
+            if store.showEditButton {
+                editButton
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+
+    @ViewBuilder
+    private var infoButton: some View {
+        if #available(iOS 26.0, *) {
             Button {
                 store.send(.setSheet(.info))
             } label: {
                 Image(systemName: "info.circle")
             }
+            .topBarButtonStyle()
+        } else {
+            Button {
+                store.send(.setSheet(.info))
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.title3.weight(.semibold))
+                    .frame(width: 28, height: 28)
+            }
+            .adaptiveButtonStyle(shape: .circle, color: .surface, glassEffect: .enabled)
         }
-        if store.showEditButton {
+    }
+
+    @ViewBuilder
+    private var editButton: some View {
+        Button {
+            openTodoEditor()
+        } label: {
             if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    openTodoEditor()
-                } label: {
-                    Text(String(localized: "todo_edit", bundle: PresentationResources.bundle))
-                }
+                Image(systemName: "pencil")
+            } else {
+                Text(String(localized: "todo_edit", bundle: PresentationResources.bundle))
+                    .foregroundStyle(Color.accent)
             }
         }
+        .topBarButtonStyle()
     }
 
     private func openTodoEditor() {
@@ -130,14 +158,9 @@ public struct TodoDetailView: View {
             NavigationStack {
                 if let todoStore = sheetStore.scope(state: \.todoDetail, action: \.todo) {
                     TodoDetailView(store: todoStore)
-                        .toolbar {
-                            ToolbarLeadingButton {
-                                sheetStore.send(.tapCloseButton)
-                            }
-                        }
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color.appBackground)
             .presentationDragIndicator(.visible)
         }
     }

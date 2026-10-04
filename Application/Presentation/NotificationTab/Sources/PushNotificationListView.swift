@@ -288,14 +288,9 @@ public struct PushNotificationListView: View {
             ) {
                 TodoDetailFeature()
             })
-                .id(sheetStore.todoId)
-                .toolbar {
-                    ToolbarLeadingButton {
-                        sheetStore.send(.tapCloseButton)
-                    }
-                }
+            .id(sheetStore.todoId)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.appBackground)
         .presentationDragIndicator(.visible)
     }
 
