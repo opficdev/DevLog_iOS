@@ -181,77 +181,131 @@ private struct InfoSheetView: View {
     private let calendar = Calendar.current
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section(String(localized: "todo_options_section", bundle: PresentationResources.bundle)) {
-                    HStack {
-                        Text(String(localized: "todo_category", bundle: PresentationResources.bundle))
-                        Spacer()
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 0) {
+                    optionRow(
+                        systemImage: "tag.fill",
+                        color: Color.accent,
+                        title: String(localized: "todo_category", bundle: PresentationResources.bundle)
+                    ) {
                         Text(TodoCategoryItem(from: todo.category).localizedName)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.accent)
+                            .lineLimit(1)
                     }
 
-                    statusRow(
-                        title: String(localized: "todo_completed", bundle: PresentationResources.bundle),
-                        systemImage: todo.isCompleted ? "checkmark.circle.fill" : "circle",
-                        color: todo.isCompleted ? .green : .secondary
-                    )
+                    Divider()
 
-                    statusRow(
-                        title: String(localized: "todo_pinned", bundle: PresentationResources.bundle),
-                        systemImage: todo.isPinned ? "star.fill" : "star",
-                        color: todo.isPinned ? .orange : .secondary
-                    )
+                    optionRow(
+                        systemImage: "circle",
+                        color: Color.textSecondary,
+                        title: String(localized: "todo_completed", bundle: PresentationResources.bundle)
+                    ) {
+                        Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(todo.isCompleted ? Color.accent : Color.textTertiary)
+                    }
 
-                    HStack {
-                        Text(String(localized: "todo_due_date", bundle: PresentationResources.bundle))
+                    Divider()
 
-                        Spacer()
+                    optionRow(
+                        systemImage: "star.fill",
+                        color: Color.orange,
+                        title: String(localized: "todo_pinned", bundle: PresentationResources.bundle)
+                    ) {
+                        Image(systemName: todo.isPinned ? "star.fill" : "star")
+                            .foregroundStyle(todo.isPinned ? Color.orange : Color.textTertiary)
+                    }
 
+                    Divider()
+
+                    optionRow(
+                        systemImage: "calendar",
+                        color: Color.textSecondary,
+                        title: String(localized: "todo_due_date", bundle: PresentationResources.bundle)
+                    ) {
                         if let dueDate = todo.dueDate {
                             Tag(dueDateText(for: dueDate), isEditing: false)
-                                .padding(.vertical, -4)
                         } else {
                             Text(String(localized: "todo_none", bundle: PresentationResources.bundle))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.textSecondary)
                         }
                     }
                 }
+                .background(Color.surface)
+                .clipShape(.rect(cornerRadius: 16))
 
-                Section(String(localized: "todo_tags", bundle: PresentationResources.bundle)) {
-                    if todo.tags.isEmpty {
-                        Text(String(localized: "todo_no_tags", bundle: PresentationResources.bundle))
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 4)
-                    } else {
-                        TagList(todo.tags)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(String(localized: "todo_tags", bundle: PresentationResources.bundle))
+                        .font(.headline)
+                        .padding(.horizontal, 16)
+
+                    Group {
+                        if todo.tags.isEmpty {
+                            Text(String(localized: "todo_no_tags", bundle: PresentationResources.bundle))
+                                .foregroundStyle(Color.textSecondary)
+                        } else {
+                            TagList(todo.tags, verticalSpacing: 4, horizontalSpacing: 4)
+                        }
                     }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.surface)
+                    .clipShape(.rect(cornerRadius: 16))
                 }
             }
-            .navigationTitle(String(localized: "todo_details", bundle: PresentationResources.bundle))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarLeadingButton {
-                    onClose()
-                }
-            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
+        .safeAreaInset(edge: .top, spacing: 0) { topBar }
+        .background(Color.appBackground.ignoresSafeArea())
+        .presentationDragIndicator(.visible)
     }
 
-    @ViewBuilder
-    private func statusRow(
-        title: String,
-        systemImage: String,
-        color: Color
-    ) -> some View {
-        HStack {
-            Text(title)
-
-            Spacer()
-
-            Image(systemName: systemImage)
-                .foregroundStyle(color)
+    private var topBar: some View {
+        ZStack {
+            Text(String(localized: "todo_details", bundle: PresentationResources.bundle))
+                .font(.headline)
+            HStack {
+                Button {
+                    onClose()
+                } label: {
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "xmark")
+                    } else {
+                        Text(String(localized: "common_close", bundle: PresentationResources.bundle))
+                    }
+                }
+                .topBarButtonStyle()
+                Spacer()
+            }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+
+    private func optionRow<Trailing: View>(
+        systemImage: String,
+        color: Color,
+        title: String,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.title3)
+                .foregroundStyle(color)
+                .frame(width: 28, height: 28)
+
+            Text(title)
+                .font(.headline)
+                .layoutPriority(1)
+
+            Spacer(minLength: 8)
+
+            trailing()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     private func dueDateText(for dueDate: Date) -> String {
