@@ -77,6 +77,7 @@ public struct TodoPropertiesView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 12) {
                         optionIcon("tag.fill", color: Color.accent)
+                        Text(String(localized: "todo_category", bundle: PresentationResources.bundle))
                         Spacer()
                         Picker(
                             String(localized: "todo_category", bundle: PresentationResources.bundle),
@@ -198,7 +199,7 @@ public struct TodoPropertiesView: View {
             HStack(spacing: 12) {
                 optionIcon("calendar", color: Color.textSecondary)
                 Text(String(localized: "todo_due_date", bundle: PresentationResources.bundle))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                 Spacer()
                 if let dueDate = store.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
@@ -207,7 +208,7 @@ public struct TodoPropertiesView: View {
                     .padding(.vertical, -4)
                 } else {
                     Text(String(localized: "todo_none", bundle: PresentationResources.bundle))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.textSecondary)
                 }
             }
         }
