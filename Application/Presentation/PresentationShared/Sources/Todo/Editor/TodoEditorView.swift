@@ -94,36 +94,15 @@ public struct TodoEditorView: View {
                     }
                 case .todo(let item):
                     NavigationStack {
-                        TodoDetailView(store: Store(
-                            initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
-                        ) {
-                            TodoDetailFeature()
-                        })
+                        TodoDetailView(
+                            store: Store(
+                                initialState: TodoDetailFeature.State(todoId: item.id, showEditButton: false)
+                            ) {
+                                TodoDetailFeature()
+                            },
+                            onBack: { store.send(.showInspector(.options)) }
+                        )
                         .id(item.id)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    store.send(.showInspector(.options))
-                                } label: {
-                                    Label(
-                                        String(
-                                            localized: "todo_options_section",
-                                            bundle: PresentationResources.bundle
-                                        ),
-                                        systemImage: "chevron.left"
-                                    )
-                                }
-                            }
-                            if movesActionsToInspector {
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    EditorToolbarActions(store: store, onSubmit: submit)
-                                }
-                            } else {
-                                ToolbarTrailingButton {
-                                    store.send(.binding(.set(\.isInspectorPresented, false)))
-                                }
-                            }
-                        }
                     }
                 }
                 }

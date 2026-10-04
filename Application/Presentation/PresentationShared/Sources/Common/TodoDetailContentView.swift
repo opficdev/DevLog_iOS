@@ -9,7 +9,6 @@ import SwiftUI
 import Domain
 
 struct TodoDetailContentView: View {
-    @ScaledMetric(relativeTo: .title3) private var fontSize = 20
     let title: String
     let content: String
     let referenceItems: [Int: TodoReferenceItem]
@@ -17,29 +16,52 @@ struct TodoDetailContentView: View {
     var onOpenTodoID: ((String) -> Void)?
 
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            VStack(alignment: .leading, spacing: 10) {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 ScrollView(.horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(title)
-                        Text("#\(number)")
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: true, vertical: false)
+                    LazyHStack(alignment: .firstTextBaseline, spacing: 0, pinnedViews: .sectionFooters) {
+                        Section {
+                            Text(title)
+                        } footer: {
+                            Text("#\(number)")
+                                .foregroundStyle(Color.textTertiary)
+                                .padding(.leading, 8)
+                                .background {
+                                    Color.appBackground.padding(.trailing, -16)
+                                }
+                        }
                     }
                     .lineLimit(1)
                     .font(.title3.bold())
                 }
-                .frame(height: fontSize + 10)
+                .scrollBounceBehavior(.always, axes: .horizontal)
                 .scrollIndicators(.hidden)
-                .contentMargins(16, for: .scrollContent)
-                Divider()
-                TodoMarkdownContentView(
-                    content: content,
-                    referenceItems: referenceItems,
-                    onOpenTodoID: onOpenTodoID
-                )
+                .contentMargins(.horizontal, 16, for: .scrollContent)
+                .padding(.horizontal, -16)
+
+                Group {
+                    if content.isEmpty {
+                        ContentUnavailableView(
+                            String(
+                                localized: "development_record_content_empty_title",
+                                bundle: PresentationResources.bundle
+                            ),
+                            systemImage: "doc.text"
+                        )
+                    } else {
+                        TodoMarkdownContentView(
+                            content: content,
+                            referenceItems: referenceItems,
+                            isScrollEnabled: false,
+                            onOpenTodoID: onOpenTodoID
+                        )
+                        .frame(minHeight: 120, alignment: .top)
+                    }
+                }
+                .padding(.vertical, 16)
+                .background(Color.surface, in: .rect(cornerRadius: 24))
             }
+            .padding()
         }
     }
 }

@@ -87,7 +87,10 @@ public struct GoalDetailView: View {
                     onUpdate: { store.send(.view(.refresh)) }
                 )
             }
-            .navigationDestination(item: $store.scope(state: \.todoDetail, action: \.todoDetail)) {
+            .navigationDestination(
+                item: $store.scope(state: \.todoDetail, action: \.todoDetail),
+                interactivePop: true
+            ) {
                 TodoDetailView(
                     store: Store(
                         initialState: TodoDetailFeature.State(

@@ -42,7 +42,7 @@ struct SearchView: View {
             }
             .background(Color.appBackground.ignoresSafeArea())
             .prominentAlert(store, state: \.alert, action: \.alert)
-            .navigationDestination(for: Path.self) { path in
+            .navigationDestination(for: Path.self, interactivePop: { _ in true }) { path in
                 switch path {
                 case .todo(let todoId):
                     TodoDetailView(store: Store(
