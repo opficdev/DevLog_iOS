@@ -70,7 +70,11 @@ public struct TodayView: View {
             .background(Color.appBackground)
             .refreshable { await store.send(.refresh).finish() }
             .toolbarVisibility(.hidden, for: .navigationBar)
-            .navigationDestination(for: TodayRoute.self, destination: destination)
+            .navigationDestination(
+                for: TodayRoute.self,
+                interactivePop: { _ in true },
+                destination: destination
+            )
             .sheet(isPresented: $store.isCategoryFilterPresented) {
                 CategoryFilterSheet(store: store)
             }

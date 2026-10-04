@@ -73,7 +73,7 @@ public struct HomeView: View {
                 interactivePop: {
                     switch $0 {
                     case .category: true
-                    case .todo: false
+                    case .todo: true
                     }
                 },
                 destination: destinationView

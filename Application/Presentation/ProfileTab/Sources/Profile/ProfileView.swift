@@ -63,7 +63,7 @@ public struct ProfileView: View {
                 for: ProfileRoute.self,
                 interactivePop: {
                     switch $0 {
-                    case .settings, .theme: true
+                    case .settings, .theme, .activity, .recentTodo: true
                     default: false
                     }
                 },
