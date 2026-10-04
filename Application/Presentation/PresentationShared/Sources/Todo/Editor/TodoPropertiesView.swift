@@ -30,46 +30,45 @@ public struct TodoPropertiesView: View {
     }
 
     public var body: some View {
-        ZStack {
-            Color.appBackground.ignoresSafeArea()
-            VStack(spacing: 8) {
-                toolBar
-                content
-            }
-        }
+        content
+            .safeAreaInset(edge: .top, spacing: 0) { toolBar }
+            .background(Color.appBackground.ignoresSafeArea())
+            .presentationDragIndicator(.visible)
     }
 
     private var toolBar: some View {
-        HStack {
-            Spacer()
-            if showsEditorActions {
-                EditorToolbarActions(store: store, onSubmit: onSubmit)
-            } else {
-                if #available(iOS 26.0, *) {
-                    Button {
-                        onClose()
-                    } label: {
-                        Image(systemName: "xmark")
+        ZStack {
+            if !showsEditorActions {
+                Text(String(localized: "todo_details", bundle: PresentationResources.bundle))
+                    .font(.headline)
+            }
+            HStack {
+                if !showsEditorActions {
+                    if #available(iOS 26.0, *) {
+                        Button {
+                            onClose()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                        .topBarButtonStyle()
+                    } else {
+                        Button {
+                            onClose()
+                        } label: {
+                            Text(String(localized: "common_done", bundle: PresentationResources.bundle))
+                        }
+                        .topBarButtonStyle(tint: Color.accent)
                     }
-                    .topBarButtonStyle(tint: Color.accent)
-                } else {
-                    Button {
-                        onClose()
-                    } label: {
-                        Text(String(localized: "common_done", bundle: PresentationResources.bundle))
-                    }
-                    .topBarButtonStyle(tint: Color.accent)
+                }
+                Spacer()
+                if showsEditorActions {
+                    EditorToolbarActions(store: store, onSubmit: onSubmit)
                 }
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 12)
-        .overlay {
-            if !showsEditorActions {
-                Text(String(localized: "todo_details", bundle: PresentationResources.bundle))
-                    .font(.title3.bold())
-            }
-        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
     private var content: some View {
@@ -78,6 +77,7 @@ public struct TodoPropertiesView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 12) {
                         optionIcon("tag.fill", color: Color.accent)
+                        Text(String(localized: "todo_category", bundle: PresentationResources.bundle))
                         Spacer()
                         Picker(
                             String(localized: "todo_category", bundle: PresentationResources.bundle),
@@ -120,17 +120,14 @@ public struct TodoPropertiesView: View {
                     dueDateControl
                         .padding(.vertical, 12)
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.surface)
-                        .strokeBorder(Color.border, lineWidth: 2)
-                }
+                .background(Color.surface, in: .rect(cornerRadius: 16))
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text(String(localized: "todo_tags", bundle: PresentationResources.bundle))
                         .font(.headline)
+                        .padding(.horizontal, 16)
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 12) {
                             TextField(
@@ -143,11 +140,7 @@ public struct TodoPropertiesView: View {
                             .onSubmit { submitTag() }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 12)
-                            .background {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.surfaceSecondary)
-                                    .strokeBorder(Color.border, lineWidth: 2)
-                            }
+                            .background(Color.surfaceSecondary, in: .rect(cornerRadius: 12))
                             .tint(Color.accent)
 
                             Button {
@@ -182,16 +175,13 @@ public struct TodoPropertiesView: View {
                             bundle: PresentationResources.bundle
                         ))
                     }
-                    .padding(20)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.surface)
-                            .strokeBorder(Color.border, lineWidth: 2)
-                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.surface, in: .rect(cornerRadius: 16))
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .contentMargins(.top, 16, for: .scrollContent)
     }
@@ -209,7 +199,7 @@ public struct TodoPropertiesView: View {
             HStack(spacing: 12) {
                 optionIcon("calendar", color: Color.textSecondary)
                 Text(String(localized: "todo_due_date", bundle: PresentationResources.bundle))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                 Spacer()
                 if let dueDate = store.dueDate {
                     Tag(dueDateText(for: dueDate), isEditing: true) {
@@ -218,7 +208,7 @@ public struct TodoPropertiesView: View {
                     .padding(.vertical, -4)
                 } else {
                     Text(String(localized: "todo_none", bundle: PresentationResources.bundle))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.textSecondary)
                 }
             }
         }
