@@ -30,46 +30,45 @@ public struct TodoPropertiesView: View {
     }
 
     public var body: some View {
-        ZStack {
-            Color.appBackground.ignoresSafeArea()
-            VStack(spacing: 8) {
-                toolBar
-                content
-            }
-        }
+        content
+            .safeAreaInset(edge: .top, spacing: 0) { toolBar }
+            .background(Color.appBackground.ignoresSafeArea())
+            .presentationDragIndicator(.visible)
     }
 
     private var toolBar: some View {
-        HStack {
-            Spacer()
-            if showsEditorActions {
-                EditorToolbarActions(store: store, onSubmit: onSubmit)
-            } else {
-                if #available(iOS 26.0, *) {
-                    Button {
-                        onClose()
-                    } label: {
-                        Image(systemName: "xmark")
+        ZStack {
+            if !showsEditorActions {
+                Text(String(localized: "todo_details", bundle: PresentationResources.bundle))
+                    .font(.headline)
+            }
+            HStack {
+                if !showsEditorActions {
+                    if #available(iOS 26.0, *) {
+                        Button {
+                            onClose()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                        .topBarButtonStyle()
+                    } else {
+                        Button {
+                            onClose()
+                        } label: {
+                            Text(String(localized: "common_done", bundle: PresentationResources.bundle))
+                        }
+                        .topBarButtonStyle(tint: Color.accent)
                     }
-                    .topBarButtonStyle(tint: Color.accent)
-                } else {
-                    Button {
-                        onClose()
-                    } label: {
-                        Text(String(localized: "common_done", bundle: PresentationResources.bundle))
-                    }
-                    .topBarButtonStyle(tint: Color.accent)
+                }
+                Spacer()
+                if showsEditorActions {
+                    EditorToolbarActions(store: store, onSubmit: onSubmit)
                 }
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 12)
-        .overlay {
-            if !showsEditorActions {
-                Text(String(localized: "todo_details", bundle: PresentationResources.bundle))
-                    .font(.title3.bold())
-            }
-        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
     }
 
     private var content: some View {
