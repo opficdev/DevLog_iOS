@@ -8,12 +8,12 @@
 import SwiftUI
 import PresentationShared
 
-enum RecordPresentation {
+public enum RecordPresentation {
     static func text(_ key: String.LocalizationValue) -> String {
         String(localized: key, bundle: PresentationResources.bundle)
     }
 
-    static func versionLabel(_ number: Int) -> String {
+    public static func versionLabel(_ number: Int) -> String {
         "#\(number)"
     }
 }

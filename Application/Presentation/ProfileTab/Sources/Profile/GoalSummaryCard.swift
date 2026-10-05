@@ -78,19 +78,19 @@ struct GoalSummaryCard: View {
             : AnyLayout(HStackLayout(spacing: 8))
         return layout {
             statusTile(
-                title: "development_goal_status_in_progress",
+                title: DevelopmentGoal.Status.inProgress.title,
                 symbol: "clock",
                 color: .accent,
                 count: counts.inProgress
             )
             statusTile(
-                title: "development_goal_status_completed",
+                title: DevelopmentGoal.Status.completed.title,
                 symbol: "checkmark",
                 color: .success,
                 count: counts.completed
             )
             statusTile(
-                title: "development_goal_status_archived",
+                title: DevelopmentGoal.Status.archived.title,
                 symbol: "archivebox",
                 color: .textSecondary,
                 count: counts.archived
@@ -98,13 +98,13 @@ struct GoalSummaryCard: View {
         }
     }
 
-    private func statusTile(title: LocalizedStringKey, symbol: String, color: Color, count: Int) -> some View {
+    private func statusTile(title: String, symbol: String, color: Color, count: Int) -> some View {
         VStack(spacing: 8) {
             Image(systemName: symbol)
                 .font(.subheadline.weight(.semibold))
                 .frame(width: 36, height: 36)
                 .iconStyle(color: color, in: Circle())
-            Text(title, bundle: PresentationResources.bundle)
+            Text(title)
                 .font(.caption)
                 .foregroundStyle(Color.textSecondary)
             Text(verbatim: String(count))
