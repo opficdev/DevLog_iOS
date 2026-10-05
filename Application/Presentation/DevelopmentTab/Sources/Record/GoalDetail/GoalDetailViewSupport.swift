@@ -85,14 +85,14 @@ struct TimelineRow: View {
     }
 }
 
-public struct GoalStatusBadge: View {
+struct GoalStatusBadge: View {
     let status: DevelopmentGoal.Status
 
-    public init(status: DevelopmentGoal.Status) {
+    init(status: DevelopmentGoal.Status) {
         self.status = status
     }
 
-    public var body: some View {
+    var body: some View {
         Label(status.title, systemImage: systemImage)
         .font(.caption.weight(.semibold))
         .foregroundStyle(foreground)

@@ -1,14 +1,23 @@
 //
-//  DevelopmentDependencyPreparation.swift
-//  Development
+//  DevelopmentTabDependencyPreparation.swift
+//  DevelopmentTab
 //
-//  Created by opfic on 9/13/26.
+//  Created by opfic on 10/5/26.
 //
 
 import Domain
 import PresentationShared
 
-public enum DevelopmentDependencyPreparation {
+public enum DevelopmentTabDependencyPreparation {
+    public static func prepareGoalList(
+        _ dependencies: inout DependencyValues,
+        goalsUseCase: FetchDevelopmentGoalsUseCase,
+        recentRecordUseCase: FetchRecentDevelopmentRecordUseCase
+    ) {
+        dependencies.developmentTabFetchGoalsUseCase = goalsUseCase
+        dependencies.developmentTabFetchRecentRecordUseCase = recentRecordUseCase
+    }
+
     public static func prepareGoal(
         _ dependencies: inout DependencyValues,
         createGoalUseCase: CreateDevelopmentGoalUseCase,
@@ -53,6 +62,7 @@ public enum DevelopmentDependencyPreparation {
         dependencies.developmentUpdateTodoGoalUseCase = updateTodoGoalUseCase
     }
 }
+
 
 extension DependencyValues {
     var developmentCreateGoalUseCase: CreateDevelopmentGoalUseCase {

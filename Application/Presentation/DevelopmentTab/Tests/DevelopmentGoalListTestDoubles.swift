@@ -29,7 +29,7 @@ struct StoreTestAdapter {
         store = TestStore(initialState: DevelopmentGoalListFeature.State()) {
             DevelopmentGoalListFeature()
         } withDependencies: {
-            DevelopmentTabDependencyPreparation.prepare(
+            DevelopmentTabDependencyPreparation.prepareGoalList(
                 &$0,
                 goalsUseCase: goalsSpy,
                 recentRecordUseCase: recentRecordSpy

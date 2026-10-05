@@ -24,7 +24,7 @@ extension AppGraph {
 
 private extension AppGraph {
     func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
-        DevelopmentDependencyPreparation.prepareGoal(
+        DevelopmentTabPresentationDependencyPreparation.prepareGoal(
             &dependencies,
             createGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
@@ -36,7 +36,7 @@ private extension AppGraph {
                 .developmentGoalUseCaseGraph
                 .updateDevelopmentGoalStatusUseCase
         )
-        DevelopmentDependencyPreparation.prepareQuery(
+        DevelopmentTabPresentationDependencyPreparation.prepareQuery(
             &dependencies,
             fetchRecordsUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
@@ -48,7 +48,7 @@ private extension AppGraph {
                 .developmentRecordQueryUseCaseGraph
                 .fetchDevelopmentRecordVersionUseCase
         )
-        DevelopmentDependencyPreparation.prepareMutation(
+        DevelopmentTabPresentationDependencyPreparation.prepareMutation(
             &dependencies,
             createRecordUseCase: developmentGraphSet
                 .developmentRecordMutationUseCaseGraph
@@ -63,7 +63,7 @@ private extension AppGraph {
                 .developmentRecordMutationUseCaseGraph
                 .restoreDevelopmentRecordUseCase
         )
-        DevelopmentDependencyPreparation.prepareTodo(
+        DevelopmentTabPresentationDependencyPreparation.prepareTodo(
             &dependencies,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase,
             updateTodoGoalUseCase: todoGraphSet.todoGoalUseCaseGraph.updateTodoGoalUseCase
@@ -71,7 +71,7 @@ private extension AppGraph {
     }
 
     func prepareDevelopmentTabDependencies(_ dependencies: inout DependencyValues) {
-        DevelopmentTabPresentationDependencyPreparation.prepare(
+        DevelopmentTabPresentationDependencyPreparation.prepareGoalList(
             &dependencies,
             goalsUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph

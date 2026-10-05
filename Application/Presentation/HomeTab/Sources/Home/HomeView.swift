@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-import Development
+import DevelopmentTab
 import Domain
 import PresentationShared
 
