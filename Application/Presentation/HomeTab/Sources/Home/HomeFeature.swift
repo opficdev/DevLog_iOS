@@ -159,8 +159,7 @@ struct HomeFeature {
 
     @Dependency(\.fetchTodoCategoryPreferencesUseCase) var fetchPreferencesUseCase
     @Dependency(\.homeFetchDevelopmentGoalsUseCase) var fetchDevelopmentGoalsUseCase
-    @Dependency(\.homeFetchDevelopmentRecordsUseCase) var fetchDevelopmentRecordsUseCase
-    @Dependency(\.homeFetchDevelopmentRecordVersionUseCase) var fetchDevelopmentRecordVersionUseCase
+    @Dependency(\.homeFetchRecentDevelopmentRecordUseCase) var recentRecordUseCase
     @Dependency(\.homeFetchTodosUseCase) var fetchTodosUseCase
     @Dependency(\.homeUpdateTodoCategoryPreferencesUseCase) var updatePreferencesUseCase
     @Dependency(\.homeNetworkConnectivityUseCase) var networkConnectivityUseCase

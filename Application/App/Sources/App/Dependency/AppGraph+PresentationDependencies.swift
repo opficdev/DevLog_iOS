@@ -133,12 +133,9 @@ private extension AppGraph {
             fetchGoalsUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
                 .fetchDevelopmentGoalsUseCase,
-            fetchRecordsUseCase: developmentGraphSet
+            recentRecordUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordsUseCase,
-            fetchRecordVersionUseCase: developmentGraphSet
-                .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordVersionUseCase,
+                .fetchRecentDevelopmentRecordUseCase,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase
         )
         HomePresentationDependencyPreparation.prepareTodoCategory(

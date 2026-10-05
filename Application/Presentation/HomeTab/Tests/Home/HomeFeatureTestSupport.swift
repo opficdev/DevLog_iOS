@@ -36,9 +36,7 @@ struct StoreTestAdapter {
         updatePreferencesUseCase: UpdateTodoCategoryPreferencesUseCase = UpdateTodoCategoryPreferencesUseCaseSpy(),
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
         fetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase = FetchDevelopmentGoalsUseCaseSpy(),
-        fetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase = FetchDevelopmentRecordsUseCaseSpy(),
-        fetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase =
-            FetchDevelopmentRecordVersionUseCaseSpy(),
+        recentRecordUseCase: FetchRecentDevelopmentRecordUseCase = FetchRecentDevelopmentRecordUseCaseSpy(),
         fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
@@ -52,8 +50,7 @@ struct StoreTestAdapter {
             $0.homeUpdateTodoCategoryPreferencesUseCase = updatePreferencesUseCase
             $0.homeNetworkConnectivityUseCase = networkConnectivityUseCase
             $0.homeFetchDevelopmentGoalsUseCase = fetchDevelopmentGoalsUseCase
-            $0.homeFetchDevelopmentRecordsUseCase = fetchDevelopmentRecordsUseCase
-            $0.homeFetchDevelopmentRecordVersionUseCase = fetchDevelopmentRecordVersionUseCase
+            $0.homeFetchRecentDevelopmentRecordUseCase = recentRecordUseCase
             $0.homeFetchTodosUseCase = fetchTodosUseCase
             $0.trackAnalyticsEventUseCase = trackAnalyticsEventUseCase
             $0.continuousClock = clock
@@ -94,12 +91,6 @@ struct StoreTestAdapter {
 
     func tapCreateDevelopmentGoal() async {
         await store.send(.view(.tapCreateDevelopmentGoal))
-    }
-
-    func tapCreateDevelopmentGoalFromContentPicker() async {
-        await store.send(.view(.tapCreateDevelopmentGoal))
-        await clock.advance(by: .seconds(1))
-        await settle()
     }
 
     func tapDevelopmentGoal(_ goalID: String) async {

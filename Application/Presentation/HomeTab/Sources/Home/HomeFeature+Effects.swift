@@ -41,11 +41,9 @@ extension HomeFeature {
 
     func fetchDevelopmentGoalsEffect() -> Effect<Action> {
         let goalsUseCase = fetchDevelopmentGoalsUseCase
-        let recordsUseCase = fetchDevelopmentRecordsUseCase
-        let versionUseCase = fetchDevelopmentRecordVersionUseCase
         let todosUseCase = fetchTodosUseCase
 
-        return .run { [goalsUseCase, recordsUseCase, versionUseCase, todosUseCase] send in
+        return .run { [goalsUseCase, recentRecordUseCase, todosUseCase] send in
             await send(.loading(.begin(target: LoadingTarget.developmentGoals.target, mode: .immediate)))
             do {
                 let goals = try await goalsUseCase.execute(.init(status: .inProgress))
@@ -63,8 +61,7 @@ extension HomeFeature {
                     )
                     let goalItems = try await Self.makeDevelopmentGoalItems(
                         goals,
-                        fetchRecordsUseCase: recordsUseCase,
-                        fetchRecordVersionUseCase: versionUseCase
+                        recentRecordUseCase: recentRecordUseCase
                     )
                     let todoProgressByGoalID = Self.makeTodoProgressByGoalID((try await todos).items)
                     let items = goalItems.map { item in
@@ -161,21 +158,15 @@ extension HomeFeature {
 
     static func makeDevelopmentGoalItems(
         _ goals: [DevelopmentGoal],
-        fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
-        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase
+        recentRecordUseCase useCase: FetchRecentDevelopmentRecordUseCase
     ) async throws -> [DevelopmentGoalItem] {
         var items = [DevelopmentGoalItem]()
 
         try await withThrowingTaskGroup(of: DevelopmentGoalItem.self) { group in
             for goal in goals {
                 group.addTask {
-                    let records = try await fetchRecordsUseCase.execute(goalId: goal.id)
-                    let recentRecord = try await makeRecentRecord(
-                        goalId: goal.id,
-                        records: records,
-                        fetchRecordVersionUseCase: fetchRecordVersionUseCase
-                    )
-                    return DevelopmentGoalItem(goal: goal, recentRecord: recentRecord)
+                    let version = try await useCase.execute(goalId: goal.id)
+                    return DevelopmentGoalItem(goal: goal, recentRecord: version)
                 }
             }
 
@@ -190,33 +181,6 @@ extension HomeFeature {
             }
             return lhs.goal.createdAt < rhs.goal.createdAt
         }
-    }
-
-    static func makeRecentRecord(
-        goalId: String,
-        records: [DevelopmentRecord],
-        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase
-    ) async throws -> DevelopmentRecord.Version? {
-        var versions = [DevelopmentRecord.Version]()
-
-        try await withThrowingTaskGroup(of: DevelopmentRecord.Version.self) { group in
-            for record in records {
-                guard let currentVersion = record.currentVersion else { continue }
-                group.addTask {
-                    try await fetchRecordVersionUseCase.execute(
-                        goalId: goalId,
-                        recordId: record.id,
-                        versionId: currentVersion.id
-                    )
-                }
-            }
-
-            for try await version in group {
-                versions.append(version)
-            }
-        }
-
-        return versions.max { $0.confirmedAt < $1.confirmedAt }
     }
 
     static func makeTodoProgressByGoalID(
