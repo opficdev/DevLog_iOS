@@ -58,7 +58,6 @@ public struct HomeView: View {
                         isLoading: store.isDevelopmentGoalsLoading,
                         hasLoaded: store.hasDevelopmentGoalsLoaded,
                         hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
-                        onCreate: { store.send(.view(.tapCreateDevelopmentGoal)) },
                         onSelect: { store.send(.view(.tapDevelopmentGoal($0.id))) },
                         onRetry: { store.send(.view(.fetchData)) }
                     )
