@@ -183,6 +183,55 @@ let project = Project(
             )
         ),
         .target(
+            name: "DevelopmentTab",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "com.opfic.DevLog.DevelopmentTab",
+            infoPlist: .file(path: frameworkInfoPlistPath),
+            sources: ["DevelopmentTab/Sources/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "DevelopmentTab/Sources",
+                    configPath: "DevelopmentTab/Sources/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "Development"),
+                .target(name: "PresentationShared")
+            ],
+            settings: frameworkBuildSettings
+        ),
+        .target(
+            name: "DevelopmentTabTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.opfic.DevLog.DevelopmentTabTests",
+            infoPlist: .file(path: testsInfoPlistPath),
+            sources: ["DevelopmentTab/Tests/**/*.swift"],
+            scripts: [
+                DevLogScripts.swiftLint(
+                    sourcePath: "DevelopmentTab/Tests",
+                    configPath: "DevelopmentTab/Tests/.swiftlint.yml"
+                )
+            ],
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .project(target: "Core", path: "../Core"),
+                .target(name: "DevelopmentTab"),
+                .target(name: "Development"),
+                .target(name: "PresentationShared"),
+                thirdPartyDependency,
+            ],
+            settings: .devlog(
+                base: [
+                    "ENABLE_USER_SCRIPT_SANDBOXING": "NO",
+                    "TEST_TARGET_NAME": "DevelopmentTab"
+                ]
+            )
+        ),
+        .target(
             name: "TodayTab",
             destinations: .iOS,
             product: .staticFramework,
