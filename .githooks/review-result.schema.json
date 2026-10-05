@@ -1,0 +1,14 @@
+{
+	"type": "object",
+	"properties": {
+		"verdict": {
+			"type": "string",
+			"enum": ["PASS", "FAIL", "BLOCKED"]
+		},
+		"review": {
+			"type": "string"
+		}
+	},
+	"required": ["verdict", "review"],
+	"additionalProperties": false
+}

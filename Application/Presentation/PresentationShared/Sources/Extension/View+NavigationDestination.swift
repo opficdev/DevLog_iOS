@@ -19,7 +19,7 @@ public extension View {
             destination(value)
                 .background {
                     if interactivePop {
-                        NavigationPopGestureController()
+                        NavigationPopGestureController
                             .composable { controller in
                                 controller.onInteractivePopCompleted = {
                                     guard item.wrappedValue != nil else { return }
@@ -40,7 +40,7 @@ public extension View {
             destination()
                 .background {
                     if interactivePop {
-                        NavigationPopGestureController()
+                        NavigationPopGestureController
                             .composable { controller in
                                 controller.onInteractivePopCompleted = {
                                     guard isPresented.wrappedValue else { return }
@@ -61,7 +61,7 @@ public extension View {
             destination(value)
                 .background {
                     if interactivePop(value) {
-                        NavigationPopGestureController().composable()
+                        NavigationPopGestureController.composable()
                     }
                 }
         }
