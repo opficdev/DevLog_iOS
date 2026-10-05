@@ -13,79 +13,144 @@ struct CategoryManageView: View {
     @Bindable var store: StoreOf<CategoryManageFeature>
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(store.preferences, id: \.id) { item in
-                    HStack(spacing: 0) {
-                        CheckBox(isChecked: item.isVisible, font: .title3)
-                            .padding(.horizontal)
-                            .onTapGesture {
-                                store.send(.tapItem(item))
-                            }
-                        Text(item.localizedName)
-                            .lineLimit(1)
-                        Spacer()
-                        if item.isUserCategory {
-                            Button {
-                                store.send(.tapEditUserCategory(item))
-                            } label: {
-                                Image(systemName: "slider.horizontal.3")
-                            }
-                            .buttonStyle(.borderless)
-                            .padding(.trailing, 8)
-
-                            Button(role: .destructive) {
-                                store.send(.tapDeleteUserCategory(item))
-                            } label: {
-                                Image(systemName: "trash")
-                            }
-                            .buttonStyle(.borderless)
-                            .padding(.trailing)
-                        }
+        CardCollectionView<TodoCategoryItem>
+            .composable { view in
+                view.updateContent(
+                    items: store.preferences,
+                    header: UIHostingConfiguration {
+                        Text(String(localized: "todo_manage_description", bundle: PresentationResources.bundle))
+                            .font(.footnote)
+                            .foregroundStyle(Color.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
                     }
-                }
-                .onMove { source, destination in
-                    store.send(.moveItem(from: source, target: destination))
-                }
-                .listRowInsets(EdgeInsets())
+                    .margins(.horizontal, 16)
+                    .margins(.vertical, 8),
+                    footer: UIHostingConfiguration {
+                        Button {
+                            store.send(.tapAddUserCategory)
+                        } label: {
+                            Label(
+                                String(localized: "todo_manage_add_category_title", bundle: PresentationResources.bundle),
+                                systemImage: "plus.circle.fill"
+                            )
+                            .font(.headline)
+                            .foregroundStyle(Color.onPrimaryContainer)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                        }
+                        .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .primaryContainer)
+                    }
+                    .margins(.horizontal, 16)
+                    .margins(.vertical, 24),
+                    row: { item in
+                        UIHostingConfiguration {
+                            CategoryManageRow(
+                                item: item,
+                                onToggle: { store.send(.tapItem(item)) },
+                                onEdit: { store.send(.tapEditUserCategory(item)) },
+                                onDelete: { store.send(.tapDeleteUserCategory(item)) }
+                            )
+                        }
+                        .margins(.horizontal, 0)
+                        .margins(.vertical, 8)
+                    },
+                    onMove: { source, destination in
+                        store.send(.moveItem(from: source, target: destination))
+                    }
+                )
             }
-            .environment(\.editMode, .constant(.active))
-            .navigationTitle(String(localized: "nav_todo_manage", bundle: PresentationResources.bundle))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
+            .ignoresSafeArea(edges: .bottom)
+            .safeAreaInset(edge: .top, spacing: 0) { toolBar }
+            .background(Color.appBackground.ignoresSafeArea())
             .sheet(
                 item: $store.scope(state: \.categorySheet, action: \.categorySheet)
                     .activePresentation(when: isTabContentActive)
             ) { sheetStore in
-                sheetContent(sheetStore)
+                CategoryManageSheet(store: sheetStore)
             }
             .prominentAlert(store, state: \.alert, action: \.alert)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        store.send(.tapAddUserCategory)
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
+            .presentationDragIndicator(.visible)
+    }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
+    private var toolBar: some View {
+        ZStack {
+            Text(String(localized: "todo_category_manage", bundle: PresentationResources.bundle))
+                .font(.headline)
+            HStack {
+                Spacer()
+                if #available(iOS 26.0, *) {
+                    Button {
+                        store.send(.tapDoneButton, animation: .default)
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                    .topBarButtonStyle()
+                } else {
                     Button {
                         store.send(.tapDoneButton, animation: .default)
                     } label: {
                         Text(String(localized: "profile_done", bundle: PresentationResources.bundle))
                     }
+                    .topBarButtonStyle(tint: Color.accent)
                 }
             }
         }
-        .presentationDragIndicator(.visible)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+}
+
+private struct CategoryManageRow: View {
+    let item: TodoCategoryItem
+    let onToggle: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        if item.isUserCategory {
+            content
+                .background(Color.surface)
+                .itemActions {
+                    ItemActionButton(
+                        color: Color.accent,
+                        image: Image(systemName: "pencil"),
+                        action: onEdit
+                    )
+
+                    ItemActionButton(
+                        color: Color.red,
+                        image: Image(systemName: "trash"),
+                        action: onDelete
+                    )
+                }
+        } else {
+            content
+        }
     }
 
-    @ViewBuilder
-    private func sheetContent(
-        _ sheetStore: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
-    ) -> some View {
-        CategoryManageSheet(store: sheetStore)
+    private var content: some View {
+        HStack(spacing: 12) {
+            Image(systemName: item.symbolName)
+                .font(.headline)
+                .frame(width: 36, height: 36)
+                .iconStyle(color: item.color, in: Circle())
+
+            Text(item.localizedName)
+                .lineLimit(1)
+
+            Spacer(minLength: 8)
+
+            Toggle(
+                item.localizedName,
+                isOn: Binding(get: { item.isVisible }, set: { _ in onToggle() })
+            )
+            .labelsHidden()
+            .tint(Color.accent)
+        }
+        .padding(.trailing, 12)
+        .frame(minHeight: 44)
     }
 }
 
