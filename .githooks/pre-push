@@ -1,0 +1,153 @@
+#!/bin/sh
+set -eu
+
+remote=$1
+schema=$(dirname "$0")/review-result.schema.json
+result_dir=
+
+trap 'if [ -n "$result_dir" ]; then rm -rf "$result_dir"; fi' 0
+trap 'exit 1' HUP INT TERM
+
+while read -r local_ref local_sha remote_ref remote_sha
+do
+	case "$remote_ref" in
+		refs/heads/*) ;;
+		*) continue ;;
+	esac
+
+	case "$local_sha" in
+		*[!0]*) ;;
+		*) continue ;;
+	esac
+
+	if [ "$local_sha" = "$remote_sha" ]; then
+		continue
+	fi
+
+	case "$remote_sha" in
+		*[!0]*)
+			base=$remote_sha
+			if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+				printf '%s\n' "리뷰 기준 커밋을 찾을 수 없습니다. git fetch $remote 실행 후 다시 푸시하세요." >&2
+				exit 1
+			fi
+			;;
+		*)
+			if ! base_ref=$(git symbolic-ref --quiet "refs/remotes/$remote/HEAD"); then
+				printf '%s\n' "원격 기본 브랜치를 찾을 수 없습니다. git remote set-head $remote -a 실행 후 다시 푸시하세요." >&2
+				exit 1
+			fi
+			if ! base=$(git merge-base "$base_ref" "$local_sha"); then
+				printf '%s\n' '리뷰 기준이 될 공통 조상 커밋을 찾을 수 없습니다.' >&2
+				exit 1
+			fi
+			;;
+	esac
+
+	if git diff --quiet "$base" "$local_sha" --; then
+		continue
+	else
+		status=$?
+		if [ "$status" -ne 1 ]; then
+			exit "$status"
+		fi
+	fi
+
+	if ! command -v claude >/dev/null 2>&1; then
+		printf '%s\n' 'Claude Code CLI를 찾을 수 없습니다. 설치와 로그인을 확인하세요.' >&2
+		exit 1
+	fi
+	if ! command -v python3 >/dev/null 2>&1; then
+		printf '%s\n' '리뷰 결과 판독에 필요한 python3를 찾을 수 없습니다.' >&2
+		exit 1
+	fi
+	if [ -z "$result_dir" ]; then
+		result_dir=$(mktemp -d "${TMPDIR:-/tmp}/devlog-pre-push.XXXXXX")
+	fi
+	result=$result_dir/result.json
+	rm -f "$result"
+	schema_json=$(cat "$schema")
+
+	printf '%s\n' "Claude 리뷰 시작: $local_ref ($base..$local_sha)" >&2
+	if ! claude -p \
+		--model claude-opus-5-5 \
+		--effort high \
+		--permission-mode plan \
+		--permission-prompts none \
+		--no-session-persistence \
+		--output-format json \
+		--json-schema "$schema_json" \
+		<<EOF > "$result"
+You are code_reviewer for a user-authorized pre-push review in $(pwd).
+This is a separate Claude Code CLI review. Perform the review yourself without spawning subagents or other agents.
+
+Read CLAUDE.md and fetch its DevLog Agent Policy index through the connected Notion MCP before inspecting code. Verify that the index is under the DevLog page and use only policies marked Active. Load the Active General, iOS, and Claude Code policies and every Active task-specific policy whose route matches this review. Apply the current code_reviewer contract.
+If Notion MCP, the policy index, any required Active policy, or required code is unavailable, set verdict to "BLOCKED" and report the missing source. Do not use historical memory as a policy fallback.
+
+Review only the committed changes from $base to $local_sha for $local_ref being pushed to $remote_ref.
+Use git diff $base $local_sha -- for the exact change set. Inspect supporting files at $local_sha with git show. Do not substitute HEAD or include unrelated staged, unstaged, or untracked changes.
+Use the current request or issue and acceptance criteria when identifiable. Keep the review within the actual diff and applicable scope exclusions.
+
+Inspect correctness, regressions, error and cancellation handling, concurrency and resource lifetimes, persistence and event integrity, architecture and dependency boundaries, and meaningful test coverage against existing contracts.
+Inspect layout that can break on compact iPhones such as mini and SE models, including hardcoded dimensions, fixed widths or heights, and fixed offsets that do not adapt to the available width, height, or Safe Area. Report a finding only with the concrete screen condition and the element that overflows, clips, or overlaps.
+Read only. Do not create, edit, or delete files, policies, Git state, or external records. Do not request escalation, build, execute tests, or run, launch, install, boot, or open the app or Simulator.
+
+Return a JSON object matching the provided JSON schema, with only "verdict" and "review" fields.
+Set verdict to "FAIL" when an actionable defect requires correction. Set verdict to "PASS" only when no blocking finding exists and every required policy and code source was available. Set verdict to "BLOCKED" if a required source or execution setting is unavailable.
+In review, state the inspected scope, available verification evidence, unexecuted checks, and remaining verification limits. For PASS, explicitly state that there are no blocking findings. A PASS does not establish that tests passed or runtime behavior was verified.
+Write review in Korean and preserve implementation names. Include file paths and line numbers for actionable findings.
+EOF
+	then
+		printf '%s\n' 'Claude 리뷰 실행에 실패하여 푸시를 중단합니다.' >&2
+		exit 1
+	fi
+
+	if ! python3 - "$result" <<'PY'
+import json
+import sys
+
+
+def unique_object(pairs):
+    result = dict(pairs)
+    if len(result) != len(pairs):
+        raise ValueError("duplicate keys")
+    return result
+
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as file:
+        envelope = json.load(file, object_pairs_hook=unique_object)
+    if (
+        not isinstance(envelope, dict)
+        or envelope.get("type") != "result"
+        or envelope.get("subtype") != "success"
+        or envelope.get("is_error") is not False
+    ):
+        raise ValueError("unsuccessful claude result")
+    result = envelope.get("structured_output")
+    if result is None:
+        text = envelope.get("result")
+        if not isinstance(text, str):
+            raise ValueError("missing review result")
+        result = json.loads(text, object_pairs_hook=unique_object)
+    if (
+        not isinstance(result, dict)
+        or set(result) != {"verdict", "review"}
+        or not isinstance(result["verdict"], str)
+        or result["verdict"] not in {"PASS", "FAIL", "BLOCKED"}
+        or not isinstance(result["review"], str)
+        or not result["review"].strip()
+    ):
+        raise ValueError("invalid review result")
+except (OSError, UnicodeError, ValueError):
+    print("리뷰 결과가 없거나 형식이 올바르지 않습니다.", file=sys.stderr)
+    sys.exit(1)
+
+print(result["review"], file=sys.stderr)
+sys.exit(0 if result["verdict"] == "PASS" else 1)
+PY
+	then
+		printf '%s\n' 'PASS 판정을 확인하지 못하여 푸시를 중단합니다.' >&2
+		exit 1
+	fi
+done
