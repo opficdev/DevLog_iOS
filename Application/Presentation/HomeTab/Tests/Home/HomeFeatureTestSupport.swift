@@ -96,6 +96,12 @@ struct StoreTestAdapter {
         await store.send(.view(.tapCreateDevelopmentGoal))
     }
 
+    func tapCreateDevelopmentGoalFromContentPicker() async {
+        await store.send(.view(.tapCreateDevelopmentGoal))
+        await clock.advance(by: .seconds(1))
+        await settle()
+    }
+
     func tapDevelopmentGoal(_ goalID: String) async {
         await store.send(.view(.tapDevelopmentGoal(goalID)))
     }

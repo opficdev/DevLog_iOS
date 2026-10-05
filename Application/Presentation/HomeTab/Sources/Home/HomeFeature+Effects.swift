@@ -14,6 +14,7 @@ import PresentationShared
 extension HomeFeature {
     private enum CancelID: Hashable {
         case delayedTodoEditor
+        case delayedDevelopmentGoalCreate
         case networkConnectivity
     }
 
@@ -105,6 +106,15 @@ extension HomeFeature {
             await send(.store(.setPresentation(.todoEditor, true)))
         }
         .cancellable(id: CancelID.delayedTodoEditor, cancelInFlight: true)
+    }
+
+    func delayedDevelopmentGoalCreateEffect() -> Effect<Action> {
+        .run { [clock] send in
+            // 콘텐츠 선택 시트 dismiss 직후 개발 목표 생성 시트를 바로 올리지 않도록 하기 위해서 0.1초 딜레이
+            try await clock.sleep(for: .seconds(0.1))
+            await send(.view(.tapCreateDevelopmentGoal))
+        }
+        .cancellable(id: CancelID.delayedDevelopmentGoalCreate, cancelInFlight: true)
     }
 
     static func setPresentation(

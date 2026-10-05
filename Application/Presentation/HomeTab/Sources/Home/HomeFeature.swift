@@ -250,6 +250,10 @@ private extension HomeFeature {
                 .send(.view(.fetchData))
             )
         case .tapCreateDevelopmentGoal:
+            if state.showContentPicker {
+                state.sheet = nil
+                return delayedDevelopmentGoalCreateEffect()
+            }
             state.sheet = .goalCreate
         case .tapDevelopmentGoal(let goalID):
             state.sheet = .goalDetail(goalID)

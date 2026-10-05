@@ -156,6 +156,17 @@ struct HomeFeatureTests {
         #expect(adapter.sheet == .goalDetail("goal"))
     }
 
+    @Test("콘텐츠 선택 시트에서 개발 목표 생성을 선택하면 시트를 닫고 생성 시트를 지연 표시한다")
+    func 콘텐츠_선택_시트에서_개발_목표_생성을_선택하면_시트를_닫고_생성_시트를_지연_표시한다() async {
+        let adapter = StoreTestAdapter()
+
+        await adapter.setPresentation(.contentPicker, true)
+        await adapter.tapCreateDevelopmentGoalFromContentPicker()
+
+        #expect(!adapter.showContentPicker)
+        #expect(adapter.sheet == .goalCreate)
+    }
+
     @Test("TodoEditor 생성 delegate는 editor를 닫고 홈 데이터를 다시 조회한다")
     func TodoEditor_생성_delegate는_editor를_닫고_홈_데이터를_다시_조회한다() async throws {
         let context = makeHomeFetchDataContext()
