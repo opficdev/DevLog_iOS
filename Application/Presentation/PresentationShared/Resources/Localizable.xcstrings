@@ -5379,6 +5379,23 @@
         }
       }
     },
+    "todo_manage_color" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "색상"
+          }
+        }
+      }
+    },
     "todo_manage_delete_category_message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5447,6 +5464,40 @@
         }
       }
     },
+    "todo_manage_name_duplicate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This category name is already in use."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 사용 중인 카테고리 이름이에요."
+          }
+        }
+      }
+    },
+    "todo_manage_name_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a category name."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카테고리 이름을 입력하세요."
+          }
+        }
+      }
+    },
     "todo_manage_name_placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5460,6 +5511,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이름"
+          }
+        }
+      }
+    },
+    "todo_manage_preview_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is how the category will appear."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카테고리가 이렇게 표시돼요."
+          }
+        }
+      }
+    },
+    "todo_manage_random_color" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Random Color"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무작위 색상"
           }
         }
       }

@@ -26,23 +26,8 @@ struct CategoryManageView: View {
                     }
                     .margins(.horizontal, 16)
                     .margins(.vertical, 8),
-                    footer: UIHostingConfiguration {
-                        Button {
-                            store.send(.tapAddUserCategory)
-                        } label: {
-                            Label(
-                                String(localized: "todo_manage_add_category_title", bundle: PresentationResources.bundle),
-                                systemImage: "plus.circle.fill"
-                            )
-                            .font(.headline)
-                            .foregroundStyle(Color.onPrimaryContainer)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                        }
-                        .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .primaryContainer)
-                    }
-                    .margins(.horizontal, 16)
-                    .margins(.vertical, 24),
+                    footer: UIHostingConfiguration { EmptyView() }
+                        .margins(.vertical, 8),
                     row: { item in
                         UIHostingConfiguration {
                             CategoryManageRow(
@@ -60,8 +45,25 @@ struct CategoryManageView: View {
                     }
                 )
             }
-            .ignoresSafeArea(edges: .bottom)
             .safeAreaInset(edge: .top, spacing: 0) { toolBar }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Button {
+                    store.send(.tapAddUserCategory)
+                } label: {
+                    Label(
+                        String(localized: "todo_manage_add_category_title", bundle: PresentationResources.bundle),
+                        systemImage: "plus.circle.fill"
+                    )
+                    .font(.headline)
+                    .foregroundStyle(Color.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                }
+                .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
+                .padding(.horizontal)
+                .padding(.vertical, 12)
+                .background(Color.surface, ignoresSafeAreaEdges: .bottom)
+            }
             .background(Color.appBackground.ignoresSafeArea())
             .sheet(
                 item: $store.scope(state: \.categorySheet, action: \.categorySheet)
@@ -110,7 +112,7 @@ private struct CategoryManageRow: View {
 
     var body: some View {
         if item.isUserCategory {
-            content
+            CategoryManageRowContent(item: item, onToggle: onToggle)
                 .background(Color.surface)
                 .itemActions {
                     ItemActionButton(
@@ -126,11 +128,16 @@ private struct CategoryManageRow: View {
                     )
                 }
         } else {
-            content
+            CategoryManageRowContent(item: item, onToggle: onToggle)
         }
     }
+}
 
-    private var content: some View {
+private struct CategoryManageRowContent: View {
+    let item: TodoCategoryItem
+    let onToggle: () -> Void
+
+    var body: some View {
         HStack(spacing: 12) {
             Image(systemName: item.symbolName)
                 .font(.headline)
@@ -154,60 +161,189 @@ private struct CategoryManageRow: View {
     }
 }
 
+private let categoryColorHexValues = [
+    "#FF3B30", "#FF9500", "#34C759", "#1EA0A6", "#007AFF", "#AF52DE", "#FF2D55", "#8E8E93"
+]
+
 private struct CategoryManageSheet: View {
     @Bindable var store: Store<CategoryManageFeature.CategorySheetState, CategoryManageFeature.Action.CategorySheet>
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    HStack(spacing: 8) {
-                        TextField(
-                            "",
-                            text: $store.category.name,
-                            prompt: Text(store.placeholder).foregroundStyle(.secondary)
-                        )
-                        .frame(height: UIFont.preferredFont(forTextStyle: .body).lineHeight)
+        ScrollView {
+            LazyVStack(spacing: 24) {
+                nameCard
+                colorCard
+                previewCard
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+        }
+        .contentMargins(.top, 16, for: .scrollContent)
+        .safeAreaInset(edge: .top, spacing: 0) { toolBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button {
+                store.send(.tapSaveButton)
+            } label: {
+                Text(store.submitTitle)
+                    .font(.headline)
+                    .foregroundStyle(Color.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+            }
+            .adaptiveButtonStyle(shape: RoundedRectangle(cornerRadius: 16), color: .accent)
+            .disabled(!store.canSubmitUserCategory)
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(Color.surface, ignoresSafeAreaEdges: .bottom)
+        }
+        .background(Color.appBackground.ignoresSafeArea())
+        .presentationDragIndicator(.visible)
+    }
 
-                        Text(store.categoryNameCountText)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
+    private var toolBar: some View {
+        ZStack {
+            Text(store.navigationTitle)
+                .font(.headline)
+            HStack {
+                Button {
+                    store.send(.tapCloseButton)
+                } label: {
+                    if #available(iOS 26.0, *) {
+                        Image(systemName: "xmark")
+                    } else {
+                        Text(String(localized: "common_close", bundle: PresentationResources.bundle))
                     }
                 }
+                .topBarButtonStyle()
 
-                Section {
-                    ColorPicker(selection: $store.category.colorHex.colorValue, supportsOpacity: false) {
-                        Text(store.category.colorHex.isEmpty ? "#" : store.category.colorHex)
-                            .overlay(alignment: .bottom) {
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .offset(y: 1)
-                            }
-                            .foregroundStyle(store.category.colorHex.colorValue)
-                            .onTapGesture {
-                                store.send(.tapRandomColorButton)
-                            }
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.appBackground, ignoresSafeAreaEdges: .top)
+    }
+
+    private var nameCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "todo_manage_name_placeholder", bundle: PresentationResources.bundle))
+                .font(.headline)
+                .padding(.horizontal, 16)
+
+            HStack(spacing: 8) {
+                TextField(
+                    "",
+                    text: $store.category.name,
+                    prompt: Text(store.placeholder).foregroundStyle(.secondary)
+                )
+                .font(.body)
+
+                Text(store.categoryNameCountText)
+                    .font(.footnote)
+                    .foregroundStyle(Color.textSecondary)
+                    .monospacedDigit()
+            }
+            .padding()
+            .background(Color.surface, in: .rect(cornerRadius: 16))
+            .tint(Color.accent)
+
+            Text(store.nameMessage)
+                .font(.footnote)
+                .foregroundStyle(store.isDuplicatedName ? Color.danger : Color.textSecondary)
+                .padding(.horizontal, 16)
+        }
+    }
+
+    private var colorCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(String(localized: "todo_manage_color", bundle: PresentationResources.bundle))
+                    .font(.headline)
+
+                Spacer()
+
+                Button {
+                    store.send(.tapRandomColorButton)
+                } label: {
+                    Label(
+                        String(localized: "todo_manage_random_color", bundle: PresentationResources.bundle),
+                        systemImage: "shuffle"
+                    )
+                    .font(.subheadline)
+                    .foregroundStyle(Color.accent)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+
+            VStack(spacing: 16) {
+                Image(systemName: store.todoCategoryItem.symbolName)
+                    .font(.largeTitle)
+                    .frame(width: 88, height: 88)
+                    .iconStyle(color: store.todoCategoryItem.color, in: Circle())
+
+                HStack(spacing: 4) {
+                    ForEach(categoryColorHexValues, id: \.self) { colorHex in
+                        let color = Color(hexString: colorHex) ?? .gray
+                        let isSelected = store.category.colorHex.caseInsensitiveCompare(colorHex) == .orderedSame
+
+                        Button {
+                            store.send(.binding(.set(\.category.colorHex, colorHex)))
+                        } label: {
+                            Circle()
+                                .fill(color)
+                                .padding(3)
+                                .overlay {
+                                    if isSelected {
+                                        Image(systemName: "checkmark")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(.white)
+                                        Circle()
+                                            .strokeBorder(color, lineWidth: 2)
+                                    }
+                                }
+                                .aspectRatio(1, contentMode: .fit)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity)
                     }
-                    .pickerStyle(.palette)
+
+                    ColorPicker(
+                        store.category.colorHex.isEmpty ? "#" : store.category.colorHex,
+                        selection: $store.category.colorHex.colorValue,
+                        supportsOpacity: false
+                    )
+                    .labelsHidden()
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle(store.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(String(localized: "common_close", bundle: PresentationResources.bundle)) {
-                        store.send(.tapCloseButton)
-                    }
-                }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(Color.surface, in: .rect(cornerRadius: 16))
+        }
+    }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(store.submitTitle) {
-                        store.send(.tapSaveButton)
-                    }
-                    .disabled(!store.canSubmitUserCategory)
+    private var previewCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "todo_preview", bundle: PresentationResources.bundle))
+                .font(.headline)
+                .padding(.horizontal, 16)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text(String(localized: "todo_manage_preview_description", bundle: PresentationResources.bundle))
+                    .font(.footnote)
+                    .foregroundStyle(Color.textSecondary)
+
+                HStack(spacing: 12) {
+                    CategoryManageRowContent(item: store.todoCategoryItem, onToggle: {})
+                    Image(systemName: "line.3.horizontal")
+                        .foregroundStyle(Color.textTertiary)
                 }
+                .allowsHitTesting(false)
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.surface, in: .rect(cornerRadius: 16))
         }
     }
 }
