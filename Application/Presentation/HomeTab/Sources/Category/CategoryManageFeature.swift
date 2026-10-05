@@ -42,7 +42,7 @@ struct CategoryManageFeature {
         var categoryNameCountText: String {
             "\(category.name.count)/20"
         }
-        var canSubmitUserCategory: Bool {
+        var isDuplicatedName: Bool {
             let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
             if name.isEmpty {
                 return false
@@ -51,7 +51,7 @@ struct CategoryManageFeature {
             if SystemTodoCategory.allCases.contains(where: {
                 $0.rawValue.caseInsensitiveCompare(name) == .orderedSame
             }) {
-                return false
+                return true
             }
 
             if preferences.contains(where: { item in
@@ -61,6 +61,23 @@ struct CategoryManageFeature {
 
                 return userCategory.name.caseInsensitiveCompare(name) == .orderedSame
             }) {
+                return true
+            }
+
+            return false
+        }
+        var nameMessage: String {
+            isDuplicatedName
+                ? String(localized: "todo_manage_name_duplicate", bundle: PresentationResources.bundle)
+                : String(localized: "todo_manage_name_hint", bundle: PresentationResources.bundle)
+        }
+        var canSubmitUserCategory: Bool {
+            let name = category.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if name.isEmpty {
+                return false
+            }
+
+            if isDuplicatedName {
                 return false
             }
 

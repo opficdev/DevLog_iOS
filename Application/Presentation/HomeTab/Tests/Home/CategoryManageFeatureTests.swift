@@ -56,6 +56,91 @@ struct CategoryManageFeatureTests {
         #expect(driver.categorySheet?.category.name == String(repeating: "a", count: 20))
     }
 
+    @Test("시스템 카테고리 이름과 중복되면 저장할 수 없다", arguments: SystemTodoCategory.allCases.map(\.rawValue))
+    func 시스템_카테고리_이름과_중복되면_저장할_수_없다(name: String) {
+        let driver = CategoryManageTestDriver(preferences: [])
+
+        driver.tapAddUserCategory()
+        driver.setCategoryName("  \(name.uppercased())  ")
+
+        #expect(driver.categorySheet?.isDuplicatedName == true)
+        #expect(driver.categorySheet?.canSubmitUserCategory == false)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_duplicate", bundle: PresentationResources.bundle
+        ))
+    }
+
+    @Test("다른 사용자 카테고리 이름은 대소문자를 구분하지 않고 중복을 검사한다")
+    func 다른_사용자_카테고리_이름은_대소문자를_구분하지_않고_중복을_검사한다() {
+        let category = UserTodoCategory(id: "custom", name: "Custom", colorHex: "#111111")
+        let driver = CategoryManageTestDriver(preferences: [TodoCategoryItem(from: .user(category))])
+
+        driver.tapAddUserCategory()
+        driver.setCategoryName("  cUsToM  ")
+
+        #expect(driver.categorySheet?.category.name == "  cUsToM  ")
+        #expect(driver.categorySheet?.isDuplicatedName == true)
+        #expect(driver.categorySheet?.canSubmitUserCategory == false)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_duplicate", bundle: PresentationResources.bundle
+        ))
+
+        driver.setCategoryName("Unique")
+
+        #expect(driver.categorySheet?.isDuplicatedName == false)
+        #expect(driver.categorySheet?.canSubmitUserCategory == true)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_hint", bundle: PresentationResources.bundle
+        ))
+    }
+
+    @Test("수정 중인 카테고리의 원래 이름은 중복이 아니다")
+    func 수정_중인_카테고리의_원래_이름은_중복이_아니다() {
+        let category = UserTodoCategory(id: "custom", name: "Custom", colorHex: "#111111")
+        let item = TodoCategoryItem(from: .user(category))
+        let driver = CategoryManageTestDriver(preferences: [item])
+
+        driver.tapEditUserCategory(item)
+
+        #expect(driver.categorySheet?.isDuplicatedName == false)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_hint", bundle: PresentationResources.bundle
+        ))
+    }
+
+    @Test("수정 내용이 없으면 저장할 수 없고 색상만 바꾸면 저장할 수 있다")
+    func 수정_내용이_없으면_저장할_수_없고_색상만_바꾸면_저장할_수_있다() {
+        let category = UserTodoCategory(id: "custom", name: "Custom", colorHex: "#111111")
+        let item = TodoCategoryItem(from: .user(category))
+        let driver = CategoryManageTestDriver(preferences: [item])
+
+        driver.tapEditUserCategory(item)
+
+        #expect(driver.categorySheet?.canSubmitUserCategory == false)
+
+        driver.setCategoryColor("#222222")
+
+        #expect(driver.categorySheet?.canSubmitUserCategory == true)
+        #expect(driver.categorySheet?.isDuplicatedName == false)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_hint", bundle: PresentationResources.bundle
+        ))
+    }
+
+    @Test("빈 이름은 중복 오류 대신 안내 문구를 표시한다", arguments: ["", "  ", "\n"])
+    func 빈_이름은_중복_오류_대신_안내_문구를_표시한다(name: String) {
+        let driver = CategoryManageTestDriver(preferences: [])
+
+        driver.tapAddUserCategory()
+        driver.setCategoryName(name)
+
+        #expect(driver.categorySheet?.isDuplicatedName == false)
+        #expect(driver.categorySheet?.canSubmitUserCategory == false)
+        #expect(driver.categorySheet?.nameMessage == String(
+            localized: "todo_manage_name_hint", bundle: PresentationResources.bundle
+        ))
+    }
+
     @Test("새 사용자 카테고리를 저장하면 이름을 trim한 항목이 추가되고 시트가 닫힌다")
     func 새_사용자_카테고리를_저장하면_이름을_trim한_항목이_추가되고_시트가_닫힌다() {
         let driver = CategoryManageTestDriver(preferences: [])
