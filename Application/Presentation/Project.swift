@@ -387,6 +387,7 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .project(target: "Core", path: "../Core"),
                 .target(name: "HomeTab"),
+                .target(name: "DevelopmentTab"),
                 .target(name: "TodayTab"),
                 .target(name: "NotificationTab"),
                 .target(name: "ProfileTab"),

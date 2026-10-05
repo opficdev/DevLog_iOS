@@ -5,6 +5,7 @@
 //  Created by opfic on 9/7/26.
 //
 
+import DevelopmentTab
 import Domain
 import HomeTab
 import NotificationTab
@@ -45,3 +46,5 @@ public typealias HomePresentationDependencyPreparation = HomeDependencyPreparati
 public typealias NotificationDependencyPreparation = PushNotificationDependencyPreparation
 public typealias ProfilePresentationDependencyPreparation = ProfileDependencyPreparation
 public typealias TodayPresentationDependencyPreparation = TodayDependencyPreparation
+
+public typealias DevelopmentTabPresentationDependencyPreparation = DevelopmentTabDependencyPreparation

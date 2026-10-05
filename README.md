@@ -64,7 +64,7 @@
 	- `Entry`: root/auth/tab shell/window 흐름 소유
 	- `PresentationShared`: 공통 Todo/Search/Loading 흐름 소유
 	- `Development`: 개발 목표와 개발 기록 흐름 소유
-	- `HomeTab`, `TodayTab`, `NotificationTab`, `ProfileTab`: 탭 단위 흐름 소유
+	- `HomeTab`, `DevelopmentTab`, `TodayTab`, `NotificationTab`, `ProfileTab`: 탭 단위 흐름 소유
 - `MarkdownRenderer` target은 SwiftUI 공개 화면과 참조 값, 내부 `WKWebView` 연결, HTML/JavaScript/CSS 자원과 TypeScript Tooling을 소유함
 - `PresentationShared`에서는 `TodoMarkdownContentView`만 `MarkdownRenderer`를 직접 import하며 재노출하지 않음
 
@@ -249,6 +249,7 @@ DevLog_iOS/
 │	│	├── PresentationShared/ # 공통 Todo/Search/Loading UI, 공통 presentation structure
 │	│	├── Development/        # 개발 목표, 개발 기록 화면과 테스트
 │	│	├── HomeTab/           # Home 탭 화면, feature, coordinator, 테스트
+│	│	├── DevelopmentTab/    # 개발 목표 탭 화면, feature, 테스트
 │	│	├── TodayTab/          # Today 탭 화면, feature, coordinator, 테스트
 │	│	├── NotificationTab/   # Notification 탭 화면, feature, coordinator, 테스트
 │	│	└── ProfileTab/        # Profile/Settings 탭 화면, feature, coordinator, 테스트
