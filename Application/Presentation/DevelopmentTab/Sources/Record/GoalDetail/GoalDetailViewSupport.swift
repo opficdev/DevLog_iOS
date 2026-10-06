@@ -88,10 +88,6 @@ struct TimelineRow: View {
 struct GoalStatusBadge: View {
     let status: DevelopmentGoal.Status
 
-    init(status: DevelopmentGoal.Status) {
-        self.status = status
-    }
-
     var body: some View {
         Label(status.title, systemImage: systemImage)
         .font(.caption.weight(.semibold))

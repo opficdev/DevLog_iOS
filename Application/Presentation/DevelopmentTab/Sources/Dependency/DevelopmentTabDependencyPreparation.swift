@@ -63,7 +63,6 @@ public enum DevelopmentTabDependencyPreparation {
     }
 }
 
-
 extension DependencyValues {
     var developmentCreateGoalUseCase: CreateDevelopmentGoalUseCase {
         get { self[CreateGoalUseCaseKey.self] }
