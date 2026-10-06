@@ -6,5 +6,5 @@
 //
 
 @_exported import Entry
-@_exported import Development
+@_exported import DevelopmentTab
 @_exported import PresentationShared

@@ -59,23 +59,17 @@ final class FetchDevelopmentGoalsUseCaseSpy: FetchDevelopmentGoalsUseCase {
     }
 }
 
-final class FetchDevelopmentRecordsUseCaseSpy: FetchDevelopmentRecordsUseCase {
-    var resultByGoalID = [String: Result<[DevelopmentRecord], Error>]()
+actor FetchRecentDevelopmentRecordUseCaseSpy: FetchRecentDevelopmentRecordUseCase {
+    private(set) var goalIDs = [String]()
+    private var resultByGoalID = [String: Result<DevelopmentRecord.Version?, Error>]()
 
-    func execute(goalId: String) async throws -> [DevelopmentRecord] {
-        try resultByGoalID[goalId, default: .success([])].get()
+    func setResult(_ result: Result<DevelopmentRecord.Version?, Error>, goalID: String) {
+        resultByGoalID[goalID] = result
     }
-}
 
-final class FetchDevelopmentRecordVersionUseCaseSpy: FetchDevelopmentRecordVersionUseCase {
-    var resultByRecordID = [String: Result<DevelopmentRecord.Version, Error>]()
-
-    func execute(
-        goalId: String,
-        recordId: String,
-        versionId: String
-    ) async throws -> DevelopmentRecord.Version {
-        try resultByRecordID[recordId, default: .failure(DevelopmentGoalTestError.notFound)].get()
+    func execute(goalId: String) async throws -> DevelopmentRecord.Version? {
+        goalIDs.append(goalId)
+        return try resultByGoalID[goalId, default: .success(nil)].get()
     }
 }
 
@@ -91,5 +85,4 @@ final class FetchTodosUseCaseSpy: FetchTodosUseCase {
 
 enum DevelopmentGoalTestError: Error {
     case failed
-    case notFound
 }

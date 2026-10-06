@@ -13,7 +13,6 @@ struct DevelopmentGoalSection: View {
     let isLoading: Bool
     let hasLoaded: Bool
     let hasLoadFailure: Bool
-    let onCreate: () -> Void
     let onSelect: (DevelopmentGoalItem) -> Void
     let onRetry: () -> Void
 
@@ -95,11 +94,6 @@ struct DevelopmentGoalSection: View {
                 .background(Color.accent.opacity(0.1), in: .capsule)
             }
             Spacer()
-            Button(action: onCreate) {
-                Text("home_development_goal_create", bundle: PresentationResources.bundle)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.textSecondary)
-            }
         }
     }
 }

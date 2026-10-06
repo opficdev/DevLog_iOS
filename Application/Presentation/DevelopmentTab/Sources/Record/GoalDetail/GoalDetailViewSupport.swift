@@ -89,23 +89,12 @@ struct GoalStatusBadge: View {
     let status: DevelopmentGoal.Status
 
     var body: some View {
-        Label(title, systemImage: systemImage)
+        Label(status.title, systemImage: systemImage)
         .font(.caption.weight(.semibold))
         .foregroundStyle(foreground)
         .padding(.horizontal, 11)
         .padding(.vertical, 6)
         .background(background, in: .capsule)
-    }
-
-    private var title: String {
-        switch status {
-        case .inProgress:
-            RecordPresentation.text("development_goal_status_in_progress")
-        case .completed:
-            RecordPresentation.text("development_goal_status_completed")
-        case .archived:
-            RecordPresentation.text("development_goal_status_archived")
-        }
     }
 
     private var systemImage: String {

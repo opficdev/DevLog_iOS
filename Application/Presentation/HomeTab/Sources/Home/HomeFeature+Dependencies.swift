@@ -14,14 +14,9 @@ extension DependencyValues {
         set { self[FetchDevelopmentGoalsUseCaseKey.self] = newValue }
     }
 
-    var homeFetchDevelopmentRecordsUseCase: FetchDevelopmentRecordsUseCase {
-        get { self[FetchDevelopmentRecordsUseCaseKey.self] }
-        set { self[FetchDevelopmentRecordsUseCaseKey.self] = newValue }
-    }
-
-    var homeFetchDevelopmentRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase {
-        get { self[FetchDevelopmentRecordVersionKey.self] }
-        set { self[FetchDevelopmentRecordVersionKey.self] = newValue }
+    var homeFetchRecentDevelopmentRecordUseCase: FetchRecentDevelopmentRecordUseCase {
+        get { self[FetchRecentDevelopmentRecordUseCaseKey.self] }
+        set { self[FetchRecentDevelopmentRecordUseCaseKey.self] = newValue }
     }
 
     var homeUpdateTodoCategoryPreferencesUseCase: UpdateTodoCategoryPreferencesUseCase {
@@ -45,22 +40,12 @@ private enum FetchDevelopmentGoalsUseCaseKey: DependencyKey {
     }
 }
 
-private enum FetchDevelopmentRecordsUseCaseKey: DependencyKey {
-    static var liveValue: FetchDevelopmentRecordsUseCase {
-        preconditionFailure("FetchDevelopmentRecordsUseCase must be provided.")
+private enum FetchRecentDevelopmentRecordUseCaseKey: DependencyKey {
+    static var liveValue: FetchRecentDevelopmentRecordUseCase {
+        preconditionFailure("FetchRecentDevelopmentRecordUseCase must be provided.")
     }
 
-    static var testValue: FetchDevelopmentRecordsUseCase {
-        liveValue
-    }
-}
-
-private enum FetchDevelopmentRecordVersionKey: DependencyKey {
-    static var liveValue: FetchDevelopmentRecordVersionUseCase {
-        preconditionFailure("FetchDevelopmentRecordVersionUseCase must be provided.")
-    }
-
-    static var testValue: FetchDevelopmentRecordVersionUseCase {
+    static var testValue: FetchRecentDevelopmentRecordUseCase {
         liveValue
     }
 }

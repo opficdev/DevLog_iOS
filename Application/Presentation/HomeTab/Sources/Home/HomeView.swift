@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-import Development
+import DevelopmentTab
 import Domain
 import PresentationShared
 
@@ -58,7 +58,6 @@ public struct HomeView: View {
                         isLoading: store.isDevelopmentGoalsLoading,
                         hasLoaded: store.hasDevelopmentGoalsLoaded,
                         hasLoadFailure: store.hasDevelopmentGoalsLoadFailure,
-                        onCreate: { store.send(.view(.tapCreateDevelopmentGoal)) },
                         onSelect: { store.send(.view(.tapDevelopmentGoal($0.id))) },
                         onRetry: { store.send(.view(.fetchData)) }
                     )
@@ -278,8 +277,26 @@ public struct HomeView: View {
                             .foregroundStyle(Color(.label))
                     }
 
+                    Section {
+                        Button {
+                            store.send(.view(.tapCreateDevelopmentGoal))
+                        } label: {
+                            labelImage(
+                                text: String(
+                                    localized: "development_goal_create_title",
+                                    bundle: PresentationResources.bundle
+                                ),
+                                systemName: "flag.checkered",
+                                imageColor: Color.accent
+                            )
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    } header: {
+                        Text("development_goal_title", bundle: PresentationResources.bundle)
+                            .foregroundStyle(Color(.label))
+                    }
                 }
-                .navigationTitle(Text("TODO"))
+                .navigationTitle(Text(verbatim: "DevLog"))
                 .navigationBarTitleDisplayMode(.inline)  //  설정 안하면 섹션 위에 내비게이션 large 만큼 영역 먹음
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

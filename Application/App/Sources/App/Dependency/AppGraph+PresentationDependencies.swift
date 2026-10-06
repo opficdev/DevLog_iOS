@@ -12,6 +12,7 @@ extension AppGraph {
         prepareDependencies { dependencies in
             prepareEntryDependencies(&dependencies)
             prepareDevelopmentDependencies(&dependencies)
+            prepareDevelopmentTabDependencies(&dependencies)
             prepareTodoDependencies(&dependencies)
             prepareHomeDependencies(&dependencies)
             prepareTodayDependencies(&dependencies)
@@ -23,7 +24,7 @@ extension AppGraph {
 
 private extension AppGraph {
     func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
-        DevelopmentDependencyPreparation.prepareGoal(
+        DevelopmentTabPresentationDependencyPreparation.prepareGoal(
             &dependencies,
             createGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
@@ -35,7 +36,7 @@ private extension AppGraph {
                 .developmentGoalUseCaseGraph
                 .updateDevelopmentGoalStatusUseCase
         )
-        DevelopmentDependencyPreparation.prepareQuery(
+        DevelopmentTabPresentationDependencyPreparation.prepareQuery(
             &dependencies,
             fetchRecordsUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
@@ -47,7 +48,7 @@ private extension AppGraph {
                 .developmentRecordQueryUseCaseGraph
                 .fetchDevelopmentRecordVersionUseCase
         )
-        DevelopmentDependencyPreparation.prepareMutation(
+        DevelopmentTabPresentationDependencyPreparation.prepareMutation(
             &dependencies,
             createRecordUseCase: developmentGraphSet
                 .developmentRecordMutationUseCaseGraph
@@ -62,10 +63,22 @@ private extension AppGraph {
                 .developmentRecordMutationUseCaseGraph
                 .restoreDevelopmentRecordUseCase
         )
-        DevelopmentDependencyPreparation.prepareTodo(
+        DevelopmentTabPresentationDependencyPreparation.prepareTodo(
             &dependencies,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase,
             updateTodoGoalUseCase: todoGraphSet.todoGoalUseCaseGraph.updateTodoGoalUseCase
+        )
+    }
+
+    func prepareDevelopmentTabDependencies(_ dependencies: inout DependencyValues) {
+        DevelopmentTabPresentationDependencyPreparation.prepareGoalList(
+            &dependencies,
+            goalsUseCase: developmentGraphSet
+                .developmentGoalUseCaseGraph
+                .fetchDevelopmentGoalsUseCase,
+            recentRecordUseCase: developmentGraphSet
+                .developmentRecordQueryUseCaseGraph
+                .fetchRecentDevelopmentRecordUseCase
         )
     }
 
@@ -133,12 +146,9 @@ private extension AppGraph {
             fetchGoalsUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
                 .fetchDevelopmentGoalsUseCase,
-            fetchRecordsUseCase: developmentGraphSet
+            recentRecordUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordsUseCase,
-            fetchRecordVersionUseCase: developmentGraphSet
-                .developmentRecordQueryUseCaseGraph
-                .fetchDevelopmentRecordVersionUseCase,
+                .fetchRecentDevelopmentRecordUseCase,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase
         )
         HomePresentationDependencyPreparation.prepareTodoCategory(

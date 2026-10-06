@@ -27,15 +27,17 @@ public struct RelativeTimeText: View {
             Text(
                 String.localizedStringWithFormat(
                     String(localized: "relative_time_updated_format", bundle: PresentationResources.bundle),
-                    relativeTimeText(from: date, now: context.date)
+                    RelativeTime.text(from: date, now: context.date)
                 )
             )
                 .font(bodyFont)
                 .foregroundStyle(bodyColor)
         }
     }
+}
 
-    private func relativeTimeText(from date: Date, now: Date) -> String {
+public enum RelativeTime {
+    public static func text(from date: Date, now: Date) -> String {
         let seconds = Int(now.timeIntervalSince(date))
 
         if seconds < 60 {

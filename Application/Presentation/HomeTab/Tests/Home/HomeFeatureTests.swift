@@ -26,39 +26,19 @@ struct HomeFeatureTests {
     @Test("HomeFeature fetchData는 진행 중 목표의 최신 확정 기록을 갱신한다")
     func HomeFeature_fetchData는_진행_중_목표의_최신_확정_기록을_갱신한다() async throws {
         let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
-        let olderRecord = try makeDevelopmentRecord(
-            id: "older-record",
-            goalId: goal.id,
-            versionID: "older-version"
-        )
-        let recentRecord = try makeDevelopmentRecord(
-            id: "recent-record",
-            goalId: goal.id,
-            versionID: "recent-version"
-        )
-        let olderVersion = try makeDevelopmentRecordVersion(
-            id: "older-version",
-            recordID: olderRecord.id,
-            title: "Earlier Record",
-            confirmedAt: 1
-        )
-        let recentVersion = try makeDevelopmentRecordVersion(
+        let version = try makeDevelopmentRecordVersion(
             id: "recent-version",
-            recordID: recentRecord.id,
-            title: "Recent Record",
+            recordID: "recent-record",
+            title: "최근 기록",
             confirmedAt: 2
         )
         let goalsSpy = FetchDevelopmentGoalsUseCaseSpy()
         goalsSpy.result = .success([goal])
-        let recordsSpy = FetchDevelopmentRecordsUseCaseSpy()
-        recordsSpy.resultByGoalID[goal.id] = .success([olderRecord, recentRecord])
-        let versionsSpy = FetchDevelopmentRecordVersionUseCaseSpy()
-        versionsSpy.resultByRecordID[olderRecord.id] = .success(olderVersion)
-        versionsSpy.resultByRecordID[recentRecord.id] = .success(recentVersion)
+        let recentRecordSpy = FetchRecentDevelopmentRecordUseCaseSpy()
+        await recentRecordSpy.setResult(.success(version), goalID: goal.id)
         let adapter = StoreTestAdapter(
             fetchDevelopmentGoalsUseCase: goalsSpy,
-            fetchDevelopmentRecordsUseCase: recordsSpy,
-            fetchDevelopmentRecordVersionUseCase: versionsSpy
+            recentRecordUseCase: recentRecordSpy
         )
 
         await adapter.fetchData()
@@ -66,8 +46,9 @@ struct HomeFeatureTests {
         await waitUntil { adapter.hasDevelopmentGoalsLoaded }
 
         #expect(goalsSpy.queries == [.init(status: .inProgress)])
+        #expect(await recentRecordSpy.goalIDs == [goal.id])
         #expect(adapter.developmentGoalItems.map(\.id) == [goal.id])
-        #expect(adapter.developmentGoalItems.first?.recentRecord == recentVersion)
+        #expect(adapter.developmentGoalItems.first?.recentRecord == version)
     }
 
     @Test("HomeFeature fetchData는 연결 Todo 완료 수로 목표 진행률을 계산한다")

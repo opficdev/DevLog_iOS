@@ -1433,6 +1433,108 @@
         }
       }
     },
+    "development_goals_create" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a Goal"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 목표 만들기"
+          }
+        }
+      }
+    },
+    "development_goals_empty_archived" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No archived development goals."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보관한 개발 목표가 없어요."
+          }
+        }
+      }
+    },
+    "development_goals_empty_completed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No completed development goals."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료한 개발 목표가 없어요."
+          }
+        }
+      }
+    },
+    "development_goals_empty_in_progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No development goals in progress."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "진행 중인 개발 목표가 없어요."
+          }
+        }
+      }
+    },
+    "development_goals_recent_record_date_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Written %1$@ · %2$@ (%3$@)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 작성됨 · %2$@ (%3$@)"
+          }
+        }
+      }
+    },
+    "development_goals_recent_record_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest record: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 기록: %@"
+          }
+        }
+      }
+    },
     "development_record_add" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2687,6 +2789,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계정 연동"
+          }
+        }
+      }
+    },
+    "nav_development_goals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Development Goals"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개발 목표"
           }
         }
       }

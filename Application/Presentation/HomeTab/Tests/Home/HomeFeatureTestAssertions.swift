@@ -86,20 +86,6 @@ func makeDevelopmentGoal(
     )
 }
 
-func makeDevelopmentRecord(
-    id: String,
-    goalId: String,
-    versionID: String
-) throws -> DevelopmentRecord {
-    try DevelopmentRecord(
-        id: id,
-        goalId: goalId,
-        currentVersion: .init(id: versionID, number: 1),
-        draft: nil,
-        createdAt: .now
-    )
-}
-
 func makeDevelopmentRecordVersion(
     id: String,
     recordID: String,

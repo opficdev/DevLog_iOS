@@ -12,13 +12,11 @@ public enum HomeDependencyPreparation {
     public static func prepareDevelopmentGoal(
         _ dependencies: inout DependencyValues,
         fetchGoalsUseCase: FetchDevelopmentGoalsUseCase,
-        fetchRecordsUseCase: FetchDevelopmentRecordsUseCase,
-        fetchRecordVersionUseCase: FetchDevelopmentRecordVersionUseCase,
+        recentRecordUseCase: FetchRecentDevelopmentRecordUseCase,
         fetchTodosUseCase: FetchTodosUseCase
     ) {
         dependencies.homeFetchDevelopmentGoalsUseCase = fetchGoalsUseCase
-        dependencies.homeFetchDevelopmentRecordsUseCase = fetchRecordsUseCase
-        dependencies.homeFetchDevelopmentRecordVersionUseCase = fetchRecordVersionUseCase
+        dependencies.homeFetchRecentDevelopmentRecordUseCase = recentRecordUseCase
         dependencies.homeFetchTodosUseCase = fetchTodosUseCase
     }
 
