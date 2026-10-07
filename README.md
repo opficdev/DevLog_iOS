@@ -45,15 +45,7 @@
 
 ## 프로젝트 개요
 
-개발 과정에서 해야 할 일과 진행 기록이 여러 곳에 흩어지기 쉬운 문제를 해결하고 Todo와 오늘 할 일, 받은 알림, 누적 활동을 하나의 화면 흐름 안에서 함께 관리할 수 있도록 구성한 앱
-
-- Todo 유형별 정리 및 빠른 탐색
-- Markdown, 태그, 마감일, 중요 표시를 포함한 Todo 작성
-- 오늘 기준 우선 확인 Todo 요약
-- 개발 목표에 Todo와 기록을 연결해 진행 과정 관리
-- 받은 푸시 알림 확인 및 Todo 연계
-- 분기별 활동 히트맵 제공
-- Google, GitHub, Apple 로그인 및 계정 연동
+개발 중 해야 할 일과 진행 기록이 여러 곳에 흩어지는 문제를 해결하기 위해 Todo, 개발 목표와 기록, 오늘 할 일, 받은 알림, 누적 활동을 하나의 앱에서 관리하도록 구성한 앱
 
 ## 아키텍처
 
@@ -81,63 +73,94 @@
 
 ## 주요 기능
 
-### 로그인 및 계정 관리
+| 화면 | 기능 |
+| --- | --- |
+| 로그인과 계정 관리 | Google, GitHub, Apple 로그인<br>계정 연동과 해제, 로그아웃, 회원 탈퇴 |
+| Home | Todo 유형별 진입점과 노출 여부 및 순서 편집<br>진행 중인 개발 목표의 Todo 진행률과 최근 개발 기록 요약 |
+| Todo | 8개 유형별 목록, 정렬, 완료 상태와 중요 표시 필터, 목록 내 검색과 페이지네이션<br>스와이프로 중요 표시, 완료, 삭제<br>Markdown, 태그, 마감일, 중요 표시 기반 작성과 수정 |
+| 개발 목표와 기록 | 개발 목표 생성과 상태 전환, 연결한 Todo의 진행률<br>개발 기록 작성과 확정, 버전 이력과 되돌리기 |
+| Today | 오늘 마감 Todo의 완료 개수와 진행률 카드<br>지난 마감, 오늘, 7일 내, 나중, 일정 미정으로 분류 |
+| 알림 | 푸시 알림 목록의 정렬, 기간, 읽지 않음 필터<br>알림 선택 시 Todo 상세 확인과 읽음 처리<br>실시간 동기화와 페이지네이션, 다음 날 마감 Todo 리마인드 푸시 |
+| 검색 | Todo 통합 검색과 디바운스 처리<br>최근 검색어 저장, 개별 삭제, 전체 삭제 |
+| 프로필과 설정 | 상태 메시지 수정, 최근 수정 Todo, 분기별 활동 히트맵<br>테마 변경, 푸시 알림 시간 설정 |
+| 위젯 | 오늘 할 일과 활동 히트맵 |
 
-- Google, GitHub, Apple 로그인 지원
-- 설정 화면에서 계정 연동 및 해제 관리
-- 앱 내부 로그아웃 및 회원 탈퇴 흐름 제공
-- Firebase Authentication 기반 사용자 세션 관리
+## 핵심 성과
 
-### Home
+### **1. 위젯 갱신용 Todo 전체 조회를 로그인 세션 복구와 날짜 변경 때만 수행하도록 제한**
+> **문제**<br>
+> 위젯 동기화 트리거가 백그라운드 전환 하나로 단일화된 뒤 Todo 변경, 위젯 표시 설정 변경, 로그인 세션 복구에서도 전체 조회를 요청하도록 확장됨<br>
+> 전체 조회는 Today와 Heatmap 쿼리를 마지막 페이지까지 읽어 한 번에 여러 쿼리가 발생함<br>
+> 같은 날짜의 백그라운드 전환, Todo 변경, 설정 변경마다 앱이 이미 아는 변경에도 전체 조회가 반복될 수 있음
+>
+> **해결**<br>
+> 전체 조회 요청을 로그인 세션 첫 진입과 날짜가 바뀐 뒤 첫 백그라운드 전환으로 한정하고 같은 날짜는 날짜 가드로 조회 없이 넘김<br>
+> Today와 Heatmap 원본을 스냅샷을 만드는 객체의 프로세스 수명 메모리에 두고 Todo 변경은 해당 항목만 갱신<br>
+> 설정 변경은 조회 없이 저장된 원본으로 스냅샷만 재생성
+>
+> **성과**<br>
+> • 전체 조회를 데이터 갱신이 필요한 시점에만 수행하고 같은 날짜의 백그라운드 전환에서는 생략<br>
+> • Todo 변경과 설정 변경은 서버 조회 없이 메모리 원본으로 위젯 스냅샷에 반영
 
-- 작업 성격별 Todo 유형 진입점 제공
-- Home에서 Todo 유형 노출 여부 및 순서 편집
-- 진행 중인 개발 목표의 Todo 진행률과 최근 개발 기록 요약
-- 진행 중인 개발 목표 목록에서 목표 생성 및 상세 화면 진입
+```swift
+guard !Calendar.current.isDate(syncDate, inSameDayAs: now) else { return }
 
-### Todo 관리
+guard hasRequestedWidgetSync == false else { return }
+hasRequestedWidgetSync = true
+widgetSyncEventBus.publish(.syncRequested)
+```
 
-- 8개 Todo 유형별 목록, 정렬, 완료 상태, 중요 표시 필터 지원
-- Todo 목록 내 검색과 페이지네이션 기반 로드
-- 스와이프 액션을 통한 중요 표시, 완료 처리, 삭제 지원
-- Markdown, 태그, 마감일, 중요 표시 기반 Todo 작성 및 수정
-- 상세 화면에서 생성일, 완료일, 마감일, 태그 확인
+### **2. Set 기반 선형 병합으로 알림 목록의 로컬 숨김 상태 병합 시간 단축**
+> **문제**<br>
+> 푸시 알림은 삭제 후 Undo가 가능한 동안 로컬에서만 숨김 상태로 유지함<br>
+> 숨김 상태는 서버 데이터에 없어 실시간 스냅샷으로 목록을 교체하면 사라질 수 있으므로 새 알림마다 로컬 목록을 앞에서부터 탐색해 다시 적용함<br>
+> 새 알림 N건과 로컬 알림 M건에서 평균 O(N×M)이라 알림이 많을수록 병합 시간이 빠르게 늘어남
+>
+> **해결**<br>
+> 반복 탐색의 기준이 알림 전체가 아니라 숨김 처리된 알림의 id라는 점에 주목<br>
+> 숨김 알림의 id만 `Set`으로 구성하고 새 알림은 `contains`로 확인해 포함된 알림에만 숨김 상태를 다시 적용
+>
+> **성과**<br>
+> • 10,000건 기준 병합 처리 시간 평균 7638.301ms → 5.326ms ([측정 기록](https://github.com/opficdev/DevLog_iOS/wiki/%ED%91%B8%EC%8B%9C-%EC%95%8C%EB%A6%BC-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B5%9C%EC%8B%A0%ED%99%94-%EA%B0%9C%EC%84%A0%ED%95%98%EA%B8%B0), 시뮬레이터 10회 평균)<br>
+> • 평균 시간복잡도 O(N×M) → O(N+M)
 
-### 개발 목표와 기록
+```swift
+let hiddenNotificationIds = Set(currentNotifications.filter(\.isHidden).map(\.id))
 
-- 개발 목표 생성과 상태 전환
-- 개발 목표에 연결한 Todo의 진행률 확인
-- 개발 기록 작성, 확정, 버전 이력과 되돌리기
+return incomingNotifications.map { notification in
+    guard hiddenNotificationIds.contains(notification.id) else {
+        return notification
+    }
+    ...
+}
+```
 
-### Today
+### **3. 단방향 흐름만 제어하던 자체 Store 프로토콜을 SwiftUI에 맞춘 구조의 TCA로 전환**
+> **전환 배경**<br>
+> 자체 Store는 Action이 State를 바꾸는 단방향 흐름만 제어했고 SwiftUI와의 연결은 View가 직접 맡았음<br>
+> Binding은 View마다 `Binding(get:set:)`으로 구성하고 시트와 얼럿은 표시 여부 Bool 상태를 따로 두었음<br>
+> 비동기 작업은 `run`에서 Task를 바로 띄우고 구독은 ViewModel마다 직접 보관하고 해제해 겹친 요청의 취소와 교체를 개별 구현에 맡겼음
+>
+> **전환 과정**<br>
+> SwiftUI의 상태 기반 Binding과 시트, 얼럿 표시에 맞춰진 구조이면서 비동기 작업의 수명을 취소 ID로 선언할 수 있는지를 기준으로 TCA를 선택<br>
+> Binding은 `BindingAction`으로, 시트와 얼럿은 표시 여부 Bool 대신 Optional 상태와 `AlertState`로 옮겨 View가 Feature 상태에서 파생된 값으로 표시<br>
+> 겹칠 수 있는 조회와 구독은 Effect에 취소 ID와 `cancelInFlight`를 선언해 이전 요청을 Feature가 취소<br>
+> 화면 단위 PR로 나눠 전환하고 마지막 PR에서 자체 Store를 제거
+>
+> **결과**<br>
+> • Binding, 시트와 얼럿 상태의 구성 위치가 View에서 Feature로 이동하고 겹칠 수 있는 요청의 취소는 Feature에서 선언<br>
+> • Action과 Effect의 결과를 `TestStore`로 Feature 단위에서 검증 가능
 
-- 오늘 마감 Todo의 완료 개수와 전체 개수, 진행률을 보여주는 카드 제공
-- 지난 마감, 오늘, 7일 내 일정, 나중 일정, 일정 미정으로 Todo 분류
-- 남은 일과 중요 표시 Todo 전환 및 Todo 유형별 필터링
-- 완료한 오늘 마감 Todo를 오늘 섹션에 함께 표시
+```swift
+@ObservableState
+struct State: Equatable {
+    @Presents var alert: AlertState<Never>?
+    @Presents var sheet: SheetState?
+    ...
+}
 
-### 알림
-
-- 받은 푸시 알림 목록 확인
-- 정렬, 기간, 읽지 않음 기준 필터링
-- 알림 선택 시 연결된 Todo 상세 확인 및 읽음 처리
-- 페이지네이션 및 실시간 동기화 기반 알림 목록 갱신
-- 사용자 설정 시각 기준으로 다음 날 마감 Todo 리마인드 푸시 발송
-
-### 검색
-
-- Home 화면 검색 버튼을 통한 통합 검색 진입
-- Todo 검색
-- 디바운스 기반 검색 처리
-- 최근 검색어 저장, 개별 삭제, 전체 삭제 지원
-
-### 프로필 및 설정
-
-- 상태 메시지 직접 수정
-- 최근 수정 Todo 목록 제공
-- 분기 이동 및 직접 선택, 생성/완료 활동 필터 기반 히트맵 제공
-- 테마 변경과 푸시 알림 시간 설정 기능 제공
-- 설정 화면에서 앱 버전, 개인정보 처리방침, 베타 테스트 링크 확인
+.cancellable(id: CancelID.fetchNotificationsAndObserve, cancelInFlight: true)
+```
 
 ---
 
@@ -156,6 +179,7 @@
 | External Packages | Firebase iOS SDK, GoogleSignIn, ComposableArchitecture, xctest-dynamic-overlay, Swift Collections, Nexa, Cradle, UIComposable |
 | Testing | swift-testing, TCA TestStore |
 | Tooling | Xcode, Tuist, mise, Swift Package Manager, SwiftLint, Fastlane |
+
 
 ## 개발 환경 구성
 
@@ -226,39 +250,3 @@ mise exec -- tuist generate --no-open
 
 `Project.swift`, `Workspace.swift`, `Tuist/ProjectDescriptionHelpers`를 수정한 경우 다시 워크스페이스 생성 명령 실행.
 
-
-## 프로젝트 구조
-
-```text
-DevLog_iOS/
-├── Tuist.swift
-├── Workspace.swift
-├── .mise.toml
-├── Tuist/
-│	└── ProjectDescriptionHelpers/ # Tuist 공통 패키지, 설정, 타깃 템플릿
-├── Application/
-│	├── App/                   # 앱 진입점, 앱 생명주기, 라우팅, Cradle graph 조립
-│	├── Core/                  # Logger, Query, 공통 값 타입
-│	├── Domain/                # Entity, Repository Protocol, UseCase
-│	├── Data/                  # Repository 구현, DTO, Mapper, Data 계층 Protocol
-│	├── Infra/                 # Firebase, 소셜 로그인, 네트워크, 메타데이터 서비스 구현
-│	├── Persistence/           # UserDefaults, 이미지 저장소, 앱 로컬 영속성 처리
-│	├── Presentation/          # Presentation project, re-export/shared/entry/tab target 구성
-│	│	├── Sources/            # Presentation target re-export source
-│	│	├── Entry/              # root/auth/tab shell/window target
-│	│	├── PresentationShared/ # 공통 Todo/Search/Loading UI, 공통 presentation structure
-│	│	├── HomeTab/           # Home 탭 화면, feature, coordinator, 테스트
-│	│	├── DevelopmentTab/    # 개발 목표 탭과 목표 생성, 상세 및 기록 화면, 테스트
-│	│	├── TodayTab/          # Today 탭 화면, feature, coordinator, 테스트
-│	│	├── NotificationTab/   # Notification 탭 화면, feature, coordinator, 테스트
-│	│	└── ProfileTab/        # Profile/Settings 탭 화면, feature, coordinator, 테스트
-│	└── Widget/                # 앱-위젯 브릿지, 위젯 동기화 이벤트, 스냅샷 갱신
-├── Libraries/
-│	├── MarkdownRenderer/      # 독립 Markdown 렌더링 화면, WebKit 연결, 자원, 테스트, Tooling
-│	└── ThirdParty/            # 외부 Swift Package 선언과 product 링크
-├── Widget/
-│	├── WidgetCore/            # 위젯 스냅샷 모델, Factory, App Group 상수
-│	└── WidgetExtension/       # WidgetKit UI, Provider, Timeline
-├── docs/                     # README 이미지와 draw.io 원본
-└── README.md
-```
