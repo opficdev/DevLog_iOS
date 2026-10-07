@@ -10,7 +10,6 @@ import PresentationShared
 
 public enum MainTab: Hashable, CaseIterable {
     case home
-    case developmentGoals
     case today
     case notification
     case profile
@@ -19,8 +18,6 @@ public enum MainTab: Hashable, CaseIterable {
         switch self {
         case .home:
             String(localized: "nav_home", bundle: PresentationResources.bundle)
-        case .developmentGoals:
-            String(localized: "nav_development_goals", bundle: PresentationResources.bundle)
         case .today:
             String(localized: "nav_today", bundle: PresentationResources.bundle)
         case .notification:
@@ -34,8 +31,6 @@ public enum MainTab: Hashable, CaseIterable {
         switch self {
         case .home:
             "house.fill"
-        case .developmentGoals:
-            "flag.checkered"
         case .today:
             "sun.max.fill"
         case .notification:

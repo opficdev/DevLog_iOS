@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import DevelopmentTab
 import HomeTab
 import NotificationTab
 import ProfileTab
@@ -52,13 +51,6 @@ struct MainView: View {
                     value: MainTab.home
                 ) {
                     tabContent(.home)
-                }
-                Tab(
-                    MainTab.developmentGoals.title,
-                    systemImage: MainTab.developmentGoals.symbolName,
-                    value: MainTab.developmentGoals
-                ) {
-                    tabContent(.developmentGoals)
                 }
                 Tab(
                     MainTab.today.title,
@@ -112,8 +104,6 @@ struct MainView: View {
                 isSelected: isSelected,
                 windowEvent: windowEvent
             )
-        case .developmentGoals:
-            DevelopmentGoalListView(isSelected: isSelected)
         case .today:
             TodayView(
                 isSelected: isSelected,

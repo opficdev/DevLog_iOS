@@ -9,15 +9,6 @@ import Domain
 import PresentationShared
 
 public enum DevelopmentTabDependencyPreparation {
-    public static func prepareGoalList(
-        _ dependencies: inout DependencyValues,
-        goalsUseCase: FetchDevelopmentGoalsUseCase,
-        recentRecordUseCase: FetchRecentDevelopmentRecordUseCase
-    ) {
-        dependencies.developmentTabFetchGoalsUseCase = goalsUseCase
-        dependencies.developmentTabFetchRecentRecordUseCase = recentRecordUseCase
-    }
-
     public static func prepareGoal(
         _ dependencies: inout DependencyValues,
         createGoalUseCase: CreateDevelopmentGoalUseCase,
