@@ -151,8 +151,6 @@ private extension MainTab {
         switch self {
         case .home:
             return "home"
-        case .developmentGoals:
-            return "development_goals"
         case .today:
             return "today"
         case .notification:

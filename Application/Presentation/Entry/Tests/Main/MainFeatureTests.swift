@@ -40,28 +40,25 @@ struct MainFeatureTests {
 
         let expectedEffects = [
             reference.reduce(.selectedTabChanged(.home)),
-            reference.reduce(.selectedTabChanged(.developmentGoals)),
             reference.reduce(.selectedTabChanged(.today)),
             reference.reduce(.selectedTabChanged(.notification)),
             reference.reduce(.selectedTabChanged(.profile))
         ]
         await store.send(.view(.selectedTabChanged(.home)))
-        await store.send(.view(.selectedTabChanged(.developmentGoals)))
         await store.send(.view(.selectedTabChanged(.today)))
         await store.send(.view(.selectedTabChanged(.notification)))
         await store.send(.view(.selectedTabChanged(.profile)))
         await waitUntil {
-            trackAnalyticsEventUseCase.screenNames == ["home", "development_goals", "today", "profile"]
+            trackAnalyticsEventUseCase.screenNames == ["home", "today", "profile"]
         }
 
         #expect(expectedEffects == [
             [.trackScreenView("home")],
-            [.trackScreenView("development_goals")],
             [.trackScreenView("today")],
             [],
             [.trackScreenView("profile")]
         ])
-        #expect(trackAnalyticsEventUseCase.screenNames == ["home", "development_goals", "today", "profile"])
+        #expect(trackAnalyticsEventUseCase.screenNames == ["home", "today", "profile"])
     }
 
     @Test("MainFeature는 기존 Main 상태관리처럼 unread count를 갱신하고 badge 갱신을 요청한다")
@@ -290,8 +287,6 @@ private extension MainTab {
         switch self {
         case .home:
             return "home"
-        case .developmentGoals:
-            return "development_goals"
         case .today:
             return "today"
         case .notification:
