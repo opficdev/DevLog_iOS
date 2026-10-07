@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 import PresentationShared
-@testable import DevelopmentTab
+@testable import HomeTab
 
 @MainActor
 struct RecordDetailFeatureTests {

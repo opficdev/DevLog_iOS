@@ -37,7 +37,7 @@ struct StoreTestAdapter {
         networkConnectivityUseCase: ObserveNetworkConnectivityUseCase = ObserveNetworkConnectivityUseCaseSpy(),
         fetchDevelopmentGoalsUseCase: FetchDevelopmentGoalsUseCase = FetchDevelopmentGoalsUseCaseSpy(),
         recentRecordUseCase: FetchRecentDevelopmentRecordUseCase = FetchRecentDevelopmentRecordUseCaseSpy(),
-        fetchTodosUseCase: FetchTodosUseCase = FetchTodosUseCaseSpy(),
+        fetchTodosUseCase: FetchTodosUseCase = HomeFetchTodosUseCaseSpy(),
         trackAnalyticsEventUseCase: TrackAnalyticsEventUseCase = TrackAnalyticsEventUseCaseSpy(),
         configureDependencies: ((inout DependencyValues) -> Void)? = nil
     ) {

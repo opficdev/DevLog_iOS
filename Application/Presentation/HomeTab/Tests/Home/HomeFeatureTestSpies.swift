@@ -73,7 +73,7 @@ actor FetchRecentDevelopmentRecordUseCaseSpy: FetchRecentDevelopmentRecordUseCas
     }
 }
 
-final class FetchTodosUseCaseSpy: FetchTodosUseCase {
+final class HomeFetchTodosUseCaseSpy: FetchTodosUseCase {
     private(set) var queries = [TodoQuery]()
     var page = TodoPage(items: [], nextCursor: nil)
 

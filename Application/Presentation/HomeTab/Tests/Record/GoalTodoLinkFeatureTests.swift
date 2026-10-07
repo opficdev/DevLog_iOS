@@ -9,7 +9,7 @@ import Testing
 import Core
 import Domain
 import PresentationShared
-@testable import DevelopmentTab
+@testable import HomeTab
 
 @MainActor
 struct GoalTodoLinkFeatureTests {

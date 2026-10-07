@@ -8,7 +8,7 @@
 import Testing
 import Domain
 import PresentationShared
-@testable import DevelopmentTab
+@testable import HomeTab
 
 @MainActor
 struct GoalCreateFeatureTests {

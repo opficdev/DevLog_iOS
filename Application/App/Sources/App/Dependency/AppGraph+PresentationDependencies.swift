@@ -23,7 +23,7 @@ extension AppGraph {
 
 private extension AppGraph {
     func prepareDevelopmentDependencies(_ dependencies: inout DependencyValues) {
-        DevelopmentTabPresentationDependencyPreparation.prepareGoal(
+        DevelopmentPresentationDependencyPreparation.prepareGoal(
             &dependencies,
             createGoalUseCase: developmentGraphSet
                 .developmentGoalUseCaseGraph
@@ -35,7 +35,7 @@ private extension AppGraph {
                 .developmentGoalUseCaseGraph
                 .updateDevelopmentGoalStatusUseCase
         )
-        DevelopmentTabPresentationDependencyPreparation.prepareQuery(
+        DevelopmentPresentationDependencyPreparation.prepareQuery(
             &dependencies,
             fetchRecordsUseCase: developmentGraphSet
                 .developmentRecordQueryUseCaseGraph
@@ -47,7 +47,7 @@ private extension AppGraph {
                 .developmentRecordQueryUseCaseGraph
                 .fetchDevelopmentRecordVersionUseCase
         )
-        DevelopmentTabPresentationDependencyPreparation.prepareMutation(
+        DevelopmentPresentationDependencyPreparation.prepareMutation(
             &dependencies,
             createRecordUseCase: developmentGraphSet
                 .developmentRecordMutationUseCaseGraph
@@ -62,7 +62,7 @@ private extension AppGraph {
                 .developmentRecordMutationUseCaseGraph
                 .restoreDevelopmentRecordUseCase
         )
-        DevelopmentTabPresentationDependencyPreparation.prepareTodo(
+        DevelopmentPresentationDependencyPreparation.prepareTodo(
             &dependencies,
             fetchTodosUseCase: todoGraphSet.todoUseCaseGraph.fetchTodosUseCase,
             updateTodoGoalUseCase: todoGraphSet.todoGoalUseCaseGraph.updateTodoGoalUseCase

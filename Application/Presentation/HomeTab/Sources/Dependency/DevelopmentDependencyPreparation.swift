@@ -1,6 +1,6 @@
 //
-//  DevelopmentTabDependencyPreparation.swift
-//  DevelopmentTab
+//  DevelopmentDependencyPreparation.swift
+//  HomeTab
 //
 //  Created by opfic on 10/5/26.
 //
@@ -8,7 +8,7 @@
 import Domain
 import PresentationShared
 
-public enum DevelopmentTabDependencyPreparation {
+public enum DevelopmentDependencyPreparation {
     public static func prepareGoal(
         _ dependencies: inout DependencyValues,
         createGoalUseCase: CreateDevelopmentGoalUseCase,

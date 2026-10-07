@@ -54,7 +54,7 @@ struct HomeFeatureTests {
     @Test("HomeFeature fetchData는 연결 Todo 완료 수로 목표 진행률을 계산한다")
     func HomeFeature_fetchData는_연결_Todo_완료_수로_목표_진행률을_계산한다() async throws {
         let goal = try makeDevelopmentGoal(id: "goal", createdAt: 1)
-        let todosSpy = FetchTodosUseCaseSpy()
+        let todosSpy = HomeFetchTodosUseCaseSpy()
         todosSpy.page = TodoPage(
             items: [
                 makeHomeTodo(id: "completed", goalID: goal.id, isCompleted: true),
