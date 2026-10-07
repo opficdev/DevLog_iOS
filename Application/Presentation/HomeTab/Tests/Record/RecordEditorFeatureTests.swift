@@ -114,6 +114,9 @@ struct RecordEditorFeatureTests {
         ) {
             RecordEditorFeature()
         } withDependencies: {
+            $0.developmentCreateRecordUseCase = CreateDevelopmentRecordUseCaseStub(
+                result: .failure(RecordTestError.failed)
+            )
             $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(
                 result: .success(preparedRecord)
             )
@@ -171,6 +174,12 @@ struct RecordEditorFeatureTests {
             RecordEditorFeature()
         } withDependencies: {
             $0.developmentCreateRecordUseCase = createSpy
+            $0.developmentSaveRecordDraftUseCase = SaveDevelopmentRecordDraftUseCaseStub(
+                result: .failure(RecordTestError.failed)
+            )
+            $0.developmentConfirmRecordUseCase = ConfirmDevelopmentRecordUseCaseStub(
+                result: .failure(RecordTestError.failed)
+            )
         }
         await store.send(.binding(.set(\.title, "기록 제목"))) {
             $0.title = "기록 제목"

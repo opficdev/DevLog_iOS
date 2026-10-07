@@ -14,8 +14,13 @@ import PresentationShared
 struct RecordDetailFeatureTests {
     @Test("편집과 이력 화면 표시는 Feature 상태를 전환한다")
     func 편집과_이력_화면_표시는_Feature_상태를_전환한다() async throws {
-        let currentVersion = try makeDevelopmentRecordVersion(id: "version-2", number: 2)
         let previousVersion = try makeDevelopmentRecordVersion(id: "version-1")
+        let currentVersion = try makeDevelopmentRecordVersion(
+            id: "version-2",
+            number: 2,
+            kind: .correction,
+            sourceVersionId: previousVersion.id
+        )
         let record = try makeConfirmedDevelopmentRecord(
             versionId: currentVersion.id,
             versionNumber: currentVersion.number
